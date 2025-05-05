@@ -13,11 +13,16 @@ import (
 	"unsafe"
 )
 
-// List of enum types to look for in libvips
-var enumTypeNames []struct {
+type enumTypeName struct {
 	CName  string
 	GoName string
 }
+
+// List of enum types to look for in libvips
+var baseEnumTypeNames = []enumTypeName{{
+	CName:  "VipsBlendMode",
+	GoName: "BlendMode",
+}}
 
 var cStringsCache sync.Map
 
@@ -36,6 +41,7 @@ func cachedCString(str string) *C.char {
 // metadata, argument details, and supported enum types.
 type Introspection struct {
 	discoveredEnumTypes map[string]bool
+	enumTypeNames       []enumTypeName
 }
 
 // NewIntrospection creates a new Introspection instance for analyzing libvips
@@ -49,6 +55,7 @@ func NewIntrospection() *Introspection {
 
 	return &Introspection{
 		discoveredEnumTypes: make(map[string]bool),
+		enumTypeNames:       baseEnumTypeNames,
 	}
 }
 
@@ -194,7 +201,7 @@ func (v *Introspection) FilterOperations(operations []vipsgen.Operation) []vipsg
 func (v *Introspection) GetEnumTypes() []vipsgen.EnumTypeInfo {
 	var enumTypes []vipsgen.EnumTypeInfo
 
-	for _, typeName := range enumTypeNames {
+	for _, typeName := range v.enumTypeNames {
 		// Check if the enum type exists first
 		cTypeName := C.CString(typeName.CName)
 		exists := C.type_exists(cTypeName)
@@ -272,7 +279,7 @@ func (v *Introspection) getEnumType(cName, goName string) (vipsgen.EnumTypeInfo,
 func (v *Introspection) AddEnumType(cName, goName string) {
 	if _, exists := v.discoveredEnumTypes[cName]; !exists {
 		// Add to our enum type list for later processing
-		enumTypeNames = append(enumTypeNames, struct {
+		v.enumTypeNames = append(v.enumTypeNames, struct {
 			CName  string
 			GoName string
 		}{

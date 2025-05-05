@@ -82,5 +82,5 @@ func TypesFile(templateLoader templateloader.TemplateLoader, filename string, en
 		ImageTypes: imageTypes,
 	}
 
-	return templateLoader.GenerateFile("types.tmpl", filename, data)
+	return templateLoader.GenerateFile("types.go.tmpl", filename, data)
 }
