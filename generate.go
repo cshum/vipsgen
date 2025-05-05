@@ -67,7 +67,7 @@ func MethodsFile(templateLoader templateloader.TemplateLoader, filename string, 
 		Operations: imageOps,
 	}
 
-	return templateLoader.GenerateFile("methods.tmpl", filename, data)
+	return templateLoader.GenerateFile("image_operations.go.tmpl", filename, data)
 }
 
 // ImageFile generates the image file
