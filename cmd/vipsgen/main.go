@@ -22,34 +22,30 @@ func main() {
 
 	// Extract templates and exit if requested
 	if *extractTemplates {
-		if err := templateloader.ExtractEmbeddedTemplates(vipsgen.EmbeddedTemplates, *extractDir); err != nil {
+		if err := templateloader.ExtractEmbeddedFilesystem(vipsgen.EmbeddedTemplates, *extractDir); err != nil {
 			log.Fatalf("Failed to extract templates: %v", err)
 		}
-		fmt.Printf("Templates extracted to: %s\n", *extractDir)
+
+		fmt.Printf("Templates and static files extracted to: %s\n", *extractDir)
 		return
 	}
 
 	var outputDir string
-	var templateLoader templateloader.TemplateLoader
+	var loader templateloader.TemplateLoader
 	var funcMap = vipsgen.GetTemplateFuncMap()
 
 	// Determine template source - use embedded by default, external if specified
 	if *templateDirFlag != "" {
 		// Use specified template directory
-		if _, err := os.Stat(*templateDirFlag); os.IsNotExist(err) {
-			log.Fatalf("Template directory does not exist: %s", *templateDirFlag)
-		}
-
-		// Create template loader from file
 		var err error
-		templateLoader, err = templateloader.NewTemplateLoader(*templateDirFlag, funcMap)
+		loader, err = templateloader.NewOSTemplateLoader(*templateDirFlag, funcMap)
 		if err != nil {
 			log.Fatalf("Failed to create template loader: %v", err)
 		}
 		fmt.Printf("Using templates from: %s\n", *templateDirFlag)
 	} else {
 		// Use embedded templates by default
-		templateLoader = templateloader.NewEmbeddedTemplateLoader(vipsgen.EmbeddedTemplates, funcMap)
+		loader = templateloader.NewEmbeddedTemplateLoader(vipsgen.EmbeddedTemplates, funcMap)
 		fmt.Println("Using embedded templates")
 	}
 
@@ -86,19 +82,19 @@ func main() {
 
 	// Generate Go file with operations
 	goFile := filepath.Join(outputDir, "vips.go")
-	if err := vipsgen.OperationsFile(templateLoader, goFile, filteredOps); err != nil {
+	if err := vipsgen.OperationsFile(loader, goFile, filteredOps); err != nil {
 		log.Fatalf("Failed to generate operations file: %v", err)
 	}
 
 	// Generate C header file
 	hFile := filepath.Join(outputDir, "vips.h")
-	if err := vipsgen.HeaderFile(templateLoader, hFile, filteredOps); err != nil {
+	if err := vipsgen.HeaderFile(loader, hFile, filteredOps); err != nil {
 		log.Fatalf("Failed to generate header file: %v", err)
 	}
 
 	// Generate C source file
 	cFile := filepath.Join(outputDir, "vips.c")
-	if err := vipsgen.SourceFile(templateLoader, cFile, filteredOps); err != nil {
+	if err := vipsgen.SourceFile(loader, cFile, filteredOps); err != nil {
 		log.Fatalf("Failed to generate source file: %v", err)
 	}
 
@@ -107,21 +103,29 @@ func main() {
 
 	// Generate image file with methods
 	imageFile := filepath.Join(outputDir, "image.go")
-	if err := vipsgen.ImageFile(templateLoader, imageFile, imageTypes, filteredOps); err != nil {
+	if err := vipsgen.ImageFile(loader, imageFile, imageTypes, filteredOps); err != nil {
 		log.Fatalf("Failed to generate image file: %v", err)
 	}
 
 	// Generate types file with enums
 	typesFile := filepath.Join(outputDir, "types.go")
 	enumTypes := vipsIntrospection.GetEnumTypes()
-	if err := vipsgen.TypesFile(templateLoader, typesFile, enumTypes, imageTypes); err != nil {
+	if err := vipsgen.TypesFile(loader, typesFile, enumTypes, imageTypes); err != nil {
 		log.Fatalf("Failed to generate types file: %v", err)
 	}
 
+	// Process static files - this simply copies them with the .tmpl extension removed
+	if err := loader.ProcessStaticFiles(outputDir); err != nil {
+		log.Fatalf("Failed to process static files: %v", err)
+	}
+
+	// List of generated files from templates
 	generatedFiles := []string{goFile, hFile, cFile, imageFile, typesFile}
 
-	fmt.Printf("\nSuccessfully generated %d files:\n", len(generatedFiles))
+	fmt.Printf("\nSuccessfully generated files from templates: %d\n", len(generatedFiles))
 	for _, file := range generatedFiles {
 		fmt.Printf("  - %s\n", file)
 	}
+
+	fmt.Println("\nAdditional static files were also copied to the output directory.")
 }
