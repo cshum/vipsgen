@@ -14,7 +14,7 @@ type JpegExportParams struct {
 	Quality            int
 	Interlace          bool
 	OptimizeCoding     bool
-	SubsampleMode      ForeignSubsample
+	SubsampleMode      Subsample
 	TrellisQuant       bool
 	OvershootDeringing bool
 	OptimizeScans      bool
@@ -93,16 +93,16 @@ func NewHeifExportParams() *HeifExportParams {
 type TiffExportParams struct {
 	StripMetadata bool
 	Quality       int
-	Compression   ForeignTiffCompression
-	Predictor     ForeignTiffPredictor
+	Compression   TiffCompression
+	Predictor     TiffPredictor
 }
 
 // NewTiffExportParams creates default values for an export of a TIFF image.
 func NewTiffExportParams() *TiffExportParams {
 	return &TiffExportParams{
 		Quality:     80,
-		Compression: ForeignTiffCompressionLzw,
-		Predictor:   ForeignTiffPredictorHorizontal,
+		Compression: TiffCompressionLzw,
+		Predictor:   TiffPredictorHorizontal,
 	}
 }
 
@@ -147,7 +147,7 @@ type Jp2kExportParams struct {
 	Lossless      bool
 	TileWidth     int
 	TileHeight    int
-	SubsampleMode ForeignSubsample
+	SubsampleMode Subsample
 }
 
 // NewJp2kExportParams creates default values for an export of an JPEG2000 image.

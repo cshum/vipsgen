@@ -64,6 +64,12 @@ func GetGoEnumName(cName string) string {
 		cName = cName[4:]
 	}
 
+	// Also strip "Foreign" prefix if present in both the original name
+	// and after removing "Vips" prefix
+	if strings.HasPrefix(cName, "Foreign") {
+		cName = cName[7:]
+	}
+
 	return cName
 }
 
@@ -78,10 +84,20 @@ func SnakeToCamel(s string) string {
 
 // FormatEnumValueName converts a C enum name to a Go name
 func FormatEnumValueName(typeName, valueName string) string {
-	if strings.HasPrefix(strings.ToLower(SnakeToCamel(strings.ToLower(valueName))), "vips"+strings.ToLower(typeName)) {
-		return GetGoEnumName(SnakeToCamel(strings.ToLower(valueName)))
+	// Convert to CamelCase
+	camelValue := SnakeToCamel(strings.ToLower(valueName))
+
+	// Check if the value already contains "Vips" + typeName or "VipsForeign" + typeName
+	lowerCamelValue := strings.ToLower(camelValue)
+	lowerTypeName := strings.ToLower(typeName)
+
+	if strings.HasPrefix(lowerCamelValue, "vips"+lowerTypeName) ||
+		strings.HasPrefix(lowerCamelValue, "vipsforeign"+lowerTypeName) {
+		return GetGoEnumName(camelValue)
 	}
-	return typeName + GetGoEnumName(SnakeToCamel(strings.ToLower(valueName)))
+
+	// Otherwise, prepend the type name
+	return typeName + GetGoEnumName(camelValue)
 }
 
 // DetermineCategory determines the category of an operation based on its name

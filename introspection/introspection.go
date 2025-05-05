@@ -30,15 +30,15 @@ var baseEnumTypeNames = []enumTypeName{
 	},
 	{
 		CName:  "VipsForeignSubsample",
-		GoName: "ForeignSubsample",
+		GoName: "Subsample",
 	},
 	{
 		CName:  "VipsForeignTiffCompression",
-		GoName: "ForeignTiffCompression",
+		GoName: "TiffCompression",
 	},
 	{
 		CName:  "VipsForeignTiffPredictor",
-		GoName: "ForeignTiffPredictor",
+		GoName: "TiffPredictor",
 	},
 }
 
@@ -274,6 +274,9 @@ func (v *Introspection) getEnumType(cName, goName string) (vipsgen.EnumTypeInfo,
 		safeCount = 100
 	}
 
+	// Check if we need to handle "VipsForeign" prefixes
+	isForeignType := strings.HasPrefix(cName, "VipsForeign")
+
 	for i := 0; i < safeCount; i++ {
 		val := valueSlice[i]
 		name := C.GoString(val.name)
@@ -281,6 +284,11 @@ func (v *Introspection) getEnumType(cName, goName string) (vipsgen.EnumTypeInfo,
 
 		// Process name for Go usage
 		goValueName := vipsgen.FormatEnumValueName(goName, name)
+
+		// For "Foreign" types, we want to strip the "Foreign" prefix from the enum values
+		if isForeignType && strings.HasPrefix(goValueName, "Foreign") {
+			goValueName = strings.TrimPrefix(goValueName, "Foreign")
+		}
 
 		enumType.Values = append(enumType.Values, vipsgen.EnumValueInfo{
 			CName:       name,
@@ -296,6 +304,12 @@ func (v *Introspection) getEnumType(cName, goName string) (vipsgen.EnumTypeInfo,
 // AddEnumType adds a newly discovered enum type
 func (v *Introspection) AddEnumType(cName, goName string) {
 	if _, exists := v.discoveredEnumTypes[cName]; !exists {
+		// Process the Go name to remove "Foreign" prefix if needed
+		// For example, change "ForeignTiffPredictor" to "TiffPredictor"
+		if strings.HasPrefix(goName, "Foreign") {
+			goName = strings.TrimPrefix(goName, "Foreign")
+		}
+
 		// Add to our enum type list for later processing
 		v.enumTypeNames = append(v.enumTypeNames, struct {
 			CName  string
