@@ -1,4 +1,4 @@
-package binding
+package introspection
 
 // #cgo pkg-config: vips
 // #include <vips/vips.h>
@@ -216,29 +216,29 @@ func cachedCString(str string) *C.char {
 	return cstr
 }
 
-// VipsIntrospection provides discovery and analysis of libvips operations
+// Introspection provides discovery and analysis of libvips operations
 // through reflection of the C library's type system, extracting operation
 // metadata, argument details, and supported enum types.
-type VipsIntrospection struct {
+type Introspection struct {
 	discoveredEnumTypes map[string]bool
 }
 
-// NewVipsIntrospection creates a new VipsIntrospection instance for analyzing libvips
+// NewIntrospection creates a new Introspection instance for analyzing libvips
 // operations, initializing the libvips library in the process.
-func NewVipsIntrospection() *VipsIntrospection {
+func NewIntrospection() *Introspection {
 	// Initialize libvips
 	if C.vips_init(C.CString("vipsgen")) != 0 {
 		log.Fatal("Failed to initialize libvips")
 	}
 	defer C.vips_shutdown()
 
-	return &VipsIntrospection{
+	return &Introspection{
 		discoveredEnumTypes: make(map[string]bool),
 	}
 }
 
 // GetAllOperationNames retrieves names of all available operations from libvips
-func (v *VipsIntrospection) GetAllOperationNames() []string {
+func (v *Introspection) GetAllOperationNames() []string {
 	var count C.int
 	cNames := C.get_all_operation_names(&count)
 	defer C.free_operation_names(cNames, count)
@@ -256,7 +256,7 @@ func (v *VipsIntrospection) GetAllOperationNames() []string {
 }
 
 // IntrospectOperations discovers and analyzes all libvips operations
-func (v *VipsIntrospection) IntrospectOperations() []vipsgen.Operation {
+func (v *Introspection) IntrospectOperations() []vipsgen.Operation {
 	var operations []vipsgen.Operation
 
 	// Get all operation names
@@ -273,7 +273,7 @@ func (v *VipsIntrospection) IntrospectOperations() []vipsgen.Operation {
 }
 
 // IntrospectOperation analyzes a single libvips operation
-func (v *VipsIntrospection) IntrospectOperation(name string) vipsgen.Operation {
+func (v *Introspection) IntrospectOperation(name string) vipsgen.Operation {
 	cName := C.CString(name)
 	defer C.free(unsafe.Pointer(cName))
 
@@ -347,7 +347,7 @@ func (v *VipsIntrospection) IntrospectOperation(name string) vipsgen.Operation {
 }
 
 // FilterOperations filters out operations that should be excluded and deduplicates
-func (v *VipsIntrospection) FilterOperations(operations []vipsgen.Operation) []vipsgen.Operation {
+func (v *Introspection) FilterOperations(operations []vipsgen.Operation) []vipsgen.Operation {
 	// Filter out excluded operations and deduplicate by Go function name
 	seenFunctions := make(map[string]bool)
 	var filteredOps []vipsgen.Operation
@@ -376,7 +376,7 @@ func (v *VipsIntrospection) FilterOperations(operations []vipsgen.Operation) []v
 }
 
 // GetEnumTypes retrieves all enum types from libvips
-func (v *VipsIntrospection) GetEnumTypes() []vipsgen.EnumTypeInfo {
+func (v *Introspection) GetEnumTypes() []vipsgen.EnumTypeInfo {
 	var enumTypes []vipsgen.EnumTypeInfo
 
 	for _, typeName := range enumTypeNames {
@@ -405,7 +405,7 @@ func (v *VipsIntrospection) GetEnumTypes() []vipsgen.EnumTypeInfo {
 }
 
 // getEnumType retrieves information about a specific enum type
-func (v *VipsIntrospection) getEnumType(cName, goName string) (vipsgen.EnumTypeInfo, error) {
+func (v *Introspection) getEnumType(cName, goName string) (vipsgen.EnumTypeInfo, error) {
 	enumType := vipsgen.EnumTypeInfo{
 		CName:  cName,
 		GoName: goName,
@@ -454,7 +454,7 @@ func (v *VipsIntrospection) getEnumType(cName, goName string) (vipsgen.EnumTypeI
 }
 
 // AddEnumType adds a newly discovered enum type
-func (v *VipsIntrospection) AddEnumType(cName, goName string) {
+func (v *Introspection) AddEnumType(cName, goName string) {
 	if _, exists := v.discoveredEnumTypes[cName]; !exists {
 		// Add to our enum type list for later processing
 		enumTypeNames = append(enumTypeNames, struct {
@@ -470,7 +470,7 @@ func (v *VipsIntrospection) AddEnumType(cName, goName string) {
 }
 
 // ExtractImageTypes extracts image type information from operations
-func (v *VipsIntrospection) ExtractImageTypes(operations []vipsgen.Operation) []vipsgen.ImageTypeInfo {
+func (v *Introspection) ExtractImageTypes(operations []vipsgen.Operation) []vipsgen.ImageTypeInfo {
 	typeMap := make(map[string]bool)
 
 	// Extract from loader/saver operations
@@ -524,7 +524,7 @@ func (v *VipsIntrospection) ExtractImageTypes(operations []vipsgen.Operation) []
 }
 
 // getMimeType returns the MIME type for a given image format
-func (v *VipsIntrospection) getMimeType(typeName string) string {
+func (v *Introspection) getMimeType(typeName string) string {
 	mimeTypes := map[string]string{
 		"gif":  "image/gif",
 		"jpeg": "image/jpeg",
@@ -546,7 +546,7 @@ func (v *VipsIntrospection) getMimeType(typeName string) string {
 }
 
 // getOperationDescription gets the description of an operation
-func (v *VipsIntrospection) getOperationDescription(op *C.VipsOperation) string {
+func (v *Introspection) getOperationDescription(op *C.VipsOperation) string {
 	obj := (*C.VipsObject)(unsafe.Pointer(op))
 	if obj.description != nil {
 		return C.GoString(obj.description)
@@ -555,7 +555,7 @@ func (v *VipsIntrospection) getOperationDescription(op *C.VipsOperation) string 
 }
 
 // getOperationArguments gets the arguments of an operation
-func (v *VipsIntrospection) getOperationArguments(op *C.VipsOperation) []vipsgen.Argument {
+func (v *Introspection) getOperationArguments(op *C.VipsOperation) []vipsgen.Argument {
 	var args []vipsgen.Argument
 
 	// Get the GObject class
@@ -630,14 +630,14 @@ func (v *VipsIntrospection) getOperationArguments(op *C.VipsOperation) []vipsgen
 }
 
 // getParamType returns the type of a parameter
-func (v *VipsIntrospection) getParamType(pspec *C.GParamSpec) string {
+func (v *Introspection) getParamType(pspec *C.GParamSpec) string {
 	gtype := pspec.value_type
 	typeName := C.GoString(C.g_type_name(gtype))
 	return typeName
 }
 
 // getGoType maps VIPS types to Go types
-func (v *VipsIntrospection) getGoType(pspec *C.GParamSpec) string {
+func (v *Introspection) getGoType(pspec *C.GParamSpec) string {
 	gtype := pspec.value_type
 	typeName := C.GoString(C.g_type_name(gtype))
 
@@ -683,7 +683,7 @@ func (v *VipsIntrospection) getGoType(pspec *C.GParamSpec) string {
 }
 
 // getCType maps VIPS types to C types
-func (v *VipsIntrospection) getCType(pspec *C.GParamSpec) string {
+func (v *Introspection) getCType(pspec *C.GParamSpec) string {
 	gtype := pspec.value_type
 	typeName := C.GoString(C.g_type_name(gtype))
 
@@ -723,7 +723,7 @@ func (v *VipsIntrospection) getCType(pspec *C.GParamSpec) string {
 }
 
 // getParamDescription gets the description of a parameter
-func (v *VipsIntrospection) getParamDescription(pspec *C.GParamSpec) string {
+func (v *Introspection) getParamDescription(pspec *C.GParamSpec) string {
 	// Try nick first, then blurb
 	if pspec.flags&C.G_PARAM_READABLE != 0 && pspec._nick != nil {
 		return C.GoString(pspec._nick)
@@ -735,7 +735,7 @@ func (v *VipsIntrospection) getParamDescription(pspec *C.GParamSpec) string {
 }
 
 // DiscoverImageTypes discovers supported image types in libvips
-func (v *VipsIntrospection) DiscoverImageTypes() []vipsgen.ImageTypeInfo {
+func (v *Introspection) DiscoverImageTypes() []vipsgen.ImageTypeInfo {
 	// Some image types are always defined, even if not supported
 	imageTypes := []vipsgen.ImageTypeInfo{
 		{TypeName: "unknown", EnumName: "ImageTypeUnknown", MimeType: "", Order: 0},

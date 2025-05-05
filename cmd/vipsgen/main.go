@@ -4,7 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/cshum/vipsgen"
-	"github.com/cshum/vipsgen/binding"
+	"github.com/cshum/vipsgen/introspection"
 	"github.com/cshum/vipsgen/templateloader"
 	"log"
 	"os"
@@ -68,7 +68,7 @@ func main() {
 	}
 
 	// Create operation manager
-	vipsIntrospection := binding.NewVipsIntrospection()
+	vipsIntrospection := introspection.NewIntrospection()
 
 	// Get all operations
 	operations := vipsIntrospection.IntrospectOperations()
