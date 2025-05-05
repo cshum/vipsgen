@@ -24,7 +24,7 @@ func OperationsFile(templateLoader templateloader.TemplateLoader, filename strin
 		EnumTypes:  enumTypes,
 	}
 
-	return templateLoader.GenerateFile("go.tmpl", filename, data)
+	return templateLoader.GenerateFile("vips.go.tmpl", filename, data)
 }
 
 // HeaderFile generates the C header file
@@ -35,7 +35,7 @@ func HeaderFile(templateLoader templateloader.TemplateLoader, filename string, o
 		Operations: operations,
 	}
 
-	return templateLoader.GenerateFile("header.tmpl", filename, data)
+	return templateLoader.GenerateFile("vips.h.tmpl", filename, data)
 }
 
 // SourceFile generates the C source file
@@ -48,7 +48,7 @@ func SourceFile(templateLoader templateloader.TemplateLoader, filename string, o
 		Config:     OperationConfigs,
 	}
 
-	return templateLoader.GenerateFile("source.tmpl", filename, data)
+	return templateLoader.GenerateFile("vips.c.tmpl", filename, data)
 }
 
 // MethodsFile generates the image methods file
@@ -78,7 +78,7 @@ func ImageFile(templateLoader templateloader.TemplateLoader, filename string, im
 		ImageTypes: imageTypes,
 	}
 
-	return templateLoader.GenerateFile("image.tmpl", filename, data)
+	return templateLoader.GenerateFile("image.go.tmpl", filename, data)
 }
 
 // TypesFile generates the types file with enums
