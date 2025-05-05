@@ -60,3 +60,15 @@ func (r *Image) Close() {
 	}
 	r.lock.Unlock()
 }
+
+{{range .Operations}}
+// {{.GoName | imageMethodName}} {{.Description}}
+func (r *Image) {{.GoName | imageMethodName}}({{.RequiredInputs | formatImageMethodArgs}}) error {
+	out, err := {{.GoName}}(r.image{{if gt (len .RequiredInputs) 1}}{{range $i, $arg := .RequiredInputs}}{{if gt $i 0}}, {{$arg.GoName}}{{end}}{{end}}{{end}})
+	if err != nil {
+		return err
+	}
+	r.setImage(out)
+	return nil
+}
+{{end}}

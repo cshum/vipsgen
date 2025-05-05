@@ -51,8 +51,8 @@ func SourceFile(templateLoader templateloader.TemplateLoader, filename string, o
 	return templateLoader.GenerateFile("vips.c.tmpl", filename, data)
 }
 
-// MethodsFile generates the image methods file
-func MethodsFile(templateLoader templateloader.TemplateLoader, filename string, operations []Operation) error {
+// ImageFile generates the combined image file with methods
+func ImageFile(templateLoader templateloader.TemplateLoader, filename string, imageTypes []ImageTypeInfo, operations []Operation) error {
 	// Filter operations that have Image as first argument and return Image
 	var imageOps []Operation
 	for _, op := range operations {
@@ -62,20 +62,11 @@ func MethodsFile(templateLoader templateloader.TemplateLoader, filename string, 
 	}
 
 	data := struct {
+		ImageTypes []ImageTypeInfo
 		Operations []Operation
 	}{
-		Operations: imageOps,
-	}
-
-	return templateLoader.GenerateFile("image_operations.go.tmpl", filename, data)
-}
-
-// ImageFile generates the image file
-func ImageFile(templateLoader templateloader.TemplateLoader, filename string, imageTypes []ImageTypeInfo) error {
-	data := struct {
-		ImageTypes []ImageTypeInfo
-	}{
 		ImageTypes: imageTypes,
+		Operations: imageOps,
 	}
 
 	return templateLoader.GenerateFile("image.go.tmpl", filename, data)

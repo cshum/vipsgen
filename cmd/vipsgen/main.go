@@ -85,35 +85,29 @@ func main() {
 	}
 
 	// Generate Go file with operations
-	goFile := filepath.Join(outputDir, "vips_operations.go")
+	goFile := filepath.Join(outputDir, "vips.go")
 	if err := vipsgen.OperationsFile(templateLoader, goFile, filteredOps); err != nil {
 		log.Fatalf("Failed to generate operations file: %v", err)
 	}
 
 	// Generate C header file
-	hFile := filepath.Join(outputDir, "vips_operations.h")
+	hFile := filepath.Join(outputDir, "vips.h")
 	if err := vipsgen.HeaderFile(templateLoader, hFile, filteredOps); err != nil {
 		log.Fatalf("Failed to generate header file: %v", err)
 	}
 
 	// Generate C source file
-	cFile := filepath.Join(outputDir, "vips_operations.c")
+	cFile := filepath.Join(outputDir, "vips.c")
 	if err := vipsgen.SourceFile(templateLoader, cFile, filteredOps); err != nil {
 		log.Fatalf("Failed to generate source file: %v", err)
-	}
-
-	// Generate image methods file
-	imageMethodsFile := filepath.Join(outputDir, "image_operations.go")
-	if err := vipsgen.MethodsFile(templateLoader, imageMethodsFile, filteredOps); err != nil {
-		log.Fatalf("Failed to generate image methods file: %v", err)
 	}
 
 	// Extract image types from operations
 	imageTypes := vipsIntrospection.DiscoverImageTypes()
 
-	// Generate image file
+	// Generate image file with methods
 	imageFile := filepath.Join(outputDir, "image.go")
-	if err := vipsgen.ImageFile(templateLoader, imageFile, imageTypes); err != nil {
+	if err := vipsgen.ImageFile(templateLoader, imageFile, imageTypes, filteredOps); err != nil {
 		log.Fatalf("Failed to generate image file: %v", err)
 	}
 
@@ -124,7 +118,7 @@ func main() {
 		log.Fatalf("Failed to generate types file: %v", err)
 	}
 
-	generatedFiles := []string{goFile, hFile, cFile, imageMethodsFile, imageFile, typesFile}
+	generatedFiles := []string{goFile, hFile, cFile, imageFile, typesFile}
 
 	fmt.Printf("\nSuccessfully generated %d files:\n", len(generatedFiles))
 	for _, file := range generatedFiles {
