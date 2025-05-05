@@ -5,7 +5,6 @@ package vips
 // #include "foreign.h"
 import "C"
 import (
-	"fmt"
 	"unsafe"
 )
 
@@ -328,99 +327,6 @@ func (r *Image) ExportJp2k(params *Jp2kExportParams) ([]byte, error) {
 }
 {{end}}
 
-// Export exports the image to a buffer in the specified format
-func (r *Image) Export(format ImageType, options interface{}) ([]byte, error) {
-	if !ImageSaverSupport[format] {
-		return nil, fmt.Errorf("format %s export not supported in this libvips build",
-			ImageTypes[format])
-	}
-
-	switch format {
-	{{if .HasJpegSaver}}
-	case ImageTypeJpeg:
-		var params *JpegExportParams
-		if options != nil {
-			if p, ok := options.(*JpegExportParams); ok {
-				params = p
-			}
-		}
-		return r.ExportJpeg(params)
-	{{end}}
-	{{if .HasPngSaver}}
-	case ImageTypePng:
-		var params *PngExportParams
-		if options != nil {
-			if p, ok := options.(*PngExportParams); ok {
-				params = p
-			}
-		}
-		return r.ExportPng(params)
-	{{end}}
-	{{if .HasWebpSaver}}
-	case ImageTypeWebp:
-		var params *WebpExportParams
-		if options != nil {
-			if p, ok := options.(*WebpExportParams); ok {
-				params = p
-			}
-		}
-		return r.ExportWebp(params)
-	{{end}}
-	{{if .HasHeifSaver}}
-	case ImageTypeHeif:
-		var params *HeifExportParams
-		if options != nil {
-			if p, ok := options.(*HeifExportParams); ok {
-				params = p
-			}
-		}
-		return r.ExportHeif(params)
-	{{end}}
-	{{if .HasTiffSaver}}
-	case ImageTypeTiff:
-		var params *TiffExportParams
-		if options != nil {
-			if p, ok := options.(*TiffExportParams); ok {
-				params = p
-			}
-		}
-		return r.ExportTiff(params)
-	{{end}}
-	{{if or .HasLegacyGifSaver .HasCgifSaver}}
-	case ImageTypeGif:
-		var params *GifExportParams
-		if options != nil {
-			if p, ok := options.(*GifExportParams); ok {
-				params = p
-			}
-		}
-		return r.ExportGIF(params)
-	{{end}}
-	{{if .HasAvifSaver}}
-	case ImageTypeAvif:
-		var params *AvifExportParams
-		if options != nil {
-			if p, ok := options.(*AvifExportParams); ok {
-				params = p
-			}
-		}
-		return r.ExportAvif(params)
-	{{end}}
-	{{if .HasJp2kSaver}}
-	case ImageTypeJp2k:
-		var params *Jp2kExportParams
-		if options != nil {
-			if p, ok := options.(*Jp2kExportParams); ok {
-				params = p
-			}
-		}
-		return r.ExportJp2k(params)
-	{{end}}
-	default:
-		return nil, fmt.Errorf("unsupported image format for export: %s",
-			ImageTypes[format])
-	}
-}
 
 func vipsSaveToBuffer(params C.struct_SaveParams) ([]byte, error) {
 	if err := C.save_to_buffer(&params); err != 0 {
