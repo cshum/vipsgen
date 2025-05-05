@@ -18,28 +18,38 @@ type enumTypeName struct {
 	GoName string
 }
 
-// List of enum types to look for in libvips
+// Define a more base list of common enum types to look for in libvips
 var baseEnumTypeNames = []enumTypeName{
-	{
-		CName:  "VipsBlendMode",
-		GoName: "BlendMode",
-	},
-	{
-		CName:  "VipsForeignPngFilter",
-		GoName: "PngFilter",
-	},
-	{
-		CName:  "VipsForeignSubsample",
-		GoName: "Subsample",
-	},
-	{
-		CName:  "VipsForeignTiffCompression",
-		GoName: "TiffCompression",
-	},
-	{
-		CName:  "VipsForeignTiffPredictor",
-		GoName: "TiffPredictor",
-	},
+	{CName: "VipsBlendMode", GoName: "BlendMode"},
+	{CName: "VipsForeignPngFilter", GoName: "PngFilter"},
+	{CName: "VipsForeignSubsample", GoName: "Subsample"},
+	{CName: "VipsForeignTiffCompression", GoName: "TiffCompression"},
+	{CName: "VipsForeignTiffPredictor", GoName: "TiffPredictor"},
+	{CName: "VipsAccess", GoName: "Access"},
+	{CName: "VipsAlign", GoName: "Align"},
+	{CName: "VipsAngle", GoName: "Angle"},
+	{CName: "VipsBandFormat", GoName: "BandFormat"},
+	{CName: "VipsCoding", GoName: "Coding"},
+	{CName: "VipsCombine", GoName: "Combine"},
+	{CName: "VipsCompassDirection", GoName: "CompassDirection"},
+	{CName: "VipsDirection", GoName: "Direction"},
+	{CName: "VipsExtend", GoName: "Extend"},
+	{CName: "VipsForeignDzContainer", GoName: "DzContainer"},
+	{CName: "VipsForeignDzDepth", GoName: "DzDepth"},
+	{CName: "VipsForeignDzLayout", GoName: "DzLayout"},
+	{CName: "VipsForeignHeifCompression", GoName: "HeifCompression"},
+	{CName: "VipsForeignPpmFormat", GoName: "PpmFormat"},
+	{CName: "VipsForeignWebpPreset", GoName: "WebpPreset"},
+	{CName: "VipsIntent", GoName: "Intent"},
+	{CName: "VipsInteresting", GoName: "Interesting"},
+	{CName: "VipsInterpretation", GoName: "Interpretation"},
+	{CName: "VipsKernel", GoName: "Kernel"},
+	{CName: "VipsPCS", GoName: "PCS"},
+	{CName: "VipsOperationMorphology", GoName: "OperationMorphology"},
+	{CName: "VipsOperationRelational", GoName: "OperationRelational"},
+	{CName: "VipsPrecision", GoName: "Precision"},
+	{CName: "VipsRegionShrink", GoName: "RegionShrink"},
+	{CName: "VipsSize", GoName: "Size"},
 }
 
 var cStringsCache sync.Map
@@ -71,8 +81,14 @@ func NewIntrospection() *Introspection {
 	}
 	defer C.vips_shutdown()
 
+	// Initialize map with known enum types
+	discoveredTypes := make(map[string]bool)
+	for _, enum := range baseEnumTypeNames {
+		discoveredTypes[enum.CName] = true
+	}
+
 	return &Introspection{
-		discoveredEnumTypes: make(map[string]bool),
+		discoveredEnumTypes: discoveredTypes,
 		enumTypeNames:       baseEnumTypeNames,
 	}
 }
