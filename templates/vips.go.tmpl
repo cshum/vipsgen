@@ -74,6 +74,53 @@ func clearImage(img *C.VipsImage) {
 }
 
 
+func vipsRemoveExif(in *C.VipsImage) (*C.VipsImage, error) {
+	var out *C.VipsImage
+
+	if err := C.remove_exif(in, &out); err != 0 {
+		return nil, handleImageError(out)
+	}
+
+	return out, nil
+}
+
+func vipsGetMetaOrientation(in *C.VipsImage) int {
+	return int(C.get_meta_orientation(in))
+}
+
+func vipsGetImageNPages(in *C.VipsImage) int {
+	return int(C.get_image_n_pages(in))
+}
+
+func vipsGetPageHeight(in *C.VipsImage) int {
+	return int(C.get_page_height(in))
+}
+
+func vipsSetPageHeight(in *C.VipsImage, height int) {
+	C.set_page_height(in, C.int(height))
+}
+
+func vipsImageGetMetaLoader(in *C.VipsImage) (string, bool) {
+	var out *C.char
+	defer gFreePointer(unsafe.Pointer(out))
+	code := int(C.get_meta_loader(in, &out))
+	return C.GoString(out), code == 0
+}
+
+func vipsImageSetDelay(in *C.VipsImage, data []C.int) error {
+	if n := len(data); n > 0 {
+		C.set_image_delay(in, &data[0], C.int(n))
+	}
+	return nil
+}
+
+func vipsGetMetaString(image *C.VipsImage, name string) string {
+	return C.GoString(C.get_meta_string(image, cachedCString(name)))
+}
+
+
+
+
 {{range .Operations}}
 // {{.GoName}} {{.Description}}
 // https://libvips.github.io/libvips/API/current/libvips-{{.Category}}.html#vips-{{.Name}}
