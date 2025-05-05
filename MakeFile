@@ -1,0 +1,88 @@
+.PHONY: all build test clean generate install release lint check help
+
+# Project variables
+BINARY_NAME=vipsgen
+BUILD_DIR=./bin
+TEMPLATE_DIR=./internal/templates
+OUTPUT_DIR=./pkg/vips
+CMD_DIR=./cmd/vipsgen
+MAIN_GO=$(CMD_DIR)/main.go
+VERSION=$(shell git describe --tags --always --dirty 2>/dev/null || echo "v0.0.0")
+LDFLAGS=-ldflags "-X main.version=$(VERSION)"
+GO=$(shell command -v go)
+
+# CGO environment variables for macOS and other platforms that need them
+CGO_FLAGS=CGO_CFLAGS_ALLOW=-Xpreprocessor
+
+# Default target
+all: check build test
+
+# Build the binary
+build:
+	@echo "Building $(BINARY_NAME)..."
+	@mkdir -p $(BUILD_DIR)
+	$(CGO_FLAGS) $(GO) build $(LDFLAGS) -o $(BUILD_DIR)/$(BINARY_NAME) $(MAIN_GO)
+	@echo "Binary $(BUILD_DIR)/$(BINARY_NAME) is ready"
+
+# Run all tests
+test:
+	@echo "Running tests..."
+	@$(GO) clean -testcache
+	$(CGO_FLAGS) $(GO) test -v -coverprofile=profile.cov ./...
+
+# Clean build artifacts
+clean:
+	@echo "Cleaning build artifacts..."
+	@rm -rf $(BUILD_DIR)
+	@rm -rf $(OUTPUT_DIR)
+	@$(GO) clean
+
+# Generate bindings
+generate: build
+	@echo "Generating libvips bindings..."
+	@mkdir -p $(OUTPUT_DIR)
+	$(CGO_FLAGS) $(BUILD_DIR)/$(BINARY_NAME) -out $(OUTPUT_DIR)
+	@echo "Bindings generated in $(OUTPUT_DIR)"
+
+# Generate with custom templates
+generate-custom: build
+	@echo "Generating libvips bindings with custom templates..."
+	@mkdir -p $(OUTPUT_DIR)
+	$(CGO_FLAGS) $(BUILD_DIR)/$(BINARY_NAME) -templates $(TEMPLATE_DIR) -out $(OUTPUT_DIR)
+	@echo "Bindings generated in $(OUTPUT_DIR)"
+
+# Extract templates
+extract-templates: build
+	@echo "Extracting templates..."
+	@mkdir -p $(TEMPLATE_DIR)
+	$(CGO_FLAGS) $(BUILD_DIR)/$(BINARY_NAME) -extract -extract-dir $(TEMPLATE_DIR)
+	@echo "Templates extracted to $(TEMPLATE_DIR)"
+
+# Install the binary
+install: build
+	@echo "Installing $(BINARY_NAME)..."
+	$(CGO_FLAGS) $(GO) install $(LDFLAGS) $(MAIN_GO)
+	@echo "Installation complete"
+
+# Run the generator directly from source (without installing)
+run:
+	@echo "Running $(BINARY_NAME) directly..."
+	$(CGO_FLAGS) $(GO) run $(MAIN_GO) -out $(OUTPUT_DIR)
+
+# Create a release
+release: check test build
+	@echo "Creating release $(VERSION)..."
+	@mkdir -p release
+	@tar -czf release/$(BINARY_NAME)-$(VERSION).tar.gz -C $(BUILD_DIR) $(BINARY_NAME)
+	@echo "Release $(VERSION) created in release/"
+
+# Run golangci-lint
+lint:
+	@echo "Running linters..."
+	@golangci-lint run ./...
+
+# Check dependencies
+check:
+	@echo "Checking dependencies..."
+	@pkg-config --exists vips || (echo "Error: libvips not found (install libvips-dev or equivalent)" && exit 1)
+	@echo "All dependencies satisfied"

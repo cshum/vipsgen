@@ -1,0 +1,11 @@
+vendor/
+**/*.log
+**/*.sqlite
+.idea/
+.DS_Store
+bin/
+tmp/
+.vscode/
+.env
+bin/imagor
+profile.cov
