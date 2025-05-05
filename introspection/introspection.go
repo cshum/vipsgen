@@ -1,190 +1,7 @@
-package binding
+package introspection
 
 // #cgo pkg-config: vips
-// #include <vips/vips.h>
-// #include <stdlib.h>
-//
-// typedef struct {
-//     char **names;
-//     int count;
-//     int capacity;
-// } OperationList;
-//
-// typedef struct {
-//     char *name;
-//     int value;
-//     char *nick;
-// } EnumValueInfo;
-//
-// static void* collect_operations(void *object_class, void *a, void *b) {
-//     OperationList *list = (OperationList *)a;
-//     VipsObjectClass *vobject_class = VIPS_OBJECT_CLASS(object_class);
-//
-//     if (vobject_class && vobject_class->nickname &&
-//         G_TYPE_CHECK_CLASS_TYPE(vobject_class, VIPS_TYPE_OPERATION)) {
-//         const char *nickname = vobject_class->nickname;
-//
-//         if (list->count >= list->capacity) {
-//             list->capacity *= 2;
-//             list->names = realloc(list->names, list->capacity * sizeof(char*));
-//         }
-//         list->names[list->count] = strdup(nickname);
-//         list->count++;
-//     }
-//
-//     return NULL;
-// }
-//
-// // This function discovers all operations by directly querying GType system
-// static char** get_all_operation_names(int *count) {
-//     OperationList list = {
-//         .names = malloc(200 * sizeof(char*)),
-//         .count = 0,
-//         .capacity = 200
-//     };
-//
-//     // Get all types derived from VipsOperation
-//     GType base_type = VIPS_TYPE_OPERATION;
-//     guint n_children = 0;
-//     GType *children = g_type_children(base_type, &n_children);
-//
-//     // Process each child type
-//     for (guint i = 0; i < n_children; i++) {
-//         // Only process non-abstract types
-//         if (!G_TYPE_IS_ABSTRACT(children[i])) {
-//             // Get the class to access the nickname
-//             VipsObjectClass *class = VIPS_OBJECT_CLASS(g_type_class_ref(children[i]));
-//
-//             if (class && class->nickname) {
-//                 // Check if we can actually instantiate this operation
-//                 VipsOperation *op = VIPS_OPERATION(g_object_new(children[i], NULL));
-//                 if (op) {
-//                     // Expand array if needed
-//                     if (list.count >= list.capacity) {
-//                         list.capacity *= 2;
-//                         list.names = realloc(list.names, list.capacity * sizeof(char*));
-//                     }
-//
-//                     // Add the operation name
-//                     list.names[list.count++] = strdup(class->nickname);
-//                     g_object_unref(op);
-//                 }
-//             }
-//
-//             g_type_class_unref(class);
-//         }
-//
-//         // Some operations might have their own child types
-//         guint n_grandchildren = 0;
-//         GType *grandchildren = g_type_children(children[i], &n_grandchildren);
-//
-//         for (guint j = 0; j < n_grandchildren; j++) {
-//             if (!G_TYPE_IS_ABSTRACT(grandchildren[j])) {
-//                 VipsObjectClass *class = VIPS_OBJECT_CLASS(g_type_class_ref(grandchildren[j]));
-//
-//                 if (class && class->nickname) {
-//                     VipsOperation *op = VIPS_OPERATION(g_object_new(grandchildren[j], NULL));
-//                     if (op) {
-//                         if (list.count >= list.capacity) {
-//                             list.capacity *= 2;
-//                             list.names = realloc(list.names, list.capacity * sizeof(char*));
-//                         }
-//
-//                         list.names[list.count++] = strdup(class->nickname);
-//                         g_object_unref(op);
-//                     }
-//                 }
-//
-//                 g_type_class_unref(class);
-//             }
-//         }
-//
-//         g_free(grandchildren);
-//     }
-//
-//     g_free(children);
-//
-//     *count = list.count;
-//     return list.names;
-// }
-//
-// static void free_operation_names(char **names, int count) {
-//     for (int i = 0; i < count; i++) {
-//         free(names[i]);
-//     }
-//     free(names);
-// }
-//
-// static EnumValueInfo* get_enum_values(const char *enum_type_name, int *count) {
-//     GType type = g_type_from_name(enum_type_name);
-//     if (type == 0) {
-//         *count = 0;
-//         return NULL;
-//     }
-//
-//     // Get the enum class
-//     GEnumClass *enum_class = G_ENUM_CLASS(g_type_class_ref(type));
-//     if (!enum_class) {
-//         *count = 0;
-//         return NULL;
-//     }
-//
-//     // Allocate space for values
-//     *count = enum_class->n_values;
-//     if (*count <= 0 || *count > 100) { // Sanity check
-//         g_type_class_unref(enum_class);
-//         *count = 0;
-//         return NULL;
-//     }
-//
-//     EnumValueInfo *values = malloc(*count * sizeof(EnumValueInfo));
-//     if (!values) {
-//         g_type_class_unref(enum_class);
-//         *count = 0;
-//         return NULL;
-//     }
-//
-//     // Copy the values with NULL checks
-//     for (int i = 0; i < *count; i++) {
-//         // Check for NULL pointers that might cause segfault
-//         if (enum_class->values[i].value_name) {
-//             values[i].name = strdup(enum_class->values[i].value_name);
-//         } else {
-//             values[i].name = strdup("UNKNOWN");
-//         }
-//
-//         values[i].value = enum_class->values[i].value;
-//
-//         if (enum_class->values[i].value_nick) {
-//             values[i].nick = strdup(enum_class->values[i].value_nick);
-//         } else {
-//             values[i].nick = strdup("");
-//         }
-//     }
-//
-//     // Unref the class
-//     g_type_class_unref(enum_class);
-//     return values;
-// }
-//
-// // Check if a type exists
-// static int type_exists(const char *type_name) {
-//     GType type = g_type_from_name(type_name);
-//     return type != 0 ? 1 : 0;
-// }
-//
-// // Free enum value info
-// static void free_enum_values(EnumValueInfo *values, int count) {
-//     for (int i = 0; i < count; i++) {
-//         free(values[i].name);
-//         free(values[i].nick);
-//     }
-//     free(values);
-// }
-//
-// static GObjectClass* get_object_class(void* obj) {
-//     return G_OBJECT_GET_CLASS(obj);
-// }
+// #include "introspection.h"
 import "C"
 import (
 	"fmt"
@@ -195,8 +12,6 @@ import (
 	"sync"
 	"unsafe"
 )
-
-// Track enum types we've discovered
 
 // List of enum types to look for in libvips
 var enumTypeNames []struct {
@@ -216,29 +31,29 @@ func cachedCString(str string) *C.char {
 	return cstr
 }
 
-// VipsIntrospection provides discovery and analysis of libvips operations
+// Introspection provides discovery and analysis of libvips operations
 // through reflection of the C library's type system, extracting operation
 // metadata, argument details, and supported enum types.
-type VipsIntrospection struct {
+type Introspection struct {
 	discoveredEnumTypes map[string]bool
 }
 
-// NewVipsIntrospection creates a new VipsIntrospection instance for analyzing libvips
+// NewIntrospection creates a new Introspection instance for analyzing libvips
 // operations, initializing the libvips library in the process.
-func NewVipsIntrospection() *VipsIntrospection {
+func NewIntrospection() *Introspection {
 	// Initialize libvips
 	if C.vips_init(C.CString("vipsgen")) != 0 {
 		log.Fatal("Failed to initialize libvips")
 	}
 	defer C.vips_shutdown()
 
-	return &VipsIntrospection{
+	return &Introspection{
 		discoveredEnumTypes: make(map[string]bool),
 	}
 }
 
 // GetAllOperationNames retrieves names of all available operations from libvips
-func (v *VipsIntrospection) GetAllOperationNames() []string {
+func (v *Introspection) GetAllOperationNames() []string {
 	var count C.int
 	cNames := C.get_all_operation_names(&count)
 	defer C.free_operation_names(cNames, count)
@@ -256,7 +71,7 @@ func (v *VipsIntrospection) GetAllOperationNames() []string {
 }
 
 // IntrospectOperations discovers and analyzes all libvips operations
-func (v *VipsIntrospection) IntrospectOperations() []vipsgen.Operation {
+func (v *Introspection) IntrospectOperations() []vipsgen.Operation {
 	var operations []vipsgen.Operation
 
 	// Get all operation names
@@ -273,7 +88,7 @@ func (v *VipsIntrospection) IntrospectOperations() []vipsgen.Operation {
 }
 
 // IntrospectOperation analyzes a single libvips operation
-func (v *VipsIntrospection) IntrospectOperation(name string) vipsgen.Operation {
+func (v *Introspection) IntrospectOperation(name string) vipsgen.Operation {
 	cName := C.CString(name)
 	defer C.free(unsafe.Pointer(cName))
 
@@ -347,7 +162,7 @@ func (v *VipsIntrospection) IntrospectOperation(name string) vipsgen.Operation {
 }
 
 // FilterOperations filters out operations that should be excluded and deduplicates
-func (v *VipsIntrospection) FilterOperations(operations []vipsgen.Operation) []vipsgen.Operation {
+func (v *Introspection) FilterOperations(operations []vipsgen.Operation) []vipsgen.Operation {
 	// Filter out excluded operations and deduplicate by Go function name
 	seenFunctions := make(map[string]bool)
 	var filteredOps []vipsgen.Operation
@@ -376,7 +191,7 @@ func (v *VipsIntrospection) FilterOperations(operations []vipsgen.Operation) []v
 }
 
 // GetEnumTypes retrieves all enum types from libvips
-func (v *VipsIntrospection) GetEnumTypes() []vipsgen.EnumTypeInfo {
+func (v *Introspection) GetEnumTypes() []vipsgen.EnumTypeInfo {
 	var enumTypes []vipsgen.EnumTypeInfo
 
 	for _, typeName := range enumTypeNames {
@@ -405,7 +220,7 @@ func (v *VipsIntrospection) GetEnumTypes() []vipsgen.EnumTypeInfo {
 }
 
 // getEnumType retrieves information about a specific enum type
-func (v *VipsIntrospection) getEnumType(cName, goName string) (vipsgen.EnumTypeInfo, error) {
+func (v *Introspection) getEnumType(cName, goName string) (vipsgen.EnumTypeInfo, error) {
 	enumType := vipsgen.EnumTypeInfo{
 		CName:  cName,
 		GoName: goName,
@@ -454,7 +269,7 @@ func (v *VipsIntrospection) getEnumType(cName, goName string) (vipsgen.EnumTypeI
 }
 
 // AddEnumType adds a newly discovered enum type
-func (v *VipsIntrospection) AddEnumType(cName, goName string) {
+func (v *Introspection) AddEnumType(cName, goName string) {
 	if _, exists := v.discoveredEnumTypes[cName]; !exists {
 		// Add to our enum type list for later processing
 		enumTypeNames = append(enumTypeNames, struct {
@@ -469,62 +284,8 @@ func (v *VipsIntrospection) AddEnumType(cName, goName string) {
 	}
 }
 
-// ExtractImageTypes extracts image type information from operations
-func (v *VipsIntrospection) ExtractImageTypes(operations []vipsgen.Operation) []vipsgen.ImageTypeInfo {
-	typeMap := make(map[string]bool)
-
-	// Extract from loader/saver operations
-	for _, op := range operations {
-		if strings.HasSuffix(op.Name, "load") || strings.HasSuffix(op.Name, "load_buffer") {
-			typeName := strings.TrimSuffix(strings.TrimSuffix(op.Name, "load_buffer"), "load")
-			if typeName != "" {
-				typeMap[typeName] = true
-			}
-		}
-	}
-
-	// Create sorted list with predefined order
-	imageTypes := []vipsgen.ImageTypeInfo{
-		{TypeName: "unknown", EnumName: "ImageTypeUnknown", Order: 0},
-	}
-
-	// Common image formats in order
-	commonTypes := []string{"gif", "jpeg", "magick", "pdf", "png", "svg", "tiff", "webp", "heif", "bmp", "avif", "jp2k"}
-
-	for i, typeName := range commonTypes {
-		if typeMap[typeName] {
-			imageTypes = append(imageTypes, vipsgen.ImageTypeInfo{
-				TypeName: typeName,
-				EnumName: fmt.Sprintf("ImageType%s", strings.Title(typeName)),
-				MimeType: v.getMimeType(typeName),
-				Order:    i + 1,
-			})
-		}
-	}
-
-	// Add any additional types found
-	for typeName := range typeMap {
-		found := false
-		for _, ct := range commonTypes {
-			if ct == typeName {
-				found = true
-				break
-			}
-		}
-		if !found {
-			imageTypes = append(imageTypes, vipsgen.ImageTypeInfo{
-				TypeName: typeName,
-				EnumName: fmt.Sprintf("ImageType%s", strings.Title(typeName)),
-				Order:    len(imageTypes),
-			})
-		}
-	}
-
-	return imageTypes
-}
-
 // getMimeType returns the MIME type for a given image format
-func (v *VipsIntrospection) getMimeType(typeName string) string {
+func (v *Introspection) getMimeType(typeName string) string {
 	mimeTypes := map[string]string{
 		"gif":  "image/gif",
 		"jpeg": "image/jpeg",
@@ -546,7 +307,7 @@ func (v *VipsIntrospection) getMimeType(typeName string) string {
 }
 
 // getOperationDescription gets the description of an operation
-func (v *VipsIntrospection) getOperationDescription(op *C.VipsOperation) string {
+func (v *Introspection) getOperationDescription(op *C.VipsOperation) string {
 	obj := (*C.VipsObject)(unsafe.Pointer(op))
 	if obj.description != nil {
 		return C.GoString(obj.description)
@@ -555,7 +316,7 @@ func (v *VipsIntrospection) getOperationDescription(op *C.VipsOperation) string 
 }
 
 // getOperationArguments gets the arguments of an operation
-func (v *VipsIntrospection) getOperationArguments(op *C.VipsOperation) []vipsgen.Argument {
+func (v *Introspection) getOperationArguments(op *C.VipsOperation) []vipsgen.Argument {
 	var args []vipsgen.Argument
 
 	// Get the GObject class
@@ -630,14 +391,14 @@ func (v *VipsIntrospection) getOperationArguments(op *C.VipsOperation) []vipsgen
 }
 
 // getParamType returns the type of a parameter
-func (v *VipsIntrospection) getParamType(pspec *C.GParamSpec) string {
+func (v *Introspection) getParamType(pspec *C.GParamSpec) string {
 	gtype := pspec.value_type
 	typeName := C.GoString(C.g_type_name(gtype))
 	return typeName
 }
 
 // getGoType maps VIPS types to Go types
-func (v *VipsIntrospection) getGoType(pspec *C.GParamSpec) string {
+func (v *Introspection) getGoType(pspec *C.GParamSpec) string {
 	gtype := pspec.value_type
 	typeName := C.GoString(C.g_type_name(gtype))
 
@@ -683,7 +444,7 @@ func (v *VipsIntrospection) getGoType(pspec *C.GParamSpec) string {
 }
 
 // getCType maps VIPS types to C types
-func (v *VipsIntrospection) getCType(pspec *C.GParamSpec) string {
+func (v *Introspection) getCType(pspec *C.GParamSpec) string {
 	gtype := pspec.value_type
 	typeName := C.GoString(C.g_type_name(gtype))
 
@@ -723,7 +484,7 @@ func (v *VipsIntrospection) getCType(pspec *C.GParamSpec) string {
 }
 
 // getParamDescription gets the description of a parameter
-func (v *VipsIntrospection) getParamDescription(pspec *C.GParamSpec) string {
+func (v *Introspection) getParamDescription(pspec *C.GParamSpec) string {
 	// Try nick first, then blurb
 	if pspec.flags&C.G_PARAM_READABLE != 0 && pspec._nick != nil {
 		return C.GoString(pspec._nick)
@@ -735,7 +496,7 @@ func (v *VipsIntrospection) getParamDescription(pspec *C.GParamSpec) string {
 }
 
 // DiscoverImageTypes discovers supported image types in libvips
-func (v *VipsIntrospection) DiscoverImageTypes() []vipsgen.ImageTypeInfo {
+func (v *Introspection) DiscoverImageTypes() []vipsgen.ImageTypeInfo {
 	// Some image types are always defined, even if not supported
 	imageTypes := []vipsgen.ImageTypeInfo{
 		{TypeName: "unknown", EnumName: "ImageTypeUnknown", MimeType: "", Order: 0},

@@ -24,7 +24,7 @@ func OperationsFile(templateLoader templateloader.TemplateLoader, filename strin
 		EnumTypes:  enumTypes,
 	}
 
-	return templateLoader.GenerateFile("go.tmpl", filename, data)
+	return templateLoader.GenerateFile("vips.go.tmpl", filename, data)
 }
 
 // HeaderFile generates the C header file
@@ -35,7 +35,7 @@ func HeaderFile(templateLoader templateloader.TemplateLoader, filename string, o
 		Operations: operations,
 	}
 
-	return templateLoader.GenerateFile("header.tmpl", filename, data)
+	return templateLoader.GenerateFile("vips.h.tmpl", filename, data)
 }
 
 // SourceFile generates the C source file
@@ -48,11 +48,11 @@ func SourceFile(templateLoader templateloader.TemplateLoader, filename string, o
 		Config:     OperationConfigs,
 	}
 
-	return templateLoader.GenerateFile("source.tmpl", filename, data)
+	return templateLoader.GenerateFile("vips.c.tmpl", filename, data)
 }
 
-// MethodsFile generates the image methods file
-func MethodsFile(templateLoader templateloader.TemplateLoader, filename string, operations []Operation) error {
+// ImageFile generates the combined image file with methods
+func ImageFile(templateLoader templateloader.TemplateLoader, filename string, imageTypes []ImageTypeInfo, operations []Operation) error {
 	// Filter operations that have Image as first argument and return Image
 	var imageOps []Operation
 	for _, op := range operations {
@@ -62,23 +62,14 @@ func MethodsFile(templateLoader templateloader.TemplateLoader, filename string, 
 	}
 
 	data := struct {
+		ImageTypes []ImageTypeInfo
 		Operations []Operation
 	}{
+		ImageTypes: imageTypes,
 		Operations: imageOps,
 	}
 
-	return templateLoader.GenerateFile("methods.tmpl", filename, data)
-}
-
-// ImageFile generates the image file
-func ImageFile(templateLoader templateloader.TemplateLoader, filename string, imageTypes []ImageTypeInfo) error {
-	data := struct {
-		ImageTypes []ImageTypeInfo
-	}{
-		ImageTypes: imageTypes,
-	}
-
-	return templateLoader.GenerateFile("image.tmpl", filename, data)
+	return templateLoader.GenerateFile("image.go.tmpl", filename, data)
 }
 
 // TypesFile generates the types file with enums

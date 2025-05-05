@@ -9,3 +9,5 @@ tmp/
 .env
 bin/imagor
 profile.cov
+
+pkg/vips
