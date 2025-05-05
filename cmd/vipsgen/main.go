@@ -109,7 +109,7 @@ func main() {
 	}
 
 	// Extract image types from operations
-	imageTypes := vipsIntrospection.ExtractImageTypes(operations)
+	imageTypes := vipsIntrospection.DiscoverImageTypes()
 
 	// Generate image file
 	imageFile := filepath.Join(outputDir, "image.go")

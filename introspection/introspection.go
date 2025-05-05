@@ -284,60 +284,6 @@ func (v *Introspection) AddEnumType(cName, goName string) {
 	}
 }
 
-// ExtractImageTypes extracts image type information from operations
-func (v *Introspection) ExtractImageTypes(operations []vipsgen.Operation) []vipsgen.ImageTypeInfo {
-	typeMap := make(map[string]bool)
-
-	// Extract from loader/saver operations
-	for _, op := range operations {
-		if strings.HasSuffix(op.Name, "load") || strings.HasSuffix(op.Name, "load_buffer") {
-			typeName := strings.TrimSuffix(strings.TrimSuffix(op.Name, "load_buffer"), "load")
-			if typeName != "" {
-				typeMap[typeName] = true
-			}
-		}
-	}
-
-	// Create sorted list with predefined order
-	imageTypes := []vipsgen.ImageTypeInfo{
-		{TypeName: "unknown", EnumName: "ImageTypeUnknown", Order: 0},
-	}
-
-	// Common image formats in order
-	commonTypes := []string{"gif", "jpeg", "magick", "pdf", "png", "svg", "tiff", "webp", "heif", "bmp", "avif", "jp2k"}
-
-	for i, typeName := range commonTypes {
-		if typeMap[typeName] {
-			imageTypes = append(imageTypes, vipsgen.ImageTypeInfo{
-				TypeName: typeName,
-				EnumName: fmt.Sprintf("ImageType%s", strings.Title(typeName)),
-				MimeType: v.getMimeType(typeName),
-				Order:    i + 1,
-			})
-		}
-	}
-
-	// Add any additional types found
-	for typeName := range typeMap {
-		found := false
-		for _, ct := range commonTypes {
-			if ct == typeName {
-				found = true
-				break
-			}
-		}
-		if !found {
-			imageTypes = append(imageTypes, vipsgen.ImageTypeInfo{
-				TypeName: typeName,
-				EnumName: fmt.Sprintf("ImageType%s", strings.Title(typeName)),
-				Order:    len(imageTypes),
-			})
-		}
-	}
-
-	return imageTypes
-}
-
 // getMimeType returns the MIME type for a given image format
 func (v *Introspection) getMimeType(typeName string) string {
 	mimeTypes := map[string]string{
