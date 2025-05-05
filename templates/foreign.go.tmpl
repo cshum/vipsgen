@@ -5,8 +5,15 @@ package vips
 // #include "foreign.h"
 import "C"
 import (
+	"fmt"
 	"unsafe"
 )
+
+// ImageSaverSupport indicates which image savers are supported in this libvips build
+var ImageSaverSupport = map[ImageType]bool{
+	{{range .SupportedSavers}}{{.EnumName}}: true,
+	{{end}}
+}
 
 // JpegExportParams are options when exporting a JPEG to file or buffer
 type JpegExportParams struct {
@@ -163,6 +170,10 @@ func NewJp2kExportParams() *Jp2kExportParams {
 
 // ExportJpeg exports the image as JPEG to a buffer.
 func (r *Image) ExportJpeg(params *JpegExportParams) ([]byte, error) {
+	if !ImageSaverSupport[ImageTypeJpeg] {
+		return nil, fmt.Errorf("JPEG export not supported in this libvips build")
+	}
+
 	if params == nil {
 		params = NewJpegExportParams()
 	}
@@ -177,6 +188,10 @@ func (r *Image) ExportJpeg(params *JpegExportParams) ([]byte, error) {
 
 // ExportPng exports the image as PNG to a buffer.
 func (r *Image) ExportPng(params *PngExportParams) ([]byte, error) {
+	if !ImageSaverSupport[ImageTypePng] {
+		return nil, fmt.Errorf("PNG export not supported in this libvips build")
+	}
+
 	if params == nil {
 		params = NewPngExportParams()
 	}
@@ -191,6 +206,10 @@ func (r *Image) ExportPng(params *PngExportParams) ([]byte, error) {
 
 // ExportWebp exports the image as WEBP to a buffer.
 func (r *Image) ExportWebp(params *WebpExportParams) ([]byte, error) {
+	if !ImageSaverSupport[ImageTypeWebp] {
+		return nil, fmt.Errorf("WebP export not supported in this libvips build")
+	}
+
 	if params == nil {
 		params = NewWebpExportParams()
 	}
@@ -205,6 +224,10 @@ func (r *Image) ExportWebp(params *WebpExportParams) ([]byte, error) {
 
 // ExportHeif exports the image as HEIF to a buffer.
 func (r *Image) ExportHeif(params *HeifExportParams) ([]byte, error) {
+	if !ImageSaverSupport[ImageTypeHeif] {
+		return nil, fmt.Errorf("HEIF export not supported in this libvips build")
+	}
+
 	if params == nil {
 		params = NewHeifExportParams()
 	}
@@ -219,6 +242,10 @@ func (r *Image) ExportHeif(params *HeifExportParams) ([]byte, error) {
 
 // ExportTiff exports the image as TIFF to a buffer.
 func (r *Image) ExportTiff(params *TiffExportParams) ([]byte, error) {
+	if !ImageSaverSupport[ImageTypeTiff] {
+		return nil, fmt.Errorf("TIFF export not supported in this libvips build")
+	}
+
 	if params == nil {
 		params = NewTiffExportParams()
 	}
@@ -233,6 +260,10 @@ func (r *Image) ExportTiff(params *TiffExportParams) ([]byte, error) {
 
 // ExportGIF exports the image as GIF to a buffer.
 func (r *Image) ExportGIF(params *GifExportParams) ([]byte, error) {
+	if !ImageSaverSupport[ImageTypeGif] {
+		return nil, fmt.Errorf("GIF export not supported in this libvips build")
+	}
+
 	if params == nil {
 		params = NewGifExportParams()
 	}
@@ -247,6 +278,10 @@ func (r *Image) ExportGIF(params *GifExportParams) ([]byte, error) {
 
 // ExportAvif exports the image as AVIF to a buffer.
 func (r *Image) ExportAvif(params *AvifExportParams) ([]byte, error) {
+	if !ImageSaverSupport[ImageTypeAvif] {
+		return nil, fmt.Errorf("AVIF export not supported in this libvips build")
+	}
+
 	if params == nil {
 		params = NewAvifExportParams()
 	}
@@ -261,6 +296,10 @@ func (r *Image) ExportAvif(params *AvifExportParams) ([]byte, error) {
 
 // ExportJp2k exports the image as JPEG2000 to a buffer.
 func (r *Image) ExportJp2k(params *Jp2kExportParams) ([]byte, error) {
+	if !ImageSaverSupport[ImageTypeJp2k] {
+		return nil, fmt.Errorf("JPEG2000 export not supported in this libvips build")
+	}
+
 	if params == nil {
 		params = NewJp2kExportParams()
 	}
@@ -273,8 +312,7 @@ func (r *Image) ExportJp2k(params *Jp2kExportParams) ([]byte, error) {
 	return buf, nil
 }
 
-
-
+{{if .HasJpegSaver}}
 func vipsSaveJPEGToBuffer(in *C.VipsImage, params JpegExportParams) ([]byte, error) {
 	p := C.create_save_params(C.JPEG)
 	p.inputImage = in
@@ -290,7 +328,9 @@ func vipsSaveJPEGToBuffer(in *C.VipsImage, params JpegExportParams) ([]byte, err
 
 	return vipsSaveToBuffer(p)
 }
+{{end}}
 
+{{if .HasPngSaver}}
 func vipsSavePNGToBuffer(in *C.VipsImage, params PngExportParams) ([]byte, error) {
 	p := C.create_save_params(C.PNG)
 	p.inputImage = in
@@ -305,7 +345,9 @@ func vipsSavePNGToBuffer(in *C.VipsImage, params PngExportParams) ([]byte, error
 
 	return vipsSaveToBuffer(p)
 }
+{{end}}
 
+{{if .HasWebpSaver}}
 func vipsSaveWebPToBuffer(in *C.VipsImage, params WebpExportParams) ([]byte, error) {
 	p := C.create_save_params(C.WEBP)
 	p.inputImage = in
@@ -322,7 +364,9 @@ func vipsSaveWebPToBuffer(in *C.VipsImage, params WebpExportParams) ([]byte, err
 
 	return vipsSaveToBuffer(p)
 }
+{{end}}
 
+{{if .HasTiffSaver}}
 func vipsSaveTIFFToBuffer(in *C.VipsImage, params TiffExportParams) ([]byte, error) {
 	p := C.create_save_params(C.TIFF)
 	p.inputImage = in
@@ -332,7 +376,9 @@ func vipsSaveTIFFToBuffer(in *C.VipsImage, params TiffExportParams) ([]byte, err
 
 	return vipsSaveToBuffer(p)
 }
+{{end}}
 
+{{if .HasHeifSaver}}
 func vipsSaveHEIFToBuffer(in *C.VipsImage, params HeifExportParams) ([]byte, error) {
 	p := C.create_save_params(C.HEIF)
 	p.inputImage = in
@@ -342,7 +388,9 @@ func vipsSaveHEIFToBuffer(in *C.VipsImage, params HeifExportParams) ([]byte, err
 
 	return vipsSaveToBuffer(p)
 }
+{{end}}
 
+{{if .HasAvifSaver}}
 func vipsSaveAVIFToBuffer(in *C.VipsImage, params AvifExportParams) ([]byte, error) {
 	p := C.create_save_params(C.AVIF)
 	p.inputImage = in
@@ -354,7 +402,9 @@ func vipsSaveAVIFToBuffer(in *C.VipsImage, params AvifExportParams) ([]byte, err
 
 	return vipsSaveToBuffer(p)
 }
+{{end}}
 
+{{if .HasJp2kSaver}}
 func vipsSaveJP2KToBuffer(in *C.VipsImage, params Jp2kExportParams) ([]byte, error) {
 	p := C.create_save_params(C.JP2K)
 	p.inputImage = in
@@ -367,7 +417,9 @@ func vipsSaveJP2KToBuffer(in *C.VipsImage, params Jp2kExportParams) ([]byte, err
 
 	return vipsSaveToBuffer(p)
 }
+{{end}}
 
+{{if or .HasLegacyGifSaver .HasCgifSaver}}
 func vipsSaveGIFToBuffer(in *C.VipsImage, params GifExportParams) ([]byte, error) {
 	p := C.create_save_params(C.GIF)
 	p.inputImage = in
@@ -379,6 +431,7 @@ func vipsSaveGIFToBuffer(in *C.VipsImage, params GifExportParams) ([]byte, error
 
 	return vipsSaveToBuffer(p)
 }
+{{end}}
 
 func vipsSaveToBuffer(params C.struct_SaveParams) ([]byte, error) {
 	if err := C.save_to_buffer(&params); err != 0 {

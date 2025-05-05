@@ -63,6 +63,11 @@ func main() {
 		log.Fatalf("Failed to create output directory: %v", err)
 	}
 
+	// Process static files - this simply copies them with the .tmpl extension removed
+	if err := loader.ProcessStaticFiles(outputDir); err != nil {
+		log.Fatalf("Failed to process static files: %v", err)
+	}
+
 	// Create operation manager
 	vipsIntrospection := introspection.NewIntrospection()
 
@@ -114,13 +119,30 @@ func main() {
 		log.Fatalf("Failed to generate types file: %v", err)
 	}
 
-	// Process static files - this simply copies them with the .tmpl extension removed
-	if err := loader.ProcessStaticFiles(outputDir); err != nil {
-		log.Fatalf("Failed to process static files: %v", err)
-	}
-
 	// List of generated files from templates
 	generatedFiles := []string{goFile, hFile, cFile, imageFile, typesFile}
+
+	// Discover supported savers
+	supportedSavers := vipsIntrospection.DiscoverSupportedSavers()
+	fmt.Printf("Discovered supported savers:\n")
+	for name, supported := range supportedSavers {
+		if supported {
+			fmt.Printf("  - %s: supported\n", name)
+		}
+	}
+
+	// Generate foreign support files (Go, H, and C)
+	if err := vipsgen.ForeignFiles(loader, outputDir, supportedSavers); err != nil {
+		log.Fatalf("Failed to generate foreign files: %v", err)
+	}
+
+	// Add the foreign files to the list of generated files
+	foreignFiles := []string{
+		filepath.Join(outputDir, "foreign.go"),
+		filepath.Join(outputDir, "foreign.h"),
+		filepath.Join(outputDir, "foreign.c"),
+	}
+	generatedFiles = append(generatedFiles, foreignFiles...)
 
 	fmt.Printf("\nSuccessfully generated files from templates: %d\n", len(generatedFiles))
 	for _, file := range generatedFiles {

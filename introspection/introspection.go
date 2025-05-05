@@ -561,29 +561,37 @@ func (v *Introspection) DiscoverImageTypes() []vipsgen.ImageTypeInfo {
 	standardTypes := []struct {
 		TypeName string
 		MimeType string
+		OpName   string // Optional custom operation to check
 	}{
-		{"gif", "image/gif"},
-		{"jpeg", "image/jpeg"},
-		{"magick", ""},
-		{"pdf", "application/pdf"},
-		{"png", "image/png"},
-		{"svg", "image/svg+xml"},
-		{"tiff", "image/tiff"},
-		{"webp", "image/webp"},
-		{"heif", "image/heif"},
-		{"bmp", "image/bmp"},
-		{"avif", "image/avif"},
-		{"jp2k", "image/jp2"},
+		{"gif", "image/gif", ""},
+		{"jpeg", "image/jpeg", ""},
+		{"magick", "", ""},
+		{"pdf", "application/pdf", ""},
+		{"png", "image/png", ""},
+		{"svg", "image/svg+xml", ""},
+		{"tiff", "image/tiff", ""},
+		{"webp", "image/webp", ""},
+		{"heif", "image/heif", ""},
+		{"bmp", "image/bmp", ""},
+		// The AVIF format needs special handling - see below
+		{"jp2k", "image/jp2", ""},
 	}
 
+	// Track current order number - start after Unknown (0)
+	currentOrder := 1
+
 	// Check which image types are supported for loading or saving
-	for i, typeInfo := range standardTypes {
+	for _, typeInfo := range standardTypes {
 		// Format enum name to maintain compatibility with existing code
 		enumName := "ImageType" + strings.Title(typeInfo.TypeName)
 
 		// Check if this format is supported by libvips
-		loaderName := typeInfo.TypeName + "load"
-		cLoader := C.CString(loaderName)
+		opName := typeInfo.OpName
+		if opName == "" {
+			opName = typeInfo.TypeName + "load"
+		}
+
+		cLoader := C.CString(opName)
 		loaderExists := int(C.vips_type_find(cachedCString("VipsOperation"), cLoader)) != 0
 		C.free(unsafe.Pointer(cLoader))
 
@@ -598,10 +606,134 @@ func (v *Introspection) DiscoverImageTypes() []vipsgen.ImageTypeInfo {
 				TypeName: typeInfo.TypeName,
 				EnumName: enumName,
 				MimeType: typeInfo.MimeType,
-				Order:    i + 1, // Start after Unknown (0)
+				Order:    currentOrder,
 			})
+			currentOrder++
 		}
 	}
 
+	// Special handling for AVIF - it uses heifsave with AV1 compression
+	avifSupported := v.checkOperationExists("heifsave_buffer") &&
+		v.checkEnumValueExists("VipsForeignHeifCompression", "VIPS_FOREIGN_HEIF_COMPRESSION_AV1")
+
+	if avifSupported {
+		// Add AVIF to the list with its proper order
+		imageTypes = append(imageTypes, vipsgen.ImageTypeInfo{
+			TypeName: "avif",
+			EnumName: "ImageTypeAvif",
+			MimeType: "image/avif",
+			Order:    currentOrder,
+		})
+		currentOrder++
+	}
+
 	return imageTypes
+}
+
+// DiscoverSupportedSavers finds which image savers are supported in current libvips build
+func (v *Introspection) DiscoverSupportedSavers() map[string]bool {
+	// Check for supported savers by checking if their types are defined
+	saverSupport := make(map[string]bool)
+
+	// Define the savers we want to check for
+	savers := []struct {
+		OpName    string // Operation name to check for
+		ImageType string // Corresponding Go ImageType name
+		LegacyOp  string // Optional legacy operation name
+		ShortName string // Short name without "save_buffer"
+	}{
+		{"jpegsave_buffer", "ImageTypeJpeg", "", "Jpeg"},
+		{"pngsave_buffer", "ImageTypePng", "", "Png"},
+		{"webpsave_buffer", "ImageTypeWebp", "", "Webp"},
+		{"tiffsave_buffer", "ImageTypeTiff", "", "Tiff"},
+		{"heifsave_buffer", "ImageTypeHeif", "", "Heif"},
+		{"gifsave_buffer", "ImageTypeGif", "magicksave_buffer", "Gif"},
+		{"jp2ksave_buffer", "ImageTypeJp2k", "", "Jp2k"},
+	}
+
+	// Check each saver
+	for _, saver := range savers {
+		hasMainSaver := v.checkOperationExists(saver.OpName)
+		hasLegacySaver := saver.LegacyOp != "" && v.checkOperationExists(saver.LegacyOp)
+
+		// Set flag based on correctly formatted saver name
+		saverSupport["Has"+saver.ShortName+"Saver"] = hasMainSaver
+
+		// For GIF, also track legacy saver separately
+		if saver.OpName == "gifsave_buffer" {
+			saverSupport["HasCgifSaver"] = hasMainSaver
+			saverSupport["HasLegacyGifSaver"] = hasLegacySaver
+		}
+
+		// If either main or legacy saver exists, the format is supported
+		if hasMainSaver || hasLegacySaver {
+			saverSupport[saver.ImageType] = true
+		}
+	}
+
+	// AVIF is a special case - it's saved using heifsave with compression=AV1
+	avifSupported := v.checkOperationExists("heifsave_buffer") &&
+		v.checkEnumValueExists("VipsForeignHeifCompression", "VIPS_FOREIGN_HEIF_COMPRESSION_AV1")
+
+	saverSupport["HasAvifSaver"] = avifSupported
+	if avifSupported {
+		saverSupport["ImageTypeAvif"] = true
+	}
+
+	return saverSupport
+}
+
+// checkOperationExists checks if a libvips operation exists
+func (v *Introspection) checkOperationExists(name string) bool {
+	cName := C.CString(name)
+	defer C.free(unsafe.Pointer(cName))
+
+	// Try to create the operation - if it succeeds, the operation exists
+	vop := C.vips_operation_new(cName)
+	if vop == nil {
+		return false
+	}
+
+	// Clean up and return true
+	C.g_object_unref(C.gpointer(vop))
+	return true
+}
+
+// checkEnumValueExists checks if a specific enum value exists
+func (v *Introspection) checkEnumValueExists(enumName, valueName string) bool {
+	// First check if the enum type exists
+	cEnumName := C.CString(enumName)
+	defer C.free(unsafe.Pointer(cEnumName))
+
+	if C.type_exists(cEnumName) == 0 {
+		return false
+	}
+
+	// Get all enum values
+	var count C.int
+	values := C.get_enum_values(cEnumName, &count)
+
+	if values == nil || count <= 0 {
+		return false
+	}
+
+	defer C.free_enum_values(values, count)
+	valueSlice := (*[1 << 30]C.EnumValueInfo)(unsafe.Pointer(values))
+
+	// Look for the specific value
+	safeCount := int(count)
+	if safeCount > 100 { // Sanity check
+		safeCount = 100
+	}
+
+	for i := 0; i < safeCount; i++ {
+		val := valueSlice[i]
+		name := C.GoString(val.name)
+
+		if name == valueName {
+			return true
+		}
+	}
+
+	return false
 }

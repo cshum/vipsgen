@@ -1,6 +1,11 @@
 package vipsgen
 
-import "github.com/cshum/vipsgen/templateloader"
+import (
+	"fmt"
+	"github.com/cshum/vipsgen/templateloader"
+	"path/filepath"
+	"strings"
+)
 
 // OperationsFile generates the Go file with operations
 func OperationsFile(templateLoader templateloader.TemplateLoader, filename string, operations []Operation) error {
@@ -83,4 +88,68 @@ func TypesFile(templateLoader templateloader.TemplateLoader, filename string, en
 	}
 
 	return templateLoader.GenerateFile("types.go.tmpl", filename, data)
+}
+
+// ForeignFiles generates all foreign functionality files
+func ForeignFiles(templateLoader templateloader.TemplateLoader, outputDir string, supportedSavers map[string]bool) error {
+	data := struct {
+		HasJpegSaver      bool
+		HasPngSaver       bool
+		HasWebpSaver      bool
+		HasTiffSaver      bool
+		HasHeifSaver      bool
+		HasLegacyGifSaver bool
+		HasCgifSaver      bool
+		HasAvifSaver      bool
+		HasJp2kSaver      bool
+		SupportedSavers   []struct {
+			EnumName string
+			TypeName string
+		}
+	}{
+		HasJpegSaver:      supportedSavers["HasJpegSaver"],
+		HasPngSaver:       supportedSavers["HasPngSaver"],
+		HasWebpSaver:      supportedSavers["HasWebpSaver"],
+		HasTiffSaver:      supportedSavers["HasTiffSaver"],
+		HasHeifSaver:      supportedSavers["HasHeifSaver"],
+		HasLegacyGifSaver: supportedSavers["HasLegacyGifSaver"],
+		HasCgifSaver:      supportedSavers["HasCgifSaver"],
+		HasAvifSaver:      supportedSavers["HasAvifSaver"],
+		HasJp2kSaver:      supportedSavers["HasJp2kSaver"],
+	}
+
+	// Build list of supported savers for the ImageSaverSupport map
+	for typeName, supported := range supportedSavers {
+		if supported && strings.HasPrefix(typeName, "ImageType") {
+			data.SupportedSavers = append(data.SupportedSavers, struct {
+				EnumName string
+				TypeName string
+			}{
+				EnumName: typeName,
+				TypeName: strings.TrimPrefix(typeName, "ImageType"),
+			})
+		}
+	}
+
+	// Generate all three foreign files
+	foreignGoFile := filepath.Join(outputDir, "foreign.go")
+	foreignHFile := filepath.Join(outputDir, "foreign.h")
+	foreignCFile := filepath.Join(outputDir, "foreign.c")
+
+	// Generate Go file
+	if err := templateLoader.GenerateFile("foreign.go.tmpl", foreignGoFile, data); err != nil {
+		return fmt.Errorf("failed to generate foreign.go file: %v", err)
+	}
+
+	// Generate H file
+	if err := templateLoader.GenerateFile("foreign.h.tmpl", foreignHFile, data); err != nil {
+		return fmt.Errorf("failed to generate foreign.h file: %v", err)
+	}
+
+	// Generate C file
+	if err := templateLoader.GenerateFile("foreign.c.tmpl", foreignCFile, data); err != nil {
+		return fmt.Errorf("failed to generate foreign.c file: %v", err)
+	}
+
+	return nil
 }

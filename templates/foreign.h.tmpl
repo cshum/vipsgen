@@ -14,6 +14,7 @@
 #define BOOL int
 #endif
 
+// Define image types - these types are defined even if not all are supported
 typedef enum types {
   UNKNOWN = 0,
   JPEG,
@@ -30,6 +31,8 @@ typedef enum types {
   JP2K
 } ImageType;
 
+// SaveParams structure includes parameters for all possible savers
+// even if not all are supported in the current build
 typedef struct SaveParams {
   VipsImage *inputImage;
   void *outputBuffer;
@@ -88,6 +91,17 @@ typedef struct SaveParams {
   int	jp2kTileHeight;
 } SaveParams;
 
+// Function declarations
 SaveParams create_save_params(ImageType outputFormat);
 int save_to_buffer(SaveParams *params);
 
+// Conditionally define saver support macros based on detected savers
+{{if .HasJpegSaver}}#define HAS_JPEG_SAVER 1{{else}}#define HAS_JPEG_SAVER 0{{end}}
+{{if .HasPngSaver}}#define HAS_PNG_SAVER 1{{else}}#define HAS_PNG_SAVER 0{{end}}
+{{if .HasWebpSaver}}#define HAS_WEBP_SAVER 1{{else}}#define HAS_WEBP_SAVER 0{{end}}
+{{if .HasTiffSaver}}#define HAS_TIFF_SAVER 1{{else}}#define HAS_TIFF_SAVER 0{{end}}
+{{if .HasHeifSaver}}#define HAS_HEIF_SAVER 1{{else}}#define HAS_HEIF_SAVER 0{{end}}
+{{if .HasLegacyGifSaver}}#define HAS_LEGACY_GIF_SAVER 1{{else}}#define HAS_LEGACY_GIF_SAVER 0{{end}}
+{{if .HasCgifSaver}}#define HAS_CGIF_SAVER 1{{else}}#define HAS_CGIF_SAVER 0{{end}}
+{{if .HasAvifSaver}}#define HAS_AVIF_SAVER 1{{else}}#define HAS_AVIF_SAVER 0{{end}}
+{{if .HasJp2kSaver}}#define HAS_JP2K_SAVER 1{{else}}#define HAS_JP2K_SAVER 0{{end}}
