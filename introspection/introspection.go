@@ -19,10 +19,28 @@ type enumTypeName struct {
 }
 
 // List of enum types to look for in libvips
-var baseEnumTypeNames = []enumTypeName{{
-	CName:  "VipsBlendMode",
-	GoName: "BlendMode",
-}}
+var baseEnumTypeNames = []enumTypeName{
+	{
+		CName:  "VipsBlendMode",
+		GoName: "BlendMode",
+	},
+	{
+		CName:  "VipsForeignPngFilter",
+		GoName: "PngFilter",
+	},
+	{
+		CName:  "VipsForeignSubsample",
+		GoName: "ForeignSubsample",
+	},
+	{
+		CName:  "VipsForeignTiffCompression",
+		GoName: "ForeignTiffCompression",
+	},
+	{
+		CName:  "VipsForeignTiffPredictor",
+		GoName: "ForeignTiffPredictor",
+	},
+}
 
 var cStringsCache sync.Map
 
