@@ -1,4 +1,3 @@
-// templateloader/templateloader.go
 package templateloader
 
 import (

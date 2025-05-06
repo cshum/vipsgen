@@ -79,3 +79,32 @@ type OperationConfig struct {
 	OptionsParam   string // Name of the options parameter if any
 	NeedsMultiPage bool   // Operation needs multi-page variant
 }
+
+// SupportedSaverInfo holds information about supported image savers
+type SupportedSaverInfo struct {
+	EnumName string
+	TypeName string
+}
+
+// TemplateData holds all data needed by any template
+type TemplateData struct {
+	Operations       []Operation
+	OperationConfigs map[string]OperationConfig
+	EnumTypes        []EnumTypeInfo
+	ImageTypes       []ImageTypeInfo
+	EnumTypeMap      map[string]bool // For quick lookups
+
+	// Image operations (filtered operations with VipsImage as first arg and output)
+	ImageOperations []Operation
+
+	HasJpegSaver      bool
+	HasPngSaver       bool
+	HasWebpSaver      bool
+	HasTiffSaver      bool
+	HasHeifSaver      bool
+	HasLegacyGifSaver bool
+	HasCgifSaver      bool
+	HasAvifSaver      bool
+	HasJp2kSaver      bool
+	SupportedSavers   []SupportedSaverInfo
+}
