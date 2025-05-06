@@ -408,54 +408,50 @@ func vipsGetMetaString(image *C.VipsImage, name string) string {
 {{range .Operations}}
 // {{.GoName}} {{.Description}}
 // https://libvips.github.io/libvips/API/current/libvips-{{.Category}}.html#vips-{{.Name}}
-func {{.GoName}}({{.RequiredInputs | formatArgs}}) ({{if .HasImageOutput}}*C.VipsImage, error{{else}}{{if .Outputs}}{{range $i, $arg := .Outputs}}{{if $i}}, {{end}}{{$arg.GoType}}{{end}}, error{{else}}error{{end}}{{end}}) {
+func {{.GoName}}({{$first := true}}{{range $arg := .Arguments}}{{if not $arg.IsOutput}}{{if $first}}{{$first = false}}{{else}}, {{end}}{{$arg.GoName}} {{$arg.GoType}}{{end}}{{end}}) ({{if .HasImageOutput}}*C.VipsImage, error{{else}}{{if .Outputs}}{{range $i, $arg := .Outputs}}{{if $i}}, {{end}}{{$arg.GoType}}{{end}}, error{{else}}error{{end}}{{end}}) {
     {{if .HasImageOutput}}
     var out *C.VipsImage
     {{else if .Outputs}}
     {{range $arg := .Outputs}}
-    {{if eq (index (split $arg.GoType "[]") 0) ""}}
     var {{$arg.GoName}}Out {{$arg.GoType}}
-    {{else}}
-    var {{$arg.GoName}}Out {{$arg.GoType}}
-    {{end}}
     {{end}}
     {{end}}
 
-    {{range .RequiredInputs}}{{if eq .GoType "string"}}
+    {{range .Arguments}}{{if and (not .IsOutput) (eq .GoType "string")}}
     c{{.GoName}} := C.CString({{.GoName}})
     defer freeCString(c{{.GoName}}){{end}}{{end}}
 
     {{if .HasImageOutput}}
-    if err := C.{{.Name}}_wrapper({{range $i, $arg := .RequiredInputs}}{{if $i}}, {{end}}
+    if err := C.{{.Name}}_wrapper({{$first := true}}{{range $arg := .Arguments}}{{if not $arg.IsOutput}}{{if $first}}{{$first = false}}{{else}}, {{end}}
         {{- if eq $arg.GoType "string"}}c{{$arg.GoName}}
         {{- else if eq $arg.GoType "bool"}}C.int(boolToInt({{$arg.GoName}}))
         {{- else if eq $arg.GoType "*C.VipsImage"}}{{$arg.GoName}}
         {{- else if $arg.IsEnum}}C.{{$arg.Type}}({{$arg.GoName}})
-        {{- else}}C.{{$arg.CType}}({{$arg.GoName}}){{- end}}{{end}},
+        {{- else}}C.{{$arg.CType}}({{$arg.GoName}}){{- end}}{{end}}{{end}},
         &out); err != 0 {
         return nil, handleImageError(out)
     }
 
     return out, nil
     {{else if .Outputs}}
-    if err := C.{{.Name}}_wrapper({{range $i, $arg := .RequiredInputs}}{{if $i}}, {{end}}
+    if err := C.{{.Name}}_wrapper({{$first := true}}{{range $arg := .Arguments}}{{if not $arg.IsOutput}}{{if $first}}{{$first = false}}{{else}}, {{end}}
         {{- if eq $arg.GoType "string"}}c{{$arg.GoName}}
         {{- else if eq $arg.GoType "bool"}}C.int(boolToInt({{$arg.GoName}}))
         {{- else if eq $arg.GoType "*C.VipsImage"}}{{$arg.GoName}}
         {{- else if $arg.IsEnum}}C.{{$arg.Type}}({{$arg.GoName}})
-        {{- else}}C.{{$arg.CType}}({{$arg.GoName}}){{- end}}{{end}}{{range $arg := .Outputs}},
+        {{- else}}C.{{$arg.CType}}({{$arg.GoName}}){{- end}}{{end}}{{end}}{{range $arg := .Outputs}},
         &{{$arg.GoName}}Out{{end}}); err != 0 {
         return {{range $i, $arg := .Outputs}}{{if $i}}, {{end}}{{if eq (index (split $arg.GoType "[]") 0) ""}}nil{{else if eq $arg.GoType "bool"}}false{{else if eq $arg.GoType "string"}}""{{else}}0{{end}}{{end}}, handleVipsError()
     }
 
     return {{range $i, $arg := .Outputs}}{{if $i}}, {{end}}{{$arg.GoName}}Out{{end}}, nil
     {{else}}
-    if err := C.{{.Name}}_wrapper({{range $i, $arg := .RequiredInputs}}{{if $i}}, {{end}}
+    if err := C.{{.Name}}_wrapper({{$first := true}}{{range $arg := .Arguments}}{{if not $arg.IsOutput}}{{if $first}}{{$first = false}}{{else}}, {{end}}
         {{- if eq $arg.GoType "string"}}c{{$arg.GoName}}
         {{- else if eq $arg.GoType "bool"}}C.int(boolToInt({{$arg.GoName}}))
         {{- else if eq $arg.GoType "*C.VipsImage"}}{{$arg.GoName}}
         {{- else if $arg.IsEnum}}C.{{$arg.Type}}({{$arg.GoName}})
-        {{- else}}C.{{$arg.CType}}({{$arg.GoName}}){{- end}}{{end}}); err != 0 {
+        {{- else}}C.{{$arg.CType}}({{$arg.GoName}}){{- end}}{{end}}{{end}}); err != 0 {
         return handleVipsError()
     }
 

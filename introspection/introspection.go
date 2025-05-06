@@ -131,10 +131,10 @@ func (v *Introspection) IntrospectOperations() []vipsgen.Operation {
 
 // IntrospectOperation analyzes a single libvips operation
 func (v *Introspection) IntrospectOperation(name string) vipsgen.Operation {
+	// Create operation
 	cName := C.CString(name)
 	defer C.free(unsafe.Pointer(cName))
 
-	// Create operation
 	vop := C.vips_operation_new(cName)
 	if vop == nil {
 		return vipsgen.Operation{}
@@ -159,7 +159,7 @@ func (v *Introspection) IntrospectOperation(name string) vipsgen.Operation {
 		Category:    category,
 	}
 
-	// Get arguments
+	// Get arguments using the improved function that takes operation name
 	args := v.getOperationArguments(name)
 
 	// If we have a custom config, apply it
@@ -371,9 +371,9 @@ func (v *Introspection) getOperationDescription(op *C.VipsOperation) string {
 	return ""
 }
 
-// getOperationArguments gets the arguments of an operation
+// getOperationArguments gets the arguments of an operation by name
 func (v *Introspection) getOperationArguments(opName string) []vipsgen.Argument {
-	// First create the operation instance
+	// Create operation instance
 	cName := C.CString(opName)
 	defer C.free(unsafe.Pointer(cName))
 
@@ -383,58 +383,60 @@ func (v *Introspection) getOperationArguments(opName string) []vipsgen.Argument 
 	}
 	defer C.g_object_unref(C.gpointer(op))
 
-	var args []vipsgen.Argument
+	// Get the GObject class
+	gclass := C.get_object_class(unsafe.Pointer(op))
 
-	// Get argument details directly from VIPS
-	var names **C.char
-	var flags *C.int
-	var nArgs C.int
+	// Get all properties
+	var nProps C.guint
+	props := C.g_object_class_list_properties(gclass, &nProps)
+	defer C.g_free(C.gpointer(props))
 
-	// Call our C helper function to get arguments
-	// This would typically be implemented in a C helper file
-	if C.get_vips_operation_args(op, &names, &flags, &nArgs) != 0 {
-		return args
-	}
+	// Convert to slice for easier handling
+	propsSlice := (*[1 << 30]*C.GParamSpec)(unsafe.Pointer(props))[:nProps:nProps]
 
-	// Convert C arrays to Go slices
-	namesSlice := unsafe.Slice(names, int(nArgs))
-	flagsSlice := unsafe.Slice(flags, int(nArgs))
+	// First pass: collect all arguments
+	var rawArgs []vipsgen.Argument
+	for i := 0; i < int(nProps); i++ {
+		pspec := propsSlice[i]
 
-	// Process arguments in order
-	for i := 0; i < int(nArgs); i++ {
-		argName := C.GoString(namesSlice[i])
-		argFlags := int(flagsSlice[i])
+		// Skip properties with NULL name (safety check)
+		if pspec.name == nil {
+			continue
+		}
 
-		// Get parameter spec
-		var pspec *C.GParamSpec
+		// Get argument class and instance
 		var argClass *C.VipsArgumentClass
 		var argInstance *C.VipsArgumentInstance
 
-		cArgName := C.CString(argName)
-		defer C.free(unsafe.Pointer(cArgName))
+		// Convert Go string to C string
+		goName := C.GoString(pspec.name)
+		cArgName := C.CString(goName)
 
-		if C.vips_object_get_argument(
+		found := C.vips_object_get_argument(
 			(*C.VipsObject)(unsafe.Pointer(op)),
 			cArgName,
 			&pspec,
 			&argClass,
 			&argInstance,
-		) != 0 {
+		)
+		C.free(unsafe.Pointer(cArgName))
+
+		if found != 0 || argClass == nil {
 			continue
 		}
 
-		// Create the argument
+		// Create argument
 		arg := vipsgen.Argument{
-			Name:        vipsgen.FormatIdentifier(argName),
-			GoName:      vipsgen.FormatGoIdentifier(argName),
+			Name:        vipsgen.FormatIdentifier(goName),
+			GoName:      vipsgen.FormatGoIdentifier(goName),
 			Type:        v.getParamType(pspec),
 			GoType:      v.getGoType(pspec),
 			CType:       v.getCType(pspec),
 			Description: v.getParamDescription(pspec),
-			Required:    (argFlags & C.VIPS_ARGUMENT_REQUIRED) != 0,
-			IsInput:     (argFlags & C.VIPS_ARGUMENT_INPUT) != 0,
-			IsOutput:    (argFlags & C.VIPS_ARGUMENT_OUTPUT) != 0,
-			Flags:       argFlags,
+			Required:    (argClass.flags & C.VIPS_ARGUMENT_REQUIRED) != 0,
+			IsInput:     (argClass.flags & C.VIPS_ARGUMENT_INPUT) != 0,
+			IsOutput:    (argClass.flags & C.VIPS_ARGUMENT_OUTPUT) != 0,
+			Flags:       int(argClass.flags),
 		}
 
 		// Check if it's an enum
@@ -448,7 +450,134 @@ func (v *Introspection) getOperationArguments(opName string) []vipsgen.Argument 
 			v.AddEnumType(enumTypeName, goEnumName)
 		}
 
-		args = append(args, arg)
+		rawArgs = append(rawArgs, arg)
+	}
+
+	// Special handling for known operations
+	if opName == "affine" {
+		// Handle affine's specific parameter structure
+		var args []vipsgen.Argument
+
+		// Look for the input image
+		for _, arg := range rawArgs {
+			if arg.Type == "VipsImage" && arg.IsInput {
+				args = append(args, arg)
+				break
+			}
+		}
+
+		// Add the output image
+		for _, arg := range rawArgs {
+			if arg.Type == "VipsImage" && arg.IsOutput {
+				args = append(args, arg)
+				break
+			}
+		}
+
+		// Handle the matrix specially - libvips expects individual doubles (a,b,c,d)
+		// not the VipsArrayDouble
+		for _, arg := range rawArgs {
+			if arg.Name == "matrix" {
+				// Create 4 matrix element arguments instead
+				args = append(args, vipsgen.Argument{
+					Name:        "a",
+					GoName:      "a",
+					Type:        "gdouble",
+					GoType:      "float64",
+					CType:       "double",
+					Description: "Matrix coefficient",
+					Required:    true,
+					IsInput:     true,
+					IsOutput:    false,
+				})
+				args = append(args, vipsgen.Argument{
+					Name:        "b",
+					GoName:      "b",
+					Type:        "gdouble",
+					GoType:      "float64",
+					CType:       "double",
+					Description: "Matrix coefficient",
+					Required:    true,
+					IsInput:     true,
+					IsOutput:    false,
+				})
+				args = append(args, vipsgen.Argument{
+					Name:        "c",
+					GoName:      "c",
+					Type:        "gdouble",
+					GoType:      "float64",
+					CType:       "double",
+					Description: "Matrix coefficient",
+					Required:    true,
+					IsInput:     true,
+					IsOutput:    false,
+				})
+				args = append(args, vipsgen.Argument{
+					Name:        "d",
+					GoName:      "d",
+					Type:        "gdouble",
+					GoType:      "float64",
+					CType:       "double",
+					Description: "Matrix coefficient",
+					Required:    true,
+					IsInput:     true,
+					IsOutput:    false,
+				})
+				break
+			}
+		}
+
+		// Add remaining arguments in their original order
+		for _, arg := range rawArgs {
+			if arg.Type != "VipsImage" && arg.Name != "matrix" {
+				args = append(args, arg)
+			}
+		}
+
+		b, _ := json.Marshal(args)
+		fmt.Println(opName, string(b))
+
+		return args
+	}
+
+	// For other operations, follow standard VIPS ordering pattern
+	var args []vipsgen.Argument
+
+	// First input image
+	for _, arg := range rawArgs {
+		if arg.Type == "VipsImage" && arg.IsInput {
+			args = append(args, arg)
+			break
+		}
+	}
+
+	// Output image
+	for _, arg := range rawArgs {
+		if arg.Type == "VipsImage" && arg.IsOutput {
+			args = append(args, arg)
+			break
+		}
+	}
+
+	// Other required inputs
+	for _, arg := range rawArgs {
+		if arg.Required && arg.IsInput && arg.Type != "VipsImage" {
+			args = append(args, arg)
+		}
+	}
+
+	// Other outputs
+	for _, arg := range rawArgs {
+		if arg.IsOutput && arg.Type != "VipsImage" {
+			args = append(args, arg)
+		}
+	}
+
+	// Optional inputs
+	for _, arg := range rawArgs {
+		if !arg.Required && arg.IsInput && arg.Type != "VipsImage" {
+			args = append(args, arg)
+		}
 	}
 
 	b, _ := json.Marshal(args)
