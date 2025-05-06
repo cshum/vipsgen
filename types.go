@@ -7,14 +7,11 @@ type TemplateLoader interface {
 	// LoadTemplate loads a template by name
 	LoadTemplate(name string) (*template.Template, error)
 
-	// ListTemplateFiles returns a list of all template files
-	ListTemplateFiles() ([]string, error)
+	// ListFiles returns a list of all template files
+	ListFiles() ([]string, error)
 
 	// GenerateFile generates a file using a template and data
 	GenerateFile(templateName, outputFile string, data interface{}) error
-
-	// ProcessStaticFiles processes all static files (copies them without template processing)
-	ProcessStaticFiles(outputDir string) error
 }
 
 // Operation represents a libvips operation

@@ -3,7 +3,6 @@ package vipsgen
 import (
 	"embed"
 	"fmt"
-	"io"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -11,34 +10,31 @@ import (
 	"text/template"
 )
 
-//go:embed templates/*.tmpl statics/*.tmpl
+//go:embed templates/*.tmpl
 var EmbeddedTemplates embed.FS
 
 // FSTemplateLoader loads templates from any fs.FS implementation
 type FSTemplateLoader struct {
-	fs         fs.FS
-	funcMap    template.FuncMap
-	staticRoot string
-	tmplRoot   string
+	fs       fs.FS
+	funcMap  template.FuncMap
+	tmplRoot string
 }
 
 // NewFSTemplateLoader creates a new template loader from any fs.FS implementation
-func NewFSTemplateLoader(filesystem fs.FS, funcMap template.FuncMap, staticRoot, tmplRoot string) TemplateLoader {
+func NewFSTemplateLoader(filesystem fs.FS, funcMap template.FuncMap, tmplRoot string) TemplateLoader {
 	return &FSTemplateLoader{
-		fs:         filesystem,
-		funcMap:    funcMap,
-		staticRoot: staticRoot,
-		tmplRoot:   tmplRoot,
+		fs:       filesystem,
+		funcMap:  funcMap,
+		tmplRoot: tmplRoot,
 	}
 }
 
 // NewEmbeddedTemplateLoader creates a template loader from an embedded filesystem
 func NewEmbeddedTemplateLoader(embeddedFS fs.FS, funcMap template.FuncMap) TemplateLoader {
 	return &FSTemplateLoader{
-		fs:         embeddedFS,
-		funcMap:    funcMap,
-		staticRoot: "statics",
-		tmplRoot:   "templates",
+		fs:       embeddedFS,
+		funcMap:  funcMap,
+		tmplRoot: "templates",
 	}
 }
 
@@ -50,25 +46,15 @@ func NewOSTemplateLoader(rootDir string, funcMap template.FuncMap) (TemplateLoad
 	}
 
 	return &FSTemplateLoader{
-		fs:         os.DirFS(rootDir),
-		funcMap:    funcMap,
-		staticRoot: "statics",
-		tmplRoot:   "templates",
+		fs:       os.DirFS(rootDir),
+		funcMap:  funcMap,
+		tmplRoot: "templates",
 	}, nil
 }
 
 // LoadTemplate loads a template from the filesystem
 func (t *FSTemplateLoader) LoadTemplate(name string) (*template.Template, error) {
-	var templatePath string
-
-	// For static templates, check in statics directory
-	if strings.HasPrefix(name, t.staticRoot+"/") {
-		// Keep the path as is for static templates
-		templatePath = name
-	} else {
-		// For regular templates, look in templates directory
-		templatePath = filepath.Join(t.tmplRoot, name)
-	}
+	templatePath := filepath.Join(t.tmplRoot, name)
 
 	// Read template content
 	content, err := fs.ReadFile(t.fs, templatePath)
@@ -85,36 +71,8 @@ func (t *FSTemplateLoader) LoadTemplate(name string) (*template.Template, error)
 	return tmpl, nil
 }
 
-// GenerateFile generates a file using a template and data
-func (t *FSTemplateLoader) GenerateFile(templateName, outputFile string, data interface{}) error {
-	tmpl, err := t.LoadTemplate(templateName)
-	if err != nil {
-		return err
-	}
-
-	// Create output directory if it doesn't exist
-	outputDir := filepath.Dir(outputFile)
-	if err := os.MkdirAll(outputDir, 0755); err != nil {
-		return fmt.Errorf("failed to create output directory: %v", err)
-	}
-
-	// Create output file
-	file, err := os.Create(outputFile)
-	if err != nil {
-		return fmt.Errorf("failed to create output file: %v", err)
-	}
-	defer file.Close()
-
-	// Execute template
-	if err := tmpl.Execute(file, data); err != nil {
-		return fmt.Errorf("failed to execute template: %v", err)
-	}
-
-	return nil
-}
-
-// ListTemplateFiles returns a list of all template files
-func (t *FSTemplateLoader) ListTemplateFiles() ([]string, error) {
+// ListFiles returns a list of all template files
+func (t *FSTemplateLoader) ListFiles() ([]string, error) {
 	var templateFiles []string
 
 	// Walk template directory
@@ -149,76 +107,29 @@ func (t *FSTemplateLoader) ListTemplateFiles() ([]string, error) {
 	return templateFiles, nil
 }
 
-// copyStaticFile copies a static file without template processing
-func (t *FSTemplateLoader) copyStaticFile(staticPath, outputPath string) error {
-	// Open the static file
-	file, err := t.fs.Open(staticPath)
+// GenerateFile generates a file using a template and data
+func (t *FSTemplateLoader) GenerateFile(templateName, outputFile string, data interface{}) error {
+	tmpl, err := t.LoadTemplate(templateName)
 	if err != nil {
-		return fmt.Errorf("failed to open static file %s: %v", staticPath, err)
+		return err
 	}
-	defer file.Close()
 
 	// Create output directory if it doesn't exist
-	outputDir := filepath.Dir(outputPath)
+	outputDir := filepath.Dir(outputFile)
 	if err := os.MkdirAll(outputDir, 0755); err != nil {
 		return fmt.Errorf("failed to create output directory: %v", err)
 	}
 
-	// Create the output file
-	outFile, err := os.Create(outputPath)
+	// Create output file
+	file, err := os.Create(outputFile)
 	if err != nil {
 		return fmt.Errorf("failed to create output file: %v", err)
 	}
-	defer outFile.Close()
+	defer file.Close()
 
-	// Copy the content
-	_, err = io.Copy(outFile, file)
-	if err != nil {
-		return fmt.Errorf("failed to copy static file: %v", err)
-	}
-
-	return nil
-}
-
-// ProcessStaticFiles processes all static files (copies them without template processing)
-func (t *FSTemplateLoader) ProcessStaticFiles(outputDir string) error {
-	// Walk the statics directory
-	err := fs.WalkDir(t.fs, t.staticRoot, func(path string, d fs.DirEntry, err error) error {
-		if err != nil {
-			return err
-		}
-
-		// Skip directories
-		if d.IsDir() {
-			return nil
-		}
-
-		// Only process .tmpl files
-		if !strings.HasSuffix(d.Name(), ".tmpl") {
-			return nil
-		}
-
-		// Get the relative path from the statics root
-		relPath, err := filepath.Rel(t.staticRoot, path)
-		if err != nil {
-			return fmt.Errorf("failed to get relative path: %v", err)
-		}
-
-		// Create the output path (without .tmpl extension)
-		outputPath := filepath.Join(outputDir, strings.TrimSuffix(relPath, ".tmpl"))
-
-		// Copy the file
-		if err := t.copyStaticFile(path, outputPath); err != nil {
-			return err
-		}
-
-		fmt.Printf("  - Copied static file: %s\n", strings.TrimSuffix(relPath, ".tmpl"))
-		return nil
-	})
-
-	// It's okay if the statics directory doesn't exist
-	if err != nil && !os.IsNotExist(err) {
-		return fmt.Errorf("failed to process static files: %v", err)
+	// Execute template
+	if err := tmpl.Execute(file, data); err != nil {
+		return fmt.Errorf("failed to execute template: %v", err)
 	}
 
 	return nil

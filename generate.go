@@ -19,19 +19,15 @@ func Generate(
 	}
 
 	// Get all template files
-	templateFiles, err := templateLoader.ListTemplateFiles()
+	templateFiles, err := templateLoader.ListFiles()
 	if err != nil {
 		return fmt.Errorf("failed to list template files: %v", err)
 	}
 
 	// Generate files from templates
-	generatedFiles := []string{}
-	for _, templateFile := range templateFiles {
-		// Skip template files in the "statics" directory - they're handled separately
-		if strings.HasPrefix(templateFile, "statics/") {
-			continue
-		}
+	var generatedFiles []string
 
+	for _, templateFile := range templateFiles {
 		// Convert template name to output filename
 		// For example: "vips.go.tmpl" -> "vips.go"
 		outputFile := filepath.Join(outputDir, strings.TrimSuffix(filepath.Base(templateFile), ".tmpl"))
@@ -41,11 +37,6 @@ func Generate(
 			return fmt.Errorf("failed to generate %s: %v", outputFile, err)
 		}
 		generatedFiles = append(generatedFiles, outputFile)
-	}
-
-	// Process static files - this simply copies them with the .tmpl extension removed
-	if err := templateLoader.ProcessStaticFiles(outputDir); err != nil {
-		return fmt.Errorf("failed to process static files: %v", err)
 	}
 
 	fmt.Printf("\nSuccessfully generated files from templates: %d\n", len(generatedFiles))
