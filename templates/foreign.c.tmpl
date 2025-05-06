@@ -4,11 +4,11 @@
 
 // JPEG buffer save wrapper
 {{if .HasJpegSaver}}
-int jpegsave_buffer_wrapper(VipsImage *in, VipsBlob **out, int quality, int strip,
+int jpegsave_buffer_wrapper(VipsImage *in, void **buf, size_t *len, int quality, int strip,
                          int optimize_coding, int interlace, int subsample_mode,
                          int trellis_quant, int overshoot_deringing,
                          int optimize_scans, int quant_table) {
-    return vips_jpegsave_buffer(in, out,
+    return vips_jpegsave_buffer(in, buf, len,
                               "Q", quality,
                               "strip", strip,
                               "optimize_coding", optimize_coding,
@@ -24,10 +24,10 @@ int jpegsave_buffer_wrapper(VipsImage *in, VipsBlob **out, int quality, int stri
 
 // PNG buffer save wrapper
 {{if .HasPngSaver}}
-int pngsave_buffer_wrapper(VipsImage *in, VipsBlob **out, int compression, int strip,
+int pngsave_buffer_wrapper(VipsImage *in, void **buf, size_t *len, int compression, int strip,
                         int interlace, int filter, int palette, int quality,
                         double dither, int bitdepth) {
-    return vips_pngsave_buffer(in, out,
+    return vips_pngsave_buffer(in, buf, len,
                              "compression", compression,
                              "strip", strip,
                              "interlace", interlace,
@@ -42,9 +42,9 @@ int pngsave_buffer_wrapper(VipsImage *in, VipsBlob **out, int compression, int s
 
 // WEBP buffer save wrapper
 {{if .HasWebpSaver}}
-int webpsave_buffer_wrapper(VipsImage *in, VipsBlob **out, int quality, int strip,
+int webpsave_buffer_wrapper(VipsImage *in, void **buf, size_t *len, int quality, int strip,
                          int lossless, int near_lossless, int reduction_effort) {
-    return vips_webpsave_buffer(in, out,
+    return vips_webpsave_buffer(in, buf, len,
                               "Q", quality,
                               "strip", strip,
                               "lossless", lossless,
@@ -53,10 +53,10 @@ int webpsave_buffer_wrapper(VipsImage *in, VipsBlob **out, int quality, int stri
                               NULL);
 }
 
-int webpsave_buffer_profile_wrapper(VipsImage *in, VipsBlob **out, int quality, int strip,
+int webpsave_buffer_profile_wrapper(VipsImage *in, void **buf, size_t *len, int quality, int strip,
                                  int lossless, int near_lossless, int reduction_effort,
                                  const char* profile) {
-    return vips_webpsave_buffer(in, out,
+    return vips_webpsave_buffer(in, buf, len,
                               "Q", quality,
                               "strip", strip,
                               "lossless", lossless,
@@ -69,8 +69,8 @@ int webpsave_buffer_profile_wrapper(VipsImage *in, VipsBlob **out, int quality, 
 
 // HEIF buffer save wrapper
 {{if .HasHeifSaver}}
-int heifsave_buffer_wrapper(VipsImage *in, VipsBlob **out, int quality, int lossless) {
-    return vips_heifsave_buffer(in, out,
+int heifsave_buffer_wrapper(VipsImage *in, void **buf, size_t *len, int quality, int lossless) {
+    return vips_heifsave_buffer(in, buf, len,
                               "Q", quality,
                               "lossless", lossless,
                               NULL);
@@ -79,10 +79,10 @@ int heifsave_buffer_wrapper(VipsImage *in, VipsBlob **out, int quality, int loss
 
 // TIFF buffer save wrapper
 {{if .HasTiffSaver}}
-int tiffsave_buffer_wrapper(VipsImage *in, VipsBlob **out, int quality, int strip,
+int tiffsave_buffer_wrapper(VipsImage *in, void **buf, size_t *len, int quality, int strip,
                          int compression, int predictor, int pyramid, int tile,
                          int tile_width, int tile_height, double xres, double yres) {
-    return vips_tiffsave_buffer(in, out,
+    return vips_tiffsave_buffer(in, buf, len,
                               "Q", quality,
                               "strip", strip,
                               "compression", compression,
@@ -99,8 +99,8 @@ int tiffsave_buffer_wrapper(VipsImage *in, VipsBlob **out, int quality, int stri
 
 // GIF buffer save wrapper (CGIF)
 {{if .HasCgifSaver}}
-int gifsave_buffer_wrapper(VipsImage *in, VipsBlob **out, double dither, int effort, int bitdepth) {
-    return vips_gifsave_buffer(in, out,
+int gifsave_buffer_wrapper(VipsImage *in, void **buf, size_t *len, double dither, int effort, int bitdepth) {
+    return vips_gifsave_buffer(in, buf, len,
                              "dither", dither,
                              "effort", effort,
                              "bitdepth", bitdepth,
@@ -110,8 +110,8 @@ int gifsave_buffer_wrapper(VipsImage *in, VipsBlob **out, double dither, int eff
 
 // GIF buffer save wrapper through Magick (legacy)
 {{if .HasLegacyGifSaver}}
-int magicksave_buffer_wrapper(VipsImage *in, VipsBlob **out, const char* format, int quality) {
-    return vips_magicksave_buffer(in, out,
+int magicksave_buffer_wrapper(VipsImage *in, void **buf, size_t *len, const char* format, int quality) {
+    return vips_magicksave_buffer(in, buf, len,
                                 "format", format,
                                 "quality", quality,
                                 NULL);
@@ -120,9 +120,9 @@ int magicksave_buffer_wrapper(VipsImage *in, VipsBlob **out, const char* format,
 
 // AVIF buffer save wrapper through HEIF
 {{if .HasAvifSaver}}
-int avifsave_buffer_wrapper(VipsImage *in, VipsBlob **out, int quality, int lossless,
+int avifsave_buffer_wrapper(VipsImage *in, void **buf, size_t *len, int quality, int lossless,
                          int speed, int strip) {
-    return vips_heifsave_buffer(in, out,
+    return vips_heifsave_buffer(in, buf, len,
                               "compression", VIPS_FOREIGN_HEIF_COMPRESSION_AV1,
                               "Q", quality,
                               "lossless", lossless,
@@ -134,9 +134,9 @@ int avifsave_buffer_wrapper(VipsImage *in, VipsBlob **out, int quality, int loss
 
 // JP2K buffer save wrapper
 {{if .HasJp2kSaver}}
-int jp2ksave_buffer_wrapper(VipsImage *in, VipsBlob **out, int quality, int lossless,
+int jp2ksave_buffer_wrapper(VipsImage *in, void **buf, size_t *len, int quality, int lossless,
                          int tile_width, int tile_height, int subsample_mode) {
-    return vips_jp2ksave_buffer(in, out,
+    return vips_jp2ksave_buffer(in, buf, len,
                               "Q", quality,
                               "lossless", lossless,
                               "tile_width", tile_width,
@@ -145,41 +145,3 @@ int jp2ksave_buffer_wrapper(VipsImage *in, VipsBlob **out, int quality, int loss
                               NULL);
 }
 {{end}}
-
-// Helper function to extract bytes from a VipsBlob and handle all the cleanup
-// Uses the vips error system for more detailed error reporting
-unsigned char* blob_to_bytes(VipsBlob *blob, size_t *len) {
-    if (blob == NULL) {
-        vips_error("blob_to_bytes", "NULL blob pointer");
-        *len = 0;
-        return NULL;
-    }
-
-    VipsArea *area = VIPS_AREA(blob);
-    if (area == NULL) {
-        vips_error("blob_to_bytes", "NULL area pointer");
-        *len = 0;
-        return NULL;
-    }
-
-    if (area->data == NULL || area->length == 0) {
-        vips_area_unref(area);
-        vips_error("blob_to_bytes", "Empty blob data");
-        *len = 0;
-        return NULL;
-    }
-
-    // Set the length
-    *len = area->length;
-
-    // Mark that Go will handle the memory (prevent libvips from freeing it)
-    area->free_fn = NULL;
-
-    // Get a pointer to the data
-    unsigned char *data = area->data;
-
-    // Unref the area (its data won't be freed since we set free_fn to NULL)
-    vips_area_unref(area);
-
-    return data;
-}

@@ -41,31 +41,31 @@ func NewJpegExportParams() *JpegExportParams {
 
 // ExportJpeg exports the image as JPEG to a buffer.
 func (r *Image) ExportJpeg(params *JpegExportParams) ([]byte, error) {
-	if params == nil {
-		params = NewJpegExportParams()
-	}
+    if params == nil {
+        params = NewJpegExportParams()
+    }
 
-	var blob *C.VipsBlob
+    var buf unsafe.Pointer
+    var length C.size_t
 
-	// Call jpegsave_buffer_wrapper
-	err := C.jpegsave_buffer_wrapper(
-		r.image, &blob,
-		C.int(params.Quality),
-		C.int(boolToInt(params.StripMetadata)),
-		C.int(boolToInt(params.OptimizeCoding)),
-		C.int(boolToInt(params.Interlace)),
-		C.int(params.SubsampleMode),
-		C.int(boolToInt(params.TrellisQuant)),
-		C.int(boolToInt(params.OvershootDeringing)),
-		C.int(boolToInt(params.OptimizeScans)),
-		C.int(params.QuantTable),
-	)
+    err := C.jpegsave_buffer_wrapper(
+        r.image, &buf, &length,
+        C.int(params.Quality),
+        C.int(boolToInt(params.StripMetadata)),
+        C.int(boolToInt(params.OptimizeCoding)),
+        C.int(boolToInt(params.Interlace)),
+        C.int(params.SubsampleMode),
+        C.int(boolToInt(params.TrellisQuant)),
+        C.int(boolToInt(params.OvershootDeringing)),
+        C.int(boolToInt(params.OptimizeScans)),
+        C.int(params.QuantTable),
+    )
 
-	if err != 0 {
-		return nil, handleVipsError()
-	}
+    if err != 0 {
+        return nil, handleVipsError()
+    }
 
-	return blobToBytes(blob)
+    return bufferToBytes(buf, length), nil
 }
 {{end}}
 
@@ -458,15 +458,18 @@ func (r *Image) ExportJp2k(params *Jp2kExportParams) ([]byte, error) {
 }
 {{end}}
 
-// Helper to convert a VipsBlob to Go bytes
-func blobToBytes(blob *C.VipsBlob) ([]byte, error) {
-    var length C.size_t
-    data := C.blob_to_bytes(blob, &length)
-
-    if data == nil {
-        return nil, handleVipsError()
+// bufferToBytes converts a C buffer to Go bytes and frees the original buffer.
+// This function takes ownership of the buffer and will free it after conversion.
+func bufferToBytes(buf unsafe.Pointer, length C.size_t) []byte {
+    if buf == nil {
+        return nil
     }
 
-    // Convert to Go bytes (copies the memory)
-    return C.GoBytes(unsafe.Pointer(data), C.int(length)), nil
+    // Convert to Go bytes (makes a copy)
+    bytes := C.GoBytes(buf, C.int(length))
+
+    // Free the original buffer allocated by libvips
+    C.g_free(C.gpointer(buf))
+
+    return bytes
 }

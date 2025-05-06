@@ -12,52 +12,52 @@
 // These will only be defined in the C file if the corresponding saver is available
 
 {{if .HasJpegSaver}}
-int jpegsave_buffer_wrapper(VipsImage *in, VipsBlob **out, int quality, int strip,
+int jpegsave_buffer_wrapper(VipsImage *in, void **buf, size_t *len, int quality, int strip,
                          int optimize_coding, int interlace, int subsample_mode,
                          int trellis_quant, int overshoot_deringing,
                          int optimize_scans, int quant_table);
 {{end}}
 
 {{if .HasPngSaver}}
-int pngsave_buffer_wrapper(VipsImage *in, VipsBlob **out, int compression, int strip,
+int pngsave_buffer_wrapper(VipsImage *in, void **buf, size_t *len, int compression, int strip,
                         int interlace, int filter, int palette, int quality,
                         double dither, int bitdepth);
 {{end}}
 
 {{if .HasWebpSaver}}
-int webpsave_buffer_wrapper(VipsImage *in, VipsBlob **out, int quality, int strip,
+int webpsave_buffer_wrapper(VipsImage *in, void **buf, size_t *len, int quality, int strip,
                          int lossless, int near_lossless, int reduction_effort);
 
-int webpsave_buffer_profile_wrapper(VipsImage *in, VipsBlob **out, int quality, int strip,
+int webpsave_buffer_profile_wrapper(VipsImage *in, void **buf, size_t *len, int quality, int strip,
                                  int lossless, int near_lossless, int reduction_effort,
                                  const char* profile);
 {{end}}
 
 {{if .HasHeifSaver}}
-int heifsave_buffer_wrapper(VipsImage *in, VipsBlob **out, int quality, int lossless);
+int heifsave_buffer_wrapper(VipsImage *in, void **buf, size_t *len, int quality, int lossless);
 {{end}}
 
 {{if .HasTiffSaver}}
-int tiffsave_buffer_wrapper(VipsImage *in, VipsBlob **out, int quality, int strip,
+int tiffsave_buffer_wrapper(VipsImage *in, void **buf, size_t *len, int quality, int strip,
                          int compression, int predictor, int pyramid, int tile,
                          int tile_width, int tile_height, double xres, double yres);
 {{end}}
 
 {{if .HasCgifSaver}}
-int gifsave_buffer_wrapper(VipsImage *in, VipsBlob **out, double dither, int effort, int bitdepth);
+int gifsave_buffer_wrapper(VipsImage *in, void **buf, size_t *len, double dither, int effort, int bitdepth);
 {{end}}
 
 {{if .HasLegacyGifSaver}}
-int magicksave_buffer_wrapper(VipsImage *in, VipsBlob **out, const char* format, int quality);
+int magicksave_buffer_wrapper(VipsImage *in, void **buf, size_t *len, const char* format, int quality);
 {{end}}
 
 {{if .HasAvifSaver}}
-int avifsave_buffer_wrapper(VipsImage *in, VipsBlob **out, int quality, int lossless,
+int avifsave_buffer_wrapper(VipsImage *in, void **buf, size_t *len, int quality, int lossless,
                          int speed, int strip);
 {{end}}
 
 {{if .HasJp2kSaver}}
-int jp2ksave_buffer_wrapper(VipsImage *in, VipsBlob **out, int quality, int lossless,
+int jp2ksave_buffer_wrapper(VipsImage *in, void **buf, size_t *len, int quality, int lossless,
                          int tile_width, int tile_height, int subsample_mode);
 {{end}}
 
@@ -71,7 +71,3 @@ int jp2ksave_buffer_wrapper(VipsImage *in, VipsBlob **out, int quality, int loss
 {{if .HasCgifSaver}}#define HAS_CGIF_SAVER 1{{else}}#define HAS_CGIF_SAVER 0{{end}}
 {{if .HasAvifSaver}}#define HAS_AVIF_SAVER 1{{else}}#define HAS_AVIF_SAVER 0{{end}}
 {{if .HasJp2kSaver}}#define HAS_JP2K_SAVER 1{{else}}#define HAS_JP2K_SAVER 0{{end}}
-
-// Blob helper function to extract data as bytes and handle cleanup
-// Returns NULL and sets vips error on failure
-unsigned char* blob_to_bytes(VipsBlob *blob, size_t *len);
