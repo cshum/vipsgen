@@ -5,9 +5,10 @@ import (
 	"github.com/cshum/vipsgen/templateloader"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
-// Generate generates all code files from templates using the unified template data
+// Generate generates all code files from templates by scanning the template directory
 func Generate(
 	templateLoader templateloader.TemplateLoader,
 	templateData *TemplateData,
@@ -18,21 +19,25 @@ func Generate(
 		return fmt.Errorf("failed to create output directory: %v", err)
 	}
 
-	// Map of template files to output files
-	templateMapping := map[string]string{
-		"vips.go.tmpl":    filepath.Join(outputDir, "vips.go"),
-		"vips.h.tmpl":     filepath.Join(outputDir, "vips.h"),
-		"vips.c.tmpl":     filepath.Join(outputDir, "vips.c"),
-		"image.go.tmpl":   filepath.Join(outputDir, "image.go"),
-		"types.go.tmpl":   filepath.Join(outputDir, "types.go"),
-		"foreign.go.tmpl": filepath.Join(outputDir, "foreign.go"),
-		"foreign.h.tmpl":  filepath.Join(outputDir, "foreign.h"),
-		"foreign.c.tmpl":  filepath.Join(outputDir, "foreign.c"),
+	// Get all template files
+	templateFiles, err := templateLoader.ListTemplateFiles()
+	if err != nil {
+		return fmt.Errorf("failed to list template files: %v", err)
 	}
 
-	// Generate all files
+	// Generate files from templates
 	generatedFiles := []string{}
-	for templateFile, outputFile := range templateMapping {
+	for _, templateFile := range templateFiles {
+		// Skip template files in the "statics" directory - they're handled separately
+		if strings.HasPrefix(templateFile, "statics/") {
+			continue
+		}
+
+		// Convert template name to output filename
+		// For example: "vips.go.tmpl" -> "vips.go"
+		outputFile := filepath.Join(outputDir, strings.TrimSuffix(filepath.Base(templateFile), ".tmpl"))
+
+		// Generate file from template
 		if err := templateLoader.GenerateFile(templateFile, outputFile, templateData); err != nil {
 			return fmt.Errorf("failed to generate %s: %v", outputFile, err)
 		}
