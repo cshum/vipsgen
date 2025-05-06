@@ -22,9 +22,9 @@ static void* collect_operations(void *object_class, void *a, void *b) {
 // This function discovers all operations by directly querying GType system
 char** get_all_operation_names(int *count) {
     OperationList list = {
-        .names = malloc(200 * sizeof(char*)),
+        .names = malloc(1000 * sizeof(char*)),
         .count = 0,
-        .capacity = 200
+        .capacity = 1000
     };
 
     // Get all types derived from VipsOperation

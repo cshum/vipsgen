@@ -234,8 +234,8 @@ func NewGifExportParams() *GifExportParams {
 	}
 }
 
-// ExportGIF exports the image as GIF to a buffer.
-func (r *Image) ExportGIF(params *GifExportParams) ([]byte, error) {
+// ExportGif exports the image as GIF to a buffer.
+func (r *Image) ExportGif(params *GifExportParams) ([]byte, error) {
 	if params == nil {
 		params = NewGifExportParams()
 	}
