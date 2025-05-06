@@ -2,7 +2,6 @@ package vipsgen
 
 import (
 	"fmt"
-	"github.com/cshum/vipsgen/templateloader"
 	"os"
 	"path/filepath"
 	"strings"
@@ -10,7 +9,7 @@ import (
 
 // Generate generates all code files from templates by scanning the template directory
 func Generate(
-	templateLoader templateloader.TemplateLoader,
+	templateLoader TemplateLoader,
 	templateData *TemplateData,
 	outputDir string,
 ) error {

@@ -1,4 +1,4 @@
-package templateloader
+package vipsgen
 
 import (
 	"fmt"

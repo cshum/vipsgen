@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/cshum/vipsgen"
 	"github.com/cshum/vipsgen/introspection"
-	"github.com/cshum/vipsgen/templateloader"
 	"log"
 )
 
@@ -20,7 +19,7 @@ func main() {
 
 	// Extract templates and exit if requested
 	if *extractTemplates {
-		if err := templateloader.ExtractEmbeddedFilesystem(vipsgen.EmbeddedTemplates, *extractDir); err != nil {
+		if err := vipsgen.ExtractEmbeddedFilesystem(vipsgen.EmbeddedTemplates, *extractDir); err != nil {
 			log.Fatalf("Failed to extract templates: %v", err)
 		}
 
@@ -29,21 +28,21 @@ func main() {
 	}
 
 	var outputDir string
-	var loader templateloader.TemplateLoader
+	var loader vipsgen.TemplateLoader
 	var funcMap = vipsgen.GetTemplateFuncMap()
 
 	// Determine template source - use embedded by default, external if specified
 	if *templateDirFlag != "" {
 		// Use specified template directory
 		var err error
-		loader, err = templateloader.NewOSTemplateLoader(*templateDirFlag, funcMap)
+		loader, err = vipsgen.NewOSTemplateLoader(*templateDirFlag, funcMap)
 		if err != nil {
 			log.Fatalf("Failed to create template loader: %v", err)
 		}
 		fmt.Printf("Using templates from: %s\n", *templateDirFlag)
 	} else {
 		// Use embedded templates by default
-		loader = templateloader.NewEmbeddedTemplateLoader(vipsgen.EmbeddedTemplates, funcMap)
+		loader = vipsgen.NewEmbeddedTemplateLoader(vipsgen.EmbeddedTemplates, funcMap)
 		fmt.Println("Using embedded templates")
 	}
 
