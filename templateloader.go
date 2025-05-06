@@ -1,6 +1,7 @@
 package vipsgen
 
 import (
+	"embed"
 	"fmt"
 	"io"
 	"io/fs"
@@ -9,6 +10,9 @@ import (
 	"strings"
 	"text/template"
 )
+
+//go:embed templates/*.tmpl statics/*.tmpl
+var EmbeddedTemplates embed.FS
 
 // FSTemplateLoader loads templates from any fs.FS implementation
 type FSTemplateLoader struct {
