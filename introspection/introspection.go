@@ -416,7 +416,7 @@ func (v *Introspection) getOperationArguments(op *C.VipsOperation) []vipsgen.Arg
 		// Create argument
 		goName := C.GoString(pspec.name)
 		arg := vipsgen.Argument{
-			Name:        goName,
+			Name:        vipsgen.FormatIdentifier(goName),
 			GoName:      vipsgen.FormatGoIdentifier(goName),
 			Type:        v.getParamType(pspec),
 			GoType:      v.getGoType(pspec),

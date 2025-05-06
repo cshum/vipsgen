@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 	"text/template"
+	"unicode"
 )
 
 // ImageMethodName converts vipsFooBar to FooBar for method names
@@ -44,8 +45,8 @@ func FormatGoFunctionName(name string) string {
 	return "vips" + strings.Join(parts, "")
 }
 
-// FormatGoIdentifier formats a name to a Go identifier
-func FormatGoIdentifier(name string) string {
+// FormatIdentifier formats a name to an identifier
+func FormatIdentifier(name string) string {
 	// Handle Go keywords
 	switch name {
 	case "type", "func", "map", "range", "select", "case", "default":
@@ -56,6 +57,20 @@ func FormatGoIdentifier(name string) string {
 	name = strings.Replace(name, "-", "_", -1)
 
 	return name
+}
+
+// FormatGoIdentifier formats a name to a go identifier
+func FormatGoIdentifier(name string) string {
+	s := SnakeToCamel(FormatIdentifier(name))
+
+	// first letter lower case
+	if len(s) == 0 {
+		return s
+	}
+
+	r := []rune(s)
+	r[0] = unicode.ToLower(r[0])
+	return string(r)
 }
 
 // GetGoEnumName converts a C enum type name to a Go type name
