@@ -425,7 +425,7 @@ func (v *Introspection) getOperationArguments(opName string) []vipsgen.Argument 
 
 		// Create the argument
 		arg := vipsgen.Argument{
-			Name:        argName,
+			Name:        vipsgen.FormatIdentifier(argName),
 			GoName:      vipsgen.FormatGoIdentifier(argName),
 			Type:        v.getParamType(pspec),
 			GoType:      v.getGoType(pspec),
