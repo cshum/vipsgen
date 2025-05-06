@@ -415,28 +415,57 @@ func (v *Introspection) getOperationArguments(op *C.VipsOperation) []vipsgen.Arg
 
 		// Create argument
 		goName := C.GoString(pspec.name)
+		propTypeName := v.getParamType(pspec)
+
+		// Special handling for array types to ensure correct mapping
+		var goType, cType string
+		var isEnum bool
+		var enumType string
+
+		if strings.HasPrefix(propTypeName, "VipsArray") {
+			// Handle array types specifically
+			if propTypeName == "VipsArrayDouble" {
+				goType = "[]float64"
+				cType = "VipsArrayDouble*"
+			} else if propTypeName == "VipsArrayInt" {
+				goType = "[]int"
+				cType = "VipsArrayInt*"
+			} else if propTypeName == "VipsArrayImage" {
+				goType = "[]*C.VipsImage"
+				cType = "VipsArrayImage*"
+			} else {
+				goType = "interface{}"
+				cType = "void*"
+			}
+		} else {
+			// Standard type mapping
+			goType = v.getGoType(pspec)
+			cType = v.getCType(pspec)
+
+			// Check if it's an enum
+			if C.g_type_is_a(pspec.value_type, C.G_TYPE_ENUM) != 0 {
+				isEnum = true
+				enumType = propTypeName
+
+				// Add this enum type to our list
+				goEnumName := vipsgen.GetGoEnumName(enumType)
+				v.AddEnumType(enumType, goEnumName)
+			}
+		}
+
 		arg := vipsgen.Argument{
-			Name:        vipsgen.FormatIdentifier(goName),
+			Name:        goName,
 			GoName:      vipsgen.FormatGoIdentifier(goName),
-			Type:        v.getParamType(pspec),
-			GoType:      v.getGoType(pspec),
-			CType:       v.getCType(pspec),
+			Type:        propTypeName,
+			GoType:      goType,
+			CType:       cType,
 			Description: v.getParamDescription(pspec),
 			Required:    (argClass.flags & C.VIPS_ARGUMENT_REQUIRED) != 0,
 			IsInput:     (argClass.flags & C.VIPS_ARGUMENT_INPUT) != 0,
 			IsOutput:    (argClass.flags & C.VIPS_ARGUMENT_OUTPUT) != 0,
 			Flags:       int(argClass.flags),
-		}
-
-		// Check if it's an enum
-		if C.g_type_is_a(pspec.value_type, C.G_TYPE_ENUM) != 0 {
-			arg.IsEnum = true
-			enumTypeName := C.GoString(C.g_type_name(pspec.value_type))
-			arg.EnumType = enumTypeName
-
-			// Add this enum type to our list
-			goEnumName := vipsgen.GetGoEnumName(enumTypeName)
-			v.AddEnumType(enumTypeName, goEnumName)
+			IsEnum:      isEnum,
+			EnumType:    enumType,
 		}
 
 		args = append(args, arg)
