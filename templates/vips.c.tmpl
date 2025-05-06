@@ -520,7 +520,7 @@ int remove_exif(VipsImage *in, VipsImage **out) {
 
 
 {{range .Operations}}
-int {{.Name}}_wrapper({{range $i, $arg := .RequiredInputs}}{{if $i}}, {{end}}{{$arg.CType}} {{$arg.Name}}{{end}}, VipsImage **out) {
-	return vips_{{.Name}}({{range $i, $arg := .RequiredInputs}}{{if $i}}, {{end}}{{$arg.Name}}{{end}}, out, NULL);
+int {{.Name}}_wrapper({{range $i, $arg := .RequiredInputs}}{{if $i}}, {{end}}{{$arg.CType}} {{$arg.Name}}{{end}}{{if .Outputs}}{{if .RequiredInputs}}, {{end}}{{range $i, $arg := .Outputs}}{{if $i}}, {{end}}{{if eq $arg.Type "VipsImage"}}VipsImage **{{$arg.Name}}{{else}}{{$arg.CType}}* {{$arg.Name}}{{end}}{{end}}{{end}}) {
+    return vips_{{.Name}}({{range $i, $arg := .RequiredInputs}}{{if $i}}, {{end}}{{$arg.Name}}{{end}}{{if .Outputs}}{{if .RequiredInputs}}, {{end}}{{range $i, $arg := .Outputs}}{{if $i}}, {{end}}{{$arg.Name}}{{end}}{{end}}, NULL);
 }
 {{end}}

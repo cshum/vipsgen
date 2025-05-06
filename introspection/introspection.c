@@ -169,3 +169,42 @@ void free_enum_values(EnumValueInfo *values, int count) {
 GObjectClass* get_object_class(void* obj) {
     return G_OBJECT_GET_CLASS(obj);
 }
+
+static void *vips_object_find_args(VipsObject *object, GParamSpec *pspec,
+                                  VipsArgumentClass *argument_class,
+                                  VipsArgumentInstance *argument_instance,
+                                  void *a, void *b) {
+    VipsNameFlagsPair *pair = (VipsNameFlagsPair *)a;
+    int *i = (int *)b;
+
+    pair->names[*i] = g_param_spec_get_name(pspec);
+    pair->flags[*i] = argument_class->flags;
+
+    *i += 1;
+
+    return NULL;
+}
+
+int get_vips_operation_args(VipsOperation *op, char ***names, int **flags, int *n_args) {
+    VipsObject *object = VIPS_OBJECT(op);
+    VipsObjectClass *object_class = VIPS_OBJECT_GET_CLASS(object);
+    int n = g_slist_length(object_class->argument_table_traverse);
+
+    *names = (char **)g_malloc(n * sizeof(char *));
+    *flags = (int *)g_malloc(n * sizeof(int));
+    if (!*names || !*flags)
+        return -1;
+
+    // Use vips_argument_map to collect arguments
+    VipsNameFlagsPair pair = {
+        .names = (const char **)(*names),
+        .flags = *flags
+    };
+    int i = 0;
+    vips_argument_map(object, vips_object_find_args, &pair, &i);
+
+    if (n_args)
+        *n_args = n;
+
+    return 0;
+}

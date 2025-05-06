@@ -317,15 +317,36 @@ func (r *Image) Exif() map[string]any {
 
 
 
-
 {{range .Operations}}
 // {{.GoName | imageMethodName}} {{.Description}}
-func (r *Image) {{.GoName | imageMethodName}}({{.RequiredInputs | formatImageMethodArgs}}) error {
-	out, err := {{.GoName}}(r.image{{if gt (len .RequiredInputs) 1}}{{range $i, $arg := .RequiredInputs}}{{if gt $i 0}}, {{$arg.GoName}}{{end}}{{end}}{{end}})
-	if err != nil {
-		return err
-	}
-	r.setImage(out)
-	return nil
+func (r *Image) {{.GoName | imageMethodName}}({{.RequiredInputs | formatImageMethodArgs}}) {{if not .HasImageOutput}}{{if .Outputs}}({{range $i, $arg := .Outputs}}{{if $i}}, {{end}}{{$arg.GoType}}{{end}}, error){{else}}error{{end}}{{else}}error{{end}} {
+    {{if .HasImageOutput}}
+    out, err := {{.GoName}}(r.image{{if gt (len .RequiredInputs) 1}}{{range $i, $arg := .RequiredInputs}}{{if gt $i 0}}, {{$arg.GoName}}{{end}}{{end}}{{end}})
+    if err != nil {
+        return err
+    }
+    r.setImage(out)
+    return nil
+    {{else if .Outputs}}
+    {{if hasVipsImageInput .RequiredInputs}}
+    {{range $i, $arg := .Outputs}}{{if $i}}, {{end}}{{$arg.GoName}}Out{{end}}, err := {{.GoName}}(r.image{{if gt (len .RequiredInputs) 1}}{{range $i, $arg := .RequiredInputs}}{{if gt $i 0}}, {{$arg.GoName}}{{end}}{{end}}{{end}})
+    {{else}}
+    {{range $i, $arg := .Outputs}}{{if $i}}, {{end}}{{$arg.GoName}}Out{{end}}, err := {{.GoName}}({{range $i, $arg := .RequiredInputs}}{{if $i}}, {{end}}{{$arg.GoName}}{{end}})
+    {{end}}
+    if err != nil {
+        return {{range $i, $arg := .Outputs}}{{if $i}}, {{end}}{{if eq (index (split $arg.GoType "[]") 0) ""}}nil{{else if eq $arg.GoType "bool"}}false{{else if eq $arg.GoType "string"}}""{{else}}0{{end}}{{end}}, err
+    }
+    return {{range $i, $arg := .Outputs}}{{if $i}}, {{end}}{{$arg.GoName}}Out{{end}}, nil
+    {{else}}
+    {{if hasVipsImageInput .RequiredInputs}}
+    err := {{.GoName}}(r.image{{if gt (len .RequiredInputs) 1}}{{range $i, $arg := .RequiredInputs}}{{if gt $i 0}}, {{$arg.GoName}}{{end}}{{end}}{{end}})
+    {{else}}
+    err := {{.GoName}}({{range $i, $arg := .RequiredInputs}}{{if $i}}, {{end}}{{$arg.GoName}}{{end}})
+    {{end}}
+    if err != nil {
+        return err
+    }
+    return nil
+    {{end}}
 }
 {{end}}

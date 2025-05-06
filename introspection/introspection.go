@@ -4,6 +4,7 @@ package introspection
 // #include "introspection.h"
 import "C"
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/cshum/vipsgen"
 	"log"
@@ -159,7 +160,7 @@ func (v *Introspection) IntrospectOperation(name string) vipsgen.Operation {
 	}
 
 	// Get arguments
-	args := v.getOperationArguments(vop)
+	args := v.getOperationArguments(name)
 
 	// If we have a custom config, apply it
 	if config.OptionsParam != "" {
@@ -371,61 +372,69 @@ func (v *Introspection) getOperationDescription(op *C.VipsOperation) string {
 }
 
 // getOperationArguments gets the arguments of an operation
-func (v *Introspection) getOperationArguments(op *C.VipsOperation) []vipsgen.Argument {
+func (v *Introspection) getOperationArguments(opName string) []vipsgen.Argument {
+	// First create the operation instance
+	cName := C.CString(opName)
+	defer C.free(unsafe.Pointer(cName))
+
+	op := C.vips_operation_new(cName)
+	if op == nil {
+		return nil
+	}
+	defer C.g_object_unref(C.gpointer(op))
+
 	var args []vipsgen.Argument
 
-	// Get the GObject class
-	gclass := C.get_object_class(unsafe.Pointer(op))
+	// Get argument details directly from VIPS
+	var names **C.char
+	var flags *C.int
+	var nArgs C.int
 
-	// Get all properties
-	var nProps C.guint
-	props := C.g_object_class_list_properties(gclass, &nProps)
-	defer C.g_free(C.gpointer(props))
+	// Call our C helper function to get arguments
+	// This would typically be implemented in a C helper file
+	if C.get_vips_operation_args(op, &names, &flags, &nArgs) != 0 {
+		return args
+	}
 
-	// Convert to slice for easier handling
-	propsSlice := (*[1 << 30]*C.GParamSpec)(unsafe.Pointer(props))[:nProps:nProps]
+	// Convert C arrays to Go slices
+	namesSlice := unsafe.Slice(names, int(nArgs))
+	flagsSlice := unsafe.Slice(flags, int(nArgs))
 
-	// Get VipsArgumentClass for each property
-	for i := 0; i < int(nProps); i++ {
-		pspec := propsSlice[i]
+	// Process arguments in order
+	for i := 0; i < int(nArgs); i++ {
+		argName := C.GoString(namesSlice[i])
+		argFlags := int(flagsSlice[i])
 
-		// Get argument class
+		// Get parameter spec
+		var pspec *C.GParamSpec
 		var argClass *C.VipsArgumentClass
 		var argInstance *C.VipsArgumentInstance
 
-		// Convert Go string to C string
-		cName := C.CString(C.GoString(pspec.name))
-		defer C.free(unsafe.Pointer(cName))
+		cArgName := C.CString(argName)
+		defer C.free(unsafe.Pointer(cArgName))
 
-		found := C.vips_object_get_argument(
+		if C.vips_object_get_argument(
 			(*C.VipsObject)(unsafe.Pointer(op)),
-			cName,
+			cArgName,
 			&pspec,
 			&argClass,
 			&argInstance,
-		)
-
-		if found != 0 {
-			continue // Skip if not found
-		}
-
-		if argClass == nil {
+		) != 0 {
 			continue
 		}
 
-		// Create argument
-		goName := C.GoString(pspec.name)
+		// Create the argument
 		arg := vipsgen.Argument{
-			Name:        vipsgen.FormatIdentifier(goName),
-			GoName:      vipsgen.FormatGoIdentifier(goName),
+			Name:        argName,
+			GoName:      vipsgen.FormatGoIdentifier(argName),
 			Type:        v.getParamType(pspec),
 			GoType:      v.getGoType(pspec),
 			CType:       v.getCType(pspec),
 			Description: v.getParamDescription(pspec),
-			Required:    (argClass.flags & C.VIPS_ARGUMENT_REQUIRED) != 0,
-			IsInput:     (argClass.flags & C.VIPS_ARGUMENT_INPUT) != 0,
-			IsOutput:    (argClass.flags & C.VIPS_ARGUMENT_OUTPUT) != 0,
-			Flags:       int(argClass.flags),
+			Required:    (argFlags & C.VIPS_ARGUMENT_REQUIRED) != 0,
+			IsInput:     (argFlags & C.VIPS_ARGUMENT_INPUT) != 0,
+			IsOutput:    (argFlags & C.VIPS_ARGUMENT_OUTPUT) != 0,
+			Flags:       argFlags,
 		}
 
 		// Check if it's an enum
@@ -441,6 +450,9 @@ func (v *Introspection) getOperationArguments(op *C.VipsOperation) []vipsgen.Arg
 
 		args = append(args, arg)
 	}
+
+	b, _ := json.Marshal(args)
+	fmt.Println(opName, string(b))
 
 	return args
 }

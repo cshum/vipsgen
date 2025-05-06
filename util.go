@@ -15,14 +15,12 @@ func ImageMethodName(name string) string {
 	return name
 }
 
-// FormatImageMethodArgs formats arguments for image methods, skipping the first Image argument
+// FormatImageMethodArgs formats arguments for image methods, skipping the first Image argument if it exists
 func FormatImageMethodArgs(args []Argument) string {
-	if len(args) <= 1 {
-		return ""
-	}
 	var params []string
 	for i, arg := range args {
-		if i == 0 { // Skip the first Image argument
+		if i == 0 && arg.Type == "VipsImage" {
+			// Skip the first Image argument only if it's a VipsImage
 			continue
 		}
 		params = append(params, fmt.Sprintf("%s %s", arg.GoName, arg.GoType))
@@ -214,5 +212,6 @@ func GetTemplateFuncMap() template.FuncMap {
 		},
 		"imageMethodName":       ImageMethodName,
 		"formatImageMethodArgs": FormatImageMethodArgs,
+		"split":                 strings.Split,
 	}
 }
