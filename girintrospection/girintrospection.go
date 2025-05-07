@@ -501,20 +501,21 @@ func processOperation(op *Operation) {
 
 // Process doc content
 func processDocContent(elem *DebugElement) string {
-	if elem == nil {
-		return ""
-	}
-
-	// Remove leading/trailing whitespace and normalize newlines
-	text := strings.TrimSpace(elem.Content)
-	text = strings.ReplaceAll(text, "\n", " ")
-
-	// Remove multiple spaces
-	for strings.Contains(text, "  ") {
-		text = strings.ReplaceAll(text, "  ", " ")
-	}
-
-	return text
+	return ""
+	//if elem == nil {
+	//	return ""
+	//}
+	//
+	//// Remove leading/trailing whitespace and normalize newlines
+	//text := strings.TrimSpace(elem.Content)
+	//text = strings.ReplaceAll(text, "\n", " ")
+	//
+	//// Remove multiple spaces
+	//for strings.Contains(text, "  ") {
+	//	text = strings.ReplaceAll(text, "  ", " ")
+	//}
+	//
+	//return text
 }
 
 // Map GIR type to Go type
