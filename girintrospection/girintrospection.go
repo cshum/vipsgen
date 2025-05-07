@@ -40,6 +40,8 @@ type Argument struct {
 	Flags       int    `json:"flags"`
 	IsEnum      bool   `json:"isEnum"`
 	EnumType    string `json:"enumType,omitempty"`
+	IsArray     bool   `json:"isArray,omitempty"`
+	ArrayLength int    `json:"arrayLength,omitempty"`
 }
 
 // DebugElement is used to capture all XML without enforcing a structure
@@ -347,38 +349,110 @@ func extractParameters(methodElement *DebugElement, op *Operation) {
 				Required:  true,
 			}
 
-			// Get type information
-			var typeElement *DebugElement
+			// Look for array type first - this is important for handling arrays properly
+			var arrayElement *DebugElement
 			for _, child := range elem.Children {
-				if child.XMLName.Local == "type" {
-					typeElement = child
+				if child.XMLName.Local == "array" {
+					arrayElement = child
 					break
 				}
 			}
 
-			if typeElement != nil {
-				// Get type name and C type
-				var typeName string
-				var cType string
-				for _, attr := range typeElement.Attrs {
-					if attr.Name.Local == "name" {
-						typeName = attr.Value
-					} else if attr.Name.Local == "c:type" {
-						cType = attr.Value
+			if arrayElement != nil {
+				// This is an array parameter
+				arg.IsArray = true
+
+				// Get array attributes
+				for _, arrayAttr := range arrayElement.Attrs {
+					if arrayAttr.Name.Local == "length" {
+						// Parse array length, with default fallback
+						var length int
+						_, err := fmt.Sscanf(arrayAttr.Value, "%d", &length)
+						if err == nil {
+							arg.ArrayLength = length
+						} else {
+							arg.ArrayLength = 0 // Variable length
+						}
 					}
 				}
 
-				arg.Type = typeName
-				arg.CType = cType
+				// Get element type from the array's type child
+				var elementTypeElement *DebugElement
+				for _, child := range arrayElement.Children {
+					if child.XMLName.Local == "type" {
+						elementTypeElement = child
+						break
+					}
+				}
 
-				// Determine Go type
-				arg.GoType = mapGirTypeToGo(typeName, cType)
+				if elementTypeElement != nil {
+					// Get element type name and C type
+					var elementTypeName string
+					var elementCType string
+					for _, attr := range elementTypeElement.Attrs {
+						if attr.Name.Local == "name" {
+							elementTypeName = attr.Value
+						} else if attr.Name.Local == "c:type" {
+							elementCType = attr.Value
+						}
+					}
 
-				// Check if it's an enum
-				if strings.HasPrefix(typeName, "Vips") &&
-					(strings.Contains(typeName, "Enum") || strings.Contains(cType, "enum")) {
-					arg.IsEnum = true
-					arg.EnumType = typeName
+					// Set the type based on element type
+					arg.Type = elementTypeName + "[]"
+
+					// Handle specific array types
+					if elementTypeName == "Image" {
+						arg.GoType = "[]*C.VipsImage"
+						arg.CType = "VipsImage**"
+					} else {
+						// For other types, use slice notation
+						elementGoType := mapGirTypeToGo(elementTypeName, elementCType)
+						// Remove pointer indicator for slice elements
+						elementGoType = strings.TrimPrefix(elementGoType, "*")
+						arg.GoType = "[]" + elementGoType
+
+						// Determine C type for array
+						if strings.HasSuffix(elementCType, "*") {
+							arg.CType = elementCType + "*" // Double pointer for array of pointers
+						} else {
+							arg.CType = elementCType + "*" // Pointer for array of values
+						}
+					}
+				}
+			} else {
+				// Get regular type information
+				var typeElement *DebugElement
+				for _, child := range elem.Children {
+					if child.XMLName.Local == "type" {
+						typeElement = child
+						break
+					}
+				}
+
+				if typeElement != nil {
+					// Get type name and C type
+					var typeName string
+					var cType string
+					for _, attr := range typeElement.Attrs {
+						if attr.Name.Local == "name" {
+							typeName = attr.Value
+						} else if attr.Name.Local == "c:type" {
+							cType = attr.Value
+						}
+					}
+
+					arg.Type = typeName
+					arg.CType = cType
+
+					// Determine Go type
+					arg.GoType = mapGirTypeToGo(typeName, cType)
+
+					// Check if it's an enum
+					if strings.HasPrefix(typeName, "Vips") &&
+						(strings.Contains(typeName, "Enum") || strings.Contains(cType, "enum")) {
+						arg.IsEnum = true
+						arg.EnumType = typeName
+					}
 				}
 			}
 
@@ -402,7 +476,7 @@ func extractParameters(methodElement *DebugElement, op *Operation) {
 			}
 
 			// Adjust C type for output parameters
-			if arg.IsOutput {
+			if arg.IsOutput && !arg.IsArray {
 				adjustOutputArgType(&arg)
 			}
 
@@ -501,21 +575,20 @@ func processOperation(op *Operation) {
 
 // Process doc content
 func processDocContent(elem *DebugElement) string {
-	return ""
-	//if elem == nil {
-	//	return ""
-	//}
-	//
-	//// Remove leading/trailing whitespace and normalize newlines
-	//text := strings.TrimSpace(elem.Content)
-	//text = strings.ReplaceAll(text, "\n", " ")
-	//
-	//// Remove multiple spaces
-	//for strings.Contains(text, "  ") {
-	//	text = strings.ReplaceAll(text, "  ", " ")
-	//}
-	//
-	//return text
+	if elem == nil {
+		return ""
+	}
+
+	// Remove leading/trailing whitespace and normalize newlines
+	text := strings.TrimSpace(elem.Content)
+	text = strings.ReplaceAll(text, "\n", " ")
+
+	// Remove multiple spaces
+	for strings.Contains(text, "  ") {
+		text = strings.ReplaceAll(text, "  ", " ")
+	}
+
+	return text
 }
 
 // Map GIR type to Go type
