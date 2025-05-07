@@ -4,7 +4,6 @@ package introspection
 // #include "introspection.h"
 import "C"
 import (
-	"encoding/json"
 	"fmt"
 	"github.com/cshum/vipsgen"
 	"log"
@@ -534,9 +533,6 @@ func (v *Introspection) getOperationArguments(opName string) []vipsgen.Argument 
 			}
 		}
 
-		b, _ := json.Marshal(args)
-		fmt.Println(opName, string(b))
-
 		return args
 	}
 
@@ -579,9 +575,6 @@ func (v *Introspection) getOperationArguments(opName string) []vipsgen.Argument 
 			args = append(args, arg)
 		}
 	}
-
-	b, _ := json.Marshal(args)
-	fmt.Println(opName, string(b))
 
 	return args
 }
