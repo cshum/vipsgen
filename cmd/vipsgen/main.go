@@ -118,11 +118,8 @@ func main() {
 	girOps := parser.ConvertToVipsgenOperations()
 	fmt.Printf("Extracted %d operations from GIR file\n", len(girOps))
 
-	// TODO: Create a combined template data that uses both C introspection and GIR data
-	// For now, just use the C-based introspection operations
-
 	// Create unified template data
-	templateData := vipsgen.NewTemplateData(filteredOps, enumTypes, imageTypes, supportedSavers)
+	templateData := vipsgen.NewTemplateData(girOps, enumTypes, imageTypes, supportedSavers)
 
 	// Generate all code using the unified template data approach
 	if err := vipsgen.Generate(loader, templateData, outputDir); err != nil {
