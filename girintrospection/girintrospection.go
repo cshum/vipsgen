@@ -1,6 +1,7 @@
 package girintrospection
 
 import (
+	"encoding/json"
 	"encoding/xml"
 	"fmt"
 	"io"
@@ -150,6 +151,8 @@ func (p *GirParser) ConvertToVipsgenOperations() []vipsgen.Operation {
 		}
 
 		ops = append(ops, op)
+		b, _ := json.Marshal(op)
+		fmt.Println(string(b))
 	}
 
 	return ops
