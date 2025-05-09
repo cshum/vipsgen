@@ -123,9 +123,53 @@ func main() {
 		girOps := parser.ConvertToVipsgenOperations()
 		fmt.Printf("Extracted %d operations from GIR file\n", len(girOps))
 
-		// Merge operations, giving priority to GIR operations
-		operations = mergeOperations(girOps, filteredCOps)
-		fmt.Printf("Using %d operations after merging GIR and C introspection data\n", len(operations))
+		// Create a map of GIR operations for lookup
+		girOpMap := make(map[string]vipsgen.Operation)
+		for _, op := range girOps {
+			girOpMap[op.Name] = op
+		}
+
+		// Enhance C operations with GIR data
+		var enhancedOps []vipsgen.Operation
+		girOpsUsed := 0
+
+		for _, cOp := range filteredCOps {
+			// Check if we have GIR data for this operation
+			if girOp, exists := girOpMap[cOp.Name]; exists {
+				// Use GIR operation as basis but keep C introspection metadata if needed
+				enhancedOp := girOp
+
+				// If GIR operation is missing some metadata, use C introspection data
+				if enhancedOp.Category == "" {
+					enhancedOp.Category = cOp.Category
+				}
+				if !enhancedOp.HasImageInput && cOp.HasImageInput {
+					enhancedOp.HasImageInput = true
+				}
+				if !enhancedOp.HasImageOutput && cOp.HasImageOutput {
+					enhancedOp.HasImageOutput = true
+				}
+
+				enhancedOps = append(enhancedOps, enhancedOp)
+				delete(girOpMap, cOp.Name) // Remove from map to track used operations
+				girOpsUsed++
+			} else {
+				// No GIR data, use C operation as is
+				enhancedOps = append(enhancedOps, cOp)
+			}
+		}
+
+		// Add any remaining GIR operations (not found in C introspection)
+		remainingGirOps := len(girOpMap)
+		for _, op := range girOpMap {
+			enhancedOps = append(enhancedOps, op)
+		}
+
+		fmt.Printf("Enhanced %d C operations with GIR data\n", girOpsUsed)
+		fmt.Printf("Added %d operations found only in GIR\n", remainingGirOps)
+
+		operations = enhancedOps
+		fmt.Printf("Using %d operations in total\n", len(operations))
 	} else {
 		// Use only C introspection operations
 		operations = filteredCOps
@@ -141,29 +185,4 @@ func main() {
 	}
 }
 
-// mergeOperations combines operations from GIR and C introspection,
-// prioritizing GIR operations when duplicates exist
-func mergeOperations(girOps, cOps []vipsgen.Operation) []vipsgen.Operation {
-	// Create a map to detect duplicates
-	opMap := make(map[string]vipsgen.Operation)
-
-	// Add all GIR operations first (they have priority)
-	for _, op := range girOps {
-		opMap[op.Name] = op
-	}
-
-	// Add C introspection operations only if they don't already exist
-	for _, op := range cOps {
-		if _, exists := opMap[op.Name]; !exists {
-			opMap[op.Name] = op
-		}
-	}
-
-	// Convert map back to slice
-	var mergedOps []vipsgen.Operation
-	for _, op := range opMap {
-		mergedOps = append(mergedOps, op)
-	}
-
-	return mergedOps
-}
+// This function is no longer used as we directly enhance operations in the main function
