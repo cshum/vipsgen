@@ -730,7 +730,7 @@ func (p *VipsGIRParser) ConvertToVipsgenOperations() []vipsgen.Operation {
 			Name:        fn.Name,
 			GoName:      formatGoFunctionName(fn.Name),
 			Description: fmt.Sprintf("Wrapper for %s", fn.CIdentifier),
-			Category:    determineCategory(fn.Name),
+			Category:    vipsgen.DetermineCategory(fn.Name),
 		}
 
 		// Process arguments
@@ -955,57 +955,6 @@ func formatGoIdentifier(name string) string {
 	}
 
 	return result
-}
-
-// Determine the category of an operation based on its name
-func determineCategory(name string) string {
-	// Use prefixes to determine categories
-	if strings.HasPrefix(name, "add") || strings.HasPrefix(name, "subtract") ||
-		strings.HasPrefix(name, "multiply") || strings.HasPrefix(name, "divide") ||
-		strings.HasPrefix(name, "linear") || strings.HasPrefix(name, "math") {
-		return "arithmetic"
-	}
-
-	if strings.HasPrefix(name, "conv") || strings.HasPrefix(name, "sharpen") ||
-		strings.HasPrefix(name, "gaussblur") {
-		return "convolution"
-	}
-
-	if strings.HasPrefix(name, "resize") || strings.HasPrefix(name, "shrink") ||
-		strings.HasPrefix(name, "reduce") || strings.HasPrefix(name, "thumbnail") ||
-		strings.HasPrefix(name, "affine") {
-		return "resample"
-	}
-
-	if strings.HasPrefix(name, "colourspace") || strings.HasPrefix(name, "icc") {
-		return "colour"
-	}
-
-	if strings.HasSuffix(name, "load") {
-		return "foreign_load"
-	}
-
-	if strings.HasSuffix(name, "save") || strings.HasSuffix(name, "save_buffer") {
-		return "foreign_save"
-	}
-
-	if strings.HasPrefix(name, "flip") || strings.HasPrefix(name, "rot") ||
-		strings.HasPrefix(name, "extract") || strings.HasPrefix(name, "embed") ||
-		strings.HasPrefix(name, "crop") || strings.HasPrefix(name, "join") ||
-		strings.HasPrefix(name, "bandjoin") || strings.HasPrefix(name, "arrayjoin") ||
-		strings.HasPrefix(name, "replicate") {
-		return "conversion"
-	}
-
-	if strings.HasPrefix(name, "find_trim") {
-		return "conversion"
-	}
-
-	if strings.HasPrefix(name, "composite") {
-		return "conversion"
-	}
-
-	return "operation" // Default category
 }
 
 // FindGIRFile searches for a GIR file in standard locations
