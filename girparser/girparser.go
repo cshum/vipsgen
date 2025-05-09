@@ -5,6 +5,7 @@ package girparser
 import (
 	"encoding/xml"
 	"fmt"
+	"github.com/cshum/vipsgen"
 	"io"
 	"log"
 	"os"
@@ -673,9 +674,343 @@ func DumpCIdentifiers(gir *GIR) []string {
 	return identifiers
 }
 
+// VipsGIRParser adapts girparser functionality for vipsgen
+type VipsGIRParser struct {
+	// Original GIR data
+	gir *GIR
+	// Parsed function info
+	functionInfo []VipsFunctionInfo
+	// Debug info from parsing
+	debugInfo *DebugInfo
+}
+
+// NewVipsGIRParser creates a new parser for vipsgen integration
+func NewVipsGIRParser() *VipsGIRParser {
+	return &VipsGIRParser{}
+}
+
+// Parse parses a GIR file from a reader
+func (p *VipsGIRParser) Parse(r io.Reader) error {
+	// Parse the GIR file
+	gir, debugInfo, err := ParseGIR(r)
+	if err != nil {
+		return fmt.Errorf("failed to parse GIR file: %v", err)
+	}
+
+	p.gir = gir
+	p.debugInfo = debugInfo
+
+	// Set up vips-specific filter function
+	includeFilter := func(name string) bool {
+		// Custom filter to include operations like arrayjoin, composite2, etc.
+		specialOps := map[string]bool{
+			"arrayjoin":  true,
+			"composite2": true,
+			"linear":     true,
+			"linear1":    true,
+			"replicate":  true,
+			"find_trim":  true,
+			"affine":     true,
+		}
+		return specialOps[name]
+	}
+
+	// Get Vips functions using our filter
+	p.functionInfo, _ = GetVipsFunctions(gir, includeFilter)
+	return nil
+}
+
+// ConvertToVipsgenOperations converts girparser functions to vipsgen.Operation format
+func (p *VipsGIRParser) ConvertToVipsgenOperations() []vipsgen.Operation {
+	var operations []vipsgen.Operation
+
+	for _, fn := range p.functionInfo {
+		// Create a new operation
+		op := vipsgen.Operation{
+			Name:        fn.Name,
+			GoName:      formatGoFunctionName(fn.Name),
+			Description: fmt.Sprintf("Wrapper for %s", fn.CIdentifier),
+			Category:    determineCategory(fn.Name),
+		}
+
+		// Process arguments
+		for _, param := range fn.Params {
+			// Skip varargs placeholder
+			if param.Name == "..." {
+				continue
+			}
+
+			arg := vipsgen.Argument{
+				Name:        param.Name,
+				GoName:      formatGoIdentifier(param.Name),
+				Type:        extractTypeFromCType(param.CType),
+				GoType:      mapCTypeToGoType(param.CType, param.IsOutput),
+				CType:       param.CType,
+				Description: fmt.Sprintf("%s parameter", param.Name),
+				Required:    !param.IsOptional,
+				IsInput:     !param.IsOutput,
+				IsOutput:    param.IsOutput,
+				IsEnum:      isEnumType(param.CType),
+				Flags:       determineFlags(param.IsOutput, !param.IsOptional),
+			}
+
+			// Determine enum type if applicable
+			if arg.IsEnum {
+				arg.EnumType = extractEnumType(param.CType)
+			}
+
+			op.Arguments = append(op.Arguments, arg)
+
+			// Categorize arguments
+			if arg.IsInput {
+				if arg.Required {
+					op.RequiredInputs = append(op.RequiredInputs, arg)
+					if arg.Type == "VipsImage" {
+						op.HasImageInput = true
+					}
+				} else {
+					op.OptionalInputs = append(op.OptionalInputs, arg)
+				}
+			} else if arg.IsOutput {
+				op.Outputs = append(op.Outputs, arg)
+				if arg.Type == "VipsImage" {
+					op.HasImageOutput = true
+				}
+			}
+		}
+
+		operations = append(operations, op)
+	}
+
+	return operations
+}
+
+// Extract the base type from a C type (e.g., "VipsImage*" -> "VipsImage")
+func extractTypeFromCType(cType string) string {
+	// Strip any pointer/array markers
+	baseType := strings.TrimRight(cType, "*[]")
+
+	// Map C types to vipsgen types
+	switch baseType {
+	case "VipsImage":
+		return "VipsImage"
+	case "int", "gint":
+		return "gint"
+	case "double", "gdouble":
+		return "gdouble"
+	case "float", "gfloat":
+		return "gfloat"
+	case "gboolean":
+		return "gboolean"
+	case "char", "gchar":
+		return "gchararray"
+	// Add enum types
+	case "VipsBlendMode":
+		return "VipsBlendMode"
+	case "VipsAccess":
+		return "VipsAccess"
+	case "VipsExtend":
+		return "VipsExtend"
+	case "VipsAngle":
+		return "VipsAngle"
+	case "VipsInterpretation":
+		return "VipsInterpretation"
+	default:
+		// For unknown types, use as is
+		return baseType
+	}
+}
+
+// Map C types to Go types for vipsgen
+func mapCTypeToGoType(cType string, isOutput bool) string {
+	baseType := extractTypeFromCType(cType)
+
+	// Handle special cases based on the base type
+	switch baseType {
+	case "VipsImage":
+		return "*C.VipsImage"
+	case "gint", "int":
+		return "int"
+	case "gdouble", "double":
+		return "float64"
+	case "gfloat", "float":
+		return "float32"
+	case "gboolean":
+		return "bool"
+	case "gchararray", "char", "gchar":
+		return "string"
+	case "void":
+		if strings.HasSuffix(cType, "*") {
+			// void* is often used for arrays
+			return "[]interface{}"
+		}
+		return "interface{}"
+	}
+
+	// Handle enum types
+	if isEnumType(cType) {
+		return extractEnumType(cType)
+	}
+
+	// Handle array types
+	if strings.Contains(cType, "[]") || strings.HasSuffix(cType, "*") && !isOutput {
+		switch baseType {
+		case "gint", "int":
+			return "[]int"
+		case "gdouble", "double":
+			return "[]float64"
+		case "gchararray", "char", "gchar":
+			return "[]string"
+		default:
+			return "[]interface{}"
+		}
+	}
+
+	// Default case for unknown types
+	return "interface{}"
+}
+
+// Check if a type is likely an enum type
+func isEnumType(cType string) bool {
+	enumPrefixes := []string{
+		"VipsBlendMode",
+		"VipsAccess",
+		"VipsExtend",
+		"VipsAngle",
+		"VipsInterpretation",
+		"VipsDirection",
+		"VipsOperationMorphology",
+		"VipsForeignSubsample",
+		"VipsForeignTiffCompression",
+		"VipsForeignTiffPredictor",
+	}
+
+	baseType := extractTypeFromCType(cType)
+	for _, prefix := range enumPrefixes {
+		if baseType == prefix {
+			return true
+		}
+	}
+	return false
+}
+
+// Extract enum type name from C type
+func extractEnumType(cType string) string {
+	baseType := extractTypeFromCType(cType)
+
+	// Map VipsEnum -> Enum
+	if strings.HasPrefix(baseType, "Vips") {
+		return strings.TrimPrefix(baseType, "Vips")
+	}
+
+	return baseType
+}
+
+// Determine flags for argument based on input/output and required/optional
+func determineFlags(isOutput bool, isRequired bool) int {
+	if isOutput && isRequired {
+		return 35 // VIPS_ARGUMENT_REQUIRED | VIPS_ARGUMENT_OUTPUT
+	} else if isOutput && !isRequired {
+		return 33 // VIPS_ARGUMENT_OPTIONAL | VIPS_ARGUMENT_OUTPUT
+	} else if !isOutput && isRequired {
+		return 19 // VIPS_ARGUMENT_REQUIRED | VIPS_ARGUMENT_INPUT
+	} else {
+		return 17 // VIPS_ARGUMENT_OPTIONAL | VIPS_ARGUMENT_INPUT
+	}
+}
+
+// Format a Go function name from operation name
+func formatGoFunctionName(name string) string {
+	// Convert operation names to match existing Go function style
+	// e.g., "rotate" -> "vipsRotate", "extract_area" -> "vipsExtractArea"
+	parts := strings.Split(name, "_")
+
+	// Convert each part to title case
+	for i, part := range parts {
+		if len(part) > 0 {
+			parts[i] = strings.ToUpper(part[0:1]) + part[1:]
+		}
+	}
+
+	// Join with vips prefix
+	return "vips" + strings.Join(parts, "")
+}
+
+// Format a Go identifier from parameter name
+func formatGoIdentifier(name string) string {
+	// Format snake_case to camelCase
+	parts := strings.Split(name, "_")
+	for i := 1; i < len(parts); i++ {
+		if len(parts[i]) > 0 {
+			parts[i] = strings.ToUpper(parts[i][0:1]) + parts[i][1:]
+		}
+	}
+
+	result := strings.Join(parts, "")
+
+	// Handle Go keywords
+	switch result {
+	case "type", "func", "map", "range", "select", "case", "default":
+		return result + "_"
+	}
+
+	return result
+}
+
+// Determine the category of an operation based on its name
+func determineCategory(name string) string {
+	// Use prefixes to determine categories
+	if strings.HasPrefix(name, "add") || strings.HasPrefix(name, "subtract") ||
+		strings.HasPrefix(name, "multiply") || strings.HasPrefix(name, "divide") ||
+		strings.HasPrefix(name, "linear") || strings.HasPrefix(name, "math") {
+		return "arithmetic"
+	}
+
+	if strings.HasPrefix(name, "conv") || strings.HasPrefix(name, "sharpen") ||
+		strings.HasPrefix(name, "gaussblur") {
+		return "convolution"
+	}
+
+	if strings.HasPrefix(name, "resize") || strings.HasPrefix(name, "shrink") ||
+		strings.HasPrefix(name, "reduce") || strings.HasPrefix(name, "thumbnail") ||
+		strings.HasPrefix(name, "affine") {
+		return "resample"
+	}
+
+	if strings.HasPrefix(name, "colourspace") || strings.HasPrefix(name, "icc") {
+		return "colour"
+	}
+
+	if strings.HasSuffix(name, "load") {
+		return "foreign_load"
+	}
+
+	if strings.HasSuffix(name, "save") || strings.HasSuffix(name, "save_buffer") {
+		return "foreign_save"
+	}
+
+	if strings.HasPrefix(name, "flip") || strings.HasPrefix(name, "rot") ||
+		strings.HasPrefix(name, "extract") || strings.HasPrefix(name, "embed") ||
+		strings.HasPrefix(name, "crop") || strings.HasPrefix(name, "join") ||
+		strings.HasPrefix(name, "bandjoin") || strings.HasPrefix(name, "arrayjoin") ||
+		strings.HasPrefix(name, "replicate") {
+		return "conversion"
+	}
+
+	if strings.HasPrefix(name, "find_trim") {
+		return "conversion"
+	}
+
+	if strings.HasPrefix(name, "composite") {
+		return "conversion"
+	}
+
+	return "operation" // Default category
+}
+
 // FindGIRFile searches for a GIR file in standard locations
 func FindGIRFile(name string) (string, error) {
-	// Standard locations for GIR files
+	// Implementation from original girparser
 	locations := []string{
 		"/usr/share/gir-1.0",
 		"/usr/local/share/gir-1.0",
@@ -698,4 +1033,84 @@ func FindGIRFile(name string) (string, error) {
 	}
 
 	return "", fmt.Errorf("could not find GIR file %s in standard locations", name)
+}
+
+// GenerateVipsWrapperHeader generates a C header file with vips wrapper function declarations
+func GenerateVipsWrapperHeader(functions []VipsFunctionInfo) (string, error) {
+	// Define a template for the header
+	headerTmpl, err := template.New("header").Parse(`/* Generated wrapper functions for libvips */
+
+#ifndef VIPS_WRAPPER_H
+#define VIPS_WRAPPER_H
+
+#include <glib.h>
+#include <vips/vips.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+{{range .}}
+/**
+ * {{.Name}}: Wrapper for {{.CIdentifier}}
+ {{range .RequiredParams}}* @{{.Name}}: {{if .IsOutput}}Output {{end}}parameter
+ {{end}}{{range .OptionalParams}}* @{{.Name}}: Optional parameter
+ {{end}}* Returns: VIPS error code (0 for success)
+ */
+int {{.Name}}_wrapper({{range $i, $p := .Params}}{{if $i}}, {{end}}{{$p.CType}} {{$p.Name}}{{end}});
+{{end}}
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* VIPS_WRAPPER_H */
+`)
+	if err != nil {
+		return "", err
+	}
+
+	var buf strings.Builder
+	err = headerTmpl.Execute(&buf, functions)
+	if err != nil {
+		return "", err
+	}
+
+	return buf.String(), nil
+}
+
+// GenerateVipsWrapperImplementation generates C implementation for wrapper functions
+func GenerateVipsWrapperImplementation(functions []VipsFunctionInfo) (string, error) {
+	// Define a template for the implementation
+	implTmpl, err := template.New("implementation").Parse(`/* Generated wrapper functions for libvips */
+
+#include <glib.h>
+#include <vips/vips.h>
+#include "vips.h"
+
+{{range .}}
+/**
+ * {{.Name}}_wrapper: Wrapper for {{.CIdentifier}}
+ {{range .RequiredParams}}* @{{.Name}}: {{if .IsOutput}}Output {{end}}parameter
+ {{end}}{{range .OptionalParams}}* @{{.Name}}: Optional parameter
+ {{end}}* Returns: VIPS error code (0 for success)
+ */
+int {{.Name}}_wrapper({{range $i, $p := .Params}}{{if $i}}, {{end}}{{$p.CType}} {{$p.Name}}{{end}}) {
+  {{if .HasOutParam}}return {{.CIdentifier}}({{range $i, $p := .RequiredParams}}{{if $i}}, {{end}}{{if eq $p.Name "out"}}*out{{else}}{{$p.Name}}{{end}}{{end}}{{if and .RequiredParams .OptionalParams}}, {{end}}{{range $i, $p := .OptionalParams}}{{if $i}}, {{end}}"{{$p.Name}}", {{$p.Name}}{{end}}, NULL);
+  {{else}}return {{.CIdentifier}}({{range $i, $p := .RequiredParams}}{{if $i}}, {{end}}{{$p.Name}}{{end}}{{if and .RequiredParams .OptionalParams}}, {{end}}{{range $i, $p := .OptionalParams}}{{if $i}}, {{end}}"{{$p.Name}}", {{$p.Name}}{{end}}, NULL);
+  {{end}}
+}
+{{end}}
+`)
+	if err != nil {
+		return "", err
+	}
+
+	var buf strings.Builder
+	err = implTmpl.Execute(&buf, functions)
+	if err != nil {
+		return "", err
+	}
+
+	return buf.String(), nil
 }
