@@ -262,6 +262,41 @@ func formatReturnType(ret girparser.ReturnValue) string {
 	return ret.Type.Name
 }
 
+func (v *Introspection) FixCType(cType string) string {
+	// Handle basic types first
+	if cType == "utf8*" {
+		return "const char*"
+	}
+	if cType == "Source*" {
+		return "VipsSource*"
+	}
+	if cType == "Target*" {
+		return "VipsTarget*"
+	}
+	if cType == "Blob*" {
+		return "VipsBlob*"
+	}
+
+	// Check if it's an enum type with a pointer suffix
+	baseType := strings.TrimSuffix(cType, "*")
+
+	// First check if the type without Vips prefix is an enum
+	if !strings.HasPrefix(baseType, "Vips") && strings.HasSuffix(cType, "*") {
+		// Try with Vips prefix
+		vipsBaseType := "Vips" + baseType
+		if v.isEnumType(vipsBaseType) {
+			return vipsBaseType // Return without the pointer
+		}
+	}
+
+	// Next check if the base type itself is an enum
+	if v.isEnumType(baseType) && strings.HasSuffix(cType, "*") {
+		return baseType // Return without the pointer
+	}
+
+	return cType
+}
+
 // ConvertToVipsgenOperations converts girparser functions to vipsgen.Operation format
 func (v *Introspection) ConvertToVipsgenOperations() []vipsgen.Operation {
 	var operations []vipsgen.Operation
@@ -287,17 +322,20 @@ func (v *Introspection) ConvertToVipsgenOperations() []vipsgen.Operation {
 				continue
 			}
 
+			// Fix the C type for special cases
+			cType := v.FixCType(param.CType)
+
 			arg := vipsgen.Argument{
 				Name:        param.Name,
 				GoName:      formatGoIdentifier(param.Name),
-				Type:        extractTypeFromCType(param.CType),
-				GoType:      v.mapCTypeToGoType(param.CType, param.IsOutput),
-				CType:       param.CType,
+				Type:        extractBaseType(cType),
+				GoType:      v.mapCTypeToGoType(cType, param.IsOutput),
+				CType:       cType,
 				Description: fmt.Sprintf("%s parameter", param.Name),
 				Required:    !param.IsOptional,
 				IsInput:     !param.IsOutput,
 				IsOutput:    param.IsOutput,
-				IsEnum:      v.isEnumType(param.CType),
+				IsEnum:      v.isEnumType(cType),
 				Flags:       determineFlags(param.IsOutput, !param.IsOptional),
 			}
 
@@ -336,6 +374,53 @@ func (v *Introspection) ConvertToVipsgenOperations() []vipsgen.Operation {
 	return operations
 }
 
+// extractBaseType removes pointer symbols and array notation from C type strings
+// to get the base type name. For example:
+// - "VipsImage*" → "VipsImage"
+// - "int[]" → "int"
+// - "const char*" → "char"
+func extractBaseType(cType string) string {
+	// Handle special cases first
+	if cType == "utf8*" {
+		return "utf8"
+	}
+	if cType == "Source*" {
+		return "Source"
+	}
+	if cType == "Target*" {
+		return "Target"
+	}
+	if cType == "Blob*" {
+		return "Blob"
+	}
+	if cType == "const char*" {
+		return "char"
+	}
+
+	// Remove 'const' qualifier if present
+	baseType := strings.TrimPrefix(cType, "const ")
+
+	// Remove pointer and array markers
+	baseType = strings.TrimRight(baseType, "*[]")
+
+	// Remove any spaces
+	baseType = strings.TrimSpace(baseType)
+
+	// Map C types to vipsgen types
+	switch baseType {
+	case "int":
+		return "gint"
+	case "double":
+		return "gdouble"
+	case "float":
+		return "gfloat"
+	case "char":
+		return "gchararray"
+	}
+
+	return baseType
+}
+
 // Helper functions for type mapping and formatting
 func extractTypeFromCType(cType string) string {
 	// Strip any pointer/array markers
@@ -358,57 +443,45 @@ func extractTypeFromCType(cType string) string {
 }
 
 func (v *Introspection) mapCTypeToGoType(cType string, isOutput bool) string {
-	typeName := extractTypeFromCType(cType)
+	// Extract the base type without pointers
+	baseType := extractBaseType(cType)
 
 	// Map VIPS types to Go types
-	switch typeName {
+	switch baseType {
 	case "VipsImage":
 		return "*C.VipsImage"
 	case "gboolean":
 		return "bool"
-	case "gint":
+	case "gint", "int":
 		return "int"
-	case "gdouble", "gfloat":
+	case "gdouble", "double", "gfloat", "float":
 		return "float64"
-	case "gchararray":
-		return "string"
+	case "gchararray", "char", "gchar", "utf8":
+		return "string" // Important: This maps const char* and utf8* to string
 	case "VipsArrayInt":
 		return "[]int"
 	case "VipsArrayDouble":
 		return "[]float64"
 	case "VipsArrayImage":
 		return "[]*C.VipsImage"
-	case "VipsBlob":
-		return "[]byte"
+	case "VipsBlob", "Blob":
+		return "*C.VipsBlob"
 	case "VipsInterpolate":
 		return "*C.VipsInterpolate"
-	case "VipsSource":
+	case "VipsSource", "Source":
 		return "*C.VipsSource"
-	case "VipsTarget":
+	case "VipsTarget", "Target":
 		return "*C.VipsTarget"
 	default:
 		// Check if it's an enum type
-		if v.isEnumType(cType) {
-			return v.GetGoEnumName(typeName)
+		if v.isEnumType(baseType) {
+			return v.GetGoEnumName(baseType)
 		}
-		// Check if it's a flags type
-		//if C.g_type_is_a(gtype, C.G_TYPE_FLAGS) != 0 {
-		//	return "int"
-		//}
 	}
 
-	// Handle array types
-	if strings.Contains(cType, "[]") || strings.HasSuffix(cType, "*") && !isOutput {
-		switch typeName {
-		case "gint", "int":
-			return "[]int"
-		case "gdouble", "double":
-			return "[]float64"
-		case "gchararray", "char", "gchar":
-			return "[]string"
-		default:
-			return "[]interface{}"
-		}
+	// If cType contains "char*" or is utf8*, treat it as a string
+	if strings.Contains(cType, "char*") || cType == "utf8*" || cType == "const char*" {
+		return "string"
 	}
 
 	// Default case for unknown types

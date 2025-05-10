@@ -421,9 +421,7 @@ func {{.GoName}}({{$first := true}}{{range $arg := .Arguments}}{{if not $arg.IsO
         {{- else if eq $arg.GoType "*C.VipsImage"}}{{$arg.GoName}}
         {{- else if $arg.IsEnum}}C.{{$arg.Type}}({{$arg.GoName}})
         {{- else}}C.{{$arg.CType}}({{$arg.GoName}}){{- end}}{{end}}{{end}}); err != 0 {
-        {{if .HasImageOutput}}return nil, handleImageError(out)
-        {{else if .Outputs}}return {{range $i, $arg := .Outputs}}{{if $i}}, {{end}}{{if eq (index (split $arg.GoType "[]") 0) ""}}nil{{else if eq $arg.GoType "bool"}}false{{else if eq $arg.GoType "string"}}""{{else if eq $arg.GoType "*C.VipsImage"}}nil{{else}}0{{end}}{{end}}, handleVipsError()
-        {{else}}return handleVipsError(){{end}}
+        {{formatErrorReturn .HasImageOutput .Outputs}}
     }
 
     {{if .HasImageOutput}}return out, nil
@@ -431,3 +429,4 @@ func {{.GoName}}({{$first := true}}{{range $arg := .Arguments}}{{if not $arg.IsO
     {{else}}return nil{{end}}
 }
 {{end}}
+

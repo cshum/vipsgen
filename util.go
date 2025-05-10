@@ -168,6 +168,54 @@ func GetTemplateFuncMap() template.FuncMap {
 		"formatImageMethodArgs": FormatImageMethodArgs,
 		"split":                 strings.Split,
 		"filterInputParams":     FilterInputParams,
+		"isPointerType":         isPointerType,
+		"formatDefaultValue":    formatDefaultValue,
+		"formatErrorReturn":     formatErrorReturn,
+	}
+}
+
+func isPointerType(typeName string) bool {
+	return strings.Contains(typeName, "*")
+}
+
+// formatDefaultValue returns the appropriate "zero value" for a given Go type
+func formatDefaultValue(goType string) string {
+	// Handle slice types
+	if strings.HasPrefix(goType, "[]") {
+		return "nil"
+	}
+
+	// Handle specific types
+	switch goType {
+	case "bool":
+		return "false"
+	case "string":
+		return "\"\""
+	case "error":
+		return "nil"
+	}
+
+	// Handle pointer types
+	if isPointerType(goType) {
+		return "nil"
+	}
+
+	// Default for numeric types
+	return "0"
+}
+
+// formatErrorReturn formats the error return statement for a function
+func formatErrorReturn(hasImageOutput bool, outputs []Argument) string {
+	if hasImageOutput {
+		return "return nil, handleImageError(out)"
+	} else if len(outputs) > 0 {
+		var returnValues []string
+		for _, arg := range outputs {
+			returnValues = append(returnValues, formatDefaultValue(arg.GoType))
+		}
+		return "return " + strings.Join(returnValues, ", ") + ", handleVipsError()"
+	} else {
+		return "return handleVipsError()"
 	}
 }
 
