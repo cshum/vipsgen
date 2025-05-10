@@ -25,10 +25,3 @@ int type_exists(const char *type_name);
 void free_enum_values(EnumValueInfo *values, int count);
 
 GObjectClass* get_object_class(void* obj);
-
-int get_vips_operation_args(VipsOperation *op, char ***names, int **flags, int *n_args);
-
-typedef struct {
-    const char **names;
-    int *flags;
-} VipsNameFlagsPair;
