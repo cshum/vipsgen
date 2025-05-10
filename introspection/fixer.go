@@ -72,12 +72,16 @@ func (v *Introspection) FixConstFunctions(op *vipsgen.Operation) {
 				// Fix the type to be a double array
 				op.Arguments[i].CType = "double*"
 				op.Arguments[i].GoType = "[]float64"
+			} else if arg.Name == "c" && (arg.CType == "double" || arg.CType == "const double*") && !arg.IsOutput {
+				// Fix specific known cases like boolean_const, math2_const, remainder_const
+				op.Arguments[i].CType = "double*"
+				op.Arguments[i].GoType = "[]float64"
 			}
 		}
-	} else if op.Name == "linear" {
-		// Special case for linear function
+	} else if op.Name == "linear" || op.Name == "boolean_const" || op.Name == "math2_const" || op.Name == "remainder_const" {
+		// Special case for specific functions
 		for i, arg := range op.Arguments {
-			if (arg.Name == "a" || arg.Name == "b") && !arg.IsOutput {
+			if (arg.Name == "a" || arg.Name == "b" || arg.Name == "c") && !arg.IsOutput {
 				op.Arguments[i].CType = "double*"
 				op.Arguments[i].GoType = "[]float64"
 			}

@@ -344,7 +344,7 @@ func FormatArrayConversions(args []Argument) string {
 	return strings.Join(conversions, "\n\n    ")
 }
 
-// FormatFunctionCallArgs formats the arguments for the C function call
+// Update FormatFunctionCallArgs to handle special float array casting for const operations
 func FormatFunctionCallArgs(args []Argument) string {
 	var callArgs []string
 	for _, arg := range args {
@@ -363,8 +363,12 @@ func FormatFunctionCallArgs(args []Argument) string {
 			} else if arg.GoType == "*C.VipsImage" {
 				argStr = arg.GoName
 			} else if strings.HasPrefix(arg.GoType, "[]") {
-				// For array parameters, use the c-prefixed variable that contains the pointer
-				argStr = "c" + arg.GoName // No casting needed, it's already an unsafe.Pointer
+				// For array parameters, use the c-prefixed variable with proper casting for const operations
+				if arg.Name == "c" && (strings.HasSuffix(arg.CType, "*") || strings.HasSuffix(arg.CType, "const double*")) {
+					argStr = "(*C.double)(c" + arg.GoName + ")"
+				} else {
+					argStr = "c" + arg.GoName // No casting needed, it's already an unsafe.Pointer
+				}
 			} else if arg.IsEnum {
 				argStr = "C." + arg.Type + "(" + arg.GoName + ")"
 			} else {

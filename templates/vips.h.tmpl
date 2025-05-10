@@ -101,5 +101,4 @@ int remove_exif(VipsImage *in, VipsImage **out);
 int vipsgen_{{.Name}}();
 {{else}}
 int vipsgen_{{.Name}}({{range $i, $arg := .Arguments}}{{if $i}}, {{end}}{{$arg.CType}} {{$arg.Name}}{{end}});
-{{end}}
-{{end}}
+{{end}}{{end}}

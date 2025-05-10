@@ -411,6 +411,9 @@ func extractTypeFromCType(cType string) string {
 
 // mapCTypeToGoType maps a C type to a Go type with array awareness
 func (v *Introspection) mapCTypeToGoType(cType string, param VipsParamInfo, originalParam *girparser.Parameter) string {
+	if cType == "const double*" {
+		return "[]float64"
+	}
 	// If we have original parameter with array info, use it
 	if originalParam != nil && originalParam.Array != nil {
 		// Get element type if available
