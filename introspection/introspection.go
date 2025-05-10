@@ -320,12 +320,6 @@ func (v *Introspection) getEnumType(cName, goName string) (vipsgen.EnumTypeInfo,
 // AddEnumType adds a newly discovered enum type
 func (v *Introspection) AddEnumType(cName, goName string) {
 	if _, exists := v.discoveredEnumTypes[cName]; !exists {
-		// Process the Go name to remove "Foreign" prefix if needed
-		// For example, change "ForeignTiffPredictor" to "TiffPredictor"
-		if strings.HasPrefix(goName, "Foreign") {
-			goName = strings.TrimPrefix(goName, "Foreign")
-		}
-
 		// Add to our enum type list for later processing
 		v.enumTypeNames = append(v.enumTypeNames, struct {
 			CName  string
@@ -337,6 +331,13 @@ func (v *Introspection) AddEnumType(cName, goName string) {
 		v.discoveredEnumTypes[cName] = goName
 		fmt.Printf("Discovered enum type: %s -> %s\n", cName, goName)
 	}
+}
+
+func (v *Introspection) GetGoEnumName(typeName string) string {
+	if name, exists := v.discoveredEnumTypes[typeName]; exists {
+		return name
+	}
+	return vipsgen.GetGoEnumName(typeName)
 }
 
 // getMimeType returns the MIME type for a given image format

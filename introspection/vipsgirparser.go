@@ -273,7 +273,7 @@ func (v *Introspection) ConvertToVipsgenOperations() []vipsgen.Operation {
 
 			// Determine enum type if applicable
 			if arg.IsEnum {
-				arg.EnumType = vipsgen.GetGoEnumName(param.CType)
+				arg.EnumType = v.GetGoEnumName(param.CType)
 			}
 
 			op.Arguments = append(op.Arguments, arg)
@@ -355,7 +355,7 @@ func (v *Introspection) mapCTypeToGoType(cType string, isOutput bool) string {
 	default:
 		// Check if it's an enum type
 		if v.isEnumType(cType) {
-			return vipsgen.GetGoEnumName(typeName)
+			return v.GetGoEnumName(typeName)
 		}
 		// Check if it's a flags type
 		//if C.g_type_is_a(gtype, C.G_TYPE_FLAGS) != 0 {
