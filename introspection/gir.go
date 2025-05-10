@@ -300,7 +300,7 @@ func (v *Introspection) ConvertToVipsgenOperations() []vipsgen.Operation {
 			}
 
 			// Fix the C type for special cases
-			cType := v.FixCType(param.CType)
+			cType := v.FixCType(param.CType, param.Name, fn.Name, param.IsOutput)
 
 			// Add pointer to output parameters
 			if param.IsOutput && !strings.HasSuffix(cType, "*") {

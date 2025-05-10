@@ -5,7 +5,10 @@ import (
 	"strings"
 )
 
-func (v *Introspection) FixCType(cType string) string {
+func (v *Introspection) FixCType(cType string, paramName string, functionName string, isOutput bool) string {
+	if paramName == "len" && strings.Contains(functionName, "save_buffer") {
+		return "size_t*"
+	}
 	// Handle basic types first
 	if cType == "utf8*" {
 		return "const char*"
