@@ -35,6 +35,7 @@ var ImageMimeTypes = map[ImageType]string{
 {{end}}{{end}}}
 
 
+{{if .HasPngSaver}}
 // PngFilter represents filter algorithms that can be applied before compression.
 // See https://www.w3.org/TR/PNG-Filters.html
 type PngFilter int
@@ -48,6 +49,7 @@ const (
 	PngFilterPaeth PngFilter = C.VIPS_FOREIGN_PNG_FILTER_PAETH
 	PngFilterAll   PngFilter = C.VIPS_FOREIGN_PNG_FILTER_ALL
 )
+{{end}}
 
 // vipsDetermineImageTypeFromMetaLoader determine the image type from vips-loader metadata
 func vipsDetermineImageTypeFromMetaLoader(in *C.VipsImage) ImageType {
