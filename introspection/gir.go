@@ -410,7 +410,7 @@ func formatGoFunctionName(name string) string {
 	}
 
 	// Join with vips prefix
-	return "vips" + strings.Join(parts, "")
+	return "vipsgen" + strings.Join(parts, "")
 }
 
 func formatGoIdentifier(name string) string {
