@@ -205,6 +205,12 @@ func (v *Introspection) FilterOperations(operations []vipsgen.Operation) []vipsg
 			notAvailableCount++
 			continue
 		}
+		// Exclude all save_buffer operations (handled in foreign.go)
+		if strings.HasSuffix(op.Name, "save_buffer") {
+			fmt.Printf("Excluding operation: %s (save_buffer handled in foreign.go)\n", op.Name)
+			excludedCount++
+			continue
+		}
 
 		// Check if operation is explicitly excluded
 		if vipsgen.ExcludedOperations[op.Name] {

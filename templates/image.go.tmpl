@@ -10,7 +10,6 @@ import (
 	"strconv"
 	"strings"
 	"sync"
-	"unsafe"
 )
 
 // Image contains a libvips image and manages its lifecycle.
@@ -318,7 +317,7 @@ func (r *Image) Exif() map[string]any {
 
 
 
-{{range .Operations}}{{if .HasImageInput}}
+{{range .Operations}}{{if and .HasImageInput (not (hasArrayImageInput .Arguments))}}
 // {{.GoName | imageMethodName}} {{.Description}}
 // {{generateDocUrl .Name .Category}}
 func (r *Image) {{.GoName | imageMethodName}}({{$inputParams := filterInputParams .Arguments}}{{range $i, $arg := $inputParams}}{{if $i}}, {{end}}{{$arg.GoName}} {{$arg.GoType}}{{end}}) ({{if .HasImageOutput}}error{{else if .Outputs}}{{range $i, $arg := .Outputs}}{{if $i}}, {{end}}{{$arg.GoType}}{{end}}, error{{else}}error{{end}}) {

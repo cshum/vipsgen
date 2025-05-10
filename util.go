@@ -202,6 +202,7 @@ func GetTemplateFuncMap() template.FuncMap {
 			}
 			return cType
 		},
+		"hasArrayImageInput": HasArrayImageInput,
 	}
 }
 
@@ -394,6 +395,15 @@ func FormatReturnValues(op Operation) string {
 	} else {
 		return "return nil"
 	}
+}
+
+func HasArrayImageInput(args []Argument) bool {
+	for _, arg := range args {
+		if arg.Name == "in" && strings.HasPrefix(arg.GoType, "[]*C.VipsImage") {
+			return true
+		}
+	}
+	return false
 }
 
 var categoryToDocMap = map[string]string{
