@@ -282,16 +282,29 @@ func FormatReturnTypes(op Operation) string {
 
 // FormatVarDeclarations formats variable declarations for output parameters
 func FormatVarDeclarations(op Operation) string {
+	var decls []string
+
 	if op.HasImageOutput {
-		return "var out *C.VipsImage"
-	} else if len(op.Outputs) > 0 {
-		var decls []string
+		decls = append(decls, "var out *C.VipsImage")
+	} else {
 		for _, arg := range op.Outputs {
 			decls = append(decls, fmt.Sprintf("var %s %s", arg.GoName, arg.GoType))
+
+			// Add C type conversion if needed (for non-VipsImage outputs)
+			if arg.GoType == "float64" {
+				decls = append(decls, fmt.Sprintf("c%s := (*C.double)(unsafe.Pointer(&%s))",
+					arg.GoName, arg.GoName))
+			} else if arg.GoType == "int" {
+				decls = append(decls, fmt.Sprintf("c%s := (*C.int)(unsafe.Pointer(&%s))",
+					arg.GoName, arg.GoName))
+			} else if arg.GoType == "bool" {
+				decls = append(decls, fmt.Sprintf("c%s := (*C.int)(unsafe.Pointer(&%s))",
+					arg.GoName, arg.GoName))
+			}
 		}
-		return strings.Join(decls, "\n    ")
 	}
-	return ""
+
+	return strings.Join(decls, "\n    ")
 }
 
 // FormatStringConversions formats C string conversions for string parameters
@@ -345,18 +358,29 @@ func FormatArrayConversions(args []Argument) string {
 	return strings.Join(conversions, "\n\n    ")
 }
 
-// Update FormatFunctionCallArgs to handle special float array casting for const operations
+// FormatFunctionCallArgs formats the arguments for the C function call
 func FormatFunctionCallArgs(args []Argument) string {
 	var callArgs []string
 	for _, arg := range args {
 		var argStr string
 		if arg.IsOutput {
 			if arg.Name == "out" {
-				argStr = "&out"
+				if arg.GoType == "*C.VipsImage" {
+					argStr = "&out"
+				} else {
+					// Non-image output parameters should use c-prefixed variables
+					argStr = "c" + arg.GoName
+				}
 			} else {
-				argStr = "&" + arg.GoName
+				// Non-out named output parameters
+				if arg.GoType == "float64" || arg.GoType == "int" || arg.GoType == "bool" {
+					argStr = "c" + arg.GoName
+				} else {
+					argStr = "&" + arg.GoName
+				}
 			}
 		} else {
+			// Handle input parameters (as before)
 			if arg.GoType == "string" {
 				argStr = "c" + arg.GoName
 			} else if arg.GoType == "bool" {
@@ -364,11 +388,22 @@ func FormatFunctionCallArgs(args []Argument) string {
 			} else if arg.GoType == "*C.VipsImage" {
 				argStr = arg.GoName
 			} else if strings.HasPrefix(arg.GoType, "[]") {
-				// For array parameters, use the c-prefixed variable with proper casting for const operations
-				if arg.Name == "c" && (strings.HasSuffix(arg.CType, "*") || strings.HasSuffix(arg.CType, "const double*")) {
+				// For array parameters, handle each type specifically
+				if arg.GoType == "[]*C.VipsImage" {
+					// Use the appropriate casting for VipsImage arrays
+					argStr = "(**C.VipsImage)(c" + arg.GoName + ")"
+				} else if arg.GoType == "[]int" || arg.GoType == "[]BlendMode" {
+					// Use the appropriate casting for int arrays
+					argStr = "(*C.int)(c" + arg.GoName + ")"
+				} else if arg.GoType == "[]float64" {
+					// Use the appropriate casting for float arrays
 					argStr = "(*C.double)(c" + arg.GoName + ")"
+				} else if arg.GoType == "[]float32" {
+					// Use the appropriate casting for float arrays
+					argStr = "(*C.float)(c" + arg.GoName + ")"
 				} else {
-					argStr = "c" + arg.GoName // No casting needed, it's already an unsafe.Pointer
+					// Generic unsafe pointer for other array types
+					argStr = "c" + arg.GoName
 				}
 			} else if arg.IsEnum {
 				argStr = "C." + arg.Type + "(" + arg.GoName + ")"
