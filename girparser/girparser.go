@@ -440,29 +440,14 @@ func extractTypeFromCType(cType string) string {
 
 	// Map C types to vipsgen types
 	switch baseType {
-	case "VipsImage":
-		return "VipsImage"
 	case "int", "gint":
 		return "gint"
 	case "double", "gdouble":
 		return "gdouble"
 	case "float", "gfloat":
 		return "gfloat"
-	case "gboolean":
-		return "gboolean"
 	case "char", "gchar":
 		return "gchararray"
-	// Handle enum types
-	case "VipsBlendMode":
-		return "VipsBlendMode"
-	case "VipsAccess":
-		return "VipsAccess"
-	case "VipsExtend":
-		return "VipsExtend"
-	case "VipsAngle":
-		return "VipsAngle"
-	case "VipsInterpretation":
-		return "VipsInterpretation"
 	default:
 		// For unknown types, use as is
 		return baseType
