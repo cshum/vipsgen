@@ -61,14 +61,6 @@ func main() {
 	// Create operation manager for C-based introspection
 	vipsIntrospection := introspection.NewIntrospection()
 
-	// Get all operations from C-based introspection
-	cIntrospectionOps := vipsIntrospection.IntrospectOperations()
-	fmt.Printf("Found %d operations with required inputs from C introspection\n", len(cIntrospectionOps))
-
-	// Filter operations
-	filteredCOps := vipsIntrospection.FilterOperations(cIntrospectionOps)
-	fmt.Printf("Filtered to %d operations from C introspection\n", len(filteredCOps))
-
 	// Extract image types from operations
 	imageTypes := vipsIntrospection.DiscoverImageTypes()
 
@@ -80,9 +72,6 @@ func main() {
 			fmt.Printf("  - %s: supported\n", name)
 		}
 	}
-
-	// Determine the operations to use
-	var operations []vipsgen.Operation
 
 	// Get GIR data
 	var girFile io.Reader
@@ -112,58 +101,12 @@ func main() {
 	}
 
 	// Convert GIR data to vipsgen.Operation format
-	girOps := vipsIntrospection.ConvertToVipsgenOperations()
-	fmt.Printf("Extracted %d operations from GIR file\n", len(girOps))
+	operations := vipsIntrospection.ConvertToVipsgenOperations()
+	fmt.Printf("Extracted %d operations from GIR file\n", len(operations))
 
 	// Get enum types
 	enumTypes := vipsIntrospection.GetEnumTypes()
 
-	// Create a map of GIR operations for lookup
-	girOpMap := make(map[string]vipsgen.Operation)
-	for _, op := range girOps {
-		girOpMap[op.Name] = op
-	}
-
-	// Enhance C operations with GIR data
-	var enhancedOps []vipsgen.Operation
-	girOpsUsed := 0
-
-	for _, cOp := range filteredCOps {
-		// Check if we have GIR data for this operation
-		if girOp, exists := girOpMap[cOp.Name]; exists {
-			// Use GIR operation as basis but keep C introspection metadata if needed
-			enhancedOp := girOp
-
-			// If GIR operation is missing some metadata, use C introspection data
-			if enhancedOp.Category == "" {
-				enhancedOp.Category = cOp.Category
-			}
-			if !enhancedOp.HasImageInput && cOp.HasImageInput {
-				enhancedOp.HasImageInput = true
-			}
-			if !enhancedOp.HasImageOutput && cOp.HasImageOutput {
-				enhancedOp.HasImageOutput = true
-			}
-
-			enhancedOps = append(enhancedOps, enhancedOp)
-			delete(girOpMap, cOp.Name) // Remove from map to track used operations
-			girOpsUsed++
-		} else {
-			// No GIR data, use C operation as is
-			enhancedOps = append(enhancedOps, cOp)
-		}
-	}
-
-	// Add any remaining GIR operations (not found in C introspection)
-	remainingGirOps := len(girOpMap)
-	for _, op := range girOpMap {
-		enhancedOps = append(enhancedOps, op)
-	}
-
-	fmt.Printf("Enhanced %d C operations with GIR data\n", girOpsUsed)
-	fmt.Printf("Added %d operations found only in GIR\n", remainingGirOps)
-
-	operations = enhancedOps
 	fmt.Printf("Using %d operations in total\n", len(operations))
 
 	// Create unified template data

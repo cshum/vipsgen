@@ -9,21 +9,6 @@ import (
 	"strings"
 )
 
-// VipsGIRParser adapts girparser functionality for vipsgen
-type VipsGIRParser struct {
-	// Original GIR data
-	gir *girparser.GIR
-	// Parsed function info
-	functionInfo []VipsFunctionInfo
-	// Debug info from parsing
-	debugInfo *DebugInfo
-}
-
-// NewVipsGIRParser creates a new parser for vipsgen integration
-func NewVipsGIRParser() *VipsGIRParser {
-	return &VipsGIRParser{}
-}
-
 // ParseGir parses a GIR file from a reader
 func (v *Introspection) ParseGir(r io.Reader) error {
 	// ParseGir the GIR file
