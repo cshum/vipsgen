@@ -79,8 +79,7 @@ type PngExportParams struct {
 	Palette       bool
 	Dither        float64
 	Bitdepth      int
-	// TODO fix this
-	//Filter        PngFilter
+	Filter        PngFilter
 }
 
 // NewPngExportParams creates default values for an export of a PNG image.
@@ -90,8 +89,7 @@ func NewPngExportParams() *PngExportParams {
 		Compression: 6,
 		Interlace:   false,
 		Palette:     false,
-		// TODO fix this
-		//Filter:      PngFilterNone,
+		Filter:      PngFilterNone,
 	}
 }
 
@@ -110,8 +108,7 @@ func (r *Image) ExportPng(params *PngExportParams) ([]byte, error) {
 		C.int(params.Compression),
 		C.int(boolToInt(params.StripMetadata)),
 		C.int(boolToInt(params.Interlace)),
-		// TODO fix this
-		// C.int(params.Filter),
+		C.int(params.Filter),
 		C.int(boolToInt(params.Palette)),
 		C.int(params.Quality),
 		C.double(params.Dither),

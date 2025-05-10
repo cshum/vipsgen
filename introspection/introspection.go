@@ -56,7 +56,11 @@ type DebugInfo struct {
 }
 
 // Define a more base list of common enum types to look for in libvips
-var baseEnumTypeNames []enumTypeName
+var baseEnumTypeNames = []enumTypeName{
+	{"VipsForeignPngFilter", "PngFilter"},
+}
+
+var excludedEnumTypeNames = map[string]bool{"VipsForeignPngFilter": true}
 
 var cStringsCache sync.Map
 
@@ -238,8 +242,13 @@ func (v *Introspection) GetEnumTypes() []vipsgen.EnumTypeInfo {
 	var enumTypes []vipsgen.EnumTypeInfo
 
 	for _, typeName := range v.enumTypeNames {
+		if excludedEnumTypeNames[typeName.CName] {
+			fmt.Printf("Excluded enum type: %s -> %s\n", typeName.CName, typeName.GoName)
+			continue
+		}
 		// Check if the enum type exists first
 		cTypeName := C.CString(typeName.CName)
+
 		exists := C.type_exists(cTypeName)
 		C.free(unsafe.Pointer(cTypeName))
 
@@ -247,7 +256,6 @@ func (v *Introspection) GetEnumTypes() []vipsgen.EnumTypeInfo {
 			fmt.Printf("Warning: enum type %s not found in libvips\n", typeName.CName)
 			continue
 		}
-
 		// Try to get the enum values
 		enumInfo, err := v.getEnumType(typeName.CName, typeName.GoName)
 		if err != nil {
@@ -264,6 +272,7 @@ func (v *Introspection) GetEnumTypes() []vipsgen.EnumTypeInfo {
 
 // getEnumType retrieves information about a specific enum type
 func (v *Introspection) getEnumType(cName, goName string) (vipsgen.EnumTypeInfo, error) {
+
 	enumType := vipsgen.EnumTypeInfo{
 		CName:  cName,
 		GoName: goName,
@@ -321,6 +330,10 @@ func (v *Introspection) getEnumType(cName, goName string) (vipsgen.EnumTypeInfo,
 
 // AddEnumType adds a newly discovered enum type
 func (v *Introspection) AddEnumType(cName, goName string) {
+	if excludedEnumTypeNames[cName] {
+		fmt.Printf("Excluded enum type: %s -> %s\n", cName, goName)
+		return
+	}
 	if _, exists := v.discoveredEnumTypes[cName]; !exists {
 		// Add to our enum type list for later processing
 		v.enumTypeNames = append(v.enumTypeNames, struct {
