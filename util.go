@@ -163,14 +163,21 @@ func GetTemplateFuncMap() template.FuncMap {
 			}
 			return strings.Join(params, ", ")
 		},
-		"imageMethodName":       ImageMethodName,
-		"generateDocUrl":        GenerateDocUrl,
-		"formatImageMethodArgs": FormatImageMethodArgs,
-		"split":                 strings.Split,
-		"filterInputParams":     FilterInputParams,
-		"isPointerType":         isPointerType,
-		"formatDefaultValue":    formatDefaultValue,
-		"formatErrorReturn":     formatErrorReturn,
+		"imageMethodName":         ImageMethodName,
+		"generateDocUrl":          GenerateDocUrl,
+		"formatImageMethodArgs":   FormatImageMethodArgs,
+		"split":                   strings.Split,
+		"filterInputParams":       FilterInputParams,
+		"isPointerType":           isPointerType,
+		"formatDefaultValue":      formatDefaultValue,
+		"formatErrorReturn":       formatErrorReturn,
+		"formatGoArgList":         FormatGoArgList,
+		"formatReturnTypes":       FormatReturnTypes,
+		"formatVarDeclarations":   FormatVarDeclarations,
+		"formatStringConversions": FormatStringConversions,
+		"formatArrayConversions":  FormatArrayConversions,
+		"formatFunctionCallArgs":  FormatFunctionCallArgs,
+		"formatReturnValues":      FormatReturnValues,
 
 		"hasPrefix":  strings.HasPrefix,
 		"hasSuffix":  strings.HasSuffix,
@@ -240,6 +247,148 @@ func formatErrorReturn(hasImageOutput bool, outputs []Argument) string {
 		return "return " + strings.Join(returnValues, ", ") + ", handleVipsError()"
 	} else {
 		return "return handleVipsError()"
+	}
+}
+
+// FormatGoArgList formats a list of function arguments for a Go function
+// e.g., "in *C.VipsImage, c []float64, n int"
+func FormatGoArgList(args []Argument) string {
+	var params []string
+	for _, arg := range args {
+		if !arg.IsOutput {
+			params = append(params, fmt.Sprintf("%s %s", arg.GoName, arg.GoType))
+		}
+	}
+	return strings.Join(params, ", ")
+}
+
+// FormatReturnTypes formats the return types for a Go function
+// e.g., "*C.VipsImage, error" or "int, float64, error"
+func FormatReturnTypes(op Operation) string {
+	if op.HasImageOutput {
+		return "*C.VipsImage, error"
+	} else if len(op.Outputs) > 0 {
+		var types []string
+		for _, arg := range op.Outputs {
+			types = append(types, arg.GoType)
+		}
+		types = append(types, "error")
+		return strings.Join(types, ", ")
+	} else {
+		return "error"
+	}
+}
+
+// FormatVarDeclarations formats variable declarations for output parameters
+func FormatVarDeclarations(op Operation) string {
+	if op.HasImageOutput {
+		return "var out *C.VipsImage"
+	} else if len(op.Outputs) > 0 {
+		var decls []string
+		for _, arg := range op.Outputs {
+			decls = append(decls, fmt.Sprintf("var %s %s", arg.GoName, arg.GoType))
+		}
+		return strings.Join(decls, "\n    ")
+	}
+	return ""
+}
+
+// FormatStringConversions formats C string conversions for string parameters
+func FormatStringConversions(args []Argument) string {
+	var conversions []string
+	for _, arg := range args {
+		if !arg.IsOutput && arg.GoType == "string" {
+			conversions = append(conversions, fmt.Sprintf("c%s := C.CString(%s)\n    defer freeCString(c%s)",
+				arg.GoName, arg.GoName, arg.GoName))
+		}
+	}
+	return strings.Join(conversions, "\n    ")
+}
+
+// FormatArrayConversions formats array conversions for slice parameters
+func FormatArrayConversions(args []Argument) string {
+	var conversions []string
+	for _, arg := range args {
+		if !arg.IsOutput && strings.HasPrefix(arg.GoType, "[]") {
+			if arg.GoType == "[]string" {
+				conversions = append(conversions, fmt.Sprintf(
+					"// Convert []string to C array for %s\n"+
+						"    c%s_ptrs := make([]*C.char, len(%s))\n"+
+						"    for i, s := range %s {\n"+
+						"        c%s_ptrs[i] = C.CString(s)\n"+
+						"        defer freeCString(c%s_ptrs[i])\n"+
+						"    }\n"+
+						"    c%s := unsafe.Pointer(&c%s_ptrs[0])",
+					arg.GoName, arg.GoName, arg.GoName, arg.GoName,
+					arg.GoName, arg.GoName, arg.GoName, arg.GoName))
+			} else if arg.GoType == "[]float64" || arg.GoType == "[]float32" {
+				// Special handling for float arrays - common in libvips const functions
+				conversions = append(conversions, fmt.Sprintf(
+					"// Convert slice to C array for %s\n"+
+						"    var c%s unsafe.Pointer\n"+
+						"    if len(%s) > 0 {\n"+
+						"        c%s = unsafe.Pointer(&%s[0])\n"+
+						"    }",
+					arg.GoName, arg.GoName, arg.GoName, arg.GoName, arg.GoName))
+			} else {
+				conversions = append(conversions, fmt.Sprintf(
+					"// Convert slice to C array for %s\n"+
+						"    var c%s unsafe.Pointer\n"+
+						"    if len(%s) > 0 {\n"+
+						"        c%s = unsafe.Pointer(&%s[0])\n"+
+						"    }",
+					arg.GoName, arg.GoName, arg.GoName, arg.GoName, arg.GoName))
+			}
+		}
+	}
+	return strings.Join(conversions, "\n\n    ")
+}
+
+// FormatFunctionCallArgs formats the arguments for the C function call
+func FormatFunctionCallArgs(args []Argument) string {
+	var callArgs []string
+	for _, arg := range args {
+		var argStr string
+		if arg.IsOutput {
+			if arg.Name == "out" {
+				argStr = "&out"
+			} else {
+				argStr = "&" + arg.GoName
+			}
+		} else {
+			if arg.GoType == "string" {
+				argStr = "c" + arg.GoName
+			} else if arg.GoType == "bool" {
+				argStr = "C.int(boolToInt(" + arg.GoName + "))"
+			} else if arg.GoType == "*C.VipsImage" {
+				argStr = arg.GoName
+			} else if strings.HasPrefix(arg.GoType, "[]") {
+				// For array parameters, use the c-prefixed variable that contains the pointer
+				argStr = "c" + arg.GoName // No casting needed, it's already an unsafe.Pointer
+			} else if arg.IsEnum {
+				argStr = "C." + arg.Type + "(" + arg.GoName + ")"
+			} else {
+				// For regular scalar types, use normal C casting
+				argStr = "C." + arg.CType + "(" + arg.GoName + ")"
+			}
+		}
+		callArgs = append(callArgs, argStr)
+	}
+	return strings.Join(callArgs, ", ")
+}
+
+// FormatReturnValues formats the return values for the Go function
+func FormatReturnValues(op Operation) string {
+	if op.HasImageOutput {
+		return "return out, nil"
+	} else if len(op.Outputs) > 0 {
+		var values []string
+		for _, arg := range op.Outputs {
+			values = append(values, arg.GoName)
+		}
+		return "return " + strings.Join(values, ", ") + ", nil"
+	} else {
+		return "return nil"
 	}
 }
 

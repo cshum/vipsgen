@@ -104,7 +104,7 @@ func (v *Introspection) extractVipsFunctions(gir *girparser.GIR) ([]VipsFunction
 	return functions, debugInfo
 }
 
-// processVipsFunction processes a Function to VipsFunctionInfo without skipping non-introspectable functions
+// processVipsFunction processes a Function to VipsFunctionInfo with array awareness
 func (v *Introspection) processVipsFunction(fn girparser.Function, debugInfo *DebugInfo) *VipsFunctionInfo {
 	// Check for vips-specific functions
 	if !vipsPattern.MatchString(fn.CIdentifier) && fn.CIdentifier != "" {
@@ -132,9 +132,18 @@ func (v *Introspection) processVipsFunction(fn girparser.Function, debugInfo *De
 		HasVarArgs:  false,
 	}
 
-	// Process parameters
+	// Process parameters with array awareness
 	if fn.InstanceParam != nil {
 		param := processVipsParam(*fn.InstanceParam)
+
+		// Set array flag if this is an array parameter
+		if fn.InstanceParam.Array != nil {
+			param.IsArray = true
+			if fn.InstanceParam.Array.ElementType.CType != "" {
+				param.ArrayType = fn.InstanceParam.Array.ElementType.CType
+			}
+		}
+
 		info.Params = append(info.Params, param)
 		if !param.IsOptional {
 			info.RequiredParams = append(info.RequiredParams, param)
@@ -142,7 +151,7 @@ func (v *Introspection) processVipsFunction(fn girparser.Function, debugInfo *De
 	}
 
 	for i, param := range fn.Parameters {
-		// Check for output parameter (typically a VipsImage**)
+		// Check for output parameter
 		if param.Direction == "out" {
 			info.HasOutParam = true
 			info.OutParamIndex = i
@@ -155,6 +164,22 @@ func (v *Introspection) processVipsFunction(fn girparser.Function, debugInfo *De
 		}
 
 		paramInfo := processVipsParam(param)
+
+		// Set array flag if this is an array parameter
+		if param.Array != nil {
+			paramInfo.IsArray = true
+
+			// Get array element type if available
+			if param.Array.ElementType.CType != "" {
+				paramInfo.ArrayType = param.Array.ElementType.CType
+			}
+
+			// Use array's C type for the parameter if available
+			if param.Array.CType != "" {
+				paramInfo.CType = param.Array.CType
+			}
+		}
+
 		info.Params = append(info.Params, paramInfo)
 
 		if paramInfo.IsOptional {
@@ -163,9 +188,6 @@ func (v *Introspection) processVipsFunction(fn girparser.Function, debugInfo *De
 			info.RequiredParams = append(info.RequiredParams, paramInfo)
 		}
 	}
-
-	log.Printf("Processed function: %s (C identifier: %s) with %d parameters (%d required, %d optional)",
-		info.Name, info.CIdentifier, len(info.Params), len(info.RequiredParams), len(info.OptionalParams))
 
 	return info
 }
@@ -184,80 +206,30 @@ func extractCategoryFromFilename(filename string) string {
 	return "operation" // Default category
 }
 
-// processVipsParam converts a Parameter to VipsParamInfo
+// processVipsParam converts a Parameter to VipsParamInfo with array detection
 func processVipsParam(param girparser.Parameter) VipsParamInfo {
 	paramInfo := VipsParamInfo{
 		Name:       param.Name,
-		CType:      param.Type.CType,
 		IsOptional: param.Optional,
 		IsVarArgs:  param.VarArgs,
 	}
 
-	// 1. Check the direction attribute first
+	// Set C type from parameter or array
+	if param.Array != nil && param.Array.CType != "" {
+		paramInfo.CType = param.Array.CType
+	} else if param.Type.CType != "" {
+		paramInfo.CType = param.Type.CType
+	}
+
+	// Determine if this is an output parameter
 	if param.Direction == "out" {
 		paramInfo.IsOutput = true
-	}
-
-	// 2. Then check the parameter name (as a fallback)
-	if !paramInfo.IsOutput && param.Name == "out" {
+	} else if param.Name == "out" {
 		paramInfo.IsOutput = true
-	}
-
-	// 3. Check the C type (as another fallback)
-	// Double pointers often indicate output parameters
-	if !paramInfo.IsOutput && strings.HasSuffix(paramInfo.CType, "**") {
+	} else if strings.HasSuffix(paramInfo.CType, "**") && param.Array == nil {
+		// Double pointers often indicate output parameters
+		// But only if they're not arrays
 		paramInfo.IsOutput = true
-	}
-
-	// 4. Special case: buffer length parameters are often outputs
-	if strings.HasSuffix(param.Name, "_len") || param.Name == "len" {
-		if paramInfo.CType == "gsize" || paramInfo.CType == "size_t" {
-			// Make sure it's a pointer for output parameters
-			if paramInfo.IsOutput && !strings.HasSuffix(paramInfo.CType, "*") {
-				paramInfo.CType = paramInfo.CType + "*"
-			}
-		}
-	}
-
-	// Fix for empty CType - provide a default
-	if paramInfo.CType == "" {
-		if param.Type.Name == "none" {
-			paramInfo.CType = "void"
-		} else if param.Type.Name != "" {
-			// Try to guess the C type based on the name
-			switch param.Type.Name {
-			case "gint":
-				paramInfo.CType = "int"
-			case "gdouble":
-				paramInfo.CType = "double"
-			case "gfloat":
-				paramInfo.CType = "float"
-			case "gboolean":
-				paramInfo.CType = "gboolean"
-			case "gchar":
-				paramInfo.CType = "char"
-			case "guchar":
-				paramInfo.CType = "unsigned char"
-			case "gpointer":
-				paramInfo.CType = "void*"
-			case "gchar*":
-				paramInfo.CType = "char*"
-			case "Image":
-				// For Image type, check if it's an output parameter
-				if paramInfo.IsOutput {
-					paramInfo.CType = "VipsImage**"
-				} else {
-					paramInfo.CType = "VipsImage*"
-				}
-			default:
-				// Default fallback - use the name as type
-				paramInfo.CType = param.Type.Name + "*"
-			}
-		} else {
-			// Last resort: use void* for unknown types
-			paramInfo.CType = "void*"
-			log.Printf("Warning: Unknown type for parameter %s, using void*", param.Name)
-		}
 	}
 
 	return paramInfo
@@ -292,48 +264,61 @@ func (v *Introspection) ConvertToVipsgenOperations() []vipsgen.Operation {
 			Category:    fn.Category,
 		}
 
-		// Process arguments
+		// Find the original GIR function
+		var originalFunc *girparser.Function
+		for i := range v.gir.Namespace.Functions {
+			if v.gir.Namespace.Functions[i].Name == fn.Name {
+				originalFunc = &v.gir.Namespace.Functions[i]
+				break
+			}
+		}
+
+		// Process arguments with full GIR parameter information
 		for _, param := range fn.Params {
 			// Skip varargs placeholder
-			if param.Name == "..." {
+			if param.Name == "..." || param.IsVarArgs {
 				continue
 			}
 
-			// Fix the C type for special cases
-			cType := v.FixCType(param.CType, param.Name, fn.Name, param.IsOutput)
-
-			// Add pointer to output parameters
-			if param.IsOutput && !strings.HasSuffix(cType, "*") {
-				cType = cType + "*"
+			// Find original parameter in GIR data
+			var originalParam *girparser.Parameter
+			if originalFunc != nil {
+				for i := range originalFunc.Parameters {
+					if originalFunc.Parameters[i].Name == param.Name {
+						originalParam = &originalFunc.Parameters[i]
+						break
+					}
+				}
 			}
 
+			// Get effective C type based on parameter structure
+			cType := getEffectiveCType(param, originalParam)
+
+			// Determine Go type with array awareness
+			goType := v.mapCTypeToGoType(cType, param, originalParam)
+
+			// Extract base type
+			baseType := extractBaseType(cType)
+
+			// Create argument with original parameter reference
 			arg := vipsgen.Argument{
-				Name:        param.Name,
-				GoName:      formatGoIdentifier(param.Name),
-				Type:        extractBaseType(cType),
-				GoType:      v.mapCTypeToGoType(cType, param.IsOutput),
-				CType:       cType,
-				Description: fmt.Sprintf("%s parameter", param.Name),
-				Required:    !param.IsOptional,
-				IsInput:     !param.IsOutput,
-				IsOutput:    param.IsOutput,
-				IsEnum:      v.isEnumType(cType),
-				Flags:       determineFlags(param.IsOutput, !param.IsOptional),
-			}
-
-			// Check for "in" parameter with *C.VipsImage type
-			if arg.Name == "in" && arg.Type == "VipsImage" && !arg.IsOutput {
-				op.HasImageInput = true
-			}
-
-			// Check for "out" parameter with VipsImage type
-			if arg.Name == "out" && arg.Type == "VipsImage" && arg.IsOutput {
-				op.HasImageOutput = true
+				Name:          param.Name,
+				GoName:        vipsgen.FormatGoIdentifier(param.Name),
+				Type:          baseType,
+				GoType:        goType,
+				CType:         cType,
+				Description:   fmt.Sprintf("%s parameter", param.Name),
+				Required:      !param.IsOptional,
+				IsInput:       !param.IsOutput,
+				IsOutput:      param.IsOutput,
+				IsEnum:        v.isEnumType(baseType),
+				Flags:         determineFlags(param.IsOutput, !param.IsOptional),
+				OriginalParam: originalParam,
 			}
 
 			// Determine enum type if applicable
 			if arg.IsEnum {
-				arg.EnumType = v.GetGoEnumName(param.CType)
+				arg.EnumType = v.GetGoEnumName(baseType)
 			}
 
 			op.Arguments = append(op.Arguments, arg)
@@ -350,13 +335,9 @@ func (v *Introspection) ConvertToVipsgenOperations() []vipsgen.Operation {
 			}
 		}
 
-		// 1. Fix specific known functions with special parameter handling
-		v.FixParameterTypes(&op)
+		v.FixConstFunctions(&op)
 
-		// 3. Fix void* parameters to appropriate Go types
-		v.FixVoidParameters(&op)
-
-		// 4. Check for image input/output after all fixes have been applied
+		// Update image input/output flags
 		v.UpdateImageInputOutputFlags(&op)
 
 		operations = append(operations, op)
@@ -365,29 +346,24 @@ func (v *Introspection) ConvertToVipsgenOperations() []vipsgen.Operation {
 	return operations
 }
 
-// extractBaseType removes pointer symbols and array notation from C type strings
-// to get the base type name. For example:
-// - "VipsImage*" → "VipsImage"
-// - "int[]" → "int"
-// - "const char*" → "char"
-func extractBaseType(cType string) string {
-	// Handle special cases first
-	if cType == "utf8*" {
-		return "utf8"
-	}
-	if cType == "Source*" {
-		return "Source"
-	}
-	if cType == "Target*" {
-		return "Target"
-	}
-	if cType == "Blob*" {
-		return "Blob"
-	}
-	if cType == "const char*" {
-		return "char"
+// getEffectiveCType determines the actual C type using original GIR parameter if available
+func getEffectiveCType(param VipsParamInfo, originalParam *girparser.Parameter) string {
+	// If we have the original parameter with array info, use it
+	if originalParam != nil && originalParam.Array != nil && originalParam.Array.CType != "" {
+		return originalParam.Array.CType
 	}
 
+	// If we have the original parameter with type info, use it
+	if originalParam != nil && originalParam.Type.CType != "" {
+		return originalParam.Type.CType
+	}
+
+	// Fall back to the converted parameter info
+	return param.CType
+}
+
+// extractBaseType removes pointer symbols and array notation from C type strings
+func extractBaseType(cType string) string {
 	// Remove 'const' qualifier if present
 	baseType := strings.TrimPrefix(cType, "const ")
 
@@ -397,7 +373,7 @@ func extractBaseType(cType string) string {
 	// Remove any spaces
 	baseType = strings.TrimSpace(baseType)
 
-	// Map C types to vipsgen types
+	// Handle special cases
 	switch baseType {
 	case "int":
 		return "gint"
@@ -433,28 +409,44 @@ func extractTypeFromCType(cType string) string {
 	}
 }
 
-func (v *Introspection) mapCTypeToGoType(cType string, isOutput bool) string {
-	// Extract the base type without pointers
-	baseType := extractBaseType(cType)
+// mapCTypeToGoType maps a C type to a Go type with array awareness
+func (v *Introspection) mapCTypeToGoType(cType string, param VipsParamInfo, originalParam *girparser.Parameter) string {
+	// If we have original parameter with array info, use it
+	if originalParam != nil && originalParam.Array != nil {
+		// Get element type if available
+		elementType := originalParam.Array.ElementType.CType
 
-	// Special handling for output parameters of scalar types
-	if isOutput {
-		// If it's a scalar output parameter (indicated by a pointer),
-		// determine the appropriate Go type
-		baseType := strings.TrimSuffix(cType, "*")
-		switch baseType {
-		case "double", "gdouble":
-			return "float64"
-		case "int", "gint":
-			return "int"
-		case "gboolean":
-			return "bool"
-		case "size_t", "gsize":
-			return "int"
+		if elementType == "VipsImage*" {
+			return "[]*C.VipsImage"
+		}
+		if strings.HasPrefix(elementType, "int") || strings.HasPrefix(elementType, "gint") {
+			return "[]int"
+		}
+		if strings.HasPrefix(elementType, "double") || strings.HasPrefix(elementType, "gdouble") {
+			return "[]float64"
+		}
+		if strings.HasPrefix(elementType, "float") || strings.HasPrefix(elementType, "gfloat") {
+			return "[]float32"
+		}
+		if strings.HasPrefix(elementType, "char") || strings.HasPrefix(elementType, "gchar") {
+			return "[]string"
+		}
+
+		// For general arrays, use the C type pattern
+		if strings.HasPrefix(cType, "VipsImage**") {
+			return "[]*C.VipsImage"
+		}
+		if strings.HasPrefix(cType, "int*") || strings.HasPrefix(cType, "gint*") {
+			return "[]int"
+		}
+		if strings.HasPrefix(cType, "double*") || strings.HasPrefix(cType, "gdouble*") {
+			return "[]float64"
 		}
 	}
 
-	// Map VIPS types to Go types
+	// Handle scalar types
+	baseType := extractBaseType(cType)
+
 	switch baseType {
 	case "VipsImage":
 		return "*C.VipsImage"
@@ -465,7 +457,7 @@ func (v *Introspection) mapCTypeToGoType(cType string, isOutput bool) string {
 	case "gdouble", "double", "gfloat", "float":
 		return "float64"
 	case "gchararray", "char", "gchar", "utf8":
-		return "string" // Important: This maps const char* and utf8* to string
+		return "string"
 	case "VipsArrayInt":
 		return "[]int"
 	case "VipsArrayDouble":
@@ -480,19 +472,34 @@ func (v *Introspection) mapCTypeToGoType(cType string, isOutput bool) string {
 		return "*C.VipsSource"
 	case "VipsTarget", "Target":
 		return "*C.VipsTarget"
-	default:
-		// Check if it's an enum type
-		if v.isEnumType(baseType) {
-			return v.GetGoEnumName(baseType)
+	}
+
+	// Check if it's an enum type
+	if v.isEnumType(baseType) {
+		return v.GetGoEnumName(baseType)
+	}
+
+	// Handle pointer types
+	if strings.HasSuffix(cType, "*") {
+		if strings.Contains(cType, "char*") {
+			return "string"
 		}
+		if strings.Contains(cType, "int*") || strings.Contains(cType, "gint*") {
+			return "[]int"
+		}
+		if strings.Contains(cType, "double*") || strings.Contains(cType, "gdouble*") {
+			return "[]float64"
+		}
+		if strings.Contains(cType, "float*") || strings.Contains(cType, "gfloat*") {
+			return "[]float32"
+		}
+		if strings.HasSuffix(cType, "**") {
+			return "unsafe.Pointer" // Double pointers other than VipsImage** need special handling
+		}
+		return "unsafe.Pointer" // Generic pointer
 	}
 
-	// If cType contains "char*" or is utf8*, treat it as a string
-	if strings.Contains(cType, "char*") || cType == "utf8*" || cType == "const char*" {
-		return "string"
-	}
-
-	// Default case for unknown types
+	// Default case
 	return "interface{}"
 }
 
@@ -500,6 +507,7 @@ func (v *Introspection) isEnumType(cType string) bool {
 	return v.discoveredEnumTypes[cType] != ""
 }
 
+// determineFlags calculates the flags for an argument
 func determineFlags(isOutput bool, isRequired bool) int {
 	if isOutput && isRequired {
 		return 35 // VIPS_ARGUMENT_REQUIRED | VIPS_ARGUMENT_OUTPUT

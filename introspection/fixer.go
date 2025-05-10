@@ -61,52 +61,25 @@ func (v *Introspection) UpdateImageInputOutputFlags(op *vipsgen.Operation) {
 	}
 }
 
-func (v *Introspection) FixParameterTypes(op *vipsgen.Operation) {
-	// Fix buffer length parameters
-	for i, arg := range op.Arguments {
-		// Fix gsize* -> size_t for buffer length parameters
-		if arg.CType == "gsize*" && (arg.Name == "len" || strings.HasSuffix(arg.Name, "len")) {
-			op.Arguments[i].CType = "size_t"
-			op.Arguments[i].GoType = "int"
-		}
-	}
-}
-
-func (v *Introspection) FixVoidParameters(op *vipsgen.Operation) {
-	// Special cases for functions with void* parameters
-	if op.Name == "bandjoin_const" {
+// FixConstFunctions add a special case fix function for _const functions in introspection/fixer.go:
+func (v *Introspection) FixConstFunctions(op *vipsgen.Operation) {
+	// Special handling for _const functions that operate on arrays
+	if strings.HasSuffix(op.Name, "_const") {
 		for i, arg := range op.Arguments {
-			if arg.Name == "c" && (arg.CType == "void*" || arg.GoType == "interface{}") {
-				// This is an array of constants - should be []float64
+			// Parameters named 'a', 'b', 'c' in _const functions are typically arrays
+			if (arg.Name == "a" || arg.Name == "b" || arg.Name == "c") &&
+				strings.HasPrefix(arg.CType, "double") && !arg.IsOutput {
+				// Fix the type to be a double array
 				op.Arguments[i].CType = "double*"
 				op.Arguments[i].GoType = "[]float64"
 			}
 		}
 	} else if op.Name == "linear" {
+		// Special case for linear function
 		for i, arg := range op.Arguments {
-			if (arg.Name == "a" || arg.Name == "b") && (arg.CType == "void*" || arg.GoType == "interface{}") {
-				// These are arrays of constants - should be []float64
+			if (arg.Name == "a" || arg.Name == "b") && !arg.IsOutput {
 				op.Arguments[i].CType = "double*"
 				op.Arguments[i].GoType = "[]float64"
-			}
-		}
-	} else if op.Name == "composite" {
-		// Already fixed in FixParameterTypes
-	} else {
-		// General case for void* parameters
-		for i, arg := range op.Arguments {
-			if arg.CType == "void*" {
-				// For general void* parameters, determine the most likely type based on context
-				if arg.Name == "buf" || strings.HasSuffix(arg.Name, "_buf") {
-					// Buffer parameters are typically []byte
-					op.Arguments[i].GoType = "[]byte"
-				} else if arg.Name == "data" || strings.HasSuffix(arg.Name, "_data") {
-					// Data parameters could be []byte or unsafe.Pointer depending on context
-					op.Arguments[i].GoType = "[]byte"
-				} else {
-					// Default for other void* parameters
-					op.Arguments[i].GoType = "unsafe.Pointer"
-				}
 			}
 		}
 	}
