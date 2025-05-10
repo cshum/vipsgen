@@ -317,19 +317,10 @@ func (r *Image) Exif() map[string]any {
 
 
 
-{{range .Operations}}
-{{$hasVipsImageInput := false}}
-{{range $arg := .Arguments}}
-  {{if and (eq $arg.Type "VipsImage") (eq $arg.GoType "*C.VipsImage") (not $arg.IsOutput)}}
-    {{if ne $arg.GoType "[]*C.VipsImage"}}
-      {{$hasVipsImageInput = true}}
-    {{end}}
-  {{end}}
-{{end}}
-{{if $hasVipsImageInput}}
+{{range .Operations}}{{if .HasImageInput}}
 // {{.GoName | imageMethodName}} {{.Description}}
 // {{generateDocUrl .Name .Category}}
-func (r *Image) {{.GoName | imageMethodName}}({{$first := true}}{{range $arg := .Arguments}}{{if and (not $arg.IsOutput) (ne $arg.Type "VipsImage")}}{{if $first}}{{$first = false}}{{else}}, {{end}}{{$arg.GoName}} {{$arg.GoType}}{{end}}{{end}}) {{if not .HasImageOutput}}{{if .Outputs}}({{range $i, $arg := .Outputs}}{{if $i}}, {{end}}{{$arg.GoType}}{{end}}, error){{else}}error{{end}}{{else}}error{{end}} {
+func (r *Image) {{.GoName | imageMethodName}}({{formatImageMethodArgs .Arguments}}) {{if not .HasImageOutput}}{{if .Outputs}}({{range $i, $arg := .Outputs}}{{if $i}}, {{end}}{{$arg.GoType}}{{end}}, error){{else}}error{{end}}{{else}}error{{end}} {
     {{if .HasImageOutput}}
     out, err := {{.GoName}}(r.image{{range $arg := .Arguments}}{{if and (not $arg.IsOutput) (ne $arg.Type "VipsImage")}}, {{$arg.GoName}}{{end}}{{end}})
     if err != nil {
@@ -351,5 +342,4 @@ func (r *Image) {{.GoName | imageMethodName}}({{$first := true}}{{range $arg := 
     return nil
     {{end}}
 }
-{{end}}
-{{end}}
+{{end}}{{end}}

@@ -9,6 +9,9 @@ import (
 
 // ImageMethodName converts vipsFooBar to FooBar for method names
 func ImageMethodName(name string) string {
+	if strings.HasPrefix(name, "vipsgen") {
+		return name[7:]
+	}
 	if strings.HasPrefix(name, "vips") {
 		return name[4:]
 	}
@@ -31,16 +34,18 @@ func FormatImageMethodArgs(args []Argument) string {
 // FormatGoFunctionName formats an operation name to a Go function name
 func FormatGoFunctionName(name string) string {
 	// Convert operation names to match existing Go function style
-	// e.g., "rotate" -> "vipsRotate", "extract_area" -> "vipsExtractArea"
+	// e.g., "rotate" -> "vipsgenRotate", "extract_area" -> "vipsgenExtractArea"
 	parts := strings.Split(name, "_")
 
 	// Convert each part to title case
 	for i, part := range parts {
-		parts[i] = strings.Title(part)
+		if len(part) > 0 {
+			parts[i] = strings.ToUpper(part[0:1]) + part[1:]
+		}
 	}
 
-	// Join with vips prefix
-	return "vips" + strings.Join(parts, "")
+	// Join with vipsgen prefix instead of vips
+	return "vipsgen" + strings.Join(parts, "")
 }
 
 // FormatIdentifier formats a name to an identifier
@@ -164,6 +169,8 @@ func GenerateDocUrl(funcName string, sourceCategory string) string {
 		// Default to the source category if no mapping exists
 		docCategory = "libvips-" + sourceCategory
 	}
+
+	funcName = strings.ReplaceAll(funcName, "_", "-")
 
 	// For most categories, the URL format seems to be:
 	return fmt.Sprintf("https://www.libvips.org/API/current/%s.html#vips-%s", docCategory, funcName)

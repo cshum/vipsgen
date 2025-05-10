@@ -24,9 +24,9 @@ type Operation struct {
 	RequiredInputs []Argument
 	OptionalInputs []Argument
 	Outputs        []Argument
+	HasImageInput  bool // Does this operation take a VipsImage as input?
 	HasImageOutput bool
 	Category       string // arithmetic, conversion, etc
-	HasImageInput  bool   // Does this operation take a VipsImage as input?
 }
 
 // Argument represents an argument to a libvips operation

@@ -262,7 +262,7 @@ func (v *Introspection) ConvertToVipsgenOperations() []vipsgen.Operation {
 		// Create a new operation
 		op := vipsgen.Operation{
 			Name:        fn.Name,
-			GoName:      formatGoFunctionName(fn.Name),
+			GoName:      vipsgen.FormatGoFunctionName(fn.Name),
 			Description: fn.Description,
 			Category:    fn.Category,
 		}
@@ -288,6 +288,16 @@ func (v *Introspection) ConvertToVipsgenOperations() []vipsgen.Operation {
 				Flags:       determineFlags(param.IsOutput, !param.IsOptional),
 			}
 
+			// Check for "in" parameter with *C.VipsImage type
+			if arg.Name == "in" && arg.Type == "VipsImage" && !arg.IsOutput {
+				op.HasImageInput = true
+			}
+
+			// Check for "out" parameter with VipsImage type
+			if arg.Name == "out" && arg.Type == "VipsImage" && arg.IsOutput {
+				op.HasImageOutput = true
+			}
+
 			// Determine enum type if applicable
 			if arg.IsEnum {
 				arg.EnumType = v.GetGoEnumName(param.CType)
@@ -299,17 +309,11 @@ func (v *Introspection) ConvertToVipsgenOperations() []vipsgen.Operation {
 			if arg.IsInput {
 				if arg.Required {
 					op.RequiredInputs = append(op.RequiredInputs, arg)
-					if arg.Type == "VipsImage" {
-						op.HasImageInput = true
-					}
 				} else {
 					op.OptionalInputs = append(op.OptionalInputs, arg)
 				}
 			} else if arg.IsOutput {
 				op.Outputs = append(op.Outputs, arg)
-				if arg.Type == "VipsImage" {
-					op.HasImageOutput = true
-				}
 			}
 		}
 
@@ -436,22 +440,6 @@ func extractDescription(doc string) string {
 	}
 
 	return ""
-}
-
-func formatGoFunctionName(name string) string {
-	// Convert operation names to match existing Go function style
-	// e.g., "rotate" -> "vipsRotate", "extract_area" -> "vipsExtractArea"
-	parts := strings.Split(name, "_")
-
-	// Convert each part to title case
-	for i, part := range parts {
-		if len(part) > 0 {
-			parts[i] = strings.ToUpper(part[0:1]) + part[1:]
-		}
-	}
-
-	// Join with vips prefix
-	return "vips" + strings.Join(parts, "")
 }
 
 func formatGoIdentifier(name string) string {
