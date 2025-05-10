@@ -101,11 +101,12 @@ func (r *Image) ExportPng(params *PngExportParams) ([]byte, error) {
 		params = NewPngExportParams()
 	}
 
-	var blob *C.VipsBlob
+    var buf unsafe.Pointer
+    var length C.size_t
 
 	// Call pngsave_buffer_wrapper
 	err := C.pngsave_buffer_wrapper(
-		r.image, &blob,
+        r.image, &buf, &length,
 		C.int(params.Compression),
 		C.int(boolToInt(params.StripMetadata)),
 		C.int(boolToInt(params.Interlace)),
@@ -121,7 +122,7 @@ func (r *Image) ExportPng(params *PngExportParams) ([]byte, error) {
 		return nil, handleVipsError()
 	}
 
-	return blobToBytes(blob)
+    return bufferToBytes(buf, length), nil
 }
 {{end}}
 
@@ -153,8 +154,9 @@ func (r *Image) ExportWebp(params *WebpExportParams) ([]byte, error) {
 		params = NewWebpExportParams()
 	}
 
-	var blob *C.VipsBlob
-	var err C.int
+    var err C.int
+    var buf unsafe.Pointer
+    var length C.size_t
 
 	// Call webp save wrapper with or without profile
 	if params.IccProfile != "" {
@@ -162,7 +164,7 @@ func (r *Image) ExportWebp(params *WebpExportParams) ([]byte, error) {
 		defer C.free(unsafe.Pointer(cProfile))
 
 		err = C.webpsave_buffer_profile_wrapper(
-			r.image, &blob,
+            r.image, &buf, &length,
 			C.int(params.Quality),
 			C.int(boolToInt(params.StripMetadata)),
 			C.int(boolToInt(params.Lossless)),
@@ -172,7 +174,7 @@ func (r *Image) ExportWebp(params *WebpExportParams) ([]byte, error) {
 		)
 	} else {
 		err = C.webpsave_buffer_wrapper(
-			r.image, &blob,
+            r.image, &buf, &length,
 			C.int(params.Quality),
 			C.int(boolToInt(params.StripMetadata)),
 			C.int(boolToInt(params.Lossless)),
@@ -185,7 +187,7 @@ func (r *Image) ExportWebp(params *WebpExportParams) ([]byte, error) {
 		return nil, handleVipsError()
 	}
 
-	return blobToBytes(blob)
+    return bufferToBytes(buf, length), nil
 }
 {{end}}
 
@@ -210,11 +212,12 @@ func (r *Image) ExportHeif(params *HeifExportParams) ([]byte, error) {
 		params = NewHeifExportParams()
 	}
 
-	var blob *C.VipsBlob
+    var buf unsafe.Pointer
+    var length C.size_t
 
 	// Call heifsave_buffer_wrapper
 	err := C.heifsave_buffer_wrapper(
-		r.image, &blob,
+        r.image, &buf, &length,
 		C.int(params.Quality),
 		C.int(boolToInt(params.Lossless)),
 	)
@@ -223,7 +226,7 @@ func (r *Image) ExportHeif(params *HeifExportParams) ([]byte, error) {
 		return nil, handleVipsError()
 	}
 
-	return blobToBytes(blob)
+    return bufferToBytes(buf, length), nil
 }
 {{end}}
 
@@ -261,11 +264,12 @@ func (r *Image) ExportTiff(params *TiffExportParams) ([]byte, error) {
 		params = NewTiffExportParams()
 	}
 
-	var blob *C.VipsBlob
+    var buf unsafe.Pointer
+    var length C.size_t
 
 	// Call tiffsave_buffer_wrapper
 	err := C.tiffsave_buffer_wrapper(
-		r.image, &blob,
+        r.image, &buf, &length,
 		C.int(params.Quality),
 		C.int(boolToInt(params.StripMetadata)),
 		C.int(params.Compression),
@@ -282,7 +286,7 @@ func (r *Image) ExportTiff(params *TiffExportParams) ([]byte, error) {
 		return nil, handleVipsError()
 	}
 
-	return blobToBytes(blob)
+    return bufferToBytes(buf, length), nil
 }
 {{end}}
 
@@ -311,13 +315,14 @@ func (r *Image) ExportGif(params *GifExportParams) ([]byte, error) {
 		params = NewGifExportParams()
 	}
 
-	var blob *C.VipsBlob
-	var err C.int
+    var err C.int
+    var buf unsafe.Pointer
+    var length C.size_t
 
 	{{if .HasCgifSaver}}
 	// Try CGIF first (available in libvips 8.12+)
 	err = C.gifsave_buffer_wrapper(
-		r.image, &blob,
+        r.image, &buf, &length,
 		C.double(params.Dither),
 		C.int(params.Effort),
 		C.int(params.Bitdepth),
@@ -337,7 +342,7 @@ func (r *Image) ExportGif(params *GifExportParams) ([]byte, error) {
 			defer C.free(unsafe.Pointer(gifFormat))
 
 			err = C.magicksave_buffer_wrapper(
-				r.image, &blob,
+                r.image, &buf, &length,
 				gifFormat,
 				C.int(params.Quality),
 			)
@@ -365,7 +370,7 @@ func (r *Image) ExportGif(params *GifExportParams) ([]byte, error) {
 	}
 	{{end}}
 
-	return blobToBytes(blob)
+    return bufferToBytes(buf, length), nil
 }
 {{end}}
 
@@ -393,11 +398,12 @@ func (r *Image) ExportAvif(params *AvifExportParams) ([]byte, error) {
 		params = NewAvifExportParams()
 	}
 
-	var blob *C.VipsBlob
+    var buf unsafe.Pointer
+    var length C.size_t
 
 	// Call avifsave_buffer_wrapper
 	err := C.avifsave_buffer_wrapper(
-		r.image, &blob,
+        r.image, &buf, &length,
 		C.int(params.Quality),
 		C.int(boolToInt(params.Lossless)),
 		C.int(params.Speed),
@@ -408,7 +414,7 @@ func (r *Image) ExportAvif(params *AvifExportParams) ([]byte, error) {
 		return nil, handleVipsError()
 	}
 
-	return blobToBytes(blob)
+    return bufferToBytes(buf, length), nil
 }
 {{end}}
 
@@ -438,11 +444,12 @@ func (r *Image) ExportJp2k(params *Jp2kExportParams) ([]byte, error) {
 		params = NewJp2kExportParams()
 	}
 
-	var blob *C.VipsBlob
+    var buf unsafe.Pointer
+    var length C.size_t
 
 	// Call jp2ksave_buffer_wrapper
 	err := C.jp2ksave_buffer_wrapper(
-		r.image, &blob,
+        r.image, &buf, &length,
 		C.int(params.Quality),
 		C.int(boolToInt(params.Lossless)),
 		C.int(params.TileWidth),
@@ -454,7 +461,7 @@ func (r *Image) ExportJp2k(params *Jp2kExportParams) ([]byte, error) {
 		return nil, handleVipsError()
 	}
 
-	return blobToBytes(blob)
+    return bufferToBytes(buf, length), nil
 }
 {{end}}
 
