@@ -546,23 +546,3 @@ func extractDescription(doc string) string {
 
 	return ""
 }
-
-func formatGoIdentifier(name string) string {
-	// Format snake_case to camelCase
-	parts := strings.Split(name, "_")
-	for i := 1; i < len(parts); i++ {
-		if len(parts[i]) > 0 {
-			parts[i] = strings.ToUpper(parts[i][0:1]) + parts[i][1:]
-		}
-	}
-
-	result := strings.Join(parts, "")
-
-	// Handle Go keywords
-	switch result {
-	case "type", "func", "map", "range", "select", "case", "default":
-		return result + "_"
-	}
-
-	return result
-}
