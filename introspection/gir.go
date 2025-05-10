@@ -353,9 +353,6 @@ func (v *Introspection) ConvertToVipsgenOperations() []vipsgen.Operation {
 		// 1. Fix specific known functions with special parameter handling
 		v.FixParameterTypes(&op)
 
-		// 2. Detect and fix array parameters (more general approach)
-		v.FixArrayParameters(&op)
-
 		// 3. Fix void* parameters to appropriate Go types
 		v.FixVoidParameters(&op)
 
