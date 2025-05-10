@@ -29,10 +29,6 @@ int thumbnail_source(VipsSourceCustom *source, VipsImage **out,
                               "crop", crop, "size", size, NULL);
 }
 
-void clear_source(VipsSourceCustom **source_custom) {
-  if (G_IS_OBJECT(*source_custom)) g_clear_object(source_custom);
-}
-
 int image_new_from_file(const char *name, VipsImage **out) {
   *out = vips_image_new_from_file(name, NULL);
   if (!*out) return 1;
