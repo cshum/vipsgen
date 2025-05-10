@@ -26,13 +26,20 @@ type Namespace struct {
 
 // Function represents a function/method declaration
 type Function struct {
-	Name           string      `xml:"name,attr"`
-	Introspectable string      `xml:"introspectable,attr"`
-	CIdentifier    string      `xml:"c:identifier,attr"`
-	ReturnValue    ReturnValue `xml:"return-value"`
-	Parameters     []Parameter `xml:"parameters>parameter"`
-	InstanceParam  *Parameter  `xml:"parameters>instance-parameter"`
-	Doc            string      `xml:"doc"`
+	Name           string         `xml:"name,attr"`
+	Introspectable string         `xml:"introspectable,attr"`
+	CIdentifier    string         `xml:"c:identifier,attr"`
+	ReturnValue    ReturnValue    `xml:"return-value"`
+	Parameters     []Parameter    `xml:"parameters>parameter"`
+	InstanceParam  *Parameter     `xml:"parameters>instance-parameter"`
+	Doc            string         `xml:"doc"`
+	SourcePosition SourcePosition `xml:"source-position"`
+	DocFilename    string         `xml:"-"` // Extract from Doc attributes
+}
+
+type SourcePosition struct {
+	Filename string `xml:"filename,attr"`
+	Line     int    `xml:"line,attr"`
 }
 
 // Class represents a GObject class

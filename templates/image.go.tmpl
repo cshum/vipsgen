@@ -328,6 +328,7 @@ func (r *Image) Exif() map[string]any {
 {{end}}
 {{if $hasVipsImageInput}}
 // {{.GoName | imageMethodName}} {{.Description}}
+// {{generateDocUrl .Name .Category}}
 func (r *Image) {{.GoName | imageMethodName}}({{$first := true}}{{range $arg := .Arguments}}{{if and (not $arg.IsOutput) (ne $arg.Type "VipsImage")}}{{if $first}}{{$first = false}}{{else}}, {{end}}{{$arg.GoName}} {{$arg.GoType}}{{end}}{{end}}) {{if not .HasImageOutput}}{{if .Outputs}}({{range $i, $arg := .Outputs}}{{if $i}}, {{end}}{{$arg.GoType}}{{end}}, error){{else}}error{{end}}{{else}}error{{end}} {
     {{if .HasImageOutput}}
     out, err := {{.GoName}}(r.image{{range $arg := .Arguments}}{{if and (not $arg.IsOutput) (ne $arg.Type "VipsImage")}}, {{$arg.GoName}}{{end}}{{end}})

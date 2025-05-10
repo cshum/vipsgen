@@ -114,70 +114,6 @@ func FormatEnumValueName(typeName, valueName string) string {
 	return typeName + GetGoEnumName(camelValue)
 }
 
-// DetermineCategory determines the category of an operation based on its name
-func DetermineCategory(name string) string {
-	// Use prefixes to determine categories
-	if strings.HasPrefix(name, "add") || strings.HasPrefix(name, "subtract") ||
-		strings.HasPrefix(name, "multiply") || strings.HasPrefix(name, "divide") ||
-		strings.HasPrefix(name, "linear") || strings.HasPrefix(name, "math") ||
-		strings.HasPrefix(name, "abs") || strings.HasPrefix(name, "sign") ||
-		strings.HasPrefix(name, "round") || strings.HasPrefix(name, "floor") ||
-		strings.HasPrefix(name, "ceil") || strings.HasPrefix(name, "max") ||
-		strings.HasPrefix(name, "min") || strings.HasPrefix(name, "avg") {
-		return "arithmetic"
-	}
-
-	if strings.HasPrefix(name, "conv") || strings.HasPrefix(name, "sharpen") ||
-		strings.HasPrefix(name, "gaussblur") || strings.HasPrefix(name, "sobel") ||
-		strings.HasPrefix(name, "canny") {
-		return "convolution"
-	}
-
-	if strings.HasPrefix(name, "resize") || strings.HasPrefix(name, "shrink") ||
-		strings.HasPrefix(name, "reduce") || strings.HasPrefix(name, "thumbnail") ||
-		strings.HasPrefix(name, "affine") || strings.HasPrefix(name, "similarity") {
-		return "resample"
-	}
-
-	if strings.HasPrefix(name, "colourspace") || strings.HasPrefix(name, "icc") ||
-		strings.HasPrefix(name, "Lab2XYZ") || strings.HasPrefix(name, "XYZ2Lab") ||
-		strings.HasPrefix(name, "Lab2LCh") || strings.HasPrefix(name, "LCh2Lab") ||
-		strings.HasPrefix(name, "sRGB2HSV") || strings.HasPrefix(name, "HSV2sRGB") {
-		return "colour"
-	}
-
-	if strings.HasSuffix(name, "load") {
-		return "foreign_load"
-	}
-
-	if strings.HasSuffix(name, "save") || strings.HasSuffix(name, "save_buffer") {
-		return "foreign_save"
-	}
-
-	if strings.HasPrefix(name, "flip") || strings.HasPrefix(name, "rot") ||
-		strings.HasPrefix(name, "extract") || strings.HasPrefix(name, "embed") ||
-		strings.HasPrefix(name, "crop") || strings.HasPrefix(name, "join") ||
-		strings.HasPrefix(name, "bandjoin") || strings.HasPrefix(name, "bandmean") {
-		return "conversion"
-	}
-
-	if strings.HasPrefix(name, "hist_") || strings.HasPrefix(name, "stdif") ||
-		strings.HasPrefix(name, "percent") || strings.HasPrefix(name, "profile") {
-		return "histogram"
-	}
-
-	if strings.HasPrefix(name, "morph") || strings.HasPrefix(name, "rank") ||
-		strings.HasPrefix(name, "erode") || strings.HasPrefix(name, "dilate") {
-		return "morphology"
-	}
-
-	if strings.HasPrefix(name, "draw_") || strings.HasPrefix(name, "text") {
-		return "draw"
-	}
-
-	return "operation" // Default category
-}
-
 // GetTemplateFuncMap Helper functions for templates
 func GetTemplateFuncMap() template.FuncMap {
 	return template.FuncMap{
@@ -211,7 +147,24 @@ func GetTemplateFuncMap() template.FuncMap {
 			return strings.Join(params, ", ")
 		},
 		"imageMethodName":       ImageMethodName,
+		"generateDocUrl":        GenerateDocUrl,
 		"formatImageMethodArgs": FormatImageMethodArgs,
 		"split":                 strings.Split,
 	}
+}
+
+var categoryToDocMap = map[string]string{
+	"foreign": "VipsForeignSave",
+}
+
+func GenerateDocUrl(funcName string, sourceCategory string) string {
+	// Look up the documentation category
+	docCategory, exists := categoryToDocMap[sourceCategory]
+	if !exists {
+		// Default to the source category if no mapping exists
+		docCategory = "libvips-" + sourceCategory
+	}
+
+	// For most categories, the URL format seems to be:
+	return fmt.Sprintf("https://www.libvips.org/API/current/%s.html#vips-%s", docCategory, funcName)
 }

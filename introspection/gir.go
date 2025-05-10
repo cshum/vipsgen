@@ -6,6 +6,7 @@ import (
 	"github.com/cshum/vipsgen/girparser"
 	"io"
 	"log"
+	"path/filepath"
 	"strings"
 )
 
@@ -126,6 +127,8 @@ func (v *Introspection) processVipsFunction(fn girparser.Function, debugInfo *De
 		Name:        fn.Name,
 		CIdentifier: fn.CIdentifier,
 		ReturnType:  formatReturnType(fn.ReturnValue),
+		Category:    extractCategoryFromFilename(fn.SourcePosition.Filename),
+		Description: extractDescription(fn.Doc),
 		HasVarArgs:  false,
 	}
 
@@ -161,10 +164,24 @@ func (v *Introspection) processVipsFunction(fn girparser.Function, debugInfo *De
 		}
 	}
 
-	log.Printf("Processed function: %s (C identifier: %s) with %d parameters (%d required, %d optional)",
+	log.Printf("Processed function: %s (C identifier: %s) with %d parameters (%d required, %d optional), category %s",
 		info.Name, info.CIdentifier, len(info.Params), len(info.RequiredParams), len(info.OptionalParams))
 
 	return info
+}
+
+func extractCategoryFromFilename(filename string) string {
+	// Extract category from paths like "libvips/include/vips/arithmetic.h"
+	parts := strings.Split(filename, "/")
+	for i, part := range parts {
+		if part == "vips" && i+1 < len(parts) {
+			// Get the next part after "vips/"
+			category := parts[i+1]
+			// Remove file extension if present
+			return strings.TrimSuffix(category, filepath.Ext(category))
+		}
+	}
+	return "operation" // Default category
 }
 
 // processVipsParam converts a Parameter to VipsParamInfo
@@ -246,8 +263,8 @@ func (v *Introspection) ConvertToVipsgenOperations() []vipsgen.Operation {
 		op := vipsgen.Operation{
 			Name:        fn.Name,
 			GoName:      formatGoFunctionName(fn.Name),
-			Description: fmt.Sprintf("Wrapper for %s", fn.CIdentifier),
-			Category:    vipsgen.DetermineCategory(fn.Name),
+			Description: fn.Description,
+			Category:    fn.Category,
 		}
 
 		// Process arguments
@@ -397,6 +414,30 @@ func determineFlags(isOutput bool, isRequired bool) int {
 	}
 }
 
+// Extract a concise description from the documentation
+func extractDescription(doc string) string {
+	if doc == "" {
+		return ""
+	}
+
+	// Split into lines and find the first non-empty line
+	lines := strings.Split(doc, "\n")
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+		if line != "" && !strings.HasPrefix(line, "Optional arguments:") &&
+			!strings.HasPrefix(line, "*") && !strings.HasPrefix(line, "See also:") {
+			// Return the first meaningful line as the description
+			// Some descriptions can be quite long, so consider truncating
+			if len(line) > 100 {
+				return line[:97] + "..."
+			}
+			return line
+		}
+	}
+
+	return ""
+}
+
 func formatGoFunctionName(name string) string {
 	// Convert operation names to match existing Go function style
 	// e.g., "rotate" -> "vipsRotate", "extract_area" -> "vipsExtractArea"
@@ -410,7 +451,7 @@ func formatGoFunctionName(name string) string {
 	}
 
 	// Join with vips prefix
-	return "vipsgen" + strings.Join(parts, "")
+	return "vips" + strings.Join(parts, "")
 }
 
 func formatGoIdentifier(name string) string {

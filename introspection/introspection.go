@@ -27,9 +27,11 @@ type VipsFunctionInfo struct {
 	Name           string
 	CIdentifier    string
 	ReturnType     string
+	Category       string
 	HasOutParam    bool
 	OutParamIndex  int
 	HasVarArgs     bool
+	Description    string
 	Params         []VipsParamInfo
 	RequiredParams []VipsParamInfo // Non-optional params
 	OptionalParams []VipsParamInfo // Optional params that can be passed as named args

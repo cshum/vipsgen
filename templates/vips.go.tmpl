@@ -407,7 +407,7 @@ func vipsGetMetaString(image *C.VipsImage, name string) string {
 
 {{range .Operations}}
 // {{.GoName}} {{.Description}}
-// https://libvips.github.io/libvips/API/current/libvips-{{.Category}}.html#vips-{{.Name}}
+// {{generateDocUrl .Name .Category}}
 func {{.GoName}}({{$first := true}}{{range $arg := .Arguments}}{{if not $arg.IsOutput}}{{if $first}}{{$first = false}}{{else}}, {{end}}{{$arg.GoName}} {{$arg.GoType}}{{end}}{{end}}) ({{if .HasImageOutput}}*C.VipsImage, error{{else}}{{if .Outputs}}{{range $i, $arg := .Outputs}}{{if $i}}, {{end}}{{$arg.GoType}}{{end}}, error{{else}}error{{end}}{{end}}) {
     {{if .HasImageOutput}}var out *C.VipsImage{{else if .Outputs}}{{range $arg := .Outputs}}var {{$arg.GoName}}Out {{$arg.GoType}}
     {{end}}{{end}}
