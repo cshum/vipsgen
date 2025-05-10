@@ -89,7 +89,7 @@ func main() {
 	} else {
 		// Use embedded GIR file
 		fmt.Println("Using embedded GIR file")
-		girFile, err = vipsgen.EmbeddedTemplates.Open("vips-8.0.gir")
+		girFile, err = vipsgen.EmbeddedTemplates.Open("Vips-8.0.gir")
 		if err != nil {
 			log.Fatalf("Failed to open embedded GIR file: %v", err)
 		}

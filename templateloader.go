@@ -10,7 +10,7 @@ import (
 	"text/template"
 )
 
-//go:embed templates/*.tmpl vips-8.0.gir
+//go:embed templates/*.tmpl Vips-8.0.gir
 var EmbeddedTemplates embed.FS
 
 // FSTemplateLoader loads templates from any fs.FS implementation
