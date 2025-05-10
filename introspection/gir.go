@@ -143,7 +143,7 @@ func (v *Introspection) processVipsFunction(fn girparser.Function, debugInfo *De
 
 	for i, param := range fn.Parameters {
 		// Check for output parameter (typically a VipsImage**)
-		if param.Direction == "out" || strings.HasSuffix(param.Type.CType, "**") {
+		if param.Direction == "out" {
 			info.HasOutParam = true
 			info.OutParamIndex = i
 		}
@@ -191,19 +191,31 @@ func processVipsParam(param girparser.Parameter) VipsParamInfo {
 		CType:      param.Type.CType,
 		IsOptional: param.Optional,
 		IsVarArgs:  param.VarArgs,
-		IsOutput:   param.Direction == "out",
 	}
 
-	// Additional heuristics to detect output parameters
-	if !paramInfo.IsOutput {
-		// 1. Parameters named "out" are typically outputs
-		if paramInfo.Name == "out" {
-			paramInfo.IsOutput = true
-		}
+	// 1. Check the direction attribute first
+	if param.Direction == "out" {
+		paramInfo.IsOutput = true
+	}
 
-		// 2. Double pointer parameters are typically outputs
-		if strings.HasSuffix(paramInfo.CType, "**") {
-			paramInfo.IsOutput = true
+	// 2. Then check the parameter name (as a fallback)
+	if !paramInfo.IsOutput && param.Name == "out" {
+		paramInfo.IsOutput = true
+	}
+
+	// 3. Check the C type (as another fallback)
+	// Double pointers often indicate output parameters
+	if !paramInfo.IsOutput && strings.HasSuffix(paramInfo.CType, "**") {
+		paramInfo.IsOutput = true
+	}
+
+	// 4. Special case: buffer length parameters are often outputs
+	if strings.HasSuffix(param.Name, "_len") || param.Name == "len" {
+		if paramInfo.CType == "gsize" || paramInfo.CType == "size_t" {
+			// Make sure it's a pointer for output parameters
+			if paramInfo.IsOutput && !strings.HasSuffix(paramInfo.CType, "*") {
+				paramInfo.CType = paramInfo.CType + "*"
+			}
 		}
 	}
 
@@ -422,6 +434,23 @@ func extractTypeFromCType(cType string) string {
 func (v *Introspection) mapCTypeToGoType(cType string, isOutput bool) string {
 	// Extract the base type without pointers
 	baseType := extractBaseType(cType)
+
+	// Special handling for output parameters of scalar types
+	if isOutput {
+		// If it's a scalar output parameter (indicated by a pointer),
+		// determine the appropriate Go type
+		baseType := strings.TrimSuffix(cType, "*")
+		switch baseType {
+		case "double", "gdouble":
+			return "float64"
+		case "int", "gint":
+			return "int"
+		case "gboolean":
+			return "bool"
+		case "size_t", "gsize":
+			return "int"
+		}
+	}
 
 	// Map VIPS types to Go types
 	switch baseType {

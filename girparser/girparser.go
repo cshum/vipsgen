@@ -70,11 +70,12 @@ type ReturnValue struct {
 
 // Parameter represents a function parameter
 type Parameter struct {
-	Name      string `xml:"name,attr"`
-	Direction string `xml:"direction,attr"`
-	Optional  bool   `xml:"optional,attr"`
-	Type      Type   `xml:"type"`
-	VarArgs   bool   `xml:"varargs,attr"`
+	Name            string `xml:"name,attr"`
+	Direction       string `xml:"direction,attr"`
+	CallerAllocates string `xml:"caller-allocates,attr"`
+	Optional        bool   `xml:"optional,attr"`
+	Type            Type   `xml:"type"`
+	VarArgs         bool   `xml:"varargs,attr"`
 }
 
 // Type represents a data type
