@@ -4,10 +4,7 @@ import (
 	"encoding/xml"
 	"fmt"
 	"io"
-	"regexp"
 )
-
-var vipsPattern = regexp.MustCompile(`^vips_.*`)
 
 // GIR represents the root element of a GIR file
 type GIR struct {
@@ -79,56 +76,13 @@ type Type struct {
 	CType string `xml:"c:type,attr"`
 }
 
-// DebugInfo stores debug information during parsing
-type DebugInfo struct {
-	ProcessedFunctions         int
-	FoundFunctionNames         []string
-	MissingCIdentifierIncluded int
-}
-
-// VipsFunctionInfo holds information needed to generate a wrapper function
-type VipsFunctionInfo struct {
-	Name           string
-	CIdentifier    string
-	ReturnType     string
-	HasOutParam    bool
-	OutParamIndex  int
-	HasVarArgs     bool
-	Params         []VipsParamInfo
-	RequiredParams []VipsParamInfo // Non-optional params
-	OptionalParams []VipsParamInfo // Optional params that can be passed as named args
-}
-
-// VipsParamInfo represents a parameter for a vips function
-type VipsParamInfo struct {
-	Name       string
-	CType      string
-	IsOutput   bool
-	IsOptional bool
-	IsArray    bool
-	ArrayType  string
-	IsVarArgs  bool
-}
-
-// VipsGIRParser adapts girparser functionality for vipsgen
-type VipsGIRParser struct {
-	// Original GIR data
-	gir *GIR
-	// Parsed function info
-	functionInfo []VipsFunctionInfo
-	// Debug info from parsing
-	debugInfo *DebugInfo
-}
-
 // ParseGIR parses GIR data from an io.Reader
-func ParseGIR(r io.Reader) (*GIR, *DebugInfo, error) {
+func ParseGIR(r io.Reader) (*GIR, error) {
 	var gir GIR
 	decoder := xml.NewDecoder(r)
 	err := decoder.Decode(&gir)
 	if err != nil {
-		return nil, nil, fmt.Errorf("failed to decode GIR XML: %w", err)
+		return nil, fmt.Errorf("failed to decode GIR XML: %w", err)
 	}
-
-	debugInfo := &DebugInfo{}
-	return &gir, debugInfo, nil
+	return &gir, nil
 }

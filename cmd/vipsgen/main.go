@@ -4,7 +4,6 @@ import (
 	"flag"
 	"fmt"
 	"github.com/cshum/vipsgen"
-	"github.com/cshum/vipsgen/girparser"
 	"github.com/cshum/vipsgen/introspection"
 	"io"
 	"log"
@@ -114,7 +113,7 @@ func main() {
 		}
 
 		// Use the new GIR parser
-		parser := girparser.NewVipsGIRParser()
+		parser := introspection.NewVipsGIRParser()
 		if err := parser.Parse(girFile); err != nil {
 			log.Fatalf("Failed to parse GIR file: %v", err)
 		}
