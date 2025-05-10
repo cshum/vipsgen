@@ -302,6 +302,11 @@ func (v *Introspection) ConvertToVipsgenOperations() []vipsgen.Operation {
 			// Fix the C type for special cases
 			cType := v.FixCType(param.CType)
 
+			// Add pointer to output parameters
+			if param.IsOutput && !strings.HasSuffix(cType, "*") {
+				cType = cType + "*"
+			}
+
 			arg := vipsgen.Argument{
 				Name:        param.Name,
 				GoName:      formatGoIdentifier(param.Name),
