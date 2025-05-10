@@ -171,6 +171,30 @@ func GetTemplateFuncMap() template.FuncMap {
 		"isPointerType":         isPointerType,
 		"formatDefaultValue":    formatDefaultValue,
 		"formatErrorReturn":     formatErrorReturn,
+
+		"hasPrefix":  strings.HasPrefix,
+		"hasSuffix":  strings.HasSuffix,
+		"trimPrefix": strings.TrimPrefix,
+		"trimSuffix": strings.TrimSuffix,
+
+		"isArrayType": func(goType string) bool {
+			return strings.HasPrefix(goType, "[]")
+		},
+
+		"arrayElementType": func(goType string) string {
+			if strings.HasPrefix(goType, "[]") {
+				return strings.TrimPrefix(goType, "[]")
+			}
+			return goType
+		},
+
+		"arrayCType": func(cType string) string {
+			// Remove one level of pointer for array element type
+			if strings.HasSuffix(cType, "*") {
+				return strings.TrimSuffix(cType, "*")
+			}
+			return cType
+		},
 	}
 }
 

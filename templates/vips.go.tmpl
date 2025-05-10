@@ -412,13 +412,28 @@ func {{.GoName}}({{$first := true}}{{range $arg := .Arguments}}{{if not $arg.IsO
     {{if .HasImageOutput}}var out *C.VipsImage{{else if .Outputs}}{{range $arg := .Outputs}}var {{$arg.GoName}} {{$arg.GoType}}
     {{end}}{{end}}
 
+    {{/* Handle string parameters */}}
     {{range .Arguments}}{{if and (not .IsOutput) (eq .GoType "string")}}c{{.GoName}} := C.CString({{.GoName}})
     defer freeCString(c{{.GoName}}){{end}}{{end}}
+
+    {{/* Handle array parameters */}}
+    {{range .Arguments}}{{if and (not .IsOutput) (hasPrefix .GoType "[]")}}
+    {{if eq .GoType "[]string"}}// Convert []string to C array for {{.GoName}}
+    c{{.GoName}}Ptrs := make([]*C.char, len({{.GoName}}))
+    for i, s := range {{.GoName}} {
+        c{{.GoName}}Ptrs[i] = C.CString(s)
+        defer freeCString(c{{.GoName}}Ptrs[i])
+    }
+    c{{.GoName}} := unsafe.Pointer(&c{{.GoName}}Ptrs[0])
+    {{else}}// Convert Go slice to C array for {{.GoName}}
+    {{if gt (len .GoName) 0}}c{{.GoName}} := unsafe.Pointer(&{{.GoName}}[0]){{else}}c{{.GoName}} := unsafe.Pointer(nil){{end}}
+    {{end}}{{end}}{{end}}
 
     if err := C.vipsgen_{{.Name}}({{$first := true}}{{range $i, $arg := .Arguments}}{{if $i}}{{if $first}}, {{else}}, {{end}}{{end}}{{$first = false}}{{if $arg.IsOutput}}{{if eq $arg.Name "out"}}&out{{else}}&{{$arg.GoName}}{{end}}{{else}}
         {{- if eq $arg.GoType "string"}}c{{$arg.GoName}}
         {{- else if eq $arg.GoType "bool"}}C.int(boolToInt({{$arg.GoName}}))
         {{- else if eq $arg.GoType "*C.VipsImage"}}{{$arg.GoName}}
+        {{- else if hasPrefix $arg.GoType "[]"}}c{{$arg.GoName}}
         {{- else if $arg.IsEnum}}C.{{$arg.Type}}({{$arg.GoName}})
         {{- else}}C.{{$arg.CType}}({{$arg.GoName}}){{- end}}{{end}}{{end}}); err != 0 {
         {{formatErrorReturn .HasImageOutput .Outputs}}
@@ -429,4 +444,3 @@ func {{.GoName}}({{$first := true}}{{range $arg := .Arguments}}{{if not $arg.IsO
     {{else}}return nil{{end}}
 }
 {{end}}
-
