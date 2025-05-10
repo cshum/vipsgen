@@ -185,31 +185,48 @@ func (v *Introspection) DiscoverEnumsFromOperation(opName string) {
 	}
 }
 
-// FilterOperations filters out operations that should be excluded and deduplicates
+// FilterOperations filters operations based on availability in the current libvips installation,
+// excluded operations list, and deduplicates by Go function name
 func (v *Introspection) FilterOperations(operations []vipsgen.Operation) []vipsgen.Operation {
 	// Filter out excluded operations and deduplicate by Go function name
 	seenFunctions := make(map[string]bool)
 	var filteredOps []vipsgen.Operation
+	var notAvailableCount, excludedCount, duplicateCount int
+
 	for _, op := range operations {
-		if vipsgen.ExcludedOperations[op.Name] {
-			fmt.Printf("Excluding operation: %s\n", op.Name)
+		// Check if operation can be instantiated in current libvips
+		if !v.checkOperationExists(op.Name) {
+			notAvailableCount++
 			continue
 		}
 
+		// Check if operation is explicitly excluded
+		if vipsgen.ExcludedOperations[op.Name] {
+			fmt.Printf("Excluding operation: %s (in ExcludedOperations list)\n", op.Name)
+			excludedCount++
+			continue
+		}
+
+		// Check if operation is excluded by config
 		if config, ok := vipsgen.OperationConfigs[op.Name]; ok && config.SkipGen {
-			fmt.Printf("Skipping operation (configured): %s\n", op.Name)
+			fmt.Printf("Skipping operation (configured in OperationConfigs): %s\n", op.Name)
+			excludedCount++
 			continue
 		}
 
 		// Check for duplicate Go function names
 		if seenFunctions[op.GoName] {
 			fmt.Printf("Skipping duplicate function: %s (from operation: %s)\n", op.GoName, op.Name)
+			duplicateCount++
 			continue
 		}
 		seenFunctions[op.GoName] = true
 
 		filteredOps = append(filteredOps, op)
 	}
+
+	fmt.Printf("Filtered operations: %d excluded, %d duplicates, %d remaining\n",
+		excludedCount, duplicateCount, len(filteredOps))
 
 	return filteredOps
 }

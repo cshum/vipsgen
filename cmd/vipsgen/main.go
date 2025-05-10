@@ -101,21 +101,21 @@ func main() {
 	}
 
 	// Convert GIR data to vipsgen.Operation format
-	operations := vipsIntrospection.ConvertToVipsgenOperations()
-	fmt.Printf("Extracted %d operations from GIR file\n", len(operations))
+	allOperations := vipsIntrospection.ConvertToVipsgenOperations()
+	fmt.Printf("Extracted %d operations from GIR file\n", len(allOperations))
 
 	// Get enum types
 	enumTypes := vipsIntrospection.GetEnumTypes()
+	fmt.Printf("Discovered %d enum types\n", len(enumTypes))
 
-	fmt.Printf("Using %d operations in total\n", len(operations))
+	// Filter operations to only include those available in current libvips
+	filteredOperations := vipsIntrospection.FilterOperations(allOperations)
 
 	// Create unified template data
-	templateData := vipsgen.NewTemplateData(operations, enumTypes, imageTypes, supportedSavers)
+	templateData := vipsgen.NewTemplateData(filteredOperations, enumTypes, imageTypes, supportedSavers)
 
 	// Generate all code using the unified template data approach
 	if err := vipsgen.Generate(loader, templateData, outputDir); err != nil {
 		log.Fatalf("Failed to generate code: %v", err)
 	}
 }
-
-// This function is no longer used as we directly enhance operations in the main function
