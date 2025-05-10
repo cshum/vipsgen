@@ -10,4 +10,4 @@ tmp/
 bin/imagor
 profile.cov
 
-pkg/vips
+vips

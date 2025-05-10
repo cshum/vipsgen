@@ -14,7 +14,7 @@ func main() {
 	// Define flags
 	extractTemplates := flag.Bool("extract", false, "Extract embedded templates to a directory")
 	extractDir := flag.String("extract-dir", "./templates", "Directory to extract templates to")
-	outputDirFlag := flag.String("out", "./out", "Output directory")
+	outputDirFlag := flag.String("out", "./vips", "Output directory")
 	templateDirFlag := flag.String("templates", "", "Template directory (uses embedded templates if not specified)")
 	girFileFlag := flag.String("gir-file", "", "Path to GIR file (uses embedded GIR file if not specified)")
 
