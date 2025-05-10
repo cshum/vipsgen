@@ -20,7 +20,7 @@ type {{.GoName}} int
 
 // {{.GoName}} enum
 const (
-{{range .Values}}    {{.GoName}} = C.{{.CName}}
+{{$typeName := .GoName}}{{range .Values}}    {{.GoName}}   {{$typeName}} = C.{{.CName}}
 {{end}})
 {{end}}
 
@@ -83,4 +83,3 @@ type Color struct {
 type ColorRGBA struct {
 	R, G, B, A uint8
 }
-
