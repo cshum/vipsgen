@@ -11,6 +11,8 @@ import (
 	"github.com/cshum/vipsgen"
 )
 
+var vipsPattern = regexp.MustCompile(`^vips_.*`)
+
 // GIR represents the root element of a GIR file
 type GIR struct {
 	XMLName   xml.Name  `xml:"repository"`
@@ -237,7 +239,6 @@ func (p *VipsGIRParser) extractVipsFunctions(gir *GIR) ([]VipsFunctionInfo, *Deb
 // processVipsFunction processes a Function to VipsFunctionInfo without skipping non-introspectable functions
 func (p *VipsGIRParser) processVipsFunction(fn Function, debugInfo *DebugInfo) *VipsFunctionInfo {
 	// Check for vips-specific functions
-	vipsPattern := regexp.MustCompile(`^vips_.*`)
 	if !vipsPattern.MatchString(fn.CIdentifier) && fn.CIdentifier != "" {
 		// Skip non-vips functions
 		return nil
