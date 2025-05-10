@@ -276,19 +276,19 @@ func (v *Introspection) ConvertToVipsgenOperations() []vipsgen.Operation {
 				Name:        param.Name,
 				GoName:      formatGoIdentifier(param.Name),
 				Type:        extractTypeFromCType(param.CType),
-				GoType:      mapCTypeToGoType(param.CType, param.IsOutput),
+				GoType:      v.mapCTypeToGoType(param.CType, param.IsOutput),
 				CType:       param.CType,
 				Description: fmt.Sprintf("%s parameter", param.Name),
 				Required:    !param.IsOptional,
 				IsInput:     !param.IsOutput,
 				IsOutput:    param.IsOutput,
-				IsEnum:      isEnumType(param.CType),
+				IsEnum:      v.isEnumType(param.CType),
 				Flags:       determineFlags(param.IsOutput, !param.IsOptional),
 			}
 
 			// Determine enum type if applicable
 			if arg.IsEnum {
-				arg.EnumType = extractEnumType(param.CType)
+				arg.EnumType = v.extractEnumType(param.CType)
 			}
 
 			op.Arguments = append(op.Arguments, arg)
@@ -338,7 +338,7 @@ func extractTypeFromCType(cType string) string {
 	}
 }
 
-func mapCTypeToGoType(cType string, isOutput bool) string {
+func (v *Introspection) mapCTypeToGoType(cType string, isOutput bool) string {
 	baseType := extractTypeFromCType(cType)
 
 	// Handle special cases based on the base type
@@ -364,8 +364,8 @@ func mapCTypeToGoType(cType string, isOutput bool) string {
 	}
 
 	// Handle enum types
-	if isEnumType(cType) {
-		return extractEnumType(cType)
+	if v.isEnumType(cType) {
+		return v.extractEnumType(cType)
 	}
 
 	// Handle array types
@@ -386,38 +386,12 @@ func mapCTypeToGoType(cType string, isOutput bool) string {
 	return "interface{}"
 }
 
-func isEnumType(cType string) bool {
-	enumPrefixes := []string{
-		"VipsBlendMode",
-		"VipsAccess",
-		"VipsExtend",
-		"VipsAngle",
-		"VipsInterpretation",
-		"VipsDirection",
-		"VipsOperationMorphology",
-		"VipsForeignSubsample",
-		"VipsForeignTiffCompression",
-		"VipsForeignTiffPredictor",
-	}
-
-	baseType := extractTypeFromCType(cType)
-	for _, prefix := range enumPrefixes {
-		if baseType == prefix {
-			return true
-		}
-	}
-	return false
+func (v *Introspection) isEnumType(cType string) bool {
+	return v.discoveredEnumTypes[cType] != ""
 }
 
-func extractEnumType(cType string) string {
-	baseType := extractTypeFromCType(cType)
-
-	// Map VipsEnum -> Enum
-	if strings.HasPrefix(baseType, "Vips") {
-		return strings.TrimPrefix(baseType, "Vips")
-	}
-
-	return baseType
+func (v *Introspection) extractEnumType(cType string) string {
+	return v.discoveredEnumTypes[cType]
 }
 
 func determineFlags(isOutput bool, isRequired bool) int {

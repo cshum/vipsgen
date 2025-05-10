@@ -72,7 +72,7 @@ func cachedCString(str string) *C.char {
 // through reflection of the C library's type system, extracting operation
 // metadata, argument details, and supported enum types.
 type Introspection struct {
-	discoveredEnumTypes map[string]bool
+	discoveredEnumTypes map[string]string
 	enumTypeNames       []enumTypeName
 	// Original GIR data
 	gir *girparser.GIR
@@ -92,9 +92,9 @@ func NewIntrospection() *Introspection {
 	defer C.vips_shutdown()
 
 	// Initialize map with known enum types
-	discoveredTypes := make(map[string]bool)
+	discoveredTypes := make(map[string]string)
 	for _, enum := range baseEnumTypeNames {
-		discoveredTypes[enum.CName] = true
+		discoveredTypes[enum.CName] = enum.GoName
 	}
 
 	return &Introspection{
@@ -369,7 +369,7 @@ func (v *Introspection) AddEnumType(cName, goName string) {
 			CName:  cName,
 			GoName: goName,
 		})
-		v.discoveredEnumTypes[cName] = true
+		v.discoveredEnumTypes[cName] = goName
 		fmt.Printf("Discovered enum type: %s -> %s\n", cName, goName)
 	}
 }
