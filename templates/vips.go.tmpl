@@ -422,7 +422,7 @@ func {{.GoName}}({{$first := true}}{{range $arg := .Arguments}}{{if not $arg.IsO
     defer freeCString(c{{.GoName}}){{end}}{{end}}
 
     {{if .HasImageOutput}}
-    if err := C.{{.Name}}_wrapper({{$first := true}}{{range $arg := .Arguments}}{{if not $arg.IsOutput}}{{if $first}}{{$first = false}}{{else}}, {{end}}
+    if err := C.vipsgen_{{.Name}}({{$first := true}}{{range $arg := .Arguments}}{{if not $arg.IsOutput}}{{if $first}}{{$first = false}}{{else}}, {{end}}
         {{- if eq $arg.GoType "string"}}c{{$arg.GoName}}
         {{- else if eq $arg.GoType "bool"}}C.int(boolToInt({{$arg.GoName}}))
         {{- else if eq $arg.GoType "*C.VipsImage"}}{{$arg.GoName}}
@@ -434,7 +434,7 @@ func {{.GoName}}({{$first := true}}{{range $arg := .Arguments}}{{if not $arg.IsO
 
     return out, nil
     {{else if .Outputs}}
-    if err := C.{{.Name}}_wrapper({{$first := true}}{{range $arg := .Arguments}}{{if not $arg.IsOutput}}{{if $first}}{{$first = false}}{{else}}, {{end}}
+    if err := C.vipsgen_{{.Name}}({{$first := true}}{{range $arg := .Arguments}}{{if not $arg.IsOutput}}{{if $first}}{{$first = false}}{{else}}, {{end}}
         {{- if eq $arg.GoType "string"}}c{{$arg.GoName}}
         {{- else if eq $arg.GoType "bool"}}C.int(boolToInt({{$arg.GoName}}))
         {{- else if eq $arg.GoType "*C.VipsImage"}}{{$arg.GoName}}
@@ -446,7 +446,7 @@ func {{.GoName}}({{$first := true}}{{range $arg := .Arguments}}{{if not $arg.IsO
 
     return {{range $i, $arg := .Outputs}}{{if $i}}, {{end}}{{$arg.GoName}}Out{{end}}, nil
     {{else}}
-    if err := C.{{.Name}}_wrapper({{$first := true}}{{range $arg := .Arguments}}{{if not $arg.IsOutput}}{{if $first}}{{$first = false}}{{else}}, {{end}}
+    if err := C.vipsgen_{{.Name}}({{$first := true}}{{range $arg := .Arguments}}{{if not $arg.IsOutput}}{{if $first}}{{$first = false}}{{else}}, {{end}}
         {{- if eq $arg.GoType "string"}}c{{$arg.GoName}}
         {{- else if eq $arg.GoType "bool"}}C.int(boolToInt({{$arg.GoName}}))
         {{- else if eq $arg.GoType "*C.VipsImage"}}{{$arg.GoName}}
