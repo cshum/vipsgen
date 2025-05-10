@@ -165,7 +165,3 @@ void free_enum_values(EnumValueInfo *values, int count) {
     }
     free(values);
 }
-
-GObjectClass* get_object_class(void* obj) {
-    return G_OBJECT_GET_CLASS(obj);
-}
