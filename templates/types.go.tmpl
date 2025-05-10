@@ -55,33 +55,10 @@ const (
 func vipsDetermineImageTypeFromMetaLoader(in *C.VipsImage) ImageType {
 	if in != nil {
 		if vipsLoader, ok := vipsImageGetMetaLoader(in); ok {
-			if strings.HasPrefix(vipsLoader, "jpeg") {
-				return ImageTypeJpeg
+			{{range .ImageTypes}}{{if and (ne .TypeName "unknown") (ne .TypeName "magick")}}if strings.HasPrefix(vipsLoader, "{{.TypeName}}") {
+				return {{.EnumName}}
 			}
-			if strings.HasPrefix(vipsLoader, "png") {
-				return ImageTypePng
-			}
-			if strings.HasPrefix(vipsLoader, "gif") {
-				return ImageTypeGif
-			}
-			if strings.HasPrefix(vipsLoader, "svg") {
-				return ImageTypeSvg
-			}
-			if strings.HasPrefix(vipsLoader, "webp") {
-				return ImageTypeWebp
-			}
-			if strings.HasPrefix(vipsLoader, "heif") {
-				return ImageTypeHeif
-			}
-			if strings.HasPrefix(vipsLoader, "tiff") {
-				return ImageTypeTiff
-			}
-			if strings.HasPrefix(vipsLoader, "pdf") {
-				return ImageTypePdf
-			}
-			if strings.HasPrefix(vipsLoader, "jp2k") {
-				return ImageTypeJp2k
-			}
+			{{end}}{{end}}// Special case for Magick loader
 			if strings.HasPrefix(vipsLoader, "magick") {
 				return ImageTypeMagick
 			}
