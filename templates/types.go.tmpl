@@ -11,7 +11,7 @@ type ImageType int
 
 // ImageType enum
 const (
-{{range .ImageTypes}}    {{.EnumName}} ImageType = {{.Order}}
+{{range .ImageTypes}} {{.EnumName}} ImageType = {{.Order}}
 {{end}})
 
 {{range .EnumTypes}}
@@ -20,18 +20,18 @@ type {{.GoName}} int
 
 // {{.GoName}} enum
 const (
-{{$typeName := .GoName}}{{range .Values}}    {{.GoName}}   {{$typeName}} = C.{{.CName}}
+{{$typeName := .GoName}}{{range .Values}} {{.GoName}} {{$typeName}} = C.{{.CName}}
 {{end}})
 {{end}}
 
 // ImageTypes defines the various image types supported by vips
 var ImageTypes = map[ImageType]string{
-{{range .ImageTypes}}{{if ne .TypeName "unknown"}}    {{.EnumName}}:    "{{.TypeName}}",
+{{range .ImageTypes}}{{if ne .TypeName "unknown"}} {{.EnumName}}: "{{.TypeName}}",
 {{end}}{{end}}}
 
 // ImageMimeTypes map the various image types to its mime type representation
 var ImageMimeTypes = map[ImageType]string{
-{{range .ImageTypes}}{{if and (ne .TypeName "unknown") (ne .MimeType "")}}    {{.EnumName}}:  "{{.MimeType}}",
+{{range .ImageTypes}}{{if and (ne .TypeName "unknown") (ne .MimeType "")}} {{.EnumName}}: "{{.MimeType}}",
 {{end}}{{end}}}
 
 
