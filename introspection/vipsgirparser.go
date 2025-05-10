@@ -288,7 +288,7 @@ func (v *Introspection) ConvertToVipsgenOperations() []vipsgen.Operation {
 
 			// Determine enum type if applicable
 			if arg.IsEnum {
-				arg.EnumType = v.extractEnumType(param.CType)
+				arg.EnumType = vipsgen.GetGoEnumName(param.CType)
 			}
 
 			op.Arguments = append(op.Arguments, arg)
@@ -339,38 +339,48 @@ func extractTypeFromCType(cType string) string {
 }
 
 func (v *Introspection) mapCTypeToGoType(cType string, isOutput bool) string {
-	baseType := extractTypeFromCType(cType)
+	typeName := extractTypeFromCType(cType)
 
-	// Handle special cases based on the base type
-	switch baseType {
+	// Map VIPS types to Go types
+	switch typeName {
 	case "VipsImage":
 		return "*C.VipsImage"
-	case "gint", "int":
-		return "int"
-	case "gdouble", "double":
-		return "float64"
-	case "gfloat", "float":
-		return "float32"
 	case "gboolean":
 		return "bool"
-	case "gchararray", "char", "gchar":
+	case "gint":
+		return "int"
+	case "gdouble", "gfloat":
+		return "float64"
+	case "gchararray":
 		return "string"
-	case "void":
-		if strings.HasSuffix(cType, "*") {
-			// void* is often used for arrays
-			return "[]interface{}"
+	case "VipsArrayInt":
+		return "[]int"
+	case "VipsArrayDouble":
+		return "[]float64"
+	case "VipsArrayImage":
+		return "[]*C.VipsImage"
+	case "VipsBlob":
+		return "[]byte"
+	case "VipsInterpolate":
+		return "*C.VipsInterpolate"
+	case "VipsSource":
+		return "*C.VipsSource"
+	case "VipsTarget":
+		return "*C.VipsTarget"
+	default:
+		// Check if it's an enum type
+		if v.isEnumType(cType) {
+			return vipsgen.GetGoEnumName(typeName)
 		}
-		return "interface{}"
-	}
-
-	// Handle enum types
-	if v.isEnumType(cType) {
-		return v.extractEnumType(cType)
+		// Check if it's a flags type
+		//if C.g_type_is_a(gtype, C.G_TYPE_FLAGS) != 0 {
+		//	return "int"
+		//}
 	}
 
 	// Handle array types
 	if strings.Contains(cType, "[]") || strings.HasSuffix(cType, "*") && !isOutput {
-		switch baseType {
+		switch typeName {
 		case "gint", "int":
 			return "[]int"
 		case "gdouble", "double":
@@ -388,10 +398,6 @@ func (v *Introspection) mapCTypeToGoType(cType string, isOutput bool) string {
 
 func (v *Introspection) isEnumType(cType string) bool {
 	return v.discoveredEnumTypes[cType] != ""
-}
-
-func (v *Introspection) extractEnumType(cType string) string {
-	return v.discoveredEnumTypes[cType]
 }
 
 func determineFlags(isOutput bool, isRequired bool) int {
