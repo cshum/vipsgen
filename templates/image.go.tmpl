@@ -316,25 +316,26 @@ func (r *Image) Exif() map[string]any {
 }
 
 
+
 {{range .Operations}}{{if .HasImageInput}}
 // {{.GoName | imageMethodName}} {{.Description}}
 // {{generateDocUrl .Name .Category}}
-func (r *Image) {{.GoName | imageMethodName}}({{formatImageMethodArgs .Arguments}}) {{if .HasImageOutput}}error{{else if .Outputs}}({{range $i, $arg := .Outputs}}{{if $i}}, {{end}}{{$arg.GoType}}{{end}}, error){{else}}error{{end}} {
+func (r *Image) {{.GoName | imageMethodName}}({{$inputParams := filterInputParams .Arguments}}{{range $i, $arg := $inputParams}}{{if $i}}, {{end}}{{$arg.GoName}} {{$arg.GoType}}{{end}}) ({{if .HasImageOutput}}error{{else if .Outputs}}{{range $i, $arg := .Outputs}}{{if $i}}, {{end}}{{$arg.GoType}}{{end}}, error{{else}}error{{end}}) {
     {{if .HasImageOutput}}
-    out, err := {{.GoName}}(r.image{{range $arg := .Arguments}}{{if and (not $arg.IsOutput) (ne $arg.Type "VipsImage")}}, {{$arg.GoName}}{{end}}{{end}})
+    out, err := {{.GoName}}(r.image{{range $arg := .Arguments}}{{if and (not $arg.IsOutput) (ne $arg.Name "in") (ne $arg.Name "out")}}, {{$arg.GoName}}{{end}}{{end}})
     if err != nil {
         return err
     }
     r.setImage(out)
     return nil
     {{else if .Outputs}}
-    {{range $i, $arg := .Outputs}}{{if $i}}, {{end}}{{$arg.GoName}}{{end}}, err := {{.GoName}}(r.image{{range $arg := .Arguments}}{{if and (not $arg.IsOutput) (ne $arg.Type "VipsImage")}}, {{$arg.GoName}}{{end}}{{end}})
+    {{range $i, $arg := .Outputs}}{{if $i}}, {{end}}{{$arg.GoName}}{{end}}, err := {{.GoName}}(r.image{{range $arg := .Arguments}}{{if and (not $arg.IsOutput) (ne $arg.Name "in") (ne $arg.Name "out")}}, {{$arg.GoName}}{{end}}{{end}})
     if err != nil {
         return {{range $i, $arg := .Outputs}}{{if $i}}, {{end}}{{if eq (index (split $arg.GoType "[]") 0) ""}}nil{{else if eq $arg.GoType "bool"}}false{{else if eq $arg.GoType "string"}}""{{else if eq $arg.GoType "*C.VipsImage"}}nil{{else}}0{{end}}{{end}}, err
     }
     return {{range $i, $arg := .Outputs}}{{if $i}}, {{end}}{{$arg.GoName}}{{end}}, nil
     {{else}}
-    err := {{.GoName}}(r.image{{range $arg := .Arguments}}{{if and (not $arg.IsOutput) (ne $arg.Type "VipsImage")}}, {{$arg.GoName}}{{end}}{{end}})
+    err := {{.GoName}}(r.image{{range $arg := .Arguments}}{{if and (not $arg.IsOutput) (ne $arg.Name "in") (ne $arg.Name "out")}}, {{$arg.GoName}}{{end}}{{end}})
     if err != nil {
         return err
     }

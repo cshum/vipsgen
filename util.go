@@ -119,6 +119,18 @@ func FormatEnumValueName(typeName, valueName string) string {
 	return typeName + GetGoEnumName(camelValue)
 }
 
+// FilterInputParams filters the arguments to include only those that should be input parameters for an Image method
+func FilterInputParams(args []Argument) []Argument {
+	var result []Argument
+	for _, arg := range args {
+		// Include only non-output arguments that aren't the input image or predefined output params
+		if !arg.IsOutput && arg.Name != "in" && arg.Name != "out" && arg.Name != "columns" && arg.Name != "rows" {
+			result = append(result, arg)
+		}
+	}
+	return result
+}
+
 // GetTemplateFuncMap Helper functions for templates
 func GetTemplateFuncMap() template.FuncMap {
 	return template.FuncMap{
@@ -155,6 +167,7 @@ func GetTemplateFuncMap() template.FuncMap {
 		"generateDocUrl":        GenerateDocUrl,
 		"formatImageMethodArgs": FormatImageMethodArgs,
 		"split":                 strings.Split,
+		"filterInputParams":     FilterInputParams,
 	}
 }
 
