@@ -164,7 +164,7 @@ func (v *Introspection) processVipsFunction(fn girparser.Function, debugInfo *De
 		}
 	}
 
-	log.Printf("Processed function: %s (C identifier: %s) with %d parameters (%d required, %d optional), category %s",
+	log.Printf("Processed function: %s (C identifier: %s) with %d parameters (%d required, %d optional)",
 		info.Name, info.CIdentifier, len(info.Params), len(info.RequiredParams), len(info.OptionalParams))
 
 	return info
@@ -192,6 +192,19 @@ func processVipsParam(param girparser.Parameter) VipsParamInfo {
 		IsOptional: param.Optional,
 		IsVarArgs:  param.VarArgs,
 		IsOutput:   param.Direction == "out",
+	}
+
+	// Additional heuristics to detect output parameters
+	if !paramInfo.IsOutput {
+		// 1. Parameters named "out" are typically outputs
+		if paramInfo.Name == "out" {
+			paramInfo.IsOutput = true
+		}
+
+		// 2. Double pointer parameters are typically outputs
+		if strings.HasSuffix(paramInfo.CType, "**") {
+			paramInfo.IsOutput = true
+		}
 	}
 
 	// Fix for empty CType - provide a default

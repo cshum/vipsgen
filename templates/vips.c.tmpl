@@ -519,14 +519,12 @@ int remove_exif(VipsImage *in, VipsImage **out) {
 }
 
 
-{{range .Operations}}
-{{if eq (len .Arguments) 0}}
+{{range .Operations}}{{if eq (len .Arguments) 0}}
 int vipsgen_{{.Name}}() {
     return vips_{{.Name}}(NULL);
 }
 {{else}}
-int vipsgen_{{.Name}}({{range $i, $arg := .Arguments}}{{if $i}}, {{end}}{{if and (eq $arg.Type "VipsImage") $arg.IsOutput}}VipsImage **{{$arg.Name}}{{else if and (not (eq $arg.Type "VipsImage")) $arg.IsOutput}}{{$arg.CType}}* {{$arg.Name}}{{else}}{{$arg.CType}} {{$arg.Name}}{{end}}{{end}}) {
+int vipsgen_{{.Name}}({{range $i, $arg := .Arguments}}{{if $i}}, {{end}}{{$arg.CType}} {{$arg.Name}}{{end}}) {
     return vips_{{.Name}}({{range $i, $arg := .Arguments}}{{if $i}}, {{end}}{{$arg.Name}}{{end}}, NULL);
 }
-{{end}}
-{{end}}
+{{end}}{{end}}
