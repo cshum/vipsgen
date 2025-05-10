@@ -48,7 +48,7 @@ func (r *Image) ExportJpeg(params *JpegExportParams) ([]byte, error) {
     var buf unsafe.Pointer
     var length C.size_t
 
-    err := C.jpegsave_buffer_wrapper(
+    err := C.vipsgen_jpegsave_buffer(
         r.image, &buf, &length,
         C.int(params.Quality),
         C.int(boolToInt(params.StripMetadata)),
@@ -102,8 +102,8 @@ func (r *Image) ExportPng(params *PngExportParams) ([]byte, error) {
     var buf unsafe.Pointer
     var length C.size_t
 
-	// Call pngsave_buffer_wrapper
-	err := C.pngsave_buffer_wrapper(
+	// Call vipsgen_pngsave_buffer
+	err := C.vipsgen_pngsave_buffer(
         r.image, &buf, &length,
 		C.int(params.Compression),
 		C.int(boolToInt(params.StripMetadata)),
@@ -160,7 +160,7 @@ func (r *Image) ExportWebp(params *WebpExportParams) ([]byte, error) {
 		cProfile := C.CString(params.IccProfile)
 		defer C.free(unsafe.Pointer(cProfile))
 
-		err = C.webpsave_buffer_profile_wrapper(
+		err = C.vipsgen_webpsave_buffer_profile(
             r.image, &buf, &length,
 			C.int(params.Quality),
 			C.int(boolToInt(params.StripMetadata)),
@@ -170,7 +170,7 @@ func (r *Image) ExportWebp(params *WebpExportParams) ([]byte, error) {
 			cProfile,
 		)
 	} else {
-		err = C.webpsave_buffer_wrapper(
+		err = C.vipsgen_webpsave_buffer(
             r.image, &buf, &length,
 			C.int(params.Quality),
 			C.int(boolToInt(params.StripMetadata)),
@@ -212,8 +212,8 @@ func (r *Image) ExportHeif(params *HeifExportParams) ([]byte, error) {
     var buf unsafe.Pointer
     var length C.size_t
 
-	// Call heifsave_buffer_wrapper
-	err := C.heifsave_buffer_wrapper(
+	// Call vipsgen_heifsave_buffer
+	err := C.vipsgen_heifsave_buffer(
         r.image, &buf, &length,
 		C.int(params.Quality),
 		C.int(boolToInt(params.Lossless)),
@@ -264,8 +264,8 @@ func (r *Image) ExportTiff(params *TiffExportParams) ([]byte, error) {
     var buf unsafe.Pointer
     var length C.size_t
 
-	// Call tiffsave_buffer_wrapper
-	err := C.tiffsave_buffer_wrapper(
+	// Call vipsgen_tiffsave_buffer
+	err := C.vipsgen_tiffsave_buffer(
         r.image, &buf, &length,
 		C.int(params.Quality),
 		C.int(boolToInt(params.StripMetadata)),
@@ -318,7 +318,7 @@ func (r *Image) ExportGif(params *GifExportParams) ([]byte, error) {
 
 	{{if .HasCgifSaver}}
 	// Try CGIF first (available in libvips 8.12+)
-	err = C.gifsave_buffer_wrapper(
+	err = C.vipsgen_gifsave_buffer(
         r.image, &buf, &length,
 		C.double(params.Dither),
 		C.int(params.Effort),
@@ -338,7 +338,7 @@ func (r *Image) ExportGif(params *GifExportParams) ([]byte, error) {
 			gifFormat := C.CString("GIF")
 			defer C.free(unsafe.Pointer(gifFormat))
 
-			err = C.magicksave_buffer_wrapper(
+			err = C.vipsgen_magicksave_buffer(
                 r.image, &buf, &length,
 				gifFormat,
 				C.int(params.Quality),
@@ -356,7 +356,7 @@ func (r *Image) ExportGif(params *GifExportParams) ([]byte, error) {
 	gifFormat := C.CString("GIF")
 	defer C.free(unsafe.Pointer(gifFormat))
 
-	err = C.magicksave_buffer_wrapper(
+	err = C.vipsgen_magicksave_buffer(
 		r.image, &blob,
 		gifFormat,
 		C.int(params.Quality),
@@ -398,8 +398,8 @@ func (r *Image) ExportAvif(params *AvifExportParams) ([]byte, error) {
     var buf unsafe.Pointer
     var length C.size_t
 
-	// Call avifsave_buffer_wrapper
-	err := C.avifsave_buffer_wrapper(
+	// Call vipsgen_avifsave_buffer
+	err := C.vipsgen_avifsave_buffer(
         r.image, &buf, &length,
 		C.int(params.Quality),
 		C.int(boolToInt(params.Lossless)),
@@ -444,8 +444,8 @@ func (r *Image) ExportJp2k(params *Jp2kExportParams) ([]byte, error) {
     var buf unsafe.Pointer
     var length C.size_t
 
-	// Call jp2ksave_buffer_wrapper
-	err := C.jp2ksave_buffer_wrapper(
+	// Call vipsgen_jp2ksave_buffer
+	err := C.vipsgen_jp2ksave_buffer(
         r.image, &buf, &length,
 		C.int(params.Quality),
 		C.int(boolToInt(params.Lossless)),
