@@ -97,5 +97,9 @@ int remove_exif(VipsImage *in, VipsImage **out);
 
 
 {{range .Operations}}
+{{if eq (len .Arguments) 0}}
+int vipsgen_{{.Name}}();
+{{else}}
 int vipsgen_{{.Name}}({{range $i, $arg := .Arguments}}{{if $i}}, {{end}}{{if and (eq $arg.Type "VipsImage") $arg.IsOutput}}VipsImage **{{$arg.Name}}{{else if and (not (eq $arg.Type "VipsImage")) $arg.IsOutput}}{{$arg.CType}}* {{$arg.Name}}{{else}}{{$arg.CType}} {{$arg.Name}}{{end}}{{end}});
+{{end}}
 {{end}}

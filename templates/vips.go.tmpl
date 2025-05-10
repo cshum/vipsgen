@@ -409,19 +409,19 @@ func vipsGetMetaString(image *C.VipsImage, name string) string {
 // {{.GoName}} {{.Description}}
 // https://libvips.github.io/libvips/API/current/libvips-{{.Category}}.html#vips-{{.Name}}
 func {{.GoName}}({{$first := true}}{{range $arg := .Arguments}}{{if not $arg.IsOutput}}{{if $first}}{{$first = false}}{{else}}, {{end}}{{$arg.GoName}} {{$arg.GoType}}{{end}}{{end}}) ({{if .HasImageOutput}}*C.VipsImage, error{{else}}{{if .Outputs}}{{range $i, $arg := .Outputs}}{{if $i}}, {{end}}{{$arg.GoType}}{{end}}, error{{else}}error{{end}}{{end}}) {
-    {{if .HasImageOutput}}
-    var out *C.VipsImage
-    {{else if .Outputs}}
-    {{range $arg := .Outputs}}
-    var {{$arg.GoName}}Out {{$arg.GoType}}
-    {{end}}
-    {{end}}
+    {{if .HasImageOutput}}var out *C.VipsImage{{else if .Outputs}}{{range $arg := .Outputs}}var {{$arg.GoName}}Out {{$arg.GoType}}
+    {{end}}{{end}}
 
-    {{range .Arguments}}{{if and (not .IsOutput) (eq .GoType "string")}}
-    c{{.GoName}} := C.CString({{.GoName}})
+    {{range .Arguments}}{{if and (not .IsOutput) (eq .GoType "string")}}c{{.GoName}} := C.CString({{.GoName}})
     defer freeCString(c{{.GoName}}){{end}}{{end}}
 
     {{if .HasImageOutput}}
+    {{/* No input arguments case - avoid trailing comma */}}
+    {{if eq (len .RequiredInputs) 0}}
+    if err := C.vipsgen_{{.Name}}(&out); err != 0 {
+        return nil, handleImageError(out)
+    }
+    {{else}}
     if err := C.vipsgen_{{.Name}}({{$first := true}}{{range $arg := .Arguments}}{{if not $arg.IsOutput}}{{if $first}}{{$first = false}}{{else}}, {{end}}
         {{- if eq $arg.GoType "string"}}c{{$arg.GoName}}
         {{- else if eq $arg.GoType "bool"}}C.int(boolToInt({{$arg.GoName}}))
@@ -431,9 +431,16 @@ func {{.GoName}}({{$first := true}}{{range $arg := .Arguments}}{{if not $arg.IsO
         &out); err != 0 {
         return nil, handleImageError(out)
     }
+    {{end}}
 
     return out, nil
     {{else if .Outputs}}
+    {{/* No input arguments case - avoid trailing comma */}}
+    {{if eq (len .RequiredInputs) 0}}
+    if err := C.vipsgen_{{.Name}}({{range $i, $arg := .Outputs}}{{if $i}}, {{end}}&{{$arg.GoName}}Out{{end}}); err != 0 {
+        return {{range $i, $arg := .Outputs}}{{if $i}}, {{end}}{{if eq (index (split $arg.GoType "[]") 0) ""}}nil{{else if eq $arg.GoType "bool"}}false{{else if eq $arg.GoType "string"}}""{{else}}0{{end}}{{end}}, handleVipsError()
+    }
+    {{else}}
     if err := C.vipsgen_{{.Name}}({{$first := true}}{{range $arg := .Arguments}}{{if not $arg.IsOutput}}{{if $first}}{{$first = false}}{{else}}, {{end}}
         {{- if eq $arg.GoType "string"}}c{{$arg.GoName}}
         {{- else if eq $arg.GoType "bool"}}C.int(boolToInt({{$arg.GoName}}))
@@ -443,8 +450,15 @@ func {{.GoName}}({{$first := true}}{{range $arg := .Arguments}}{{if not $arg.IsO
         &{{$arg.GoName}}Out{{end}}); err != 0 {
         return {{range $i, $arg := .Outputs}}{{if $i}}, {{end}}{{if eq (index (split $arg.GoType "[]") 0) ""}}nil{{else if eq $arg.GoType "bool"}}false{{else if eq $arg.GoType "string"}}""{{else}}0{{end}}{{end}}, handleVipsError()
     }
+    {{end}}
 
     return {{range $i, $arg := .Outputs}}{{if $i}}, {{end}}{{$arg.GoName}}Out{{end}}, nil
+    {{else}}
+    {{/* No input arguments case - avoid trailing comma */}}
+    {{if eq (len .RequiredInputs) 0}}
+    if err := C.vipsgen_{{.Name}}(); err != 0 {
+        return handleVipsError()
+    }
     {{else}}
     if err := C.vipsgen_{{.Name}}({{$first := true}}{{range $arg := .Arguments}}{{if not $arg.IsOutput}}{{if $first}}{{$first = false}}{{else}}, {{end}}
         {{- if eq $arg.GoType "string"}}c{{$arg.GoName}}
@@ -454,6 +468,7 @@ func {{.GoName}}({{$first := true}}{{range $arg := .Arguments}}{{if not $arg.IsO
         {{- else}}C.{{$arg.CType}}({{$arg.GoName}}){{- end}}{{end}}{{end}}); err != 0 {
         return handleVipsError()
     }
+    {{end}}
 
     return nil
     {{end}}
