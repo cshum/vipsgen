@@ -140,12 +140,6 @@ func (v *Introspection) IntrospectOperation(name string) vipsgen.Operation {
 	}
 	defer C.g_object_unref(C.gpointer(vop))
 
-	// Check if operation has custom config
-	var config vipsgen.OperationConfig
-	if cfg, ok := vipsgen.OperationConfigs[name]; ok {
-		config = cfg
-	}
-
 	// Determine category based on operation name patterns
 	category := vipsgen.DetermineCategory(name)
 
@@ -157,47 +151,6 @@ func (v *Introspection) IntrospectOperation(name string) vipsgen.Operation {
 		Flags:       int(C.vips_operation_get_flags(vop)),
 		Category:    category,
 	}
-
-	// Get arguments using the improved function that takes operation name
-	args := v.getOperationArguments(name)
-
-	// If we have a custom config, apply it
-	if config.OptionsParam != "" {
-		// Add the options parameter as an optional input
-		args = append(args, vipsgen.Argument{
-			Name:        config.OptionsParam,
-			GoName:      "options",
-			Type:        "gchararray",
-			GoType:      "string",
-			CType:       "const char*",
-			Description: "Operation options string",
-			Required:    false,
-			IsInput:     true,
-			IsOutput:    false,
-		})
-	}
-
-	// Categorize arguments and check for image inputs
-	hasImageInput := false
-	for _, arg := range args {
-		if arg.IsInput {
-			if arg.Required {
-				operation.RequiredInputs = append(operation.RequiredInputs, arg)
-				if arg.Type == "VipsImage" {
-					hasImageInput = true
-				}
-			} else {
-				operation.OptionalInputs = append(operation.OptionalInputs, arg)
-			}
-		} else if arg.IsOutput {
-			operation.Outputs = append(operation.Outputs, arg)
-			if arg.Type == "VipsImage" {
-				operation.HasImageOutput = true
-			}
-		}
-	}
-	operation.HasImageInput = hasImageInput
-	operation.Arguments = args
 
 	return operation
 }
