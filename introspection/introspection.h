@@ -23,3 +23,5 @@ EnumValueInfo* get_enum_values(const char *enum_type_name, int *count);
 int type_exists(const char *type_name);
 
 void free_enum_values(EnumValueInfo *values, int count);
+
+GObjectClass* get_object_class(void* obj);

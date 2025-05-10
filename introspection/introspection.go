@@ -6,7 +6,9 @@ import "C"
 import (
 	"fmt"
 	"github.com/cshum/vipsgen"
+	"github.com/cshum/vipsgen/girparser"
 	"log"
+	"regexp"
 	"sort"
 	"strings"
 	"sync"
@@ -16,6 +18,39 @@ import (
 type enumTypeName struct {
 	CName  string
 	GoName string
+}
+
+var vipsPattern = regexp.MustCompile(`^vips_.*`)
+
+// VipsFunctionInfo holds information needed to generate a wrapper function
+type VipsFunctionInfo struct {
+	Name           string
+	CIdentifier    string
+	ReturnType     string
+	HasOutParam    bool
+	OutParamIndex  int
+	HasVarArgs     bool
+	Params         []VipsParamInfo
+	RequiredParams []VipsParamInfo // Non-optional params
+	OptionalParams []VipsParamInfo // Optional params that can be passed as named args
+}
+
+// VipsParamInfo represents a parameter for a vips function
+type VipsParamInfo struct {
+	Name       string
+	CType      string
+	IsOutput   bool
+	IsOptional bool
+	IsArray    bool
+	ArrayType  string
+	IsVarArgs  bool
+}
+
+// DebugInfo stores debug information during parsing
+type DebugInfo struct {
+	ProcessedFunctions         int
+	FoundFunctionNames         []string
+	MissingCIdentifierIncluded int
 }
 
 // Define a more base list of common enum types to look for in libvips
@@ -39,6 +74,12 @@ func cachedCString(str string) *C.char {
 type Introspection struct {
 	discoveredEnumTypes map[string]bool
 	enumTypeNames       []enumTypeName
+	// Original GIR data
+	gir *girparser.GIR
+	// Parsed function info
+	functionInfo []VipsFunctionInfo
+	// Debug info from parsing
+	debugInfo *DebugInfo
 }
 
 // NewIntrospection creates a new Introspection instance for analyzing libvips
@@ -121,6 +162,79 @@ func (v *Introspection) IntrospectOperation(name string) vipsgen.Operation {
 	}
 
 	return operation
+}
+
+// getOperationDescription gets the description of an operation
+func (v *Introspection) getOperationDescription(op *C.VipsOperation) string {
+	obj := (*C.VipsObject)(unsafe.Pointer(op))
+	if obj.description != nil {
+		return C.GoString(obj.description)
+	}
+	return ""
+}
+
+// DiscoverEnumsFromOperation discover enums from an operation
+func (v *Introspection) DiscoverEnumsFromOperation(opName string) {
+	// Create operation instance
+	cName := C.CString(opName)
+	defer C.free(unsafe.Pointer(cName))
+
+	op := C.vips_operation_new(cName)
+	if op == nil {
+		return
+	}
+	defer C.g_object_unref(C.gpointer(op))
+
+	// Get the GObject class
+	gclass := C.get_object_class(unsafe.Pointer(op))
+
+	// Get all properties
+	var nProps C.guint
+	props := C.g_object_class_list_properties(gclass, &nProps)
+	defer C.g_free(C.gpointer(props))
+
+	// Convert to slice for easier handling
+	propsSlice := (*[1 << 30]*C.GParamSpec)(unsafe.Pointer(props))[:nProps:nProps]
+
+	for i := 0; i < int(nProps); i++ {
+		pspec := propsSlice[i]
+
+		// Skip properties with NULL name (safety check)
+		if pspec.name == nil {
+			continue
+		}
+
+		// Get argument class and instance
+		var argClass *C.VipsArgumentClass
+		var argInstance *C.VipsArgumentInstance
+
+		// Convert Go string to C string
+		goName := C.GoString(pspec.name)
+		cArgName := C.CString(goName)
+
+		found := C.vips_object_get_argument(
+			(*C.VipsObject)(unsafe.Pointer(op)),
+			cArgName,
+			&pspec,
+			&argClass,
+			&argInstance,
+		)
+		C.free(unsafe.Pointer(cArgName))
+
+		if found != 0 || argClass == nil {
+			continue
+		}
+
+		// Check if it's an enum
+		if C.g_type_is_a(pspec.value_type, C.G_TYPE_ENUM) != 0 {
+			enumTypeName := C.GoString(C.g_type_name(pspec.value_type))
+
+			// Add this enum type to our list
+			goEnumName := vipsgen.GetGoEnumName(enumTypeName)
+			v.AddEnumType(enumTypeName, goEnumName)
+		}
+
+	}
 }
 
 // FilterOperations filters out operations that should be excluded and deduplicates

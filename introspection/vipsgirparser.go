@@ -6,42 +6,8 @@ import (
 	"github.com/cshum/vipsgen/girparser"
 	"io"
 	"log"
-	"regexp"
 	"strings"
 )
-
-var vipsPattern = regexp.MustCompile(`^vips_.*`)
-
-// VipsFunctionInfo holds information needed to generate a wrapper function
-type VipsFunctionInfo struct {
-	Name           string
-	CIdentifier    string
-	ReturnType     string
-	HasOutParam    bool
-	OutParamIndex  int
-	HasVarArgs     bool
-	Params         []VipsParamInfo
-	RequiredParams []VipsParamInfo // Non-optional params
-	OptionalParams []VipsParamInfo // Optional params that can be passed as named args
-}
-
-// VipsParamInfo represents a parameter for a vips function
-type VipsParamInfo struct {
-	Name       string
-	CType      string
-	IsOutput   bool
-	IsOptional bool
-	IsArray    bool
-	ArrayType  string
-	IsVarArgs  bool
-}
-
-// DebugInfo stores debug information during parsing
-type DebugInfo struct {
-	ProcessedFunctions         int
-	FoundFunctionNames         []string
-	MissingCIdentifierIncluded int
-}
 
 // VipsGIRParser adapts girparser functionality for vipsgen
 type VipsGIRParser struct {
@@ -58,34 +24,34 @@ func NewVipsGIRParser() *VipsGIRParser {
 	return &VipsGIRParser{}
 }
 
-// Parse parses a GIR file from a reader
-func (p *VipsGIRParser) Parse(r io.Reader) error {
-	// Parse the GIR file
+// ParseGir parses a GIR file from a reader
+func (v *Introspection) ParseGir(r io.Reader) error {
+	// ParseGir the GIR file
 	gir, err := girparser.ParseGIR(r)
 	if err != nil {
 		return fmt.Errorf("failed to parse GIR file: %v", err)
 	}
 
-	p.gir = gir
-	p.debugInfo = &DebugInfo{}
+	v.gir = gir
+	v.debugInfo = &DebugInfo{}
 
 	// Process functions from the GIR
-	functionInfo, debug := p.extractVipsFunctions(gir)
-	p.functionInfo = functionInfo
-	p.debugInfo = debug
+	functionInfo, debug := v.extractVipsFunctions(gir)
+	v.functionInfo = functionInfo
+	v.debugInfo = debug
 
 	return nil
 }
 
 // extractVipsFunctions extracts vips functions from the GIR data
-func (p *VipsGIRParser) extractVipsFunctions(gir *girparser.GIR) ([]VipsFunctionInfo, *DebugInfo) {
+func (v *Introspection) extractVipsFunctions(gir *girparser.GIR) ([]VipsFunctionInfo, *DebugInfo) {
 	var functions []VipsFunctionInfo
 	debugInfo := &DebugInfo{}
 
 	// Process top-level functions
 	log.Printf("Processing %d top-level functions", len(gir.Namespace.Functions))
 	for _, fn := range gir.Namespace.Functions {
-		if function := p.processVipsFunction(fn, debugInfo); function != nil {
+		if function := v.processVipsFunction(fn, debugInfo); function != nil {
 			functions = append(functions, *function)
 			debugInfo.FoundFunctionNames = append(debugInfo.FoundFunctionNames, fn.Name)
 		}
@@ -97,13 +63,13 @@ func (p *VipsGIRParser) extractVipsFunctions(gir *girparser.GIR) ([]VipsFunction
 			class.Name, len(class.Methods), len(class.Functions))
 
 		for _, fn := range class.Methods {
-			if function := p.processVipsFunction(fn, debugInfo); function != nil {
+			if function := v.processVipsFunction(fn, debugInfo); function != nil {
 				functions = append(functions, *function)
 				debugInfo.FoundFunctionNames = append(debugInfo.FoundFunctionNames, fn.Name)
 			}
 		}
 		for _, fn := range class.Functions {
-			if function := p.processVipsFunction(fn, debugInfo); function != nil {
+			if function := v.processVipsFunction(fn, debugInfo); function != nil {
 				functions = append(functions, *function)
 				debugInfo.FoundFunctionNames = append(debugInfo.FoundFunctionNames, fn.Name)
 			}
@@ -116,13 +82,13 @@ func (p *VipsGIRParser) extractVipsFunctions(gir *girparser.GIR) ([]VipsFunction
 			iface.Name, len(iface.Methods), len(iface.Functions))
 
 		for _, fn := range iface.Methods {
-			if function := p.processVipsFunction(fn, debugInfo); function != nil {
+			if function := v.processVipsFunction(fn, debugInfo); function != nil {
 				functions = append(functions, *function)
 				debugInfo.FoundFunctionNames = append(debugInfo.FoundFunctionNames, fn.Name)
 			}
 		}
 		for _, fn := range iface.Functions {
-			if function := p.processVipsFunction(fn, debugInfo); function != nil {
+			if function := v.processVipsFunction(fn, debugInfo); function != nil {
 				functions = append(functions, *function)
 				debugInfo.FoundFunctionNames = append(debugInfo.FoundFunctionNames, fn.Name)
 			}
@@ -135,13 +101,13 @@ func (p *VipsGIRParser) extractVipsFunctions(gir *girparser.GIR) ([]VipsFunction
 			record.Name, len(record.Methods), len(record.Functions))
 
 		for _, fn := range record.Methods {
-			if function := p.processVipsFunction(fn, debugInfo); function != nil {
+			if function := v.processVipsFunction(fn, debugInfo); function != nil {
 				functions = append(functions, *function)
 				debugInfo.FoundFunctionNames = append(debugInfo.FoundFunctionNames, fn.Name)
 			}
 		}
 		for _, fn := range record.Functions {
-			if function := p.processVipsFunction(fn, debugInfo); function != nil {
+			if function := v.processVipsFunction(fn, debugInfo); function != nil {
 				functions = append(functions, *function)
 				debugInfo.FoundFunctionNames = append(debugInfo.FoundFunctionNames, fn.Name)
 			}
@@ -153,7 +119,7 @@ func (p *VipsGIRParser) extractVipsFunctions(gir *girparser.GIR) ([]VipsFunction
 }
 
 // processVipsFunction processes a Function to VipsFunctionInfo without skipping non-introspectable functions
-func (p *VipsGIRParser) processVipsFunction(fn girparser.Function, debugInfo *DebugInfo) *VipsFunctionInfo {
+func (v *Introspection) processVipsFunction(fn girparser.Function, debugInfo *DebugInfo) *VipsFunctionInfo {
 	// Check for vips-specific functions
 	if !vipsPattern.MatchString(fn.CIdentifier) && fn.CIdentifier != "" {
 		// Skip non-vips functions
@@ -166,6 +132,8 @@ func (p *VipsGIRParser) processVipsFunction(fn girparser.Function, debugInfo *De
 		debugInfo.MissingCIdentifierIncluded++
 		log.Printf("Generated C identifier for function %s: %s", fn.Name, fn.CIdentifier)
 	}
+
+	v.DiscoverEnumsFromOperation(fn.Name)
 
 	debugInfo.ProcessedFunctions++
 
@@ -280,10 +248,10 @@ func formatReturnType(ret girparser.ReturnValue) string {
 }
 
 // ConvertToVipsgenOperations converts girparser functions to vipsgen.Operation format
-func (p *VipsGIRParser) ConvertToVipsgenOperations() []vipsgen.Operation {
+func (v *Introspection) ConvertToVipsgenOperations() []vipsgen.Operation {
 	var operations []vipsgen.Operation
 
-	for _, fn := range p.functionInfo {
+	for _, fn := range v.functionInfo {
 		// Skip functions that don't match our vips_ pattern
 		if !strings.HasPrefix(fn.CIdentifier, "vips_") {
 			continue
