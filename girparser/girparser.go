@@ -1,10 +1,52 @@
 package girparser
 
 import (
+	"encoding/json"
 	"encoding/xml"
 	"fmt"
 	"io"
+	"log"
+	"os"
+	"strings"
 )
+
+// ParseGIR parses GIR data from an io.Reader
+func ParseGIR(r io.Reader) (*GIR, error) {
+	// Read the entire file
+	xmlData, err := io.ReadAll(r)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read XML data: %w", err)
+	}
+
+	// Simple pre-processing to handle namespaces
+	// Replace namespaced attributes with regular attributes
+	xmlString := string(xmlData)
+	xmlString = strings.ReplaceAll(xmlString, "c:type", "ctype")
+	xmlString = strings.ReplaceAll(xmlString, "c:identifier", "cidentifier")
+
+	// Parse the modified XML
+	var gir GIR
+	decoder := xml.NewDecoder(strings.NewReader(xmlString))
+	err = decoder.Decode(&gir)
+	if err != nil {
+		return nil, fmt.Errorf("failed to decode GIR XML: %w", err)
+	}
+
+	// Debug: Write the parsed GIR to a JSON file
+	jsonData, err := json.MarshalIndent(gir, "", "  ")
+	if err != nil {
+		log.Printf("Warning: failed to marshal GIR to JSON: %v", err)
+	} else {
+		err = os.WriteFile("debug_gir.json", jsonData, 0644)
+		if err != nil {
+			log.Printf("Warning: failed to write debug_gir.json: %v", err)
+		} else {
+			log.Println("Wrote parsed GIR structure to debug_gir.json")
+		}
+	}
+
+	return &gir, nil
+}
 
 // GIR represents the root element of a GIR file
 type GIR struct {
@@ -28,7 +70,7 @@ type Namespace struct {
 type Function struct {
 	Name           string         `xml:"name,attr"`
 	Introspectable string         `xml:"introspectable,attr"`
-	CIdentifier    string         `xml:"c:identifier,attr"`
+	CIdentifier    string         `xml:"cidentifier,attr"` // Changed from c:identifier
 	ReturnValue    ReturnValue    `xml:"return-value"`
 	Parameters     []Parameter    `xml:"parameters>parameter"`
 	InstanceParam  *Parameter     `xml:"parameters>instance-parameter"`
@@ -70,27 +112,25 @@ type ReturnValue struct {
 
 // Parameter represents a function parameter
 type Parameter struct {
-	Name            string `xml:"name,attr"`
-	Direction       string `xml:"direction,attr"`
-	CallerAllocates string `xml:"caller-allocates,attr"`
-	Optional        bool   `xml:"optional,attr"`
-	Type            Type   `xml:"type"`
-	VarArgs         bool   `xml:"varargs,attr"`
+	Name            string     `xml:"name,attr"`
+	Direction       string     `xml:"direction,attr"`
+	CallerAllocates string     `xml:"caller-allocates,attr"`
+	Optional        bool       `xml:"optional,attr"`
+	Type            Type       `xml:"type"`
+	Array           *ArrayType `xml:"array"`
+	VarArgs         bool       `xml:"varargs,attr"`
+}
+
+// ArrayType represents an array type in GIR
+type ArrayType struct {
+	Length         string `xml:"length,attr"`
+	ZeroTerminated string `xml:"zero-terminated,attr"`
+	CType          string `xml:"ctype,attr"` // Changed from c:type
+	ElementType    Type   `xml:"type"`
 }
 
 // Type represents a data type
 type Type struct {
 	Name  string `xml:"name,attr"`
-	CType string `xml:"c:type,attr"`
-}
-
-// ParseGIR parses GIR data from an io.Reader
-func ParseGIR(r io.Reader) (*GIR, error) {
-	var gir GIR
-	decoder := xml.NewDecoder(r)
-	err := decoder.Decode(&gir)
-	if err != nil {
-		return nil, fmt.Errorf("failed to decode GIR XML: %w", err)
-	}
-	return &gir, nil
+	CType string `xml:"ctype,attr"` // Changed from c:type
 }
