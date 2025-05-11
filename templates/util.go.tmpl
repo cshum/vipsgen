@@ -288,6 +288,24 @@ func bufferToBytes(buf unsafe.Pointer, length C.size_t) []byte {
     return bytes
 }
 
+// convertImagesToVipsImages converts from Image slice to VipsImage slice
+func convertImagesToVipsImages(images []*Image) []*C.VipsImage {
+    vipsImages := make([]*C.VipsImage, len(images))
+    for i, img := range images {
+        vipsImages[i] = img.image
+    }
+    return vipsImages
+}
+
+// convertVipsImagesToImages converts a slice of *C.VipsImage to []*Image
+func convertVipsImagesToImages(vipsImages []*C.VipsImage) []*Image {
+    images := make([]*Image, len(vipsImages))
+    for i, vipsImg := range vipsImages {
+        images[i] = newImageRef(vipsImg, ImageTypeUnknown, nil)
+    }
+    return images
+}
+
 // Param libvips options param
 type Param struct {
 	value interface{}

@@ -17,9 +17,15 @@ func ImageMethodName(name string) string {
 	return name
 }
 
+// HasArrayImageInput checks if any of the arguments are array image inputs
 func HasArrayImageInput(args []Argument) bool {
 	for _, arg := range args {
-		if arg.Name == "in" && strings.HasPrefix(arg.GoType, "[]*C.VipsImage") {
+		// Look for array of VipsImage pointers
+		if strings.HasPrefix(arg.GoType, "[]*C.VipsImage") {
+			return true
+		}
+		// Also check the C type, which might indicate an array
+		if strings.Contains(arg.CType, "VipsImage**") && !arg.IsOutput {
 			return true
 		}
 	}
@@ -58,26 +64,32 @@ func GetTemplateFuncMap() template.FuncMap {
 			}
 			return strings.Join(params, ", ")
 		},
-		"imageMethodName":            ImageMethodName,
-		"generateDocUrl":             GenerateDocUrl,
-		"formatImageMethodArgs":      FormatImageMethodArgs,
-		"split":                      strings.Split,
-		"filterInputParams":          FilterInputParams,
-		"isPointerType":              isPointerType,
-		"formatDefaultValue":         FormatDefaultValue,
-		"formatErrorReturn":          FormatErrorReturn,
-		"formatGoArgList":            FormatGoArgList,
-		"formatReturnTypes":          FormatReturnTypes,
-		"formatVarDeclarations":      FormatVarDeclarations,
-		"formatStringConversions":    FormatStringConversions,
-		"formatArrayConversions":     FormatArrayConversions,
-		"formatFunctionCallArgs":     FormatFunctionCallArgs,
-		"formatFunctionCall":         FormatFunctionCall,
-		"formatReturnValues":         FormatReturnValues,
-		"formatSuccessReturnValues":  FormatSuccessReturnValues,
-		"formatErrorReturnValues":    FormatErrorReturnValues,
-		"formatImageMethodSignature": FormatImageMethodSignature,
-		"formatImageMethodBody":      FormatImageMethodBody,
+		"imageMethodName":              ImageMethodName,
+		"generateDocUrl":               GenerateDocUrl,
+		"formatImageMethodArgs":        FormatImageMethodArgs,
+		"split":                        strings.Split,
+		"filterInputParams":            FilterInputParams,
+		"isPointerType":                isPointerType,
+		"formatDefaultValue":           FormatDefaultValue,
+		"formatErrorReturn":            FormatErrorReturn,
+		"formatGoArgList":              FormatGoArgList,
+		"formatReturnTypes":            FormatReturnTypes,
+		"formatVarDeclarations":        FormatVarDeclarations,
+		"formatStringConversions":      FormatStringConversions,
+		"formatArrayConversions":       FormatArrayConversions,
+		"formatFunctionCallArgs":       FormatFunctionCallArgs,
+		"formatFunctionCall":           FormatFunctionCall,
+		"formatReturnValues":           FormatReturnValues,
+		"formatSuccessReturnValues":    FormatSuccessReturnValues,
+		"formatErrorReturnValues":      FormatErrorReturnValues,
+		"formatImageMethodSignature":   FormatImageMethodSignature,
+		"formatImageMethodBody":        FormatImageMethodBody,
+		"formatImageFuncArgList":       formatImageFuncArgList,
+		"formatImageFuncCallArgs":      formatImageFuncCallArgs,
+		"formatImageMethodParams":      FormatImageMethodParams,
+		"formatImageMethodReturnTypes": FormatImageMethodReturnTypes,
+		"formatCreatorMethodParams":    FormatCreatorMethodParams,
+		"formatCreatorMethodBody":      FormatCreatorMethodBody,
 
 		"hasPrefix":  strings.HasPrefix,
 		"hasSuffix":  strings.HasSuffix,
