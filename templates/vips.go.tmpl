@@ -340,7 +340,7 @@ func vipsGetMetaString(image *C.VipsImage, name string) string {
 
 
 {{range .Operations}}
-// {{.GoName}} {{.Description}}
+// {{.GoName}}
 // {{generateDocUrl .Name .Category}}
 func {{.GoName}}({{formatGoArgList .Arguments}}) ({{formatReturnTypes .}}) {
     {{formatVarDeclarations .}}
