@@ -17,8 +17,8 @@ var ImageSaverSupport = map[ImageType]bool{
 }
 
 {{if .HasJpegSaver}}
-// JpegExportParams are options when exporting a JPEG to file or buffer
-type JpegExportParams struct {
+// JpegSaveParams are options when exporting a JPEG to file or buffer
+type JpegSaveParams struct {
 	StripMetadata      bool
 	Quality            int
 	Interlace          bool
@@ -30,21 +30,20 @@ type JpegExportParams struct {
 	QuantTable         int
 }
 
-// NewJpegExportParams creates default values for an export of a JPEG image.
+// NewJpegSaveParams creates default values for an export of a JPEG image.
 // By default, vips creates interlaced JPEGs with a quality of 80/100.
-func NewJpegExportParams() *JpegExportParams {
-	return &JpegExportParams{
+func NewJpegSaveParams() *JpegSaveParams {
+	return &JpegSaveParams{
 		Quality:   80,
 		Interlace: true,
 	}
 }
 
-// ExportJpeg exports the image as JPEG to a buffer.
-func (r *Image) ExportJpeg(params *JpegExportParams) ([]byte, error) {
+// JpegSaveBuffer exports the image as JPEG to a buffer.
+func (r *Image) JpegSaveBuffer(params *JpegSaveParams) ([]byte, error) {
     if params == nil {
-        params = NewJpegExportParams()
+        params = NewJpegSaveParams()
     }
-
     var buf unsafe.Pointer
     var length C.size_t
 
@@ -60,18 +59,16 @@ func (r *Image) ExportJpeg(params *JpegExportParams) ([]byte, error) {
         C.int(boolToInt(params.OptimizeScans)),
         C.int(params.QuantTable),
     )
-
     if err != 0 {
         return nil, handleVipsError()
     }
-
     return bufferToBytes(buf, length), nil
 }
 {{end}}
 
 {{if .HasPngSaver}}
-// PngExportParams are options when exporting a PNG to file or buffer
-type PngExportParams struct {
+// PngSaveParams are options when exporting a PNG to file or buffer
+type PngSaveParams struct {
 	StripMetadata bool
 	Compression   int
 	Interlace     bool
@@ -82,10 +79,10 @@ type PngExportParams struct {
 	Filter        PngFilter
 }
 
-// NewPngExportParams creates default values for an export of a PNG image.
+// NewPngSaveParams creates default values for an export of a PNG image.
 // By default, vips creates non-interlaced PNGs with a compression of 6/10.
-func NewPngExportParams() *PngExportParams {
-	return &PngExportParams{
+func NewPngSaveParams() *PngSaveParams {
+	return &PngSaveParams{
 		Compression: 6,
 		Interlace:   false,
 		Palette:     false,
@@ -93,16 +90,14 @@ func NewPngExportParams() *PngExportParams {
 	}
 }
 
-// ExportPng exports the image as PNG to a buffer.
-func (r *Image) ExportPng(params *PngExportParams) ([]byte, error) {
+// PngSaveBuffer exports the image as PNG to a buffer.
+func (r *Image) PngSaveBuffer(params *PngSaveParams) ([]byte, error) {
 	if params == nil {
-		params = NewPngExportParams()
+		params = NewPngSaveParams()
 	}
-
     var buf unsafe.Pointer
     var length C.size_t
 
-	// Call vipsgen_pngsave_buffer
 	err := C.vipsgen_pngsave_buffer(
         r.image, &buf, &length,
 		C.int(params.Compression),
@@ -114,18 +109,16 @@ func (r *Image) ExportPng(params *PngExportParams) ([]byte, error) {
 		C.double(params.Dither),
 		C.int(params.Bitdepth),
 	)
-
 	if err != 0 {
 		return nil, handleVipsError()
 	}
-
     return bufferToBytes(buf, length), nil
 }
 {{end}}
 
 {{if .HasWebpSaver}}
-// WebpExportParams are options when exporting a WEBP to file or buffer
-type WebpExportParams struct {
+// WebpSaveParams are options when exporting a WEBP to file or buffer
+type WebpSaveParams struct {
 	StripMetadata   bool
 	Quality         int
 	Lossless        bool
@@ -134,10 +127,10 @@ type WebpExportParams struct {
 	IccProfile      string
 }
 
-// NewWebpExportParams creates default values for an export of a WEBP image.
+// NewWebpSaveParams creates default values for an export of a WEBP image.
 // By default, vips creates lossy images with a quality of 75/100.
-func NewWebpExportParams() *WebpExportParams {
-	return &WebpExportParams{
+func NewWebpSaveParams() *WebpSaveParams {
+	return &WebpSaveParams{
 		Quality:         75,
 		Lossless:        false,
 		NearLossless:    false,
@@ -146,16 +139,14 @@ func NewWebpExportParams() *WebpExportParams {
 }
 
 // ExportWebp exports the image as WEBP to a buffer.
-func (r *Image) ExportWebp(params *WebpExportParams) ([]byte, error) {
+func (r *Image) ExportWebp(params *WebpSaveParams) ([]byte, error) {
 	if params == nil {
-		params = NewWebpExportParams()
+		params = NewWebpSaveParams()
 	}
-
     var err C.int
     var buf unsafe.Pointer
     var length C.size_t
 
-	// Call webp save wrapper with or without profile
 	if params.IccProfile != "" {
 		cProfile := C.CString(params.IccProfile)
 		defer C.free(unsafe.Pointer(cProfile))
@@ -179,57 +170,51 @@ func (r *Image) ExportWebp(params *WebpExportParams) ([]byte, error) {
 			C.int(params.ReductionEffort),
 		)
 	}
-
 	if err != 0 {
 		return nil, handleVipsError()
 	}
-
     return bufferToBytes(buf, length), nil
 }
 {{end}}
 
 {{if .HasHeifSaver}}
-// HeifExportParams are options when exporting a HEIF to file or buffer
-type HeifExportParams struct {
+// HeifSaveParams are options when exporting a HEIF to file or buffer
+type HeifSaveParams struct {
 	Quality  int
 	Lossless bool
 }
 
-// NewHeifExportParams creates default values for an export of a HEIF image.
-func NewHeifExportParams() *HeifExportParams {
-	return &HeifExportParams{
+// NewHeifSaveParams creates default values for an export of a HEIF image.
+func NewHeifSaveParams() *HeifSaveParams {
+	return &HeifSaveParams{
 		Quality:  80,
 		Lossless: false,
 	}
 }
 
 // ExportHeif exports the image as HEIF to a buffer.
-func (r *Image) ExportHeif(params *HeifExportParams) ([]byte, error) {
+func (r *Image) ExportHeif(params *HeifSaveParams) ([]byte, error) {
 	if params == nil {
-		params = NewHeifExportParams()
+		params = NewHeifSaveParams()
 	}
-
     var buf unsafe.Pointer
     var length C.size_t
 
-	// Call vipsgen_heifsave_buffer
 	err := C.vipsgen_heifsave_buffer(
         r.image, &buf, &length,
 		C.int(params.Quality),
 		C.int(boolToInt(params.Lossless)),
 	)
-
 	if err != 0 {
 		return nil, handleVipsError()
 	}
-
     return bufferToBytes(buf, length), nil
 }
 {{end}}
 
 {{if .HasTiffSaver}}
-// TiffExportParams are options when exporting a TIFF to file or buffer
-type TiffExportParams struct {
+// TiffSaveParams are options when exporting a TIFF to file or buffer
+type TiffSaveParams struct {
 	StripMetadata bool
 	Quality       int
 	Compression   TiffCompression
@@ -242,9 +227,9 @@ type TiffExportParams struct {
 	YRes          float64
 }
 
-// NewTiffExportParams creates default values for an export of a TIFF image.
-func NewTiffExportParams() *TiffExportParams {
-	return &TiffExportParams{
+// NewTiffSaveParams creates default values for an export of a TIFF image.
+func NewTiffSaveParams() *TiffSaveParams {
+	return &TiffSaveParams{
 		Quality:     80,
 		Compression: TiffCompressionLzw,
 		Predictor:   TiffPredictorHorizontal,
@@ -255,12 +240,11 @@ func NewTiffExportParams() *TiffExportParams {
 	}
 }
 
-// ExportTiff exports the image as TIFF to a buffer.
-func (r *Image) ExportTiff(params *TiffExportParams) ([]byte, error) {
+// TiffSaveBuffer exports the image as TIFF to a buffer.
+func (r *Image) TiffSaveBuffer(params *TiffSaveParams) ([]byte, error) {
 	if params == nil {
-		params = NewTiffExportParams()
+		params = NewTiffSaveParams()
 	}
-
     var buf unsafe.Pointer
     var length C.size_t
 
@@ -278,18 +262,16 @@ func (r *Image) ExportTiff(params *TiffExportParams) ([]byte, error) {
 		C.double(params.XRes),
 		C.double(params.YRes),
 	)
-
 	if err != 0 {
 		return nil, handleVipsError()
 	}
-
     return bufferToBytes(buf, length), nil
 }
 {{end}}
 
 {{if or .HasLegacyGifSaver .HasCgifSaver}}
-// GifExportParams are options when exporting a GIF to file or buffer.
-type GifExportParams struct {
+// GifSaveParams are options when exporting a GIF to file or buffer.
+type GifSaveParams struct {
 	StripMetadata bool
 	Quality       int
 	Dither        float64
@@ -297,21 +279,20 @@ type GifExportParams struct {
 	Bitdepth      int
 }
 
-// NewGifExportParams creates default values for an export of a GIF image.
-func NewGifExportParams() *GifExportParams {
-	return &GifExportParams{
+// NewGifSaveParams creates default values for an export of a GIF image.
+func NewGifSaveParams() *GifSaveParams {
+	return &GifSaveParams{
 		Quality:  75,
 		Effort:   7,
 		Bitdepth: 8,
 	}
 }
 
-// ExportGif exports the image as GIF to a buffer.
-func (r *Image) ExportGif(params *GifExportParams) ([]byte, error) {
+// GifSaveBuffer exports the image as GIF to a buffer.
+func (r *Image) GifSaveBuffer(params *GifSaveParams) ([]byte, error) {
 	if params == nil {
-		params = NewGifExportParams()
+		params = NewGifSaveParams()
 	}
-
     var err C.int
     var buf unsafe.Pointer
     var length C.size_t
@@ -361,40 +342,37 @@ func (r *Image) ExportGif(params *GifExportParams) ([]byte, error) {
 		gifFormat,
 		C.int(params.Quality),
 	)
-
 	if err != 0 {
 		return nil, handleVipsError()
 	}
 	{{end}}
-
     return bufferToBytes(buf, length), nil
 }
 {{end}}
 
 {{if .HasAvifSaver}}
-// AvifExportParams are options when exporting an AVIF to file or buffer.
-type AvifExportParams struct {
+// AvifSaveParams are options when exporting an AVIF to file or buffer.
+type AvifSaveParams struct {
 	StripMetadata bool
 	Quality       int
 	Lossless      bool
 	Speed         int
 }
 
-// NewAvifExportParams creates default values for an export of an AVIF image.
-func NewAvifExportParams() *AvifExportParams {
-	return &AvifExportParams{
+// NewAvifSaveParams creates default values for an export of an AVIF image.
+func NewAvifSaveParams() *AvifSaveParams {
+	return &AvifSaveParams{
 		Quality:  80,
 		Lossless: false,
 		Speed:    5,
 	}
 }
 
-// ExportAvif exports the image as AVIF to a buffer.
-func (r *Image) ExportAvif(params *AvifExportParams) ([]byte, error) {
+// AvifSaveBuffer exports the image as AVIF to a buffer.
+func (r *Image) AvifSaveBuffer(params *AvifSaveParams) ([]byte, error) {
 	if params == nil {
-		params = NewAvifExportParams()
+		params = NewAvifSaveParams()
 	}
-
     var buf unsafe.Pointer
     var length C.size_t
 
@@ -406,18 +384,16 @@ func (r *Image) ExportAvif(params *AvifExportParams) ([]byte, error) {
 		C.int(params.Speed),
 		C.int(boolToInt(params.StripMetadata)),
 	)
-
 	if err != 0 {
 		return nil, handleVipsError()
 	}
-
     return bufferToBytes(buf, length), nil
 }
 {{end}}
 
 {{if .HasJp2kSaver}}
-// Jp2kExportParams are options when exporting an JPEG2000 to file or buffer.
-type Jp2kExportParams struct {
+// Jp2kSaveParams are options when exporting an JPEG2000 to file or buffer.
+type Jp2kSaveParams struct {
 	Quality       int
 	Lossless      bool
 	TileWidth     int
@@ -425,9 +401,9 @@ type Jp2kExportParams struct {
 	SubsampleMode Subsample
 }
 
-// NewJp2kExportParams creates default values for an export of an JPEG2000 image.
-func NewJp2kExportParams() *Jp2kExportParams {
-	return &Jp2kExportParams{
+// NewJp2kSaveParams creates default values for an export of an JPEG2000 image.
+func NewJp2kSaveParams() *Jp2kSaveParams {
+	return &Jp2kSaveParams{
 		Quality:    80,
 		Lossless:   false,
 		TileWidth:  512,
@@ -435,12 +411,11 @@ func NewJp2kExportParams() *Jp2kExportParams {
 	}
 }
 
-// ExportJp2k exports the image as JPEG2000 to a buffer.
-func (r *Image) ExportJp2k(params *Jp2kExportParams) ([]byte, error) {
+// Jp2kSaveBuffer exports the image as JPEG2000 to a buffer.
+func (r *Image) Jp2kSaveBuffer(params *Jp2kSaveParams) ([]byte, error) {
 	if params == nil {
-		params = NewJp2kExportParams()
+		params = NewJp2kSaveParams()
 	}
-
     var buf unsafe.Pointer
     var length C.size_t
 
@@ -453,27 +428,10 @@ func (r *Image) ExportJp2k(params *Jp2kExportParams) ([]byte, error) {
 		C.int(params.TileHeight),
 		C.int(params.SubsampleMode),
 	)
-
 	if err != 0 {
 		return nil, handleVipsError()
 	}
-
     return bufferToBytes(buf, length), nil
 }
 {{end}}
 
-// bufferToBytes converts a C buffer to Go bytes and frees the original buffer.
-// This function takes ownership of the buffer and will free it after conversion.
-func bufferToBytes(buf unsafe.Pointer, length C.size_t) []byte {
-    if buf == nil {
-        return nil
-    }
-
-    // Convert to Go bytes (makes a copy)
-    bytes := C.GoBytes(buf, C.int(length))
-
-    // Free the original buffer allocated by libvips
-    C.g_free(C.gpointer(buf))
-
-    return bytes
-}

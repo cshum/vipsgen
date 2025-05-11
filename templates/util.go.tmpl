@@ -277,6 +277,16 @@ func clearImage(img *C.VipsImage) {
 	C.g_object_unref(C.gpointer(img))
 }
 
+// bufferToBytes converts a C buffer to Go bytes and frees the original buffer.
+// This function takes ownership of the buffer and will free it after conversion.
+func bufferToBytes(buf unsafe.Pointer, length C.size_t) []byte {
+    if buf == nil {
+        return nil
+    }
+    bytes := C.GoBytes(buf, C.int(length))
+    C.g_free(C.gpointer(buf))
+    return bytes
+}
 
 // Param libvips options param
 type Param struct {
