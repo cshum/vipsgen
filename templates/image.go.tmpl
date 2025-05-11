@@ -172,7 +172,7 @@ func NewImageFromMemory(buf []byte, width, height, bands int) (*Image, error) {
 	return newImageRef(vipsImage, format, buf), nil
 }
 
-{{range .Operations}}{{if and (not .HasImageInput) .HasImageOutput}}
+{{range .Operations}}{{if and (or (not .HasImageInput) (hasArrayImageInput .Arguments)) .HasImageOutput}}
 // {{formatNewImageName .GoName}} {{.Description}}
 // {{generateDocUrl .Name .Category}}
 func {{formatNewImageName .GoName}}({{formatGoArgList .RequiredInputs}}) (*Image, error) {
