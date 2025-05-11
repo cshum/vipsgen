@@ -87,8 +87,7 @@ func LoadImageFromSource(s *Source, params *LoadParams) (*Image, error) {
 	if err != nil {
 		return nil, err
 	}
-	ref := newImageRef(vipsImage, format, nil)
-	return ref, nil
+	return newImageRef(vipsImage, format, nil), nil
 }
 
 // LoadThumbnailFromSource loads a Source and creates a new Image with thumbnail crop and resize
@@ -103,8 +102,7 @@ func LoadThumbnailFromSource(s *Source, width, height int, crop Interesting, siz
 	if err != nil {
 		return nil, err
 	}
-	ref := newImageRef(vipsImage, format, nil)
-	return ref, nil
+	return newImageRef(vipsImage, format, nil), nil
 }
 
 // LoadImageFromBuffer loads an image buffer and creates a new Image
@@ -118,8 +116,7 @@ func LoadImageFromBuffer(buf []byte, params *LoadParams) (*Image, error) {
 	if err != nil {
 		return nil, err
 	}
-	ref := newImageRef(vipsImage, format, buf)
-	return ref, nil
+	return newImageRef(vipsImage, format, buf), nil
 }
 
 
@@ -134,8 +131,7 @@ func LoadImageFromFile(file string, params *LoadParams) (*Image, error) {
 	if err != nil {
 		return nil, err
 	}
-	ref := newImageRef(vipsImage, format, nil)
-	return ref, nil
+	return newImageRef(vipsImage, format, nil), nil
 }
 
 // LoadThumbnailFromFile loads a thumbnail from file with crop and resize
@@ -149,8 +145,7 @@ func LoadThumbnailFromFile(file string, width, height int, crop Interesting, siz
 	if err != nil {
 		return nil, err
 	}
-	ref := newImageRef(vipsImage, format, nil)
-	return ref, nil
+	return newImageRef(vipsImage, format, nil), nil
 }
 
 // LoadThumbnailFromBuffer loads a thumbnail from buffer with crop and resize
@@ -164,8 +159,7 @@ func LoadThumbnailFromBuffer(buf []byte, width, height int, crop Interesting, si
 	if err != nil {
 		return nil, err
 	}
-	ref := newImageRef(vipsImage, format, buf)
-	return ref, nil
+	return newImageRef(vipsImage, format, buf), nil
 }
 
 // LoadImageFromMemory loads a raw RGB/RGBA image buffer and creates a new Image
@@ -176,8 +170,7 @@ func LoadImageFromMemory(buf []byte, width, height, bands int) (*Image, error) {
 	if err != nil {
 		return nil, err
 	}
-	ref := newImageRef(vipsImage, format, buf)
-	return ref, nil
+	return newImageRef(vipsImage, format, buf), nil
 }
 
 func newImageRef(vipsImage *C.VipsImage, format ImageType, buf []byte) *Image {
