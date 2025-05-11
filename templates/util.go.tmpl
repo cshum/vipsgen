@@ -6,11 +6,14 @@ package vips
 // #include <vips/vips.h>
 // #include <vips/vector.h>
 // #include <stdlib.h>
+// #include <glib.h>
+// #include "util.h"
 import "C"
 import (
 	"fmt"
 	"runtime"
 	"sync"
+	"unsafe"
 )
 
 // Version is the full libvips version string (x.y.z)
@@ -42,6 +45,53 @@ type Config struct {
 	CacheTrace       bool
 	VectorEnabled    bool
 }
+
+// LogLevel log level
+type LogLevel int
+
+// LogLevel enum
+const (
+	LogLevelError    LogLevel = C.G_LOG_LEVEL_ERROR
+	LogLevelCritical LogLevel = C.G_LOG_LEVEL_CRITICAL
+	LogLevelWarning  LogLevel = C.G_LOG_LEVEL_WARNING
+	LogLevelMessage  LogLevel = C.G_LOG_LEVEL_MESSAGE
+	LogLevelInfo     LogLevel = C.G_LOG_LEVEL_INFO
+	LogLevelDebug    LogLevel = C.G_LOG_LEVEL_DEBUG
+)
+
+var (
+	currentLoggingHandlerFunction = noopLoggingHandler
+	currentLoggingVerbosity       LogLevel
+)
+
+// LoggingHandlerFunction logging handler function
+type LoggingHandlerFunction func(messageDomain string, messageLevel LogLevel, message string)
+
+// SetLogging set logging handler and verbosity
+func SetLogging(handler LoggingHandlerFunction, verbosity LogLevel) {
+	if handler != nil {
+		currentLoggingHandlerFunction = handler
+	}
+	currentLoggingVerbosity = verbosity
+}
+
+func noopLoggingHandler(_ string, _ LogLevel, _ string) {
+}
+
+func log(domain string, level LogLevel, message string) {
+	if level <= currentLoggingVerbosity {
+		currentLoggingHandlerFunction(domain, level, message)
+	}
+}
+
+func enableLogging() {
+	C.set_logging_handler()
+}
+
+func disableLogging() {
+	C.unset_logging_handler()
+}
+
 
 // Startup sets up libvips with default config.
 func StartupDefault() {
@@ -162,3 +212,68 @@ func ReadVipsMemStats(stats *MemoryStats) {
 	stats.Allocs = int64(C.vips_tracked_get_allocs())
 	stats.Files = int64(C.vips_tracked_get_files())
 }
+
+
+func handleImageError(out *C.VipsImage) error {
+	if out != nil {
+		clearImage(out)
+	}
+	return handleVipsError()
+}
+
+func handleVipsError() error {
+	s := C.GoString(C.vips_error_buffer())
+	C.vips_error_clear()
+
+	return fmt.Errorf("%v", s)
+}
+
+func freeCString(s *C.char) {
+	C.free(unsafe.Pointer(s))
+}
+
+func gFreePointer(ref unsafe.Pointer) {
+	C.g_free(C.gpointer(ref))
+}
+
+func boolToInt(b bool) int {
+	if b {
+		return 1
+	}
+	return 0
+}
+
+func boolToStr(v bool) string {
+	if v {
+		return "TRUE"
+	}
+	return "FALSE"
+}
+
+func toGboolean(b bool) C.gboolean {
+	if b {
+		return C.gboolean(1)
+	}
+	return C.gboolean(0)
+}
+
+func fromGboolean(b C.gboolean) bool {
+	return b != 0
+}
+
+var cStringsCache sync.Map
+
+func cachedCString(str string) *C.char {
+	if cstr, ok := cStringsCache.Load(str); ok {
+		return cstr.(*C.char)
+	}
+	cstr := C.CString(str)
+	cStringsCache.Store(str, cstr)
+	return cstr
+}
+
+// clearImage frees the VipsImage
+func clearImage(img *C.VipsImage) {
+	C.g_object_unref(C.gpointer(img))
+}
+
