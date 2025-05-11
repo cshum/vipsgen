@@ -257,17 +257,6 @@ func vipsExtractAreaMultiPage(in *C.VipsImage, left, top, width, height int) (*C
 }
 
 // https://libvips.github.io/libvips/API/current/libvips-conversion.html#vips-rot
-func vipsRotate(in *C.VipsImage, angle Angle) (*C.VipsImage, error) {
-	var out *C.VipsImage
-
-	if err := C.rotate_image(in, &out, C.VipsAngle(angle)); err != 0 {
-		return nil, handleImageError(out)
-	}
-
-	return out, nil
-}
-
-// https://libvips.github.io/libvips/API/current/libvips-conversion.html#vips-rot
 func vipsRotateMultiPage(in *C.VipsImage, angle Angle) (*C.VipsImage, error) {
 	var out *C.VipsImage
 
@@ -300,16 +289,6 @@ func vipsLabel(
 	return out, nil
 }
 
-func vipsAddAlpha(in *C.VipsImage) (*C.VipsImage, error) {
-	var out *C.VipsImage
-
-	if err := C.add_alpha(in, &out); err != 0 {
-		return nil, handleImageError(out)
-	}
-
-	return out, nil
-}
-
 // https://libvips.github.io/libvips/API/current/libvips-conversion.html#vips-composite2
 func vipsComposite2(base *C.VipsImage, overlay *C.VipsImage, mode BlendMode, x, y int) (*C.VipsImage, error) {
 	var out *C.VipsImage
@@ -320,55 +299,6 @@ func vipsComposite2(base *C.VipsImage, overlay *C.VipsImage, mode BlendMode, x, 
 
 	return out, nil
 }
-
-//  https://libvips.github.io/libvips/API/current/libvips-arithmetic.html#vips-linear
-func vipsLinear(in *C.VipsImage, a, b []float64, n int) (*C.VipsImage, error) {
-	var out *C.VipsImage
-
-	if err := C.linear(in, &out, (*C.double)(&a[0]), (*C.double)(&b[0]), C.int(n)); err != 0 {
-		return nil, handleImageError(out)
-	}
-
-	return out, nil
-}
-
-// https://libvips.github.io/libvips/API/current/libvips-arithmetic.html#vips-getpoint
-func vipsGetPoint(in *C.VipsImage, n int, x int, y int) ([]float64, error) {
-	var out *C.double
-	defer gFreePointer(unsafe.Pointer(out))
-
-	if err := C.getpoint(in, &out, C.int(n), C.int(x), C.int(y)); err != 0 {
-		return nil, handleVipsError()
-	}
-
-	// maximum n is 4
-	return (*[4]float64)(unsafe.Pointer(out))[:n:n], nil
-}
-
-// https://libvips.github.io/libvips/API/current/libvips-colour.html#vips-colourspace
-func vipsToColorSpace(in *C.VipsImage, interpretation Interpretation) (*C.VipsImage, error) {
-	var out *C.VipsImage
-
-	inter := C.VipsInterpretation(interpretation)
-
-	if err := C.to_colorspace(in, &out, inter); err != 0 {
-		return nil, handleImageError(out)
-	}
-
-	return out, nil
-}
-
-// https://libvips.github.io/libvips/API/current/libvips-convolution.html#vips-gaussblur
-func vipsGaussianBlur(in *C.VipsImage, sigma float64) (*C.VipsImage, error) {
-	var out *C.VipsImage
-
-	if err := C.gaussian_blur_image(in, &out, C.double(sigma)); err != 0 {
-		return nil, handleImageError(out)
-	}
-
-	return out, nil
-}
-
 
 func vipsRemoveICCProfile(in *C.VipsImage) bool {
 	return fromGboolean(C.remove_icc_profile(in))
