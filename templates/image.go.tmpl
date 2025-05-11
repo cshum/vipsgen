@@ -25,55 +25,9 @@ type Image struct {
 	pageHeight int // cached page height
 }
 
-// Param libvips options param
-type Param struct {
-	value interface{}
-	isSet bool
-}
-
-// IsSet is param set
-func (p *Param) IsSet() bool {
-	return p.isSet
-}
-
-func (p *Param) set(v interface{}) {
-	p.value = v
-	p.isSet = true
-}
-
-// BoolParam bool param
-type BoolParam struct {
-	Param
-}
-
-// Set bool param
-func (p *BoolParam) Set(v bool) {
-	p.set(v)
-}
-
-// Get bool param
-func (p *BoolParam) Get() bool {
-	return p.value.(bool)
-}
-
-// IntParam int param
-type IntParam struct {
-	Param
-}
-
-// Set int param
-func (p *IntParam) Set(v int) {
-	p.set(v)
-}
-
-// Get int param
-func (p *IntParam) Get() int {
-	return p.value.(int)
-}
-
-// ImportParams are options for loading an image. Some are type-specific.
-// For default loading, use NewImportParams() or specify nil
-type ImportParams struct {
+// LoadParams are options for loading an image. Some are type-specific.
+// For default loading, use NewLoadParams() or specify nil
+type LoadParams struct {
 	AutoRotate  BoolParam
 	FailOnError BoolParam
 	Page        IntParam
@@ -85,15 +39,15 @@ type ImportParams struct {
 	SvgUnlimited     BoolParam
 }
 
-// NewImportParams creates default ImportParams
-func NewImportParams() *ImportParams {
-	p := &ImportParams{}
+// NewLoadParams creates default LoadParams
+func NewLoadParams() *LoadParams {
+	p := &LoadParams{}
 	p.FailOnError.Set(true)
 	return p
 }
 
 // OptionString convert import params to option_string
-func (i *ImportParams) OptionString() string {
+func (i *LoadParams) OptionString() string {
 	var values []string
 	if v := i.NumPages; v.IsSet() {
 		values = append(values, "n="+strconv.Itoa(v.Get()))
@@ -123,9 +77,9 @@ func (i *ImportParams) OptionString() string {
 }
 
 // LoadImageFromSource loads a Source and creates a new Image
-func LoadImageFromSource(s *Source, params *ImportParams) (*Image, error) {
+func LoadImageFromSource(s *Source, params *LoadParams) (*Image, error) {
 	if params == nil {
-		params = NewImportParams()
+		params = NewLoadParams()
 	}
 
 	vipsImage, format, err := vipsImageFromSource(s.src, params)
@@ -139,9 +93,9 @@ func LoadImageFromSource(s *Source, params *ImportParams) (*Image, error) {
 }
 
 // LoadThumbnailFromSource loads a Source and creates a new Image with thumbnail crop and resize
-func LoadThumbnailFromSource(s *Source, width, height int, crop Interesting, size Size, params *ImportParams) (*Image, error) {
+func LoadThumbnailFromSource(s *Source, width, height int, crop Interesting, size Size, params *LoadParams) (*Image, error) {
 	if params == nil {
-		params = NewImportParams()
+		params = NewLoadParams()
 	}
 
 	vipsImage, format, err := vipsThumbnailFromSource(
@@ -156,11 +110,11 @@ func LoadThumbnailFromSource(s *Source, width, height int, crop Interesting, siz
 }
 
 // LoadImageFromBuffer loads an image buffer and creates a new Image
-func LoadImageFromBuffer(buf []byte, params *ImportParams) (*Image, error) {
+func LoadImageFromBuffer(buf []byte, params *LoadParams) (*Image, error) {
 	StartupDefault()
 
 	if params == nil {
-		params = NewImportParams()
+		params = NewLoadParams()
 	}
 
 	vipsImage, format, err := vipsImageFromBuffer(buf, params)

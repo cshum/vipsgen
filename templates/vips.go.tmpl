@@ -10,7 +10,7 @@ import (
 
 // https://www.libvips.org/API/current/VipsImage.html#vips-image-new-from-source
 func vipsImageFromSource(
-	src *C.VipsSourceCustom, params *ImportParams,
+	src *C.VipsSourceCustom, params *LoadParams,
 ) (*C.VipsImage, ImageType, error) {
 	var out *C.VipsImage
 	var code C.int
@@ -36,7 +36,7 @@ func vipsImageFromSource(
 }
 
 // https://www.libvips.org/API/current/VipsImage.html#vips-image-new-from-buffer
-func vipsImageFromBuffer(buf []byte, params *ImportParams) (*C.VipsImage, ImageType, error) {
+func vipsImageFromBuffer(buf []byte, params *LoadParams) (*C.VipsImage, ImageType, error) {
 	src := buf
 	// Reference src here so it's not garbage collected during image initialization.
 	defer runtime.KeepAlive(src)
@@ -81,7 +81,7 @@ func vipsImageFromMemory(buf []byte, width, height, bands int) (*C.VipsImage, Im
 
 // https://www.libvips.org/API/current/libvips-resample.html#vips-thumbnail-source
 func vipsThumbnailFromSource(
-	src *C.VipsSourceCustom, width, height int, crop Interesting, size Size, params *ImportParams) (*C.VipsImage, ImageType, error) {
+	src *C.VipsSourceCustom, width, height int, crop Interesting, size Size, params *LoadParams) (*C.VipsImage, ImageType, error) {
 	var out *C.VipsImage
 	var code C.int
 	var optionString string
