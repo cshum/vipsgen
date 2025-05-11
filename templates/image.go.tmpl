@@ -172,6 +172,23 @@ func NewImageFromMemory(buf []byte, width, height, bands int) (*Image, error) {
 	return newImageRef(vipsImage, format, buf), nil
 }
 
+{{range .Operations}}{{if and (not .HasImageInput) .HasImageOutput}}
+// {{formatNewImageFromName .GoName}} {{.Description}}
+// {{generateDocUrl .Name .Category}}
+func {{formatNewImageFromName .GoName}}({{formatGoArgList .RequiredInputs}}) (*Image, error) {
+    StartupDefault()
+    {{if .RequiredInputs}}
+    vipsImage, err := {{.GoName}}({{range $i, $arg := .RequiredInputs}}{{if $i}}, {{end}}{{$arg.GoName}}{{end}})
+    {{else}}
+    vipsImage, err := {{.GoName}}()
+    {{end}}
+    if err != nil {
+        return nil, err
+    }
+    return newImageRef(vipsImage, ImageTypeUnknown, nil), nil
+}
+{{end}}{{end}}
+
 func newImageRef(vipsImage *C.VipsImage, format ImageType, buf []byte) *Image {
 	imageRef := &Image{
 		image:  vipsImage,

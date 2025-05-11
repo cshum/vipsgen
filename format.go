@@ -6,6 +6,26 @@ import (
 	"unicode"
 )
 
+// FormatNewImageFromName formats an operation name as a NewImageFrom function name
+func FormatNewImageFromName(name string) string {
+	// Strip any vips or vipsgen prefix
+	if strings.HasPrefix(name, "vipsgen") {
+		name = name[7:]
+	} else if strings.HasPrefix(name, "vips") {
+		name = name[4:]
+	}
+
+	// Convert to title case
+	parts := strings.Split(name, "_")
+	for i, part := range parts {
+		if len(part) > 0 {
+			parts[i] = strings.ToUpper(part[0:1]) + part[1:]
+		}
+	}
+
+	return "NewImageFrom" + strings.Join(parts, "")
+}
+
 // FormatImageMethodArgs formats arguments for image methods, skipping the first Image argument if it exists
 func FormatImageMethodArgs(args []Argument) string {
 	var params []string
