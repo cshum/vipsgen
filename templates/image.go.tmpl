@@ -172,22 +172,6 @@ func NewImageFromMemory(buf []byte, width, height, bands int) (*Image, error) {
 	return newImageRef(vipsImage, format, buf), nil
 }
 
-{{range .Operations}}{{if and (or (not .HasImageInput) (hasArrayImageInput .Arguments)) .HasImageOutput}}
-// {{formatNewImageName .GoName}} {{.Description}}
-// {{generateDocUrl .Name .Category}}
-func {{formatNewImageName .GoName}}({{formatGoArgList .RequiredInputs}}) (*Image, error) {
-    StartupDefault()
-    {{if .RequiredInputs}}
-    vipsImage, err := {{.GoName}}({{range $i, $arg := .RequiredInputs}}{{if $i}}, {{end}}{{$arg.GoName}}{{end}})
-    {{else}}
-    vipsImage, err := {{.GoName}}()
-    {{end}}
-    if err != nil {
-        return nil, err
-    }
-    return newImageRef(vipsImage, ImageTypeUnknown, nil), nil
-}
-{{end}}{{end}}
 
 func newImageRef(vipsImage *C.VipsImage, format ImageType, buf []byte) *Image {
 	imageRef := &Image{
@@ -301,6 +285,24 @@ func (r *Image) SetPageDelay(delay []int) error {
 	}
 	return vipsImageSetDelay(r.image, data)
 }
+
+
+{{range .Operations}}{{if and .HasImageOutput (or (not .HasImageInput) (hasArrayImageInput .Arguments))}}
+// {{formatNewImageName .GoName}} {{.Description}}
+// {{generateDocUrl .Name .Category}}
+func {{formatNewImageName .GoName}}({{formatImageFuncArgList .RequiredInputs}}) (*Image, error) {
+    StartupDefault()
+    {{if .RequiredInputs}}
+    vipsImage, err := {{.GoName}}({{formatImageFuncCallArgs .RequiredInputs}})
+    {{else}}
+    vipsImage, err := {{.GoName}}()
+    {{end}}
+    if err != nil {
+        return nil, err
+    }
+    return newImageRef(vipsImage, ImageTypeUnknown, nil), nil
+}
+{{end}}{{end}}
 
 
 {{range .Operations}}{{if and .HasImageInput (not (hasArrayImageInput .Arguments))}}

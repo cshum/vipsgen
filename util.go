@@ -79,6 +79,8 @@ func GetTemplateFuncMap() template.FuncMap {
 		"formatImageMethodSignature": FormatImageMethodSignature,
 		"formatImageMethodBody":      FormatImageMethodBody,
 		"formatNewImageName":         formatNewImageName,
+		"formatImageFuncArgList":     formatImageFuncArgList,
+		"formatImageFuncCallArgs":    formatImageFuncCallArgs,
 
 		"hasPrefix":  strings.HasPrefix,
 		"hasSuffix":  strings.HasSuffix,

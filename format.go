@@ -24,6 +24,42 @@ func formatNewImageName(name string) string {
 	return "NewImage" + strings.Join(parts, "")
 }
 
+// convertParam converts *C.VipsImage to *Image parameters
+func convertParamType(arg Argument) string {
+	if arg.GoType == "*C.VipsImage" {
+		return "*Image"
+	}
+	if arg.GoType == "[]*C.VipsImage" {
+		return "[]*Image"
+	}
+	return arg.GoType
+}
+
+// formatImageFuncArgList formats arguments for NewImage* functions, changing *C.VipsImage to *Image
+func formatImageFuncArgList(args []Argument) string {
+	var params []string
+	for _, arg := range args {
+		params = append(params, fmt.Sprintf("%s %s", arg.GoName, convertParamType(arg)))
+	}
+	return strings.Join(params, ", ")
+}
+
+// formatImageFuncCallArgs formats arguments for function calls, converting *Image to image field
+func formatImageFuncCallArgs(args []Argument) string {
+	var callArgs []string
+	for _, arg := range args {
+		if arg.GoType == "*C.VipsImage" {
+			callArgs = append(callArgs, fmt.Sprintf("%s.image", arg.GoName))
+		} else if arg.GoType == "[]*C.VipsImage" {
+			// Convert []*Image to []*C.VipsImage
+			callArgs = append(callArgs, fmt.Sprintf("convertImagesToVipsImages(%s)", arg.GoName))
+		} else {
+			callArgs = append(callArgs, arg.GoName)
+		}
+	}
+	return strings.Join(callArgs, ", ")
+}
+
 // FormatImageMethodArgs formats arguments for image methods, skipping the first Image argument if it exists
 func FormatImageMethodArgs(args []Argument) string {
 	var params []string
