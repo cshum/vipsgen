@@ -102,12 +102,7 @@ func vipsThumbnailFromFile(
 	code := C.thumbnail(cPath, &out, C.int(width), C.int(height), C.int(crop), C.int(size))
 
 	if code != 0 {
-		// Try to fallback to buffer-based loading if file loading fails
-		err := handleImageError(out)
-		if src, err2 := os.ReadFile(path); err2 == nil {
-			return vipsThumbnailFromBuffer(src, width, height, crop, size, params)
-		}
-		return nil, ImageTypeUnknown, err
+		return nil, ImageTypeUnknown, handleImageError(out)
 	}
 
 	imageType := vipsDetermineImageTypeFromMetaLoader(out)
