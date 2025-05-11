@@ -19,6 +19,23 @@ int vipsgen_jpegsave_buffer(VipsImage *in, void **buf, size_t *len, int quality,
                               "quant_table", quant_table,
                               NULL);
 }
+
+int vipsgen_jpegsave_file(VipsImage *in, const char *filename, int quality, int strip,
+                       int optimize_coding, int interlace, int subsample_mode,
+                       int trellis_quant, int overshoot_deringing,
+                       int optimize_scans, int quant_table) {
+    return vips_jpegsave(in, filename,
+                       "Q", quality,
+                       "strip", strip,
+                       "optimize_coding", optimize_coding,
+                       "interlace", interlace,
+                       "subsample_mode", subsample_mode,
+                       "trellis_quant", trellis_quant,
+                       "overshoot_deringing", overshoot_deringing,
+                       "optimize_scans", optimize_scans,
+                       "quant_table", quant_table,
+                       NULL);
+}
 {{end}}
 {{if .HasPngSaver}}
 int vipsgen_pngsave_buffer(VipsImage *in, void **buf, size_t *len, int compression, int strip,
@@ -34,6 +51,21 @@ int vipsgen_pngsave_buffer(VipsImage *in, void **buf, size_t *len, int compressi
                              "dither", dither,
                              "bitdepth", bitdepth,
                              NULL);
+}
+
+int vipsgen_pngsave_file(VipsImage *in, const char *filename, int compression, int strip,
+                      int interlace, int filter, int palette, int quality,
+                      double dither, int bitdepth) {
+    return vips_pngsave(in, filename,
+                      "compression", compression,
+                      "strip", strip,
+                      "interlace", interlace,
+                      "filter", filter,
+                      "palette", palette,
+                      "Q", quality,
+                      "dither", dither,
+                      "bitdepth", bitdepth,
+                      NULL);
 }
 {{end}}
 {{if .HasWebpSaver}}
@@ -60,6 +92,30 @@ int vipsgen_webpsave_buffer_profile(VipsImage *in, void **buf, size_t *len, int 
                               "profile", profile,
                               NULL);
 }
+
+int vipsgen_webpsave_file(VipsImage *in, const char *filename, int quality, int strip,
+                       int lossless, int near_lossless, int reduction_effort) {
+    return vips_webpsave(in, filename,
+                       "Q", quality,
+                       "strip", strip,
+                       "lossless", lossless,
+                       "near_lossless", near_lossless,
+                       "reduction_effort", reduction_effort,
+                       NULL);
+}
+
+int vipsgen_webpsave_file_profile(VipsImage *in, const char *filename, int quality, int strip,
+                               int lossless, int near_lossless, int reduction_effort,
+                               const char* profile) {
+    return vips_webpsave(in, filename,
+                       "Q", quality,
+                       "strip", strip,
+                       "lossless", lossless,
+                       "near_lossless", near_lossless,
+                       "reduction_effort", reduction_effort,
+                       "profile", profile,
+                       NULL);
+}
 {{end}}
 {{if .HasHeifSaver}}
 int vipsgen_heifsave_buffer(VipsImage *in, void **buf, size_t *len, int quality, int lossless) {
@@ -67,6 +123,13 @@ int vipsgen_heifsave_buffer(VipsImage *in, void **buf, size_t *len, int quality,
                               "Q", quality,
                               "lossless", lossless,
                               NULL);
+}
+
+int vipsgen_heifsave_file(VipsImage *in, const char *filename, int quality, int lossless) {
+    return vips_heifsave(in, filename,
+                       "Q", quality,
+                       "lossless", lossless,
+                       NULL);
 }
 {{end}}
 {{if .HasTiffSaver}}
@@ -86,6 +149,23 @@ int vipsgen_tiffsave_buffer(VipsImage *in, void **buf, size_t *len, int quality,
                               "yres", yres,
                               NULL);
 }
+
+int vipsgen_tiffsave_file(VipsImage *in, const char *filename, int quality, int strip,
+                       int compression, int predictor, int pyramid, int tile,
+                       int tile_width, int tile_height, double xres, double yres) {
+    return vips_tiffsave(in, filename,
+                       "Q", quality,
+                       "strip", strip,
+                       "compression", compression,
+                       "predictor", predictor,
+                       "pyramid", pyramid,
+                       "tile", tile,
+                       "tile_width", tile_width,
+                       "tile_height", tile_height,
+                       "xres", xres,
+                       "yres", yres,
+                       NULL);
+}
 {{end}}
 {{if .HasCgifSaver}}
 int vipsgen_gifsave_buffer(VipsImage *in, void **buf, size_t *len, double dither, int effort, int bitdepth) {
@@ -95,6 +175,14 @@ int vipsgen_gifsave_buffer(VipsImage *in, void **buf, size_t *len, double dither
                              "bitdepth", bitdepth,
                              NULL);
 }
+
+int vipsgen_gifsave_file(VipsImage *in, const char *filename, double dither, int effort, int bitdepth) {
+    return vips_gifsave(in, filename,
+                      "dither", dither,
+                      "effort", effort,
+                      "bitdepth", bitdepth,
+                      NULL);
+}
 {{end}}
 {{if .HasLegacyGifSaver}}
 int vipsgen_magicksave_buffer(VipsImage *in, void **buf, size_t *len, const char* format, int quality) {
@@ -102,6 +190,13 @@ int vipsgen_magicksave_buffer(VipsImage *in, void **buf, size_t *len, const char
                                 "format", format,
                                 "quality", quality,
                                 NULL);
+}
+
+int vipsgen_magicksave_file(VipsImage *in, const char *filename, const char* format, int quality) {
+    return vips_magicksave(in, filename,
+                         "format", format,
+                         "quality", quality,
+                         NULL);
 }
 {{end}}
 {{if .HasAvifSaver}}
@@ -115,6 +210,17 @@ int vipsgen_avifsave_buffer(VipsImage *in, void **buf, size_t *len, int quality,
                               "strip", strip,
                               NULL);
 }
+
+int vipsgen_avifsave_file(VipsImage *in, const char *filename, int quality, int lossless,
+                       int speed, int strip) {
+    return vips_heifsave(in, filename,
+                       "compression", VIPS_FOREIGN_HEIF_COMPRESSION_AV1,
+                       "Q", quality,
+                       "lossless", lossless,
+                       "effort", 9 - speed,
+                       "strip", strip,
+                       NULL);
+}
 {{end}}
 {{if .HasJp2kSaver}}
 int vipsgen_jp2ksave_buffer(VipsImage *in, void **buf, size_t *len, int quality, int lossless,
@@ -126,5 +232,16 @@ int vipsgen_jp2ksave_buffer(VipsImage *in, void **buf, size_t *len, int quality,
                               "tile_height", tile_height,
                               "subsample_mode", subsample_mode,
                               NULL);
+}
+
+int vipsgen_jp2ksave_file(VipsImage *in, const char *filename, int quality, int lossless,
+                       int tile_width, int tile_height, int subsample_mode) {
+    return vips_jp2ksave(in, filename,
+                       "Q", quality,
+                       "lossless", lossless,
+                       "tile_width", tile_width,
+                       "tile_height", tile_height,
+                       "subsample_mode", subsample_mode,
+                       NULL);
 }
 {{end}}

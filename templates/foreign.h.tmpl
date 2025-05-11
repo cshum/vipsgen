@@ -6,9 +6,9 @@
 
 #include <vips/vips.h>
 #include <vips/foreign.h>
-// clang-format n
+// clang-format on
 
-// Function declarations for save buffer wrapper functions
+// Function declarations for save buffer and file wrapper functions
 // These will only be defined in the C file if the corresponding saver is available
 
 {{if .HasJpegSaver}}
@@ -16,12 +16,21 @@ int vipsgen_jpegsave_buffer(VipsImage *in, void **buf, size_t *len, int quality,
                          int optimize_coding, int interlace, int subsample_mode,
                          int trellis_quant, int overshoot_deringing,
                          int optimize_scans, int quant_table);
+
+int vipsgen_jpegsave_file(VipsImage *in, const char *filename, int quality, int strip,
+                       int optimize_coding, int interlace, int subsample_mode,
+                       int trellis_quant, int overshoot_deringing,
+                       int optimize_scans, int quant_table);
 {{end}}
 
 {{if .HasPngSaver}}
 int vipsgen_pngsave_buffer(VipsImage *in, void **buf, size_t *len, int compression, int strip,
                         int interlace, int filter, int palette, int quality,
                         double dither, int bitdepth);
+
+int vipsgen_pngsave_file(VipsImage *in, const char *filename, int compression, int strip,
+                      int interlace, int filter, int palette, int quality,
+                      double dither, int bitdepth);
 {{end}}
 
 {{if .HasWebpSaver}}
@@ -31,43 +40,55 @@ int vipsgen_webpsave_buffer(VipsImage *in, void **buf, size_t *len, int quality,
 int vipsgen_webpsave_buffer_profile(VipsImage *in, void **buf, size_t *len, int quality, int strip,
                                  int lossless, int near_lossless, int reduction_effort,
                                  const char* profile);
+
+int vipsgen_webpsave_file(VipsImage *in, const char *filename, int quality, int strip,
+                       int lossless, int near_lossless, int reduction_effort);
+
+int vipsgen_webpsave_file_profile(VipsImage *in, const char *filename, int quality, int strip,
+                               int lossless, int near_lossless, int reduction_effort,
+                               const char* profile);
 {{end}}
 
 {{if .HasHeifSaver}}
 int vipsgen_heifsave_buffer(VipsImage *in, void **buf, size_t *len, int quality, int lossless);
+
+int vipsgen_heifsave_file(VipsImage *in, const char *filename, int quality, int lossless);
 {{end}}
 
 {{if .HasTiffSaver}}
 int vipsgen_tiffsave_buffer(VipsImage *in, void **buf, size_t *len, int quality, int strip,
                          int compression, int predictor, int pyramid, int tile,
                          int tile_width, int tile_height, double xres, double yres);
+
+int vipsgen_tiffsave_file(VipsImage *in, const char *filename, int quality, int strip,
+                       int compression, int predictor, int pyramid, int tile,
+                       int tile_width, int tile_height, double xres, double yres);
 {{end}}
 
 {{if .HasCgifSaver}}
 int vipsgen_gifsave_buffer(VipsImage *in, void **buf, size_t *len, double dither, int effort, int bitdepth);
+
+int vipsgen_gifsave_file(VipsImage *in, const char *filename, double dither, int effort, int bitdepth);
 {{end}}
 
 {{if .HasLegacyGifSaver}}
 int vipsgen_magicksave_buffer(VipsImage *in, void **buf, size_t *len, const char* format, int quality);
+
+int vipsgen_magicksave_file(VipsImage *in, const char *filename, const char* format, int quality);
 {{end}}
 
 {{if .HasAvifSaver}}
 int vipsgen_avifsave_buffer(VipsImage *in, void **buf, size_t *len, int quality, int lossless,
                          int speed, int strip);
+
+int vipsgen_avifsave_file(VipsImage *in, const char *filename, int quality, int lossless,
+                       int speed, int strip);
 {{end}}
 
 {{if .HasJp2kSaver}}
 int vipsgen_jp2ksave_buffer(VipsImage *in, void **buf, size_t *len, int quality, int lossless,
                          int tile_width, int tile_height, int subsample_mode);
-{{end}}
 
-// Conditionally define saver support macros based on detected savers
-{{if .HasJpegSaver}}#define HAS_JPEG_SAVER 1{{else}}#define HAS_JPEG_SAVER 0{{end}}
-{{if .HasPngSaver}}#define HAS_PNG_SAVER 1{{else}}#define HAS_PNG_SAVER 0{{end}}
-{{if .HasWebpSaver}}#define HAS_WEBP_SAVER 1{{else}}#define HAS_WEBP_SAVER 0{{end}}
-{{if .HasTiffSaver}}#define HAS_TIFF_SAVER 1{{else}}#define HAS_TIFF_SAVER 0{{end}}
-{{if .HasHeifSaver}}#define HAS_HEIF_SAVER 1{{else}}#define HAS_HEIF_SAVER 0{{end}}
-{{if .HasLegacyGifSaver}}#define HAS_LEGACY_GIF_SAVER 1{{else}}#define HAS_LEGACY_GIF_SAVER 0{{end}}
-{{if .HasCgifSaver}}#define HAS_CGIF_SAVER 1{{else}}#define HAS_CGIF_SAVER 0{{end}}
-{{if .HasAvifSaver}}#define HAS_AVIF_SAVER 1{{else}}#define HAS_AVIF_SAVER 0{{end}}
-{{if .HasJp2kSaver}}#define HAS_JP2K_SAVER 1{{else}}#define HAS_JP2K_SAVER 0{{end}}
+int vipsgen_jp2ksave_file(VipsImage *in, const char *filename, int quality, int lossless,
+                       int tile_width, int tile_height, int subsample_mode);
+{{end}}
