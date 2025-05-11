@@ -78,15 +78,14 @@ func (i *LoadParams) OptionString() string {
 
 // LoadImageFromSource loads a Source and creates a new Image
 func LoadImageFromSource(s *Source, params *LoadParams) (*Image, error) {
+	StartupDefault()
 	if params == nil {
 		params = NewLoadParams()
 	}
-
 	vipsImage, format, err := vipsImageFromSource(s.src, params)
 	if err != nil {
 		return nil, err
 	}
-
 	ref := newImageRef(vipsImage, format, nil)
 	log("vips", LogLevelDebug, fmt.Sprintf("created imageRef %p", ref))
 	return ref, nil
@@ -94,16 +93,15 @@ func LoadImageFromSource(s *Source, params *LoadParams) (*Image, error) {
 
 // LoadThumbnailFromSource loads a Source and creates a new Image with thumbnail crop and resize
 func LoadThumbnailFromSource(s *Source, width, height int, crop Interesting, size Size, params *LoadParams) (*Image, error) {
+	StartupDefault()
 	if params == nil {
 		params = NewLoadParams()
 	}
-
 	vipsImage, format, err := vipsThumbnailFromSource(
 		s.src, width, height, crop, size, params)
 	if err != nil {
 		return nil, err
 	}
-
 	ref := newImageRef(vipsImage, format, nil)
 	log("vips", LogLevelDebug, fmt.Sprintf("created imageRef %p", ref))
 	return ref, nil
@@ -112,18 +110,14 @@ func LoadThumbnailFromSource(s *Source, width, height int, crop Interesting, siz
 // LoadImageFromBuffer loads an image buffer and creates a new Image
 func LoadImageFromBuffer(buf []byte, params *LoadParams) (*Image, error) {
 	StartupDefault()
-
 	if params == nil {
 		params = NewLoadParams()
 	}
-
 	vipsImage, format, err := vipsImageFromBuffer(buf, params)
 	if err != nil {
 		return nil, err
 	}
-
 	ref := newImageRef(vipsImage, format, buf)
-
 	log("vips", LogLevelDebug, fmt.Sprintf("created imageRef %p", ref))
 	return ref, nil
 }
@@ -131,14 +125,11 @@ func LoadImageFromBuffer(buf []byte, params *LoadParams) (*Image, error) {
 // LoadImageFromMemory loads a raw RGB/RGBA image buffer and creates a new Image
 func LoadImageFromMemory(buf []byte, width, height, bands int) (*Image, error) {
 	StartupDefault()
-
 	vipsImage, format, err := vipsImageFromMemory(buf, width, height, bands)
 	if err != nil {
 		return nil, err
 	}
-
 	ref := newImageRef(vipsImage, format, buf)
-
 	log("vips", LogLevelDebug, fmt.Sprintf("created imageRef %p", ref))
 	return ref, nil
 }
@@ -156,15 +147,12 @@ func newImageRef(vipsImage *C.VipsImage, format ImageType, buf []byte) *Image {
 func (r *Image) setImage(image *C.VipsImage) {
 	r.lock.Lock()
 	defer r.lock.Unlock()
-
 	if r.image == image {
 		return
 	}
-
 	if r.image != nil {
 		clearImage(r.image)
 	}
-
 	r.image = image
 	r.pageHeight = 0
 }
@@ -216,11 +204,6 @@ func (r *Image) Interpretation() Interpretation {
 	return Interpretation(int(r.image.Type))
 }
 
-// ColorSpace returns the interpretation of the current color space. Alias to Interpretation().
-func (r *Image) ColorSpace() Interpretation {
-	return r.Interpretation()
-}
-
 // Pages returns the number of pages in the Image
 // For animated images this corresponds to the number of frames
 func (r *Image) Pages() int {
@@ -249,9 +232,7 @@ func (r *Image) SetPageHeight(height int) error {
 	if err != nil {
 		return err
 	}
-
 	vipsSetPageHeight(out, height)
-
 	r.setImage(out)
 	return nil
 }
@@ -263,11 +244,6 @@ func (r *Image) SetPageDelay(delay []int) error {
 		data = append(data, C.int(d))
 	}
 	return vipsImageSetDelay(r.image, data)
-}
-
-// Exif extracts Exif key value data
-func (r *Image) Exif() map[string]any {
-	return vipsImageGetExif(r.image)
 }
 
 

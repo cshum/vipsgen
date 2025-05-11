@@ -66,12 +66,9 @@ var exifTags = map[string]bool{
 	"exif-ifd3-GPSDateStamp":            false,
 }
 
-func exifStringShort(s string) string {
-	i := strings.Index(s, " (")
-	if i > -1 {
-		return s[:i]
-	}
-	return s
+// Exif extracts Exif key value data
+func (r *Image) Exif() map[string]any {
+	return vipsImageGetExif(r.image)
 }
 
 func vipsImageGetExif(img *C.VipsImage) map[string]any {
@@ -89,4 +86,12 @@ func vipsImageGetExif(img *C.VipsImage) map[string]any {
 		}
 	}
 	return exif
+}
+
+func exifStringShort(s string) string {
+	i := strings.Index(s, " (")
+	if i > -1 {
+		return s[:i]
+	}
+	return s
 }
