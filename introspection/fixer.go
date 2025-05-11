@@ -164,4 +164,18 @@ func (v *Introspection) FixOperationTypes(op *vipsgen.Operation) {
 			}
 		}
 	}
+
+	// Fix the case operation - cases parameter should be an array of images
+	if op.Name == "case" {
+		for i, arg := range op.Arguments {
+			if arg.Name == "cases" && arg.CType == "VipsImage**" {
+				op.Arguments[i].GoType = "[]*C.VipsImage"
+				for j, inputArg := range op.RequiredInputs {
+					if inputArg.Name == "cases" {
+						op.RequiredInputs[j].GoType = "[]*C.VipsImage"
+					}
+				}
+			}
+		}
+	}
 }
