@@ -63,6 +63,91 @@ func vipsImageFromBuffer(buf []byte, params *LoadParams) (*C.VipsImage, ImageTyp
 	return out, imageType, nil
 }
 
+// https://www.libvips.org/API/current/VipsImage.html#vips-image-new-from-file
+func vipsImageFromFile(path string, params *LoadParams) (*C.VipsImage, ImageType, error) {
+	// Append options to the filename if needed
+	filenameOption := path
+	if params != nil && params.OptionString() != "" {
+		filenameOption += "[" + params.OptionString() + "]"
+	}
+
+	cPath := C.CString(filenameOption)
+	defer freeCString(cPath)
+
+	var out *C.VipsImage
+	code := C.image_new_from_file(cPath, &out)
+
+	if code != 0 {
+		return nil, ImageTypeUnknown, handleImageError(out)
+	}
+
+	imageType := vipsDetermineImageTypeFromMetaLoader(out)
+	return out, imageType, nil
+}
+
+// https://www.libvips.org/API/current/libvips-resample.html#vips-thumbnail
+func vipsThumbnailFromFile(
+	path string, width, height int, crop Interesting, size Size, params *LoadParams) (*C.VipsImage, ImageType, error) {
+
+	// Append options to the filename if needed
+	filenameOption := path
+	if params != nil && params.OptionString() != "" {
+		filenameOption += "[" + params.OptionString() + "]"
+	}
+
+	cPath := C.CString(filenameOption)
+	defer freeCString(cPath)
+
+	var out *C.VipsImage
+	code := C.thumbnail(cPath, &out, C.int(width), C.int(height), C.int(crop), C.int(size))
+
+	if code != 0 {
+		// Try to fallback to buffer-based loading if file loading fails
+		err := handleImageError(out)
+		if src, err2 := os.ReadFile(path); err2 == nil {
+			return vipsThumbnailFromBuffer(src, width, height, crop, size, params)
+		}
+		return nil, ImageTypeUnknown, err
+	}
+
+	imageType := vipsDetermineImageTypeFromMetaLoader(out)
+	return out, imageType, nil
+}
+
+// https://www.libvips.org/API/current/libvips-resample.html#vips-thumbnail-buffer
+func vipsThumbnailFromBuffer(
+	buf []byte, width, height int, crop Interesting, size Size, params *LoadParams) (*C.VipsImage, ImageType, error) {
+	src := buf
+	// Reference src here so it's not garbage collected during image initialization.
+	defer runtime.KeepAlive(src)
+
+	var out *C.VipsImage
+	var code C.int
+	var optionString string
+
+	if params != nil {
+		optionString = params.OptionString()
+	}
+
+	if optionString == "" {
+		code = C.thumbnail_buffer(unsafe.Pointer(&src[0]), C.size_t(len(src)), &out,
+			C.int(width), C.int(height), C.int(crop), C.int(size))
+	} else {
+		cOptionString := C.CString(optionString)
+		defer freeCString(cOptionString)
+
+		code = C.thumbnail_buffer_with_option(unsafe.Pointer(&src[0]), C.size_t(len(src)), &out,
+			C.int(width), C.int(height), C.int(crop), C.int(size), cOptionString)
+	}
+
+	if code != 0 {
+		return nil, ImageTypeUnknown, handleImageError(out)
+	}
+
+	imageType := vipsDetermineImageTypeFromMetaLoader(out)
+	return out, imageType, nil
+}
+
 // https://www.libvips.org/API/current/VipsImage.html#vips-image-new-from-buffer
 func vipsImageFromMemory(buf []byte, width, height, bands int) (*C.VipsImage, ImageType, error) {
 	src := buf
