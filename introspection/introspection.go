@@ -205,9 +205,7 @@ func (v *Introspection) FilterOperations(operations []vipsgen.Operation) []vipsg
 			notAvailableCount++
 			continue
 		}
-		// Exclude all save_buffer operations (handled in foreign.go)
-		if strings.Contains(op.Name, "save_") || strings.Contains(op.Name, "load_") ||
-			strings.Contains(op.Name, "_buffer") || strings.Contains(op.Name, "_source") {
+		if strings.Contains(op.Name, "_buffer") || strings.Contains(op.Name, "_source") || strings.Contains(op.Name, "_target") {
 			fmt.Printf("Excluding operation: %s \n", op.Name)
 			excludedCount++
 			continue
