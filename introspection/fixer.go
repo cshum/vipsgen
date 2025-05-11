@@ -70,11 +70,9 @@ func (v *Introspection) FixConstFunctions(op *vipsgen.Operation) {
 			if (arg.Name == "a" || arg.Name == "b" || arg.Name == "c") &&
 				strings.HasPrefix(arg.CType, "double") && !arg.IsOutput {
 				// Fix the type to be a double array
-				op.Arguments[i].CType = "double*"
 				op.Arguments[i].GoType = "[]float64"
 			} else if arg.Name == "c" && (arg.CType == "double" || arg.CType == "const double*") && !arg.IsOutput {
 				// Fix specific known cases like boolean_const, math2_const, remainder_const
-				op.Arguments[i].CType = "double*"
 				op.Arguments[i].GoType = "[]float64"
 			}
 		}
@@ -82,7 +80,6 @@ func (v *Introspection) FixConstFunctions(op *vipsgen.Operation) {
 		// Special case for specific functions
 		for i, arg := range op.Arguments {
 			if (arg.Name == "a" || arg.Name == "b" || arg.Name == "c") && !arg.IsOutput {
-				op.Arguments[i].CType = "double*"
 				op.Arguments[i].GoType = "[]float64"
 			}
 		}
@@ -118,6 +115,30 @@ func (v *Introspection) FixOperationTypes(op *vipsgen.Operation) {
 						op.Arguments[j].GoType = "[]float64"
 					}
 				}
+			}
+		}
+	}
+
+	// Find ink parameter and check if paired with n parameter
+	inkParam := -1
+	nParam := -1
+
+	for i, arg := range op.Arguments {
+		if arg.Name == "ink" {
+			inkParam = i
+		}
+		if arg.Name == "n" {
+			nParam = i
+		}
+	}
+	// If both found, modify the ink parameter to be an array
+	if inkParam >= 0 && nParam >= 0 && op.Arguments[inkParam].GoType == "float64" {
+		op.Arguments[inkParam].GoType = "[]float64"
+
+		// Also update in RequiredInputs if present
+		for i, arg := range op.RequiredInputs {
+			if arg.Name == "ink" {
+				op.RequiredInputs[i].GoType = "[]float64"
 			}
 		}
 	}
