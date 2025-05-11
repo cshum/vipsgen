@@ -259,6 +259,20 @@ func FormatArrayConversions(args []Argument) string {
 						"    c%s := unsafe.Pointer(&c%s_ptrs[0])",
 					arg.GoName, arg.GoName, arg.GoName, arg.GoName,
 					arg.GoName, arg.GoName, arg.GoName, arg.GoName))
+			} else if arg.GoType == "[]BlendMode" {
+				// Special handling for BlendMode arrays
+				conversions = append(conversions, fmt.Sprintf(
+					"// Convert []BlendMode to C array for %s\n"+
+						"    c%s_arr := make([]C.int, len(%s))\n"+
+						"    for i, v := range %s {\n"+
+						"        c%s_arr[i] = C.int(v)\n"+
+						"    }\n"+
+						"    var c%s unsafe.Pointer\n"+
+						"    if len(%s) > 0 {\n"+
+						"        c%s = unsafe.Pointer(&c%s_arr[0])\n"+
+						"    }",
+					arg.GoName, arg.GoName, arg.GoName, arg.GoName,
+					arg.GoName, arg.GoName, arg.GoName, arg.GoName, arg.GoName))
 			} else if arg.GoType == "[]float64" || arg.GoType == "[]float32" {
 				// Special handling for float arrays - common in libvips const functions
 				conversions = append(conversions, fmt.Sprintf(
@@ -268,7 +282,17 @@ func FormatArrayConversions(args []Argument) string {
 						"        c%s = unsafe.Pointer(&%s[0])\n"+
 						"    }",
 					arg.GoName, arg.GoName, arg.GoName, arg.GoName, arg.GoName))
+			} else if arg.GoType == "[]int" {
+				// Standard int arrays
+				conversions = append(conversions, fmt.Sprintf(
+					"// Convert []int to C array for %s\n"+
+						"    var c%s unsafe.Pointer\n"+
+						"    if len(%s) > 0 {\n"+
+						"        c%s = unsafe.Pointer(&%s[0])\n"+
+						"    }",
+					arg.GoName, arg.GoName, arg.GoName, arg.GoName, arg.GoName))
 			} else {
+				// Generic array handling
 				conversions = append(conversions, fmt.Sprintf(
 					"// Convert slice to C array for %s\n"+
 						"    var c%s unsafe.Pointer\n"+
@@ -307,7 +331,7 @@ func FormatFunctionCallArgs(args []Argument) string {
 				}
 			}
 		} else {
-			// Handle input parameters (as before)
+			// Handle input parameters
 			if arg.GoType == "string" {
 				argStr = "c" + arg.GoName
 			} else if arg.GoType == "bool" {
@@ -319,8 +343,11 @@ func FormatFunctionCallArgs(args []Argument) string {
 				if arg.GoType == "[]*C.VipsImage" {
 					// Use the appropriate casting for VipsImage arrays
 					argStr = "(**C.VipsImage)(c" + arg.GoName + ")"
-				} else if arg.GoType == "[]int" || arg.GoType == "[]BlendMode" {
+				} else if arg.GoType == "[]int" {
 					// Use the appropriate casting for int arrays
+					argStr = "(*C.int)(c" + arg.GoName + ")"
+				} else if arg.GoType == "[]BlendMode" {
+					// Special handling for BlendMode arrays
 					argStr = "(*C.int)(c" + arg.GoName + ")"
 				} else if arg.GoType == "[]float64" {
 					// Use the appropriate casting for float arrays

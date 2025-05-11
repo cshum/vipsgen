@@ -142,4 +142,26 @@ func (v *Introspection) FixOperationTypes(op *vipsgen.Operation) {
 			}
 		}
 	}
+
+	// Fix the mode parameter
+	if strings.Contains(op.Name, "composite") {
+		// Fix the mode parameter - should be an array of BlendMode
+		for i, arg := range op.Arguments {
+			if arg.Name == "mode" && arg.CType == "int*" && arg.GoType == "int" {
+				// Update to array of BlendMode
+				op.Arguments[i].GoType = "[]BlendMode"
+				op.Arguments[i].IsEnum = true
+				op.Arguments[i].EnumType = "BlendMode"
+
+				// Also update in RequiredInputs if present
+				for j, inputArg := range op.RequiredInputs {
+					if inputArg.Name == "mode" {
+						op.RequiredInputs[j].GoType = "[]BlendMode"
+						op.RequiredInputs[j].IsEnum = true
+						op.RequiredInputs[j].EnumType = "BlendMode"
+					}
+				}
+			}
+		}
+	}
 }
