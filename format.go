@@ -816,6 +816,53 @@ func FormatImageMethodReturnTypes(op Operation) string {
 	}
 }
 
+// FormatCreatorMethodParams formats the parameters for a creator method
+func FormatCreatorMethodParams(op Operation) string {
+	inputParams := op.RequiredInputs
+
+	var params []string
+	for _, arg := range inputParams {
+		var paramType string
+		if arg.GoType == "*C.VipsImage" {
+			paramType = "*Image"
+		} else if arg.GoType == "[]*C.VipsImage" {
+			paramType = "[]*Image"
+		} else {
+			paramType = arg.GoType
+		}
+
+		params = append(params, fmt.Sprintf("%s %s", arg.GoName, paramType))
+	}
+
+	return strings.Join(params, ", ")
+}
+
+// FormatCreatorMethodBody formats the body of a creator method
+func FormatCreatorMethodBody(op Operation) string {
+	inputParams := op.RequiredInputs
+
+	// Format the arguments for the function call
+	var callArgs []string
+	for _, arg := range inputParams {
+		if arg.GoType == "*C.VipsImage" {
+			callArgs = append(callArgs, fmt.Sprintf("%s.image", arg.GoName))
+		} else if arg.GoType == "[]*C.VipsImage" {
+			callArgs = append(callArgs, fmt.Sprintf("convertImagesToVipsImages(%s)", arg.GoName))
+		} else {
+			callArgs = append(callArgs, arg.GoName)
+		}
+	}
+
+	return fmt.Sprintf(`StartupDefault()
+    vipsImage, err := %s(%s)
+    if err != nil {
+        return nil, err
+    }
+    return newImageRef(vipsImage, ImageTypeUnknown, nil), nil`,
+		op.GoName,
+		strings.Join(callArgs, ", "))
+}
+
 // Helper function to check if an operation returns a vector
 func hasVectorReturn(op Operation) bool {
 	hasVector := false

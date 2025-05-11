@@ -287,23 +287,16 @@ func (r *Image) SetPageDelay(delay []int) error {
 }
 
 
-{{range .Operations}}{{if and (or (not .HasImageInput) (hasArrayImageInput .Arguments)) .HasImageOutput}}
+{{range .Operations}}{{if and (or (not .HasImageInput) .HasArrayImageInput) .HasImageOutput}}
 // NewImage{{imageMethodName .GoName}} {{.Description}}
 // {{generateDocUrl .Name .Category}}
-func NewImage{{imageMethodName .GoName}}({{$inputParams := .RequiredInputs}}{{range $i, $arg := $inputParams}}{{if $i}}, {{end}}{{if eq $arg.GoType "*C.VipsImage"}}{{$arg.GoName}} *Image{{else if eq $arg.GoType "[]*C.VipsImage"}}{{$arg.GoName}} []*Image{{else}}{{$arg.GoName}} {{$arg.GoType}}{{end}}{{end}}) (*Image, error) {
-    StartupDefault()
-
-    vipsImage, err := {{.GoName}}({{range $i, $arg := $inputParams}}{{if $i}}, {{end}}{{if eq $arg.GoType "*C.VipsImage"}}{{$arg.GoName}}.image{{else if eq $arg.GoType "[]*C.VipsImage"}}convertImagesToVipsImages({{$arg.GoName}}){{else}}{{$arg.GoName}}{{end}}{{end}})
-
-    if err != nil {
-        return nil, err
-    }
-    return newImageRef(vipsImage, ImageTypeUnknown, nil), nil
+func NewImage{{imageMethodName .GoName}}({{formatCreatorMethodParams .}}) (*Image, error) {
+    {{formatCreatorMethodBody .}}
 }
 {{end}}{{end}}
 
 
-{{range .Operations}}{{if and .HasImageInput (not (hasArrayImageInput .Arguments))}}
+{{range .Operations}}{{if and .HasImageInput (not .HasArrayImageInput)}}
 // {{.GoName | imageMethodName}} {{.Description}}
 // {{generateDocUrl .Name .Category}}
 func (r *Image) {{.GoName | imageMethodName}}({{formatImageMethodParams .}}) ({{formatImageMethodReturnTypes .}}) {
