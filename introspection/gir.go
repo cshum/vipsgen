@@ -526,26 +526,53 @@ func determineFlags(isOutput bool, isRequired bool) int {
 	}
 }
 
-// Extract a concise description from the documentation
+// extractDescription extracts a concise description from the documentation
+// ignoring optional arguments sections but including the description after it
 func extractDescription(doc string) string {
 	if doc == "" {
 		return ""
 	}
-
-	// Split into lines and find the first non-empty line
 	lines := strings.Split(doc, "\n")
+	inOptionalArgs := false
+	var descLines []string
+
 	for _, line := range lines {
-		line = strings.TrimSpace(line)
-		if line != "" && !strings.HasPrefix(line, "Optional arguments:") &&
-			!strings.HasPrefix(line, "*") && !strings.HasPrefix(line, "See also:") {
-			// Return the first meaningful line as the description
-			// Some descriptions can be quite long, so consider truncating
-			if len(line) > 100 {
-				return line[:97] + "..."
+		trimmedLine := strings.TrimSpace(line)
+		if trimmedLine == "" {
+			continue
+		}
+		// Check for the start of optional arguments section
+		if trimmedLine == "Optional arguments:" {
+			inOptionalArgs = true
+			continue
+		}
+		// Skip bullet points in optional arguments
+		if inOptionalArgs && (strings.HasPrefix(trimmedLine, "*") || strings.HasPrefix(trimmedLine, "- ")) {
+			continue
+		}
+		// If we were in optional args and now we aren't, we're past that section
+		if inOptionalArgs && !strings.HasPrefix(trimmedLine, "*") && !strings.HasPrefix(trimmedLine, "- ") {
+			inOptionalArgs = false
+		}
+		// If we're not in the optional args section, collect meaningful lines
+		// But exclude "See also:" and everything after it
+		if !inOptionalArgs {
+			if strings.HasPrefix(trimmedLine, "See also:") {
+				// Stop collecting when we hit "See also:"
+				break
 			}
-			return line
+			// Add line to our description collection
+			descLines = append(descLines, trimmedLine)
 		}
 	}
-
-	return ""
+	var overflow bool
+	if len(descLines) > 10 {
+		descLines = descLines[:10]
+		overflow = true
+	}
+	description := strings.Join(descLines, "\n// ")
+	if overflow {
+		description += "..."
+	}
+	return description
 }
