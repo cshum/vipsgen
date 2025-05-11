@@ -710,16 +710,18 @@ func FormatImageMethodBody(op Operation) string {
 // DetectMethodArguments analyzes an operation's arguments to determine which should be included in the method signature
 func DetectMethodArguments(op Operation) []Argument {
 	var methodArgs []Argument
+	var firstImageFound bool = false
 
-	// Get all arguments except the main input image and output parameters
+	// Get all arguments except the first image input and output parameters
 	for _, arg := range op.Arguments {
 		// Skip output parameters
 		if arg.IsOutput {
 			continue
 		}
 
-		// Skip the main input image
-		if arg.Name == "in" {
+		// Skip the first image input parameter (which will be the receiver)
+		if (arg.Type == "VipsImage" || arg.CType == "VipsImage*") && !firstImageFound {
+			firstImageFound = true
 			continue
 		}
 

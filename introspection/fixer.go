@@ -5,20 +5,28 @@ import (
 	"strings"
 )
 
+// UpdateImageInputOutputFlags examines operation arguments and sets proper flags
 func (v *Introspection) UpdateImageInputOutputFlags(op *vipsgen.Operation) {
 	op.HasImageInput = false
 	op.HasImageOutput = false
+	op.HasArrayImageInput = false // Add this flag
 
 	// Check each argument to see if this operation takes/returns an image
 	for _, arg := range op.Arguments {
-		// Check for "in" parameter with VipsImage* type
-		if arg.Name == "in" && (arg.Type == "VipsImage" || arg.CType == "VipsImage*") && !arg.IsOutput {
+		// Check for any input parameter with VipsImage* type
+		if (arg.Type == "VipsImage" || arg.CType == "VipsImage*") && !arg.IsOutput {
 			op.HasImageInput = true
 		}
 
 		// Check for "out" parameter with VipsImage* type
 		if arg.Name == "out" && (arg.Type == "VipsImage" || arg.CType == "VipsImage**") && arg.IsOutput {
 			op.HasImageOutput = true
+		}
+
+		// Check for array image inputs
+		if strings.HasPrefix(arg.GoType, "[]*C.VipsImage") ||
+			(strings.Contains(arg.CType, "VipsImage**") && !arg.IsOutput && arg.Name != "out") {
+			op.HasArrayImageInput = true
 		}
 	}
 }

@@ -17,9 +17,15 @@ func ImageMethodName(name string) string {
 	return name
 }
 
+// HasArrayImageInput checks if any of the arguments are array image inputs
 func HasArrayImageInput(args []Argument) bool {
 	for _, arg := range args {
-		if arg.Name == "in" && strings.HasPrefix(arg.GoType, "[]*C.VipsImage") {
+		// Look for array of VipsImage pointers
+		if strings.HasPrefix(arg.GoType, "[]*C.VipsImage") {
+			return true
+		}
+		// Also check the C type, which might indicate an array
+		if strings.Contains(arg.CType, "VipsImage**") && !arg.IsOutput {
 			return true
 		}
 	}

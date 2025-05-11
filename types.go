@@ -19,17 +19,18 @@ type TemplateLoader interface {
 
 // Operation represents a libvips operation
 type Operation struct {
-	Name           string
-	GoName         string
-	Description    string
-	Flags          int
-	Arguments      []Argument
-	RequiredInputs []Argument
-	OptionalInputs []Argument
-	Outputs        []Argument
-	HasImageInput  bool // Does this operation take a VipsImage as input?
-	HasImageOutput bool
-	Category       string // arithmetic, conversion, etc
+	Name               string
+	GoName             string
+	Description        string
+	Flags              int
+	Arguments          []Argument
+	RequiredInputs     []Argument
+	OptionalInputs     []Argument
+	Outputs            []Argument
+	HasImageInput      bool
+	HasImageOutput     bool
+	HasArrayImageInput bool
+	Category           string // arithmetic, conversion, etc
 }
 
 // Argument represents an argument to a libvips operation
