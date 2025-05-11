@@ -5,16 +5,8 @@ package vips
 // #include "foreign.h"
 import "C"
 import (
-	"fmt"
-	"strings"
 	"unsafe"
 )
-
-// ImageSaverSupport indicates which image savers are supported in this libvips build
-var ImageSaverSupport = map[ImageType]bool{
-	{{range .SupportedSavers}}{{.EnumName}}: true,
-	{{end}}
-}
 
 {{if .HasJpegSaver}}
 // JpegSaveParams are options when exporting a JPEG to file or buffer
@@ -305,32 +297,22 @@ func (r *Image) GifSaveBuffer(params *GifSaveParams) ([]byte, error) {
 		C.int(params.Effort),
 		C.int(params.Bitdepth),
 	)
-	{{end}}
-
-	{{if and .HasCgifSaver .HasLegacyGifSaver}}
+	{{end}}{{if and .HasCgifSaver .HasLegacyGifSaver}}
 	// If error, try magick-based GIF
 	if err != 0 {
-		errorMsg := C.GoString(C.vips_error_buffer())
 		C.vips_error_clear()
 
-		// If the error is about the operator not existing, try magick
-		if strings.Contains(errorMsg, "no such operator") {
-			// Format is GIF for magicksave
-			gifFormat := C.CString("GIF")
-			defer C.free(unsafe.Pointer(gifFormat))
+        gifFormat := C.CString("GIF")
+        defer C.free(unsafe.Pointer(gifFormat))
 
-			err = C.vipsgen_magicksave_buffer(
-                r.image, &buf, &length,
-				gifFormat,
-				C.int(params.Quality),
-			)
-
-			if err != 0 {
-				return nil, handleVipsError()
-			}
-		} else {
-			return nil, fmt.Errorf("error saving GIF: %s", errorMsg)
-		}
+        err = C.vipsgen_magicksave_buffer(
+            r.image, &buf, &length,
+            gifFormat,
+            C.int(params.Quality),
+        )
+        if err != 0 {
+            return nil, handleVipsError()
+        }
 	}
 	{{else if .HasLegacyGifSaver}}
 	// Use magick-based GIF
@@ -376,7 +358,6 @@ func (r *Image) AvifSaveBuffer(params *AvifSaveParams) ([]byte, error) {
     var buf unsafe.Pointer
     var length C.size_t
 
-	// Call vipsgen_avifsave_buffer
 	err := C.vipsgen_avifsave_buffer(
         r.image, &buf, &length,
 		C.int(params.Quality),
@@ -419,7 +400,6 @@ func (r *Image) Jp2kSaveBuffer(params *Jp2kSaveParams) ([]byte, error) {
     var buf unsafe.Pointer
     var length C.size_t
 
-	// Call vipsgen_jp2ksave_buffer
 	err := C.vipsgen_jp2ksave_buffer(
         r.image, &buf, &length,
 		C.int(params.Quality),
