@@ -76,9 +76,9 @@ func (i *LoadParams) OptionString() string {
 	return strings.Join(values, ",")
 }
 
-// LoadImageFromSource loads a Source and creates a new Image
+// NewImageFromSource loads a Source and creates a new Image
 // https://www.libvips.org/API/current/VipsImage.html#vips-image-new-from-source
-func LoadImageFromSource(s *Source, params *LoadParams) (*Image, error) {
+func NewImageFromSource(s *Source, params *LoadParams) (*Image, error) {
 	StartupDefault()
 	if params == nil {
 		params = NewLoadParams()
@@ -90,9 +90,9 @@ func LoadImageFromSource(s *Source, params *LoadParams) (*Image, error) {
 	return newImageRef(vipsImage, format, nil), nil
 }
 
-// LoadThumbnailFromSource loads a Source and creates a new Image with thumbnail crop and resize
+// NewThumbnailFromSource loads a Source and creates a new Image with thumbnail crop and resize
 // https://www.libvips.org/API/current/libvips-resample.html#vips-thumbnail-source
-func LoadThumbnailFromSource(s *Source, width, height int, crop Interesting, size Size, params *LoadParams) (*Image, error) {
+func NewThumbnailFromSource(s *Source, width, height int, crop Interesting, size Size, params *LoadParams) (*Image, error) {
 	StartupDefault()
 	if params == nil {
 		params = NewLoadParams()
@@ -105,9 +105,9 @@ func LoadThumbnailFromSource(s *Source, width, height int, crop Interesting, siz
 	return newImageRef(vipsImage, format, nil), nil
 }
 
-// LoadImageFromBuffer loads an image buffer and creates a new Image
+// NewImageFromBuffer loads an image buffer and creates a new Image
 // https://www.libvips.org/API/current/VipsImage.html#vips-image-new-from-buffer
-func LoadImageFromBuffer(buf []byte, params *LoadParams) (*Image, error) {
+func NewImageFromBuffer(buf []byte, params *LoadParams) (*Image, error) {
 	StartupDefault()
 	if params == nil {
 		params = NewLoadParams()
@@ -119,10 +119,9 @@ func LoadImageFromBuffer(buf []byte, params *LoadParams) (*Image, error) {
 	return newImageRef(vipsImage, format, buf), nil
 }
 
-
-// LoadImageFromFile loads an image from file and creates a new Image
+// NewImageFromFile loads an image from file and creates a new Image
 // https://www.libvips.org/API/current/VipsImage.html#vips-image-new-from-file
-func LoadImageFromFile(file string, params *LoadParams) (*Image, error) {
+func NewImageFromFile(file string, params *LoadParams) (*Image, error) {
 	StartupDefault()
 	if params == nil {
 		params = NewLoadParams()
@@ -134,9 +133,9 @@ func LoadImageFromFile(file string, params *LoadParams) (*Image, error) {
 	return newImageRef(vipsImage, format, nil), nil
 }
 
-// LoadThumbnailFromFile loads a thumbnail from file with crop and resize
+// NewThumbnailFromFile loads a thumbnail from file with crop and resize
 // https://www.libvips.org/API/current/libvips-resample.html#vips-thumbnail
-func LoadThumbnailFromFile(file string, width, height int, crop Interesting, size Size, params *LoadParams) (*Image, error) {
+func NewThumbnailFromFile(file string, width, height int, crop Interesting, size Size, params *LoadParams) (*Image, error) {
 	StartupDefault()
 	if params == nil {
 		params = NewLoadParams()
@@ -148,9 +147,9 @@ func LoadThumbnailFromFile(file string, width, height int, crop Interesting, siz
 	return newImageRef(vipsImage, format, nil), nil
 }
 
-// LoadThumbnailFromBuffer loads a thumbnail from buffer with crop and resize
+// NewThumbnailFromBuffer loads a thumbnail from buffer with crop and resize
 // https://www.libvips.org/API/current/libvips-resample.html#vips-thumbnail-buffer
-func LoadThumbnailFromBuffer(buf []byte, width, height int, crop Interesting, size Size, params *LoadParams) (*Image, error) {
+func NewThumbnailFromBuffer(buf []byte, width, height int, crop Interesting, size Size, params *LoadParams) (*Image, error) {
 	StartupDefault()
 	if params == nil {
 		params = NewLoadParams()
@@ -162,9 +161,9 @@ func LoadThumbnailFromBuffer(buf []byte, width, height int, crop Interesting, si
 	return newImageRef(vipsImage, format, buf), nil
 }
 
-// LoadImageFromMemory loads a raw RGB/RGBA image buffer and creates a new Image
+// NewImageFromMemory loads a raw RGB/RGBA image buffer and creates a new Image
 // https://www.libvips.org/API/current/VipsImage.html#vips-image-new-from-memory
-func LoadImageFromMemory(buf []byte, width, height, bands int) (*Image, error) {
+func NewImageFromMemory(buf []byte, width, height, bands int) (*Image, error) {
 	StartupDefault()
 	vipsImage, format, err := vipsImageFromMemory(buf, width, height, bands)
 	if err != nil {
