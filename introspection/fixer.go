@@ -88,3 +88,37 @@ func (v *Introspection) FixConstFunctions(op *vipsgen.Operation) {
 		}
 	}
 }
+
+// FixOperationTypes examines operations and adjusts their types based on patterns
+func (v *Introspection) FixOperationTypes(op *vipsgen.Operation) {
+	// Pattern detection: Vector return operations
+	// If function has output param named "vector" paired with output param "n", it's returning an array
+	hasVectorParam := false
+	hasNParam := false
+
+	for _, arg := range op.Outputs {
+		if arg.Name == "vector" {
+			hasVectorParam = true
+		}
+		if arg.Name == "n" {
+			hasNParam = true
+		}
+	}
+
+	// If we have both vector and n params, this is a vector return function
+	if hasVectorParam && hasNParam {
+		for i, arg := range op.Outputs {
+			if arg.Name == "vector" {
+				// Update the type to be a slice
+				op.Outputs[i].GoType = "[]float64"
+
+				// Also update in Arguments if present
+				for j, mainArg := range op.Arguments {
+					if mainArg.Name == "vector" {
+						op.Arguments[j].GoType = "[]float64"
+					}
+				}
+			}
+		}
+	}
+}

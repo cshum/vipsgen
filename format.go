@@ -152,7 +152,11 @@ func FormatErrorReturn(hasImageOutput bool, outputs []Argument) string {
 	} else if len(outputs) > 0 {
 		var returnValues []string
 		for _, arg := range outputs {
-			returnValues = append(returnValues, FormatDefaultValue(arg.GoType))
+			if arg.Name == "vector" || arg.Name == "out_array" {
+				returnValues = append(returnValues, "nil")
+			} else {
+				returnValues = append(returnValues, FormatDefaultValue(arg.GoType))
+			}
 		}
 		return "return " + strings.Join(returnValues, ", ") + ", handleVipsError()"
 	} else {
@@ -180,7 +184,12 @@ func FormatReturnTypes(op Operation) string {
 	} else if len(op.Outputs) > 0 {
 		var types []string
 		for _, arg := range op.Outputs {
-			types = append(types, arg.GoType)
+			// Special handling for vector/array return types
+			if arg.Name == "vector" || arg.Name == "out_array" {
+				types = append(types, "[]float64")
+			} else {
+				types = append(types, arg.GoType)
+			}
 		}
 		types = append(types, "error")
 		return strings.Join(types, ", ")
@@ -197,18 +206,24 @@ func FormatVarDeclarations(op Operation) string {
 		decls = append(decls, "var out *C.VipsImage")
 	} else {
 		for _, arg := range op.Outputs {
-			decls = append(decls, fmt.Sprintf("var %s %s", arg.GoName, arg.GoType))
+			// Special handling for vector/array outputs
+			if arg.Name == "vector" || arg.Name == "out_array" {
+				decls = append(decls, "var out *C.double")
+				decls = append(decls, "defer gFreePointer(unsafe.Pointer(out))")
+			} else {
+				decls = append(decls, fmt.Sprintf("var %s %s", arg.GoName, arg.GoType))
 
-			// Add C type conversion if needed (for non-VipsImage outputs)
-			if arg.GoType == "float64" {
-				decls = append(decls, fmt.Sprintf("c%s := (*C.double)(unsafe.Pointer(&%s))",
-					arg.GoName, arg.GoName))
-			} else if arg.GoType == "int" {
-				decls = append(decls, fmt.Sprintf("c%s := (*C.int)(unsafe.Pointer(&%s))",
-					arg.GoName, arg.GoName))
-			} else if arg.GoType == "bool" {
-				decls = append(decls, fmt.Sprintf("c%s := (*C.int)(unsafe.Pointer(&%s))",
-					arg.GoName, arg.GoName))
+				// Add C type conversion if needed (for non-VipsImage outputs)
+				if arg.GoType == "float64" {
+					decls = append(decls, fmt.Sprintf("c%s := (*C.double)(unsafe.Pointer(&%s))",
+						arg.GoName, arg.GoName))
+				} else if arg.GoType == "int" {
+					decls = append(decls, fmt.Sprintf("c%s := (*C.int)(unsafe.Pointer(&%s))",
+						arg.GoName, arg.GoName))
+				} else if arg.GoType == "bool" {
+					decls = append(decls, fmt.Sprintf("c%s := (*C.int)(unsafe.Pointer(&%s))",
+						arg.GoName, arg.GoName))
+				}
 			}
 		}
 	}
@@ -280,6 +295,9 @@ func FormatFunctionCallArgs(args []Argument) string {
 					// Non-image output parameters should use c-prefixed variables
 					argStr = "c" + arg.GoName
 				}
+			} else if arg.Name == "vector" || arg.Name == "out_array" {
+				// Vector return value needs a double pointer
+				argStr = "&out"
 			} else {
 				// Non-out named output parameters
 				if arg.GoType == "float64" || arg.GoType == "int" || arg.GoType == "bool" {
@@ -332,9 +350,25 @@ func FormatReturnValues(op Operation) string {
 		return "return out, nil"
 	} else if len(op.Outputs) > 0 {
 		var values []string
+
 		for _, arg := range op.Outputs {
-			values = append(values, arg.GoName)
+			// Special handling for vector outputs like getpoint
+			if arg.Name == "vector" || arg.Name == "out_array" {
+				// Get the n parameter which should be the second output
+				nParam := "n"
+				for _, outArg := range op.Outputs {
+					if outArg.Name == "n" {
+						nParam = outArg.GoName
+						break
+					}
+				}
+				// Convert the C array to a Go slice
+				values = append(values, fmt.Sprintf("(*[1024]float64)(unsafe.Pointer(out))[:%s:%s]", nParam, nParam))
+			} else {
+				values = append(values, arg.GoName)
+			}
 		}
+
 		return "return " + strings.Join(values, ", ") + ", nil"
 	} else {
 		return "return nil"
@@ -394,7 +428,9 @@ func FormatErrorReturnValues(op Operation) string {
 	} else if len(op.Outputs) > 0 {
 		var values []string
 		for _, arg := range op.Outputs {
-			if strings.HasPrefix(arg.GoType, "[]") {
+			if arg.Name == "vector" || arg.Name == "out_array" {
+				values = append(values, "nil")
+			} else if strings.HasPrefix(arg.GoType, "[]") {
 				values = append(values, "nil")
 			} else if arg.GoType == "bool" {
 				values = append(values, "false")
@@ -419,12 +455,119 @@ func FormatSuccessReturnValues(op Operation) string {
 		return "nil"
 	} else if len(op.Outputs) > 0 {
 		var values []string
+
 		for _, arg := range op.Outputs {
-			values = append(values, arg.GoName)
+			// Special handling for vector outputs like getpoint
+			if arg.Name == "vector" || arg.Name == "out_array" {
+				// Get the n parameter which should be the second output
+				nParam := "n"
+				for _, outArg := range op.Outputs {
+					if outArg.Name == "n" {
+						nParam = outArg.GoName
+						break
+					}
+				}
+				// Convert the C array to a Go slice
+				values = append(values, fmt.Sprintf("(*[1024]float64)(unsafe.Pointer(out))[:%s:%s]", nParam, nParam))
+			} else {
+				values = append(values, arg.GoName)
+			}
 		}
 		values = append(values, "nil")
 		return strings.Join(values, ", ")
 	} else {
 		return "nil"
 	}
+}
+
+// FormatImageMethodBody formats the body of an image method based on the operation type
+func FormatImageMethodBody(op Operation) string {
+	if op.HasImageOutput {
+		return `out, err := ` + FormatFunctionCall(op) + `
+    if err != nil {
+        return err
+    }
+    r.setImage(out)
+    return nil`
+	} else if len(op.Outputs) > 0 {
+		// Check for specific operation patterns that need special handling
+		if hasVectorReturn(op) {
+			// For vector-returning operations like getpoint
+			return `vector, n, err := ` + FormatFunctionCall(op) + `
+    if err != nil {
+        return nil, 0, err
+    }
+    return vector, n, nil`
+		} else if isSingleFloatReturn(op) {
+			// For single float-returning operations like avg
+			return `out, err := ` + FormatFunctionCall(op) + `
+    if err != nil {
+        return 0, err
+    }
+    return out, nil`
+		} else {
+			// Get the names of the result variables
+			var resultVars []string
+			for _, arg := range op.Outputs {
+				resultVars = append(resultVars, arg.GoName)
+			}
+
+			// Form the function call line
+			callLine := strings.Join(resultVars, ", ") + ", err := " + FormatFunctionCall(op)
+
+			// Form the error return line
+			var errorValues []string
+			for _, arg := range op.Outputs {
+				if strings.HasPrefix(arg.GoType, "[]") {
+					errorValues = append(errorValues, "nil")
+				} else if arg.GoType == "int" {
+					errorValues = append(errorValues, "0")
+				} else if arg.GoType == "float64" {
+					errorValues = append(errorValues, "0")
+				} else if arg.GoType == "bool" {
+					errorValues = append(errorValues, "false")
+				} else if arg.GoType == "string" {
+					errorValues = append(errorValues, "\"\"")
+				} else {
+					errorValues = append(errorValues, "nil")
+				}
+			}
+			errorLine := "return " + strings.Join(errorValues, ", ") + ", err"
+
+			// Form the success return line
+			successLine := "return " + strings.Join(resultVars, ", ") + ", nil"
+
+			return callLine + `
+    if err != nil {
+        ` + errorLine + `
+    }
+    ` + successLine
+		}
+	} else {
+		return `err := ` + FormatFunctionCall(op) + `
+    if err != nil {
+        return err
+    }
+    return nil`
+	}
+}
+
+// Helper function to check if an operation returns a vector
+func hasVectorReturn(op Operation) bool {
+	hasVector := false
+	hasN := false
+	for _, arg := range op.Outputs {
+		if arg.Name == "vector" && arg.GoType == "[]float64" {
+			hasVector = true
+		}
+		if arg.Name == "n" {
+			hasN = true
+		}
+	}
+	return hasVector && hasN
+}
+
+// Helper function to check if an operation returns a single float value
+func isSingleFloatReturn(op Operation) bool {
+	return len(op.Outputs) == 1 && op.Outputs[0].GoType == "float64"
 }

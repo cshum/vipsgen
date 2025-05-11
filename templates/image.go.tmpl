@@ -321,25 +321,6 @@ func (r *Image) Exif() map[string]any {
 // {{.GoName | imageMethodName}} {{.Description}}
 // {{generateDocUrl .Name .Category}}
 func (r *Image) {{.GoName | imageMethodName}}({{$inputParams := filterInputParams .Arguments}}{{range $i, $arg := $inputParams}}{{if $i}}, {{end}}{{$arg.GoName}} {{$arg.GoType}}{{end}}) ({{if .HasImageOutput}}error{{else if .Outputs}}{{range $i, $arg := .Outputs}}{{if $i}}, {{end}}{{$arg.GoType}}{{end}}, error{{else}}error{{end}}) {
-    {{if .HasImageOutput}}
-    out, err := {{formatFunctionCall .}}
-    if err != nil {
-        return err
-    }
-    r.setImage(out)
-    return nil
-    {{else if .Outputs}}
-    {{range $i, $arg := .Outputs}}{{if $i}}, {{end}}{{$arg.GoName}}{{end}}, err := {{formatFunctionCall .}}
-    if err != nil {
-        return {{formatErrorReturnValues .}}
-    }
-    return {{formatSuccessReturnValues .}}
-    {{else}}
-    err := {{formatFunctionCall .}}
-    if err != nil {
-        return err
-    }
-    return nil
-    {{end}}
+    {{formatImageMethodBody .}}
 }
 {{end}}{{end}}

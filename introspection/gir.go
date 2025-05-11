@@ -336,9 +336,13 @@ func (v *Introspection) ConvertToVipsgenOperations() []vipsgen.Operation {
 		}
 
 		v.FixConstFunctions(&op)
+		v.FixOperationTypes(&op)
 
 		// Update image input/output flags
 		v.UpdateImageInputOutputFlags(&op)
+
+		// b, _ := json.Marshal(op)
+		// fmt.Println(string(b))
 
 		operations = append(operations, op)
 	}
