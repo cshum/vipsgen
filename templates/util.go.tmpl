@@ -297,6 +297,15 @@ func convertImagesToVipsImages(images []*Image) []*C.VipsImage {
     return vipsImages
 }
 
+// convertVipsImagesToImages converts a slice of *C.VipsImage to []*Image
+func convertVipsImagesToImages(vipsImages []*C.VipsImage) []*Image {
+    images := make([]*Image, len(vipsImages))
+    for i, vipsImg := range vipsImages {
+        images[i] = newImageRef(vipsImg, ImageTypeUnknown, nil)
+    }
+    return images
+}
+
 // Param libvips options param
 type Param struct {
 	value interface{}

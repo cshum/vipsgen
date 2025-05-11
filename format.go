@@ -6,24 +6,6 @@ import (
 	"unicode"
 )
 
-// formatNewImageName formats an operation name as a NewImageFrom function name
-func formatNewImageName(name string) string {
-	// Strip any vips or vipsgen prefix
-	if strings.HasPrefix(name, "vipsgen") {
-		name = name[7:]
-	} else if strings.HasPrefix(name, "vips") {
-		name = name[4:]
-	}
-	// Convert to title case
-	parts := strings.Split(name, "_")
-	for i, part := range parts {
-		if len(part) > 0 {
-			parts[i] = strings.ToUpper(part[0:1]) + part[1:]
-		}
-	}
-	return "NewImage" + strings.Join(parts, "")
-}
-
 // convertParam converts *C.VipsImage to *Image parameters
 func convertParamType(arg Argument) string {
 	if arg.GoType == "*C.VipsImage" {
@@ -159,18 +141,6 @@ func FormatEnumValueName(typeName, valueName string) string {
 
 	// Otherwise, prepend the type name
 	return typeName + GetGoEnumName(camelValue)
-}
-
-// FilterInputParams filters the arguments to include only those that should be input parameters for an Image method
-func FilterInputParams(args []Argument) []Argument {
-	var result []Argument
-	for _, arg := range args {
-		// Include only non-output arguments that aren't the input image or predefined output params
-		if !arg.IsOutput && arg.Name != "in" && arg.Name != "out" && arg.Name != "columns" && arg.Name != "rows" {
-			result = append(result, arg)
-		}
-	}
-	return result
 }
 
 // FormatDefaultValue returns the appropriate "zero value" for a given Go type
@@ -561,32 +531,66 @@ func FormatSuccessReturnValues(op Operation) string {
 	}
 }
 
-// FormatImageMethodBody formats the body of an image method based on the operation type
+// FormatImageMethodBody formats the body of an image method using improved argument detection
 func FormatImageMethodBody(op Operation) string {
+	methodArgs := DetectMethodArguments(op)
+
+	// Format the arguments for the function call
+	var callArgs []string
+	callArgs = append(callArgs, "r.image") // The main input image
+
+	for _, arg := range methodArgs {
+		if arg.GoType == "*C.VipsImage" {
+			callArgs = append(callArgs, fmt.Sprintf("%s.image", arg.GoName))
+		} else if arg.GoType == "[]*C.VipsImage" {
+			callArgs = append(callArgs, fmt.Sprintf("convertImagesToVipsImages(%s)", arg.GoName))
+		} else {
+			callArgs = append(callArgs, arg.GoName)
+		}
+	}
+
+	// Check if the operation has any image outputs
+	hasImageOutputs := false
+	for _, arg := range op.Outputs {
+		if arg.GoType == "*C.VipsImage" || arg.GoType == "[]*C.VipsImage" {
+			hasImageOutputs = true
+			break
+		}
+	}
+
+	// Generate different function bodies based on operation type
 	if op.HasImageOutput {
-		return `out, err := ` + FormatFunctionCall(op) + `
+		return fmt.Sprintf(`out, err := %s(%s)
     if err != nil {
         return err
     }
     r.setImage(out)
-    return nil`
+    return nil`,
+			op.GoName,
+			strings.Join(callArgs, ", "))
 	} else if len(op.Outputs) > 0 {
 		// Check for specific operation patterns that need special handling
 		if hasVectorReturn(op) {
 			// For vector-returning operations like getpoint
-			return `vector, n, err := ` + FormatFunctionCall(op) + `
+			return fmt.Sprintf(`vector, n, err := %s(%s)
     if err != nil {
         return nil, 0, err
     }
-    return vector, n, nil`
+    return vector, n, nil`,
+				op.GoName,
+				strings.Join(callArgs, ", "))
 		} else if isSingleFloatReturn(op) {
 			// For single float-returning operations like avg
-			return `out, err := ` + FormatFunctionCall(op) + `
+			return fmt.Sprintf(`out, err := %s(%s)
     if err != nil {
         return 0, err
     }
-    return out, nil`
-		} else {
+    return out, nil`,
+				op.GoName,
+				strings.Join(callArgs, ", "))
+		} else if hasImageOutputs {
+			// For operations that return images
+
 			// Get the names of the result variables
 			var resultVars []string
 			for _, arg := range op.Outputs {
@@ -594,7 +598,75 @@ func FormatImageMethodBody(op Operation) string {
 			}
 
 			// Form the function call line
-			callLine := strings.Join(resultVars, ", ") + ", err := " + FormatFunctionCall(op)
+			callLine := fmt.Sprintf("%s, err := %s(%s)",
+				strings.Join(resultVars, ", "),
+				op.GoName,
+				strings.Join(callArgs, ", "))
+
+			// Form the error return line
+			var errorValues []string
+			for _, arg := range op.Outputs {
+				if arg.GoType == "*C.VipsImage" || arg.GoType == "[]*C.VipsImage" {
+					errorValues = append(errorValues, "nil")
+				} else if strings.HasPrefix(arg.GoType, "[]") {
+					errorValues = append(errorValues, "nil")
+				} else if arg.GoType == "int" {
+					errorValues = append(errorValues, "0")
+				} else if arg.GoType == "float64" {
+					errorValues = append(errorValues, "0")
+				} else if arg.GoType == "bool" {
+					errorValues = append(errorValues, "false")
+				} else if arg.GoType == "string" {
+					errorValues = append(errorValues, "\"\"")
+				} else {
+					errorValues = append(errorValues, "nil")
+				}
+			}
+			errorLine := "return " + strings.Join(errorValues, ", ") + ", err"
+
+			// Form the conversion code for each image output
+			var conversionCode strings.Builder
+			for i, arg := range op.Outputs {
+				if arg.GoType == "*C.VipsImage" {
+					// Convert *C.VipsImage to *Image
+					conversionCode.WriteString(fmt.Sprintf(`
+    var %sImage *Image
+    if %s != nil {
+        %sImage = newImageRef(%s, ImageTypeUnknown, nil)
+    }`,
+						arg.GoName, arg.GoName, arg.GoName, arg.GoName))
+					resultVars[i] = arg.GoName + "Image"
+				} else if arg.GoType == "[]*C.VipsImage" {
+					// Convert []*C.VipsImage to []*Image
+					conversionCode.WriteString(fmt.Sprintf(`
+    %sImages := convertVipsImagesToImages(%s)`,
+						arg.GoName, arg.GoName))
+					resultVars[i] = arg.GoName + "Images"
+				}
+			}
+
+			// Form the success return line
+			successLine := "return " + strings.Join(resultVars, ", ") + ", nil"
+
+			return callLine + `
+    if err != nil {
+        ` + errorLine + `
+    }` + conversionCode.String() + `
+    ` + successLine
+		} else {
+			// Regular operation with non-image outputs
+
+			// Get the names of the result variables
+			var resultVars []string
+			for _, arg := range op.Outputs {
+				resultVars = append(resultVars, arg.GoName)
+			}
+
+			// Form the function call line
+			callLine := fmt.Sprintf("%s, err := %s(%s)",
+				strings.Join(resultVars, ", "),
+				op.GoName,
+				strings.Join(callArgs, ", "))
 
 			// Form the error return line
 			var errorValues []string
@@ -625,11 +697,120 @@ func FormatImageMethodBody(op Operation) string {
     ` + successLine
 		}
 	} else {
-		return `err := ` + FormatFunctionCall(op) + `
+		return fmt.Sprintf(`err := %s(%s)
     if err != nil {
         return err
     }
-    return nil`
+    return nil`,
+			op.GoName,
+			strings.Join(callArgs, ", "))
+	}
+}
+
+// DetectMethodArguments analyzes an operation's arguments to determine which should be included in the method signature
+func DetectMethodArguments(op Operation) []Argument {
+	var methodArgs []Argument
+
+	// Get all arguments except the main input image and output parameters
+	for _, arg := range op.Arguments {
+		// Skip output parameters
+		if arg.IsOutput {
+			continue
+		}
+
+		// Skip the main input image
+		if arg.Name == "in" {
+			continue
+		}
+
+		// Skip the output image
+		if arg.Name == "out" {
+			continue
+		}
+
+		// Include all other input parameters
+		methodArgs = append(methodArgs, arg)
+	}
+
+	return methodArgs
+}
+
+// FormatImageMethodParams formats parameters for image methods using improved detection
+func FormatImageMethodParams(op Operation) string {
+	methodArgs := DetectMethodArguments(op)
+
+	var params []string
+	for _, arg := range methodArgs {
+		// Convert parameter types for image methods
+		var paramType string
+		if arg.GoType == "*C.VipsImage" {
+			paramType = "*Image"
+		} else if arg.GoType == "[]*C.VipsImage" {
+			paramType = "[]*Image"
+		} else {
+			paramType = arg.GoType
+		}
+
+		params = append(params, fmt.Sprintf("%s %s", arg.GoName, paramType))
+	}
+	return strings.Join(params, ", ")
+}
+
+// Helper function to format call arguments with proper comma handling
+func formatCallWithArgs(args string) string {
+	if args != "" {
+		return ", " + args
+	}
+	return ""
+}
+
+// FilterInputParams correctly filters out output parameters and the input image parameter
+func FilterInputParams(args []Argument) []Argument {
+	var result []Argument
+
+	// First, check for required, non-image input parameters (these must be preserved)
+	for _, arg := range args {
+		// Include required input arguments that aren't the image ("in") or output params
+		if !arg.IsOutput && arg.Required && arg.Name != "in" && arg.Name != "out" {
+			result = append(result, arg)
+		}
+	}
+
+	// Then add optional input parameters
+	for _, arg := range args {
+		// Include optional input arguments
+		if !arg.IsOutput && !arg.Required && arg.Name != "in" && arg.Name != "out" {
+			result = append(result, arg)
+		}
+	}
+
+	return result
+}
+
+// FormatImageMethodReturnTypes formats return types for image methods
+func FormatImageMethodReturnTypes(op Operation) string {
+	if op.HasImageOutput {
+		return "error"
+	} else if len(op.Outputs) > 0 {
+		var types []string
+		for _, arg := range op.Outputs {
+			// Special handling for vector return types
+			if arg.Name == "vector" || arg.Name == "out_array" {
+				types = append(types, "[]float64")
+			} else if arg.GoType == "*C.VipsImage" {
+				// Convert VipsImage output to *Image
+				types = append(types, "*Image")
+			} else if arg.GoType == "[]*C.VipsImage" {
+				// Convert VipsImage array output to []*Image
+				types = append(types, "[]*Image")
+			} else {
+				types = append(types, arg.GoType)
+			}
+		}
+		types = append(types, "error")
+		return strings.Join(types, ", ")
+	} else {
+		return "error"
 	}
 }
 

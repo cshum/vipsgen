@@ -287,16 +287,14 @@ func (r *Image) SetPageDelay(delay []int) error {
 }
 
 
-{{range .Operations}}{{if and .HasImageOutput (or (not .HasImageInput) (hasArrayImageInput .Arguments))}}
-// {{formatNewImageName .GoName}} {{.Description}}
+{{range .Operations}}{{if and (or (not .HasImageInput) (hasArrayImageInput .Arguments)) .HasImageOutput}}
+// NewImage{{imageMethodName .GoName}} {{.Description}}
 // {{generateDocUrl .Name .Category}}
-func {{formatNewImageName .GoName}}({{formatImageFuncArgList .RequiredInputs}}) (*Image, error) {
+func NewImage{{imageMethodName .GoName}}({{$inputParams := .RequiredInputs}}{{range $i, $arg := $inputParams}}{{if $i}}, {{end}}{{if eq $arg.GoType "*C.VipsImage"}}{{$arg.GoName}} *Image{{else if eq $arg.GoType "[]*C.VipsImage"}}{{$arg.GoName}} []*Image{{else}}{{$arg.GoName}} {{$arg.GoType}}{{end}}{{end}}) (*Image, error) {
     StartupDefault()
-    {{if .RequiredInputs}}
-    vipsImage, err := {{.GoName}}({{formatImageFuncCallArgs .RequiredInputs}})
-    {{else}}
-    vipsImage, err := {{.GoName}}()
-    {{end}}
+
+    vipsImage, err := {{.GoName}}({{range $i, $arg := $inputParams}}{{if $i}}, {{end}}{{if eq $arg.GoType "*C.VipsImage"}}{{$arg.GoName}}.image{{else if eq $arg.GoType "[]*C.VipsImage"}}convertImagesToVipsImages({{$arg.GoName}}){{else}}{{$arg.GoName}}{{end}}{{end}})
+
     if err != nil {
         return nil, err
     }
@@ -308,7 +306,7 @@ func {{formatNewImageName .GoName}}({{formatImageFuncArgList .RequiredInputs}}) 
 {{range .Operations}}{{if and .HasImageInput (not (hasArrayImageInput .Arguments))}}
 // {{.GoName | imageMethodName}} {{.Description}}
 // {{generateDocUrl .Name .Category}}
-func (r *Image) {{.GoName | imageMethodName}}({{$inputParams := filterInputParams .Arguments}}{{range $i, $arg := $inputParams}}{{if $i}}, {{end}}{{$arg.GoName}} {{$arg.GoType}}{{end}}) ({{if .HasImageOutput}}error{{else if .Outputs}}{{range $i, $arg := .Outputs}}{{if $i}}, {{end}}{{$arg.GoType}}{{end}}, error{{else}}error{{end}}) {
+func (r *Image) {{.GoName | imageMethodName}}({{formatImageMethodParams .}}) ({{formatImageMethodReturnTypes .}}) {
     {{formatImageMethodBody .}}
 }
 {{end}}{{end}}
