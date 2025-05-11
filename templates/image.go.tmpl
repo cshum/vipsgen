@@ -88,7 +88,6 @@ func LoadImageFromSource(s *Source, params *LoadParams) (*Image, error) {
 		return nil, err
 	}
 	ref := newImageRef(vipsImage, format, nil)
-	log("vipsgen", LogLevelDebug, fmt.Sprintf("created imageRef %p", ref))
 	return ref, nil
 }
 
@@ -105,7 +104,6 @@ func LoadThumbnailFromSource(s *Source, width, height int, crop Interesting, siz
 		return nil, err
 	}
 	ref := newImageRef(vipsImage, format, nil)
-	log("vipsgen", LogLevelDebug, fmt.Sprintf("created imageRef %p", ref))
 	return ref, nil
 }
 
@@ -121,7 +119,6 @@ func LoadImageFromBuffer(buf []byte, params *LoadParams) (*Image, error) {
 		return nil, err
 	}
 	ref := newImageRef(vipsImage, format, buf)
-	log("vipsgen", LogLevelDebug, fmt.Sprintf("created imageRef %p", ref))
 	return ref, nil
 }
 
@@ -138,7 +135,6 @@ func LoadImageFromFile(file string, params *LoadParams) (*Image, error) {
 		return nil, err
 	}
 	ref := newImageRef(vipsImage, format, nil)
-	log("vipsgen", LogLevelDebug, fmt.Sprintf("created imageRef %p", ref))
 	return ref, nil
 }
 
@@ -154,7 +150,6 @@ func LoadThumbnailFromFile(file string, width, height int, crop Interesting, siz
 		return nil, err
 	}
 	ref := newImageRef(vipsImage, format, nil)
-	log("vipsgen", LogLevelDebug, fmt.Sprintf("created imageRef %p", ref))
 	return ref, nil
 }
 
@@ -170,7 +165,6 @@ func LoadThumbnailFromBuffer(buf []byte, width, height int, crop Interesting, si
 		return nil, err
 	}
 	ref := newImageRef(vipsImage, format, buf)
-	log("vipsgen", LogLevelDebug, fmt.Sprintf("created imageRef %p", ref))
 	return ref, nil
 }
 
@@ -183,7 +177,6 @@ func LoadImageFromMemory(buf []byte, width, height, bands int) (*Image, error) {
 		return nil, err
 	}
 	ref := newImageRef(vipsImage, format, buf)
-	log("vipsgen", LogLevelDebug, fmt.Sprintf("created imageRef %p", ref))
 	return ref, nil
 }
 
@@ -193,6 +186,7 @@ func newImageRef(vipsImage *C.VipsImage, format ImageType, buf []byte) *Image {
 		format: format,
 		buf:    buf,
 	}
+	log("vipsgen", LogLevelDebug, fmt.Sprintf("created imageRef %p", imageRef))
 	return imageRef
 }
 
