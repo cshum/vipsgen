@@ -3,6 +3,16 @@
 #include "vips.h"
 #include <unistd.h>
 
+{{range .Operations}}{{if eq (len .Arguments) 0}}
+int vipsgen_{{.Name}}() {
+    return vips_{{.Name}}(NULL);
+}
+{{else}}
+int vipsgen_{{.Name}}({{range $i, $arg := .Arguments}}{{if $i}}, {{end}}{{$arg.CType}} {{$arg.Name}}{{end}}) {
+    return vips_{{.Name}}({{range $i, $arg := .Arguments}}{{if $i}}, {{end}}{{$arg.Name}}{{end}}, NULL);
+}
+{{end}}{{end}}
+
 int image_new_from_source(VipsSourceCustom *source, VipsImage **out) {
   *out = vips_image_new_from_source((VipsSource*) source, "", NULL);
   if (!*out) return 1;
@@ -513,14 +523,3 @@ int remove_exif(VipsImage *in, VipsImage **out) {
   g_strfreev(fields);
   return 0;
 }
-
-
-{{range .Operations}}{{if eq (len .Arguments) 0}}
-int vipsgen_{{.Name}}() {
-    return vips_{{.Name}}(NULL);
-}
-{{else}}
-int vipsgen_{{.Name}}({{range $i, $arg := .Arguments}}{{if $i}}, {{end}}{{$arg.CType}} {{$arg.Name}}{{end}}) {
-    return vips_{{.Name}}({{range $i, $arg := .Arguments}}{{if $i}}, {{end}}{{$arg.Name}}{{end}}, NULL);
-}
-{{end}}{{end}}

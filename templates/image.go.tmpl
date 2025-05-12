@@ -25,6 +25,22 @@ type Image struct {
 	pageHeight int // cached page height
 }
 
+{{range .Operations}}{{if and (or (not .HasImageInput) .HasArrayImageInput) .HasImageOutput}}
+// NewImage{{imageMethodName .GoName}} {{.Description}}
+// {{generateDocUrl .Name .Category}}
+func NewImage{{imageMethodName .GoName}}({{formatCreatorMethodParams .}}) (*Image, error) {
+	{{formatCreatorMethodBody .}}
+}
+{{end}}{{end}}
+
+{{range .Operations}}{{if and .HasImageInput (not .HasArrayImageInput)}}
+// {{.GoName | imageMethodName}} {{.Description}}
+// {{generateDocUrl .Name .Category}}
+func (r *Image) {{.GoName | imageMethodName}}({{formatImageMethodParams .}}) ({{formatImageMethodReturnTypes .}}) {
+	{{formatImageMethodBody .}}
+}
+{{end}}{{end}}
+
 // LoadParams are options for loading an image. Some are type-specific.
 // For default loading, use NewLoadParams() or specify nil
 type LoadParams struct {
@@ -285,21 +301,3 @@ func (r *Image) SetPageDelay(delay []int) error {
 	}
 	return vipsImageSetDelay(r.image, data)
 }
-
-
-{{range .Operations}}{{if and (or (not .HasImageInput) .HasArrayImageInput) .HasImageOutput}}
-// NewImage{{imageMethodName .GoName}} {{.Description}}
-// {{generateDocUrl .Name .Category}}
-func NewImage{{imageMethodName .GoName}}({{formatCreatorMethodParams .}}) (*Image, error) {
-    {{formatCreatorMethodBody .}}
-}
-{{end}}{{end}}
-
-
-{{range .Operations}}{{if and .HasImageInput (not .HasArrayImageInput)}}
-// {{.GoName | imageMethodName}} {{.Description}}
-// {{generateDocUrl .Name .Category}}
-func (r *Image) {{.GoName | imageMethodName}}({{formatImageMethodParams .}}) ({{formatImageMethodReturnTypes .}}) {
-    {{formatImageMethodBody .}}
-}
-{{end}}{{end}}

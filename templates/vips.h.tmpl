@@ -4,6 +4,13 @@
 #include <vips/vips.h>
 #include <vips/vector.h>
 
+{{range .Operations}}
+{{if eq (len .Arguments) 0}}
+int vipsgen_{{.Name}}();
+{{else}}
+int vipsgen_{{.Name}}({{range $i, $arg := .Arguments}}{{if $i}}, {{end}}{{$arg.CType}} {{$arg.Name}}{{end}});
+{{end}}{{end}}
+
 int image_new_from_source(VipsSourceCustom *source, VipsImage **out);
 
 int image_new_from_source_with_option(VipsSourceCustom *source, VipsImage **out, const char *option_string);
@@ -94,11 +101,3 @@ int get_meta_loader(const VipsImage *in, const char **out);
 void set_image_delay(VipsImage *in, const int *array, int n);
 const char * get_meta_string(const VipsImage *image, const char *name);
 int remove_exif(VipsImage *in, VipsImage **out);
-
-
-{{range .Operations}}
-{{if eq (len .Arguments) 0}}
-int vipsgen_{{.Name}}();
-{{else}}
-int vipsgen_{{.Name}}({{range $i, $arg := .Arguments}}{{if $i}}, {{end}}{{$arg.CType}} {{$arg.Name}}{{end}});
-{{end}}{{end}}
