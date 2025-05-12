@@ -356,6 +356,11 @@ func {{.GoName}}({{formatGoArgList .Arguments}}) ({{formatReturnTypes .}}) {
     {{formatVarDeclarations .}}
     {{$stringConversions := formatStringConversions .Arguments}}{{if $stringConversions}}{{$stringConversions}}{{end}}
     {{$arrayConversions := formatArrayConversions .Arguments}}{{if $arrayConversions}}{{$arrayConversions}}{{end}}
+    {{if hasBufferParam .Arguments}}
+    src := {{getBufferParamName .Arguments}}
+    // Reference src here so it's not garbage collected during image initialization.
+    defer runtime.KeepAlive(src)
+    {{end}}
     if err := C.vipsgen_{{.Name}}({{formatFunctionCallArgs .Arguments}}); err != 0 {
         {{formatErrorReturn .HasImageOutput .Outputs}}
     }

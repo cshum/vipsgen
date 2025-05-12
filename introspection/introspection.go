@@ -205,7 +205,7 @@ func (v *Introspection) FilterOperations(operations []vipsgen.Operation) []vipsg
 			notAvailableCount++
 			continue
 		}
-		if strings.Contains(op.Name, "_buffer") || strings.Contains(op.Name, "_source") || strings.Contains(op.Name, "_target") {
+		if strings.Contains(op.Name, "_source") || strings.Contains(op.Name, "_target") {
 			fmt.Printf("Excluding operation: %s \n", op.Name)
 			excludedCount++
 			continue

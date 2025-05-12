@@ -444,6 +444,10 @@ func (v *Introspection) mapCTypeToGoType(cType string, param VipsParamInfo, orig
 		if strings.HasPrefix(cType, "double*") || strings.HasPrefix(cType, "gdouble*") {
 			return "[]float64"
 		}
+		if strings.HasPrefix(cType, "void*") {
+			return "[]byte"
+		}
+
 	}
 
 	// Handle scalar types
@@ -454,7 +458,7 @@ func (v *Introspection) mapCTypeToGoType(cType string, param VipsParamInfo, orig
 		return "*C.VipsImage"
 	case "gboolean":
 		return "bool"
-	case "gint", "int":
+	case "gint", "int", "size_t":
 		return "int"
 	case "gdouble", "double", "gfloat", "float":
 		return "float64"

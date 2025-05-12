@@ -90,6 +90,9 @@ func GetTemplateFuncMap() template.FuncMap {
 		"formatImageMethodReturnTypes": FormatImageMethodReturnTypes,
 		"formatCreatorMethodParams":    FormatCreatorMethodParams,
 		"formatCreatorMethodBody":      FormatCreatorMethodBody,
+		"hasBufferParam":               hasBufferParam,
+		"hasLengthParam":               hasLengthParam,
+		"getBufferParamName":           getBufferParamName,
 
 		"hasPrefix":  strings.HasPrefix,
 		"hasSuffix":  strings.HasSuffix,

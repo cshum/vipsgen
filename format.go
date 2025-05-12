@@ -191,8 +191,20 @@ func FormatErrorReturn(hasImageOutput bool, outputs []Argument) string {
 // FormatGoArgList formats a list of function arguments for a Go function
 // e.g., "in *C.VipsImage, c []float64, n int"
 func FormatGoArgList(args []Argument) string {
+	// Find buffer param if exists
+	var bufferParam *Argument
+	for i := range args {
+		if args[i].GoType == "[]byte" && strings.Contains(args[i].Name, "buf") {
+			bufferParam = &args[i]
+			break
+		}
+	}
 	var params []string
 	for _, arg := range args {
+		// Skip buffer length parameters
+		if bufferParam != nil && (arg.GoType == "int" || strings.Contains(arg.CType, "size_t")) && arg.Name == "len" {
+			continue
+		}
 		if !arg.IsOutput {
 			params = append(params, fmt.Sprintf("%s %s", arg.GoName, arg.GoType))
 		}
@@ -272,7 +284,9 @@ func FormatArrayConversions(args []Argument) string {
 	var conversions []string
 	for _, arg := range args {
 		if !arg.IsOutput && strings.HasPrefix(arg.GoType, "[]") {
-			if arg.GoType == "[]string" {
+			if arg.GoType == "[]byte" && strings.Contains(arg.Name, "buf") {
+				continue // Skip buffer parameters
+			} else if arg.GoType == "[]string" {
 				conversions = append(conversions, fmt.Sprintf(
 					"// Convert []string to C array for %s\n"+
 						"    c%s_ptrs := make([]*C.char, len(%s))\n"+
@@ -362,6 +376,11 @@ func FormatFunctionCallArgs(args []Argument) string {
 				argStr = "C.int(boolToInt(" + arg.GoName + "))"
 			} else if arg.GoType == "*C.VipsImage" {
 				argStr = arg.GoName
+			} else if arg.GoType == "[]byte" && strings.Contains(arg.Name, "buf") {
+				// Special handling for byte buffers
+				argStr = "unsafe.Pointer(&src[0])"
+			} else if arg.Name == "len" && arg.GoType == "int" && hasBufferParam(args) {
+				argStr = "C.size_t(len(src))"
 			} else if strings.HasPrefix(arg.GoType, "[]") {
 				// For array parameters, handle each type specifically
 				if arg.GoType == "[]*C.VipsImage" {
@@ -749,6 +768,8 @@ func FormatImageMethodParams(op Operation) string {
 			paramType = "*Image"
 		} else if arg.GoType == "[]*C.VipsImage" {
 			paramType = "[]*Image"
+		} else if arg.CType == "void*" {
+			paramType = "[]byte"
 		} else {
 			paramType = arg.GoType
 		}
@@ -881,4 +902,32 @@ func hasVectorReturn(op Operation) bool {
 // Helper function to check if an operation returns a single float value
 func isSingleFloatReturn(op Operation) bool {
 	return len(op.Outputs) == 1 && op.Outputs[0].GoType == "float64"
+}
+
+func hasBufferParam(args []Argument) bool {
+	for _, arg := range args {
+		if arg.GoType == "[]byte" && strings.Contains(arg.Name, "buf") {
+			return true
+		}
+	}
+	return false
+}
+
+func hasLengthParam(args []Argument) bool {
+	for _, arg := range args {
+		if (arg.GoType == "int" || strings.Contains(arg.CType, "size_t")) &&
+			(strings.Contains(arg.Name, "len") || strings.Contains(arg.Name, "length")) {
+			return true
+		}
+	}
+	return false
+}
+
+func getBufferParamName(args []Argument) string {
+	for _, arg := range args {
+		if arg.GoType == "[]byte" && strings.Contains(arg.Name, "buf") {
+			return arg.GoName
+		}
+	}
+	return "buf" // Default fallback
 }
