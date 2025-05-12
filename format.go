@@ -416,6 +416,12 @@ func FormatFunctionCallArgs(args []Argument) string {
 				}
 			} else if arg.IsEnum {
 				argStr = "C." + arg.Type + "(" + arg.GoName + ")"
+			} else if arg.CType == "void**" && arg.Name == "buf" {
+				// buffer output
+				argStr = "&buf"
+			} else if arg.CType == "size_t*" && arg.Name == "len" {
+				// buffer output
+				argStr = "&length"
 			} else {
 				// For regular scalar types, use normal C casting
 				argStr = "C." + arg.CType + "(" + arg.GoName + ")"
