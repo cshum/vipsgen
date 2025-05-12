@@ -12,11 +12,6 @@ func GetTemplateFuncMap() template.FuncMap {
 	return template.FuncMap{
 		"imageMethodName":              ImageMethodName,
 		"generateDocUrl":               GenerateDocUrl,
-		"formatImageMethodArgs":        FormatImageMethodArgs,
-		"split":                        strings.Split,
-		"filterInputParams":            FilterInputParams,
-		"isPointerType":                isPointerType,
-		"formatDefaultValue":           FormatDefaultValue,
 		"formatErrorReturn":            FormatErrorReturn,
 		"formatGoArgList":              FormatGoArgList,
 		"formatReturnTypes":            FormatReturnTypes,
@@ -24,82 +19,23 @@ func GetTemplateFuncMap() template.FuncMap {
 		"formatFunctionCallArgs":       FormatFunctionCallArgs,
 		"formatFunctionCall":           FormatFunctionCall,
 		"formatReturnValues":           FormatReturnValues,
-		"formatSuccessReturnValues":    FormatSuccessReturnValues,
-		"formatErrorReturnValues":      FormatErrorReturnValues,
-		"formatImageMethodSignature":   FormatImageMethodSignature,
 		"formatImageMethodBody":        FormatImageMethodBody,
-		"formatImageFuncArgList":       formatImageFuncArgList,
-		"formatImageFuncCallArgs":      formatImageFuncCallArgs,
 		"formatImageMethodParams":      FormatImageMethodParams,
 		"formatImageMethodReturnTypes": FormatImageMethodReturnTypes,
 		"formatCreatorMethodParams":    FormatCreatorMethodParams,
 		"formatCreatorMethodBody":      FormatCreatorMethodBody,
-		"hasLengthParam":               hasLengthParam,
-		"getBufferParamName":           getBufferParamName,
-
-		"hasPrefix":  strings.HasPrefix,
-		"hasSuffix":  strings.HasSuffix,
-		"trimPrefix": strings.TrimPrefix,
-		"trimSuffix": strings.TrimSuffix,
-
-		"isArrayType": func(goType string) bool {
-			return strings.HasPrefix(goType, "[]")
-		},
-
-		"arrayElementType": func(goType string) string {
-			if strings.HasPrefix(goType, "[]") {
-				return strings.TrimPrefix(goType, "[]")
-			}
-			return goType
-		},
-
-		"arrayCType": func(cType string) string {
-			// Remove one level of pointer for array element type
-			if strings.HasSuffix(cType, "*") {
-				return strings.TrimSuffix(cType, "*")
-			}
-			return cType
-		},
-		"hasArrayImageInput": HasArrayImageInput,
 	}
 }
 
-// formatImageFuncArgList formats arguments for NewImage* functions, changing *C.VipsImage to *Image
-func formatImageFuncArgList(args []Argument) string {
-	var params []string
-	for _, arg := range args {
-		params = append(params, fmt.Sprintf("%s %s", arg.GoName, convertParamType(arg)))
+// ImageMethodName converts vipsFooBar to FooBar for method names
+func ImageMethodName(name string) string {
+	if strings.HasPrefix(name, "vipsgen") {
+		return name[7:]
 	}
-	return strings.Join(params, ", ")
-}
-
-// formatImageFuncCallArgs formats arguments for function calls, converting *Image to image field
-func formatImageFuncCallArgs(args []Argument) string {
-	var callArgs []string
-	for _, arg := range args {
-		if arg.GoType == "*C.VipsImage" {
-			callArgs = append(callArgs, fmt.Sprintf("%s.image", arg.GoName))
-		} else if arg.GoType == "[]*C.VipsImage" {
-			// Convert []*Image to []*C.VipsImage
-			callArgs = append(callArgs, fmt.Sprintf("convertImagesToVipsImages(%s)", arg.GoName))
-		} else {
-			callArgs = append(callArgs, arg.GoName)
-		}
+	if strings.HasPrefix(name, "vips") {
+		return name[4:]
 	}
-	return strings.Join(callArgs, ", ")
-}
-
-// FormatImageMethodArgs formats arguments for image methods, skipping the first Image argument if it exists
-func FormatImageMethodArgs(args []Argument) string {
-	var params []string
-	for i, arg := range args {
-		if i == 0 && arg.Type == "VipsImage" {
-			// Skip the first Image argument only if it's a VipsImage
-			continue
-		}
-		params = append(params, fmt.Sprintf("%s %s", arg.GoName, arg.GoType))
-	}
-	return strings.Join(params, ", ")
+	return name
 }
 
 // FormatGoFunctionName formats an operation name to a Go function name
@@ -161,15 +97,6 @@ func GetGoEnumName(cName string) string {
 	}
 
 	return cName
-}
-
-// SnakeToCamel converts a snake_case string to CamelCase
-func SnakeToCamel(s string) string {
-	parts := strings.Split(s, "_")
-	for i := range parts {
-		parts[i] = strings.Title(parts[i])
-	}
-	return strings.Join(parts, "")
 }
 
 // FormatEnumValueName converts a C enum name to a Go name
@@ -523,38 +450,6 @@ func FormatReturnValues(op Operation) string {
 	}
 }
 
-// FormatImageMethodSignature formats the method signature for an image operation
-func FormatImageMethodSignature(op Operation) string {
-	// Get input parameters (excluding the image itself)
-	inputParams := FilterInputParams(op.Arguments)
-
-	// Format parameters
-	var params []string
-	for _, arg := range inputParams {
-		params = append(params, fmt.Sprintf("%s %s", arg.GoName, arg.GoType))
-	}
-
-	// Format return type
-	var returnType string
-	if op.HasImageOutput {
-		returnType = "error"
-	} else if len(op.Outputs) > 0 {
-		var types []string
-		for _, arg := range op.Outputs {
-			types = append(types, arg.GoType)
-		}
-		types = append(types, "error")
-		returnType = strings.Join(types, ", ")
-	} else {
-		returnType = "error"
-	}
-
-	return fmt.Sprintf("func (r *Image) %s(%s) (%s)",
-		ImageMethodName(op.GoName),
-		strings.Join(params, ", "),
-		returnType)
-}
-
 // FormatFunctionCall formats the call to the underlying vipsgen function
 func FormatFunctionCall(op Operation) string {
 	var args []string
@@ -567,65 +462,6 @@ func FormatFunctionCall(op Operation) string {
 	}
 
 	return fmt.Sprintf("%s(%s)", op.GoName, strings.Join(args, ", "))
-}
-
-// FormatErrorReturnValues formats return values in case of error
-func FormatErrorReturnValues(op Operation) string {
-	if op.HasImageOutput {
-		return "err"
-	} else if len(op.Outputs) > 0 {
-		var values []string
-		for _, arg := range op.Outputs {
-			if arg.Name == "vector" || arg.Name == "out_array" {
-				values = append(values, "nil")
-			} else if strings.HasPrefix(arg.GoType, "[]") {
-				values = append(values, "nil")
-			} else if arg.GoType == "bool" {
-				values = append(values, "false")
-			} else if arg.GoType == "string" {
-				values = append(values, "\"\"")
-			} else if arg.GoType == "*C.VipsImage" {
-				values = append(values, "nil")
-			} else {
-				values = append(values, "0")
-			}
-		}
-		values = append(values, "err")
-		return strings.Join(values, ", ")
-	} else {
-		return "err"
-	}
-}
-
-// FormatSuccessReturnValues formats return values in case of success
-func FormatSuccessReturnValues(op Operation) string {
-	if op.HasImageOutput {
-		return "nil"
-	} else if len(op.Outputs) > 0 {
-		var values []string
-
-		for _, arg := range op.Outputs {
-			// Special handling for vector outputs like getpoint
-			if arg.Name == "vector" || arg.Name == "out_array" {
-				// Get the n parameter which should be the second output
-				nParam := "n"
-				for _, outArg := range op.Outputs {
-					if outArg.Name == "n" {
-						nParam = outArg.GoName
-						break
-					}
-				}
-				// Convert the C array to a Go slice
-				values = append(values, fmt.Sprintf("(*[1024]float64)(unsafe.Pointer(out))[:%s:%s]", nParam, nParam))
-			} else {
-				values = append(values, arg.GoName)
-			}
-		}
-		values = append(values, "nil")
-		return strings.Join(values, ", ")
-	} else {
-		return "nil"
-	}
 }
 
 // FormatImageMethodBody formats the body of an image method using improved argument detection
@@ -872,29 +708,6 @@ func FormatImageMethodParams(op Operation) string {
 	return strings.Join(params, ", ")
 }
 
-// FilterInputParams correctly filters out output parameters and the input image parameter
-func FilterInputParams(args []Argument) []Argument {
-	var result []Argument
-
-	// First, check for required, non-image input parameters (these must be preserved)
-	for _, arg := range args {
-		// Include required input arguments that aren't the image ("in") or output params
-		if !arg.IsOutput && arg.Required && arg.Name != "in" && arg.Name != "out" {
-			result = append(result, arg)
-		}
-	}
-
-	// Then add optional input parameters
-	for _, arg := range args {
-		// Include optional input arguments
-		if !arg.IsOutput && !arg.Required && arg.Name != "in" && arg.Name != "out" {
-			result = append(result, arg)
-		}
-	}
-
-	return result
-}
-
 // FormatImageMethodReturnTypes formats return types for image methods
 func FormatImageMethodReturnTypes(op Operation) string {
 	if op.HasImageOutput {
@@ -986,19 +799,4 @@ func FormatCreatorMethodBody(op Operation) string {
 		strings.Join(callArgs, ", "),
 		op.ImageTypeString,
 		imageRefBuf)
-}
-
-// Helper function to check if an operation returns a vector
-func hasVectorReturn(op Operation) bool {
-	hasVector := false
-	hasN := false
-	for _, arg := range op.Outputs {
-		if arg.Name == "vector" && arg.GoType == "[]float64" {
-			hasVector = true
-		}
-		if arg.Name == "n" {
-			hasN = true
-		}
-	}
-	return hasVector && hasN
 }

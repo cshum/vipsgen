@@ -1,23 +1,12 @@
 package vipsgen
 
 import (
-	"fmt"
 	"strings"
 )
 
 // Helper function to check if an operation returns a single float value
 func isSingleFloatReturn(op Operation) bool {
 	return len(op.Outputs) == 1 && op.Outputs[0].GoType == "float64"
-}
-
-func hasLengthParam(args []Argument) bool {
-	for _, arg := range args {
-		if (arg.GoType == "int" || strings.Contains(arg.CType, "size_t")) &&
-			(strings.Contains(arg.Name, "len") || strings.Contains(arg.Name, "length")) {
-			return true
-		}
-	}
-	return false
 }
 
 func getBufferParamName(args []Argument) string {
@@ -29,59 +18,28 @@ func getBufferParamName(args []Argument) string {
 	return "buf" // Default fallback
 }
 
-// convertParam converts *C.VipsImage to *Image parameters
-func convertParamType(arg Argument) string {
-	if arg.GoType == "*C.VipsImage" {
-		return "*Image"
+// SnakeToCamel converts a snake_case string to CamelCase
+func SnakeToCamel(s string) string {
+	parts := strings.Split(s, "_")
+	for i := range parts {
+		parts[i] = strings.Title(parts[i])
 	}
-	if arg.GoType == "[]*C.VipsImage" {
-		return "[]*Image"
-	}
-	return arg.GoType
+	return strings.Join(parts, "")
 }
 
-// ImageMethodName converts vipsFooBar to FooBar for method names
-func ImageMethodName(name string) string {
-	if strings.HasPrefix(name, "vipsgen") {
-		return name[7:]
-	}
-	if strings.HasPrefix(name, "vips") {
-		return name[4:]
-	}
-	return name
-}
-
-// HasArrayImageInput checks if any of the arguments are array image inputs
-func HasArrayImageInput(args []Argument) bool {
-	for _, arg := range args {
-		// Look for array of VipsImage pointers
-		if strings.HasPrefix(arg.GoType, "[]*C.VipsImage") {
-			return true
+// Helper function to check if an operation returns a vector
+func hasVectorReturn(op Operation) bool {
+	hasVector := false
+	hasN := false
+	for _, arg := range op.Outputs {
+		if arg.Name == "vector" && arg.GoType == "[]float64" {
+			hasVector = true
 		}
-		// Also check the C type, which might indicate an array
-		if strings.Contains(arg.CType, "VipsImage**") && !arg.IsOutput {
-			return true
+		if arg.Name == "n" {
+			hasN = true
 		}
 	}
-	return false
-}
-
-var categoryToDocMap = map[string]string{
-	"foreign": "VipsForeignSave",
-}
-
-func GenerateDocUrl(funcName string, sourceCategory string) string {
-	// Look up the documentation category
-	docCategory, exists := categoryToDocMap[sourceCategory]
-	if !exists {
-		// Default to the source category if no mapping exists
-		docCategory = "libvips-" + sourceCategory
-	}
-
-	funcName = strings.ReplaceAll(funcName, "_", "-")
-
-	// For most categories, the URL format seems to be:
-	return fmt.Sprintf("https://www.libvips.org/API/current/%s.html#vips-%s", docCategory, funcName)
+	return hasVector && hasN
 }
 
 func isPointerType(typeName string) bool {
