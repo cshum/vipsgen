@@ -288,7 +288,7 @@ func FormatVarDeclarations(op Operation) string {
 	if arrayConv := FormatArrayConversions(op.Arguments); arrayConv != "" {
 		decls = append(decls, arrayConv)
 	}
-	return strings.Join(decls, "\n    ")
+	return strings.Join(decls, "\n	")
 }
 
 // FormatStringConversions formats C string conversions for string parameters
@@ -296,11 +296,11 @@ func FormatStringConversions(args []Argument) string {
 	var conversions []string
 	for _, arg := range args {
 		if !arg.IsOutput && arg.GoType == "string" {
-			conversions = append(conversions, fmt.Sprintf("c%s := C.CString(%s)\n    defer freeCString(c%s)",
+			conversions = append(conversions, fmt.Sprintf("c%s := C.CString(%s)\n	defer freeCString(c%s)",
 				arg.GoName, arg.GoName, arg.GoName))
 		}
 	}
-	return strings.Join(conversions, "\n    ")
+	return strings.Join(conversions, "\n	")
 }
 
 // FormatArrayConversions formats array conversions for slice parameters
@@ -312,55 +312,55 @@ func FormatArrayConversions(args []Argument) string {
 				continue // Skip buffer parameters
 			} else if arg.GoType == "[]string" {
 				conversions = append(conversions, fmt.Sprintf(
-					"    c%s_ptrs := make([]*C.char, len(%s))\n"+
-						"    for i, s := range %s {\n"+
-						"        c%s_ptrs[i] = C.CString(s)\n"+
-						"        defer freeCString(c%s_ptrs[i])\n"+
-						"    }\n"+
-						"    c%s := unsafe.Pointer(&c%s_ptrs[0])",
+					"	c%s_ptrs := make([]*C.char, len(%s))\n"+
+						"	for i, s := range %s {\n"+
+						"		c%s_ptrs[i] = C.CString(s)\n"+
+						"		defer freeCString(c%s_ptrs[i])\n"+
+						"	}\n"+
+						"	c%s := unsafe.Pointer(&c%s_ptrs[0])",
 					arg.GoName, arg.GoName, arg.GoName,
 					arg.GoName, arg.GoName, arg.GoName, arg.GoName))
 			} else if arg.GoType == "[]BlendMode" {
 				// Special handling for BlendMode arrays
 				conversions = append(conversions, fmt.Sprintf(
-					"    c%s_arr := make([]C.int, len(%s))\n"+
-						"    for i, v := range %s {\n"+
-						"        c%s_arr[i] = C.int(v)\n"+
-						"    }\n"+
-						"    var c%s unsafe.Pointer\n"+
-						"    if len(%s) > 0 {\n"+
-						"        c%s = unsafe.Pointer(&c%s_arr[0])\n"+
-						"    }",
+					"	c%s_arr := make([]C.int, len(%s))\n"+
+						"	for i, v := range %s {\n"+
+						"		c%s_arr[i] = C.int(v)\n"+
+						"	}\n"+
+						"	var c%s unsafe.Pointer\n"+
+						"	if len(%s) > 0 {\n"+
+						"		c%s = unsafe.Pointer(&c%s_arr[0])\n"+
+						"	}",
 					arg.GoName, arg.GoName, arg.GoName,
 					arg.GoName, arg.GoName, arg.GoName, arg.GoName, arg.GoName))
 			} else if arg.GoType == "[]float64" || arg.GoType == "[]float32" {
 				// Special handling for float arrays - common in libvips const functions
 				conversions = append(conversions, fmt.Sprintf(
-					"    var c%s unsafe.Pointer\n"+
-						"    if len(%s) > 0 {\n"+
-						"        c%s = unsafe.Pointer(&%s[0])\n"+
-						"    }",
+					"	var c%s unsafe.Pointer\n"+
+						"	if len(%s) > 0 {\n"+
+						"		c%s = unsafe.Pointer(&%s[0])\n"+
+						"	}",
 					arg.GoName, arg.GoName, arg.GoName, arg.GoName))
 			} else if arg.GoType == "[]int" {
 				// Standard int arrays
 				conversions = append(conversions, fmt.Sprintf(
-					"    var c%s unsafe.Pointer\n"+
-						"    if len(%s) > 0 {\n"+
-						"        c%s = unsafe.Pointer(&%s[0])\n"+
-						"    }",
+					"	var c%s unsafe.Pointer\n"+
+						"	if len(%s) > 0 {\n"+
+						"		c%s = unsafe.Pointer(&%s[0])\n"+
+						"	}",
 					arg.GoName, arg.GoName, arg.GoName, arg.GoName))
 			} else {
 				// Generic array handling
 				conversions = append(conversions, fmt.Sprintf(
-					"    var c%s unsafe.Pointer\n"+
-						"    if len(%s) > 0 {\n"+
-						"        c%s = unsafe.Pointer(&%s[0])\n"+
-						"    }",
+					"	var c%s unsafe.Pointer\n"+
+						"	if len(%s) > 0 {\n"+
+						"		c%s = unsafe.Pointer(&%s[0])\n"+
+						"	}",
 					arg.GoName, arg.GoName, arg.GoName, arg.GoName))
 			}
 		}
 	}
-	return strings.Join(conversions, "\n\n    ")
+	return strings.Join(conversions, "\n\n	")
 }
 
 // FormatFunctionCallArgs formats the arguments for the C function call
@@ -611,19 +611,19 @@ func FormatImageMethodBody(op Operation) string {
 	// Generate different function bodies based on operation type
 	if op.HasImageOutput {
 		return fmt.Sprintf(`out, err := %s(%s)
-    if err != nil {
-        return err
-    }
-    r.setImage(out)
-    return nil`,
+	if err != nil {
+		return err
+	}
+	r.setImage(out)
+	return nil`,
 			op.GoName,
 			strings.Join(callArgs, ", "))
 	} else if op.HasBufferOutput {
 		return fmt.Sprintf(`buf, err := %s(%s)
-    if err != nil {
-        return nil, err
-    }
-    return buf, nil`,
+	if err != nil {
+		return nil, err
+	}
+	return buf, nil`,
 			op.GoName,
 			strings.Join(callArgs, ", "))
 	} else if len(op.Outputs) > 0 {
@@ -631,19 +631,19 @@ func FormatImageMethodBody(op Operation) string {
 		if hasVectorReturn(op) {
 			// For vector-returning operations like getpoint
 			return fmt.Sprintf(`vector, n, err := %s(%s)
-    if err != nil {
-        return nil, 0, err
-    }
-    return vector, n, nil`,
+	if err != nil {
+		return nil, 0, err
+	}
+	return vector, n, nil`,
 				op.GoName,
 				strings.Join(callArgs, ", "))
 		} else if isSingleFloatReturn(op) {
 			// For single float-returning operations like avg
 			return fmt.Sprintf(`out, err := %s(%s)
-    if err != nil {
-        return 0, err
-    }
-    return out, nil`,
+	if err != nil {
+		return 0, err
+	}
+	return out, nil`,
 				op.GoName,
 				strings.Join(callArgs, ", "))
 		} else if hasImageOutputs {
@@ -688,16 +688,16 @@ func FormatImageMethodBody(op Operation) string {
 				if arg.GoType == "*C.VipsImage" {
 					// Convert *C.VipsImage to *Image
 					conversionCode.WriteString(fmt.Sprintf(`
-    var %sImage *Image
-    if %s != nil {
-        %sImage = newImageRef(%s, ImageTypeUnknown, nil)
-    }`,
+	var %sImage *Image
+	if %s != nil {
+		%sImage = newImageRef(%s, ImageTypeUnknown, nil)
+	}`,
 						arg.GoName, arg.GoName, arg.GoName, arg.GoName))
 					resultVars[i] = arg.GoName + "Image"
 				} else if arg.GoType == "[]*C.VipsImage" {
 					// Convert []*C.VipsImage to []*Image
 					conversionCode.WriteString(fmt.Sprintf(`
-    %sImages := convertVipsImagesToImages(%s)`,
+	%sImages := convertVipsImagesToImages(%s)`,
 						arg.GoName, arg.GoName))
 					resultVars[i] = arg.GoName + "Images"
 				}
@@ -707,10 +707,10 @@ func FormatImageMethodBody(op Operation) string {
 			successLine := "return " + strings.Join(resultVars, ", ") + ", nil"
 
 			return callLine + `
-    if err != nil {
-        ` + errorLine + `
-    }` + conversionCode.String() + `
-    ` + successLine
+	if err != nil {
+		` + errorLine + `
+	}` + conversionCode.String() + `
+	` + successLine
 		} else {
 			// Regular operation with non-image outputs
 
@@ -749,17 +749,17 @@ func FormatImageMethodBody(op Operation) string {
 			successLine := "return " + strings.Join(resultVars, ", ") + ", nil"
 
 			return callLine + `
-    if err != nil {
-        ` + errorLine + `
-    }
-    ` + successLine
+	if err != nil {
+		` + errorLine + `
+	}
+	` + successLine
 		}
 	} else {
 		return fmt.Sprintf(`err := %s(%s)
-    if err != nil {
-        return err
-    }
-    return nil`,
+	if err != nil {
+		return err
+	}
+	return nil`,
 			op.GoName,
 			strings.Join(callArgs, ", "))
 	}
@@ -938,11 +938,11 @@ func FormatCreatorMethodBody(op Operation) string {
 		imageRefBuf = "buf"
 	}
 	return fmt.Sprintf(`StartupDefault()
-    vipsImage, err := %s(%s)
-    if err != nil {
-        return nil, err
-    }
-    return newImageRef(vipsImage, %s, %s), nil`,
+	vipsImage, err := %s(%s)
+	if err != nil {
+		return nil, err
+	}
+	return newImageRef(vipsImage, %s, %s), nil`,
 		op.GoName,
 		strings.Join(callArgs, ", "),
 		op.ImageTypeString,

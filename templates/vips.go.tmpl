@@ -353,10 +353,10 @@ func vipsGetMetaString(image *C.VipsImage, name string) string {
 // {{.GoName}}
 // {{generateDocUrl .Name .Category}}
 func {{.GoName}}({{formatGoArgList .Arguments}}) ({{formatReturnTypes .}}) {
-    {{formatVarDeclarations .}}
-    if err := C.vipsgen_{{.Name}}({{formatFunctionCallArgs .Arguments}}); err != 0 {
-        {{formatErrorReturn .HasImageOutput .HasBufferOutput .Outputs}}
-    }
-    {{formatReturnValues .}}
+	{{formatVarDeclarations .}}
+	if err := C.vipsgen_{{.Name}}({{formatFunctionCallArgs .Arguments}}); err != 0 {
+		{{formatErrorReturn .HasImageOutput .HasBufferOutput .Outputs}}
+	}
+	{{formatReturnValues .}}
 }
 {{end}}
