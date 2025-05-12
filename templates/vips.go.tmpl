@@ -9,7 +9,7 @@ import (
 )
 
 {{range .Operations}}
-// {{.GoName}}
+// vipsgen{{.GoName}}
 // {{generateDocUrl .Name .Category}}
 func vipsgen{{.GoName}}({{formatGoArgList .Arguments}}) ({{formatReturnTypes .}}) {
 	{{formatVarDeclarations .}}
