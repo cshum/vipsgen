@@ -56,9 +56,7 @@ type DebugInfo struct {
 }
 
 // Define a more base list of common enum types to look for in libvips
-var baseEnumTypeNames = []enumTypeName{
-	{"VipsForeignPngFilter", "PngFilter"},
-}
+var baseEnumTypeNames []enumTypeName
 
 var excludedEnumTypeNames = map[string]bool{"VipsForeignPngFilter": true}
 
