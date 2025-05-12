@@ -375,6 +375,9 @@ func FormatFunctionCallArgs(args []Argument) string {
 			} else if arg.Name == "vector" || arg.Name == "out_array" {
 				// Vector return value needs a double pointer
 				argStr = "&out"
+			} else if arg.CType == "size_t*" && arg.Name == "len" {
+				// buffer output
+				argStr = "&length"
 			} else {
 				// Non-out named output parameters
 				if arg.GoType == "float64" || arg.GoType == "int" || arg.GoType == "bool" {
