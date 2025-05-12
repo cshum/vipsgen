@@ -83,7 +83,7 @@ func main() {
 	}
 
 	// Save the result
-	if err := image.WriteToFile("output.jpg", vips.NewJpegSaveParams()); err != nil {
+	if err := image.WriteToFile("output.jpg", vips.NewSaveJpegParams()); err != nil {
 		panic(err)
 	}
 }
