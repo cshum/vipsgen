@@ -312,7 +312,7 @@ func FormatArrayConversions(args []Argument) string {
 				continue // Skip buffer parameters
 			} else if arg.GoType == "[]string" {
 				conversions = append(conversions, fmt.Sprintf(
-					"	c%s_ptrs := make([]*C.char, len(%s))\n"+
+					"c%s_ptrs := make([]*C.char, len(%s))\n"+
 						"	for i, s := range %s {\n"+
 						"		c%s_ptrs[i] = C.CString(s)\n"+
 						"		defer freeCString(c%s_ptrs[i])\n"+
@@ -323,7 +323,7 @@ func FormatArrayConversions(args []Argument) string {
 			} else if arg.GoType == "[]BlendMode" {
 				// Special handling for BlendMode arrays
 				conversions = append(conversions, fmt.Sprintf(
-					"	c%s_arr := make([]C.int, len(%s))\n"+
+					"c%s_arr := make([]C.int, len(%s))\n"+
 						"	for i, v := range %s {\n"+
 						"		c%s_arr[i] = C.int(v)\n"+
 						"	}\n"+
@@ -336,7 +336,7 @@ func FormatArrayConversions(args []Argument) string {
 			} else if arg.GoType == "[]float64" || arg.GoType == "[]float32" {
 				// Special handling for float arrays - common in libvips const functions
 				conversions = append(conversions, fmt.Sprintf(
-					"	var c%s unsafe.Pointer\n"+
+					"var c%s unsafe.Pointer\n"+
 						"	if len(%s) > 0 {\n"+
 						"		c%s = unsafe.Pointer(&%s[0])\n"+
 						"	}",
@@ -344,7 +344,7 @@ func FormatArrayConversions(args []Argument) string {
 			} else if arg.GoType == "[]int" {
 				// Standard int arrays
 				conversions = append(conversions, fmt.Sprintf(
-					"	var c%s unsafe.Pointer\n"+
+					"var c%s unsafe.Pointer\n"+
 						"	if len(%s) > 0 {\n"+
 						"		c%s = unsafe.Pointer(&%s[0])\n"+
 						"	}",
@@ -352,7 +352,7 @@ func FormatArrayConversions(args []Argument) string {
 			} else {
 				// Generic array handling
 				conversions = append(conversions, fmt.Sprintf(
-					"	var c%s unsafe.Pointer\n"+
+					"var c%s unsafe.Pointer\n"+
 						"	if len(%s) > 0 {\n"+
 						"		c%s = unsafe.Pointer(&%s[0])\n"+
 						"	}",
