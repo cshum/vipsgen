@@ -64,8 +64,8 @@ func formatDefaultValue(goType string) string {
 }
 
 // formatErrorReturn formats the error return statement for a function
-func formatErrorReturn(hasImageOutput, hasBufferOutput bool, outputs []Argument) string {
-	if hasImageOutput {
+func formatErrorReturn(HasOneImageOutput, hasBufferOutput bool, outputs []Argument) string {
+	if HasOneImageOutput {
 		return "return nil, handleImageError(out)"
 	} else if hasBufferOutput {
 		return "return nil, handleVipsError()"
@@ -119,7 +119,7 @@ func formatGoArgList(args []Argument) string {
 // formatReturnTypes formats the return types for a Go function
 // e.g., "*C.VipsImage, error" or "int, float64, error"
 func formatReturnTypes(op Operation) string {
-	if op.HasImageOutput {
+	if op.HasOneImageOutput {
 		return "*C.VipsImage, error"
 	} else if op.HasBufferOutput {
 		return "[]byte, error"
@@ -148,7 +148,7 @@ func formatVarDeclarations(op Operation) string {
 		decls = append(decls, "// Reference src here so it's not garbage collected during image initialization.")
 		decls = append(decls, "defer runtime.KeepAlive(src)")
 	}
-	if op.HasImageOutput {
+	if op.HasOneImageOutput {
 		decls = append(decls, "var out *C.VipsImage")
 	} else if op.HasBufferOutput {
 		decls = append(decls, "var buf unsafe.Pointer")
@@ -258,12 +258,12 @@ func formatArrayConversions(args []Argument) string {
 }
 
 // formatFunctionCallArgs formats the arguments for the C function call
-func formatFunctionCallArgs(args []Argument) string {
+func formatFunctionCallArgs(op Operation) string {
 	var callArgs []string
-	for _, arg := range args {
+	for _, arg := range op.Arguments {
 		var argStr string
 		if arg.IsOutput {
-			if arg.Name == "out" {
+			if arg.Name == "out" || op.HasOneImageOutput {
 				if arg.GoType == "*C.VipsImage" {
 					argStr = "&out"
 				} else {
@@ -339,7 +339,7 @@ func formatFunctionCallArgs(args []Argument) string {
 
 // formatReturnValues formats the return values for the Go function
 func formatReturnValues(op Operation) string {
-	if op.HasImageOutput {
+	if op.HasOneImageOutput {
 		return "return out, nil"
 	} else if op.HasBufferOutput {
 		return "return bufferToBytes(buf, length), nil"
@@ -403,16 +403,16 @@ func formatImageMethodBody(op Operation) string {
 	}
 
 	// Check if the operation has any image outputs
-	hasImageOutputs := false
+	HasOneImageOutputs := false
 	for _, arg := range op.Outputs {
 		if arg.GoType == "*C.VipsImage" || arg.GoType == "[]*C.VipsImage" {
-			hasImageOutputs = true
+			HasOneImageOutputs = true
 			break
 		}
 	}
 
 	// Generate different function bodies based on operation type
-	if op.HasImageOutput {
+	if op.HasOneImageOutput {
 		return fmt.Sprintf(`out, err := %s(%s)
 	if err != nil {
 		return err
@@ -449,7 +449,7 @@ func formatImageMethodBody(op Operation) string {
 	return out, nil`,
 				op.GoName,
 				strings.Join(callArgs, ", "))
-		} else if hasImageOutputs {
+		} else if HasOneImageOutputs {
 			// For operations that return images
 
 			// Get the names of the result variables
@@ -630,7 +630,7 @@ func formatImageMethodParams(op Operation) string {
 
 // formatImageMethodReturnTypes formats return types for image methods
 func formatImageMethodReturnTypes(op Operation) string {
-	if op.HasImageOutput {
+	if op.HasOneImageOutput {
 		return "error"
 	} else if op.HasBufferOutput {
 		return "[]byte, error"

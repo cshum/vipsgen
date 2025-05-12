@@ -25,7 +25,7 @@ type Image struct {
 	pageHeight int // cached page height
 }
 
-{{range .Operations}}{{if and (or (not .HasImageInput) .HasArrayImageInput) .HasImageOutput}}
+{{range .Operations}}{{if and (or (not .HasImageInput) .HasArrayImageInput) .HasOneImageOutput}}
 // NewImage{{imageMethodName .GoName}} {{.Description}}
 // {{generateDocUrl .Name .Category}}
 func New{{imageMethodName .GoName}}({{formatCreatorMethodParams .}}) (*Image, error) {

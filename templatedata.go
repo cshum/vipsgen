@@ -22,7 +22,7 @@ func NewTemplateData(
 	// Filter operations that have Image as first argument and return Image
 	var imageOps []Operation
 	for _, op := range operations {
-		if len(op.RequiredInputs) > 0 && op.RequiredInputs[0].Type == "VipsImage" && op.HasImageOutput {
+		if len(op.RequiredInputs) > 0 && op.RequiredInputs[0].Type == "VipsImage" && op.HasOneImageOutput {
 			imageOps = append(imageOps, op)
 		}
 	}

@@ -8,8 +8,9 @@ import (
 // UpdateImageInputOutputFlags examines operation arguments and sets proper flags
 func (v *Introspection) UpdateImageInputOutputFlags(op *vipsgen.Operation) {
 	op.HasImageInput = false
-	op.HasImageOutput = false
+	op.HasOneImageOutput = false
 	op.HasArrayImageInput = false
+	var imageOutputCount int
 
 	// Check each argument to see if this operation takes/returns an image
 	for _, arg := range op.Arguments {
@@ -19,13 +20,13 @@ func (v *Introspection) UpdateImageInputOutputFlags(op *vipsgen.Operation) {
 		}
 
 		// Check for "out" parameter with VipsImage* type
-		if arg.Name == "out" && (arg.Type == "VipsImage" || arg.CType == "VipsImage**") && arg.IsOutput {
-			op.HasImageOutput = true
+		if arg.Type == "VipsImage" && arg.CType == "VipsImage**" && arg.IsOutput {
+			imageOutputCount++
 		}
 
 		// Check for array image inputs
 		if strings.HasPrefix(arg.GoType, "[]*C.VipsImage") ||
-			(strings.Contains(arg.CType, "VipsImage**") && !arg.IsOutput && arg.Name != "out") {
+			(strings.Contains(arg.CType, "VipsImage**") && !arg.IsOutput) {
 			op.HasArrayImageInput = true
 		}
 
@@ -35,6 +36,9 @@ func (v *Introspection) UpdateImageInputOutputFlags(op *vipsgen.Operation) {
 		if arg.CType == "void*" && arg.Name == "buf" {
 			op.HasBufferInput = true
 		}
+	}
+	if imageOutputCount == 1 && !op.HasArrayImageInput {
+		op.HasOneImageOutput = true
 	}
 }
 
