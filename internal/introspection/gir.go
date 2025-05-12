@@ -260,7 +260,7 @@ func (v *Introspection) ConvertToVipsgenOperations() []vipsgen.Operation {
 		// Create a new operation
 		op := vipsgen.Operation{
 			Name:        fn.Name,
-			GoName:      vipsgen.FormatGoFunctionName(fn.Name),
+			GoName:      FormatGoFunctionName(fn.Name),
 			Description: fn.Description,
 			Category:    fn.Category,
 		}
@@ -619,9 +619,42 @@ func FormatEnumValueName(typeName, valueName string) string {
 
 	if strings.HasPrefix(lowerCamelValue, "vips"+lowerTypeName) ||
 		strings.HasPrefix(lowerCamelValue, "vipsforeign"+lowerTypeName) {
-		return vipsgen.GetGoEnumName(camelValue)
+		return GetGoEnumName(camelValue)
 	}
 
 	// Otherwise, prepend the type name
-	return typeName + vipsgen.GetGoEnumName(camelValue)
+	return typeName + GetGoEnumName(camelValue)
+}
+
+// GetGoEnumName converts a C enum type name to a Go type name
+func GetGoEnumName(cName string) string {
+	// Strip "Vips" prefix if present
+	if strings.HasPrefix(cName, "Vips") {
+		cName = cName[4:]
+	}
+
+	// Also strip "Foreign" prefix if present in both the original name
+	// and after removing "Vips" prefix
+	if strings.HasPrefix(cName, "Foreign") {
+		cName = cName[7:]
+	}
+
+	return cName
+}
+
+// FormatGoFunctionName formats an operation name to a Go function name
+func FormatGoFunctionName(name string) string {
+	// Convert operation names to match existing Go function style
+	// e.g., "rotate" -> "vipsgenRotate", "extract_area" -> "vipsgenExtractArea"
+	parts := strings.Split(name, "_")
+
+	// Convert each part to title case
+	for i, part := range parts {
+		if len(part) > 0 {
+			parts[i] = strings.ToUpper(part[0:1]) + part[1:]
+		}
+	}
+
+	// Join with vipsgen prefix instead of vips
+	return "vipsgen" + strings.Join(parts, "")
 }

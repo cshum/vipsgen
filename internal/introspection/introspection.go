@@ -184,7 +184,7 @@ func (v *Introspection) DiscoverEnumsFromOperation(opName string) {
 			enumTypeName := C.GoString(C.g_type_name(pspec.value_type))
 
 			// Add this enum type to our list
-			goEnumName := vipsgen.GetGoEnumName(enumTypeName)
+			goEnumName := GetGoEnumName(enumTypeName)
 			v.AddEnumType(enumTypeName, goEnumName)
 		}
 
@@ -357,7 +357,7 @@ func (v *Introspection) GetGoEnumName(typeName string) string {
 	if name, exists := v.discoveredEnumTypes[typeName]; exists {
 		return name
 	}
-	return vipsgen.GetGoEnumName(typeName)
+	return GetGoEnumName(typeName)
 }
 
 // getMimeType returns the MIME type for a given image format
