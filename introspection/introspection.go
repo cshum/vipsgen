@@ -83,7 +83,8 @@ type Introspection struct {
 	// Parsed function info
 	functionInfo []VipsFunctionInfo
 	// Debug info from parsing
-	debugInfo *DebugInfo
+	debugInfo            *DebugInfo
+	discoveredImageTypes map[string]vipsgen.ImageTypeInfo
 }
 
 // NewIntrospection creates a new Introspection instance for analyzing libvips
@@ -102,8 +103,9 @@ func NewIntrospection() *Introspection {
 	}
 
 	return &Introspection{
-		discoveredEnumTypes: discoveredTypes,
-		enumTypeNames:       baseEnumTypeNames,
+		discoveredEnumTypes:  discoveredTypes,
+		discoveredImageTypes: map[string]vipsgen.ImageTypeInfo{},
+		enumTypeNames:        baseEnumTypeNames,
 	}
 }
 
@@ -432,12 +434,14 @@ func (v *Introspection) DiscoverImageTypes() []vipsgen.ImageTypeInfo {
 
 		// If either loader or saver exists, this format is supported
 		if loaderExists || saverExists {
-			imageTypes = append(imageTypes, vipsgen.ImageTypeInfo{
+			imageType := vipsgen.ImageTypeInfo{
 				TypeName: typeInfo.TypeName,
 				EnumName: enumName,
 				MimeType: typeInfo.MimeType,
 				Order:    currentOrder,
-			})
+			}
+			imageTypes = append(imageTypes, imageType)
+			v.discoveredImageTypes[typeInfo.TypeName] = imageType
 			currentOrder++
 		}
 	}
@@ -511,6 +515,31 @@ func (v *Introspection) DiscoverSupportedSavers() map[string]bool {
 	}
 
 	return saverSupport
+}
+
+// DetermineImageTypeStringFromOperation determines the appropriate ImageType
+// constant for a given operation name using the discovered image types
+func (v *Introspection) DetermineImageTypeStringFromOperation(opName string) string {
+	var format string
+	if strings.HasSuffix(opName, "load") || strings.HasSuffix(opName, "load_buffer") {
+		parts := strings.Split(opName, "load")
+		if len(parts) > 1 {
+			format = parts[0]
+		}
+	} else if strings.HasSuffix(opName, "save") || strings.HasSuffix(opName, "save_buffer") {
+		parts := strings.Split(opName, "save")
+		if len(parts) > 1 {
+			format = parts[0]
+		}
+	}
+	// If we found a format, look it up in the available image types
+	if format != "" {
+		if imageType, exists := v.discoveredImageTypes[format]; exists {
+			return imageType.EnumName
+		}
+	}
+	// Default fallback
+	return "ImageTypeUnknown"
 }
 
 // checkOperationExists checks if a libvips operation exists

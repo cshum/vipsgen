@@ -335,6 +335,8 @@ func (v *Introspection) ConvertToVipsgenOperations() []vipsgen.Operation {
 			}
 		}
 
+		op.ImageTypeString = v.DetermineImageTypeStringFromOperation(op.Name)
+
 		v.FixOperationTypes(&op)
 
 		// Update image input/output flags

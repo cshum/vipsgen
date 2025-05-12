@@ -9,7 +9,7 @@ import (
 func (v *Introspection) UpdateImageInputOutputFlags(op *vipsgen.Operation) {
 	op.HasImageInput = false
 	op.HasImageOutput = false
-	op.HasArrayImageInput = false // Add this flag
+	op.HasArrayImageInput = false
 
 	// Check each argument to see if this operation takes/returns an image
 	for _, arg := range op.Arguments {

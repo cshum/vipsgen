@@ -938,9 +938,9 @@ func FormatCreatorMethodBody(op Operation) string {
     if err != nil {
         return nil, err
     }
-    return newImageRef(vipsImage, ImageTypeUnknown, nil), nil`,
+    return newImageRef(vipsImage, %s, nil), nil`,
 		op.GoName,
-		strings.Join(callArgs, ", "))
+		strings.Join(callArgs, ", "), op.ImageTypeString)
 }
 
 // Helper function to check if an operation returns a vector

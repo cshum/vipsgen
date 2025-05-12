@@ -32,6 +32,7 @@ type Operation struct {
 	HasBufferInput     bool
 	HasBufferOutput    bool
 	HasArrayImageInput bool
+	ImageTypeString    string
 	Category           string // arithmetic, conversion, etc
 }
 
