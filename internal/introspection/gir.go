@@ -652,7 +652,6 @@ func FormatGoFunctionName(name string) string {
 	for i, part := range parts {
 		if len(part) > 0 {
 			parts[i] = strings.ToUpper(part[0:1]) + part[1:]
-			fmt.Println(parts[i])
 			if strings.HasSuffix(part, "save") {
 				parts[i] = strings.TrimSuffix(parts[i], "save") + "Save"
 			}
