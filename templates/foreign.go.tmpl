@@ -39,7 +39,7 @@ func (r *Image) SaveJpegBuffer(params *SaveJpegParams) ([]byte, error) {
     var buf unsafe.Pointer
     var length C.size_t
 
-    err := C.vipsgen_jpegsave_buffer(
+    err := C.vipsgen_save_jpeg_buffer(
         r.image, &buf, &length,
         C.int(params.Quality),
         C.int(boolToInt(params.StripMetadata)),
@@ -64,7 +64,7 @@ func (r *Image) SaveJpegFile(filename string, params *SaveJpegParams) error {
     cFilename := C.CString(filename)
     defer freeCString(cFilename)
 
-    err := C.vipsgen_jpegsave_file(
+    err := C.vipsgen_save_jpeg_file(
         r.image, cFilename,
         C.int(params.Quality),
         C.int(boolToInt(params.StripMetadata)),
@@ -114,7 +114,7 @@ func (r *Image) SavePngBuffer(params *SavePngParams) ([]byte, error) {
     var buf unsafe.Pointer
     var length C.size_t
 
-	err := C.vipsgen_pngsave_buffer(
+	err := C.vipsgen_save_png_buffer(
         r.image, &buf, &length,
 		C.int(params.Compression),
 		C.int(boolToInt(params.StripMetadata)),
@@ -138,7 +138,7 @@ func (r *Image) SavePngFile(filename string, params *SavePngParams) error {
     cFilename := C.CString(filename)
     defer freeCString(cFilename)
 
-	err := C.vipsgen_pngsave_file(
+	err := C.vipsgen_save_png_file(
         r.image, cFilename,
 		C.int(params.Compression),
 		C.int(boolToInt(params.StripMetadata)),
@@ -190,7 +190,7 @@ func (r *Image) SaveWebpBuffer(params *SaveWebpParams) ([]byte, error) {
 		cProfile := C.CString(params.IccProfile)
 		defer C.free(unsafe.Pointer(cProfile))
 
-		err = C.vipsgen_webpsave_buffer_profile(
+		err = C.vipsgen_save_webp_buffer_profile(
             r.image, &buf, &length,
 			C.int(params.Quality),
 			C.int(boolToInt(params.StripMetadata)),
@@ -199,7 +199,7 @@ func (r *Image) SaveWebpBuffer(params *SaveWebpParams) ([]byte, error) {
 			C.int(params.ReductionEffort),
 			cProfile)
 	} else {
-		err = C.vipsgen_webpsave_buffer(
+		err = C.vipsgen_save_webp_buffer(
             r.image, &buf, &length,
 			C.int(params.Quality),
 			C.int(boolToInt(params.StripMetadata)),
@@ -226,7 +226,7 @@ func (r *Image) SaveWebpFile(filename string, params *SaveWebpParams) error {
 		cProfile := C.CString(params.IccProfile)
 		defer C.free(unsafe.Pointer(cProfile))
 
-		err = C.vipsgen_webpsave_file_profile(
+		err = C.vipsgen_save_webp_file_profile(
             r.image, cFilename,
 			C.int(params.Quality),
 			C.int(boolToInt(params.StripMetadata)),
@@ -235,7 +235,7 @@ func (r *Image) SaveWebpFile(filename string, params *SaveWebpParams) error {
 			C.int(params.ReductionEffort),
 			cProfile)
 	} else {
-		err = C.vipsgen_webpsave_file(
+		err = C.vipsgen_save_webp_file(
             r.image, cFilename,
 			C.int(params.Quality),
 			C.int(boolToInt(params.StripMetadata)),
@@ -274,7 +274,7 @@ func (r *Image) SaveHeifBuffer(params *SaveHeifParams) ([]byte, error) {
     var buf unsafe.Pointer
     var length C.size_t
 
-	err := C.vipsgen_heifsave_buffer(
+	err := C.vipsgen_save_heif_buffer(
         r.image, &buf, &length,
 		C.int(params.Quality),
 		C.int(boolToInt(params.Lossless)))
@@ -292,7 +292,7 @@ func (r *Image) SaveHeifFile(filename string, params *SaveHeifParams) error {
     cFilename := C.CString(filename)
     defer freeCString(cFilename)
 
-	err := C.vipsgen_heifsave_file(
+	err := C.vipsgen_save_heif_file(
 		r.image, cFilename,
 		C.int(params.Quality),
 		C.int(boolToInt(params.Lossless)))
@@ -339,8 +339,8 @@ func (r *Image) SaveTiffBuffer(params *SaveTiffParams) ([]byte, error) {
     var buf unsafe.Pointer
     var length C.size_t
 
-	// Call vipsgen_tiffsave_buffer
-	err := C.vipsgen_tiffsave_buffer(
+	// Call vipsgen_save_tiff_buffer
+	err := C.vipsgen_save_tiff_buffer(
         r.image, &buf, &length,
 		C.int(params.Quality),
 		C.int(boolToInt(params.StripMetadata)),
@@ -366,7 +366,7 @@ func (r *Image) SaveTiffFile(filename string, params *SaveTiffParams) error {
     cFilename := C.CString(filename)
     defer freeCString(cFilename)
 
-	err := C.vipsgen_tiffsave_file(
+	err := C.vipsgen_save_tiff_file(
 		r.image, cFilename,
 		C.int(params.Quality),
 		C.int(boolToInt(params.StripMetadata)),
@@ -415,7 +415,7 @@ func (r *Image) SaveGifBuffer(params *SaveGifParams) ([]byte, error) {
 
 	{{if .HasCgifSaver}}
 	// Try CGIF first (available in libvips 8.12+)
-	err = C.vipsgen_gifsave_buffer(
+	err = C.vipsgen_save_gif_buffer(
         r.image, &buf, &length,
 		C.double(params.Dither),
 		C.int(params.Effort),
@@ -428,7 +428,7 @@ func (r *Image) SaveGifBuffer(params *SaveGifParams) ([]byte, error) {
         gifFormat := C.CString("GIF")
         defer C.free(unsafe.Pointer(gifFormat))
 
-        err = C.vipsgen_magicksave_buffer(
+        err = C.vipsgen_save_magick_buffer(
             r.image, &buf, &length,
             gifFormat,
             C.int(params.Quality))
@@ -441,7 +441,7 @@ func (r *Image) SaveGifBuffer(params *SaveGifParams) ([]byte, error) {
 	gifFormat := C.CString("GIF")
 	defer C.free(unsafe.Pointer(gifFormat))
 
-	err = C.vipsgen_magicksave_buffer(
+	err = C.vipsgen_save_magick_buffer(
 		r.image, &buf, &length,
 		gifFormat,
 		C.int(params.Quality))
@@ -463,7 +463,7 @@ func (r *Image) SaveGifFile(filename string, params *SaveGifParams) error {
 	var err C.int
 	{{if .HasCgifSaver}}
 	// Try CGIF first (available in libvips 8.12+)
-	err = C.vipsgen_gifsave_file(
+	err = C.vipsgen_save_gif_file(
 		r.image, cFilename,
 		C.double(params.Dither),
 		C.int(params.Effort),
@@ -476,7 +476,7 @@ func (r *Image) SaveGifFile(filename string, params *SaveGifParams) error {
         gifFormat := C.CString("GIF")
         defer C.free(unsafe.Pointer(gifFormat))
 
-        err = C.vipsgen_magicksave_file(
+        err = C.vipsgen_save_magick_file(
             r.image, cFilename,
             gifFormat,
             C.int(params.Quality))
@@ -489,7 +489,7 @@ func (r *Image) SaveGifFile(filename string, params *SaveGifParams) error {
 	gifFormat := C.CString("GIF")
 	defer C.free(unsafe.Pointer(gifFormat))
 
-	err = C.vipsgen_magicksave_file(
+	err = C.vipsgen_save_magick_file(
 		r.image, cFilename,
 		gifFormat,
 		C.int(params.Quality))
@@ -527,7 +527,7 @@ func (r *Image) SaveAvifBuffer(params *SaveAvifParams) ([]byte, error) {
     var buf unsafe.Pointer
     var length C.size_t
 
-	err := C.vipsgen_avifsave_buffer(
+	err := C.vipsgen_save_avif_buffer(
         r.image, &buf, &length,
 		C.int(params.Quality),
 		C.int(boolToInt(params.Lossless)),
@@ -547,7 +547,7 @@ func (r *Image) SaveAvifFile(filename string, params *SaveAvifParams) error {
     cFilename := C.CString(filename)
     defer freeCString(cFilename)
 
-	err := C.vipsgen_avifsave_file(
+	err := C.vipsgen_save_avif_file(
 		r.image, cFilename,
 		C.int(params.Quality),
 		C.int(boolToInt(params.Lossless)),
@@ -588,7 +588,7 @@ func (r *Image) SaveJp2kBuffer(params *SaveJp2kParams) ([]byte, error) {
     var buf unsafe.Pointer
     var length C.size_t
 
-	err := C.vipsgen_jp2ksave_buffer(
+	err := C.vipsgen_save_jp2k_buffer(
         r.image, &buf, &length,
 		C.int(params.Quality),
 		C.int(boolToInt(params.Lossless)),
@@ -609,7 +609,7 @@ func (r *Image) SaveJp2kFile(filename string, params *SaveJp2kParams) error {
     cFilename := C.CString(filename)
     defer freeCString(cFilename)
 
-	err := C.vipsgen_jp2ksave_file(
+	err := C.vipsgen_save_jp2k_file(
 		r.image, cFilename,
 		C.int(params.Quality),
 		C.int(boolToInt(params.Lossless)),
