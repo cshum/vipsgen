@@ -282,7 +282,12 @@ func FormatVarDeclarations(op Operation) string {
 			}
 		}
 	}
-
+	if stringConv := FormatStringConversions(op.Arguments); stringConv != "" {
+		decls = append(decls, stringConv)
+	}
+	if arrayConv := FormatArrayConversions(op.Arguments); arrayConv != "" {
+		decls = append(decls, arrayConv)
+	}
 	return strings.Join(decls, "\n    ")
 }
 

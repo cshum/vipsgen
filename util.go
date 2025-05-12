@@ -75,8 +75,6 @@ func GetTemplateFuncMap() template.FuncMap {
 		"formatGoArgList":              FormatGoArgList,
 		"formatReturnTypes":            FormatReturnTypes,
 		"formatVarDeclarations":        FormatVarDeclarations,
-		"formatStringConversions":      FormatStringConversions,
-		"formatArrayConversions":       FormatArrayConversions,
 		"formatFunctionCallArgs":       FormatFunctionCallArgs,
 		"formatFunctionCall":           FormatFunctionCall,
 		"formatReturnValues":           FormatReturnValues,
