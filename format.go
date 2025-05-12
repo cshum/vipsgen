@@ -840,7 +840,7 @@ func FormatImageMethodReturnTypes(op Operation) string {
 // FormatCreatorMethodParams formats the parameters for a creator method
 func FormatCreatorMethodParams(op Operation) string {
 	inputParams := op.RequiredInputs
-	var hasBufferParam bool
+	var hasBufParam bool
 
 	var params []string
 	for _, arg := range inputParams {
@@ -849,10 +849,10 @@ func FormatCreatorMethodParams(op Operation) string {
 			paramType = "*Image"
 		} else if arg.GoType == "[]*C.VipsImage" {
 			paramType = "[]*Image"
-		} else if arg.CType == "void*" {
+		} else if arg.CType == "void*" && arg.Name == "buf" {
 			paramType = "[]byte"
-			hasBufferParam = true
-		} else if arg.Name == "len" && hasBufferParam {
+			hasBufParam = true
+		} else if arg.Name == "len" && hasBufParam {
 			continue
 		} else {
 			paramType = arg.GoType
@@ -866,6 +866,7 @@ func FormatCreatorMethodParams(op Operation) string {
 // FormatCreatorMethodBody formats the body of a creator method
 func FormatCreatorMethodBody(op Operation) string {
 	inputParams := op.RequiredInputs
+	var hasBufParam bool
 
 	// Format the arguments for the function call
 	var callArgs []string
@@ -874,7 +875,12 @@ func FormatCreatorMethodBody(op Operation) string {
 			callArgs = append(callArgs, fmt.Sprintf("%s.image", arg.GoName))
 		} else if arg.GoType == "[]*C.VipsImage" {
 			callArgs = append(callArgs, fmt.Sprintf("convertImagesToVipsImages(%s)", arg.GoName))
+		} else if arg.Name == "len" && arg.CType == "size_t" && hasBufParam {
+			continue
 		} else {
+			if arg.Name == "buf" && arg.CType == "void*" {
+				hasBufParam = true
+			}
 			callArgs = append(callArgs, arg.GoName)
 		}
 	}
