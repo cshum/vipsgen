@@ -56,9 +56,7 @@ type DebugInfo struct {
 }
 
 // Define a more base list of common enum types to look for in libvips
-var baseEnumTypeNames = []enumTypeName{
-	{"VipsForeignPngFilter", "PngFilter"},
-}
+var baseEnumTypeNames []enumTypeName
 
 var excludedEnumTypeNames = map[string]bool{"VipsForeignPngFilter": true}
 
@@ -205,7 +203,7 @@ func (v *Introspection) FilterOperations(operations []vipsgen.Operation) []vipsg
 			notAvailableCount++
 			continue
 		}
-		if strings.Contains(op.Name, "_buffer") || strings.Contains(op.Name, "_source") || strings.Contains(op.Name, "_target") {
+		if strings.Contains(op.Name, "_source") || strings.Contains(op.Name, "_target") {
 			fmt.Printf("Excluding operation: %s \n", op.Name)
 			excludedCount++
 			continue
