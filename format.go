@@ -840,6 +840,7 @@ func FormatImageMethodReturnTypes(op Operation) string {
 // FormatCreatorMethodParams formats the parameters for a creator method
 func FormatCreatorMethodParams(op Operation) string {
 	inputParams := op.RequiredInputs
+	var hasBufferParam bool
 
 	var params []string
 	for _, arg := range inputParams {
@@ -848,10 +849,14 @@ func FormatCreatorMethodParams(op Operation) string {
 			paramType = "*Image"
 		} else if arg.GoType == "[]*C.VipsImage" {
 			paramType = "[]*Image"
+		} else if arg.CType == "void*" {
+			paramType = "[]byte"
+			hasBufferParam = true
+		} else if arg.Name == "len" && hasBufferParam {
+			continue
 		} else {
 			paramType = arg.GoType
 		}
-
 		params = append(params, fmt.Sprintf("%s %s", arg.GoName, paramType))
 	}
 
