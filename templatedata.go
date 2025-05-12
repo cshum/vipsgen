@@ -19,14 +19,6 @@ func NewTemplateData(
 		}
 	}
 
-	// Filter operations that have Image as first argument and return Image
-	var imageOps []Operation
-	for _, op := range operations {
-		if len(op.RequiredInputs) > 0 && op.RequiredInputs[0].Type == "VipsImage" && op.HasOneImageOutput {
-			imageOps = append(imageOps, op)
-		}
-	}
-
 	// Build list of supported savers for templates
 	var saversList []SupportedSaverInfo
 	for typeName, supported := range supportedSavers {
@@ -44,7 +36,6 @@ func NewTemplateData(
 		EnumTypes:        enumTypes,
 		ImageTypes:       imageTypes,
 		EnumTypeMap:      enumTypeMap,
-		ImageOperations:  imageOps,
 
 		// Specific saver flags for templates that expect them
 		HasJpegSaver:      supportedSavers["HasJpegSaver"],

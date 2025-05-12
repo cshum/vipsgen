@@ -132,9 +132,6 @@ type TemplateData struct {
 	ImageTypes       []ImageTypeInfo
 	EnumTypeMap      map[string]bool // For quick lookups
 
-	// Image operations (filtered operations with VipsImage as first arg and output)
-	ImageOperations []Operation
-
 	HasJpegSaver      bool
 	HasPngSaver       bool
 	HasWebpSaver      bool
