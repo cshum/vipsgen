@@ -249,7 +249,11 @@ func FormatReturnTypes(op Operation) string {
 // FormatVarDeclarations formats variable declarations for output parameters
 func FormatVarDeclarations(op Operation) string {
 	var decls []string
-
+	if op.HasBufferInput {
+		decls = append(decls, fmt.Sprintf("src := %s", getBufferParamName(op.Arguments)))
+		decls = append(decls, "// Reference src here so it's not garbage collected during image initialization.")
+		decls = append(decls, "defer runtime.KeepAlive(src)")
+	}
 	if op.HasImageOutput {
 		decls = append(decls, "var out *C.VipsImage")
 	} else if op.HasBufferOutput {
