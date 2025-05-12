@@ -64,7 +64,6 @@ int label_image(VipsImage *in, VipsImage **out,
           const char *text, const char *font,
           int x, int y, int size, VipsAlign align,
           double r, double g, double b, float opacity);
-int add_alpha(VipsImage *in, VipsImage **out);
 double max_alpha(VipsImage *in);
 
 int composite2_image(VipsImage *base, VipsImage *overlay, VipsImage **out,

@@ -347,10 +347,6 @@ int is_16bit(VipsInterpretation interpretation) {
          interpretation == VIPS_INTERPRETATION_GREY16;
 }
 
-int add_alpha(VipsImage *in, VipsImage **out) {
-  return vips_addalpha(in, out, NULL);
-}
-
 double max_alpha(VipsImage *in) {
   switch (in->BandFmt) {
     case VIPS_FORMAT_USHORT:
