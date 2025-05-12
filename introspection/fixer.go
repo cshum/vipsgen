@@ -28,6 +28,10 @@ func (v *Introspection) UpdateImageInputOutputFlags(op *vipsgen.Operation) {
 			(strings.Contains(arg.CType, "VipsImage**") && !arg.IsOutput && arg.Name != "out") {
 			op.HasArrayImageInput = true
 		}
+
+		if arg.CType == "void**" && arg.Name == "buf" {
+			op.HasBufferOutput = true
+		}
 	}
 }
 

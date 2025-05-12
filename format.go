@@ -170,9 +170,11 @@ func FormatDefaultValue(goType string) string {
 }
 
 // FormatErrorReturn formats the error return statement for a function
-func FormatErrorReturn(hasImageOutput bool, outputs []Argument) string {
+func FormatErrorReturn(hasImageOutput, hasBufferOutput bool, outputs []Argument) string {
 	if hasImageOutput {
 		return "return nil, handleImageError(out)"
+	} else if hasBufferOutput {
+		return "return nil, handleVipsError()"
 	} else if len(outputs) > 0 {
 		var returnValues []string
 		for _, arg := range outputs {
@@ -192,17 +194,25 @@ func FormatErrorReturn(hasImageOutput bool, outputs []Argument) string {
 // e.g., "in *C.VipsImage, c []float64, n int"
 func FormatGoArgList(args []Argument) string {
 	// Find buffer param if exists
-	var bufferParam *Argument
+	var inBufferParam *Argument
+	var hasOutBufParam bool
 	for i := range args {
-		if args[i].GoType == "[]byte" && strings.Contains(args[i].Name, "buf") {
-			bufferParam = &args[i]
+		if args[i].GoType == "[]byte" && args[i].Name == "buf" {
+			inBufferParam = &args[i]
 			break
 		}
 	}
 	var params []string
 	for _, arg := range args {
 		// Skip buffer length parameters
-		if bufferParam != nil && (arg.GoType == "int" || strings.Contains(arg.CType, "size_t")) && arg.Name == "len" {
+		if inBufferParam != nil && (arg.GoType == "int" || strings.Contains(arg.CType, "size_t")) && arg.Name == "len" {
+			continue
+		}
+		if arg.CType == "void**" && arg.Name == "buf" {
+			hasOutBufParam = true
+			continue
+		}
+		if hasOutBufParam && arg.GoType == "int" && arg.Name == "len" {
 			continue
 		}
 		if !arg.IsOutput {
@@ -217,6 +227,8 @@ func FormatGoArgList(args []Argument) string {
 func FormatReturnTypes(op Operation) string {
 	if op.HasImageOutput {
 		return "*C.VipsImage, error"
+	} else if op.HasBufferOutput {
+		return "[]byte, error"
 	} else if len(op.Outputs) > 0 {
 		var types []string
 		for _, arg := range op.Outputs {
@@ -379,7 +391,7 @@ func FormatFunctionCallArgs(args []Argument) string {
 			} else if arg.GoType == "[]byte" && strings.Contains(arg.Name, "buf") {
 				// Special handling for byte buffers
 				argStr = "unsafe.Pointer(&src[0])"
-			} else if arg.Name == "len" && arg.GoType == "int" && hasBufferParam(args) {
+			} else if arg.Name == "len" && arg.GoType == "int" && hasInBufferParam(args) {
 				argStr = "C.size_t(len(src))"
 			} else if strings.HasPrefix(arg.GoType, "[]") {
 				// For array parameters, handle each type specifically
@@ -418,6 +430,8 @@ func FormatFunctionCallArgs(args []Argument) string {
 func FormatReturnValues(op Operation) string {
 	if op.HasImageOutput {
 		return "return out, nil"
+	} else if op.HasBufferOutput {
+		return "return bufferToBytes(buf, length), nil"
 	} else if len(op.Outputs) > 0 {
 		var values []string
 
@@ -729,12 +743,19 @@ func FormatImageMethodBody(op Operation) string {
 // DetectMethodArguments analyzes an operation's arguments to determine which should be included in the method signature
 func DetectMethodArguments(op Operation) []Argument {
 	var methodArgs []Argument
-	var firstImageFound bool = false
+	var firstImageFound bool
+	var hasBufParam bool
 
 	// Get all arguments except the first image input and output parameters
 	for _, arg := range op.Arguments {
 		// Skip output parameters
 		if arg.IsOutput {
+			continue
+		}
+		if arg.CType == "void**" && arg.Name == "buf" {
+			hasBufParam = true
+			continue
+		} else if arg.Name == "len" && hasBufParam {
 			continue
 		}
 
@@ -915,7 +936,7 @@ func isSingleFloatReturn(op Operation) bool {
 	return len(op.Outputs) == 1 && op.Outputs[0].GoType == "float64"
 }
 
-func hasBufferParam(args []Argument) bool {
+func hasInBufferParam(args []Argument) bool {
 	for _, arg := range args {
 		if arg.GoType == "[]byte" && strings.Contains(arg.Name, "buf") {
 			return true
