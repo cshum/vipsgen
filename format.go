@@ -613,6 +613,14 @@ func FormatImageMethodBody(op Operation) string {
     return nil`,
 			op.GoName,
 			strings.Join(callArgs, ", "))
+	} else if op.HasBufferOutput {
+		return fmt.Sprintf(`buf, err := %s(%s)
+    if err != nil {
+        return nil, err
+    }
+    return buf, nil`,
+			op.GoName,
+			strings.Join(callArgs, ", "))
 	} else if len(op.Outputs) > 0 {
 		// Check for specific operation patterns that need special handling
 		if hasVectorReturn(op) {
@@ -847,6 +855,8 @@ func FilterInputParams(args []Argument) []Argument {
 func FormatImageMethodReturnTypes(op Operation) string {
 	if op.HasImageOutput {
 		return "error"
+	} else if op.HasBufferOutput {
+		return "[]byte, error"
 	} else if len(op.Outputs) > 0 {
 		var types []string
 		for _, arg := range op.Outputs {
