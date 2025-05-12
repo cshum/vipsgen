@@ -933,14 +933,20 @@ func FormatCreatorMethodBody(op Operation) string {
 		}
 	}
 
+	var imageRefBuf = "nil"
+	if op.HasBufferInput {
+		imageRefBuf = "buf"
+	}
 	return fmt.Sprintf(`StartupDefault()
     vipsImage, err := %s(%s)
     if err != nil {
         return nil, err
     }
-    return newImageRef(vipsImage, %s, nil), nil`,
+    return newImageRef(vipsImage, %s, %s), nil`,
 		op.GoName,
-		strings.Join(callArgs, ", "), op.ImageTypeString)
+		strings.Join(callArgs, ", "),
+		op.ImageTypeString,
+		imageRefBuf)
 }
 
 // Helper function to check if an operation returns a vector
