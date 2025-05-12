@@ -491,11 +491,8 @@ func formatImageMethodBody(op Operation) string {
 				if arg.GoType == "*C.VipsImage" {
 					// Convert *C.VipsImage to *Image
 					conversionCode.WriteString(fmt.Sprintf(`
-	var %sImage *Image
-	if %s != nil {
-		%sImage = newImageRef(%s, r.format, nil)
-	}`,
-						arg.GoName, arg.GoName, arg.GoName, arg.GoName))
+	%sImage := newImageRef(%s, r.format, nil)`,
+						arg.GoName, arg.GoName))
 					resultVars[i] = arg.GoName + "Image"
 				} else if arg.GoType == "[]*C.VipsImage" {
 					// Convert []*C.VipsImage to []*Image
