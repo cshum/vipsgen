@@ -6,7 +6,7 @@ import "C"
 import (
 	"fmt"
 	"github.com/cshum/vipsgen"
-	"github.com/cshum/vipsgen/girparser"
+	"github.com/cshum/vipsgen/internal/girparser"
 	"log"
 	"regexp"
 	"sort"

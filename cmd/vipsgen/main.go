@@ -4,7 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/cshum/vipsgen"
-	"github.com/cshum/vipsgen/introspection"
+	"github.com/cshum/vipsgen/internal/introspection"
 	"io"
 	"log"
 	"os"

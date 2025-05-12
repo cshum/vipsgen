@@ -1,7 +1,7 @@
 package vipsgen
 
 import (
-	"github.com/cshum/vipsgen/girparser"
+	"github.com/cshum/vipsgen/internal/girparser"
 	"text/template"
 )
 

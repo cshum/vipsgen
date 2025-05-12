@@ -3,7 +3,7 @@ package introspection
 import (
 	"fmt"
 	"github.com/cshum/vipsgen"
-	"github.com/cshum/vipsgen/girparser"
+	"github.com/cshum/vipsgen/internal/girparser"
 	"io"
 	"log"
 	"path/filepath"
