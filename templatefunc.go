@@ -10,25 +10,25 @@ import (
 // GetTemplateFuncMap Helper functions for templates
 func GetTemplateFuncMap() template.FuncMap {
 	return template.FuncMap{
-		"imageMethodName":              ImageMethodName,
-		"generateDocUrl":               GenerateDocUrl,
-		"formatErrorReturn":            FormatErrorReturn,
-		"formatGoArgList":              FormatGoArgList,
-		"formatReturnTypes":            FormatReturnTypes,
-		"formatVarDeclarations":        FormatVarDeclarations,
-		"formatFunctionCallArgs":       FormatFunctionCallArgs,
-		"formatFunctionCall":           FormatFunctionCall,
-		"formatReturnValues":           FormatReturnValues,
-		"formatImageMethodBody":        FormatImageMethodBody,
-		"formatImageMethodParams":      FormatImageMethodParams,
-		"formatImageMethodReturnTypes": FormatImageMethodReturnTypes,
-		"formatCreatorMethodParams":    FormatCreatorMethodParams,
-		"formatCreatorMethodBody":      FormatCreatorMethodBody,
+		"imageMethodName":              imageMethodName,
+		"generateDocUrl":               generateDocUrl,
+		"formatErrorReturn":            formatErrorReturn,
+		"formatGoArgList":              formatGoArgList,
+		"formatReturnTypes":            formatReturnTypes,
+		"formatVarDeclarations":        formatVarDeclarations,
+		"formatFunctionCallArgs":       formatFunctionCallArgs,
+		"formatFunctionCall":           formatFunctionCall,
+		"formatReturnValues":           formatReturnValues,
+		"formatImageMethodBody":        formatImageMethodBody,
+		"formatImageMethodParams":      formatImageMethodParams,
+		"formatImageMethodReturnTypes": formatImageMethodReturnTypes,
+		"formatCreatorMethodParams":    formatCreatorMethodParams,
+		"formatCreatorMethodBody":      formatCreatorMethodBody,
 	}
 }
 
-// ImageMethodName converts vipsFooBar to FooBar for method names
-func ImageMethodName(name string) string {
+// imageMethodName converts vipsFooBar to FooBar for method names
+func imageMethodName(name string) string {
 	if strings.HasPrefix(name, "vipsgen") {
 		return name[7:]
 	}
@@ -143,8 +143,8 @@ func FormatDefaultValue(goType string) string {
 	return "0"
 }
 
-// FormatErrorReturn formats the error return statement for a function
-func FormatErrorReturn(hasImageOutput, hasBufferOutput bool, outputs []Argument) string {
+// formatErrorReturn formats the error return statement for a function
+func formatErrorReturn(hasImageOutput, hasBufferOutput bool, outputs []Argument) string {
 	if hasImageOutput {
 		return "return nil, handleImageError(out)"
 	} else if hasBufferOutput {
@@ -164,9 +164,9 @@ func FormatErrorReturn(hasImageOutput, hasBufferOutput bool, outputs []Argument)
 	}
 }
 
-// FormatGoArgList formats a list of function arguments for a Go function
+// formatGoArgList formats a list of function arguments for a Go function
 // e.g., "in *C.VipsImage, c []float64, n int"
-func FormatGoArgList(args []Argument) string {
+func formatGoArgList(args []Argument) string {
 	// Find buffer param if exists
 	var inBufferParam *Argument
 	var hasOutBufParam bool
@@ -196,9 +196,9 @@ func FormatGoArgList(args []Argument) string {
 	return strings.Join(params, ", ")
 }
 
-// FormatReturnTypes formats the return types for a Go function
+// formatReturnTypes formats the return types for a Go function
 // e.g., "*C.VipsImage, error" or "int, float64, error"
-func FormatReturnTypes(op Operation) string {
+func formatReturnTypes(op Operation) string {
 	if op.HasImageOutput {
 		return "*C.VipsImage, error"
 	} else if op.HasBufferOutput {
@@ -220,8 +220,8 @@ func FormatReturnTypes(op Operation) string {
 	}
 }
 
-// FormatVarDeclarations formats variable declarations for output parameters
-func FormatVarDeclarations(op Operation) string {
+// formatVarDeclarations formats variable declarations for output parameters
+func formatVarDeclarations(op Operation) string {
 	var decls []string
 	if op.HasBufferInput {
 		decls = append(decls, fmt.Sprintf("src := %s", getBufferParamName(op.Arguments)))
@@ -337,8 +337,8 @@ func FormatArrayConversions(args []Argument) string {
 	return strings.Join(conversions, "\n\n	")
 }
 
-// FormatFunctionCallArgs formats the arguments for the C function call
-func FormatFunctionCallArgs(args []Argument) string {
+// formatFunctionCallArgs formats the arguments for the C function call
+func formatFunctionCallArgs(args []Argument) string {
 	var callArgs []string
 	for _, arg := range args {
 		var argStr string
@@ -417,8 +417,8 @@ func FormatFunctionCallArgs(args []Argument) string {
 	return strings.Join(callArgs, ", ")
 }
 
-// FormatReturnValues formats the return values for the Go function
-func FormatReturnValues(op Operation) string {
+// formatReturnValues formats the return values for the Go function
+func formatReturnValues(op Operation) string {
 	if op.HasImageOutput {
 		return "return out, nil"
 	} else if op.HasBufferOutput {
@@ -450,8 +450,8 @@ func FormatReturnValues(op Operation) string {
 	}
 }
 
-// FormatFunctionCall formats the call to the underlying vipsgen function
-func FormatFunctionCall(op Operation) string {
+// formatFunctionCall formats the call to the underlying vipsgen function
+func formatFunctionCall(op Operation) string {
 	var args []string
 	args = append(args, "r.image")
 
@@ -464,8 +464,8 @@ func FormatFunctionCall(op Operation) string {
 	return fmt.Sprintf("%s(%s)", op.GoName, strings.Join(args, ", "))
 }
 
-// FormatImageMethodBody formats the body of an image method using improved argument detection
-func FormatImageMethodBody(op Operation) string {
+// formatImageMethodBody formats the body of an image method using improved argument detection
+func formatImageMethodBody(op Operation) string {
 	methodArgs := DetectMethodArguments(op)
 
 	// Format the arguments for the function call
@@ -685,8 +685,8 @@ func DetectMethodArguments(op Operation) []Argument {
 	return methodArgs
 }
 
-// FormatImageMethodParams formats parameters for image methods using improved detection
-func FormatImageMethodParams(op Operation) string {
+// formatImageMethodParams formats parameters for image methods using improved detection
+func formatImageMethodParams(op Operation) string {
 	methodArgs := DetectMethodArguments(op)
 
 	var params []string
@@ -708,8 +708,8 @@ func FormatImageMethodParams(op Operation) string {
 	return strings.Join(params, ", ")
 }
 
-// FormatImageMethodReturnTypes formats return types for image methods
-func FormatImageMethodReturnTypes(op Operation) string {
+// formatImageMethodReturnTypes formats return types for image methods
+func formatImageMethodReturnTypes(op Operation) string {
 	if op.HasImageOutput {
 		return "error"
 	} else if op.HasBufferOutput {
@@ -737,8 +737,8 @@ func FormatImageMethodReturnTypes(op Operation) string {
 	}
 }
 
-// FormatCreatorMethodParams formats the parameters for a creator method
-func FormatCreatorMethodParams(op Operation) string {
+// formatCreatorMethodParams formats the parameters for a creator method
+func formatCreatorMethodParams(op Operation) string {
 	inputParams := op.RequiredInputs
 	var hasBufParam bool
 
@@ -763,8 +763,8 @@ func FormatCreatorMethodParams(op Operation) string {
 	return strings.Join(params, ", ")
 }
 
-// FormatCreatorMethodBody formats the body of a creator method
-func FormatCreatorMethodBody(op Operation) string {
+// formatCreatorMethodBody formats the body of a creator method
+func formatCreatorMethodBody(op Operation) string {
 	inputParams := op.RequiredInputs
 	var hasBufParam bool
 

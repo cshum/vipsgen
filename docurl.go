@@ -9,7 +9,7 @@ var categoryToDocMap = map[string]string{
 	"foreign": "VipsForeignSave",
 }
 
-func GenerateDocUrl(funcName string, sourceCategory string) string {
+func generateDocUrl(funcName string, sourceCategory string) string {
 	// Look up the documentation category
 	docCategory, exists := categoryToDocMap[sourceCategory]
 	if !exists {
