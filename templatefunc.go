@@ -3,18 +3,65 @@ package vipsgen
 import (
 	"fmt"
 	"strings"
+	"text/template"
 	"unicode"
 )
 
-// convertParam converts *C.VipsImage to *Image parameters
-func convertParamType(arg Argument) string {
-	if arg.GoType == "*C.VipsImage" {
-		return "*Image"
+// GetTemplateFuncMap Helper functions for templates
+func GetTemplateFuncMap() template.FuncMap {
+	return template.FuncMap{
+		"imageMethodName":              ImageMethodName,
+		"generateDocUrl":               GenerateDocUrl,
+		"formatImageMethodArgs":        FormatImageMethodArgs,
+		"split":                        strings.Split,
+		"filterInputParams":            FilterInputParams,
+		"isPointerType":                isPointerType,
+		"formatDefaultValue":           FormatDefaultValue,
+		"formatErrorReturn":            FormatErrorReturn,
+		"formatGoArgList":              FormatGoArgList,
+		"formatReturnTypes":            FormatReturnTypes,
+		"formatVarDeclarations":        FormatVarDeclarations,
+		"formatFunctionCallArgs":       FormatFunctionCallArgs,
+		"formatFunctionCall":           FormatFunctionCall,
+		"formatReturnValues":           FormatReturnValues,
+		"formatSuccessReturnValues":    FormatSuccessReturnValues,
+		"formatErrorReturnValues":      FormatErrorReturnValues,
+		"formatImageMethodSignature":   FormatImageMethodSignature,
+		"formatImageMethodBody":        FormatImageMethodBody,
+		"formatImageFuncArgList":       formatImageFuncArgList,
+		"formatImageFuncCallArgs":      formatImageFuncCallArgs,
+		"formatImageMethodParams":      FormatImageMethodParams,
+		"formatImageMethodReturnTypes": FormatImageMethodReturnTypes,
+		"formatCreatorMethodParams":    FormatCreatorMethodParams,
+		"formatCreatorMethodBody":      FormatCreatorMethodBody,
+		"hasLengthParam":               hasLengthParam,
+		"getBufferParamName":           getBufferParamName,
+
+		"hasPrefix":  strings.HasPrefix,
+		"hasSuffix":  strings.HasSuffix,
+		"trimPrefix": strings.TrimPrefix,
+		"trimSuffix": strings.TrimSuffix,
+
+		"isArrayType": func(goType string) bool {
+			return strings.HasPrefix(goType, "[]")
+		},
+
+		"arrayElementType": func(goType string) string {
+			if strings.HasPrefix(goType, "[]") {
+				return strings.TrimPrefix(goType, "[]")
+			}
+			return goType
+		},
+
+		"arrayCType": func(cType string) string {
+			// Remove one level of pointer for array element type
+			if strings.HasSuffix(cType, "*") {
+				return strings.TrimSuffix(cType, "*")
+			}
+			return cType
+		},
+		"hasArrayImageInput": HasArrayImageInput,
 	}
-	if arg.GoType == "[]*C.VipsImage" {
-		return "[]*Image"
-	}
-	return arg.GoType
 }
 
 // formatImageFuncArgList formats arguments for NewImage* functions, changing *C.VipsImage to *Image
@@ -825,14 +872,6 @@ func FormatImageMethodParams(op Operation) string {
 	return strings.Join(params, ", ")
 }
 
-// Helper function to format call arguments with proper comma handling
-func formatCallWithArgs(args string) string {
-	if args != "" {
-		return ", " + args
-	}
-	return ""
-}
-
 // FilterInputParams correctly filters out output parameters and the input image parameter
 func FilterInputParams(args []Argument) []Argument {
 	var result []Argument
@@ -962,28 +1001,4 @@ func hasVectorReturn(op Operation) bool {
 		}
 	}
 	return hasVector && hasN
-}
-
-// Helper function to check if an operation returns a single float value
-func isSingleFloatReturn(op Operation) bool {
-	return len(op.Outputs) == 1 && op.Outputs[0].GoType == "float64"
-}
-
-func hasLengthParam(args []Argument) bool {
-	for _, arg := range args {
-		if (arg.GoType == "int" || strings.Contains(arg.CType, "size_t")) &&
-			(strings.Contains(arg.Name, "len") || strings.Contains(arg.Name, "length")) {
-			return true
-		}
-	}
-	return false
-}
-
-func getBufferParamName(args []Argument) string {
-	for _, arg := range args {
-		if arg.GoType == "[]byte" && strings.Contains(arg.Name, "buf") {
-			return arg.GoName
-		}
-	}
-	return "buf" // Default fallback
 }

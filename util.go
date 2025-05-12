@@ -3,8 +3,42 @@ package vipsgen
 import (
 	"fmt"
 	"strings"
-	"text/template"
 )
+
+// Helper function to check if an operation returns a single float value
+func isSingleFloatReturn(op Operation) bool {
+	return len(op.Outputs) == 1 && op.Outputs[0].GoType == "float64"
+}
+
+func hasLengthParam(args []Argument) bool {
+	for _, arg := range args {
+		if (arg.GoType == "int" || strings.Contains(arg.CType, "size_t")) &&
+			(strings.Contains(arg.Name, "len") || strings.Contains(arg.Name, "length")) {
+			return true
+		}
+	}
+	return false
+}
+
+func getBufferParamName(args []Argument) string {
+	for _, arg := range args {
+		if arg.GoType == "[]byte" && strings.Contains(arg.Name, "buf") {
+			return arg.GoName
+		}
+	}
+	return "buf" // Default fallback
+}
+
+// convertParam converts *C.VipsImage to *Image parameters
+func convertParamType(arg Argument) string {
+	if arg.GoType == "*C.VipsImage" {
+		return "*Image"
+	}
+	if arg.GoType == "[]*C.VipsImage" {
+		return "[]*Image"
+	}
+	return arg.GoType
+}
 
 // ImageMethodName converts vipsFooBar to FooBar for method names
 func ImageMethodName(name string) string {
@@ -30,92 +64,6 @@ func HasArrayImageInput(args []Argument) bool {
 		}
 	}
 	return false
-}
-
-// GetTemplateFuncMap Helper functions for templates
-func GetTemplateFuncMap() template.FuncMap {
-	return template.FuncMap{
-		"formatArgs": func(args []Argument) string {
-			var params []string
-			for _, arg := range args {
-				params = append(params, fmt.Sprintf("%s %s", arg.GoName, arg.GoType))
-			}
-			return strings.Join(params, ", ")
-		},
-		"hasVipsImageInput": func(args []Argument) bool {
-			for _, arg := range args {
-				if arg.Type == "VipsImage" {
-					return true
-				}
-			}
-			return false
-		},
-		"cArgList": func(args []Argument) string {
-			var params []string
-			for _, arg := range args {
-				params = append(params, fmt.Sprintf("%s %s", arg.CType, arg.Name))
-			}
-			return strings.Join(params, ", ")
-		},
-		"callArgList": func(args []Argument) string {
-			var params []string
-			for _, arg := range args {
-				params = append(params, arg.Name)
-			}
-			return strings.Join(params, ", ")
-		},
-		"imageMethodName":              ImageMethodName,
-		"generateDocUrl":               GenerateDocUrl,
-		"formatImageMethodArgs":        FormatImageMethodArgs,
-		"split":                        strings.Split,
-		"filterInputParams":            FilterInputParams,
-		"isPointerType":                isPointerType,
-		"formatDefaultValue":           FormatDefaultValue,
-		"formatErrorReturn":            FormatErrorReturn,
-		"formatGoArgList":              FormatGoArgList,
-		"formatReturnTypes":            FormatReturnTypes,
-		"formatVarDeclarations":        FormatVarDeclarations,
-		"formatFunctionCallArgs":       FormatFunctionCallArgs,
-		"formatFunctionCall":           FormatFunctionCall,
-		"formatReturnValues":           FormatReturnValues,
-		"formatSuccessReturnValues":    FormatSuccessReturnValues,
-		"formatErrorReturnValues":      FormatErrorReturnValues,
-		"formatImageMethodSignature":   FormatImageMethodSignature,
-		"formatImageMethodBody":        FormatImageMethodBody,
-		"formatImageFuncArgList":       formatImageFuncArgList,
-		"formatImageFuncCallArgs":      formatImageFuncCallArgs,
-		"formatImageMethodParams":      FormatImageMethodParams,
-		"formatImageMethodReturnTypes": FormatImageMethodReturnTypes,
-		"formatCreatorMethodParams":    FormatCreatorMethodParams,
-		"formatCreatorMethodBody":      FormatCreatorMethodBody,
-		"hasLengthParam":               hasLengthParam,
-		"getBufferParamName":           getBufferParamName,
-
-		"hasPrefix":  strings.HasPrefix,
-		"hasSuffix":  strings.HasSuffix,
-		"trimPrefix": strings.TrimPrefix,
-		"trimSuffix": strings.TrimSuffix,
-
-		"isArrayType": func(goType string) bool {
-			return strings.HasPrefix(goType, "[]")
-		},
-
-		"arrayElementType": func(goType string) string {
-			if strings.HasPrefix(goType, "[]") {
-				return strings.TrimPrefix(goType, "[]")
-			}
-			return goType
-		},
-
-		"arrayCType": func(cType string) string {
-			// Remove one level of pointer for array element type
-			if strings.HasSuffix(cType, "*") {
-				return strings.TrimSuffix(cType, "*")
-			}
-			return cType
-		},
-		"hasArrayImageInput": HasArrayImageInput,
-	}
 }
 
 var categoryToDocMap = map[string]string{
