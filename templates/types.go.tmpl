@@ -34,11 +34,21 @@ var ImageMimeTypes = map[ImageType]string{
 {{range .ImageTypes}}{{if and (ne .TypeName "unknown") (ne .MimeType "")}}	{{.EnumName}}: "{{.MimeType}}",
 {{end}}{{end}}}
 
-
 {{if .HasPngSaver}}
 // PngFilter represents filter algorithms that can be applied before compression.
 // See https://www.w3.org/TR/PNG-Filters.html
 type PngFilter int
+
+// PngFilter enum
+const (
+	PngFilterNone  PngFilter = C.VIPS_FOREIGN_PNG_FILTER_NONE
+	PngFilterSub   PngFilter = C.VIPS_FOREIGN_PNG_FILTER_SUB
+	PngFilterUp    PngFilter = C.VIPS_FOREIGN_PNG_FILTER_UP
+	PngFilterAvg   PngFilter = C.VIPS_FOREIGN_PNG_FILTER_AVG
+	PngFilterPaeth PngFilter = C.VIPS_FOREIGN_PNG_FILTER_PAETH
+	PngFilterAll   PngFilter = C.VIPS_FOREIGN_PNG_FILTER_ALL
+)
+{{end}}
 
 // vipsDetermineImageTypeFromMetaLoader determine the image type from vips-loader metadata
 func vipsDetermineImageTypeFromMetaLoader(in *C.VipsImage) ImageType {
@@ -65,14 +75,3 @@ type Color struct {
 type ColorRGBA struct {
 	R, G, B, A uint8
 }
-
-// PngFilter enum
-const (
-	PngFilterNone  PngFilter = C.VIPS_FOREIGN_PNG_FILTER_NONE
-	PngFilterSub   PngFilter = C.VIPS_FOREIGN_PNG_FILTER_SUB
-	PngFilterUp    PngFilter = C.VIPS_FOREIGN_PNG_FILTER_UP
-	PngFilterAvg   PngFilter = C.VIPS_FOREIGN_PNG_FILTER_AVG
-	PngFilterPaeth PngFilter = C.VIPS_FOREIGN_PNG_FILTER_PAETH
-	PngFilterAll   PngFilter = C.VIPS_FOREIGN_PNG_FILTER_ALL
-)
-{{end}}
