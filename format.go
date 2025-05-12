@@ -252,6 +252,9 @@ func FormatVarDeclarations(op Operation) string {
 
 	if op.HasImageOutput {
 		decls = append(decls, "var out *C.VipsImage")
+	} else if op.HasBufferOutput {
+		decls = append(decls, "var buf unsafe.Pointer")
+		decls = append(decls, "var length C.size_t")
 	} else {
 		for _, arg := range op.Outputs {
 			// Special handling for vector/array outputs

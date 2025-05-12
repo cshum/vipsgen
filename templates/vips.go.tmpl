@@ -360,9 +360,6 @@ func {{.GoName}}({{formatGoArgList .Arguments}}) ({{formatReturnTypes .}}) {
     src := {{getBufferParamName .Arguments}}
     // Reference src here so it's not garbage collected during image initialization.
     defer runtime.KeepAlive(src)
-    {{end}}{{if .HasBufferOutput}}
-    var buf unsafe.Pointer
-    var length C.size_t
     {{end}}
     if err := C.vipsgen_{{.Name}}({{formatFunctionCallArgs .Arguments}}); err != 0 {
         {{formatErrorReturn .HasImageOutput .HasBufferOutput .Outputs}}
