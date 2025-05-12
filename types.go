@@ -29,6 +29,7 @@ type Operation struct {
 	Outputs            []Argument
 	HasImageInput      bool
 	HasImageOutput     bool
+	HasBufferInput     bool
 	HasBufferOutput    bool
 	HasArrayImageInput bool
 	Category           string // arithmetic, conversion, etc

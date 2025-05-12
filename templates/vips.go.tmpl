@@ -356,7 +356,7 @@ func {{.GoName}}({{formatGoArgList .Arguments}}) ({{formatReturnTypes .}}) {
     {{formatVarDeclarations .}}
     {{$stringConversions := formatStringConversions .Arguments}}{{if $stringConversions}}{{$stringConversions}}
     {{end}}{{$arrayConversions := formatArrayConversions .Arguments}}{{if $arrayConversions}}{{$arrayConversions}}
-    {{end}}{{if hasInBufferParam .Arguments}}
+    {{end}}{{if .HasBufferInput}}
     src := {{getBufferParamName .Arguments}}
     // Reference src here so it's not garbage collected during image initialization.
     defer runtime.KeepAlive(src)

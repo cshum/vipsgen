@@ -32,6 +32,9 @@ func (v *Introspection) UpdateImageInputOutputFlags(op *vipsgen.Operation) {
 		if arg.CType == "void**" && arg.Name == "buf" {
 			op.HasBufferOutput = true
 		}
+		if arg.CType == "void*" && arg.Name == "buf" {
+			op.HasBufferInput = true
+		}
 	}
 }
 

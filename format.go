@@ -397,7 +397,8 @@ func FormatFunctionCallArgs(args []Argument) string {
 			} else if arg.GoType == "[]byte" && strings.Contains(arg.Name, "buf") {
 				// Special handling for byte buffers
 				argStr = "unsafe.Pointer(&src[0])"
-			} else if arg.Name == "len" && arg.GoType == "int" && hasInBufferParam(args) {
+			} else if arg.Name == "len" && arg.CType == "size_t" {
+				// input buffer
 				argStr = "C.size_t(len(src))"
 			} else if strings.HasPrefix(arg.GoType, "[]") {
 				// For array parameters, handle each type specifically
@@ -956,15 +957,6 @@ func hasVectorReturn(op Operation) bool {
 // Helper function to check if an operation returns a single float value
 func isSingleFloatReturn(op Operation) bool {
 	return len(op.Outputs) == 1 && op.Outputs[0].GoType == "float64"
-}
-
-func hasInBufferParam(args []Argument) bool {
-	for _, arg := range args {
-		if arg.GoType == "[]byte" && strings.Contains(arg.Name, "buf") {
-			return true
-		}
-	}
-	return false
 }
 
 func hasLengthParam(args []Argument) bool {
