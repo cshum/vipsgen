@@ -56,8 +56,8 @@ func (r *Image) JpegSaveBuffer(params *JpegSaveParams) ([]byte, error) {
     return bufferToBytes(buf, length), nil
 }
 
-// JpegSaveFile exports the image as JPEG to a file.
-func (r *Image) JpegSaveFile(filename string, params *JpegSaveParams) error {
+// JpegSave exports the image as JPEG to a file.
+func (r *Image) JpegSave(filename string, params *JpegSaveParams) error {
     if params == nil {
         params = NewJpegSaveParams()
     }
@@ -130,8 +130,8 @@ func (r *Image) PngSaveBuffer(params *PngSaveParams) ([]byte, error) {
     return bufferToBytes(buf, length), nil
 }
 
-// PngSaveFile exports the image as PNG to a file.
-func (r *Image) PngSaveFile(filename string, params *PngSaveParams) error {
+// PngSave exports the image as PNG to a file.
+func (r *Image) PngSave(filename string, params *PngSaveParams) error {
 	if params == nil {
 		params = NewPngSaveParams()
 	}
@@ -213,8 +213,8 @@ func (r *Image) WebpSaveBuffer(params *WebpSaveParams) ([]byte, error) {
     return bufferToBytes(buf, length), nil
 }
 
-// WebpSaveFile exports the image as WEBP to a file.
-func (r *Image) WebpSaveFile(filename string, params *WebpSaveParams) error {
+// WebpSave exports the image as WEBP to a file.
+func (r *Image) WebpSave(filename string, params *WebpSaveParams) error {
 	if params == nil {
 		params = NewWebpSaveParams()
 	}
@@ -284,8 +284,8 @@ func (r *Image) HeifSaveBuffer(params *HeifSaveParams) ([]byte, error) {
     return bufferToBytes(buf, length), nil
 }
 
-// HeifSaveFile exports the image as HEIF to a file.
-func (r *Image) HeifSaveFile(filename string, params *HeifSaveParams) error {
+// HeifSave exports the image as HEIF to a file.
+func (r *Image) HeifSave(filename string, params *HeifSaveParams) error {
 	if params == nil {
 		params = NewHeifSaveParams()
 	}
@@ -358,8 +358,8 @@ func (r *Image) TiffSaveBuffer(params *TiffSaveParams) ([]byte, error) {
     return bufferToBytes(buf, length), nil
 }
 
-// TiffSaveFile exports the image as TIFF to a file.
-func (r *Image) TiffSaveFile(filename string, params *TiffSaveParams) error {
+// TiffSave exports the image as TIFF to a file.
+func (r *Image) TiffSave(filename string, params *TiffSaveParams) error {
 	if params == nil {
 		params = NewTiffSaveParams()
 	}
@@ -452,8 +452,8 @@ func (r *Image) GifSaveBuffer(params *GifSaveParams) ([]byte, error) {
     return bufferToBytes(buf, length), nil
 }
 
-// GifSaveFile exports the image as GIF to a file.
-func (r *Image) GifSaveFile(filename string, params *GifSaveParams) error {
+// GifSave exports the image as GIF to a file.
+func (r *Image) GifSave(filename string, params *GifSaveParams) error {
 	if params == nil {
 		params = NewGifSaveParams()
 	}
@@ -539,8 +539,8 @@ func (r *Image) AvifSaveBuffer(params *AvifSaveParams) ([]byte, error) {
     return bufferToBytes(buf, length), nil
 }
 
-// AvifSaveFile exports the image as AVIF to a file.
-func (r *Image) AvifSaveFile(filename string, params *AvifSaveParams) error {
+// AvifSave exports the image as AVIF to a file.
+func (r *Image) AvifSave(filename string, params *AvifSaveParams) error {
 	if params == nil {
 		params = NewAvifSaveParams()
 	}
@@ -601,8 +601,8 @@ func (r *Image) Jp2kSaveBuffer(params *Jp2kSaveParams) ([]byte, error) {
     return bufferToBytes(buf, length), nil
 }
 
-// Jp2kSaveFile exports the image as JPEG2000 to a file.
-func (r *Image) Jp2kSaveFile(filename string, params *Jp2kSaveParams) error {
+// Jp2kSave exports the image as JPEG2000 to a file.
+func (r *Image) Jp2kSave(filename string, params *Jp2kSaveParams) error {
 	if params == nil {
 		params = NewJp2kSaveParams()
 	}

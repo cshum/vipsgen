@@ -9,7 +9,6 @@ import (
 // GetTemplateFuncMap Helper functions for templates
 func GetTemplateFuncMap() template.FuncMap {
 	return template.FuncMap{
-		"imageMethodName":              imageMethodName,
 		"generateDocUrl":               generateDocUrl,
 		"formatErrorReturn":            formatErrorReturn,
 		"formatGoArgList":              formatGoArgList,
@@ -24,17 +23,6 @@ func GetTemplateFuncMap() template.FuncMap {
 		"formatCreatorMethodParams":    formatCreatorMethodParams,
 		"formatCreatorMethodBody":      formatCreatorMethodBody,
 	}
-}
-
-// imageMethodName converts vipsFooBar to FooBar for method names
-func imageMethodName(name string) string {
-	if strings.HasPrefix(name, "vipsgen") {
-		return name[7:]
-	}
-	if strings.HasPrefix(name, "vips") {
-		return name[4:]
-	}
-	return name
 }
 
 // formatDefaultValue returns the appropriate "zero value" for a given Go type

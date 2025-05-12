@@ -645,16 +645,23 @@ func GetGoEnumName(cName string) string {
 // FormatGoFunctionName formats an operation name to a Go function name
 func FormatGoFunctionName(name string) string {
 	// Convert operation names to match existing Go function style
-	// e.g., "rotate" -> "vipsgenRotate", "extract_area" -> "vipsgenExtractArea"
+	// e.g., "extract_area" -> "ExtractArea" "jpegsave" -> "JpegSave"
 	parts := strings.Split(name, "_")
 
 	// Convert each part to title case
 	for i, part := range parts {
 		if len(part) > 0 {
 			parts[i] = strings.ToUpper(part[0:1]) + part[1:]
+			fmt.Println(parts[i])
+			if strings.HasSuffix(part, "save") {
+				parts[i] = strings.TrimSuffix(parts[i], "save") + "Save"
+			}
+			if strings.HasSuffix(part, "load") {
+				parts[i] = strings.TrimSuffix(parts[i], "load") + "Load"
+			}
 		}
 	}
 
 	// Join with vipsgen prefix instead of vips
-	return "vipsgen" + strings.Join(parts, "")
+	return strings.Join(parts, "")
 }

@@ -26,17 +26,17 @@ type Image struct {
 }
 
 {{range .Operations}}{{if and (or (not .HasImageInput) .HasArrayImageInput) .HasOneImageOutput}}
-// NewImage{{imageMethodName .GoName}} {{.Description}}
+// New{{.GoName}} {{.Description}}
 // {{generateDocUrl .Name .Category}}
-func New{{imageMethodName .GoName}}({{formatCreatorMethodParams .}}) (*Image, error) {
+func New{{.GoName}}({{formatCreatorMethodParams .}}) (*Image, error) {
 	{{formatCreatorMethodBody .}}
 }
 {{end}}{{end}}
 
 {{range .Operations}}{{if and .HasImageInput (not .HasArrayImageInput)}}
-// {{.GoName | imageMethodName}} {{.Description}}
+// {{.GoName}} {{.Description}}
 // {{generateDocUrl .Name .Category}}
-func (r *Image) {{.GoName | imageMethodName}}({{formatImageMethodParams .}}) ({{formatImageMethodReturnTypes .}}) {
+func (r *Image) {{.GoName}}({{formatImageMethodParams .}}) ({{formatImageMethodReturnTypes .}}) {
 	{{formatImageMethodBody .}}
 }
 {{end}}{{end}}
