@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"strings"
 	"text/template"
-	"unicode"
 )
 
 // GetTemplateFuncMap Helper functions for templates
@@ -55,34 +54,6 @@ func FormatGoFunctionName(name string) string {
 	return "vipsgen" + strings.Join(parts, "")
 }
 
-// FormatIdentifier formats a name to an identifier
-func FormatIdentifier(name string) string {
-	// Handle Go keywords
-	switch name {
-	case "type", "func", "map", "range", "select", "case", "default":
-		return name + "_"
-	}
-
-	// Handle special cases
-	name = strings.Replace(name, "-", "_", -1)
-
-	return name
-}
-
-// FormatGoIdentifier formats a name to a go identifier
-func FormatGoIdentifier(name string) string {
-	s := SnakeToCamel(FormatIdentifier(name))
-
-	// first letter lower case
-	if len(s) == 0 {
-		return s
-	}
-
-	r := []rune(s)
-	r[0] = unicode.ToLower(r[0])
-	return string(r)
-}
-
 // GetGoEnumName converts a C enum type name to a Go type name
 func GetGoEnumName(cName string) string {
 	// Strip "Vips" prefix if present
@@ -99,26 +70,8 @@ func GetGoEnumName(cName string) string {
 	return cName
 }
 
-// FormatEnumValueName converts a C enum name to a Go name
-func FormatEnumValueName(typeName, valueName string) string {
-	// Convert to CamelCase
-	camelValue := SnakeToCamel(strings.ToLower(valueName))
-
-	// Check if the value already contains "Vips" + typeName or "VipsForeign" + typeName
-	lowerCamelValue := strings.ToLower(camelValue)
-	lowerTypeName := strings.ToLower(typeName)
-
-	if strings.HasPrefix(lowerCamelValue, "vips"+lowerTypeName) ||
-		strings.HasPrefix(lowerCamelValue, "vipsforeign"+lowerTypeName) {
-		return GetGoEnumName(camelValue)
-	}
-
-	// Otherwise, prepend the type name
-	return typeName + GetGoEnumName(camelValue)
-}
-
-// FormatDefaultValue returns the appropriate "zero value" for a given Go type
-func FormatDefaultValue(goType string) string {
+// formatDefaultValue returns the appropriate "zero value" for a given Go type
+func formatDefaultValue(goType string) string {
 	// Handle slice types
 	if strings.HasPrefix(goType, "[]") {
 		return "nil"
@@ -155,7 +108,7 @@ func formatErrorReturn(hasImageOutput, hasBufferOutput bool, outputs []Argument)
 			if arg.Name == "vector" || arg.Name == "out_array" {
 				returnValues = append(returnValues, "nil")
 			} else {
-				returnValues = append(returnValues, FormatDefaultValue(arg.GoType))
+				returnValues = append(returnValues, formatDefaultValue(arg.GoType))
 			}
 		}
 		return "return " + strings.Join(returnValues, ", ") + ", handleVipsError()"
@@ -256,17 +209,17 @@ func formatVarDeclarations(op Operation) string {
 			}
 		}
 	}
-	if stringConv := FormatStringConversions(op.Arguments); stringConv != "" {
+	if stringConv := formatStringConversions(op.Arguments); stringConv != "" {
 		decls = append(decls, stringConv)
 	}
-	if arrayConv := FormatArrayConversions(op.Arguments); arrayConv != "" {
+	if arrayConv := formatArrayConversions(op.Arguments); arrayConv != "" {
 		decls = append(decls, arrayConv)
 	}
 	return strings.Join(decls, "\n	")
 }
 
-// FormatStringConversions formats C string conversions for string parameters
-func FormatStringConversions(args []Argument) string {
+// formatStringConversions formats C string conversions for string parameters
+func formatStringConversions(args []Argument) string {
 	var conversions []string
 	for _, arg := range args {
 		if !arg.IsOutput && arg.GoType == "string" {
@@ -277,8 +230,8 @@ func FormatStringConversions(args []Argument) string {
 	return strings.Join(conversions, "\n	")
 }
 
-// FormatArrayConversions formats array conversions for slice parameters
-func FormatArrayConversions(args []Argument) string {
+// formatArrayConversions formats array conversions for slice parameters
+func formatArrayConversions(args []Argument) string {
 	var conversions []string
 	for _, arg := range args {
 		if !arg.IsOutput && strings.HasPrefix(arg.GoType, "[]") {
@@ -466,7 +419,7 @@ func formatFunctionCall(op Operation) string {
 
 // formatImageMethodBody formats the body of an image method using improved argument detection
 func formatImageMethodBody(op Operation) string {
-	methodArgs := DetectMethodArguments(op)
+	methodArgs := detectMethodArguments(op)
 
 	// Format the arguments for the function call
 	var callArgs []string
@@ -648,8 +601,8 @@ func formatImageMethodBody(op Operation) string {
 	}
 }
 
-// DetectMethodArguments analyzes an operation's arguments to determine which should be included in the method signature
-func DetectMethodArguments(op Operation) []Argument {
+// detectMethodArguments analyzes an operation's arguments to determine which should be included in the method signature
+func detectMethodArguments(op Operation) []Argument {
 	var methodArgs []Argument
 	var firstImageFound bool
 	var hasBufParam bool
@@ -687,7 +640,7 @@ func DetectMethodArguments(op Operation) []Argument {
 
 // formatImageMethodParams formats parameters for image methods using improved detection
 func formatImageMethodParams(op Operation) string {
-	methodArgs := DetectMethodArguments(op)
+	methodArgs := detectMethodArguments(op)
 
 	var params []string
 	for _, arg := range methodArgs {

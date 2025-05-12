@@ -8,6 +8,7 @@ import (
 	"log"
 	"path/filepath"
 	"strings"
+	"unicode"
 )
 
 // ParseGir parses a GIR file from a reader
@@ -303,7 +304,7 @@ func (v *Introspection) ConvertToVipsgenOperations() []vipsgen.Operation {
 			// Create argument with original parameter reference
 			arg := vipsgen.Argument{
 				Name:          param.Name,
-				GoName:        vipsgen.FormatGoIdentifier(param.Name),
+				GoName:        FormatGoIdentifier(param.Name),
 				Type:          baseType,
 				GoType:        goType,
 				CType:         cType,
@@ -577,4 +578,50 @@ func extractDescription(doc string) string {
 		description += "..."
 	}
 	return description
+}
+
+// FormatGoIdentifier formats a name to a go identifier
+func FormatGoIdentifier(name string) string {
+	s := vipsgen.SnakeToCamel(FormatIdentifier(name))
+
+	// first letter lower case
+	if len(s) == 0 {
+		return s
+	}
+
+	r := []rune(s)
+	r[0] = unicode.ToLower(r[0])
+	return string(r)
+}
+
+// FormatIdentifier formats a name to an identifier
+func FormatIdentifier(name string) string {
+	// Handle Go keywords
+	switch name {
+	case "type", "func", "map", "range", "select", "case", "default":
+		return name + "_"
+	}
+
+	// Handle special cases
+	name = strings.Replace(name, "-", "_", -1)
+
+	return name
+}
+
+// FormatEnumValueName converts a C enum name to a Go name
+func FormatEnumValueName(typeName, valueName string) string {
+	// Convert to CamelCase
+	camelValue := vipsgen.SnakeToCamel(strings.ToLower(valueName))
+
+	// Check if the value already contains "Vips" + typeName or "VipsForeign" + typeName
+	lowerCamelValue := strings.ToLower(camelValue)
+	lowerTypeName := strings.ToLower(typeName)
+
+	if strings.HasPrefix(lowerCamelValue, "vips"+lowerTypeName) ||
+		strings.HasPrefix(lowerCamelValue, "vipsforeign"+lowerTypeName) {
+		return vipsgen.GetGoEnumName(camelValue)
+	}
+
+	// Otherwise, prepend the type name
+	return typeName + vipsgen.GetGoEnumName(camelValue)
 }

@@ -315,7 +315,7 @@ func (v *Introspection) getEnumType(cName, goName string) (vipsgen.EnumTypeInfo,
 		nick := C.GoString(val.nick)
 
 		// Process name for Go usage
-		goValueName := vipsgen.FormatEnumValueName(goName, name)
+		goValueName := FormatEnumValueName(goName, name)
 
 		// For "Foreign" types, we want to strip the "Foreign" prefix from the enum values
 		if isForeignType && strings.HasPrefix(goValueName, "Foreign") {
