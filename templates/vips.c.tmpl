@@ -96,10 +96,6 @@ void clear_image(VipsImage **image) {
 
 int has_alpha_channel(VipsImage *image) { return vips_image_hasalpha(image); }
 
-int copy_image(VipsImage *in, VipsImage **out) {
-  return vips_copy(in, out, NULL);
-}
-
 int embed_image(VipsImage *in, VipsImage **out, int left, int top, int width,
                 int height, int extend) {
   return vips_embed(in, out, left, top, width, height, "extend", extend, NULL);
@@ -210,10 +206,6 @@ int embed_multi_page_image_background(VipsImage *in, VipsImage **out, int left, 
   return 0;
 }
 
-int flip_image(VipsImage *in, VipsImage **out, int direction) {
-  return vips_flip(in, out, direction, NULL);
-}
-
 int extract_image_area(VipsImage *in, VipsImage **out, int left, int top,
                        int width, int height) {
   return vips_extract_area(in, out, left, top, width, height, NULL);
@@ -246,10 +238,6 @@ int extract_area_multi_page(VipsImage *in, VipsImage **out, int left, int top, i
   vips_image_set_int(*out, VIPS_META_PAGE_HEIGHT, height);
   g_object_unref(base);
   return 0;
-}
-
-int rotate_image(VipsImage *in, VipsImage **out, VipsAngle angle) {
-  return vips_rot(in, out, angle, NULL);
 }
 
 int rotate_image_multi_page(VipsImage *in, VipsImage **out, VipsAngle angle) {
@@ -380,14 +368,6 @@ int composite2_image(VipsImage *base, VipsImage *overlay, VipsImage **out,
   return vips_composite2(base, overlay, out, mode, "x", x, "y", y, NULL);
 }
 
-int replicate(VipsImage *in, VipsImage **out, int across, int down) {
-  return vips_replicate(in, out, across, down, NULL);
-}
-
-int linear(VipsImage *in, VipsImage **out, double *a, double *b, int n) {
-  return vips_linear(in, out, a, b, n, NULL);
-}
-
 int find_trim(VipsImage *in, int *left, int *top, int *width, int *height,
   double threshold, int x, int y) {
   VipsImage *base = vips_image_new();
@@ -430,18 +410,6 @@ int find_trim(VipsImage *in, int *left, int *top, int *width, int *height,
     return 1;
   }
   return 0;
-}
-
-int getpoint(VipsImage *in, double **vector, int n, int x, int y) {
-  return vips_getpoint(in, vector, &n, x, y, NULL);
-}
-
-int to_colorspace(VipsImage *in, VipsImage **out, VipsInterpretation space) {
-  return vips_colourspace(in, out, space, NULL);
-}
-
-int gaussian_blur_image(VipsImage *in, VipsImage **out, double sigma) {
-  return vips_gaussblur(in, out, sigma, NULL);
 }
 
 int sharpen_image(VipsImage *in, VipsImage **out, double sigma, double x1,

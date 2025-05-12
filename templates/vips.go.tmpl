@@ -201,17 +201,6 @@ func vipsHasAlpha(in *C.VipsImage) bool {
 	return int(C.has_alpha_channel(in)) > 0
 }
 
-// https://libvips.github.io/libvips/API/current/libvips-conversion.html#vips-copy
-func vipsCopyImage(in *C.VipsImage) (*C.VipsImage, error) {
-	var out *C.VipsImage
-
-	if err := C.copy_image(in, &out); int(err) != 0 {
-		return nil, handleImageError(out)
-	}
-
-	return out, nil
-}
-
 // https://libvips.github.io/libvips/API/current/libvips-conversion.html#vips-embed
 func vipsEmbed(in *C.VipsImage, left, top, width, height int, extend Extend) (*C.VipsImage, error) {
 	var out *C.VipsImage

@@ -284,12 +284,8 @@ func (r *Image) PageHeight() int {
 // SetPageHeight set the height of a page
 // For animated images this is used when "unrolling" back to frames
 func (r *Image) SetPageHeight(height int) error {
-	out, err := vipsCopyImage(r.image)
-	if err != nil {
-		return err
-	}
-	vipsSetPageHeight(out, height)
-	r.setImage(out)
+	vipsSetPageHeight(r.image, height)
+	r.pageHeight = height
 	return nil
 }
 
