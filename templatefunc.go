@@ -375,6 +375,7 @@ func formatFunctionCall(op Operation) string {
 // formatImageMethodBody formats the body of an image method using improved argument detection
 func formatImageMethodBody(op Operation) string {
 	methodArgs := detectMethodArguments(op)
+	goFuncName := "vipsgen" + op.GoName
 
 	// Format the arguments for the function call
 	var callArgs []string
@@ -407,7 +408,7 @@ func formatImageMethodBody(op Operation) string {
 	}
 	r.setImage(out)
 	return nil`,
-			op.GoName,
+			goFuncName,
 			strings.Join(callArgs, ", "))
 	} else if op.HasBufferOutput {
 		return fmt.Sprintf(`buf, err := %s(%s)
@@ -415,7 +416,7 @@ func formatImageMethodBody(op Operation) string {
 		return nil, err
 	}
 	return buf, nil`,
-			op.GoName,
+			goFuncName,
 			strings.Join(callArgs, ", "))
 	} else if len(op.Outputs) > 0 {
 		// Check for specific operation patterns that need special handling
@@ -426,7 +427,7 @@ func formatImageMethodBody(op Operation) string {
 		return nil, 0, err
 	}
 	return vector, n, nil`,
-				op.GoName,
+				goFuncName,
 				strings.Join(callArgs, ", "))
 		} else if isSingleFloatReturn(op) {
 			// For single float-returning operations like avg
@@ -435,7 +436,7 @@ func formatImageMethodBody(op Operation) string {
 		return 0, err
 	}
 	return out, nil`,
-				op.GoName,
+				goFuncName,
 				strings.Join(callArgs, ", "))
 		} else if HasOneImageOutputs {
 			// For operations that return images
@@ -449,7 +450,7 @@ func formatImageMethodBody(op Operation) string {
 			// Form the function call line
 			callLine := fmt.Sprintf("%s, err := %s(%s)",
 				strings.Join(resultVars, ", "),
-				op.GoName,
+				goFuncName,
 				strings.Join(callArgs, ", "))
 
 			// Form the error return line
@@ -511,7 +512,7 @@ func formatImageMethodBody(op Operation) string {
 			// Form the function call line
 			callLine := fmt.Sprintf("%s, err := %s(%s)",
 				strings.Join(resultVars, ", "),
-				op.GoName,
+				goFuncName,
 				strings.Join(callArgs, ", "))
 
 			// Form the error return line
@@ -548,7 +549,7 @@ func formatImageMethodBody(op Operation) string {
 		return err
 	}
 	return nil`,
-			op.GoName,
+			goFuncName,
 			strings.Join(callArgs, ", "))
 	}
 }
@@ -672,6 +673,7 @@ func formatCreatorMethodParams(op Operation) string {
 func formatCreatorMethodBody(op Operation) string {
 	inputParams := op.RequiredInputs
 	var hasBufParam bool
+	goFuncName := "vipsgen" + op.GoName
 
 	// Format the arguments for the function call
 	var callArgs []string
@@ -700,7 +702,7 @@ func formatCreatorMethodBody(op Operation) string {
 		return nil, err
 	}
 	return newImageRef(vipsImage, %s, %s), nil`,
-		op.GoName,
+		goFuncName,
 		strings.Join(callArgs, ", "),
 		op.ImageTypeString,
 		imageRefBuf)
