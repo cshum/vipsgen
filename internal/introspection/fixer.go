@@ -40,6 +40,10 @@ func (v *Introspection) UpdateImageInputOutputFlags(op *vipsgen.Operation) {
 	if imageOutputCount == 1 && !op.HasArrayImageInput {
 		op.HasOneImageOutput = true
 	}
+	if op.Name == "copy" || op.Name == "sequential" || op.Name == "linecache" || op.Name == "tilecache" {
+		// operations that should not mutate the Image object
+		op.HasOneImageOutput = false
+	}
 }
 
 // FixOperationTypes examines operations and adjusts their types based on patterns

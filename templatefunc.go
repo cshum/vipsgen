@@ -493,7 +493,7 @@ func formatImageMethodBody(op Operation) string {
 					conversionCode.WriteString(fmt.Sprintf(`
 	var %sImage *Image
 	if %s != nil {
-		%sImage = newImageRef(%s, ImageTypeUnknown, nil)
+		%sImage = newImageRef(%s, r.format, nil)
 	}`,
 						arg.GoName, arg.GoName, arg.GoName, arg.GoName))
 					resultVars[i] = arg.GoName + "Image"
