@@ -21,6 +21,7 @@ func (v *Introspection) UpdateImageInputOutputFlags(op *vipsgen.Operation) {
 
 		// Check for "out" parameter with VipsImage* type
 		if arg.Type == "VipsImage" && arg.CType == "VipsImage**" && arg.IsOutput {
+			op.HasImageOutput = true
 			imageOutputCount++
 		}
 
@@ -37,7 +38,7 @@ func (v *Introspection) UpdateImageInputOutputFlags(op *vipsgen.Operation) {
 			op.HasBufferInput = true
 		}
 	}
-	if imageOutputCount == 1 && !op.HasArrayImageInput {
+	if imageOutputCount == 1 {
 		op.HasOneImageOutput = true
 	}
 	if op.Name == "copy" || op.Name == "sequential" || op.Name == "linecache" || op.Name == "tilecache" {
