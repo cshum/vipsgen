@@ -5,7 +5,7 @@ package introspection
 import "C"
 import (
 	"fmt"
-	"github.com/cshum/vipsgen"
+	"github.com/cshum/vipsgen/internal/generator"
 	"github.com/cshum/vipsgen/internal/girparser"
 	"log"
 	"regexp"
@@ -84,7 +84,7 @@ type Introspection struct {
 	functionInfo []VipsFunctionInfo
 	// Debug info from parsing
 	debugInfo            *DebugInfo
-	discoveredImageTypes map[string]vipsgen.ImageTypeInfo
+	discoveredImageTypes map[string]generator.ImageTypeInfo
 }
 
 // NewIntrospection creates a new Introspection instance for analyzing libvips
@@ -104,7 +104,7 @@ func NewIntrospection() *Introspection {
 
 	return &Introspection{
 		discoveredEnumTypes:  discoveredTypes,
-		discoveredImageTypes: map[string]vipsgen.ImageTypeInfo{},
+		discoveredImageTypes: map[string]generator.ImageTypeInfo{},
 		enumTypeNames:        baseEnumTypeNames,
 	}
 }
@@ -193,10 +193,10 @@ func (v *Introspection) DiscoverEnumsFromOperation(opName string) {
 
 // FilterOperations filters operations based on availability in the current libvips installation,
 // excluded operations list, and deduplicates by Go function name
-func (v *Introspection) FilterOperations(operations []vipsgen.Operation) []vipsgen.Operation {
+func (v *Introspection) FilterOperations(operations []generator.Operation) []generator.Operation {
 	// Filter out excluded operations and deduplicate by Go function name
 	seenFunctions := make(map[string]bool)
-	var filteredOps []vipsgen.Operation
+	var filteredOps []generator.Operation
 	var notAvailableCount, excludedCount, duplicateCount int
 
 	for _, op := range operations {
@@ -213,14 +213,14 @@ func (v *Introspection) FilterOperations(operations []vipsgen.Operation) []vipsg
 		}
 
 		// Check if operation is explicitly excluded
-		if vipsgen.ExcludedOperations[op.Name] {
+		if generator.ExcludedOperations[op.Name] {
 			fmt.Printf("Excluding operation: %s (in ExcludedOperations list)\n", op.Name)
 			excludedCount++
 			continue
 		}
 
 		// Check if operation is excluded by config
-		if config, ok := vipsgen.OperationConfigs[op.Name]; ok && config.SkipGen {
+		if config, ok := generator.OperationConfigs[op.Name]; ok && config.SkipGen {
 			fmt.Printf("Skipping operation (configured in OperationConfigs): %s\n", op.Name)
 			excludedCount++
 			continue
@@ -244,8 +244,8 @@ func (v *Introspection) FilterOperations(operations []vipsgen.Operation) []vipsg
 }
 
 // GetEnumTypes retrieves all enum types from libvips
-func (v *Introspection) GetEnumTypes() []vipsgen.EnumTypeInfo {
-	var enumTypes []vipsgen.EnumTypeInfo
+func (v *Introspection) GetEnumTypes() []generator.EnumTypeInfo {
+	var enumTypes []generator.EnumTypeInfo
 
 	for _, typeName := range v.enumTypeNames {
 		if excludedEnumTypeNames[typeName.CName] {
@@ -277,12 +277,12 @@ func (v *Introspection) GetEnumTypes() []vipsgen.EnumTypeInfo {
 }
 
 // getEnumType retrieves information about a specific enum type
-func (v *Introspection) getEnumType(cName, goName string) (vipsgen.EnumTypeInfo, error) {
+func (v *Introspection) getEnumType(cName, goName string) (generator.EnumTypeInfo, error) {
 
-	enumType := vipsgen.EnumTypeInfo{
+	enumType := generator.EnumTypeInfo{
 		CName:  cName,
 		GoName: goName,
-		Values: []vipsgen.EnumValueInfo{},
+		Values: []generator.EnumValueInfo{},
 	}
 
 	// Convert strings to C strings
@@ -323,7 +323,7 @@ func (v *Introspection) getEnumType(cName, goName string) (vipsgen.EnumTypeInfo,
 			goValueName = strings.TrimPrefix(goValueName, "Foreign")
 		}
 
-		enumType.Values = append(enumType.Values, vipsgen.EnumValueInfo{
+		enumType.Values = append(enumType.Values, generator.EnumValueInfo{
 			CName:       name,
 			GoName:      goValueName,
 			Value:       int(val.value),
@@ -384,9 +384,9 @@ func (v *Introspection) getMimeType(typeName string) string {
 }
 
 // DiscoverImageTypes discovers supported image types in libvips
-func (v *Introspection) DiscoverImageTypes() []vipsgen.ImageTypeInfo {
+func (v *Introspection) DiscoverImageTypes() []generator.ImageTypeInfo {
 	// Some image types are always defined, even if not supported
-	imageTypes := []vipsgen.ImageTypeInfo{
+	imageTypes := []generator.ImageTypeInfo{
 		{TypeName: "unknown", EnumName: "ImageTypeUnknown", MimeType: "", Order: 0},
 	}
 
@@ -435,7 +435,7 @@ func (v *Introspection) DiscoverImageTypes() []vipsgen.ImageTypeInfo {
 
 		// If either loader or saver exists, this format is supported
 		if loaderExists || saverExists {
-			imageType := vipsgen.ImageTypeInfo{
+			imageType := generator.ImageTypeInfo{
 				TypeName: typeInfo.TypeName,
 				EnumName: enumName,
 				MimeType: typeInfo.MimeType,
@@ -453,7 +453,7 @@ func (v *Introspection) DiscoverImageTypes() []vipsgen.ImageTypeInfo {
 
 	if avifSupported {
 		// Add AVIF to the list with its proper order
-		imageTypes = append(imageTypes, vipsgen.ImageTypeInfo{
+		imageTypes = append(imageTypes, generator.ImageTypeInfo{
 			TypeName: "avif",
 			EnumName: "ImageTypeAvif",
 			MimeType: "image/avif",

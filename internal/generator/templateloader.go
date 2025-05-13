@@ -1,7 +1,6 @@
-package vipsgen
+package generator
 
 import (
-	"embed"
 	"fmt"
 	"io/fs"
 	"os"
@@ -9,9 +8,6 @@ import (
 	"strings"
 	"text/template"
 )
-
-//go:embed templates/*.tmpl Vips-8.0.gir
-var EmbeddedTemplates embed.FS
 
 // FSTemplateLoader loads templates from any fs.FS implementation
 type FSTemplateLoader struct {

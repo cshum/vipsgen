@@ -3,7 +3,7 @@ package introspection
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/cshum/vipsgen"
+	"github.com/cshum/vipsgen/internal/generator"
 	"github.com/cshum/vipsgen/internal/girparser"
 	"io"
 	"log"
@@ -250,8 +250,8 @@ func formatReturnType(ret girparser.ReturnValue) string {
 }
 
 // ConvertToVipsgenOperations converts girparser functions to vipsgen.Operation format
-func (v *Introspection) ConvertToVipsgenOperations() []vipsgen.Operation {
-	var operations []vipsgen.Operation
+func (v *Introspection) ConvertToVipsgenOperations() []generator.Operation {
+	var operations []generator.Operation
 
 	for _, fn := range v.functionInfo {
 		// Skip functions that don't match our vips_ pattern
@@ -260,7 +260,7 @@ func (v *Introspection) ConvertToVipsgenOperations() []vipsgen.Operation {
 		}
 
 		// Create a new operation
-		op := vipsgen.Operation{
+		op := generator.Operation{
 			Name:        fn.Name,
 			GoName:      FormatGoFunctionName(fn.Name),
 			Description: fn.Description,
@@ -304,7 +304,7 @@ func (v *Introspection) ConvertToVipsgenOperations() []vipsgen.Operation {
 			baseType := extractBaseType(cType)
 
 			// Create argument with original parameter reference
-			arg := vipsgen.Argument{
+			arg := generator.Argument{
 				Name:          param.Name,
 				GoName:        FormatGoIdentifier(param.Name),
 				Type:          baseType,
@@ -597,7 +597,7 @@ func extractDescription(doc string) string {
 
 // FormatGoIdentifier formats a name to a go identifier
 func FormatGoIdentifier(name string) string {
-	s := vipsgen.SnakeToCamel(FormatIdentifier(name))
+	s := generator.SnakeToCamel(FormatIdentifier(name))
 
 	// first letter lower case
 	if len(s) == 0 {
@@ -626,7 +626,7 @@ func FormatIdentifier(name string) string {
 // FormatEnumValueName converts a C enum name to a Go name
 func FormatEnumValueName(typeName, valueName string) string {
 	// Convert to CamelCase
-	camelValue := vipsgen.SnakeToCamel(strings.ToLower(valueName))
+	camelValue := generator.SnakeToCamel(strings.ToLower(valueName))
 
 	// Check if the value already contains "Vips" + typeName or "VipsForeign" + typeName
 	lowerCamelValue := strings.ToLower(camelValue)

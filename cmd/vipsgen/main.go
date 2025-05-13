@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/cshum/vipsgen"
+	"github.com/cshum/vipsgen/internal/generator"
 	"github.com/cshum/vipsgen/internal/introspection"
 	"io"
 	"log"
@@ -22,7 +23,7 @@ func main() {
 
 	// Extract templates and exit if requested
 	if *extractTemplates {
-		if err := vipsgen.ExtractEmbeddedFilesystem(vipsgen.EmbeddedTemplates, *extractDir); err != nil {
+		if err := generator.ExtractEmbeddedFilesystem(vipsgen.EmbeddedTemplates, *extractDir); err != nil {
 			log.Fatalf("Failed to extract templates: %v", err)
 		}
 
@@ -31,21 +32,21 @@ func main() {
 	}
 
 	var outputDir string
-	var loader vipsgen.TemplateLoader
-	var funcMap = vipsgen.GetTemplateFuncMap()
+	var loader generator.TemplateLoader
+	var funcMap = generator.GetTemplateFuncMap()
 
 	// Determine template source - use embedded by default, external if specified
 	if *templateDirFlag != "" {
 		// Use specified template directory
 		var err error
-		loader, err = vipsgen.NewOSTemplateLoader(*templateDirFlag, funcMap)
+		loader, err = generator.NewOSTemplateLoader(*templateDirFlag, funcMap)
 		if err != nil {
 			log.Fatalf("Failed to create template loader: %v", err)
 		}
 		fmt.Printf("Using templates from: %s\n", *templateDirFlag)
 	} else {
 		// Use embedded templates by default
-		loader = vipsgen.NewEmbeddedTemplateLoader(vipsgen.EmbeddedTemplates, funcMap)
+		loader = generator.NewEmbeddedTemplateLoader(vipsgen.EmbeddedTemplates, funcMap)
 		fmt.Println("Using embedded templates")
 	}
 
@@ -112,10 +113,10 @@ func main() {
 	filteredOperations := vipsIntrospection.FilterOperations(allOperations)
 
 	// Create unified template data
-	templateData := vipsgen.NewTemplateData(filteredOperations, enumTypes, imageTypes, supportedSavers)
+	templateData := generator.NewTemplateData(filteredOperations, enumTypes, imageTypes, supportedSavers)
 
 	// Generate all code using the unified template data approach
-	if err := vipsgen.Generate(loader, templateData, outputDir); err != nil {
+	if err := generator.Generate(loader, templateData, outputDir); err != nil {
 		log.Fatalf("Failed to generate code: %v", err)
 	}
 }

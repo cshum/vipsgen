@@ -1,12 +1,12 @@
 package introspection
 
 import (
-	"github.com/cshum/vipsgen"
+	"github.com/cshum/vipsgen/internal/generator"
 	"strings"
 )
 
 // UpdateImageInputOutputFlags examines operation arguments and sets proper flags
-func (v *Introspection) UpdateImageInputOutputFlags(op *vipsgen.Operation) {
+func (v *Introspection) UpdateImageInputOutputFlags(op *generator.Operation) {
 	op.HasImageInput = false
 	op.HasOneImageOutput = false
 	op.HasArrayImageInput = false
@@ -48,7 +48,7 @@ func (v *Introspection) UpdateImageInputOutputFlags(op *vipsgen.Operation) {
 }
 
 // FixOperationTypes examines operations and adjusts their types based on patterns
-func (v *Introspection) FixOperationTypes(op *vipsgen.Operation) {
+func (v *Introspection) FixOperationTypes(op *generator.Operation) {
 	// Pattern detection: Vector return operations
 	// If function has output param named "vector" paired with output param "n", it's returning an array
 	hasVectorParam := false

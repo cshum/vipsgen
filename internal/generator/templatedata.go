@@ -1,4 +1,4 @@
-package vipsgen
+package generator
 
 import "strings"
 
