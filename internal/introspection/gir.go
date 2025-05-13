@@ -1,11 +1,13 @@
 package introspection
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/cshum/vipsgen"
 	"github.com/cshum/vipsgen/internal/girparser"
 	"io"
 	"log"
+	"os"
 	"path/filepath"
 	"strings"
 	"unicode"
@@ -343,6 +345,19 @@ func (v *Introspection) ConvertToVipsgenOperations() []vipsgen.Operation {
 		// Update image input/output flags
 		v.UpdateImageInputOutputFlags(&op)
 		operations = append(operations, op)
+	}
+
+	// Debug: Write the parsed GIR to a JSON file
+	jsonData, err := json.MarshalIndent(operations, "", "  ")
+	if err != nil {
+		log.Printf("Warning: failed to marshal operations to JSON: %v", err)
+	} else {
+		err = os.WriteFile("debug_operations.json", jsonData, 0644)
+		if err != nil {
+			log.Printf("Warning: failed to write debug_operations.json: %v", err)
+		} else {
+			log.Println("Wrote introspected operations to debug_operations.json")
+		}
 	}
 
 	return operations
