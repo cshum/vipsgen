@@ -391,15 +391,6 @@ func formatImageMethodBody(op Operation) string {
 		}
 	}
 
-	// Check if the operation has any image outputs
-	HasOneImageOutputs := false
-	for _, arg := range op.Outputs {
-		if arg.GoType == "*C.VipsImage" || arg.GoType == "[]*C.VipsImage" {
-			HasOneImageOutputs = true
-			break
-		}
-	}
-
 	// Generate different function bodies based on operation type
 	if op.HasOneImageOutput {
 		return fmt.Sprintf(`out, err := %s(%s)
@@ -438,7 +429,7 @@ func formatImageMethodBody(op Operation) string {
 	return out, nil`,
 				goFuncName,
 				strings.Join(callArgs, ", "))
-		} else if HasOneImageOutputs {
+		} else if op.HasImageOutput {
 			// For operations that return images
 
 			// Get the names of the result variables
