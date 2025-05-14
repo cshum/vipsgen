@@ -132,6 +132,7 @@ func (v *Introspection) processVipsFunction(fn girparser.Function, debugInfo *De
 		ReturnType:  formatReturnType(fn.ReturnValue),
 		Category:    extractCategoryFromFilename(fn.SourcePosition.Filename),
 		Description: extractDescription(fn.Doc),
+		OriginalDoc: fn.Doc,
 		HasVarArgs:  false,
 	}
 
@@ -344,6 +345,12 @@ func (v *Introspection) ConvertToVipsgenOperations() []generator.Operation {
 
 		// Update image input/output flags
 		v.UpdateImageInputOutputFlags(&op)
+
+		// Parse optional inputs from docs if not exists
+		if len(op.OptionalInputs) == 0 {
+			op.OptionalInputs = v.extractOptionalArgsFromDoc(op.Name, fn.OriginalDoc)
+		}
+
 		operations = append(operations, op)
 	}
 
