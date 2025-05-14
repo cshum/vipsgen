@@ -535,7 +535,7 @@ func (v *Introspection) mapCTypeToGoType(cType string, param VipsParamInfo, orig
 }
 
 func (v *Introspection) isEnumType(cType string) bool {
-	return v.discoveredEnumTypes[cType] != ""
+	return v.discoveredEnumTypes[strings.ToLower(cType)] != ""
 }
 
 // determineFlags calculates the flags for an argument

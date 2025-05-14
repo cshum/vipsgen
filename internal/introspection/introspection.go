@@ -337,11 +337,12 @@ func (v *Introspection) getEnumType(cName, goName string) (generator.EnumTypeInf
 
 // AddEnumType adds a newly discovered enum type
 func (v *Introspection) AddEnumType(cName, goName string) {
+	cNameLower := strings.ToLower(cName)
 	if excludedEnumTypeNames[cName] {
 		fmt.Printf("Excluded enum type: %s -> %s\n", cName, goName)
 		return
 	}
-	if _, exists := v.discoveredEnumTypes[cName]; !exists {
+	if _, exists := v.discoveredEnumTypes[cNameLower]; !exists {
 		// Add to our enum type list for later processing
 		v.enumTypeNames = append(v.enumTypeNames, struct {
 			CName  string
@@ -350,13 +351,13 @@ func (v *Introspection) AddEnumType(cName, goName string) {
 			CName:  cName,
 			GoName: goName,
 		})
-		v.discoveredEnumTypes[cName] = goName
+		v.discoveredEnumTypes[cNameLower] = goName
 		fmt.Printf("Discovered enum type: %s -> %s\n", cName, goName)
 	}
 }
 
 func (v *Introspection) GetGoEnumName(typeName string) string {
-	if name, exists := v.discoveredEnumTypes[typeName]; exists {
+	if name, exists := v.discoveredEnumTypes[strings.ToLower(typeName)]; exists {
 		return name
 	}
 	return GetGoEnumName(typeName)

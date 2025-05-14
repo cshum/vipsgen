@@ -161,20 +161,15 @@ func (v *Introspection) extractOptionalArgsFromDoc(opName, doc string) (optional
 			}
 		}
 
-		// Handle special cases
-		if argName == "filter" && strings.Contains(line, "VipsForeignPngFilter") {
-			argType = "VipsForeignPngFilter"
-			fmt.Printf("Set special type for filter: %s\n", argType)
-		}
-
 		// Determine Go type based on arg type
 		goType := v.determineGoTypeFromDocType(argType)
 		baseType := determineBaseTypeFromDoc(argType)
 		cType := determineCTypeFromDoc(argType)
-		isEnum := v.isEnumTypeFromDoc(argType)
+		isEnum := v.isEnumType(argType)
 
-		// Special case for filter
-		if argName == "filter" {
+		// Special case for png filter
+		if argName == "filter" && strings.Contains(opName, "pngsave") {
+			argType = "VipsForeignPngFilter"
 			goType = "PngFilter"
 			baseType = "VipsForeignPngFilter"
 			cType = "VipsForeignPngFilter"
@@ -197,21 +192,6 @@ func (v *Introspection) extractOptionalArgsFromDoc(opName, doc string) (optional
 			IsOutput:    false,
 			IsEnum:      isEnum,
 			Flags:       17, // VIPS_ARGUMENT_OPTIONAL | VIPS_ARGUMENT_INPUT
-		}
-
-		// Set enum type if applicable
-		if isEnum {
-			enumType := ""
-			if argName == "filter" {
-				enumType = "PngFilter"
-			} else {
-				enumType = v.determineEnumTypeFromDoc(argType)
-			}
-
-			if enumType != "" {
-				arg.EnumType = enumType
-				fmt.Printf("Set enum type: %s\n", arg.EnumType)
-			}
 		}
 
 		// Add to optional args list
@@ -257,10 +237,8 @@ func (v *Introspection) determineGoTypeFromDocType(docType string) string {
 	}
 
 	// Check if it's a known enum type
-	for enumName, goName := range v.discoveredEnumTypes {
-		if strings.Contains(strings.ToLower(docType), strings.ToLower(enumName)) {
-			return goName
-		}
+	if v.isEnumType(docType) {
+		return v.GetGoEnumName(docType)
 	}
 
 	// Default
@@ -314,20 +292,6 @@ func determineCTypeFromDoc(docType string) string {
 
 	// Default for enum types and others
 	return "int"
-}
-
-// isEnumTypeFromDoc determines if a doc type is likely an enum
-func (v *Introspection) isEnumTypeFromDoc(docType string) bool {
-	docType = strings.ToLower(docType)
-
-	// Common enum prefixes in libvips
-	for enumName := range v.discoveredEnumTypes {
-		lowerEnumName := strings.ToLower(enumName)
-		if strings.Contains(docType, lowerEnumName) {
-			return true
-		}
-	}
-	return false
 }
 
 // determineEnumTypeFromDoc determines the enum type name from doc type
