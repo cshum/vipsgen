@@ -319,6 +319,11 @@ func (v *Introspection) DiscoverOperations() []generator.Operation {
 			}
 		}
 
+		v.FixOperationTypes(&goOp)
+
+		// Update image input/output flags
+		v.UpdateImageInputOutputFlags(&goOp)
+
 		operations = append(operations, goOp)
 	}
 

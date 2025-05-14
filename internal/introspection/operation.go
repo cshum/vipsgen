@@ -5,7 +5,6 @@ import "C"
 import (
 	"fmt"
 	"github.com/cshum/vipsgen/internal/generator"
-	"strings"
 	"unsafe"
 )
 
@@ -42,7 +41,7 @@ func (v *Introspection) GetOperationArguments(opName string) ([]generator.Argume
 
 		// Create the Go argument structure
 		goArg := generator.Argument{
-			Name:        strings.ReplaceAll(name, "-", "_"),
+			Name:        name,
 			GoName:      FormatGoIdentifier(name),
 			Description: description,
 			Required:    required,
