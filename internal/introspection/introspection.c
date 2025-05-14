@@ -170,3 +170,110 @@ void free_enum_values(EnumValueInfo *values, int count) {
 GObjectClass* get_object_class(void* obj) {
     return G_OBJECT_GET_CLASS(obj);
 }
+
+
+// Helper function to get type name
+char* get_type_name(GType type) {
+    return (char*)g_type_name(type);
+}
+
+// Helper functions for type checking
+int is_type_enum(GType type) {
+    return G_TYPE_IS_ENUM(type);
+}
+
+int is_type_flags(GType type) {
+    return G_TYPE_IS_FLAGS(type);
+}
+
+// Callback to collect argument information
+static void collect_argument(VipsObject* object, GParamSpec* pspec,
+                       VipsArgumentClass* argument_class,
+                       VipsArgumentInstance* argument_instance,
+                       ArgInfo* arg) {
+
+    // Skip deprecated arguments
+    if (argument_class->flags & VIPS_ARGUMENT_DEPRECATED)
+        return;
+
+    // Basic information
+    arg->name = strdup(g_param_spec_get_name(pspec));
+    arg->nick = strdup(g_param_spec_get_nick(pspec));
+    arg->blurb = strdup(g_param_spec_get_blurb(pspec));
+    arg->flags = argument_class->flags;
+    arg->type_val = G_PARAM_SPEC_VALUE_TYPE(pspec);
+
+    // Determine if input/output and required
+    arg->is_input = (argument_class->flags & VIPS_ARGUMENT_INPUT) != 0;
+    arg->is_output = (argument_class->flags & VIPS_ARGUMENT_OUTPUT) != 0;
+    arg->required = (argument_class->flags & VIPS_ARGUMENT_REQUIRED) != 0;
+}
+
+// Structure to pass data to the callback
+typedef struct {
+    ArgInfo *args;
+    int *count;
+    int max_count;
+} CollectArgsData;
+
+// Callback wrapper for vips_argument_map
+static void* collect_arguments_cb(VipsObject* object, GParamSpec* pspec,
+                               VipsArgumentClass* argument_class,
+                               VipsArgumentInstance* argument_instance,
+                               void* a, void* b) {
+    CollectArgsData *data = (CollectArgsData*)a;
+
+    // Check if we have space for another argument
+    if (*data->count >= data->max_count)
+        return NULL;
+
+    // Skip deprecated arguments
+    if (argument_class->flags & VIPS_ARGUMENT_DEPRECATED)
+        return NULL;
+
+    // Collect argument info
+    collect_argument(object, pspec, argument_class, argument_instance, &data->args[*data->count]);
+
+    // Increment count
+    (*data->count)++;
+
+    return NULL;
+}
+
+ArgInfo* get_operation_arguments(const char *operation_name, int *count) {
+    VipsOperation *op = vips_operation_new(operation_name);
+    if (!op) {
+        *count = 0;
+        return NULL;
+    }
+
+    // Allocate space for a reasonable number of arguments
+    const int max_args = 50;
+    ArgInfo *args = (ArgInfo*)malloc(max_args * sizeof(ArgInfo));
+    *count = 0;
+
+    // Setup data for callback
+    CollectArgsData data = {
+        .args = args,
+        .count = count,
+        .max_count = max_args
+    };
+
+    // Map over all arguments
+    vips_argument_map(VIPS_OBJECT(op), collect_arguments_cb, &data, NULL);
+
+    g_object_unref(op);
+    return args;
+}
+
+void free_operation_arguments(ArgInfo *args, int count) {
+    if (!args) return;
+
+    for (int i = 0; i < count; i++) {
+        free(args[i].name);
+        free(args[i].nick);
+        free(args[i].blurb);
+    }
+
+    free(args);
+}

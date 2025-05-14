@@ -348,7 +348,7 @@ func (v *Introspection) ConvertToVipsgenOperations() []generator.Operation {
 
 		// Parse optional inputs from docs if not exists
 		if len(op.OptionalInputs) == 0 {
-			op.OptionalInputs = v.extractOptionalArgsFromDoc(op.Name, fn.OriginalDoc)
+			op.OptionalInputs = v.ExtractOptionalArgsFromIntrospection(op.Name)
 		}
 
 		operations = append(operations, op)
