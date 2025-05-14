@@ -299,7 +299,7 @@ func (v *Introspection) ConvertToVipsgenOperations() []generator.Operation {
 			cType := getEffectiveCType(param, originalParam)
 
 			// Determine Go type with array awareness
-			goType := v.mapCTypeToGoType(cType, param, originalParam)
+			goType := v.mapCTypeToGoType(cType, originalParam)
 
 			// Extract base type
 			baseType := extractBaseType(cType)
@@ -412,29 +412,8 @@ func extractBaseType(cType string) string {
 	return baseType
 }
 
-// Helper functions for type mapping and formatting
-func extractTypeFromCType(cType string) string {
-	// Strip any pointer/array markers
-	baseType := strings.TrimRight(cType, "*[]")
-
-	// Map C types to vipsgen types
-	switch baseType {
-	case "int", "gint":
-		return "gint"
-	case "double", "gdouble":
-		return "gdouble"
-	case "float", "gfloat":
-		return "gfloat"
-	case "char", "gchar":
-		return "gchararray"
-	default:
-		// For unknown types, use as is
-		return baseType
-	}
-}
-
 // mapCTypeToGoType maps a C type to a Go type with array awareness
-func (v *Introspection) mapCTypeToGoType(cType string, param VipsParamInfo, originalParam *girparser.Parameter) string {
+func (v *Introspection) mapCTypeToGoType(cType string, originalParam *girparser.Parameter) string {
 	if cType == "const double*" {
 		return "[]float64"
 	}

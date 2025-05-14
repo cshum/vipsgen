@@ -110,12 +110,12 @@ func (v *Introspection) extractOptionalArgsFromDoc(opName, doc string) (optional
 		}
 
 		// Extract type and description
-		var argType, description string
+		var argType, typePart, description string
 
 		// Split by colon to get the type+description part
 		parts := strings.SplitN(line, ":", 2)
 		if len(parts) >= 2 {
-			typePart := strings.TrimSpace(parts[1])
+			typePart = strings.TrimSpace(parts[1])
 			fmt.Printf("Type part: %s\n", typePart)
 
 			// Try different patterns to extract type
@@ -126,8 +126,6 @@ func (v *Introspection) extractOptionalArgsFromDoc(opName, doc string) (optional
 			}{
 				{regexp.MustCompile(`%(g?[a-zA-Z0-9_]+)`), 1, "% prefix"},
 				{regexp.MustCompile(`#([A-Za-z0-9_]+)`), 1, "# prefix"},
-				// Fix for backticks regex
-				{regexp.MustCompile("`([^`]+)`"), 1, "backticks"},
 			}
 
 			for _, pattern := range typePatterns {
@@ -136,18 +134,6 @@ func (v *Introspection) extractOptionalArgsFromDoc(opName, doc string) (optional
 					argType = matches[pattern.group]
 					fmt.Printf("Found type with %s: %s\n", pattern.name, argType)
 					break
-				}
-			}
-
-			// If we still don't have a type, try one more approach - take the first word
-			if argType == "" {
-				// Split by comma and take the first part
-				firstPart := strings.Split(typePart, ",")[0]
-				// Take the first word as the type
-				words := strings.Fields(firstPart)
-				if len(words) > 0 {
-					argType = words[0]
-					fmt.Printf("Extracted type as first word: %s\n", argType)
 				}
 			}
 
@@ -162,8 +148,13 @@ func (v *Introspection) extractOptionalArgsFromDoc(opName, doc string) (optional
 		}
 
 		// Determine Go type based on arg type
-		goType := v.determineGoTypeFromDocType(argType)
-		baseType := v.determineCTypeFromDoc(argType)
+		if argType == "" {
+			argType = "int"
+			description = typePart
+		}
+
+		goType := v.mapCTypeToGoType(argType, nil)
+		baseType := extractBaseType(argType)
 		cType := v.determineCTypeFromDoc(argType)
 		isEnum := v.isEnumType(argType)
 
@@ -203,39 +194,6 @@ func (v *Introspection) extractOptionalArgsFromDoc(opName, doc string) (optional
 	return optionalArgs
 }
 
-// determineGoTypeFromDocType maps documentation type hints to Go types
-func (v *Introspection) determineGoTypeFromDocType(docType string) string {
-	docType = strings.ToLower(docType)
-
-	switch {
-	case strings.Contains(docType, "gboolean") ||
-		strings.Contains(docType, "true") ||
-		strings.Contains(docType, "false"):
-		return "bool"
-	case strings.Contains(docType, "gint") ||
-		strings.Contains(docType, "int"):
-		return "int"
-	case strings.Contains(docType, "gdouble") ||
-		strings.Contains(docType, "double") ||
-		strings.Contains(docType, "float"):
-		return "float64"
-	case strings.Contains(docType, "string") ||
-		strings.Contains(docType, "utf8") ||
-		strings.Contains(docType, "char"):
-		return "string"
-	case strings.Contains(docType, "vipsimage"):
-		return "*C.VipsImage"
-	}
-
-	// Check if it's a known enum type
-	if v.isEnumType(docType) {
-		return v.GetGoEnumName(docType)
-	}
-
-	// Default
-	return "interface{}"
-}
-
 // determineCTypeFromDoc determines a C type from documentation type hints
 func (v *Introspection) determineCTypeFromDoc(docType string) string {
 	if v.isEnumType(docType) {
@@ -260,32 +218,4 @@ func (v *Introspection) determineCTypeFromDoc(docType string) string {
 
 	// Default for enum types and others
 	return "int"
-}
-
-// determineEnumTypeFromDoc determines the enum type name from doc type
-func (v *Introspection) determineEnumTypeFromDoc(docType string) string {
-	docType = strings.ToLower(docType)
-
-	// First check against discovered enum types
-	for enumName, goName := range v.discoveredEnumTypes {
-		lowerEnumName := strings.ToLower(enumName)
-		if strings.Contains(docType, lowerEnumName) {
-			return goName
-		}
-	}
-
-	// Fallback to known mappings
-	switch {
-	case strings.Contains(docType, "vipsfailon"):
-		return "FailOn"
-	case strings.Contains(docType, "vipsalign"):
-		return "Align"
-	case strings.Contains(docType, "vipsdirection"):
-		return "Direction"
-	case strings.Contains(docType, "vipsinteresting"):
-		return "Interesting"
-	}
-
-	// Default
-	return ""
 }
