@@ -223,17 +223,8 @@ func (v *Introspection) determineGoTypeFromDocType(docType string) string {
 		strings.Contains(docType, "utf8") ||
 		strings.Contains(docType, "char"):
 		return "string"
-	case strings.Contains(docType, "vipsobject") ||
-		docType == "":
-		return "interface{}"
 	case strings.Contains(docType, "vipsimage"):
 		return "*C.VipsImage"
-	case strings.Contains(docType, "vipsfailon"):
-		return "FailOn"
-	case strings.Contains(docType, "vipsalign"):
-		return "Align"
-	case strings.Contains(docType, "vipsdirection"):
-		return "Direction"
 	}
 
 	// Check if it's a known enum type
@@ -248,6 +239,13 @@ func (v *Introspection) determineGoTypeFromDocType(docType string) string {
 // determineBaseTypeFromDoc determines a C type name from documentation type hints
 func determineBaseTypeFromDoc(docType string) string {
 	docType = strings.ToLower(docType)
+
+	// Check if it's an enum type with # prefix (e.g., #VipsForeignPpmFormat)
+	if strings.HasPrefix(docType, "#") {
+		// Extract the actual type name without the # prefix
+		enumTypeName := strings.TrimPrefix(docType, "#")
+		return strings.Title(enumTypeName) // Return with proper capitalization
+	}
 
 	switch {
 	case strings.Contains(docType, "gboolean"):
@@ -264,6 +262,8 @@ func determineBaseTypeFromDoc(docType string) string {
 		return "VipsAlign"
 	case strings.Contains(docType, "vipsdirection"):
 		return "VipsDirection"
+	case strings.Contains(docType, "foreignppm") || strings.Contains(docType, "ppmformat"):
+		return "VipsForeignPpmFormat"
 	}
 
 	// Default
