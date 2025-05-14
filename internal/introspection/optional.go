@@ -164,7 +164,7 @@ func (v *Introspection) extractOptionalArgsFromDoc(opName, doc string) (optional
 		// Determine Go type based on arg type
 		goType := v.determineGoTypeFromDocType(argType)
 		baseType := v.determineBaseTypeFromDoc(argType)
-		cType := determineCTypeFromDoc(argType)
+		cType := v.determineCTypeFromDoc(argType)
 		isEnum := v.isEnumType(argType)
 
 		// Special case for png filter
@@ -256,7 +256,10 @@ func (v *Introspection) determineBaseTypeFromDoc(docType string) string {
 }
 
 // determineCTypeFromDoc determines a C type from documentation type hints
-func determineCTypeFromDoc(docType string) string {
+func (v *Introspection) determineCTypeFromDoc(docType string) string {
+	if v.isEnumType(docType) {
+		return docType
+	}
 	docType = strings.ToLower(docType)
 	switch {
 	case strings.Contains(docType, "gboolean"):
