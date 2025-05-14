@@ -163,7 +163,7 @@ func (v *Introspection) extractOptionalArgsFromDoc(opName, doc string) (optional
 
 		// Determine Go type based on arg type
 		goType := v.determineGoTypeFromDocType(argType)
-		baseType := determineBaseTypeFromDoc(argType)
+		baseType := v.determineBaseTypeFromDoc(argType)
 		cType := determineCTypeFromDoc(argType)
 		isEnum := v.isEnumType(argType)
 
@@ -237,16 +237,11 @@ func (v *Introspection) determineGoTypeFromDocType(docType string) string {
 }
 
 // determineBaseTypeFromDoc determines a C type name from documentation type hints
-func determineBaseTypeFromDoc(docType string) string {
-	docType = strings.ToLower(docType)
-
-	// Check if it's an enum type with # prefix (e.g., #VipsForeignPpmFormat)
-	if strings.HasPrefix(docType, "#") {
-		// Extract the actual type name without the # prefix
-		enumTypeName := strings.TrimPrefix(docType, "#")
-		return strings.Title(enumTypeName) // Return with proper capitalization
+func (v *Introspection) determineBaseTypeFromDoc(docType string) string {
+	if v.isEnumType(docType) {
+		return docType
 	}
-
+	docType = strings.ToLower(docType)
 	switch {
 	case strings.Contains(docType, "gboolean"):
 		return "gboolean"
@@ -256,24 +251,13 @@ func determineBaseTypeFromDoc(docType string) string {
 		return "gdouble"
 	case strings.Contains(docType, "gfloat") || strings.Contains(docType, "float"):
 		return "gfloat"
-	case strings.Contains(docType, "vipsfailon"):
-		return "VipsFailOn"
-	case strings.Contains(docType, "vipsalign"):
-		return "VipsAlign"
-	case strings.Contains(docType, "vipsdirection"):
-		return "VipsDirection"
-	case strings.Contains(docType, "foreignppm") || strings.Contains(docType, "ppmformat"):
-		return "VipsForeignPpmFormat"
 	}
-
-	// Default
 	return "gpointer"
 }
 
 // determineCTypeFromDoc determines a C type from documentation type hints
 func determineCTypeFromDoc(docType string) string {
 	docType = strings.ToLower(docType)
-
 	switch {
 	case strings.Contains(docType, "gboolean"):
 		return "gboolean"
