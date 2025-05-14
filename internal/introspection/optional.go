@@ -163,7 +163,7 @@ func (v *Introspection) extractOptionalArgsFromDoc(opName, doc string) (optional
 
 		// Determine Go type based on arg type
 		goType := v.determineGoTypeFromDocType(argType)
-		baseType := v.determineBaseTypeFromDoc(argType)
+		baseType := v.determineCTypeFromDoc(argType)
 		cType := v.determineCTypeFromDoc(argType)
 		isEnum := v.isEnumType(argType)
 
@@ -234,25 +234,6 @@ func (v *Introspection) determineGoTypeFromDocType(docType string) string {
 
 	// Default
 	return "interface{}"
-}
-
-// determineBaseTypeFromDoc determines a C type name from documentation type hints
-func (v *Introspection) determineBaseTypeFromDoc(docType string) string {
-	if v.isEnumType(docType) {
-		return docType
-	}
-	docType = strings.ToLower(docType)
-	switch {
-	case strings.Contains(docType, "gboolean"):
-		return "gboolean"
-	case strings.Contains(docType, "gint") || strings.Contains(docType, "int"):
-		return "gint"
-	case strings.Contains(docType, "gdouble") || strings.Contains(docType, "double"):
-		return "gdouble"
-	case strings.Contains(docType, "gfloat") || strings.Contains(docType, "float"):
-		return "gfloat"
-	}
-	return "gpointer"
 }
 
 // determineCTypeFromDoc determines a C type from documentation type hints
