@@ -1,24 +1,5 @@
 #include "introspection.h"
 
-static void* collect_operations(void *object_class, void *a, void *b) {
-    OperationList *list = (OperationList *)a;
-    VipsObjectClass *vobject_class = VIPS_OBJECT_CLASS(object_class);
-
-    if (vobject_class && vobject_class->nickname &&
-        G_TYPE_CHECK_CLASS_TYPE(vobject_class, VIPS_TYPE_OPERATION)) {
-        const char *nickname = vobject_class->nickname;
-
-        if (list->count >= list->capacity) {
-            list->capacity *= 2;
-            list->names = realloc(list->names, list->capacity * sizeof(char*));
-        }
-        list->names[list->count] = strdup(nickname);
-        list->count++;
-    }
-
-    return NULL;
-}
-
 // This function discovers all operations by directly querying GType system
 char** get_all_operation_names(int *count) {
     OperationList list = {
@@ -276,4 +257,180 @@ void free_operation_arguments(ArgInfo *args, int count) {
     }
 
     free(args);
+}
+
+// Callback to collect operations
+static void* collect_operations(GType type, OperationInfo *info, int *count, int max_count) {
+    if (!G_TYPE_IS_ABSTRACT(type) && *count < max_count) {
+        VipsObjectClass *object_class = VIPS_OBJECT_CLASS(g_type_class_ref(type));
+
+        if (object_class && object_class->nickname) {
+            info[*count].name = strdup(object_class->nickname);
+            info[*count].nickname = strdup(object_class->nickname);
+            info[*count].description = strdup(object_class->description ? object_class->description : "");
+
+            // Create instance to get flags
+            VipsOperation *op = VIPS_OPERATION(g_object_new(type, NULL));
+            if (op) {
+                info[*count].flags = vips_operation_get_flags(op);
+                g_object_unref(op);
+            } else {
+                info[*count].flags = 0;
+            }
+
+            (*count)++;
+        }
+
+        g_type_class_unref(object_class);
+    }
+
+    return NULL;
+}
+
+// Function to recursively collect operations
+static void collect_operations_recursive(GType type, OperationInfo *info, int *count, int max_count) {
+    // Check this type
+    collect_operations(type, info, count, max_count);
+
+    // Check child types
+    guint n_children = 0;
+    GType *children = g_type_children(type, &n_children);
+
+    for (guint i = 0; i < n_children && *count < max_count; i++) {
+        collect_operations_recursive(children[i], info, count, max_count);
+    }
+
+    g_free(children);
+}
+
+// Get all available operations
+OperationInfo* get_all_operations(int *count) {
+    // Allocate space for a large number of operations
+    const int max_ops = 1000;
+    OperationInfo *operations = (OperationInfo*)malloc(max_ops * sizeof(OperationInfo));
+    *count = 0;
+
+    // Start with the base operation type
+    GType base_type = VIPS_TYPE_OPERATION;
+
+    // Recursively collect all operations
+    collect_operations_recursive(base_type, operations, count, max_ops);
+
+    return operations;
+}
+
+// Free operation information
+void free_operation_info(OperationInfo *ops, int count) {
+    if (!ops) return;
+
+    for (int i = 0; i < count; i++) {
+        free(ops[i].name);
+        free(ops[i].nickname);
+        free(ops[i].description);
+    }
+
+    free(ops);
+}
+
+// Helper to determine if operation has buffer input/output
+static int has_buffer_param(VipsOperation *op, int is_output) {
+    int count = 0;
+    const char *operation_name = G_OBJECT_TYPE_NAME(op);
+    ArgInfo *args = get_operation_arguments(operation_name, &count);
+    if (!args) return 0;
+
+    int result = 0;
+    for (int i = 0; i < count; i++) {
+        if (args[i].is_output == is_output) {
+            // Check if this is a buffer parameter
+            if (strcmp(args[i].name, "buf") == 0) {
+                GType type = args[i].type_val;
+                if (g_type_is_a(type, G_TYPE_POINTER)) {
+                    result = 1;
+                    break;
+                }
+            }
+        }
+    }
+
+    free_operation_arguments(args, count);
+    return result;
+}
+
+// Helper to determine if operation has image input/output
+static int has_image_param(VipsOperation *op, int is_output, int *count) {
+    int arg_count = 0;
+    const char *operation_name = G_OBJECT_TYPE_NAME(op);
+    ArgInfo *args = get_operation_arguments(operation_name, &arg_count);
+    if (!args) return 0;
+
+    int result = 0;
+    *count = 0;
+
+    for (int i = 0; i < arg_count; i++) {
+        if (args[i].is_output == is_output) {
+            GType type = args[i].type_val;
+            if (g_type_is_a(type, vips_image_get_type())) {
+                result = 1;
+                (*count)++;
+            }
+        }
+    }
+
+    free_operation_arguments(args, arg_count);
+    return result;
+}
+
+// Get detailed information about an operation
+OperationDetails get_operation_details(const char *operation_name) {
+    OperationDetails details = {0};
+
+    VipsOperation *op = vips_operation_new(operation_name);
+    if (!op) return details;
+
+    // Check for image input/output
+    int count = 0;
+    details.has_image_input = has_image_param(op, 0, &count);
+    details.has_image_output = has_image_param(op, 1, &count);
+    details.has_one_image_output = (count == 1);
+
+    // Check for buffer input/output
+    details.has_buffer_input = has_buffer_param(op, 0);
+    details.has_buffer_output = has_buffer_param(op, 1);
+
+    // Check for array image input
+    int arg_count = 0;
+    ArgInfo *args = get_operation_arguments(operation_name, &arg_count);
+    if (args) {
+        for (int i = 0; i < arg_count; i++) {
+            if (!args[i].is_output) {
+                GType type = args[i].type_val;
+                if (g_type_is_a(type, vips_array_image_get_type())) {
+                    details.has_array_image_input = 1;
+                    break;
+                }
+            }
+        }
+        free_operation_arguments(args, arg_count);
+    }
+
+    // Get category from filename
+    // This is a bit of a hack, but it's how vips itself categorizes operations
+    VipsObjectClass *class = VIPS_OBJECT_CLASS(G_OBJECT_GET_CLASS(op));
+    if (class && class->nickname) {
+        // Try to determine category from operation name patterns
+        if (strstr(operation_name, "load") || strstr(operation_name, "save"))
+            details.category = strdup("foreign");
+        else if (strstr(operation_name, "conv") || strstr(operation_name, "conva"))
+            details.category = strdup("convolution");
+        else if (strstr(operation_name, "affine") || strstr(operation_name, "resize"))
+            details.category = strdup("resample");
+        else if (strstr(operation_name, "add") || strstr(operation_name, "subtract"))
+            details.category = strdup("arithmetic");
+        else
+            details.category = strdup("operation");
+    }
+
+    g_object_unref(op);
+    return details;
 }

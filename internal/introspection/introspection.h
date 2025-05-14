@@ -48,3 +48,31 @@ void free_operation_arguments(ArgInfo *args, int count);
 int is_type_enum(GType type);
 int is_type_flags(GType type);
 char* get_type_name(GType type);
+
+// Operation information structure
+typedef struct {
+    char *name;
+    char *nickname;
+    char *description;
+    int flags;
+} OperationInfo;
+
+// Get all available operations
+OperationInfo* get_all_operations(int *count);
+
+// Free operation information
+void free_operation_info(OperationInfo *ops, int count);
+
+// Get operation details including whether it has image input/output
+typedef struct {
+    int has_image_input;
+    int has_image_output;
+    int has_one_image_output;
+    int has_buffer_input;
+    int has_buffer_output;
+    int has_array_image_input;
+    char *category;
+} OperationDetails;
+
+// Get detailed information about an operation
+OperationDetails get_operation_details(const char *operation_name);

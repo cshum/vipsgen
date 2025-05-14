@@ -102,7 +102,7 @@ func main() {
 	}
 
 	// Convert GIR data to vipsgen.Operation format
-	allOperations := vipsIntrospection.ConvertToVipsgenOperations()
+	allOperations := vipsIntrospection.DiscoverOperations()
 	fmt.Printf("Extracted %d operations from GIR file\n", len(allOperations))
 
 	// Get enum types
