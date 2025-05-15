@@ -68,6 +68,14 @@ func (v *Introspection) GetOperationArguments(opName string) ([]generator.Argume
 			v.AddEnumType(goArg.Type, goArg.EnumType)
 		}
 
+		// Fix the vips_composite mode parameter - should be an array of BlendMode
+		if opName == "composite" && name == "mode" && goArg.CType == "int*" && goArg.GoType == "[]int" {
+			// Update to array of BlendMode
+			goArg.GoType = "[]BlendMode"
+			goArg.IsEnum = true
+			goArg.EnumType = "BlendMode"
+		}
+
 		goArgs = append(goArgs, goArg)
 	}
 

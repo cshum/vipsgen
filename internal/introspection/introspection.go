@@ -179,6 +179,8 @@ func (v *Introspection) DiscoverOperations() []generator.Operation {
 			}
 		}
 
+		v.UpdateImageInputOutputFlags(&goOp)
+
 		operations = append(operations, goOp)
 	}
 
@@ -705,16 +707,45 @@ func (v *Introspection) isEnumType(cType string) bool {
 	return v.discoveredEnumTypes[strings.ToLower(cType)] != ""
 }
 
-// determineFlags calculates the flags for an argument
-func determineFlags(isOutput bool, isRequired bool) int {
-	if isOutput && isRequired {
-		return 35 // VIPS_ARGUMENT_REQUIRED | VIPS_ARGUMENT_OUTPUT
-	} else if isOutput && !isRequired {
-		return 33 // VIPS_ARGUMENT_OPTIONAL | VIPS_ARGUMENT_OUTPUT
-	} else if !isOutput && isRequired {
-		return 19 // VIPS_ARGUMENT_REQUIRED | VIPS_ARGUMENT_INPUT
-	} else {
-		return 17 // VIPS_ARGUMENT_OPTIONAL | VIPS_ARGUMENT_INPUT
+// UpdateImageInputOutputFlags examines operation arguments and sets proper flags
+func (v *Introspection) UpdateImageInputOutputFlags(op *generator.Operation) {
+	op.HasImageInput = false
+	op.HasOneImageOutput = false
+	op.HasArrayImageInput = false
+	var imageOutputCount int
+
+	// Check each argument to see if this operation takes/returns an image
+	for _, arg := range op.Arguments {
+		// Check for any input parameter with VipsImage* type
+		if (arg.Type == "VipsImage" || arg.CType == "VipsImage*") && !arg.IsOutput {
+			op.HasImageInput = true
+		}
+
+		// Check for "out" parameter with VipsImage* type
+		if arg.Type == "VipsImage" && arg.CType == "VipsImage**" && arg.IsOutput {
+			op.HasImageOutput = true
+			imageOutputCount++
+		}
+
+		// Check for array image inputs
+		if strings.HasPrefix(arg.GoType, "[]*C.VipsImage") ||
+			(strings.Contains(arg.CType, "VipsImage**") && !arg.IsOutput) {
+			op.HasArrayImageInput = true
+		}
+
+		if arg.CType == "void**" && arg.Name == "buf" {
+			op.HasBufferOutput = true
+		}
+		if arg.CType == "void*" && arg.Name == "buf" {
+			op.HasBufferInput = true
+		}
+	}
+	if imageOutputCount == 1 {
+		op.HasOneImageOutput = true
+	}
+	if op.Name == "copy" || op.Name == "sequential" || op.Name == "linecache" || op.Name == "tilecache" {
+		// operations that should not mutate the Image object
+		op.HasOneImageOutput = false
 	}
 }
 
