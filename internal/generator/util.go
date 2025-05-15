@@ -6,7 +6,7 @@ import (
 
 // Helper function to check if an operation returns a single float value
 func isSingleFloatReturn(op Operation) bool {
-	return len(op.Outputs) == 1 && op.Outputs[0].GoType == "float64"
+	return len(op.RequiredOutputs) == 1 && op.RequiredOutputs[0].GoType == "float64"
 }
 
 func getBufferParamName(args []Argument) string {
@@ -31,7 +31,7 @@ func SnakeToCamel(s string) string {
 func hasVectorReturn(op Operation) bool {
 	hasVector := false
 	hasN := false
-	for _, arg := range op.Outputs {
+	for _, arg := range op.RequiredOutputs {
 		if arg.Name == "vector" && arg.GoType == "[]float64" {
 			hasVector = true
 		}

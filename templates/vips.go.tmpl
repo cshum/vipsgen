@@ -14,7 +14,7 @@ import (
 func vipsgen{{.GoName}}({{formatGoArgList .Arguments}}) ({{formatReturnTypes .}}) {
 	{{formatVarDeclarations .}}
 	if err := C.vipsgen_{{.Name}}({{formatFunctionCallArgs .}}); err != 0 {
-		{{formatErrorReturn .HasOneImageOutput .HasBufferOutput .Outputs}}
+		{{formatErrorReturn .HasOneImageOutput .HasBufferOutput .RequiredOutputs}}
 	}
 	{{formatReturnValues .}}
 }

@@ -56,7 +56,7 @@ func (v *Introspection) FixOperationTypes(op *generator.Operation) {
 	hasVectorParam := false
 	hasNParam := false
 
-	for _, arg := range op.Outputs {
+	for _, arg := range op.RequiredOutputs {
 		if arg.Name == "vector" {
 			hasVectorParam = true
 		}
@@ -67,10 +67,10 @@ func (v *Introspection) FixOperationTypes(op *generator.Operation) {
 
 	// If we have both vector and n params, this is a vector return function
 	if hasVectorParam && hasNParam {
-		for i, arg := range op.Outputs {
+		for i, arg := range op.RequiredOutputs {
 			if arg.Name == "vector" {
 				// Update the type to be a slice
-				op.Outputs[i].GoType = "[]float64"
+				op.RequiredOutputs[i].GoType = "[]float64"
 
 				// Also update in Arguments if present
 				for j, mainArg := range op.Arguments {

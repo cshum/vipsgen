@@ -161,9 +161,6 @@ func (v *Introspection) DiscoverOperations() []generator.Operation {
 
 			// Categorize arguments
 			for _, arg := range args {
-				if arg.Type == "VipsForeignFlags" {
-					continue
-				}
 				if arg.IsInput {
 					if arg.Required {
 						goOp.Arguments = append(goOp.Arguments, arg)
@@ -172,8 +169,12 @@ func (v *Introspection) DiscoverOperations() []generator.Operation {
 						goOp.OptionalInputs = append(goOp.OptionalInputs, arg)
 					}
 				} else if arg.IsOutput {
-					goOp.Outputs = append(goOp.Outputs, arg)
-					goOp.Arguments = append(goOp.Arguments, arg)
+					if arg.Required {
+						goOp.Arguments = append(goOp.Arguments, arg)
+						goOp.RequiredOutputs = append(goOp.RequiredOutputs, arg)
+					} else {
+						goOp.OptionalOutputs = append(goOp.OptionalOutputs, arg)
+					}
 				}
 			}
 		}

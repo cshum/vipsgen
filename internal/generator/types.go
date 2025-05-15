@@ -25,7 +25,8 @@ type Operation struct {
 	Arguments          []Argument
 	RequiredInputs     []Argument
 	OptionalInputs     []Argument
-	Outputs            []Argument
+	RequiredOutputs    []Argument
+	OptionalOutputs    []Argument
 	HasImageInput      bool
 	HasImageOutput     bool
 	HasOneImageOutput  bool
