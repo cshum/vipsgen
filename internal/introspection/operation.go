@@ -162,34 +162,3 @@ func cTypeCheck(gtype C.GType, name string) bool {
 	cTypeName := C.GoString(cTypeNamePtr)
 	return cTypeName == name
 }
-
-// GetOperationOptionalArgs extracts only the optional arguments for an operation
-func (v *Introspection) GetOperationOptionalArgs(opName string) ([]generator.Argument, error) {
-	allArgs, err := v.GetOperationArguments(opName)
-	if err != nil {
-		return nil, err
-	}
-
-	// Filter for optional input arguments only
-	var optionalArgs []generator.Argument
-	for _, arg := range allArgs {
-		if !arg.Required && arg.IsInput {
-			optionalArgs = append(optionalArgs, arg)
-		}
-	}
-
-	return optionalArgs, nil
-}
-
-// ExtractOptionalArgsFromIntrospection is a replacement for extractOptionalArgsFromDoc
-// that uses direct GObject introspection instead of parsing docs
-func (v *Introspection) ExtractOptionalArgsFromIntrospection(opName string) []generator.Argument {
-	// Get optional arguments directly from introspection
-	optionalArgs, err := v.GetOperationOptionalArgs(opName)
-	if err != nil {
-		fmt.Printf("Error extracting optional args for %s: %v\n", opName, err)
-		return nil
-	}
-
-	return optionalArgs
-}
