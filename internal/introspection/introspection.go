@@ -6,9 +6,7 @@ import "C"
 import (
 	"fmt"
 	"github.com/cshum/vipsgen/internal/generator"
-	"github.com/cshum/vipsgen/internal/girparser"
 	"log"
-	"regexp"
 	"sort"
 	"strings"
 	"sync"
@@ -19,8 +17,6 @@ type enumTypeName struct {
 	CName  string
 	GoName string
 }
-
-var vipsPattern = regexp.MustCompile(`^vips_.*`)
 
 // VipsFunctionInfo holds information needed to generate a wrapper function
 type VipsFunctionInfo struct {
@@ -79,8 +75,6 @@ func cachedCString(str string) *C.char {
 type Introspection struct {
 	discoveredEnumTypes map[string]string
 	enumTypeNames       []enumTypeName
-	// Original GIR data
-	gir *girparser.GIR
 	// Parsed function info
 	functionInfo []VipsFunctionInfo
 	// Debug info from parsing

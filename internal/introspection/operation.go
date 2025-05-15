@@ -50,6 +50,10 @@ func (v *Introspection) GetOperationArguments(opName string) ([]generator.Argume
 			Flags:       int(arg.flags),
 		}
 
+		if name == "separator" {
+			fmt.Println("diu")
+		}
+
 		// Determine Go type and C type based on GType
 		goArg.Type, goArg.GoType, goArg.CType = v.mapGTypeToTypes(arg.type_val, cTypeName)
 

@@ -2,5 +2,5 @@ package vipsgen
 
 import "embed"
 
-//go:embed templates/*.tmpl Vips-8.0.gir
+//go:embed templates/*.tmpl
 var EmbeddedTemplates embed.FS
