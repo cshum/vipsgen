@@ -36,6 +36,9 @@ func FormatGoIdentifier(name string) string {
 
 // FormatIdentifier formats a name to an identifier
 func FormatIdentifier(name string) string {
+	if name == "buffer" {
+		return "buf"
+	}
 	// Handle Go keywords
 	switch name {
 	case "type", "func", "map", "range", "select", "case", "default":
