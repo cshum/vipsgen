@@ -25,11 +25,11 @@ func (v *Introspection) DiscoverOperations() []generator.Operation {
 	var operations []generator.Operation
 
 	for i := 0; i < int(nOps); i++ {
-		op := opsSlice[i]
-		name := C.GoString(op.name)
+		cOp := opsSlice[i]
+		name := C.GoString(cOp.name)
 
 		// Skip deprecated operations
-		if (op.flags & C.VIPS_OPERATION_DEPRECATED) != 0 {
+		if (cOp.flags & C.VIPS_OPERATION_DEPRECATED) != 0 {
 			continue
 		}
 
@@ -39,10 +39,10 @@ func (v *Introspection) DiscoverOperations() []generator.Operation {
 		C.free(unsafe.Pointer(opName))
 
 		// Create the Go operation structure
-		goOp := generator.Operation{
+		op := generator.Operation{
 			Name:               name,
 			GoName:             FormatGoFunctionName(name),
-			Description:        C.GoString(op.description),
+			Description:        C.GoString(cOp.description),
 			HasImageInput:      int(details.has_image_input) != 0,
 			HasImageOutput:     int(details.has_image_output) != 0,
 			HasOneImageOutput:  int(details.has_one_image_output) != 0,
@@ -67,25 +67,28 @@ func (v *Introspection) DiscoverOperations() []generator.Operation {
 			for _, arg := range args {
 				if arg.IsInput {
 					if arg.Required {
-						goOp.Arguments = append(goOp.Arguments, arg)
-						goOp.RequiredInputs = append(goOp.RequiredInputs, arg)
+						op.Arguments = append(op.Arguments, arg)
+						op.RequiredInputs = append(op.RequiredInputs, arg)
 					} else {
-						goOp.OptionalInputs = append(goOp.OptionalInputs, arg)
+						op.OptionalInputs = append(op.OptionalInputs, arg)
 					}
 				} else if arg.IsOutput {
 					if arg.Required {
-						goOp.Arguments = append(goOp.Arguments, arg)
-						goOp.RequiredOutputs = append(goOp.RequiredOutputs, arg)
+						op.Arguments = append(op.Arguments, arg)
+						op.RequiredOutputs = append(op.RequiredOutputs, arg)
 					} else {
-						goOp.OptionalOutputs = append(goOp.OptionalOutputs, arg)
+						op.OptionalOutputs = append(op.OptionalOutputs, arg)
 					}
 				}
 			}
 		}
 
-		v.UpdateImageInputOutputFlags(&goOp)
+		if op.Name == "copy" || op.Name == "sequential" || op.Name == "linecache" || op.Name == "tilecache" {
+			// operations that should not mutate the Image object
+			op.HasOneImageOutput = false
+		}
 
-		operations = append(operations, goOp)
+		operations = append(operations, op)
 	}
 
 	// Debug: Write the parsed GIR to a JSON file
