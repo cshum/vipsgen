@@ -218,6 +218,104 @@ func (v *Introspection) GetOperationArguments(opName string) ([]generator.Argume
 		goArgs = append(goArgs, goArg)
 	}
 
+	// Special case: handle buffer operations
+	if strings.Contains(opName, "_buffer") {
+		if strings.HasSuffix(opName, "load_buffer") || strings.HasSuffix(opName, "thumbnail_buffer") {
+			// INPUT buffer operations - add length parameter for input buffer
+			hasBufParam := false
+			hasLenParam := false
+
+			for _, arg := range goArgs {
+				if (arg.Name == "buf" || arg.Name == "buffer") && arg.CType == "void*" && arg.IsInput {
+					hasBufParam = true
+				}
+				if arg.Name == "len" && arg.IsInput {
+					hasLenParam = true
+				}
+			}
+
+			// If we have an input buffer but no length parameter, add one
+			if hasBufParam && !hasLenParam {
+				lenParam := generator.Argument{
+					Name:        "len",
+					GoName:      "len",
+					Type:        "gsize",
+					GoType:      "int",
+					CType:       "size_t",
+					Description: "Size of buffer in bytes",
+					Required:    true,
+					IsInput:     true,
+					IsOutput:    false,
+					Flags:       19, // VIPS_ARGUMENT_REQUIRED | VIPS_ARGUMENT_INPUT
+				}
+
+				// Insert the length parameter right after the buffer parameter
+				newArgs := make([]generator.Argument, 0, len(goArgs)+1)
+				bufIndex := -1
+
+				for i, arg := range goArgs {
+					newArgs = append(newArgs, arg)
+					if (arg.Name == "buf" || arg.Name == "buffer") && arg.CType == "void*" && arg.IsInput {
+						bufIndex = i
+					}
+				}
+
+				if bufIndex >= 0 {
+					// Insert len parameter after buf parameter
+					newArgs = append(newArgs[:bufIndex+1], append([]generator.Argument{lenParam}, newArgs[bufIndex+1:]...)...)
+				} else {
+					// Fallback: just append at the end
+					newArgs = append(newArgs, lenParam)
+				}
+
+				goArgs = newArgs
+			}
+		} else if strings.HasSuffix(opName, "save_buffer") {
+			// OUTPUT buffer operations - ensure buf and len are output params
+			hasBufParam := false
+			hasLenParam := false
+
+			for i, arg := range goArgs {
+				// Fix buf parameter if it exists
+				if arg.Name == "buf" || arg.Name == "buffer" {
+					hasBufParam = true
+					// Ensure it's an output parameter with the right type
+					goArgs[i].IsInput = false
+					goArgs[i].IsOutput = true
+					goArgs[i].CType = "void**"
+				}
+
+				// Check for len parameter
+				if arg.Name == "len" {
+					hasLenParam = true
+					// Ensure it's an output parameter with the right type
+					goArgs[i].IsInput = false
+					goArgs[i].IsOutput = true
+					goArgs[i].CType = "size_t*"
+				}
+			}
+
+			// If we have a buf parameter but no len parameter, add one
+			if hasBufParam && !hasLenParam {
+				lenParam := generator.Argument{
+					Name:        "len",
+					GoName:      "len",
+					Type:        "gsize",
+					GoType:      "int",
+					CType:       "size_t*",
+					Description: "Size of output buffer in bytes",
+					Required:    true,
+					IsInput:     false,
+					IsOutput:    true,
+					Flags:       35, // VIPS_ARGUMENT_REQUIRED | VIPS_ARGUMENT_OUTPUT
+				}
+
+				// Add len parameter
+				goArgs = append(goArgs, lenParam)
+			}
+		}
+	}
+
 	// Special case: Add the missing 'n' parameter if needed
 	if !hasNParam {
 		// Special cases for operations with output arrays
@@ -285,55 +383,89 @@ func (v *Introspection) extractDefaultValue(arg C.ArgInfo, goType string) interf
 
 // mapGTypeToTypes maps a GType to Go and C types
 func (v *Introspection) mapGTypeToTypes(gtype C.GType, typeName string, isOutput bool) (baseType, goType, cType string) {
-	// First check known vips types (simplified for brevity)
-	switch {
-	case cTypeCheck(gtype, "VipsImage"):
+	// Special case for VipsImage which has a different pointer pattern
+	if cTypeCheck(gtype, "VipsImage") {
 		if isOutput {
 			return "VipsImage", "*C.VipsImage", "VipsImage**"
 		}
 		return "VipsImage", "*C.VipsImage", "VipsImage*"
+	}
+
+	// Handle other common vips array types
+	switch {
 	case cTypeCheck(gtype, "VipsArrayInt"):
-		return "VipsArrayInt", "[]int", "int*"
+		return "VipsArrayInt", "[]int", addOutputPointer("int*", isOutput)
 	case cTypeCheck(gtype, "VipsArrayDouble"):
-		return "VipsArrayDouble", "[]float64", "double*"
+		return "VipsArrayDouble", "[]float64", addOutputPointer("double*", isOutput)
 	case cTypeCheck(gtype, "VipsArrayImage"):
 		return "VipsArrayImage", "[]*C.VipsImage", "VipsImage**"
 	case cTypeCheck(gtype, "VipsBlob"):
-		return "VipsBlob", "[]byte", "void*"
+		return "VipsBlob", "[]byte", addOutputPointer("void*", isOutput)
 	}
 
-	// Check for known GLib types
-	switch {
-	case cTypeCheck(gtype, "gboolean"):
-		return "gboolean", "bool", "gboolean"
-	case cTypeCheck(gtype, "gint"):
-		return "gint", "int", "int"
-	case cTypeCheck(gtype, "guint"):
-		return "guint", "int", "unsigned int"
-	case cTypeCheck(gtype, "gint64"):
-		return "gint64", "int64", "gint64"
-	case cTypeCheck(gtype, "guint64"):
-		return "guint64", "uint64", "guint64"
-	case cTypeCheck(gtype, "gdouble"):
-		return "gdouble", "float64", "double"
-	case cTypeCheck(gtype, "gfloat"):
-		return "gfloat", "float32", "float"
-	case cTypeCheck(gtype, "gchararray"):
-		return "gchararray", "string", "const char*"
+	// Map basic scalar types
+	var baseMap = map[string]struct {
+		baseType string
+		goType   string
+		cType    string
+	}{
+		"gboolean":   {"gboolean", "bool", "gboolean"},
+		"gint":       {"gint", "int", "int"},
+		"guint":      {"guint", "int", "unsigned int"},
+		"gint64":     {"gint64", "int64", "gint64"},
+		"guint64":    {"guint64", "uint64", "guint64"},
+		"gdouble":    {"gdouble", "float64", "double"},
+		"gfloat":     {"gfloat", "float32", "float"},
+		"gchararray": {"gchararray", "string", "const char*"},
+	}
+
+	// Check for basic types
+	for typeName, typeInfo := range baseMap {
+		if cTypeCheck(gtype, typeName) {
+			if isOutput {
+				cType := typeInfo.cType
+				// Special case for string
+				if cType == "const char*" {
+					cType = "char**"
+				} else {
+					cType = addAsterisk(cType)
+				}
+				return typeInfo.baseType, typeInfo.goType, cType
+			}
+			return typeInfo.baseType, typeInfo.goType, typeInfo.cType
+		}
 	}
 
 	// Check for enum/flags
-	if C.is_type_enum(gtype) != 0 {
+	if C.is_type_enum(gtype) != 0 || C.is_type_flags(gtype) != 0 {
 		goEnumName := v.GetGoEnumName(typeName)
-		return typeName, goEnumName, typeName
-	}
-	if C.is_type_flags(gtype) != 0 {
-		goEnumName := v.GetGoEnumName(typeName)
+		if isOutput {
+			return typeName, goEnumName, typeName + "*"
+		}
 		return typeName, goEnumName, typeName
 	}
 
 	// Default fallback
+	if isOutput {
+		return typeName, "interface{}", "void**"
+	}
 	return typeName, "interface{}", "void*"
+}
+
+// addAsterisk adds a * to the end of a type name if not already there
+func addAsterisk(typeName string) string {
+	if !strings.HasSuffix(typeName, "*") {
+		return typeName + "*"
+	}
+	return typeName
+}
+
+// addOutputPointer adds an additional * for output parameters
+func addOutputPointer(cType string, isOutput bool) string {
+	if isOutput {
+		return addAsterisk(cType)
+	}
+	return cType
 }
 
 // Helper function to check type names
