@@ -8,6 +8,7 @@ import (
 	"github.com/cshum/vipsgen/internal/generator"
 	"log"
 	"os"
+	"strings"
 	"unsafe"
 )
 
@@ -123,6 +124,45 @@ func (v *Introspection) GetOperationArguments(opName string) ([]generator.Argume
 	argsSlice := (*[1 << 30]C.ArgInfo)(unsafe.Pointer(argsPtr))[:nArgs:nArgs]
 	var goArgs []generator.Argument
 
+	// First pass: gather arguments and detect if we need to add an 'n' parameter
+	hasNParam := false
+	hasArrayInput := false
+	hasArrayOutput := false
+
+	// Special cases for operations with known output array parameters
+	isOutputArrayOp := opName == "getpoint" || opName == "getpoint_interpolate" || opName == "profile_load"
+
+	for i := 0; i < int(nArgs); i++ {
+		arg := argsSlice[i]
+		name := C.GoString(arg.name)
+
+		// Check if we already have an 'n' parameter
+		if name == "n" {
+			hasNParam = true
+		}
+
+		// Get type name and check if this is an array type
+		cTypeNamePtr := C.get_type_name(arg.type_val)
+		cTypeName := C.GoString(cTypeNamePtr)
+		isInput := int(arg.is_input) != 0
+		isOutput := int(arg.is_output) != 0
+
+		// Determine C type to check for array types
+		_, _, cType := v.mapGTypeToTypes(arg.type_val, cTypeName, isOutput)
+
+		// Check if this is an array input parameter (double*, int*, etc.)
+		if isInput && !isOutput && strings.HasSuffix(cType, "*") &&
+			cType != "VipsImage*" && cType != "const char*" {
+			hasArrayInput = true
+		}
+
+		// Check if this is an array output parameter (for getpoint, etc.)
+		if !isInput && isOutput && (name == "out_array" || name == "vector") {
+			hasArrayOutput = true
+		}
+	}
+
+	// Second pass: create Go arguments and add 'n' parameter if needed
 	for i := 0; i < int(nArgs); i++ {
 		arg := argsSlice[i]
 
@@ -176,6 +216,43 @@ func (v *Introspection) GetOperationArguments(opName string) ([]generator.Argume
 		}
 
 		goArgs = append(goArgs, goArg)
+	}
+
+	// Special case: Add the missing 'n' parameter if needed
+	if !hasNParam {
+		// Special cases for operations with output arrays
+		if hasArrayOutput || isOutputArrayOp {
+			// Add output 'n' parameter
+			nParam := generator.Argument{
+				Name:        "n",
+				GoName:      "n",
+				Type:        "gint",
+				GoType:      "int",
+				CType:       "int*",
+				Description: "Length of output array",
+				Required:    true,
+				IsInput:     false,
+				IsOutput:    true,
+				Flags:       35, // VIPS_ARGUMENT_REQUIRED | VIPS_ARGUMENT_OUTPUT
+			}
+			goArgs = append(goArgs, nParam)
+		} else if hasArrayInput {
+			// Add input 'n' parameter for array operations like linear, remainder_const, etc.
+			nParam := generator.Argument{
+				Name:         "n",
+				GoName:       "n",
+				Type:         "gint",
+				GoType:       "int",
+				CType:        "int",
+				Description:  "Array length",
+				Required:     true, // Required for input arrays in most cases
+				IsInput:      true,
+				IsOutput:     false,
+				Flags:        19, // VIPS_ARGUMENT_REQUIRED | VIPS_ARGUMENT_INPUT
+				DefaultValue: 1,  // Default to 1 element
+			}
+			goArgs = append(goArgs, nParam)
+		}
 	}
 
 	return goArgs, nil
