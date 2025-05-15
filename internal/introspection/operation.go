@@ -151,7 +151,7 @@ func (v *Introspection) GetOperationArguments(opName string) ([]generator.Argume
 		}
 
 		// Determine Go type and C type based on GType
-		goArg.Type, goArg.GoType, goArg.CType = v.mapGTypeToTypes(arg.type_val, cTypeName)
+		goArg.Type, goArg.GoType, goArg.CType = v.mapGTypeToTypes(arg.type_val, cTypeName, isOutput)
 
 		// Extract default value if present
 		if hasDefault {
@@ -207,10 +207,13 @@ func (v *Introspection) extractDefaultValue(arg C.ArgInfo, goType string) interf
 }
 
 // mapGTypeToTypes maps a GType to Go and C types
-func (v *Introspection) mapGTypeToTypes(gtype C.GType, typeName string) (baseType, goType, cType string) {
+func (v *Introspection) mapGTypeToTypes(gtype C.GType, typeName string, isOutput bool) (baseType, goType, cType string) {
 	// First check known vips types (simplified for brevity)
 	switch {
 	case cTypeCheck(gtype, "VipsImage"):
+		if isOutput {
+			return "VipsImage", "*C.VipsImage", "VipsImage**"
+		}
 		return "VipsImage", "*C.VipsImage", "VipsImage*"
 	case cTypeCheck(gtype, "VipsArrayInt"):
 		return "VipsArrayInt", "[]int", "int*"
