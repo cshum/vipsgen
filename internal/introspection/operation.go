@@ -490,3 +490,50 @@ func cTypeCheck(gtype C.GType, name string) bool {
 	cTypeName := C.GoString(cTypeNamePtr)
 	return cTypeName == name
 }
+
+// moveParamToEnd moves a parameter to the end of the argument list
+func moveParamToEnd(args []generator.Argument, paramName string) {
+	for i, arg := range args {
+		if arg.Name == paramName {
+			// Remove parameter from its current position
+			param := args[i]
+			copy(args[i:], args[i+1:])
+			// Add it back at the end
+			args[len(args)-1] = param
+			break
+		}
+	}
+}
+
+// moveParamAfter moves a parameter to be after a specific parameter
+func moveParamAfter(args []generator.Argument, paramToMove, afterParam string) {
+	paramIndex := -1
+	afterIndex := -1
+
+	// Find the indices
+	for i, arg := range args {
+		if arg.Name == paramToMove {
+			paramIndex = i
+		}
+		if arg.Name == afterParam {
+			afterIndex = i
+		}
+	}
+
+	// If both parameters found and they're not already in the right order
+	if paramIndex != -1 && afterIndex != -1 && paramIndex != afterIndex+1 {
+		// Save the parameter to move
+		param := args[paramIndex]
+
+		// Remove parameter from its current position
+		if paramIndex < afterIndex {
+			// Param is before the target position, adjust indices
+			copy(args[paramIndex:afterIndex], args[paramIndex+1:afterIndex+1])
+			args[afterIndex] = param
+		} else {
+			// Param is after the target position
+			copy(args[afterIndex+2:paramIndex+1], args[afterIndex+1:paramIndex])
+			args[afterIndex+1] = param
+		}
+	}
+}
