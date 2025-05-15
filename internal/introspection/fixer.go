@@ -5,6 +5,8 @@ import (
 	"strings"
 )
 
+// TODO remove these
+
 // UpdateImageInputOutputFlags examines operation arguments and sets proper flags
 func (v *Introspection) UpdateImageInputOutputFlags(op *generator.Operation) {
 	op.HasImageInput = false
