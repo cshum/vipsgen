@@ -391,6 +391,15 @@ func (v *Introspection) mapGTypeToTypes(gtype C.GType, typeName string, isOutput
 		return "VipsImage", "*C.VipsImage", "VipsImage*"
 	}
 
+	// Handle output array parameters (vector, out_array)
+	if isOutput {
+		if cTypeCheck(gtype, "VipsArrayDouble") {
+			return "VipsArrayDouble", "[]float64", "double**"
+		} else if cTypeCheck(gtype, "VipsArrayInt") {
+			return "VipsArrayInt", "[]int", "int**"
+		}
+	}
+
 	// Handle other common vips array types
 	switch {
 	case cTypeCheck(gtype, "VipsArrayInt"):
