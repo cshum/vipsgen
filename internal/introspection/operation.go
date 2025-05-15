@@ -41,7 +41,7 @@ func (v *Introspection) GetOperationArguments(opName string) ([]generator.Argume
 
 		// Create the Go argument structure
 		goArg := generator.Argument{
-			Name:        name,
+			Name:        FormatIdentifier(name),
 			GoName:      FormatGoIdentifier(name),
 			Description: description,
 			Required:    required,
