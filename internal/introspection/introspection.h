@@ -36,6 +36,14 @@ typedef struct {
     int is_input;
     int is_output;
     int required;
+    int has_default;
+    int default_type;  // 1=bool, 2=int, 3=double, 4=string
+
+    // Specific default values for each type
+    gboolean bool_default;
+    gint int_default;
+    gdouble double_default;
+    char *string_default;
 } ArgInfo;
 
 // Get all arguments of an operation

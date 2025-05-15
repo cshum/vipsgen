@@ -39,18 +39,19 @@ type Operation struct {
 
 // Argument represents an argument to a libvips operation
 type Argument struct {
-	Name        string
-	GoName      string
-	Type        string
-	GoType      string
-	CType       string
-	Description string
-	Required    bool
-	IsInput     bool
-	IsOutput    bool
-	Flags       int
-	IsEnum      bool
-	EnumType    string
+	Name         string
+	GoName       string
+	Type         string
+	GoType       string
+	CType        string
+	Description  string
+	Required     bool
+	IsInput      bool
+	IsOutput     bool
+	Flags        int
+	IsEnum       bool
+	EnumType     string
+	DefaultValue interface{}
 }
 
 // EnumValue represents a value in a libvips enum

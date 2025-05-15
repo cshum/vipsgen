@@ -172,7 +172,6 @@ static void collect_argument(VipsObject* object, GParamSpec* pspec,
                        VipsArgumentClass* argument_class,
                        VipsArgumentInstance* argument_instance,
                        ArgInfo* arg) {
-
     // Skip deprecated arguments
     if (argument_class->flags & VIPS_ARGUMENT_DEPRECATED)
         return;
@@ -188,6 +187,60 @@ static void collect_argument(VipsObject* object, GParamSpec* pspec,
     arg->is_input = (argument_class->flags & VIPS_ARGUMENT_INPUT) != 0;
     arg->is_output = (argument_class->flags & VIPS_ARGUMENT_OUTPUT) != 0;
     arg->required = (argument_class->flags & VIPS_ARGUMENT_REQUIRED) != 0;
+
+    // Initialize default value fields
+    arg->has_default = 0;
+    arg->default_type = 0;
+    arg->bool_default = FALSE;
+    arg->int_default = 0;
+    arg->double_default = 0.0;
+    arg->string_default = NULL;
+
+    // Get default value based on type
+    if (G_IS_PARAM_SPEC_BOOLEAN(pspec)) {
+        GParamSpecBoolean *pspec_bool = G_PARAM_SPEC_BOOLEAN(pspec);
+        arg->has_default = 1;
+        arg->default_type = 1;  // bool
+        arg->bool_default = pspec_bool->default_value;
+    }
+    else if (G_IS_PARAM_SPEC_INT(pspec)) {
+        GParamSpecInt *pspec_int = G_PARAM_SPEC_INT(pspec);
+        arg->has_default = 1;
+        arg->default_type = 2;  // int
+        arg->int_default = pspec_int->default_value;
+    }
+    else if (G_IS_PARAM_SPEC_UINT(pspec)) {
+        GParamSpecUInt *pspec_uint = G_PARAM_SPEC_UINT(pspec);
+        arg->has_default = 1;
+        arg->default_type = 2;  // int
+        arg->int_default = (gint)pspec_uint->default_value;
+    }
+    else if (G_IS_PARAM_SPEC_DOUBLE(pspec)) {
+        GParamSpecDouble *pspec_double = G_PARAM_SPEC_DOUBLE(pspec);
+        arg->has_default = 1;
+        arg->default_type = 3;  // double
+        arg->double_default = pspec_double->default_value;
+    }
+    else if (G_IS_PARAM_SPEC_FLOAT(pspec)) {
+        GParamSpecFloat *pspec_float = G_PARAM_SPEC_FLOAT(pspec);
+        arg->has_default = 1;
+        arg->default_type = 3;  // double
+        arg->double_default = (gdouble)pspec_float->default_value;
+    }
+    else if (G_IS_PARAM_SPEC_STRING(pspec)) {
+        GParamSpecString *pspec_string = G_PARAM_SPEC_STRING(pspec);
+        if (pspec_string->default_value) {
+            arg->has_default = 1;
+            arg->default_type = 4;  // string
+            arg->string_default = strdup(pspec_string->default_value);
+        }
+    }
+    else if (G_IS_PARAM_SPEC_ENUM(pspec)) {
+        GParamSpecEnum *pspec_enum = G_PARAM_SPEC_ENUM(pspec);
+        arg->has_default = 1;
+        arg->default_type = 2;  // int
+        arg->int_default = pspec_enum->default_value;
+    }
 }
 
 // Structure to pass data to the callback
@@ -247,6 +300,7 @@ ArgInfo* get_operation_arguments(const char *operation_name, int *count) {
     return args;
 }
 
+// Free operation arguments
 void free_operation_arguments(ArgInfo *args, int count) {
     if (!args) return;
 
@@ -254,6 +308,11 @@ void free_operation_arguments(ArgInfo *args, int count) {
         free(args[i].name);
         free(args[i].nick);
         free(args[i].blurb);
+
+        // Free string default values if present
+        if (args[i].has_default && args[i].default_type == 4 && args[i].string_default) {
+            free(args[i].string_default);
+        }
     }
 
     free(args);

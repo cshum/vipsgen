@@ -38,6 +38,7 @@ func (v *Introspection) GetOperationArguments(opName string) ([]generator.Argume
 		isInput := int(arg.is_input) != 0
 		isOutput := int(arg.is_output) != 0
 		required := int(arg.required) != 0
+		hasDefault := int(arg.has_default) != 0
 
 		// Create the Go argument structure
 		goArg := generator.Argument{
@@ -53,6 +54,11 @@ func (v *Introspection) GetOperationArguments(opName string) ([]generator.Argume
 		// Determine Go type and C type based on GType
 		goArg.Type, goArg.GoType, goArg.CType = v.mapGTypeToTypes(arg.type_val, cTypeName)
 
+		// Extract default value if present
+		if hasDefault {
+			goArg.DefaultValue = v.extractDefaultValue(arg, goArg.GoType)
+		}
+
 		// Check if this is an enum type
 		if C.is_type_enum(arg.type_val) != 0 {
 			goArg.IsEnum = true
@@ -66,6 +72,31 @@ func (v *Introspection) GetOperationArguments(opName string) ([]generator.Argume
 	}
 
 	return goArgs, nil
+}
+
+// Helper function to extract default values based on type
+func (v *Introspection) extractDefaultValue(arg C.ArgInfo, goType string) interface{} {
+	// Check if there's a default value
+	if int(arg.has_default) == 0 {
+		return nil
+	}
+
+	// Extract based on the default type
+	switch int(arg.default_type) {
+	case 1: // bool
+		return int(arg.bool_default) != 0
+	case 2: // int
+		return int(arg.int_default)
+	case 3: // double
+		return float64(arg.double_default)
+	case 4: // string
+		if arg.string_default != nil {
+			return C.GoString(arg.string_default)
+		}
+		return ""
+	default:
+		return nil
+	}
 }
 
 // mapGTypeToTypes maps a GType to Go and C types
