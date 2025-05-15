@@ -403,14 +403,21 @@ static int has_buffer_param(VipsOperation *op, int is_output) {
         if (args[i].is_output == is_output) {
             if (strcmp(args[i].name, "buf") == 0 ||
                 strcmp(args[i].name, "buffer") == 0) {
+
+                // Check for various buffer-like types
                 GType type = args[i].type_val;
-                if (g_type_is_a(type, G_TYPE_POINTER)) {
+                if (g_type_is_a(type, G_TYPE_POINTER) ||
+                    g_type_is_a(type, G_TYPE_BYTES) ||
+                    g_type_is_a(type, vips_blob_get_type()) ||
+                    g_type_name(type) == NULL || // NULL type name is common for raw pointers
+                    strcmp(g_type_name(type), "gpointer") == 0) {
                     result = 1;
                     break;
                 }
             }
         }
     }
+
     free_operation_arguments(args, count);
     return result;
 }
