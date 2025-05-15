@@ -362,6 +362,19 @@ func (v *Introspection) GetEnumTypes() []generator.EnumTypeInfo {
 		enumTypes = append(enumTypes, enumInfo)
 	}
 
+	// Debug: Write the parsed GIR to a JSON file
+	jsonData, err := json.MarshalIndent(enumTypes, "", "  ")
+	if err != nil {
+		log.Printf("Warning: failed to marshal Enum Types to JSON: %v", err)
+	} else {
+		err = os.WriteFile("debug_enums.json", jsonData, 0644)
+		if err != nil {
+			log.Printf("Warning: failed to write debug_enums.json: %v", err)
+		} else {
+			log.Println("Wrote introspected Enum Types to debug_enums.json")
+		}
+	}
+
 	return enumTypes
 }
 
