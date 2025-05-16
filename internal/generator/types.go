@@ -48,6 +48,9 @@ type Argument struct {
 	Required     bool
 	IsInput      bool
 	IsOutput     bool
+	IsImage      bool
+	IsBuffer     bool
+	IsArray      bool
 	Flags        int
 	IsEnum       bool
 	EnumType     string

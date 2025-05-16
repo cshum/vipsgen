@@ -178,6 +178,9 @@ func (v *Introspection) GetOperationArguments(opName string) ([]generator.Argume
 		isOutput := int(arg.is_output) != 0
 		required := int(arg.required) != 0
 		hasDefault := int(arg.has_default) != 0
+		isImage := int(arg.is_image) != 0
+		isBuffer := int(arg.is_buffer) != 0
+		isArray := int(arg.is_array) != 0
 
 		// Create the Go argument structure
 		goArg := generator.Argument{
@@ -187,6 +190,9 @@ func (v *Introspection) GetOperationArguments(opName string) ([]generator.Argume
 			Required:    required,
 			IsInput:     isInput,
 			IsOutput:    isOutput,
+			IsImage:     isImage,
+			IsBuffer:    isBuffer,
+			IsArray:     isArray,
 			Flags:       int(arg.flags),
 		}
 

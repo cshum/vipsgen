@@ -195,6 +195,43 @@ static void collect_argument(VipsObject* object, GParamSpec* pspec,
     arg->int_default = 0;
     arg->double_default = 0.0;
     arg->string_default = NULL;
+    arg->is_image = 0;
+    arg->is_buffer = 0;
+    arg->is_array = 0;
+
+    // Determine parameter types
+    GType type = arg->type_val;
+    const char *name = arg->name;
+
+    // Check if this is an image parameter
+    if (g_type_is_a(type, vips_image_get_type())) {
+        arg->is_image = 1;
+    }
+
+    // Check if this is a buffer parameter
+    if ((strcmp(name, "buf") == 0 || strcmp(name, "buffer") == 0) &&
+        (g_type_is_a(type, G_TYPE_POINTER) ||
+         g_type_is_a(type, G_TYPE_BYTES) ||
+         g_type_is_a(type, vips_blob_get_type()) ||
+         g_type_name(type) == NULL ||
+         strcmp(g_type_name(type), "gpointer") == 0)) {
+        arg->is_buffer = 1;
+    }
+
+    // Check if this is an array parameter
+    if (g_type_is_a(type, vips_array_double_get_type()) ||
+        g_type_is_a(type, vips_array_int_get_type()) ||
+        g_type_is_a(type, vips_array_image_get_type()) ||
+        // Also check for pointer types used as arrays
+        (g_type_is_a(type, G_TYPE_POINTER) &&
+          (strcmp(name, "vector") == 0 || strcmp(name, "out_array") == 0)) ||
+        // Check for common array parameter names with pointer types
+        (g_type_is_a(type, G_TYPE_POINTER) &&
+          (strcmp(name, "a") == 0 || strcmp(name, "b") == 0 ||
+           strcmp(name, "c") == 0 || strcmp(name, "ink") == 0 ||
+           strcmp(name, "coefficients") == 0))) {
+        arg->is_array = 1;
+    }
 
     // Get default value based on type
     if (G_IS_PARAM_SPEC_BOOLEAN(pspec)) {

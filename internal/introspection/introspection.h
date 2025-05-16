@@ -44,6 +44,11 @@ typedef struct {
     gint int_default;
     gdouble double_default;
     char *string_default;
+
+    // Additional type information
+    int is_image;      // Is this an image parameter?
+    int is_buffer;     // Is this a buffer parameter?
+    int is_array;      // Is this an array parameter?
 } ArgInfo;
 
 // Get all arguments of an operation
