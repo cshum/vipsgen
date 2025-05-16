@@ -274,50 +274,6 @@ static void* collect_arguments_cb(VipsObject* object, GParamSpec* pspec,
     return NULL;
 }
 
-
-// Helper function to add missing array length outputs for specific operations
-static void add_missing_array_outputs(const char *operation_name,
-                                       ArgInfo *args, int count,
-                                       ArgInfo **extra_args, int *extra_count) {
-    *extra_args = NULL;
-    *extra_count = 0;
-
-    // Special case for getpoint which returns a vector and its length
-    if (strcmp(operation_name, "getpoint") == 0) {
-        // Check if we already have the "n" parameter
-        int has_n = 0;
-        for (int i = 0; i < count; i++) {
-            if (strcmp(args[i].name, "n") == 0) {
-                has_n = 1;
-                break;
-            }
-        }
-
-        // If "n" is missing, add it as an extra argument
-        if (!has_n) {
-            *extra_count = 1;
-            *extra_args = (ArgInfo*)malloc(sizeof(ArgInfo));
-
-            // Initialize the n parameter
-            ArgInfo *n_arg = *extra_args;
-            n_arg->name = strdup("n");
-            n_arg->nick = strdup("Length");
-            n_arg->blurb = strdup("Length of output array");
-            n_arg->flags = 35; // VIPS_ARGUMENT_REQUIRED | VIPS_ARGUMENT_OUTPUT
-            n_arg->type_val = G_TYPE_INT;
-            n_arg->is_input = 0;
-            n_arg->is_output = 1;
-            n_arg->required = 1;
-            n_arg->has_default = 0;
-            n_arg->default_type = 0;
-        }
-    }
-
-    // Add more special cases as needed
-    // For example: getpoint_interpolate, profile_load, etc.
-}
-
-
 ArgInfo* get_operation_arguments(const char *operation_name, int *count) {
     // Get the basic arguments as before
     VipsOperation *op = vips_operation_new(operation_name);
@@ -340,30 +296,6 @@ ArgInfo* get_operation_arguments(const char *operation_name, int *count) {
 
     // Map over all arguments
     vips_argument_map(VIPS_OBJECT(op), collect_arguments_cb, &data, NULL);
-
-    // Check for missing array length outputs
-    ArgInfo *extra_args;
-    int extra_count;
-    add_missing_array_outputs(operation_name, args, *count, &extra_args, &extra_count);
-
-    // If we have extra arguments, add them
-    if (extra_count > 0) {
-        // Make sure we have room
-        ArgInfo *new_args = (ArgInfo*)realloc(args, (*count + extra_count) * sizeof(ArgInfo));
-        if (new_args) {
-            args = new_args;
-
-            // Copy the extra arguments
-            memcpy(&args[*count], extra_args, extra_count * sizeof(ArgInfo));
-            *count += extra_count;
-
-            // Free the temporary array, but not its contents since they were copied
-            free(extra_args);
-        } else {
-            // Memory allocation failed, just free extra_args
-            free_operation_arguments(extra_args, extra_count);
-        }
-    }
 
     g_object_unref(op);
     return args;
