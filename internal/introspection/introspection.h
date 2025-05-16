@@ -35,6 +35,9 @@ typedef struct {
     GType type_val;
     int is_input;
     int is_output;
+    int is_image;
+    int is_buffer;
+    int is_array;
     int required;
     int has_default;
     int default_type;  // 1=bool, 2=int, 3=double, 4=string
@@ -44,11 +47,6 @@ typedef struct {
     gint int_default;
     gdouble double_default;
     char *string_default;
-
-    // Additional type information
-    int is_image;      // Is this an image parameter?
-    int is_buffer;     // Is this a buffer parameter?
-    int is_array;      // Is this an array parameter?
 } ArgInfo;
 
 // Get all arguments of an operation

@@ -129,39 +129,6 @@ func (v *Introspection) GetOperationArguments(opName string) ([]generator.Argume
 	hasArrayInput := false
 	hasArrayOutput := false
 
-	// Special cases for operations with known output array parameters
-	isOutputArrayOp := opName == "getpoint" || opName == "getpoint_interpolate" || opName == "profile_load"
-
-	for i := 0; i < int(nArgs); i++ {
-		arg := argsSlice[i]
-		name := C.GoString(arg.name)
-
-		// Check if we already have an 'n' parameter
-		if name == "n" {
-			hasNParam = true
-		}
-
-		// Get type name and check if this is an array type
-		cTypeNamePtr := C.get_type_name(arg.type_val)
-		cTypeName := C.GoString(cTypeNamePtr)
-		isInput := int(arg.is_input) != 0
-		isOutput := int(arg.is_output) != 0
-
-		// Determine C type to check for array types
-		_, _, cType := v.mapGTypeToTypes(arg.type_val, cTypeName, isOutput)
-
-		// Check if this is an array input parameter (double*, int*, etc.)
-		if isInput && !isOutput && strings.HasSuffix(cType, "*") &&
-			cType != "VipsImage*" && cType != "const char*" {
-			hasArrayInput = true
-		}
-
-		// Check if this is an array output parameter (for getpoint, etc.)
-		if !isInput && isOutput && (name == "out_array" || name == "vector") {
-			hasArrayOutput = true
-		}
-	}
-
 	// Second pass: create Go arguments and add 'n' parameter if needed
 	for i := 0; i < int(nArgs); i++ {
 		arg := argsSlice[i]
@@ -212,6 +179,16 @@ func (v *Introspection) GetOperationArguments(opName string) ([]generator.Argume
 			// Register the enum type
 			v.AddEnumType(goArg.Type, goArg.EnumType)
 		}
+		// gather arguments and detect if we need to add an 'n' parameter
+		if name == "n" {
+			hasNParam = true
+		}
+		if isArray && isInput {
+			hasArrayInput = true
+		}
+		if isArray && isOutput {
+			hasArrayOutput = true
+		}
 
 		// Fix the vips_composite mode parameter - should be an array of BlendMode
 		if opName == "composite" && name == "mode" && goArg.CType == "int*" && goArg.GoType == "[]int" {
@@ -232,7 +209,7 @@ func (v *Introspection) GetOperationArguments(opName string) ([]generator.Argume
 			hasLenParam := false
 
 			for _, arg := range goArgs {
-				if (arg.Name == "buf" || arg.Name == "buffer") && arg.CType == "void*" && arg.IsInput {
+				if arg.IsBuffer && arg.IsInput {
 					hasBufParam = true
 				}
 				if arg.Name == "len" && arg.IsInput {
@@ -261,7 +238,7 @@ func (v *Introspection) GetOperationArguments(opName string) ([]generator.Argume
 
 				for i, arg := range goArgs {
 					newArgs = append(newArgs, arg)
-					if (arg.Name == "buf" || arg.Name == "buffer") && arg.CType == "void*" && arg.IsInput {
+					if arg.IsBuffer && arg.IsInput {
 						bufIndex = i
 					}
 				}
@@ -282,25 +259,15 @@ func (v *Introspection) GetOperationArguments(opName string) ([]generator.Argume
 			hasLenParam := false
 
 			for i, arg := range goArgs {
-				// Fix buf parameter if it exists
-				if arg.Name == "buf" || arg.Name == "buffer" {
+				if arg.IsBuffer && arg.IsOutput {
 					hasBufParam = true
-					// Ensure it's an output parameter with the right type
-					goArgs[i].IsInput = false
-					goArgs[i].IsOutput = true
 					goArgs[i].CType = "void**"
 				}
-
-				// Check for len parameter
 				if arg.Name == "len" {
 					hasLenParam = true
-					// Ensure it's an output parameter with the right type
-					goArgs[i].IsInput = false
-					goArgs[i].IsOutput = true
 					goArgs[i].CType = "size_t*"
 				}
 			}
-
 			// If we have a buf parameter but no len parameter, add one
 			if hasBufParam && !hasLenParam {
 				lenParam := generator.Argument{
@@ -325,7 +292,7 @@ func (v *Introspection) GetOperationArguments(opName string) ([]generator.Argume
 	// Special case: Add the missing 'n' parameter if needed
 	if !hasNParam {
 		// Special cases for operations with output arrays
-		if hasArrayOutput || isOutputArrayOp {
+		if hasArrayOutput {
 			// Add output 'n' parameter
 			nParam := generator.Argument{
 				Name:        "n",
@@ -465,81 +432,4 @@ func (v *Introspection) mapGTypeToTypes(gtype C.GType, typeName string, isOutput
 		return typeName, "interface{}", "void**"
 	}
 	return typeName, "interface{}", "void*"
-}
-
-// addAsterisk adds a * to the end of a type name if not already there
-func addAsterisk(typeName string) string {
-	if !strings.HasSuffix(typeName, "*") {
-		return typeName + "*"
-	}
-	return typeName
-}
-
-// addOutputPointer adds an additional * for output parameters
-func addOutputPointer(cType string, isOutput bool) string {
-	if isOutput {
-		return addAsterisk(cType)
-	}
-	return cType
-}
-
-// Helper function to check type names
-func cTypeCheck(gtype C.GType, name string) bool {
-	cName := C.CString(name)
-	defer C.free(unsafe.Pointer(cName))
-
-	cTypeNamePtr := C.get_type_name(gtype)
-	if cTypeNamePtr == nil {
-		return false
-	}
-
-	cTypeName := C.GoString(cTypeNamePtr)
-	return cTypeName == name
-}
-
-// moveParamToEnd moves a parameter to the end of the argument list
-func moveParamToEnd(args []generator.Argument, paramName string) {
-	for i, arg := range args {
-		if arg.Name == paramName {
-			// Remove parameter from its current position
-			param := args[i]
-			copy(args[i:], args[i+1:])
-			// Add it back at the end
-			args[len(args)-1] = param
-			break
-		}
-	}
-}
-
-// moveParamAfter moves a parameter to be after a specific parameter
-func moveParamAfter(args []generator.Argument, paramToMove, afterParam string) {
-	paramIndex := -1
-	afterIndex := -1
-
-	// Find the indices
-	for i, arg := range args {
-		if arg.Name == paramToMove {
-			paramIndex = i
-		}
-		if arg.Name == afterParam {
-			afterIndex = i
-		}
-	}
-
-	// If both parameters found and they're not already in the right order
-	if paramIndex != -1 && afterIndex != -1 && paramIndex != afterIndex+1 {
-		// Save the parameter to move
-		param := args[paramIndex]
-
-		// Remove parameter from its current position
-		if paramIndex < afterIndex {
-			// Param is before the target position, adjust indices
-			copy(args[paramIndex:afterIndex], args[paramIndex+1:afterIndex+1])
-			args[afterIndex] = param
-		} else {
-			// Param is after the target position
-			copy(args[afterIndex+2:paramIndex+1], args[afterIndex+1:paramIndex])
-			args[afterIndex+1] = param
-		}
-	}
 }

@@ -429,61 +429,6 @@ void free_operation_info(OperationInfo *ops, int count) {
     free(ops);
 }
 
-// Helper to determine if operation has buffer input/output
-static int has_buffer_param(VipsOperation *op, int is_output) {
-    int count = 0;
-    const char *operation_name = G_OBJECT_TYPE_NAME(op);
-    ArgInfo *args = get_operation_arguments(operation_name, &count);
-    if (!args) return 0;
-
-    int result = 0;
-    for (int i = 0; i < count; i++) {
-        if (args[i].is_output == is_output) {
-            if (strcmp(args[i].name, "buf") == 0 ||
-                strcmp(args[i].name, "buffer") == 0) {
-
-                // Check for various buffer-like types
-                GType type = args[i].type_val;
-                if (g_type_is_a(type, G_TYPE_POINTER) ||
-                    g_type_is_a(type, G_TYPE_BYTES) ||
-                    g_type_is_a(type, vips_blob_get_type()) ||
-                    g_type_name(type) == NULL || // NULL type name is common for raw pointers
-                    strcmp(g_type_name(type), "gpointer") == 0) {
-                    result = 1;
-                    break;
-                }
-            }
-        }
-    }
-
-    free_operation_arguments(args, count);
-    return result;
-}
-
-// Helper to determine if operation has image input/output
-static int has_image_param(VipsOperation *op, int is_output, int *count) {
-    int arg_count = 0;
-    const char *operation_name = G_OBJECT_TYPE_NAME(op);
-    ArgInfo *args = get_operation_arguments(operation_name, &arg_count);
-    if (!args) return 0;
-
-    int result = 0;
-    *count = 0;
-
-    for (int i = 0; i < arg_count; i++) {
-        if (args[i].is_output == is_output) {
-            GType type = args[i].type_val;
-            if (g_type_is_a(type, vips_image_get_type())) {
-                result = 1;
-                (*count)++;
-            }
-        }
-    }
-
-    free_operation_arguments(args, arg_count);
-    return result;
-}
-
 // Get detailed information about an operation
 OperationDetails get_operation_details(const char *operation_name) {
     OperationDetails details = {0};
@@ -491,29 +436,34 @@ OperationDetails get_operation_details(const char *operation_name) {
     VipsOperation *op = vips_operation_new(operation_name);
     if (!op) return details;
 
-    int input_count = 0;
-    details.has_image_input = has_image_param(op, 0, &input_count);
-    int output_count = 0;
-    details.has_image_output = has_image_param(op, 1, &output_count);
-    details.has_one_image_output = (output_count == 1);
-
-    // Check for buffer input/output
-    details.has_buffer_input = has_buffer_param(op, 0);
-    details.has_buffer_output = has_buffer_param(op, 1);
-
-    // Check for array image input
     int arg_count = 0;
+    int image_output_count = 0;
     ArgInfo *args = get_operation_arguments(operation_name, &arg_count);
     if (args) {
         for (int i = 0; i < arg_count; i++) {
-            if (!args[i].is_output) {
+            if (args[i].is_input) {
+                if (args[i].is_image) {
+                    details.has_image_input = 1;
+                }
+                if (args[i].is_buffer) {
+                    details.has_buffer_input = 1;
+                }
                 GType type = args[i].type_val;
                 if (g_type_is_a(type, vips_array_image_get_type())) {
                     details.has_array_image_input = 1;
-                    break;
+                }
+            }
+            if (args[i].is_output) {
+                if (args[i].is_image) {
+                    details.has_image_output = 1;
+                    image_output_count++;
+                }
+                if (args[i].is_buffer) {
+                    details.has_buffer_output = 1;
                 }
             }
         }
+        details.has_one_image_output = (image_output_count == 1);
         free_operation_arguments(args, arg_count);
     }
 

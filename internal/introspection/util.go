@@ -1,11 +1,13 @@
 package introspection
 
+// #include "introspection.h"
 import "C"
 import (
 	"github.com/cshum/vipsgen/internal/generator"
 	"strings"
 	"sync"
 	"unicode"
+	"unsafe"
 )
 
 var cStringsCache sync.Map
@@ -44,10 +46,8 @@ func FormatIdentifier(name string) string {
 	case "type", "func", "map", "range", "select", "case", "default":
 		return name + "_"
 	}
-
-	// Handle special cases
+	// handle hyphens
 	name = strings.Replace(name, "-", "_", -1)
-
 	return name
 }
 
@@ -81,7 +81,6 @@ func GetGoEnumName(cName string) string {
 	if strings.HasPrefix(cName, "Foreign") {
 		cName = cName[7:]
 	}
-
 	return cName
 }
 
@@ -98,4 +97,34 @@ func FormatGoFunctionName(name string) string {
 		}
 	}
 	return strings.Join(parts, "")
+}
+
+// addAsterisk adds a * to the end of a type name if not already there
+func addAsterisk(typeName string) string {
+	if !strings.HasSuffix(typeName, "*") {
+		return typeName + "*"
+	}
+	return typeName
+}
+
+// addOutputPointer adds an additional * for output parameters
+func addOutputPointer(cType string, isOutput bool) string {
+	if isOutput {
+		return addAsterisk(cType)
+	}
+	return cType
+}
+
+// Helper function to check type names
+func cTypeCheck(gtype C.GType, name string) bool {
+	cName := C.CString(name)
+	defer C.free(unsafe.Pointer(cName))
+
+	cTypeNamePtr := C.get_type_name(gtype)
+	if cTypeNamePtr == nil {
+		return false
+	}
+
+	cTypeName := C.GoString(cTypeNamePtr)
+	return cTypeName == name
 }
