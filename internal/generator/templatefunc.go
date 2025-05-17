@@ -10,18 +10,22 @@ import (
 // GetTemplateFuncMap Helper functions for templates
 func GetTemplateFuncMap() template.FuncMap {
 	return template.FuncMap{
-		"formatErrorReturn":            formatErrorReturn,
-		"formatGoArgList":              formatGoArgList,
-		"formatReturnTypes":            formatReturnTypes,
-		"formatVarDeclarations":        formatVarDeclarations,
-		"formatFunctionCallArgs":       formatFunctionCallArgs,
-		"formatFunctionCall":           formatFunctionCall,
-		"formatReturnValues":           formatReturnValues,
-		"formatImageMethodBody":        formatImageMethodBody,
-		"formatImageMethodParams":      formatImageMethodParams,
-		"formatImageMethodReturnTypes": formatImageMethodReturnTypes,
-		"formatCreatorMethodParams":    formatCreatorMethodParams,
-		"formatCreatorMethodBody":      formatCreatorMethodBody,
+		"formatErrorReturn":                   formatErrorReturn,
+		"formatGoArgList":                     formatGoArgList,
+		"formatReturnTypes":                   formatReturnTypes,
+		"formatVarDeclarations":               formatVarDeclarations,
+		"formatFunctionCallArgs":              formatFunctionCallArgs,
+		"formatFunctionCall":                  formatFunctionCall,
+		"formatReturnValues":                  formatReturnValues,
+		"formatImageMethodBody":               formatImageMethodBody,
+		"formatImageMethodParams":             formatImageMethodParams,
+		"formatImageMethodReturnTypes":        formatImageMethodReturnTypes,
+		"formatCreatorMethodParams":           formatCreatorMethodParams,
+		"formatCreatorMethodBody":             formatCreatorMethodBody,
+		"formatCFunctionSignature":            formatCFunctionSignature,
+		"formatCFunctionWithOptionsSignature": formatCFunctionWithOptionsSignature,
+		"formatCFunctionDeclaration":          formatCFunctionDeclaration,
+		"formatCFunctionImplementation":       formatCFunctionImplementation,
 	}
 }
 
@@ -74,7 +78,11 @@ func formatErrorReturn(HasOneImageOutput, hasBufferOutput bool, outputs []intros
 
 // formatGoArgList formats a list of function arguments for a Go function
 // e.g., "in *C.VipsImage, c []float64, n int"
-func formatGoArgList(args []introspection.Argument) string {
+func formatGoArgList(op *introspection.Operation, withOptions bool) string {
+	args := op.Arguments
+	if withOptions {
+		args = append(args, op.OptionalInputs...)
+	}
 	// Find buffer param if exists
 	var inBufferParam *introspection.Argument
 	var hasOutBufParam bool
@@ -129,7 +137,7 @@ func formatReturnTypes(op introspection.Operation) string {
 }
 
 // formatVarDeclarations formats variable declarations for output parameters
-func formatVarDeclarations(op introspection.Operation) string {
+func formatVarDeclarations(op introspection.Operation, withOptions bool) string {
 	var decls []string
 	if op.HasBufferInput {
 		decls = append(decls, fmt.Sprintf("src := %s", getBufferParamName(op.Arguments)))
@@ -169,6 +177,14 @@ func formatVarDeclarations(op introspection.Operation) string {
 	}
 	if arrayConv := formatArrayConversions(op.Arguments); arrayConv != "" {
 		decls = append(decls, arrayConv)
+	}
+	if withOptions {
+		if stringConv := formatStringConversions(op.OptionalInputs); stringConv != "" {
+			decls = append(decls, stringConv)
+		}
+		if arrayConv := formatArrayConversions(op.OptionalInputs); arrayConv != "" {
+			decls = append(decls, arrayConv)
+		}
 	}
 	return strings.Join(decls, "\n	")
 }
@@ -246,9 +262,13 @@ func formatArrayConversions(args []introspection.Argument) string {
 }
 
 // formatFunctionCallArgs formats the arguments for the C function call
-func formatFunctionCallArgs(op introspection.Operation) string {
+func formatFunctionCallArgs(op introspection.Operation, withOptions bool) string {
+	args := op.Arguments
+	if withOptions {
+		args = append(args, op.OptionalInputs...)
+	}
 	var callArgs []string
-	for _, arg := range op.Arguments {
+	for _, arg := range args {
 		var argStr string
 		if arg.IsOutput {
 			if arg.Name == "out" || op.HasOneImageOutput {
@@ -283,6 +303,9 @@ func formatFunctionCallArgs(op introspection.Operation) string {
 			} else if arg.GoType == "[]byte" && strings.Contains(arg.Name, "buf") {
 				// Special handling for byte buffers
 				argStr = "unsafe.Pointer(&src[0])"
+			} else if arg.GoType == "*Interpolate" {
+				// Handle Interpolate parameters - convert from Go to C type
+				argStr = "vipsInterpolateToC(" + arg.GoName + ")"
 			} else if arg.Name == "len" && arg.CType == "size_t" {
 				// input buffer
 				argStr = "C.size_t(len(src))"
@@ -697,4 +720,151 @@ func formatCreatorMethodBody(op introspection.Operation) string {
 		strings.Join(callArgs, ", "),
 		op.ImageTypeString,
 		imageRefBuf)
+}
+
+// formatCFunctionSignature generates just the function signature for vips operations
+func formatCFunctionSignature(op introspection.Operation, includeParamNames bool) string {
+	var result strings.Builder
+
+	// Function signature for the basic version
+	result.WriteString(fmt.Sprintf("int vipsgen_%s(", op.Name))
+
+	// Parameters for the basic function
+	if len(op.Arguments) > 0 {
+		for i, arg := range op.Arguments {
+			if i > 0 {
+				result.WriteString(", ")
+			}
+			if includeParamNames {
+				result.WriteString(fmt.Sprintf("%s %s", arg.CType, arg.Name))
+			} else {
+				result.WriteString(arg.CType)
+			}
+		}
+	}
+	result.WriteString(")")
+
+	return result.String()
+}
+
+// formatCFunctionWithOptionsSignature generates the signature for the _with_options variant
+func formatCFunctionWithOptionsSignature(op introspection.Operation, includeParamNames bool) string {
+	if len(op.OptionalInputs) == 0 {
+		return ""
+	}
+
+	var result strings.Builder
+
+	// Function signature for the version with options
+	result.WriteString(fmt.Sprintf("int vipsgen_%s_with_options(", op.Name))
+
+	// Parameters including both required and optional
+	if len(op.Arguments) > 0 {
+		for i, arg := range op.Arguments {
+			if i > 0 {
+				result.WriteString(", ")
+			}
+			if includeParamNames {
+				result.WriteString(fmt.Sprintf("%s %s", arg.CType, arg.Name))
+			} else {
+				result.WriteString(arg.CType)
+			}
+		}
+	}
+
+	// Add optional parameters
+	if len(op.Arguments) > 0 && len(op.OptionalInputs) > 0 {
+		result.WriteString(", ")
+	}
+	for i, opt := range op.OptionalInputs {
+		if i > 0 {
+			result.WriteString(", ")
+		}
+		if includeParamNames {
+			result.WriteString(fmt.Sprintf("%s %s", opt.CType, opt.Name))
+		} else {
+			result.WriteString(opt.CType)
+		}
+	}
+	result.WriteString(")")
+
+	return result.String()
+}
+
+// formatCFunctionDeclaration generates header declarations for vips operations
+func formatCFunctionDeclaration(op introspection.Operation) string {
+	var result strings.Builder
+
+	// Basic function declaration
+	if len(op.Arguments) == 0 {
+		result.WriteString(fmt.Sprintf("int vipsgen_%s();", op.Name))
+	} else {
+		result.WriteString(formatCFunctionSignature(op, true))
+		result.WriteString(";")
+	}
+
+	// Add with_options function declaration if needed
+	if len(op.OptionalInputs) > 0 {
+		result.WriteString("\n")
+		result.WriteString(formatCFunctionWithOptionsSignature(op, true))
+		result.WriteString(";")
+	}
+
+	return result.String()
+}
+
+// formatCFunctionImplementation generates C implementations for vips operations
+func formatCFunctionImplementation(op introspection.Operation) string {
+	var result strings.Builder
+
+	// Basic function implementation
+	if len(op.Arguments) == 0 {
+		result.WriteString(fmt.Sprintf("int vipsgen_%s() {\n", op.Name))
+		result.WriteString(fmt.Sprintf("    return vips_%s(NULL);\n}", op.Name))
+	} else {
+		result.WriteString(formatCFunctionSignature(op, true))
+		result.WriteString(" {\n")
+		result.WriteString(fmt.Sprintf("    return vips_%s(", op.Name))
+
+		for i, arg := range op.Arguments {
+			if i > 0 {
+				result.WriteString(", ")
+			}
+			result.WriteString(arg.Name)
+		}
+
+		result.WriteString(", NULL);\n}")
+	}
+
+	// Add with_options function implementation if needed
+	if len(op.OptionalInputs) > 0 {
+		result.WriteString("\n\n")
+		result.WriteString(formatCFunctionWithOptionsSignature(op, true))
+		result.WriteString(" {\n")
+		result.WriteString(fmt.Sprintf("    return vips_%s(", op.Name))
+
+		// Add required arguments
+		if len(op.Arguments) > 0 {
+			for i, arg := range op.Arguments {
+				if i > 0 {
+					result.WriteString(", ")
+				}
+				result.WriteString(arg.Name)
+			}
+		}
+
+		// Add optional parameters with their names
+		for _, opt := range op.OptionalInputs {
+			// Handle string and enum type parameters differently
+			if opt.GoType == "string" || !opt.IsEnum {
+				result.WriteString(fmt.Sprintf(", \"%s\", %s", opt.Name, opt.Name))
+			} else {
+				result.WriteString(fmt.Sprintf(", \"%s\", (int)%s", opt.Name, opt.Name))
+			}
+		}
+
+		result.WriteString(", NULL);\n}")
+	}
+
+	return result.String()
 }

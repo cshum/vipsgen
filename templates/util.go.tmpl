@@ -306,6 +306,22 @@ func convertVipsImagesToImages(vipsImages []*C.VipsImage) []*Image {
     return images
 }
 
+// vipsInterpolateToC converts a Go Interpolate to a C VipsInterpolate pointer
+func vipsInterpolateToC(interp *Interpolate) *C.VipsInterpolate {
+    if interp == nil {
+        return nil
+    }
+    return interp.interp
+}
+
+// vipsInterpolateFromC converts a C VipsInterpolate pointer to a Go Interpolate
+func vipsInterpolateFromC(interp *C.VipsInterpolate) *Interpolate {
+    if interp == nil {
+        return nil
+    }
+    return &Interpolate{interp: interp}
+}
+
 // Param libvips options param
 type Param struct {
 	value interface{}

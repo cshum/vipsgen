@@ -14,7 +14,7 @@ import (
 // Define a more base list of common enum types to look for in libvips
 var baseEnumTypeNames []enumTypeName
 
-var excludedEnumTypeNames = map[string]bool{"VipsForeignPngFilter": true}
+var excludedEnumTypeNames = map[string]bool{}
 
 // DiscoverEnumsFromOperation discover enums from an operation
 func (v *Introspection) DiscoverEnumsFromOperation(opName string) {
@@ -77,6 +77,14 @@ func (v *Introspection) DiscoverEnumsFromOperation(opName string) {
 			v.AddEnumType(enumTypeName, goEnumName)
 		}
 
+		// Also check for flag types (similar to enums but can be combined as bit flags)
+		if C.g_type_is_a(pspec.value_type, C.G_TYPE_FLAGS) != 0 {
+			flagTypeName := C.GoString(C.g_type_name(pspec.value_type))
+
+			// Add this flag type to our list
+			goFlagName := GetGoEnumName(flagTypeName)
+			v.AddEnumType(flagTypeName, goFlagName)
+		}
 	}
 }
 
@@ -84,6 +92,29 @@ func (v *Introspection) DiscoverEnumsFromOperation(opName string) {
 func (v *Introspection) GetEnumTypes() []EnumTypeInfo {
 	var enumTypes []EnumTypeInfo
 
+	// First scan for all operations
+	var nOps C.int
+	opsPtr := C.get_all_operations(&nOps)
+	if opsPtr != nil && nOps > 0 {
+		defer C.free_operation_info(opsPtr, nOps)
+		opsSlice := (*[1 << 30]C.OperationInfo)(unsafe.Pointer(opsPtr))[:nOps:nOps]
+
+		// Loop through each operation to discover enums
+		for i := 0; i < int(nOps); i++ {
+			cOp := opsSlice[i]
+			name := C.GoString(cOp.name)
+
+			// Skip deprecated operations
+			if (cOp.flags & C.VIPS_OPERATION_DEPRECATED) != 0 {
+				continue
+			}
+
+			// Discover enums from this operation
+			v.DiscoverEnumsFromOperation(name)
+		}
+	}
+
+	// Now process all the discovered enum types
 	for _, typeName := range v.enumTypeNames {
 		if excludedEnumTypeNames[typeName.CName] {
 			fmt.Printf("Excluded enum type: %s -> %s\n", typeName.CName, typeName.GoName)
@@ -91,7 +122,6 @@ func (v *Introspection) GetEnumTypes() []EnumTypeInfo {
 		}
 		// Check if the enum type exists first
 		cTypeName := C.CString(typeName.CName)
-
 		exists := C.type_exists(cTypeName)
 		C.free(unsafe.Pointer(cTypeName))
 
@@ -99,6 +129,7 @@ func (v *Introspection) GetEnumTypes() []EnumTypeInfo {
 			fmt.Printf("Warning: enum type %s not found in libvips\n", typeName.CName)
 			continue
 		}
+
 		// Try to get the enum values
 		enumInfo, err := v.getEnumType(typeName.CName, typeName.GoName)
 		if err != nil {
@@ -128,7 +159,6 @@ func (v *Introspection) GetEnumTypes() []EnumTypeInfo {
 
 // getEnumType retrieves information about a specific enum type
 func (v *Introspection) getEnumType(cName, goName string) (EnumTypeInfo, error) {
-
 	enumType := EnumTypeInfo{
 		CName:  cName,
 		GoName: goName,
@@ -139,9 +169,18 @@ func (v *Introspection) getEnumType(cName, goName string) (EnumTypeInfo, error) 
 	cTypeName := C.CString(cName)
 	defer C.free(unsafe.Pointer(cTypeName))
 
+	// Determine if this is a flags type
+	isFlags := 0
+	if C.type_exists(cTypeName) != 0 {
+		cType := C.g_type_from_name(cTypeName)
+		if C.g_type_is_a(cType, C.G_TYPE_FLAGS) != 0 {
+			isFlags = 1
+		}
+	}
+
 	// Get enum values - check count first to ensure safe allocation
 	var count C.int
-	values := C.get_enum_values(cTypeName, &count)
+	values := C.get_enum_or_flag_values(cTypeName, &count, C.int(isFlags))
 
 	if values == nil || count <= 0 {
 		return enumType, fmt.Errorf("no values found for enum type %s", cName)
@@ -222,9 +261,16 @@ func (v *Introspection) checkEnumValueExists(enumName, valueName string) bool {
 		return false
 	}
 
+	// Determine if this is a flags type
+	isFlags := 0
+	cType := C.g_type_from_name(cEnumName)
+	if C.g_type_is_a(cType, C.G_TYPE_FLAGS) != 0 {
+		isFlags = 1
+	}
+
 	// Get all enum values
 	var count C.int
-	values := C.get_enum_values(cEnumName, &count)
+	values := C.get_enum_or_flag_values(cEnumName, &count, C.int(isFlags))
 
 	if values == nil || count <= 0 {
 		return false
