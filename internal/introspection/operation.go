@@ -299,17 +299,34 @@ func (v *Introspection) GetOperationArguments(opName string) ([]generator.Argume
 			i = len(goArgs)
 		}
 		// Add input 'n' parameter for array operations like linear, remainder_const, etc.
-		nParam := generator.Argument{
-			Name:        "n",
-			GoName:      "n",
-			Type:        "gint",
-			GoType:      "int",
-			CType:       "int",
-			Description: "Array length",
-			Required:    true, // Required for input arrays in most cases
-			IsInput:     true,
-			IsOutput:    false,
-			Flags:       19, // VIPS_ARGUMENT_REQUIRED | VIPS_ARGUMENT_INPUT
+		var nParam generator.Argument
+		if opName == "getpoint" {
+			// output 'n' parameter
+			nParam = generator.Argument{
+				Name:        "n",
+				GoName:      "n",
+				Type:        "gint",
+				GoType:      "int",
+				CType:       "int*",
+				Description: "Length of output array",
+				Required:    true,
+				IsInput:     false,
+				IsOutput:    true,
+				Flags:       35, // VIPS_ARGUMENT_REQUIRED | VIPS_ARGUMENT_OUTPUT
+			}
+		} else {
+			nParam = generator.Argument{
+				Name:        "n",
+				GoName:      "n",
+				Type:        "gint",
+				GoType:      "int",
+				CType:       "int",
+				Description: "Array length",
+				Required:    true, // Required for input arrays in most cases
+				IsInput:     true,
+				IsOutput:    false,
+				Flags:       19, // VIPS_ARGUMENT_REQUIRED | VIPS_ARGUMENT_INPUT
+			}
 		}
 		goArgs = append(goArgs[0:i], append([]generator.Argument{nParam}, goArgs[i:]...)...)
 	}

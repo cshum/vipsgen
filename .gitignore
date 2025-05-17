@@ -10,6 +10,9 @@ tmp/
 bin/imagor
 profile.cov
 
+.claudesync
+repomix-output.xml
+
 vips
 debug_enums.json
 debug_operations.json
