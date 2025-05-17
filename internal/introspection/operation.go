@@ -198,6 +198,60 @@ func (v *Introspection) GetOperationArguments(opName string) ([]generator.Argume
 			goArg.EnumType = "BlendMode"
 		}
 
+		// special case: affine operation to use individual parameters
+		if opName == "affine" && goArg.Name == "matrix" {
+			aArg := generator.Argument{
+				Name:        "a",
+				GoName:      "a",
+				Type:        "gdouble",
+				GoType:      "float64",
+				CType:       "double",
+				Description: "Coefficient a (horizontal scale)",
+				Required:    true,
+				IsInput:     true,
+				IsOutput:    false,
+				Flags:       19, // VIPS_ARGUMENT_REQUIRED | VIPS_ARGUMENT_INPUT
+			}
+			bArg := generator.Argument{
+				Name:        "b",
+				GoName:      "b",
+				Type:        "gdouble",
+				GoType:      "float64",
+				CType:       "double",
+				Description: "Coefficient b (horizontal shear)",
+				Required:    true,
+				IsInput:     true,
+				IsOutput:    false,
+				Flags:       19,
+			}
+			cArg := generator.Argument{
+				Name:        "c",
+				GoName:      "c",
+				Type:        "gdouble",
+				GoType:      "float64",
+				CType:       "double",
+				Description: "Coefficient c (vertical shear)",
+				Required:    true,
+				IsInput:     true,
+				IsOutput:    false,
+				Flags:       19,
+			}
+			dArg := generator.Argument{
+				Name:        "d",
+				GoName:      "d",
+				Type:        "gdouble",
+				GoType:      "float64",
+				CType:       "double",
+				Description: "Coefficient d (vertical scale)",
+				Required:    true,
+				IsInput:     true,
+				IsOutput:    false,
+				Flags:       19,
+			}
+			goArgs = append(goArgs, aArg, bArg, cArg, dArg)
+			continue
+		}
+
 		goArgs = append(goArgs, goArg)
 	}
 

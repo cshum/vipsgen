@@ -4,4 +4,6 @@ package generator
 var OperationConfigs = map[string]OperationConfig{}
 
 // ExcludedOperations defines operations that should be excluded from generation
-var ExcludedOperations = map[string]bool{}
+var ExcludedOperations = map[string]bool{
+	"profile_load": true,
+}

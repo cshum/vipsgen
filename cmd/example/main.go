@@ -32,7 +32,7 @@ func main() {
 	if err = image.Flatten(); err != nil {
 		panic(err)
 	}
-	buf, err := image.GifSaveBuffer(nil)
+	buf, err := image.GifsaveBuffer()
 	if err != nil {
 		panic(err)
 	}
