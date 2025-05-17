@@ -258,7 +258,11 @@ func formatArrayConversions(args []introspection.Argument) string {
 }
 
 // formatFunctionCallArgs formats the arguments for the C function call
-func formatFunctionCallArgs(op introspection.Operation, args []introspection.Argument) string {
+func formatFunctionCallArgs(op introspection.Operation, withOptions bool) string {
+	args := op.Arguments
+	if withOptions {
+		args = append(args, op.OptionalInputs...)
+	}
 	var callArgs []string
 	for _, arg := range args {
 		var argStr string
