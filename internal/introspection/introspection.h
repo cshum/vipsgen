@@ -87,3 +87,6 @@ typedef struct {
 
 // Get detailed information about an operation
 OperationDetails get_operation_details(const char *operation_name);
+
+// extract both enum and flag values
+EnumValueInfo* get_enum_or_flag_values(const char *type_name, int *count, int is_flags);

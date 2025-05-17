@@ -390,3 +390,90 @@ OperationDetails get_operation_details(const char *operation_name) {
     g_object_unref(op);
     return details;
 }
+
+EnumValueInfo* get_enum_or_flag_values(const char *type_name, int *count, int is_flags) {
+    GType type = g_type_from_name(type_name);
+    if (type == 0) {
+        *count = 0;
+        return NULL;
+    }
+
+    // Get the enum or flags class
+    void *class_ptr;
+    if (is_flags) {
+        class_ptr = G_FLAGS_CLASS(g_type_class_ref(type));
+    } else {
+        class_ptr = G_ENUM_CLASS(g_type_class_ref(type));
+    }
+
+    if (!class_ptr) {
+        *count = 0;
+        return NULL;
+    }
+
+    // Get the count and values
+    int n_values;
+    GFlagsValue *flags_values = NULL;
+    GEnumValue *enum_values = NULL;
+
+    if (is_flags) {
+        GFlagsClass *flags_class = (GFlagsClass *)class_ptr;
+        n_values = flags_class->n_values;
+        flags_values = flags_class->values;
+    } else {
+        GEnumClass *enum_class = (GEnumClass *)class_ptr;
+        n_values = enum_class->n_values;
+        enum_values = enum_class->values;
+    }
+
+    // Sanity check
+    *count = n_values;
+    if (*count <= 0 || *count > 100) {
+        g_type_class_unref(class_ptr);
+        *count = 0;
+        return NULL;
+    }
+
+    EnumValueInfo *values = malloc(*count * sizeof(EnumValueInfo));
+    if (!values) {
+        g_type_class_unref(class_ptr);
+        *count = 0;
+        return NULL;
+    }
+
+    // Copy the values with NULL checks
+    for (int i = 0; i < *count; i++) {
+        const char *value_name = NULL;
+        const char *value_nick = NULL;
+        int value = 0;
+
+        if (is_flags) {
+            value_name = flags_values[i].value_name;
+            value_nick = flags_values[i].value_nick;
+            value = flags_values[i].value;
+        } else {
+            value_name = enum_values[i].value_name;
+            value_nick = enum_values[i].value_nick;
+            value = enum_values[i].value;
+        }
+
+        // Check for NULL pointers that might cause segfault
+        if (value_name) {
+            values[i].name = strdup(value_name);
+        } else {
+            values[i].name = strdup("UNKNOWN");
+        }
+
+        values[i].value = value;
+
+        if (value_nick) {
+            values[i].nick = strdup(value_nick);
+        } else {
+            values[i].nick = strdup("");
+        }
+    }
+
+    // Unref the class
+    g_type_class_unref(class_ptr);
+    return values;
+}
