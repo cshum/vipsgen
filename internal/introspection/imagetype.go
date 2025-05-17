@@ -3,7 +3,6 @@ package introspection
 // #include "introspection.h"
 import "C"
 import (
-	"github.com/cshum/vipsgen/internal/generator"
 	"strings"
 	"unsafe"
 )
@@ -31,9 +30,9 @@ func (v *Introspection) getMimeType(typeName string) string {
 }
 
 // DiscoverImageTypes discovers supported image types in libvips
-func (v *Introspection) DiscoverImageTypes() []generator.ImageTypeInfo {
+func (v *Introspection) DiscoverImageTypes() []ImageTypeInfo {
 	// Some image types are always defined, even if not supported
-	imageTypes := []generator.ImageTypeInfo{
+	imageTypes := []ImageTypeInfo{
 		{TypeName: "unknown", EnumName: "ImageTypeUnknown", MimeType: "", Order: 0},
 	}
 
@@ -82,7 +81,7 @@ func (v *Introspection) DiscoverImageTypes() []generator.ImageTypeInfo {
 
 		// If either loader or saver exists, this format is supported
 		if loaderExists || saverExists {
-			imageType := generator.ImageTypeInfo{
+			imageType := ImageTypeInfo{
 				TypeName: typeInfo.TypeName,
 				EnumName: enumName,
 				MimeType: typeInfo.MimeType,
@@ -100,7 +99,7 @@ func (v *Introspection) DiscoverImageTypes() []generator.ImageTypeInfo {
 
 	if avifSupported {
 		// Add AVIF to the list with its proper order
-		imageTypes = append(imageTypes, generator.ImageTypeInfo{
+		imageTypes = append(imageTypes, ImageTypeInfo{
 			TypeName: "avif",
 			EnumName: "ImageTypeAvif",
 			MimeType: "image/avif",

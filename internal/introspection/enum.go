@@ -5,7 +5,6 @@ import "C"
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/cshum/vipsgen/internal/generator"
 	"log"
 	"os"
 	"strings"
@@ -82,8 +81,8 @@ func (v *Introspection) DiscoverEnumsFromOperation(opName string) {
 }
 
 // GetEnumTypes retrieves all enum types from libvips
-func (v *Introspection) GetEnumTypes() []generator.EnumTypeInfo {
-	var enumTypes []generator.EnumTypeInfo
+func (v *Introspection) GetEnumTypes() []EnumTypeInfo {
+	var enumTypes []EnumTypeInfo
 
 	for _, typeName := range v.enumTypeNames {
 		if excludedEnumTypeNames[typeName.CName] {
@@ -128,12 +127,12 @@ func (v *Introspection) GetEnumTypes() []generator.EnumTypeInfo {
 }
 
 // getEnumType retrieves information about a specific enum type
-func (v *Introspection) getEnumType(cName, goName string) (generator.EnumTypeInfo, error) {
+func (v *Introspection) getEnumType(cName, goName string) (EnumTypeInfo, error) {
 
-	enumType := generator.EnumTypeInfo{
+	enumType := EnumTypeInfo{
 		CName:  cName,
 		GoName: goName,
-		Values: []generator.EnumValueInfo{},
+		Values: []EnumValueInfo{},
 	}
 
 	// Convert strings to C strings
@@ -174,7 +173,7 @@ func (v *Introspection) getEnumType(cName, goName string) (generator.EnumTypeInf
 			goValueName = strings.TrimPrefix(goValueName, "Foreign")
 		}
 
-		enumType.Values = append(enumType.Values, generator.EnumValueInfo{
+		enumType.Values = append(enumType.Values, EnumValueInfo{
 			CName:       name,
 			GoName:      goValueName,
 			Value:       int(val.value),

@@ -1,4 +1,4 @@
-package generator
+package introspection
 
 // OperationConfigs defines configuration for specific operations that need special handling
 var OperationConfigs = map[string]OperationConfig{}

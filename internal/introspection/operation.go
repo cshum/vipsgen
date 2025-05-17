@@ -5,7 +5,6 @@ import "C"
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/cshum/vipsgen/internal/generator"
 	"log"
 	"os"
 	"strings"
@@ -13,7 +12,7 @@ import (
 )
 
 // DiscoverOperations uses GObject introspection to discover all available operations
-func (v *Introspection) DiscoverOperations() []generator.Operation {
+func (v *Introspection) DiscoverOperations() []Operation {
 	var nOps C.int
 	opsPtr := C.get_all_operations(&nOps)
 	if opsPtr == nil || nOps == 0 {
@@ -23,7 +22,7 @@ func (v *Introspection) DiscoverOperations() []generator.Operation {
 
 	// Convert C array to Go slice
 	opsSlice := (*[1 << 30]C.OperationInfo)(unsafe.Pointer(opsPtr))[:nOps:nOps]
-	var operations []generator.Operation
+	var operations []Operation
 
 	for i := 0; i < int(nOps); i++ {
 		cOp := opsSlice[i]
@@ -40,7 +39,7 @@ func (v *Introspection) DiscoverOperations() []generator.Operation {
 		C.free(unsafe.Pointer(opName))
 
 		// Create the Go operation structure
-		op := generator.Operation{
+		op := Operation{
 			Name:               name,
 			GoName:             FormatGoFunctionName(name),
 			Description:        C.GoString(cOp.description),
@@ -109,7 +108,7 @@ func (v *Introspection) DiscoverOperations() []generator.Operation {
 }
 
 // GetOperationArguments uses GObject introspection to extract all arguments for an operation
-func (v *Introspection) GetOperationArguments(opName string) ([]generator.Argument, error) {
+func (v *Introspection) GetOperationArguments(opName string) ([]Argument, error) {
 	cOpName := C.CString(opName)
 	defer C.free(unsafe.Pointer(cOpName))
 
@@ -122,7 +121,7 @@ func (v *Introspection) GetOperationArguments(opName string) ([]generator.Argume
 
 	// Convert C array to Go slice
 	argsSlice := (*[1 << 30]C.ArgInfo)(unsafe.Pointer(argsPtr))[:nArgs:nArgs]
-	var goArgs []generator.Argument
+	var goArgs []Argument
 
 	// First pass: gather arguments and detect if we need to add an 'n' parameter
 	hasNParam := false
@@ -150,7 +149,7 @@ func (v *Introspection) GetOperationArguments(opName string) ([]generator.Argume
 		isArray := int(arg.is_array) != 0
 
 		// Create the Go argument structure
-		goArg := generator.Argument{
+		goArg := Argument{
 			Name:        FormatIdentifier(name),
 			GoName:      FormatGoIdentifier(name),
 			Description: description,
@@ -200,7 +199,7 @@ func (v *Introspection) GetOperationArguments(opName string) ([]generator.Argume
 
 		// special case: affine operation to use individual parameters
 		if opName == "affine" && goArg.Name == "matrix" {
-			aArg := generator.Argument{
+			aArg := Argument{
 				Name:        "a",
 				GoName:      "a",
 				Type:        "gdouble",
@@ -212,7 +211,7 @@ func (v *Introspection) GetOperationArguments(opName string) ([]generator.Argume
 				IsOutput:    false,
 				Flags:       19, // VIPS_ARGUMENT_REQUIRED | VIPS_ARGUMENT_INPUT
 			}
-			bArg := generator.Argument{
+			bArg := Argument{
 				Name:        "b",
 				GoName:      "b",
 				Type:        "gdouble",
@@ -224,7 +223,7 @@ func (v *Introspection) GetOperationArguments(opName string) ([]generator.Argume
 				IsOutput:    false,
 				Flags:       19,
 			}
-			cArg := generator.Argument{
+			cArg := Argument{
 				Name:        "c",
 				GoName:      "c",
 				Type:        "gdouble",
@@ -236,7 +235,7 @@ func (v *Introspection) GetOperationArguments(opName string) ([]generator.Argume
 				IsOutput:    false,
 				Flags:       19,
 			}
-			dArg := generator.Argument{
+			dArg := Argument{
 				Name:        "d",
 				GoName:      "d",
 				Type:        "gdouble",
@@ -273,7 +272,7 @@ func (v *Introspection) GetOperationArguments(opName string) ([]generator.Argume
 
 			// If we have an input buffer but no length parameter, add one
 			if hasBufParam && !hasLenParam {
-				lenParam := generator.Argument{
+				lenParam := Argument{
 					Name:        "len",
 					GoName:      "len",
 					Type:        "gsize",
@@ -287,7 +286,7 @@ func (v *Introspection) GetOperationArguments(opName string) ([]generator.Argume
 				}
 
 				// Insert the length parameter right after the buffer parameter
-				newArgs := make([]generator.Argument, 0, len(goArgs)+1)
+				newArgs := make([]Argument, 0, len(goArgs)+1)
 				bufIndex := -1
 
 				for i, arg := range goArgs {
@@ -299,7 +298,7 @@ func (v *Introspection) GetOperationArguments(opName string) ([]generator.Argume
 
 				if bufIndex >= 0 {
 					// Insert len parameter after buf parameter
-					newArgs = append(newArgs[:bufIndex+1], append([]generator.Argument{lenParam}, newArgs[bufIndex+1:]...)...)
+					newArgs = append(newArgs[:bufIndex+1], append([]Argument{lenParam}, newArgs[bufIndex+1:]...)...)
 				} else {
 					// Fallback: just append at the end
 					newArgs = append(newArgs, lenParam)
@@ -324,7 +323,7 @@ func (v *Introspection) GetOperationArguments(opName string) ([]generator.Argume
 			}
 			// If we have a buf parameter but no len parameter, add one
 			if hasBufParam && !hasLenParam {
-				lenParam := generator.Argument{
+				lenParam := Argument{
 					Name:        "len",
 					GoName:      "len",
 					Type:        "gsize",
@@ -353,10 +352,10 @@ func (v *Introspection) GetOperationArguments(opName string) ([]generator.Argume
 			i = len(goArgs)
 		}
 		// Add input 'n' parameter for array operations like linear, remainder_const, etc.
-		var nParam generator.Argument
+		var nParam Argument
 		if opName == "getpoint" {
 			// output 'n' parameter
-			nParam = generator.Argument{
+			nParam = Argument{
 				Name:        "n",
 				GoName:      "n",
 				Type:        "gint",
@@ -369,7 +368,7 @@ func (v *Introspection) GetOperationArguments(opName string) ([]generator.Argume
 				Flags:       35, // VIPS_ARGUMENT_REQUIRED | VIPS_ARGUMENT_OUTPUT
 			}
 		} else {
-			nParam = generator.Argument{
+			nParam = Argument{
 				Name:        "n",
 				GoName:      "n",
 				Type:        "gint",
@@ -382,7 +381,7 @@ func (v *Introspection) GetOperationArguments(opName string) ([]generator.Argume
 				Flags:       19, // VIPS_ARGUMENT_REQUIRED | VIPS_ARGUMENT_INPUT
 			}
 		}
-		goArgs = append(goArgs[0:i], append([]generator.Argument{nParam}, goArgs[i:]...)...)
+		goArgs = append(goArgs[0:i], append([]Argument{nParam}, goArgs[i:]...)...)
 	}
 
 	return goArgs, nil

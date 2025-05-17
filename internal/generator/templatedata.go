@@ -1,12 +1,15 @@
 package generator
 
-import "strings"
+import (
+	"github.com/cshum/vipsgen/internal/introspection"
+	"strings"
+)
 
 // NewTemplateData creates a new TemplateData structure with all needed information
 func NewTemplateData(
-	operations []Operation,
-	enumTypes []EnumTypeInfo,
-	imageTypes []ImageTypeInfo,
+	operations []introspection.Operation,
+	enumTypes []introspection.EnumTypeInfo,
+	imageTypes []introspection.ImageTypeInfo,
 	supportedSavers map[string]bool,
 ) *TemplateData {
 	// Create map for quick enum type lookups
@@ -32,7 +35,7 @@ func NewTemplateData(
 
 	return &TemplateData{
 		Operations:       operations,
-		OperationConfigs: OperationConfigs,
+		OperationConfigs: introspection.OperationConfigs,
 		EnumTypes:        enumTypes,
 		ImageTypes:       imageTypes,
 		EnumTypeMap:      enumTypeMap,

@@ -5,7 +5,6 @@ package introspection
 import "C"
 import (
 	"fmt"
-	"github.com/cshum/vipsgen/internal/generator"
 	"log"
 	"sort"
 	"strings"
@@ -61,7 +60,7 @@ type Introspection struct {
 	functionInfo []VipsFunctionInfo
 	// Debug info from parsing
 	debugInfo            *DebugInfo
-	discoveredImageTypes map[string]generator.ImageTypeInfo
+	discoveredImageTypes map[string]ImageTypeInfo
 }
 
 // NewIntrospection creates a new Introspection instance for analyzing libvips
@@ -81,7 +80,7 @@ func NewIntrospection() *Introspection {
 
 	return &Introspection{
 		discoveredEnumTypes:  discoveredTypes,
-		discoveredImageTypes: map[string]generator.ImageTypeInfo{},
+		discoveredImageTypes: map[string]ImageTypeInfo{},
 		enumTypeNames:        baseEnumTypeNames,
 	}
 }
@@ -106,10 +105,10 @@ func (v *Introspection) GetAllOperationNames() []string {
 
 // FilterOperations filters operations based on availability in the current libvips installation,
 // excluded operations list, and deduplicates by Go function name
-func (v *Introspection) FilterOperations(operations []generator.Operation) []generator.Operation {
+func (v *Introspection) FilterOperations(operations []Operation) []Operation {
 	// Filter out excluded operations and deduplicate by Go function name
 	seenFunctions := make(map[string]bool)
-	var filteredOps []generator.Operation
+	var filteredOps []Operation
 	var notAvailableCount, excludedCount, duplicateCount int
 
 	for _, op := range operations {
@@ -126,14 +125,14 @@ func (v *Introspection) FilterOperations(operations []generator.Operation) []gen
 		}
 
 		// Check if operation is explicitly excluded
-		if generator.ExcludedOperations[op.Name] {
+		if ExcludedOperations[op.Name] {
 			fmt.Printf("Excluding operation: %s (in ExcludedOperations list)\n", op.Name)
 			excludedCount++
 			continue
 		}
 
 		// Check if operation is excluded by config
-		if config, ok := generator.OperationConfigs[op.Name]; ok && config.SkipGen {
+		if config, ok := OperationConfigs[op.Name]; ok && config.SkipGen {
 			fmt.Printf("Skipping operation (configured in OperationConfigs): %s\n", op.Name)
 			excludedCount++
 			continue

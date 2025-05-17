@@ -3,7 +3,6 @@ package introspection
 // #include "introspection.h"
 import "C"
 import (
-	"github.com/cshum/vipsgen/internal/generator"
 	"strings"
 	"sync"
 	"unicode"
@@ -22,9 +21,18 @@ func cachedCString(str string) *C.char {
 	return cstr
 }
 
+// SnakeToCamel converts a snake_case string to CamelCase
+func SnakeToCamel(s string) string {
+	parts := strings.Split(s, "_")
+	for i := range parts {
+		parts[i] = strings.Title(parts[i])
+	}
+	return strings.Join(parts, "")
+}
+
 // FormatGoIdentifier formats a name to a go identifier
 func FormatGoIdentifier(name string) string {
-	s := generator.SnakeToCamel(FormatIdentifier(name))
+	s := SnakeToCamel(FormatIdentifier(name))
 
 	// first letter lower case
 	if len(s) == 0 {
@@ -54,7 +62,7 @@ func FormatIdentifier(name string) string {
 // FormatEnumValueName converts a C enum name to a Go name
 func FormatEnumValueName(typeName, valueName string) string {
 	// Convert to CamelCase
-	camelValue := generator.SnakeToCamel(strings.ToLower(valueName))
+	camelValue := SnakeToCamel(strings.ToLower(valueName))
 
 	// Check if the value already contains "Vips" + typeName or "VipsForeign" + typeName
 	lowerCamelValue := strings.ToLower(camelValue)

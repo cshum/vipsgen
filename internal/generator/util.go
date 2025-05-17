@@ -1,15 +1,16 @@
 package generator
 
 import (
+	"github.com/cshum/vipsgen/internal/introspection"
 	"strings"
 )
 
 // Helper function to check if an operation returns a single float value
-func isSingleFloatReturn(op Operation) bool {
+func isSingleFloatReturn(op introspection.Operation) bool {
 	return len(op.RequiredOutputs) == 1 && op.RequiredOutputs[0].GoType == "float64"
 }
 
-func getBufferParamName(args []Argument) string {
+func getBufferParamName(args []introspection.Argument) string {
 	for _, arg := range args {
 		if arg.GoType == "[]byte" && strings.Contains(arg.Name, "buf") {
 			return arg.GoName
@@ -18,17 +19,8 @@ func getBufferParamName(args []Argument) string {
 	return "buf" // Default fallback
 }
 
-// SnakeToCamel converts a snake_case string to CamelCase
-func SnakeToCamel(s string) string {
-	parts := strings.Split(s, "_")
-	for i := range parts {
-		parts[i] = strings.Title(parts[i])
-	}
-	return strings.Join(parts, "")
-}
-
 // Helper function to check if an operation returns a vector
-func hasVectorReturn(op Operation) bool {
+func hasVectorReturn(op introspection.Operation) bool {
 	hasVector := false
 	hasN := false
 	for _, arg := range op.RequiredOutputs {

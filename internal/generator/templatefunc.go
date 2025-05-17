@@ -2,6 +2,7 @@ package generator
 
 import (
 	"fmt"
+	"github.com/cshum/vipsgen/internal/introspection"
 	"strings"
 	"text/template"
 )
@@ -52,7 +53,7 @@ func formatDefaultValue(goType string) string {
 }
 
 // formatErrorReturn formats the error return statement for a function
-func formatErrorReturn(HasOneImageOutput, hasBufferOutput bool, outputs []Argument) string {
+func formatErrorReturn(HasOneImageOutput, hasBufferOutput bool, outputs []introspection.Argument) string {
 	if HasOneImageOutput {
 		return "return nil, handleImageError(out)"
 	} else if hasBufferOutput {
@@ -74,9 +75,9 @@ func formatErrorReturn(HasOneImageOutput, hasBufferOutput bool, outputs []Argume
 
 // formatGoArgList formats a list of function arguments for a Go function
 // e.g., "in *C.VipsImage, c []float64, n int"
-func formatGoArgList(args []Argument) string {
+func formatGoArgList(args []introspection.Argument) string {
 	// Find buffer param if exists
-	var inBufferParam *Argument
+	var inBufferParam *introspection.Argument
 	var hasOutBufParam bool
 	for i := range args {
 		if args[i].GoType == "[]byte" && args[i].Name == "buf" {
@@ -106,7 +107,7 @@ func formatGoArgList(args []Argument) string {
 
 // formatReturnTypes formats the return types for a Go function
 // e.g., "*C.VipsImage, error" or "int, float64, error"
-func formatReturnTypes(op Operation) string {
+func formatReturnTypes(op introspection.Operation) string {
 	if op.HasOneImageOutput {
 		return "*C.VipsImage, error"
 	} else if op.HasBufferOutput {
@@ -129,7 +130,7 @@ func formatReturnTypes(op Operation) string {
 }
 
 // formatVarDeclarations formats variable declarations for output parameters
-func formatVarDeclarations(op Operation) string {
+func formatVarDeclarations(op introspection.Operation) string {
 	var decls []string
 	if op.HasBufferInput {
 		decls = append(decls, fmt.Sprintf("src := %s", getBufferParamName(op.Arguments)))
@@ -174,7 +175,7 @@ func formatVarDeclarations(op Operation) string {
 }
 
 // formatStringConversions formats C string conversions for string parameters
-func formatStringConversions(args []Argument) string {
+func formatStringConversions(args []introspection.Argument) string {
 	var conversions []string
 	for _, arg := range args {
 		if !arg.IsOutput && arg.GoType == "string" {
@@ -186,7 +187,7 @@ func formatStringConversions(args []Argument) string {
 }
 
 // formatArrayConversions formats array conversions for slice parameters
-func formatArrayConversions(args []Argument) string {
+func formatArrayConversions(args []introspection.Argument) string {
 	var conversions []string
 	for _, arg := range args {
 		if !arg.IsOutput && strings.HasPrefix(arg.GoType, "[]") {
@@ -246,7 +247,7 @@ func formatArrayConversions(args []Argument) string {
 }
 
 // formatFunctionCallArgs formats the arguments for the C function call
-func formatFunctionCallArgs(op Operation) string {
+func formatFunctionCallArgs(op introspection.Operation) string {
 	var callArgs []string
 	for _, arg := range op.Arguments {
 		var argStr string
@@ -326,7 +327,7 @@ func formatFunctionCallArgs(op Operation) string {
 }
 
 // formatReturnValues formats the return values for the Go function
-func formatReturnValues(op Operation) string {
+func formatReturnValues(op introspection.Operation) string {
 	if op.HasOneImageOutput {
 		return "return out, nil"
 	} else if op.HasBufferOutput {
@@ -359,7 +360,7 @@ func formatReturnValues(op Operation) string {
 }
 
 // formatFunctionCall formats the call to the underlying vipsgen function
-func formatFunctionCall(op Operation) string {
+func formatFunctionCall(op introspection.Operation) string {
 	var args []string
 	args = append(args, "r.image")
 
@@ -373,7 +374,7 @@ func formatFunctionCall(op Operation) string {
 }
 
 // formatImageMethodBody formats the body of an image method using improved argument detection
-func formatImageMethodBody(op Operation) string {
+func formatImageMethodBody(op introspection.Operation) string {
 	methodArgs := detectMethodArguments(op)
 	goFuncName := "vipsgen" + op.GoName
 
@@ -546,8 +547,8 @@ func formatImageMethodBody(op Operation) string {
 }
 
 // detectMethodArguments analyzes an operation's arguments to determine which should be included in the method signature
-func detectMethodArguments(op Operation) []Argument {
-	var methodArgs []Argument
+func detectMethodArguments(op introspection.Operation) []introspection.Argument {
+	var methodArgs []introspection.Argument
 	var firstImageFound bool
 	var hasBufParam bool
 
@@ -583,7 +584,7 @@ func detectMethodArguments(op Operation) []Argument {
 }
 
 // formatImageMethodParams formats parameters for image methods using improved detection
-func formatImageMethodParams(op Operation) string {
+func formatImageMethodParams(op introspection.Operation) string {
 	methodArgs := detectMethodArguments(op)
 
 	var params []string
@@ -606,7 +607,7 @@ func formatImageMethodParams(op Operation) string {
 }
 
 // formatImageMethodReturnTypes formats return types for image methods
-func formatImageMethodReturnTypes(op Operation) string {
+func formatImageMethodReturnTypes(op introspection.Operation) string {
 	if op.HasOneImageOutput {
 		return "error"
 	} else if op.HasBufferOutput {
@@ -635,7 +636,7 @@ func formatImageMethodReturnTypes(op Operation) string {
 }
 
 // formatCreatorMethodParams formats the parameters for a creator method
-func formatCreatorMethodParams(op Operation) string {
+func formatCreatorMethodParams(op introspection.Operation) string {
 	inputParams := op.RequiredInputs
 	var hasBufParam bool
 
@@ -661,7 +662,7 @@ func formatCreatorMethodParams(op Operation) string {
 }
 
 // formatCreatorMethodBody formats the body of a creator method
-func formatCreatorMethodBody(op Operation) string {
+func formatCreatorMethodBody(op introspection.Operation) string {
 	inputParams := op.RequiredInputs
 	var hasBufParam bool
 	goFuncName := "vipsgen" + op.GoName
