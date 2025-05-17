@@ -10,7 +10,7 @@ import (
 
 {{range .Operations}}
 // vipsgen{{.GoName}} {{.Description}}
-func vipsgen{{.GoName}}({{formatGoArgList .Arguments}}) ({{formatReturnTypes .}}) {
+func vipsgen{{.GoName}}({{formatGoArgList . false}}) ({{formatReturnTypes .}}) {
 	{{formatVarDeclarations . false}}
 	if err := C.vipsgen_{{.Name}}({{formatFunctionCallArgs . .Arguments}}); err != 0 {
 		{{formatErrorReturn .HasOneImageOutput .HasBufferOutput .RequiredOutputs}}
@@ -19,13 +19,10 @@ func vipsgen{{.GoName}}({{formatGoArgList .Arguments}}) ({{formatReturnTypes .}}
 }
 {{if gt (len .OptionalInputs) 0}}
 // vipsgen{{.GoName}}WithOptions {{.Description}} with optional arguments
-func vipsgen{{.GoName}}WithOptions(
-	{{formatGoArgList .Arguments}}{{if .Arguments}}, {{end}}
-	{{formatGoArgList .OptionalInputs}}{{if .OptionalInputs}}, {{end}}
-) ({{formatReturnTypes .}}) {
+func vipsgen{{.GoName}}WithOptions({{formatGoArgList . true}}) ({{formatReturnTypes .}}) {
 	{{formatVarDeclarations . true}}
 	if err := C.vipsgen_{{.Name}}_with_options(
-		{{formatFunctionCallArgs . .Arguments}}{{if .Arguments}}, {{end}}
+		{{formatFunctionCallArgs . .Arguments}}{{if (len .Arguments)}}, {{end}}
 		{{formatFunctionCallArgs . .OptionalInputs}}{{if .OptionalInputs}}, {{end}}
 	); err != 0 {
 		{{formatErrorReturn .HasOneImageOutput .HasBufferOutput .RequiredOutputs}}

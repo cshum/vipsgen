@@ -74,7 +74,11 @@ func formatErrorReturn(HasOneImageOutput, hasBufferOutput bool, outputs []intros
 
 // formatGoArgList formats a list of function arguments for a Go function
 // e.g., "in *C.VipsImage, c []float64, n int"
-func formatGoArgList(args []introspection.Argument) string {
+func formatGoArgList(op *introspection.Operation, withOptions bool) string {
+	args := op.Arguments
+	if withOptions {
+		args = append(args, op.OptionalInputs...)
+	}
 	// Find buffer param if exists
 	var inBufferParam *introspection.Argument
 	var hasOutBufParam bool
