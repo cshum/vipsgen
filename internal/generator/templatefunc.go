@@ -299,6 +299,9 @@ func formatFunctionCallArgs(op introspection.Operation, withOptions bool) string
 			} else if arg.GoType == "[]byte" && strings.Contains(arg.Name, "buf") {
 				// Special handling for byte buffers
 				argStr = "unsafe.Pointer(&src[0])"
+			} else if arg.GoType == "*Interpolate" {
+				// Handle Interpolate parameters - convert from Go to C type
+				argStr = "vipsInterpolateToC(" + arg.GoName + ")"
 			} else if arg.Name == "len" && arg.CType == "size_t" {
 				// input buffer
 				argStr = "C.size_t(len(src))"

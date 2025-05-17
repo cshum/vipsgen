@@ -4,7 +4,10 @@ package vips
 
 // #include <vips/vips.h>
 import "C"
-import "strings"
+import (
+	"strings"
+	"unsafe"
+)
 
 // ImageType represents an image type
 type ImageType int
@@ -48,6 +51,49 @@ func vipsDetermineImageTypeFromMetaLoader(in *C.VipsImage) ImageType {
 		}
 	}
 	return ImageTypeUnknown
+}
+
+// Interpolate represents VipsInterpolate type
+type Interpolate struct {
+    interp *C.VipsInterpolate
+}
+
+// InterpolateType represents the type of interpolation to use
+type InterpolateType string
+
+// InterpolateType enum - these values match the predefined interpolators in libvips
+const (
+    InterpolateNearest  InterpolateType = "nearest"
+    InterpolateBilinear InterpolateType = "bilinear"
+    InterpolateBicubic  InterpolateType = "bicubic"
+    InterpolateLbb      InterpolateType = "lbb"      // Lanczos3
+    InterpolateNohalo   InterpolateType = "nohalo"
+    InterpolateVsqbs    InterpolateType = "vsqbs"
+)
+
+
+// NewInterpolate creates a new Interpolate with the given name
+// Valid names include: "nearest", "bilinear", "bicubic", "lbb", "nohalo", "vsqbs"
+func NewInterpolate(name InterpolateType) *Interpolate {
+    cName := C.CString(string(name))
+    defer C.free(unsafe.Pointer(cName))
+
+    interp := C.vips_interpolate_new(cName)
+    if interp == nil {
+        // Default to bilinear if requested interpolator not found
+        cDefault := C.CString("bilinear")
+        defer C.free(unsafe.Pointer(cDefault))
+        interp = C.vips_interpolate_new(cDefault)
+    }
+    return &Interpolate{interp: interp}
+}
+
+// Close frees the interpolator resources
+func (i *Interpolate) Close() {
+    if i.interp != nil {
+        C.g_object_unref(C.gpointer(i.interp))
+        i.interp = nil
+    }
 }
 
 // Color represents an RGB

@@ -438,6 +438,14 @@ func (v *Introspection) mapGTypeToTypes(gtype C.GType, typeName string, isOutput
 		}
 	}
 
+	// Special case for VipsInterpolate
+	if cTypeCheck(gtype, "VipsInterpolate") {
+		if isOutput {
+			return "VipsInterpolate", "*Interpolate", "VipsInterpolate**"
+		}
+		return "VipsInterpolate", "*Interpolate", "VipsInterpolate*"
+	}
+
 	// Handle other common vips array types
 	switch {
 	case cTypeCheck(gtype, "VipsArrayInt"):
@@ -448,6 +456,23 @@ func (v *Introspection) mapGTypeToTypes(gtype C.GType, typeName string, isOutput
 		return "VipsArrayImage", "[]*C.VipsImage", "VipsImage**"
 	case cTypeCheck(gtype, "VipsBlob"):
 		return "VipsBlob", "[]byte", addOutputPointer("void*", isOutput)
+	}
+
+	// Check if this is an object type (not just VipsImage and VipsInterpolate)
+	if C.g_type_is_a(gtype, C.g_type_from_name(C.CString("GObject"))) != 0 {
+		// Get the actual type name
+		cTypeNamePtr := C.g_type_name(gtype)
+		if cTypeNamePtr != nil {
+			actualTypeName := C.GoString(cTypeNamePtr)
+
+			// Log for debugging
+			log.Printf("Found object type: %s", actualTypeName)
+
+			if isOutput {
+				return actualTypeName, "*C." + actualTypeName, actualTypeName + "**"
+			}
+			return actualTypeName, "*C." + actualTypeName, actualTypeName + "*"
+		}
 	}
 
 	// Map basic scalar types
