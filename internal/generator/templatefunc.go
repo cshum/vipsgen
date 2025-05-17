@@ -129,7 +129,7 @@ func formatReturnTypes(op introspection.Operation) string {
 }
 
 // formatVarDeclarations formats variable declarations for output parameters
-func formatVarDeclarations(op introspection.Operation) string {
+func formatVarDeclarations(op introspection.Operation, withOptions bool) string {
 	var decls []string
 	if op.HasBufferInput {
 		decls = append(decls, fmt.Sprintf("src := %s", getBufferParamName(op.Arguments)))
@@ -169,6 +169,14 @@ func formatVarDeclarations(op introspection.Operation) string {
 	}
 	if arrayConv := formatArrayConversions(op.Arguments); arrayConv != "" {
 		decls = append(decls, arrayConv)
+	}
+	if withOptions {
+		if stringConv := formatStringConversions(op.OptionalInputs); stringConv != "" {
+			decls = append(decls, stringConv)
+		}
+		if arrayConv := formatArrayConversions(op.OptionalInputs); arrayConv != "" {
+			decls = append(decls, arrayConv)
+		}
 	}
 	return strings.Join(decls, "\n	")
 }
@@ -246,9 +254,9 @@ func formatArrayConversions(args []introspection.Argument) string {
 }
 
 // formatFunctionCallArgs formats the arguments for the C function call
-func formatFunctionCallArgs(op introspection.Operation) string {
+func formatFunctionCallArgs(op introspection.Operation, args []introspection.Argument) string {
 	var callArgs []string
-	for _, arg := range op.Arguments {
+	for _, arg := range args {
 		var argStr string
 		if arg.IsOutput {
 			if arg.Name == "out" || op.HasOneImageOutput {

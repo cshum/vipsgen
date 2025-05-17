@@ -11,13 +11,28 @@ import (
 {{range .Operations}}
 // vipsgen{{.GoName}} {{.Description}}
 func vipsgen{{.GoName}}({{formatGoArgList .Arguments}}) ({{formatReturnTypes .}}) {
-	{{formatVarDeclarations .}}
-	if err := C.vipsgen_{{.Name}}({{formatFunctionCallArgs .}}); err != 0 {
+	{{formatVarDeclarations . false}}
+	if err := C.vipsgen_{{.Name}}({{formatFunctionCallArgs . .Arguments}}); err != 0 {
 		{{formatErrorReturn .HasOneImageOutput .HasBufferOutput .RequiredOutputs}}
 	}
 	{{formatReturnValues .}}
 }
-{{end}}
+{{if gt (len .OptionalInputs) 0}}
+// vipsgen{{.GoName}}WithOptions {{.Description}} with optional arguments
+func vipsgen{{.GoName}}WithOptions(
+	{{formatGoArgList .Arguments}}{{if .Arguments}}, {{end}}
+	{{formatGoArgList .OptionalInputs}}{{if .OptionalInputs}}, {{end}}
+) ({{formatReturnTypes .}}) {
+	{{formatVarDeclarations . true}}
+	if err := C.vipsgen_{{.Name}}_with_options(
+		{{formatFunctionCallArgs . .Arguments}}{{if .Arguments}}, {{end}}
+		{{formatFunctionCallArgs . .OptionalInputs}}{{if .OptionalInputs}}, {{end}}
+	); err != 0 {
+		{{formatErrorReturn .HasOneImageOutput .HasBufferOutput .RequiredOutputs}}
+	}
+	{{formatReturnValues .}}
+}
+{{end}}{{end}}
 
 // https://www.libvips.org/API/current/VipsImage.html#vips-image-new-from-source
 func vipsImageFromSource(
