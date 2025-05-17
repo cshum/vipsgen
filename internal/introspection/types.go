@@ -5,7 +5,6 @@ type Operation struct {
 	Name               string
 	GoName             string
 	Description        string
-	Flags              int
 	Arguments          []Argument
 	RequiredInputs     []Argument
 	OptionalInputs     []Argument

@@ -10,7 +10,6 @@ import (
 // GetTemplateFuncMap Helper functions for templates
 func GetTemplateFuncMap() template.FuncMap {
 	return template.FuncMap{
-		"generateDocUrl":               generateDocUrl,
 		"formatErrorReturn":            formatErrorReturn,
 		"formatGoArgList":              formatGoArgList,
 		"formatReturnTypes":            formatReturnTypes,

@@ -38,11 +38,13 @@ func (v *Introspection) DiscoverOperations() []Operation {
 		details := C.get_operation_details(opName)
 		C.free(unsafe.Pointer(opName))
 
+		description := fmt.Sprintf("vips_%s ", name) + C.GoString(cOp.description)
+
 		// Create the Go operation structure
 		op := Operation{
 			Name:               name,
 			GoName:             FormatGoFunctionName(name),
-			Description:        C.GoString(cOp.description),
+			Description:        description,
 			HasImageInput:      int(details.has_image_input) != 0,
 			HasImageOutput:     int(details.has_image_output) != 0,
 			HasOneImageOutput:  int(details.has_one_image_output) != 0,

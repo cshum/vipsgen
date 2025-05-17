@@ -9,8 +9,7 @@ import (
 )
 
 {{range .Operations}}
-// vipsgen{{.GoName}}
-// {{generateDocUrl .Name .Category}}
+// vipsgen{{.GoName}} {{.Description}}
 func vipsgen{{.GoName}}({{formatGoArgList .Arguments}}) ({{formatReturnTypes .}}) {
 	{{formatVarDeclarations .}}
 	if err := C.vipsgen_{{.Name}}({{formatFunctionCallArgs .}}); err != 0 {
