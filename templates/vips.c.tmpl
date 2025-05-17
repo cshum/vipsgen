@@ -11,6 +11,10 @@ int vipsgen_{{.Name}}() {
 int vipsgen_{{.Name}}({{range $i, $arg := .Arguments}}{{if $i}}, {{end}}{{$arg.CType}} {{$arg.Name}}{{end}}) {
     return vips_{{.Name}}({{range $i, $arg := .Arguments}}{{if $i}}, {{end}}{{$arg.Name}}{{end}}, NULL);
 }
+{{end}}{{if gt (len .OptionalInputs) 0}}
+int vipsgen_{{.Name}}_with_options({{range $i, $arg := .Arguments}}{{if $i}}, {{end}}{{$arg.CType}} {{$arg.Name}}{{end}}{{if .Arguments}}, {{end}}{{range $i, $opt := .OptionalInputs}}{{if $i}}, {{end}}{{$opt.CType}} {{$opt.Name}}{{end}}) {
+   return vips_{{.Name}}({{range $i, $arg := .Arguments}}{{if $i}}, {{end}}{{$arg.Name}}{{end}}{{range $i, $opt := .OptionalInputs}}{{if or (eq $opt.GoType "string") (not $opt.IsEnum)}}, "{{$opt.Name}}", {{$opt.Name}}{{else}}, "{{$opt.Name}}", (int){{$opt.Name}}{{end}}{{end}}, NULL);
+}
 {{end}}{{end}}
 
 int image_new_from_source(VipsSourceCustom *source, VipsImage **out) {
