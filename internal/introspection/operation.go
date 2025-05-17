@@ -126,8 +126,8 @@ func (v *Introspection) GetOperationArguments(opName string) ([]generator.Argume
 
 	// First pass: gather arguments and detect if we need to add an 'n' parameter
 	hasNParam := false
-	hasArrayInput := false
-	hasArrayOutput := false
+	hasArrayInput := -1
+	hasArrayNOutput := -1
 
 	// Second pass: create Go arguments and add 'n' parameter if needed
 	for i := 0; i < int(nArgs); i++ {
@@ -183,11 +183,11 @@ func (v *Introspection) GetOperationArguments(opName string) ([]generator.Argume
 		if name == "n" {
 			hasNParam = true
 		}
-		if isArray && isInput {
-			hasArrayInput = true
+		if isArray && isInput && required {
+			hasArrayInput = i
 		}
-		if isArray && isOutput {
-			hasArrayOutput = true
+		if (isArray || (hasArrayInput >= 0 && isImage)) && isOutput && required {
+			hasArrayNOutput = i
 		}
 
 		// Fix the vips_composite mode parameter - should be an array of BlendMode
@@ -290,40 +290,28 @@ func (v *Introspection) GetOperationArguments(opName string) ([]generator.Argume
 	}
 
 	// Special case: Add the missing 'n' parameter if needed
-	if !hasNParam {
-		// Special cases for operations with output arrays
-		if hasArrayOutput {
-			// Add output 'n' parameter
-			nParam := generator.Argument{
-				Name:        "n",
-				GoName:      "n",
-				Type:        "gint",
-				GoType:      "int",
-				CType:       "int*",
-				Description: "Length of output array",
-				Required:    true,
-				IsInput:     false,
-				IsOutput:    true,
-				Flags:       35, // VIPS_ARGUMENT_REQUIRED | VIPS_ARGUMENT_OUTPUT
-			}
-			goArgs = append(goArgs, nParam)
-		} else if hasArrayInput {
-			// Add input 'n' parameter for array operations like linear, remainder_const, etc.
-			nParam := generator.Argument{
-				Name:         "n",
-				GoName:       "n",
-				Type:         "gint",
-				GoType:       "int",
-				CType:        "int",
-				Description:  "Array length",
-				Required:     true, // Required for input arrays in most cases
-				IsInput:      true,
-				IsOutput:     false,
-				Flags:        19, // VIPS_ARGUMENT_REQUIRED | VIPS_ARGUMENT_INPUT
-				DefaultValue: 1,  // Default to 1 element
-			}
-			goArgs = append(goArgs, nParam)
+	if !hasNParam && (hasArrayNOutput >= 0 || hasArrayInput >= 0) {
+		i := hasArrayInput + 1
+		if hasArrayNOutput >= 0 {
+			i = hasArrayNOutput + 1
 		}
+		if i > len(goArgs) {
+			i = len(goArgs)
+		}
+		// Add input 'n' parameter for array operations like linear, remainder_const, etc.
+		nParam := generator.Argument{
+			Name:        "n",
+			GoName:      "n",
+			Type:        "gint",
+			GoType:      "int",
+			CType:       "int",
+			Description: "Array length",
+			Required:    true, // Required for input arrays in most cases
+			IsInput:     true,
+			IsOutput:    false,
+			Flags:       19, // VIPS_ARGUMENT_REQUIRED | VIPS_ARGUMENT_INPUT
+		}
+		goArgs = append(goArgs[0:i], append([]generator.Argument{nParam}, goArgs[i:]...)...)
 	}
 
 	return goArgs, nil
