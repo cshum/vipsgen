@@ -6,9 +6,7 @@ import (
 	"github.com/cshum/vipsgen"
 	"github.com/cshum/vipsgen/internal/generator"
 	"github.com/cshum/vipsgen/internal/introspection"
-	"io"
 	"log"
-	"os"
 )
 
 func main() {
@@ -17,7 +15,6 @@ func main() {
 	extractDir := flag.String("extract-dir", "./templates", "Directory to extract templates to")
 	outputDirFlag := flag.String("out", "./vips", "Output directory")
 	templateDirFlag := flag.String("templates", "", "Template directory (uses embedded templates if not specified)")
-	girFileFlag := flag.String("gir-file", "", "Path to GIR file (uses embedded GIR file if not specified)")
 
 	flag.Parse()
 
@@ -74,35 +71,8 @@ func main() {
 		}
 	}
 
-	// Get GIR data
-	var girFile io.Reader
-	var err error
-
-	// Determine GIR file source
-	if *girFileFlag != "" {
-		// Use specified GIR file
-		fmt.Printf("Parsing GIR file: %s\n", *girFileFlag)
-		girFile, err = os.Open(*girFileFlag)
-		if err != nil {
-			log.Fatalf("Failed to open GIR file: %v", err)
-		}
-		defer girFile.(io.Closer).Close()
-	} else {
-		// Use embedded GIR file
-		fmt.Println("Using embedded GIR file")
-		girFile, err = vipsgen.EmbeddedTemplates.Open("Vips-8.0.gir")
-		if err != nil {
-			log.Fatalf("Failed to open embedded GIR file: %v", err)
-		}
-		defer girFile.(io.Closer).Close()
-	}
-
-	if err := vipsIntrospection.ParseGir(girFile); err != nil {
-		log.Fatalf("Failed to parse GIR file: %v", err)
-	}
-
 	// Convert GIR data to vipsgen.Operation format
-	allOperations := vipsIntrospection.ConvertToVipsgenOperations()
+	allOperations := vipsIntrospection.DiscoverOperations()
 	fmt.Printf("Extracted %d operations from GIR file\n", len(allOperations))
 
 	// Get enum types

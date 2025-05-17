@@ -1,7 +1,6 @@
 package generator
 
 import (
-	"github.com/cshum/vipsgen/internal/girparser"
 	"text/template"
 )
 
@@ -26,7 +25,8 @@ type Operation struct {
 	Arguments          []Argument
 	RequiredInputs     []Argument
 	OptionalInputs     []Argument
-	Outputs            []Argument
+	RequiredOutputs    []Argument
+	OptionalOutputs    []Argument
 	HasImageInput      bool
 	HasImageOutput     bool
 	HasOneImageOutput  bool
@@ -39,34 +39,22 @@ type Operation struct {
 
 // Argument represents an argument to a libvips operation
 type Argument struct {
-	Name        string
-	GoName      string
-	Type        string
-	GoType      string
-	CType       string
-	Description string
-	Required    bool
-	IsInput     bool
-	IsOutput    bool
-	Flags       int
-	IsEnum      bool
-	EnumType    string
-
-	// New field to store the original parameter information
-	OriginalParam *girparser.Parameter
-}
-
-// IsArrayType returns true if this parameter represents an array
-func (a *Argument) IsArrayType() bool {
-	return a.OriginalParam != nil && a.OriginalParam.Array != nil
-}
-
-// GetElementType returns the element type for array parameters
-func (a *Argument) GetElementType() string {
-	if a.OriginalParam != nil && a.OriginalParam.Array != nil {
-		return a.OriginalParam.Array.ElementType.CType
-	}
-	return ""
+	Name         string
+	GoName       string
+	Type         string
+	GoType       string
+	CType        string
+	Description  string
+	Required     bool
+	IsInput      bool
+	IsOutput     bool
+	IsImage      bool
+	IsBuffer     bool
+	IsArray      bool
+	Flags        int
+	IsEnum       bool
+	EnumType     string
+	DefaultValue interface{}
 }
 
 // EnumValue represents a value in a libvips enum

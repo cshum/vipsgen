@@ -10,7 +10,10 @@ tmp/
 bin/imagor
 profile.cov
 
+.claudesync
+repomix-output.xml
+
 vips
-debug_gir.json
+debug_enums.json
 debug_operations.json
 dancing-banana.gif

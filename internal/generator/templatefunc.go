@@ -111,9 +111,9 @@ func formatReturnTypes(op Operation) string {
 		return "*C.VipsImage, error"
 	} else if op.HasBufferOutput {
 		return "[]byte, error"
-	} else if len(op.Outputs) > 0 {
+	} else if len(op.RequiredOutputs) > 0 {
 		var types []string
-		for _, arg := range op.Outputs {
+		for _, arg := range op.RequiredOutputs {
 			// Special handling for vector/array return types
 			if arg.Name == "vector" || arg.Name == "out_array" {
 				types = append(types, "[]float64")
@@ -142,7 +142,7 @@ func formatVarDeclarations(op Operation) string {
 		decls = append(decls, "var buf unsafe.Pointer")
 		decls = append(decls, "var length C.size_t")
 	} else {
-		for _, arg := range op.Outputs {
+		for _, arg := range op.RequiredOutputs {
 			// Special handling for vector/array outputs
 			if arg.Name == "vector" || arg.Name == "out_array" {
 				decls = append(decls, "var out *C.double")
@@ -331,15 +331,15 @@ func formatReturnValues(op Operation) string {
 		return "return out, nil"
 	} else if op.HasBufferOutput {
 		return "return bufferToBytes(buf, length), nil"
-	} else if len(op.Outputs) > 0 {
+	} else if len(op.RequiredOutputs) > 0 {
 		var values []string
 
-		for _, arg := range op.Outputs {
+		for _, arg := range op.RequiredOutputs {
 			// Special handling for vector outputs like getpoint
 			if arg.Name == "vector" || arg.Name == "out_array" {
 				// Get the n parameter which should be the second output
 				nParam := "n"
-				for _, outArg := range op.Outputs {
+				for _, outArg := range op.RequiredOutputs {
 					if outArg.Name == "n" {
 						nParam = outArg.GoName
 						break
@@ -409,7 +409,7 @@ func formatImageMethodBody(op Operation) string {
 	return buf, nil`,
 			goFuncName,
 			strings.Join(callArgs, ", "))
-	} else if len(op.Outputs) > 0 {
+	} else if len(op.RequiredOutputs) > 0 {
 		// Check for specific operation patterns that need special handling
 		if hasVectorReturn(op) {
 			// For vector-returning operations like getpoint
@@ -434,7 +434,7 @@ func formatImageMethodBody(op Operation) string {
 
 			// Get the names of the result variables
 			var resultVars []string
-			for _, arg := range op.Outputs {
+			for _, arg := range op.RequiredOutputs {
 				resultVars = append(resultVars, arg.GoName)
 			}
 
@@ -446,7 +446,7 @@ func formatImageMethodBody(op Operation) string {
 
 			// Form the error return line
 			var errorValues []string
-			for _, arg := range op.Outputs {
+			for _, arg := range op.RequiredOutputs {
 				if arg.GoType == "*C.VipsImage" || arg.GoType == "[]*C.VipsImage" {
 					errorValues = append(errorValues, "nil")
 				} else if strings.HasPrefix(arg.GoType, "[]") {
@@ -467,7 +467,7 @@ func formatImageMethodBody(op Operation) string {
 
 			// Form the conversion code for each image output
 			var conversionCode strings.Builder
-			for i, arg := range op.Outputs {
+			for i, arg := range op.RequiredOutputs {
 				if arg.GoType == "*C.VipsImage" {
 					// Convert *C.VipsImage to *Image
 					conversionCode.WriteString(fmt.Sprintf(`
@@ -496,7 +496,7 @@ func formatImageMethodBody(op Operation) string {
 
 			// Get the names of the result variables
 			var resultVars []string
-			for _, arg := range op.Outputs {
+			for _, arg := range op.RequiredOutputs {
 				resultVars = append(resultVars, arg.GoName)
 			}
 
@@ -508,7 +508,7 @@ func formatImageMethodBody(op Operation) string {
 
 			// Form the error return line
 			var errorValues []string
-			for _, arg := range op.Outputs {
+			for _, arg := range op.RequiredOutputs {
 				if strings.HasPrefix(arg.GoType, "[]") {
 					errorValues = append(errorValues, "nil")
 				} else if arg.GoType == "int" {
@@ -611,9 +611,9 @@ func formatImageMethodReturnTypes(op Operation) string {
 		return "error"
 	} else if op.HasBufferOutput {
 		return "[]byte, error"
-	} else if len(op.Outputs) > 0 {
+	} else if len(op.RequiredOutputs) > 0 {
 		var types []string
-		for _, arg := range op.Outputs {
+		for _, arg := range op.RequiredOutputs {
 			// Special handling for vector return types
 			if arg.Name == "vector" || arg.Name == "out_array" {
 				types = append(types, "[]float64")
