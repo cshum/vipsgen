@@ -6,9 +6,7 @@ import "C"
 import (
 	"fmt"
 	"log"
-	"sort"
 	"strings"
-	"unsafe"
 )
 
 type enumTypeName struct {
@@ -83,24 +81,6 @@ func NewIntrospection() *Introspection {
 		discoveredImageTypes: map[string]ImageTypeInfo{},
 		enumTypeNames:        baseEnumTypeNames,
 	}
-}
-
-// GetAllOperationNames retrieves names of all available operations from libvips
-func (v *Introspection) GetAllOperationNames() []string {
-	var count C.int
-	cNames := C.get_all_operation_names(&count)
-	defer C.free_operation_names(cNames, count)
-
-	names := make([]string, int(count))
-
-	// Convert C array to Go slice
-	cNamesSlice := (*[1 << 30]*C.char)(unsafe.Pointer(cNames))[:count:count]
-	for i, cName := range cNamesSlice {
-		names[i] = C.GoString(cName)
-	}
-
-	sort.Strings(names)
-	return names
 }
 
 // FilterOperations filters operations based on availability in the current libvips installation,

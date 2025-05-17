@@ -1,85 +1,5 @@
 #include "introspection.h"
 
-// This function discovers all operations by directly querying GType system
-char** get_all_operation_names(int *count) {
-    OperationList list = {
-        .names = malloc(1000 * sizeof(char*)),
-        .count = 0,
-        .capacity = 1000
-    };
-
-    // Get all types derived from VipsOperation
-    GType base_type = VIPS_TYPE_OPERATION;
-    guint n_children = 0;
-    GType *children = g_type_children(base_type, &n_children);
-
-    // Process each child type
-    for (guint i = 0; i < n_children; i++) {
-        // Only process non-abstract types
-        if (!G_TYPE_IS_ABSTRACT(children[i])) {
-            // Get the class to access the nickname
-            VipsObjectClass *class = VIPS_OBJECT_CLASS(g_type_class_ref(children[i]));
-
-            if (class && class->nickname) {
-                // Check if we can actually instantiate this operation
-                VipsOperation *op = VIPS_OPERATION(g_object_new(children[i], NULL));
-                if (op) {
-                    // Expand array if needed
-                    if (list.count >= list.capacity) {
-                        list.capacity *= 2;
-                        list.names = realloc(list.names, list.capacity * sizeof(char*));
-                    }
-
-                    // Add the operation name
-                    list.names[list.count++] = strdup(class->nickname);
-                    g_object_unref(op);
-                }
-            }
-
-            g_type_class_unref(class);
-        }
-
-        // Some operations might have their own child types
-        guint n_grandchildren = 0;
-        GType *grandchildren = g_type_children(children[i], &n_grandchildren);
-
-        for (guint j = 0; j < n_grandchildren; j++) {
-            if (!G_TYPE_IS_ABSTRACT(grandchildren[j])) {
-                VipsObjectClass *class = VIPS_OBJECT_CLASS(g_type_class_ref(grandchildren[j]));
-
-                if (class && class->nickname) {
-                    VipsOperation *op = VIPS_OPERATION(g_object_new(grandchildren[j], NULL));
-                    if (op) {
-                        if (list.count >= list.capacity) {
-                            list.capacity *= 2;
-                            list.names = realloc(list.names, list.capacity * sizeof(char*));
-                        }
-
-                        list.names[list.count++] = strdup(class->nickname);
-                        g_object_unref(op);
-                    }
-                }
-
-                g_type_class_unref(class);
-            }
-        }
-
-        g_free(grandchildren);
-    }
-
-    g_free(children);
-
-    *count = list.count;
-    return list.names;
-}
-
-void free_operation_names(char **names, int count) {
-    for (int i = 0; i < count; i++) {
-        free(names[i]);
-    }
-    free(names);
-}
-
 EnumValueInfo* get_enum_values(const char *enum_type_name, int *count) {
     GType type = g_type_from_name(enum_type_name);
     if (type == 0) {
@@ -465,23 +385,6 @@ OperationDetails get_operation_details(const char *operation_name) {
         }
         details.has_one_image_output = (image_output_count == 1);
         free_operation_arguments(args, arg_count);
-    }
-
-    // Get category from filename
-    // This is a bit of a hack, but it's how vips itself categorizes operations
-    VipsObjectClass *class = VIPS_OBJECT_CLASS(G_OBJECT_GET_CLASS(op));
-    if (class && class->nickname) {
-        // Try to determine category from operation name patterns
-        if (strstr(operation_name, "load") || strstr(operation_name, "save"))
-            details.category = strdup("foreign");
-        else if (strstr(operation_name, "conv") || strstr(operation_name, "conva"))
-            details.category = strdup("convolution");
-        else if (strstr(operation_name, "affine") || strstr(operation_name, "resize"))
-            details.category = strdup("resample");
-        else if (strstr(operation_name, "add") || strstr(operation_name, "subtract"))
-            details.category = strdup("arithmetic");
-        else
-            details.category = strdup("operation");
     }
 
     g_object_unref(op);
