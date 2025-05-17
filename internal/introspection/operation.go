@@ -164,6 +164,13 @@ func (v *Introspection) GetOperationArguments(opName string) ([]Argument, error)
 			Flags:       int(arg.flags),
 		}
 
+		// Check if this is an enum or flags type
+		isEnum := C.is_type_enum(arg.type_val) != 0
+		isFlags := C.is_type_flags(arg.type_val) != 0
+
+		// Set IsEnum if either enum or flags type
+		goArg.IsEnum = isEnum || isFlags
+
 		// Determine Go type and C type based on GType
 		goArg.Type, goArg.GoType, goArg.CType = v.mapGTypeToTypes(arg.type_val, cTypeName, isOutput)
 
@@ -172,13 +179,11 @@ func (v *Introspection) GetOperationArguments(opName string) ([]Argument, error)
 			goArg.DefaultValue = v.extractDefaultValue(arg, goArg.GoType)
 		}
 
-		// Check if this is an enum type
-		if C.is_type_enum(arg.type_val) != 0 {
-			goArg.IsEnum = true
-			goArg.EnumType = v.GetGoEnumName(goArg.Type)
-
-			// Register the enum type
-			v.AddEnumType(goArg.Type, goArg.EnumType)
+		// If it's an enum or flags, get the proper type name
+		if goArg.IsEnum {
+			enumTypeName := C.GoString(C.g_type_name(arg.type_val))
+			goArg.EnumType = v.GetGoEnumName(enumTypeName)
+			v.AddEnumType(enumTypeName, goArg.EnumType)
 		}
 		// gather arguments and detect if we need to add an 'n' parameter
 		if name == "n" {
