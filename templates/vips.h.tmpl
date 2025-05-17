@@ -5,13 +5,8 @@
 #include <vips/vector.h>
 
 {{range .Operations}}
-{{if eq (len .Arguments) 0}}
-int vipsgen_{{.Name}}();
-{{else}}
-int vipsgen_{{.Name}}({{range $i, $arg := .Arguments}}{{if $i}}, {{end}}{{$arg.CType}} {{$arg.Name}}{{end}});
-{{end}}{{if gt (len .OptionalInputs) 0}}
-int vipsgen_{{.Name}}_with_options({{range $i, $arg := .Arguments}}{{if $i}}, {{end}}{{$arg.CType}} {{$arg.Name}}{{end}}{{if .Arguments}}, {{end}}{{range $i, $opt := .OptionalInputs}}{{if $i}}, {{end}}{{$opt.CType}} {{$opt.Name}}{{end}});
-{{end}}{{end}}
+{{formatCFunctionDeclaration .}}
+{{end}}
 
 int image_new_from_source(VipsSourceCustom *source, VipsImage **out);
 
