@@ -573,31 +573,26 @@ func detectMethodArguments(op introspection.Operation) []introspection.Argument 
 	var methodArgs []introspection.Argument
 	var firstImageFound bool
 	var hasBufParam bool
-
 	// Get all arguments except the first image input and output parameters
 	for _, arg := range op.Arguments {
 		// Skip output parameters
 		if arg.IsOutput {
 			continue
 		}
-		if arg.CType == "void**" && arg.Name == "buf" {
+		if arg.IsBuffer {
 			hasBufParam = true
 			continue
 		} else if arg.Name == "len" && hasBufParam {
 			continue
 		}
-
 		// Skip the first image input parameter (which will be the receiver)
-		if (arg.Type == "VipsImage" || arg.CType == "VipsImage*") && !firstImageFound {
+		if arg.IsImage && !arg.IsArray && !firstImageFound {
 			firstImageFound = true
 			continue
 		}
-
-		// Skip the output image
-		if arg.Name == "out" {
+		if arg.IsOutput && arg.IsImage {
 			continue
 		}
-
 		// Include all other input parameters
 		methodArgs = append(methodArgs, arg)
 	}
@@ -608,7 +603,6 @@ func detectMethodArguments(op introspection.Operation) []introspection.Argument 
 // formatImageMethodParams formats parameters for image methods using improved detection
 func formatImageMethodParams(op introspection.Operation) string {
 	methodArgs := detectMethodArguments(op)
-
 	var params []string
 	for _, arg := range methodArgs {
 		// Convert parameter types for image methods
@@ -661,7 +655,6 @@ func formatImageMethodReturnTypes(op introspection.Operation) string {
 func formatCreatorMethodParams(op introspection.Operation) string {
 	inputParams := op.RequiredInputs
 	var hasBufParam bool
-
 	var params []string
 	for _, arg := range inputParams {
 		var paramType string
@@ -688,8 +681,6 @@ func formatCreatorMethodBody(op introspection.Operation) string {
 	inputParams := op.RequiredInputs
 	var hasBufParam bool
 	goFuncName := "vipsgen" + op.GoName
-
-	// Format the arguments for the function call
 	var callArgs []string
 	for _, arg := range inputParams {
 		if arg.GoType == "*C.VipsImage" {
@@ -705,7 +696,6 @@ func formatCreatorMethodBody(op introspection.Operation) string {
 			callArgs = append(callArgs, arg.GoName)
 		}
 	}
-
 	var imageRefBuf = "nil"
 	if op.HasBufferInput {
 		imageRefBuf = "buf"
@@ -725,11 +715,7 @@ func formatCreatorMethodBody(op introspection.Operation) string {
 // formatCFunctionSignature generates just the function signature for vips operations
 func formatCFunctionSignature(op introspection.Operation, includeParamNames bool) string {
 	var result strings.Builder
-
-	// Function signature for the basic version
 	result.WriteString(fmt.Sprintf("int vipsgen_%s(", op.Name))
-
-	// Parameters for the basic function
 	if len(op.Arguments) > 0 {
 		for i, arg := range op.Arguments {
 			if i > 0 {
@@ -743,7 +729,6 @@ func formatCFunctionSignature(op introspection.Operation, includeParamNames bool
 		}
 	}
 	result.WriteString(")")
-
 	return result.String()
 }
 
@@ -752,13 +737,8 @@ func formatCFunctionWithOptionsSignature(op introspection.Operation, includePara
 	if len(op.OptionalInputs) == 0 {
 		return ""
 	}
-
 	var result strings.Builder
-
-	// Function signature for the version with options
 	result.WriteString(fmt.Sprintf("int vipsgen_%s_with_options(", op.Name))
-
-	// Parameters including both required and optional
 	if len(op.Arguments) > 0 {
 		for i, arg := range op.Arguments {
 			if i > 0 {
@@ -771,8 +751,6 @@ func formatCFunctionWithOptionsSignature(op introspection.Operation, includePara
 			}
 		}
 	}
-
-	// Add optional parameters
 	if len(op.Arguments) > 0 && len(op.OptionalInputs) > 0 {
 		result.WriteString(", ")
 	}
@@ -794,22 +772,18 @@ func formatCFunctionWithOptionsSignature(op introspection.Operation, includePara
 // formatCFunctionDeclaration generates header declarations for vips operations
 func formatCFunctionDeclaration(op introspection.Operation) string {
 	var result strings.Builder
-
-	// Basic function declaration
 	if len(op.Arguments) == 0 {
 		result.WriteString(fmt.Sprintf("int vipsgen_%s();", op.Name))
 	} else {
 		result.WriteString(formatCFunctionSignature(op, true))
 		result.WriteString(";")
 	}
-
-	// Add with_options function declaration if needed
+	// with_options function declaration if needed
 	if len(op.OptionalInputs) > 0 {
 		result.WriteString("\n")
 		result.WriteString(formatCFunctionWithOptionsSignature(op, true))
 		result.WriteString(";")
 	}
-
 	return result.String()
 }
 
@@ -817,7 +791,6 @@ func formatCFunctionDeclaration(op introspection.Operation) string {
 func formatCFunctionImplementation(op introspection.Operation) string {
 	var result strings.Builder
 
-	// Basic function implementation
 	if len(op.Arguments) == 0 {
 		result.WriteString(fmt.Sprintf("int vipsgen_%s() {\n", op.Name))
 		result.WriteString(fmt.Sprintf("    return vips_%s(NULL);\n}", op.Name))
@@ -825,25 +798,20 @@ func formatCFunctionImplementation(op introspection.Operation) string {
 		result.WriteString(formatCFunctionSignature(op, true))
 		result.WriteString(" {\n")
 		result.WriteString(fmt.Sprintf("    return vips_%s(", op.Name))
-
 		for i, arg := range op.Arguments {
 			if i > 0 {
 				result.WriteString(", ")
 			}
 			result.WriteString(arg.Name)
 		}
-
 		result.WriteString(", NULL);\n}")
 	}
 
-	// Add with_options function implementation if needed
 	if len(op.OptionalInputs) > 0 {
 		result.WriteString("\n\n")
 		result.WriteString(formatCFunctionWithOptionsSignature(op, true))
 		result.WriteString(" {\n")
 		result.WriteString(fmt.Sprintf("    return vips_%s(", op.Name))
-
-		// Add required arguments
 		if len(op.Arguments) > 0 {
 			for i, arg := range op.Arguments {
 				if i > 0 {
@@ -852,19 +820,14 @@ func formatCFunctionImplementation(op introspection.Operation) string {
 				result.WriteString(arg.Name)
 			}
 		}
-
-		// Add optional parameters with their names
 		for _, opt := range op.OptionalInputs {
-			// Handle string and enum type parameters differently
 			if opt.GoType == "string" || !opt.IsEnum {
 				result.WriteString(fmt.Sprintf(", \"%s\", %s", opt.Name, opt.Name))
 			} else {
 				result.WriteString(fmt.Sprintf(", \"%s\", (int)%s", opt.Name, opt.Name))
 			}
 		}
-
 		result.WriteString(", NULL);\n}")
 	}
-
 	return result.String()
 }
