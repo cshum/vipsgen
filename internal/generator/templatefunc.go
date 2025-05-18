@@ -884,7 +884,7 @@ func generateOptionalInputsParamsStruct(op introspection.Operation) string {
 	// Determine the struct name
 	var structName = op.GoName + "Params"
 
-	result.WriteString(fmt.Sprintf("// %s are parameters for %s\n", structName, op.Description))
+	result.WriteString(fmt.Sprintf("// %s optional arguments for vips_%s\n", structName, op.Name))
 	result.WriteString(fmt.Sprintf("type %s struct {\n", structName))
 
 	// Add all optional parameters to the struct
@@ -908,8 +908,8 @@ func generateOptionalInputsParamsStruct(op introspection.Operation) string {
 	result.WriteString("}\n\n")
 
 	// Create a constructor with default values
-	result.WriteString(fmt.Sprintf("// New%s creates default parameters for %s\n",
-		structName, op.Description))
+	result.WriteString(fmt.Sprintf("// New%s creates default optional arguments for vips_%s\n",
+		structName, op.Name))
 	result.WriteString(fmt.Sprintf("func New%s() *%s {\n", structName, structName))
 	result.WriteString(fmt.Sprintf("\treturn &%s{\n", structName))
 
