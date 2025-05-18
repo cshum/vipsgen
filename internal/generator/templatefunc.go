@@ -1468,7 +1468,7 @@ func formatCFunctionImplementation(op introspection.Operation) string {
 			if optionalArrayArgs[opt.Name] != "" {
 				// For array parameters, use the array object if available
 				result.WriteString(fmt.Sprintf("\"%s\", ", opt.Name))
-				result.WriteString(fmt.Sprintf("%s_array ? %s_array : NULL", opt.Name, opt.Name))
+				result.WriteString(fmt.Sprintf("%s_array", opt.Name))
 			} else if opt.GoType == "string" {
 				result.WriteString(fmt.Sprintf("\"%s\", %s", opt.Name, opt.Name))
 			} else if opt.IsEnum {
