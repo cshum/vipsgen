@@ -26,6 +26,7 @@ type Image struct {
 }
 
 {{range .Operations}}{{if and (or (not .HasImageInput) .HasArrayImageInput) .HasImageOutput}}
+{{if gt (len .OptionalInputs) 0}}{{generateOptionalInputsParamsStruct .}}{{end}}
 // New{{.GoName}} {{.Description}}
 func New{{.GoName}}({{formatCreatorMethodParams .}}) (*Image, error) {
 	{{formatCreatorMethodBody .}}
@@ -33,6 +34,7 @@ func New{{.GoName}}({{formatCreatorMethodParams .}}) (*Image, error) {
 {{end}}{{end}}
 
 {{range .Operations}}{{if and .HasImageInput (not .HasArrayImageInput)}}
+{{if gt (len .OptionalInputs) 0}}{{generateOptionalInputsParamsStruct .}}{{end}}
 // {{.GoName}} {{.Description}}
 func (r *Image) {{.GoName}}({{formatImageMethodParams .}}) ({{formatImageMethodReturnTypes .}}) {
 	{{formatImageMethodBody .}}

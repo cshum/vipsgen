@@ -27,6 +27,7 @@ func GetTemplateFuncMap() template.FuncMap {
 		"formatCFunctionWithOptionsSignature": formatCFunctionWithOptionsSignature,
 		"formatCFunctionDeclaration":          formatCFunctionDeclaration,
 		"formatCFunctionImplementation":       formatCFunctionImplementation,
+		"generateOptionalInputsParamsStruct":  generateOptionalInputsParamsStruct,
 	}
 }
 
@@ -873,5 +874,86 @@ func formatCFunctionImplementation(op introspection.Operation) string {
 		}
 		result.WriteString(", NULL);\n}")
 	}
+	return result.String()
+}
+
+// generateOptionalInputsParamsStruct generates a parameter struct for an operation
+func generateOptionalInputsParamsStruct(op introspection.Operation) string {
+	var result strings.Builder
+
+	// Determine the struct name
+	var structName = op.GoName + "Params"
+
+	result.WriteString(fmt.Sprintf("// %s are parameters for %s\n", structName, op.Description))
+	result.WriteString(fmt.Sprintf("type %s struct {\n", structName))
+
+	// Add all optional parameters to the struct
+	for _, opt := range op.OptionalInputs {
+		fieldName := strings.Title(opt.GoName)
+		fieldType := opt.GoType
+
+		// Handle enum types by using the proper Go enum type
+		if opt.IsEnum && opt.EnumType != "" {
+			fieldType = opt.EnumType
+		}
+
+		// Add comment with description if available
+		if opt.Description != "" {
+			result.WriteString(fmt.Sprintf("\t// %s\n", opt.Description))
+		}
+
+		result.WriteString(fmt.Sprintf("\t%s %s\n", fieldName, fieldType))
+	}
+
+	result.WriteString("}\n\n")
+
+	// Create a constructor with default values
+	result.WriteString(fmt.Sprintf("// New%s creates default parameters for %s\n",
+		structName, op.Description))
+	result.WriteString(fmt.Sprintf("func New%s() *%s {\n", structName, structName))
+	result.WriteString(fmt.Sprintf("\treturn &%s{\n", structName))
+
+	// Add default values for each parameter
+	for _, opt := range op.OptionalInputs {
+		fieldName := strings.Title(opt.GoName)
+
+		// Only include non-zero defaults
+		if opt.DefaultValue != nil {
+			switch v := opt.DefaultValue.(type) {
+			case bool:
+				if v {
+					result.WriteString(fmt.Sprintf("\t\t%s: %t,\n", fieldName, v))
+				}
+			case int:
+				if v != 0 {
+					// For enum types, cast the integer to the enum type
+					if opt.IsEnum && opt.EnumType != "" {
+						result.WriteString(fmt.Sprintf("\t\t%s: %s(%d),\n", fieldName, opt.EnumType, v))
+					} else {
+						result.WriteString(fmt.Sprintf("\t\t%s: %d,\n", fieldName, v))
+					}
+				}
+			case float64:
+				if v != 0 {
+					result.WriteString(fmt.Sprintf("\t\t%s: %g,\n", fieldName, v))
+				}
+			case string:
+				if v != "" {
+					result.WriteString(fmt.Sprintf("\t\t%s: %q,\n", fieldName, v))
+				}
+			}
+		} else {
+			// Add common defaults for well-known parameters
+			if (opt.Name == "Q" || opt.Name == "quality") &&
+				(strings.HasPrefix(structName, "Jpeg") || strings.HasPrefix(structName, "Webp")) {
+				result.WriteString("\t\tQuality: 80,\n")
+			} else if opt.Name == "interlace" && strings.HasPrefix(structName, "Jpeg") {
+				result.WriteString("\t\tInterlace: true,\n")
+			}
+		}
+	}
+
+	result.WriteString("\t}\n}\n\n")
+
 	return result.String()
 }
