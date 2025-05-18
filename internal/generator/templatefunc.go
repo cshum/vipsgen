@@ -1344,13 +1344,10 @@ func getArrayType(goType string) string {
 // formatCFunctionImplementation generates C implementations for vips operations
 func formatCFunctionImplementation(op introspection.Operation) string {
 	var result strings.Builder
-
 	// Check if any argument is an array type
 	hasOptionalArray := false
-
 	// Map of optional array arguments to their types
 	optionalArrayArgs := make(map[string]string) // Maps arg name to array type ("double", "int", "image")
-
 	// Check optional inputs for arrays
 	for _, arg := range op.OptionalInputs {
 		if strings.HasPrefix(arg.GoType, "[]") {
@@ -1361,7 +1358,6 @@ func formatCFunctionImplementation(op introspection.Operation) string {
 			}
 		}
 	}
-
 	// Handle basic function (no options)
 	// For required arguments with arrays, we don't need to convert to VipsArray
 	if len(op.Arguments) == 0 {
@@ -1380,14 +1376,10 @@ func formatCFunctionImplementation(op introspection.Operation) string {
 		}
 		result.WriteString(", NULL);\n}")
 	}
-
 	// Generate the with_options variant
 	if len(op.OptionalInputs) > 0 {
-		result.WriteString("\n\n")
-
 		// Generate function signature with array length parameters for array arguments
 		result.WriteString(fmt.Sprintf("int vipsgen_%s_with_options(", op.Name))
-
 		// Add regular arguments
 		if len(op.Arguments) > 0 {
 			for i, arg := range op.Arguments {
@@ -1397,7 +1389,6 @@ func formatCFunctionImplementation(op introspection.Operation) string {
 				result.WriteString(fmt.Sprintf("%s %s", arg.CType, arg.Name))
 			}
 		}
-
 		// Add optional arguments and array length parameters
 		for i, opt := range op.OptionalInputs {
 			if i > 0 || len(op.Arguments) > 0 {
@@ -1411,7 +1402,6 @@ func formatCFunctionImplementation(op introspection.Operation) string {
 			}
 		}
 		result.WriteString(") {\n")
-
 		// Handle array arguments by creating VipsArray objects - only for optional inputs
 		if hasOptionalArray {
 			for name, arrayType := range optionalArrayArgs {
@@ -1424,7 +1414,6 @@ func formatCFunctionImplementation(op introspection.Operation) string {
 				}
 			}
 		}
-
 		// Call the vips function
 		result.WriteString(fmt.Sprintf("    int result = vips_%s(", op.Name))
 
@@ -1437,13 +1426,11 @@ func formatCFunctionImplementation(op introspection.Operation) string {
 				result.WriteString(arg.Name)
 			}
 		}
-
 		// Add optional arguments, using array objects if needed
 		for i, opt := range op.OptionalInputs {
 			if i > 0 || len(op.Arguments) > 0 {
 				result.WriteString(", ")
 			}
-
 			if optionalArrayArgs[opt.Name] != "" {
 				// For array parameters, use the array object if available
 				result.WriteString(fmt.Sprintf("\"%s\", ", opt.Name))
@@ -1456,7 +1443,6 @@ func formatCFunctionImplementation(op introspection.Operation) string {
 				result.WriteString(fmt.Sprintf("\"%s\", %s", opt.Name, opt.Name))
 			}
 		}
-
 		result.WriteString(", NULL);\n\n")
 
 		// Clean up array objects
@@ -1466,12 +1452,9 @@ func formatCFunctionImplementation(op introspection.Operation) string {
 				result.WriteString(fmt.Sprintf("        vips_area_unref(VIPS_AREA(%s_array));\n", name))
 				result.WriteString("    }\n")
 			}
-			result.WriteString("\n")
 		}
-
 		result.WriteString("    return result;\n}")
 	}
-
 	return result.String()
 }
 

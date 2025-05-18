@@ -29,7 +29,9 @@ func main() {
 	if err = image.ExtractArea(30, 40, 50, 70); err != nil {
 		panic(err)
 	}
-	if err = image.Flatten(vips.DefaultFlattenOptions()); err != nil {
+	if err = image.Flatten(&vips.FlattenOptions{
+		Background: []float64{123, 123, 123},
+	}); err != nil {
 		panic(err)
 	}
 	buf, err := image.GifsaveBuffer(vips.DefaultGifsaveBufferOptions())
