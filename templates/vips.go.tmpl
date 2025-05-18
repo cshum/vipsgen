@@ -195,30 +195,6 @@ func vipsHasAlpha(in *C.VipsImage) bool {
 	return int(C.has_alpha_channel(in)) > 0
 }
 
-// https://libvips.github.io/libvips/API/current/libvips-conversion.html#vips-embed
-func vipsEmbed(in *C.VipsImage, left, top, width, height int, extend Extend) (*C.VipsImage, error) {
-	var out *C.VipsImage
-
-	if err := C.embed_image(in, &out, C.int(left), C.int(top), C.int(width), C.int(height), C.int(extend)); err != 0 {
-		return nil, handleImageError(out)
-	}
-
-	return out, nil
-}
-
-// https://libvips.github.io/libvips/API/current/libvips-conversion.html#vips-embed
-func vipsEmbedBackground(in *C.VipsImage, left, top, width, height int, backgroundColor *ColorRGBA) (*C.VipsImage, error) {
-	var out *C.VipsImage
-
-	if err := C.embed_image_background(in, &out, C.int(left), C.int(top), C.int(width),
-		C.int(height), C.double(backgroundColor.R),
-		C.double(backgroundColor.G), C.double(backgroundColor.B), C.double(backgroundColor.A)); err != 0 {
-		return nil, handleImageError(out)
-	}
-
-	return out, nil
-}
-
 func vipsEmbedMultiPage(in *C.VipsImage, left, top, width, height int, extend Extend) (*C.VipsImage, error) {
 	var out *C.VipsImage
 
@@ -254,11 +230,9 @@ func vipsExtractAreaMultiPage(in *C.VipsImage, left, top, width, height int) (*C
 // https://libvips.github.io/libvips/API/current/libvips-conversion.html#vips-rot
 func vipsRotateMultiPage(in *C.VipsImage, angle Angle) (*C.VipsImage, error) {
 	var out *C.VipsImage
-
 	if err := C.rotate_image_multi_page(in, &out, C.VipsAngle(angle)); err != 0 {
 		return nil, handleImageError(out)
 	}
-
 	return out, nil
 }
 
@@ -278,17 +252,6 @@ func vipsLabel(
 		C.int(x), C.int(y), C.int(size), C.VipsAlign(align),
 		C.double(color.R), C.double(color.G), C.double(color.B), C.float(float32(opacity)))
 	if int(err) != 0 {
-		return nil, handleImageError(out)
-	}
-
-	return out, nil
-}
-
-// https://libvips.github.io/libvips/API/current/libvips-conversion.html#vips-composite2
-func vipsComposite2(base *C.VipsImage, overlay *C.VipsImage, mode BlendMode, x, y int) (*C.VipsImage, error) {
-	var out *C.VipsImage
-
-	if err := C.composite2_image(base, overlay, &out, C.int(mode), C.gint(x), C.gint(y)); err != 0 {
 		return nil, handleImageError(out)
 	}
 

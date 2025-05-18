@@ -90,32 +90,6 @@ void clear_image(VipsImage **image) {
 
 int has_alpha_channel(VipsImage *image) { return vips_image_hasalpha(image); }
 
-int embed_image(VipsImage *in, VipsImage **out, int left, int top, int width,
-                int height, int extend) {
-  return vips_embed(in, out, left, top, width, height, "extend", extend, NULL);
-}
-
-int embed_image_background(VipsImage *in, VipsImage **out, int left, int top, int width,
-                int height, double r, double g, double b, double a) {
-
-  double background[3] = {r, g, b};
-  double backgroundRGBA[4] = {r, g, b, a};
-
-  VipsArrayDouble *vipsBackground;
-
-  if (in->Bands <= 3) {
-    vipsBackground = vips_array_double_new(background, 3);
-  } else {
-    vipsBackground = vips_array_double_new(backgroundRGBA, 4);
-  }
-
-  int code = vips_embed(in, out, left, top, width, height,
-    "extend", VIPS_EXTEND_BACKGROUND, "background", vipsBackground, NULL);
-
-  vips_area_unref(VIPS_AREA(vipsBackground));
-  return code;
-}
-
 int embed_multi_page_image(VipsImage *in, VipsImage **out, int left, int top, int width,
                          int height, int extend) {
   VipsObject *base = VIPS_OBJECT(vips_image_new());
@@ -348,11 +322,6 @@ double max_alpha(VipsImage *in) {
   }
 }
 
-int composite2_image(VipsImage *base, VipsImage *overlay, VipsImage **out,
-                     int mode, gint x, gint y) {
-  return vips_composite2(base, overlay, out, mode, "x", x, "y", y, NULL);
-}
-
 int find_trim(VipsImage *in, int *left, int *top, int *width, int *height,
   double threshold, int x, int y) {
   VipsImage *base = vips_image_new();
@@ -395,11 +364,6 @@ int find_trim(VipsImage *in, int *left, int *top, int *width, int *height,
     return 1;
   }
   return 0;
-}
-
-int sharpen_image(VipsImage *in, VipsImage **out, double sigma, double x1,
-                  double m2) {
-  return vips_sharpen(in, out, "sigma", sigma, "x1", x1, "m2", m2, NULL);
 }
 
 gboolean remove_icc_profile(VipsImage *in) {

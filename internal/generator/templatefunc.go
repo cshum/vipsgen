@@ -1378,6 +1378,7 @@ func formatCFunctionImplementation(op introspection.Operation) string {
 	}
 	// Generate the with_options variant
 	if len(op.OptionalInputs) > 0 {
+		result.WriteString("\n\n")
 		// Generate function signature with array length parameters for array arguments
 		result.WriteString(fmt.Sprintf("int vipsgen_%s_with_options(", op.Name))
 		// Add regular arguments
@@ -1443,7 +1444,7 @@ func formatCFunctionImplementation(op introspection.Operation) string {
 				result.WriteString(fmt.Sprintf("\"%s\", %s", opt.Name, opt.Name))
 			}
 		}
-		result.WriteString(", NULL);\n\n")
+		result.WriteString(", NULL);\n")
 
 		// Clean up array objects
 		if hasOptionalArray {
