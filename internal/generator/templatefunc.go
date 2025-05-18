@@ -1449,9 +1449,7 @@ func formatCFunctionImplementation(op introspection.Operation) string {
 		// Clean up array objects
 		if hasOptionalArray {
 			for name := range optionalArrayArgs {
-				result.WriteString(fmt.Sprintf("    if (%s_array) {\n", name))
-				result.WriteString(fmt.Sprintf("        vips_area_unref(VIPS_AREA(%s_array));\n", name))
-				result.WriteString("    }\n")
+				result.WriteString(fmt.Sprintf("    vips_area_unref(VIPS_AREA(%s_array));\n", name))
 			}
 		}
 		result.WriteString("    return result;\n}")

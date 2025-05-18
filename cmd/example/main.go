@@ -19,14 +19,14 @@ func main() {
 	source := vips.NewSource(resp.Body)
 	defer source.Close() // source needs to remain available during the lifetime of image
 
-	loadOptions := vips.NewDefaultLoadOptions()
-	loadOptions.NumPages = -1
-	image, err := vips.NewImageFromSource(source, loadOptions) // load image from source
+	image, err := vips.NewImageFromSource(source, &vips.LoadOptions{
+		NumPages: -1,
+	}) // load image from source
 	if err != nil {
 		panic(err)
 	}
 	defer image.Close()
-	if err = image.ExtractArea(30, 40, 50, 70); err != nil {
+	if err = image.ExtractArea(20, 40, 50, 70); err != nil {
 		panic(err)
 	}
 	if err = image.Flatten(&vips.FlattenOptions{
@@ -34,9 +34,9 @@ func main() {
 	}); err != nil {
 		panic(err)
 	}
-	options := vips.NewDefaultGifsaveBufferOptions()
-	options.Keep = vips.KeepIcc
-	buf, err := image.GifsaveBuffer(options)
+	buf, err := image.GifsaveBuffer(&vips.GifsaveBufferOptions{
+		Keep: vips.KeepAll,
+	})
 	if err != nil {
 		panic(err)
 	}
