@@ -358,6 +358,10 @@ func (v *Introspection) GetOperationArguments(opName string) ([]Argument, error)
 		if i > len(goArgs) {
 			i = len(goArgs)
 		}
+		var nFrom string
+		if hasArrayInput >= 0 && hasArrayInput < len(goArgs) {
+			nFrom = goArgs[hasArrayInput].Name
+		}
 		// Add input 'n' parameter for array operations like linear, remainder_const, etc.
 		var nParam Argument
 		if hasArrayNOutput >= 0 && !goArgs[hasArrayNOutput].IsImage {
@@ -383,6 +387,8 @@ func (v *Introspection) GetOperationArguments(opName string) ([]Argument, error)
 				CType:       "int",
 				Description: "Array length",
 				Required:    true, // Required for input arrays in most cases
+				IsN:         true,
+				NFrom:       nFrom,
 				IsInput:     true,
 				IsOutput:    false,
 				Flags:       19, // VIPS_ARGUMENT_REQUIRED | VIPS_ARGUMENT_INPUT
