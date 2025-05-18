@@ -1534,7 +1534,6 @@ func generateOptionalInputsStruct(op introspection.Operation) string {
 		structName, op.Name))
 	result.WriteString(fmt.Sprintf("func NewDefault%s() *%s {\n", structName, structName))
 	result.WriteString(fmt.Sprintf("\treturn &%s{\n", structName))
-
 	// Add default values for each parameter
 	for _, opt := range op.OptionalInputs {
 		fieldName := strings.Title(opt.GoName)
@@ -1564,17 +1563,8 @@ func generateOptionalInputsStruct(op introspection.Operation) string {
 					result.WriteString(fmt.Sprintf("\t\t%s: %q,\n", fieldName, v))
 				}
 			}
-		} else {
-			// Add common defaults for well-known parameters
-			if (opt.Name == "Q" || opt.Name == "quality") &&
-				(strings.HasPrefix(structName, "Jpeg") || strings.HasPrefix(structName, "Webp")) {
-				result.WriteString("\t\tQuality: 80,\n")
-			} else if opt.Name == "interlace" && strings.HasPrefix(structName, "Jpeg") {
-				result.WriteString("\t\tInterlace: true,\n")
-			}
 		}
 	}
-
 	result.WriteString("\t}\n}\n")
 
 	return result.String()
