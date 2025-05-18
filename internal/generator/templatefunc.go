@@ -1416,20 +1416,11 @@ func formatCFunctionImplementation(op introspection.Operation) string {
 		if hasOptionalArray {
 			for name, arrayType := range optionalArrayArgs {
 				if arrayType == "double" {
-					result.WriteString(fmt.Sprintf("    VipsArrayDouble *%s_array = NULL;\n", name))
-					result.WriteString(fmt.Sprintf("    if (%s != NULL && %s_n > 0) {\n", name, name))
-					result.WriteString(fmt.Sprintf("        %s_array = vips_array_double_new(%s, %s_n);\n", name, name, name))
-					result.WriteString("    }\n\n")
+					result.WriteString(fmt.Sprintf("    VipsArrayDouble *%s_array = vips_array_double_new(%s, %s_n);\n", name, name, name))
 				} else if arrayType == "int" {
-					result.WriteString(fmt.Sprintf("    VipsArrayInt *%s_array = NULL;\n", name))
-					result.WriteString(fmt.Sprintf("    if (%s != NULL && %s_n > 0) {\n", name, name))
-					result.WriteString(fmt.Sprintf("        %s_array = vips_array_int_new(%s, %s_n);\n", name, name, name))
-					result.WriteString("    }\n\n")
+					result.WriteString(fmt.Sprintf("    VipsArrayInt *%s_array = vips_array_int_new(%s, %s_n);\n", name, name, name))
 				} else if arrayType == "image" {
-					result.WriteString(fmt.Sprintf("    VipsArrayImage *%s_array = NULL;\n", name))
-					result.WriteString(fmt.Sprintf("    if (%s != NULL && %s_n > 0) {\n", name, name))
-					result.WriteString(fmt.Sprintf("        %s_array = vips_array_image_new(%s, %s_n);\n", name, name, name))
-					result.WriteString("    }\n\n")
+					result.WriteString(fmt.Sprintf("    VipsArrayImage *%s_array = vips_array_image_new(%s, %s_n);\n", name, name, name))
 				}
 			}
 		}
