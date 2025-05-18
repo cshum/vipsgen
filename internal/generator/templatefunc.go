@@ -665,7 +665,7 @@ func formatImageMethodParams(op introspection.Operation) string {
 		params = append(params, fmt.Sprintf("%s %s", arg.GoName, paramType))
 	}
 	if len(op.OptionalInputs) > 0 {
-
+		params = append(params, fmt.Sprintf("options *%sOptions", op.GoName))
 	}
 	return strings.Join(params, ", ")
 }
@@ -720,7 +720,9 @@ func formatCreatorMethodParams(op introspection.Operation) string {
 		}
 		params = append(params, fmt.Sprintf("%s %s", arg.GoName, paramType))
 	}
-
+	if len(op.OptionalInputs) > 0 {
+		params = append(params, fmt.Sprintf("options *%sOptions", op.GoName))
+	}
 	return strings.Join(params, ", ")
 }
 
@@ -959,7 +961,7 @@ func generateOptionalInputsStruct(op introspection.Operation) string {
 		}
 	}
 
-	result.WriteString("\t}\n}\n\n")
+	result.WriteString("\t}\n}\n")
 
 	return result.String()
 }
