@@ -907,7 +907,7 @@ func generateOptionalInputsStruct(op introspection.Operation) string {
 
 		// Add comment with description if available
 		if opt.Description != "" {
-			result.WriteString(fmt.Sprintf("\t// %s\n", opt.Description))
+			result.WriteString(fmt.Sprintf("\t// %s %s\n", fieldName, opt.Description))
 		}
 
 		result.WriteString(fmt.Sprintf("\t%s %s\n", fieldName, fieldType))
