@@ -916,9 +916,9 @@ func generateOptionalInputsStruct(op introspection.Operation) string {
 	result.WriteString("}\n\n")
 
 	// Create a constructor with default values
-	result.WriteString(fmt.Sprintf("// New%s creates default optional arguments for vips_%s\n",
+	result.WriteString(fmt.Sprintf("// Default%s creates default value for vips_%s optional arguments\n",
 		structName, op.Name))
-	result.WriteString(fmt.Sprintf("func New%s() *%s {\n", structName, structName))
+	result.WriteString(fmt.Sprintf("func Default%s() *%s {\n", structName, structName))
 	result.WriteString(fmt.Sprintf("\treturn &%s{\n", structName))
 
 	// Add default values for each parameter
