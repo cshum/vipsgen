@@ -41,23 +41,13 @@ type VipsParamInfo struct {
 	IsVarArgs  bool
 }
 
-// DebugInfo stores debug information during parsing
-type DebugInfo struct {
-	ProcessedFunctions         int
-	FoundFunctionNames         []string
-	MissingCIdentifierIncluded int
-}
-
 // Introspection provides discovery and analysis of libvips operations
 // through reflection of the C library's type system, extracting operation
 // metadata, argument details, and supported enum types.
 type Introspection struct {
-	discoveredEnumTypes map[string]string
-	enumTypeNames       []enumTypeName
-	// Parsed function info
-	functionInfo []VipsFunctionInfo
-	// Debug info from parsing
-	debugInfo            *DebugInfo
+	discoveredEnumTypes  map[string]string
+	enumTypeNames        []enumTypeName
+	functionInfo         []VipsFunctionInfo
 	discoveredImageTypes map[string]ImageTypeInfo
 }
 
