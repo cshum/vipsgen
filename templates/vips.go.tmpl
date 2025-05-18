@@ -9,23 +9,9 @@ import (
 )
 
 {{range .Operations}}
-// vipsgen{{.GoName}} {{.Description}}
-func vipsgen{{.GoName}}({{formatGoArgList . false}}) ({{formatReturnTypes .}}) {
-	{{formatVarDeclarations . false}}
-	if err := C.vipsgen_{{.Name}}({{formatFunctionCallArgs . false}}); err != 0 {
-		{{formatErrorReturn .HasOneImageOutput .HasBufferOutput .RequiredOutputs}}
-	}
-	{{formatReturnValues .}}
-}
+{{formatGoFunctionBody . false}}
 {{if gt (len .OptionalInputs) 0}}
-// vipsgen{{.GoName}}WithOptions {{.Description}} with optional arguments
-func vipsgen{{.GoName}}WithOptions({{formatGoArgList . true}}) ({{formatReturnTypes .}}) {
-	{{formatVarDeclarations . true}}
-	if err := C.vipsgen_{{.Name}}_with_options({{formatFunctionCallArgs . true}}); err != 0 {
-		{{formatErrorReturn .HasOneImageOutput .HasBufferOutput .RequiredOutputs}}
-	}
-	{{formatReturnValues .}}
-}
+{{formatGoFunctionBody . true}}
 {{end}}{{end}}
 
 // https://www.libvips.org/API/current/VipsImage.html#vips-image-new-from-source

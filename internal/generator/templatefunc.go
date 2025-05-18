@@ -10,6 +10,7 @@ import (
 // GetTemplateFuncMap Helper functions for templates
 func GetTemplateFuncMap() template.FuncMap {
 	return template.FuncMap{
+		"formatGoFunctionBody":                formatGoFunctionBody,
 		"formatErrorReturn":                   formatErrorReturn,
 		"formatGoArgList":                     formatGoArgList,
 		"formatReturnTypes":                   formatReturnTypes,
@@ -55,6 +56,49 @@ func formatDefaultValue(goType string) string {
 	return "0"
 }
 
+// formatGoFunctionBody generates the shared body for Go wrapper functions
+func formatGoFunctionBody(op introspection.Operation, withOptions bool) string {
+	var result strings.Builder
+	// Function name and comment
+	if withOptions {
+		result.WriteString(fmt.Sprintf("// vipsgen%sWithOptions %s with optional arguments\n",
+			op.GoName, op.Description))
+		result.WriteString(fmt.Sprintf("func vipsgen%sWithOptions(", op.GoName))
+	} else {
+		result.WriteString(fmt.Sprintf("// vipsgen%s %s\n", op.GoName, op.Description))
+		result.WriteString(fmt.Sprintf("func vipsgen%s(", op.GoName))
+	}
+
+	// Function arguments
+	result.WriteString(formatGoArgList(op, withOptions))
+	result.WriteString(") (")
+	result.WriteString(formatReturnTypes(op))
+	result.WriteString(") {\n    ")
+
+	// Variable declarations
+	result.WriteString(formatVarDeclarations(op, withOptions))
+	result.WriteString("\n    ")
+
+	// Function call
+	if withOptions {
+		result.WriteString(fmt.Sprintf("if err := C.vipsgen_%s_with_options(", op.Name))
+	} else {
+		result.WriteString(fmt.Sprintf("if err := C.vipsgen_%s(", op.Name))
+	}
+	result.WriteString(formatFunctionCallArgs(op, withOptions))
+	result.WriteString("); err != 0 {\n        ")
+
+	// Error handling
+	result.WriteString(formatErrorReturn(op.HasOneImageOutput, op.HasBufferOutput, op.RequiredOutputs))
+	result.WriteString("\n    }\n    ")
+
+	// Return values
+	result.WriteString(formatReturnValues(op))
+	result.WriteString("\n}")
+
+	return result.String()
+}
+
 // formatErrorReturn formats the error return statement for a function
 func formatErrorReturn(HasOneImageOutput, hasBufferOutput bool, outputs []introspection.Argument) string {
 	if HasOneImageOutput {
@@ -78,7 +122,7 @@ func formatErrorReturn(HasOneImageOutput, hasBufferOutput bool, outputs []intros
 
 // formatGoArgList formats a list of function arguments for a Go function
 // e.g., "in *C.VipsImage, c []float64, n int"
-func formatGoArgList(op *introspection.Operation, withOptions bool) string {
+func formatGoArgList(op introspection.Operation, withOptions bool) string {
 	args := op.Arguments
 	if withOptions {
 		args = append(args, op.OptionalInputs...)
