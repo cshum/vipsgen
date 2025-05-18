@@ -444,6 +444,7 @@ func formatFunctionCall(op introspection.Operation) string {
 func formatImageMethodBody(op introspection.Operation) string {
 	methodArgs := detectMethodArguments(op)
 	goFuncName := "vipsgen" + op.GoName
+	goFuncNameWithOptions := "vipsgen" + op.GoName + "WithOptions"
 
 	// Format the arguments for the function call
 	var callArgs []string
@@ -461,7 +462,39 @@ func formatImageMethodBody(op introspection.Operation) string {
 
 	// Generate different function bodies based on operation type
 	if op.HasOneImageOutput {
-		return fmt.Sprintf(`out, err := %s(%s)
+		var body string
+
+		// Handle options if present
+		if len(op.OptionalInputs) > 0 {
+			// Create options arguments
+			var optionsCallArgs = make([]string, len(callArgs))
+			copy(optionsCallArgs, callArgs)
+
+			for _, opt := range op.OptionalInputs {
+				var optStr string
+				if opt.GoType == "*C.VipsImage" {
+					optStr = fmt.Sprintf("options.%s.image", strings.Title(opt.GoName))
+				} else if opt.GoType == "[]*C.VipsImage" {
+					optStr = fmt.Sprintf("convertImagesToVipsImages(options.%s)", strings.Title(opt.GoName))
+				} else {
+					optStr = fmt.Sprintf("options.%s", strings.Title(opt.GoName))
+				}
+				optionsCallArgs = append(optionsCallArgs, optStr)
+			}
+
+			body = fmt.Sprintf(`if options != nil {
+		out, err := %s(%s)
+		if err != nil {
+			return err
+		}
+		r.setImage(out)
+		return nil
+	}
+	`, goFuncNameWithOptions, strings.Join(optionsCallArgs, ", "))
+		}
+
+		// Add regular function call
+		body += fmt.Sprintf(`out, err := %s(%s)
 	if err != nil {
 		return err
 	}
@@ -469,48 +502,138 @@ func formatImageMethodBody(op introspection.Operation) string {
 	return nil`,
 			goFuncName,
 			strings.Join(callArgs, ", "))
+		return body
 	} else if op.HasBufferOutput {
-		return fmt.Sprintf(`buf, err := %s(%s)
+		var body string
+
+		// Handle options if present
+		if len(op.OptionalInputs) > 0 {
+			// Create options arguments
+			var optionsCallArgs = make([]string, len(callArgs))
+			copy(optionsCallArgs, callArgs)
+
+			for _, opt := range op.OptionalInputs {
+				var optStr string
+				if opt.GoType == "*C.VipsImage" {
+					optStr = fmt.Sprintf("options.%s.image", strings.Title(opt.GoName))
+				} else if opt.GoType == "[]*C.VipsImage" {
+					optStr = fmt.Sprintf("convertImagesToVipsImages(options.%s)", strings.Title(opt.GoName))
+				} else {
+					optStr = fmt.Sprintf("options.%s", strings.Title(opt.GoName))
+				}
+				optionsCallArgs = append(optionsCallArgs, optStr)
+			}
+
+			// For buffer output with options
+			body = fmt.Sprintf(`if options != nil {
+		buf, err := %s(%s)
+		if err != nil {
+			return nil, err
+		}
+		return buf, nil
+	}
+	`, goFuncNameWithOptions, strings.Join(optionsCallArgs, ", "))
+		}
+
+		body += fmt.Sprintf(`buf, err := %s(%s)
 	if err != nil {
 		return nil, err
 	}
 	return buf, nil`,
 			goFuncName,
 			strings.Join(callArgs, ", "))
+		return body
 	} else if len(op.RequiredOutputs) > 0 {
 		// Check for specific operation patterns that need special handling
 		if hasVectorReturn(op) {
 			// For vector-returning operations like getpoint
-			return fmt.Sprintf(`vector, n, err := %s(%s)
+			var body string
+
+			// Handle options if present
+			if len(op.OptionalInputs) > 0 {
+				// Create options arguments
+				var optionsCallArgs = make([]string, len(callArgs))
+				copy(optionsCallArgs, callArgs)
+
+				for _, opt := range op.OptionalInputs {
+					var optStr string
+					if opt.GoType == "*C.VipsImage" {
+						optStr = fmt.Sprintf("options.%s.image", strings.Title(opt.GoName))
+					} else if opt.GoType == "[]*C.VipsImage" {
+						optStr = fmt.Sprintf("convertImagesToVipsImages(options.%s)", strings.Title(opt.GoName))
+					} else {
+						optStr = fmt.Sprintf("options.%s", strings.Title(opt.GoName))
+					}
+					optionsCallArgs = append(optionsCallArgs, optStr)
+				}
+
+				// With options for vector return
+				body = fmt.Sprintf(`if options != nil {
+		vector, n, err := %s(%s)
+		if err != nil {
+			return nil, 0, err
+		}
+		return vector, n, nil
+	}
+	`, goFuncNameWithOptions, strings.Join(optionsCallArgs, ", "))
+			}
+
+			body += fmt.Sprintf(`vector, n, err := %s(%s)
 	if err != nil {
 		return nil, 0, err
 	}
 	return vector, n, nil`,
 				goFuncName,
 				strings.Join(callArgs, ", "))
+			return body
 		} else if isSingleFloatReturn(op) {
 			// For single float-returning operations like avg
-			return fmt.Sprintf(`out, err := %s(%s)
+			var body string
+
+			// Handle options if present
+			if len(op.OptionalInputs) > 0 {
+				// Create options arguments
+				var optionsCallArgs = make([]string, len(callArgs))
+				copy(optionsCallArgs, callArgs)
+
+				for _, opt := range op.OptionalInputs {
+					var optStr string
+					if opt.GoType == "*C.VipsImage" {
+						optStr = fmt.Sprintf("options.%s.image", strings.Title(opt.GoName))
+					} else if opt.GoType == "[]*C.VipsImage" {
+						optStr = fmt.Sprintf("convertImagesToVipsImages(options.%s)", strings.Title(opt.GoName))
+					} else {
+						optStr = fmt.Sprintf("options.%s", strings.Title(opt.GoName))
+					}
+					optionsCallArgs = append(optionsCallArgs, optStr)
+				}
+
+				// With options for float return
+				body = fmt.Sprintf(`if options != nil {
+		out, err := %s(%s)
+		if err != nil {
+			return 0, err
+		}
+		return out, nil
+	}
+	`, goFuncNameWithOptions, strings.Join(optionsCallArgs, ", "))
+			}
+
+			body += fmt.Sprintf(`out, err := %s(%s)
 	if err != nil {
 		return 0, err
 	}
 	return out, nil`,
 				goFuncName,
 				strings.Join(callArgs, ", "))
+			return body
 		} else if op.HasImageOutput {
 			// For operations that return images
-
 			// Get the names of the result variables
 			var resultVars []string
 			for _, arg := range op.RequiredOutputs {
 				resultVars = append(resultVars, arg.GoName)
 			}
-
-			// Form the function call line
-			callLine := fmt.Sprintf("%s, err := %s(%s)",
-				strings.Join(resultVars, ", "),
-				goFuncName,
-				strings.Join(callArgs, ", "))
 
 			// Form the error return line
 			var errorValues []string
@@ -533,6 +656,74 @@ func formatImageMethodBody(op introspection.Operation) string {
 			}
 			errorLine := "return " + strings.Join(errorValues, ", ") + ", err"
 
+			var body string
+
+			// Handle options if present
+			if len(op.OptionalInputs) > 0 {
+				// Create options arguments
+				var optionsCallArgs = make([]string, len(callArgs))
+				copy(optionsCallArgs, callArgs)
+
+				for _, opt := range op.OptionalInputs {
+					var optStr string
+					if opt.GoType == "*C.VipsImage" {
+						optStr = fmt.Sprintf("options.%s.image", strings.Title(opt.GoName))
+					} else if opt.GoType == "[]*C.VipsImage" {
+						optStr = fmt.Sprintf("convertImagesToVipsImages(options.%s)", strings.Title(opt.GoName))
+					} else {
+						optStr = fmt.Sprintf("options.%s", strings.Title(opt.GoName))
+					}
+					optionsCallArgs = append(optionsCallArgs, optStr)
+				}
+
+				// Create options block for image output
+				optionsResultVars := make([]string, len(resultVars))
+				copy(optionsResultVars, resultVars)
+
+				optionsErrorLine := errorLine // Same error line applies
+
+				// Form conversion code for each image output with options
+				var optionsConversionCode strings.Builder
+				for i, arg := range op.RequiredOutputs {
+					if arg.GoType == "*C.VipsImage" {
+						// Convert *C.VipsImage to *Image
+						optionsConversionCode.WriteString(fmt.Sprintf(`
+		%sImage := newImageRef(%s, r.format, nil)`,
+							arg.GoName, arg.GoName))
+						optionsResultVars[i] = arg.GoName + "Image"
+					} else if arg.GoType == "[]*C.VipsImage" {
+						// Convert []*C.VipsImage to []*Image
+						optionsConversionCode.WriteString(fmt.Sprintf(`
+		%sImages := convertVipsImagesToImages(%s)`,
+							arg.GoName, arg.GoName))
+						optionsResultVars[i] = arg.GoName + "Images"
+					}
+				}
+
+				optionsSuccessLine := "return " + strings.Join(optionsResultVars, ", ") + ", nil"
+
+				body = fmt.Sprintf(`if options != nil {
+		%s, err := %s(%s)
+		if err != nil {
+			%s
+		}%s
+		%s
+	}
+	`,
+					strings.Join(resultVars, ", "),
+					goFuncNameWithOptions,
+					strings.Join(optionsCallArgs, ", "),
+					optionsErrorLine,
+					optionsConversionCode.String(),
+					optionsSuccessLine)
+			}
+
+			// Form the function call line
+			callLine := fmt.Sprintf("%s, err := %s(%s)",
+				strings.Join(resultVars, ", "),
+				goFuncName,
+				strings.Join(callArgs, ", "))
+
 			// Form the conversion code for each image output
 			var conversionCode strings.Builder
 			for i, arg := range op.RequiredOutputs {
@@ -554,25 +745,19 @@ func formatImageMethodBody(op introspection.Operation) string {
 			// Form the success return line
 			successLine := "return " + strings.Join(resultVars, ", ") + ", nil"
 
-			return callLine + `
+			body += callLine + `
 	if err != nil {
 		` + errorLine + `
 	}` + conversionCode.String() + `
 	` + successLine
+			return body
 		} else {
 			// Regular operation with non-image outputs
-
 			// Get the names of the result variables
 			var resultVars []string
 			for _, arg := range op.RequiredOutputs {
 				resultVars = append(resultVars, arg.GoName)
 			}
-
-			// Form the function call line
-			callLine := fmt.Sprintf("%s, err := %s(%s)",
-				strings.Join(resultVars, ", "),
-				goFuncName,
-				strings.Join(callArgs, ", "))
 
 			// Form the error return line
 			var errorValues []string
@@ -593,23 +778,98 @@ func formatImageMethodBody(op introspection.Operation) string {
 			}
 			errorLine := "return " + strings.Join(errorValues, ", ") + ", err"
 
+			var body string
+
+			// Handle options if present
+			if len(op.OptionalInputs) > 0 {
+				// Create options arguments
+				var optionsCallArgs = make([]string, len(callArgs))
+				copy(optionsCallArgs, callArgs)
+
+				for _, opt := range op.OptionalInputs {
+					var optStr string
+					if opt.GoType == "*C.VipsImage" {
+						optStr = fmt.Sprintf("options.%s.image", strings.Title(opt.GoName))
+					} else if opt.GoType == "[]*C.VipsImage" {
+						optStr = fmt.Sprintf("convertImagesToVipsImages(options.%s)", strings.Title(opt.GoName))
+					} else {
+						optStr = fmt.Sprintf("options.%s", strings.Title(opt.GoName))
+					}
+					optionsCallArgs = append(optionsCallArgs, optStr)
+				}
+
+				// Options block for regular output
+				body = fmt.Sprintf(`if options != nil {
+		%s, err := %s(%s)
+		if err != nil {
+			%s
+		}
+		return %s, nil
+	}
+	`,
+					strings.Join(resultVars, ", "),
+					goFuncNameWithOptions,
+					strings.Join(optionsCallArgs, ", "),
+					errorLine,
+					strings.Join(resultVars, ", "))
+			}
+
+			// Form the function call line
+			callLine := fmt.Sprintf("%s, err := %s(%s)",
+				strings.Join(resultVars, ", "),
+				goFuncName,
+				strings.Join(callArgs, ", "))
+
 			// Form the success return line
 			successLine := "return " + strings.Join(resultVars, ", ") + ", nil"
 
-			return callLine + `
+			body += callLine + `
 	if err != nil {
 		` + errorLine + `
 	}
 	` + successLine
+			return body
 		}
 	} else {
-		return fmt.Sprintf(`err := %s(%s)
+		// Simple void return operation
+		var body string
+
+		// Handle options if present
+		if len(op.OptionalInputs) > 0 {
+			// Create options arguments
+			var optionsCallArgs = make([]string, len(callArgs))
+			copy(optionsCallArgs, callArgs)
+
+			for _, opt := range op.OptionalInputs {
+				var optStr string
+				if opt.GoType == "*C.VipsImage" {
+					optStr = fmt.Sprintf("options.%s.image", strings.Title(opt.GoName))
+				} else if opt.GoType == "[]*C.VipsImage" {
+					optStr = fmt.Sprintf("convertImagesToVipsImages(options.%s)", strings.Title(opt.GoName))
+				} else {
+					optStr = fmt.Sprintf("options.%s", strings.Title(opt.GoName))
+				}
+				optionsCallArgs = append(optionsCallArgs, optStr)
+			}
+
+			body = fmt.Sprintf(`if options != nil {
+		err := %s(%s)
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+	`, goFuncNameWithOptions, strings.Join(optionsCallArgs, ", "))
+		}
+
+		body += fmt.Sprintf(`err := %s(%s)
 	if err != nil {
 		return err
 	}
 	return nil`,
 			goFuncName,
 			strings.Join(callArgs, ", "))
+		return body
 	}
 }
 
@@ -731,6 +991,8 @@ func formatCreatorMethodBody(op introspection.Operation) string {
 	inputParams := op.RequiredInputs
 	var hasBufParam bool
 	goFuncName := "vipsgen" + op.GoName
+	goFuncNameWithOptions := "vipsgen" + op.GoName + "WithOptions"
+
 	var callArgs []string
 	for _, arg := range inputParams {
 		if arg.GoType == "*C.VipsImage" {
@@ -746,12 +1008,52 @@ func formatCreatorMethodBody(op introspection.Operation) string {
 			callArgs = append(callArgs, arg.GoName)
 		}
 	}
+
 	var imageRefBuf = "nil"
 	if op.HasBufferInput {
 		imageRefBuf = "buf"
 	}
-	return fmt.Sprintf(`StartupDefault()
-	vipsImage, err := %s(%s)
+
+	var body string
+
+	// Add startup line
+	body = "StartupDefault()\n\t"
+
+	// Handle options if present
+	if len(op.OptionalInputs) > 0 {
+		// Create options arguments
+		var optionsCallArgs = make([]string, len(callArgs))
+		copy(optionsCallArgs, callArgs)
+
+		for _, opt := range op.OptionalInputs {
+			var optStr string
+			if opt.GoType == "*C.VipsImage" {
+				optStr = fmt.Sprintf("options.%s.image", strings.Title(opt.GoName))
+			} else if opt.GoType == "[]*C.VipsImage" {
+				optStr = fmt.Sprintf("convertImagesToVipsImages(options.%s)", strings.Title(opt.GoName))
+			} else {
+				optStr = fmt.Sprintf("options.%s", strings.Title(opt.GoName))
+			}
+			optionsCallArgs = append(optionsCallArgs, optStr)
+		}
+
+		// Add options handling block
+		body += fmt.Sprintf(`if options != nil {
+		vipsImage, err := %s(%s)
+		if err != nil {
+			return nil, err
+		}
+		return newImageRef(vipsImage, %s, %s), nil
+	}
+	`,
+			goFuncNameWithOptions,
+			strings.Join(optionsCallArgs, ", "),
+			op.ImageTypeString,
+			imageRefBuf)
+	}
+
+	// Add regular function call
+	body += fmt.Sprintf(`vipsImage, err := %s(%s)
 	if err != nil {
 		return nil, err
 	}
@@ -760,6 +1062,8 @@ func formatCreatorMethodBody(op introspection.Operation) string {
 		strings.Join(callArgs, ", "),
 		op.ImageTypeString,
 		imageRefBuf)
+
+	return body
 }
 
 // formatCFunctionSignature generates just the function signature for vips operations
