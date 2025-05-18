@@ -1346,7 +1346,6 @@ func formatCFunctionImplementation(op introspection.Operation) string {
 	var result strings.Builder
 
 	// Check if any argument is an array type
-	hasRequiredArray := hasRequiredArrayParams(op)
 	hasOptionalArray := false
 
 	// Map of optional array arguments to their types
@@ -1371,11 +1370,6 @@ func formatCFunctionImplementation(op introspection.Operation) string {
 	} else {
 		result.WriteString(formatCFunctionSignature(op, true))
 		result.WriteString(" {\n")
-
-		// For functions with required array parameters, add a comment about direct passing
-		if hasRequiredArray {
-			result.WriteString("    // Function has required array parameters - passing arrays directly\n")
-		}
 
 		result.WriteString(fmt.Sprintf("    return vips_%s(", op.Name))
 		for i, arg := range op.Arguments {
@@ -1418,16 +1412,8 @@ func formatCFunctionImplementation(op introspection.Operation) string {
 		}
 		result.WriteString(") {\n")
 
-		// Add comment about required arrays if present
-		if hasRequiredArray {
-			result.WriteString("    // Function has required array parameters - these are passed directly\n\n")
-		}
-
 		// Handle array arguments by creating VipsArray objects - only for optional inputs
 		if hasOptionalArray {
-			// Add comment about optional arrays
-			result.WriteString("    // Create VipsArray objects for optional array parameters\n")
-
 			for name, arrayType := range optionalArrayArgs {
 				if arrayType == "double" {
 					result.WriteString(fmt.Sprintf("    VipsArrayDouble *%s_array = NULL;\n", name))
@@ -1449,7 +1435,6 @@ func formatCFunctionImplementation(op introspection.Operation) string {
 		}
 
 		// Call the vips function
-		result.WriteString("    // Call the vips function\n")
 		result.WriteString(fmt.Sprintf("    int result = vips_%s(", op.Name))
 
 		// Add regular arguments
@@ -1485,7 +1470,6 @@ func formatCFunctionImplementation(op introspection.Operation) string {
 
 		// Clean up array objects
 		if hasOptionalArray {
-			result.WriteString("    // Clean up array objects\n")
 			for name := range optionalArrayArgs {
 				result.WriteString(fmt.Sprintf("    if (%s_array) {\n", name))
 				result.WriteString(fmt.Sprintf("        vips_area_unref(VIPS_AREA(%s_array));\n", name))
@@ -1588,14 +1572,4 @@ func generateOptionalInputsStruct(op introspection.Operation) string {
 	result.WriteString("\t}\n}\n")
 
 	return result.String()
-}
-
-// Helper function to check if an operation has array parameters in required arguments
-func hasRequiredArrayParams(op introspection.Operation) bool {
-	for _, arg := range op.Arguments {
-		if strings.HasPrefix(arg.GoType, "[]") && !arg.IsOutput {
-			return true
-		}
-	}
-	return false
 }
