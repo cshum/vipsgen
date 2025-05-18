@@ -41,6 +41,14 @@ func (r *Image) {{.GoName}}({{formatImageMethodParams .}}) ({{formatImageMethodR
 }
 {{end}}{{end}}
 
+{{range .Operations}}{{if and (or (not .HasImageInput) .HasArrayImageInput) (not .HasImageOutput)}}
+// {{.GoName}} {{.Description}}
+func {{.GoName}}({{formatCreatorMethodParams .}}) ([]byte, error) {
+    StartupDefault()
+    return vipsgen{{.GoName}}({{formatFunctionCallArgsWithoutThis .}})
+}
+{{end}}{{end}}
+
 // LoadOptions are options for loading an image. Some are type-specific.
 // For default loading, use NewDefaultLoadOptions() or specify nil
 type LoadOptions struct {

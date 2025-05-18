@@ -28,6 +28,7 @@ func GetTemplateFuncMap() template.FuncMap {
 		"formatCFunctionDeclaration":          formatCFunctionDeclaration,
 		"formatCFunctionImplementation":       formatCFunctionImplementation,
 		"generateOptionalInputsStruct":        generateOptionalInputsStruct,
+		"formatFunctionCallArgsWithoutThis":   formatFunctionCallArgsWithoutThis,
 	}
 }
 
@@ -1592,4 +1593,22 @@ func generateOptionalInputsStruct(op introspection.Operation) string {
 	result.WriteString("\t}\n}\n")
 
 	return result.String()
+}
+
+// formatFunctionCallArgsWithoutThis formats function call arguments without the 'this' pointer
+func formatFunctionCallArgsWithoutThis(op introspection.Operation) string {
+	var args []string
+	for _, arg := range op.RequiredInputs {
+		if arg.IsNInput {
+			continue
+		}
+		if arg.GoType == "*C.VipsImage" {
+			args = append(args, fmt.Sprintf("%s.image", arg.GoName))
+		} else if arg.GoType == "[]*C.VipsImage" {
+			args = append(args, fmt.Sprintf("convertImagesToVipsImages(%s)", arg.GoName))
+		} else {
+			args = append(args, arg.GoName)
+		}
+	}
+	return strings.Join(args, ", ")
 }
