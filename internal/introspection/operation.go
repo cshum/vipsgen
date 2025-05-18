@@ -455,6 +455,14 @@ func (v *Introspection) mapGTypeToTypes(gtype C.GType, typeName string, isOutput
 		return "VipsInterpolate", "*Interpolate", "VipsInterpolate*"
 	}
 
+	// Special case for VipsBlob which needs special output handling
+	if cTypeCheck(gtype, "VipsBlob") {
+		if isOutput {
+			return "VipsBlob", "[]byte", "VipsBlob**"
+		}
+		return "VipsBlob", "[]byte", "void*"
+	}
+
 	// Handle other common vips array types
 	switch {
 	case cTypeCheck(gtype, "VipsArrayInt"):
@@ -463,8 +471,6 @@ func (v *Introspection) mapGTypeToTypes(gtype C.GType, typeName string, isOutput
 		return "VipsArrayDouble", "[]float64", addOutputPointer("double*", isOutput)
 	case cTypeCheck(gtype, "VipsArrayImage"):
 		return "VipsArrayImage", "[]*C.VipsImage", "VipsImage**"
-	case cTypeCheck(gtype, "VipsBlob"):
-		return "VipsBlob", "[]byte", addOutputPointer("void*", isOutput)
 	}
 
 	// Check if this is an object type (not just VipsImage and VipsInterpolate)

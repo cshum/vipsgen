@@ -28,6 +28,7 @@ func GetTemplateFuncMap() template.FuncMap {
 		"formatCFunctionDeclaration":          formatCFunctionDeclaration,
 		"formatCFunctionImplementation":       formatCFunctionImplementation,
 		"generateOptionalInputsStruct":        generateOptionalInputsStruct,
+		"formatFunctionCallArgsWithoutThis":   formatFunctionCallArgsWithoutThis,
 	}
 }
 
@@ -219,10 +220,28 @@ func formatVarDeclarations(op introspection.Operation, withOptions bool) string 
 	if op.HasOneImageOutput {
 		decls = append(decls, "var out *C.VipsImage")
 	} else if op.HasBufferOutput {
-		decls = append(decls, "var buf unsafe.Pointer")
-		decls = append(decls, "var length C.size_t")
+		// Check if we have a VipsBlob output parameter
+		hasVipsBlob := false
+		for _, arg := range op.RequiredOutputs {
+			if arg.CType == "VipsBlob**" && arg.IsOutput {
+				hasVipsBlob = true
+				decls = append(decls, fmt.Sprintf("var %s *C.VipsBlob", arg.GoName))
+				break
+			}
+		}
+
+		if !hasVipsBlob {
+			// Regular buffer output
+			decls = append(decls, "var buf unsafe.Pointer")
+			decls = append(decls, "var length C.size_t")
+		}
 	} else {
 		for _, arg := range op.RequiredOutputs {
+			// Special handling for VipsBlob
+			if arg.CType == "VipsBlob**" && arg.IsOutput {
+				decls = append(decls, fmt.Sprintf("var %s *C.VipsBlob", arg.GoName))
+				continue
+			}
 			// Special handling for vector/array outputs
 			if arg.Name == "vector" || arg.Name == "out_array" {
 				decls = append(decls, "var out *C.double")
@@ -568,6 +587,12 @@ func formatFunctionCallArgs(op introspection.Operation, withOptions bool) string
 
 // formatReturnValues formats the return values for the Go function
 func formatReturnValues(op introspection.Operation) string {
+	// Special handling for VipsBlob
+	for _, arg := range op.RequiredOutputs {
+		if arg.CType == "VipsBlob**" && arg.IsOutput {
+			return fmt.Sprintf("return vipsBlobToBytes(%s), nil", arg.GoName)
+		}
+	}
 	if op.HasOneImageOutput {
 		return "return out, nil"
 	} else if op.HasBufferOutput {
@@ -1568,4 +1593,22 @@ func generateOptionalInputsStruct(op introspection.Operation) string {
 	result.WriteString("\t}\n}\n")
 
 	return result.String()
+}
+
+// formatFunctionCallArgsWithoutThis formats function call arguments without the 'this' pointer
+func formatFunctionCallArgsWithoutThis(op introspection.Operation) string {
+	var args []string
+	for _, arg := range op.RequiredInputs {
+		if arg.IsNInput {
+			continue
+		}
+		if arg.GoType == "*C.VipsImage" {
+			args = append(args, fmt.Sprintf("%s.image", arg.GoName))
+		} else if arg.GoType == "[]*C.VipsImage" {
+			args = append(args, fmt.Sprintf("convertImagesToVipsImages(%s)", arg.GoName))
+		} else {
+			args = append(args, arg.GoName)
+		}
+	}
+	return strings.Join(args, ", ")
 }

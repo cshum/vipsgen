@@ -430,3 +430,15 @@ func freeImageArray(array **C.VipsImage) {
 		C.free(unsafe.Pointer(array))
 	}
 }
+
+// vipsBlobToBytes converts a VipsBlob to a Go byte slice and unrefs the blob
+func vipsBlobToBytes(blob *C.VipsBlob) []byte {
+    if blob == nil {
+        return nil
+    }
+    var size C.size_t
+    ptr := C.vips_blob_get(blob, &size)
+    data := C.GoBytes(ptr, C.int(size))
+    C.vips_area_unref((*C.VipsArea)(unsafe.Pointer(blob)))
+    return data
+}
