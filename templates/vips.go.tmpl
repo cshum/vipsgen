@@ -9,28 +9,14 @@ import (
 )
 
 {{range .Operations}}
-// vipsgen{{.GoName}} {{.Description}}
-func vipsgen{{.GoName}}({{formatGoArgList . false}}) ({{formatReturnTypes .}}) {
-	{{formatVarDeclarations . false}}
-	if err := C.vipsgen_{{.Name}}({{formatFunctionCallArgs . false}}); err != 0 {
-		{{formatErrorReturn .HasOneImageOutput .HasBufferOutput .RequiredOutputs}}
-	}
-	{{formatReturnValues .}}
-}
+{{formatGoFunctionBody . false}}
 {{if gt (len .OptionalInputs) 0}}
-// vipsgen{{.GoName}}WithOptions {{.Description}} with optional arguments
-func vipsgen{{.GoName}}WithOptions({{formatGoArgList . true}}) ({{formatReturnTypes .}}) {
-	{{formatVarDeclarations . true}}
-	if err := C.vipsgen_{{.Name}}_with_options({{formatFunctionCallArgs . true}}); err != 0 {
-		{{formatErrorReturn .HasOneImageOutput .HasBufferOutput .RequiredOutputs}}
-	}
-	{{formatReturnValues .}}
-}
+{{formatGoFunctionBody . true}}
 {{end}}{{end}}
 
 // https://www.libvips.org/API/current/VipsImage.html#vips-image-new-from-source
 func vipsImageFromSource(
-	src *C.VipsSourceCustom, params *LoadParams,
+	src *C.VipsSourceCustom, params *LoadOptions,
 ) (*C.VipsImage, ImageType, error) {
 	var out *C.VipsImage
 	var code C.int
@@ -56,7 +42,7 @@ func vipsImageFromSource(
 }
 
 // https://www.libvips.org/API/current/VipsImage.html#vips-image-new-from-buffer
-func vipsImageFromBuffer(buf []byte, params *LoadParams) (*C.VipsImage, ImageType, error) {
+func vipsImageFromBuffer(buf []byte, params *LoadOptions) (*C.VipsImage, ImageType, error) {
 	src := buf
 	// Reference src here so it's not garbage collected during image initialization.
 	defer runtime.KeepAlive(src)
@@ -84,7 +70,7 @@ func vipsImageFromBuffer(buf []byte, params *LoadParams) (*C.VipsImage, ImageTyp
 }
 
 // https://www.libvips.org/API/current/VipsImage.html#vips-image-new-from-file
-func vipsImageFromFile(path string, params *LoadParams) (*C.VipsImage, ImageType, error) {
+func vipsImageFromFile(path string, params *LoadOptions) (*C.VipsImage, ImageType, error) {
 	// Append options to the filename if needed
 	filenameOption := path
 	if params != nil && params.OptionString() != "" {
@@ -107,7 +93,7 @@ func vipsImageFromFile(path string, params *LoadParams) (*C.VipsImage, ImageType
 
 // https://www.libvips.org/API/current/libvips-resample.html#vips-thumbnail
 func vipsThumbnailFromFile(
-	path string, width, height int, crop Interesting, size Size, params *LoadParams) (*C.VipsImage, ImageType, error) {
+	path string, width, height int, crop Interesting, size Size, params *LoadOptions) (*C.VipsImage, ImageType, error) {
 
 	// Append options to the filename if needed
 	filenameOption := path
@@ -131,7 +117,7 @@ func vipsThumbnailFromFile(
 
 // https://www.libvips.org/API/current/libvips-resample.html#vips-thumbnail-buffer
 func vipsThumbnailFromBuffer(
-	buf []byte, width, height int, crop Interesting, size Size, params *LoadParams) (*C.VipsImage, ImageType, error) {
+	buf []byte, width, height int, crop Interesting, size Size, params *LoadOptions) (*C.VipsImage, ImageType, error) {
 	src := buf
 	// Reference src here so it's not garbage collected during image initialization.
 	defer runtime.KeepAlive(src)
@@ -181,7 +167,7 @@ func vipsImageFromMemory(buf []byte, width, height, bands int) (*C.VipsImage, Im
 
 // https://www.libvips.org/API/current/libvips-resample.html#vips-thumbnail-source
 func vipsThumbnailFromSource(
-	src *C.VipsSourceCustom, width, height int, crop Interesting, size Size, params *LoadParams) (*C.VipsImage, ImageType, error) {
+	src *C.VipsSourceCustom, width, height int, crop Interesting, size Size, params *LoadOptions) (*C.VipsImage, ImageType, error) {
 	var out *C.VipsImage
 	var code C.int
 	var optionString string
@@ -207,30 +193,6 @@ func vipsThumbnailFromSource(
 
 func vipsHasAlpha(in *C.VipsImage) bool {
 	return int(C.has_alpha_channel(in)) > 0
-}
-
-// https://libvips.github.io/libvips/API/current/libvips-conversion.html#vips-embed
-func vipsEmbed(in *C.VipsImage, left, top, width, height int, extend Extend) (*C.VipsImage, error) {
-	var out *C.VipsImage
-
-	if err := C.embed_image(in, &out, C.int(left), C.int(top), C.int(width), C.int(height), C.int(extend)); err != 0 {
-		return nil, handleImageError(out)
-	}
-
-	return out, nil
-}
-
-// https://libvips.github.io/libvips/API/current/libvips-conversion.html#vips-embed
-func vipsEmbedBackground(in *C.VipsImage, left, top, width, height int, backgroundColor *ColorRGBA) (*C.VipsImage, error) {
-	var out *C.VipsImage
-
-	if err := C.embed_image_background(in, &out, C.int(left), C.int(top), C.int(width),
-		C.int(height), C.double(backgroundColor.R),
-		C.double(backgroundColor.G), C.double(backgroundColor.B), C.double(backgroundColor.A)); err != 0 {
-		return nil, handleImageError(out)
-	}
-
-	return out, nil
 }
 
 func vipsEmbedMultiPage(in *C.VipsImage, left, top, width, height int, extend Extend) (*C.VipsImage, error) {
@@ -268,11 +230,9 @@ func vipsExtractAreaMultiPage(in *C.VipsImage, left, top, width, height int) (*C
 // https://libvips.github.io/libvips/API/current/libvips-conversion.html#vips-rot
 func vipsRotateMultiPage(in *C.VipsImage, angle Angle) (*C.VipsImage, error) {
 	var out *C.VipsImage
-
 	if err := C.rotate_image_multi_page(in, &out, C.VipsAngle(angle)); err != 0 {
 		return nil, handleImageError(out)
 	}
-
 	return out, nil
 }
 
@@ -292,17 +252,6 @@ func vipsLabel(
 		C.int(x), C.int(y), C.int(size), C.VipsAlign(align),
 		C.double(color.R), C.double(color.G), C.double(color.B), C.float(float32(opacity)))
 	if int(err) != 0 {
-		return nil, handleImageError(out)
-	}
-
-	return out, nil
-}
-
-// https://libvips.github.io/libvips/API/current/libvips-conversion.html#vips-composite2
-func vipsComposite2(base *C.VipsImage, overlay *C.VipsImage, mode BlendMode, x, y int) (*C.VipsImage, error) {
-	var out *C.VipsImage
-
-	if err := C.composite2_image(base, overlay, &out, C.int(mode), C.gint(x), C.gint(y)); err != 0 {
 		return nil, handleImageError(out)
 	}
 

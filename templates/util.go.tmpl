@@ -322,48 +322,111 @@ func vipsInterpolateFromC(interp *C.VipsInterpolate) *Interpolate {
     return &Interpolate{interp: interp}
 }
 
-// Param libvips options param
-type Param struct {
-	value interface{}
-	isSet bool
+// convertToDoubleArray converts a Go float64 slice to a C double array and returns the length
+func convertToDoubleArray(values []float64) (*C.double, C.int, error) {
+	if len(values) == 0 {
+		return nil, 0, nil
+	}
+
+	// Allocate C memory
+	size := C.size_t(len(values)) * C.size_t(unsafe.Sizeof(C.double(0)))
+	cArray := (*C.double)(C.malloc(size))
+	if cArray == nil {
+		return nil, 0, fmt.Errorf("failed to allocate memory for double array")
+	}
+
+	// Copy values to C array
+	for i, v := range values {
+		ptr := unsafe.Pointer(uintptr(unsafe.Pointer(cArray)) + uintptr(i)*unsafe.Sizeof(C.double(0)))
+		*(*C.double)(ptr) = C.double(v)
+	}
+
+	return cArray, C.int(len(values)), nil
 }
 
-// IsSet is param set
-func (p *Param) IsSet() bool {
-	return p.isSet
+// freeDoubleArray frees memory allocated for a C double array
+func freeDoubleArray(array *C.double) {
+	if array != nil {
+		C.free(unsafe.Pointer(array))
+	}
 }
 
-func (p *Param) set(v interface{}) {
-	p.value = v
-	p.isSet = true
+// convertToIntArray converts a Go int slice to a C int array and returns the length
+func convertToIntArray(values []int) (*C.int, C.int, error) {
+	if len(values) == 0 {
+		return nil, 0, nil
+	}
+
+	// Allocate C memory
+	size := C.size_t(len(values)) * C.size_t(unsafe.Sizeof(C.int(0)))
+	cArray := (*C.int)(C.malloc(size))
+	if cArray == nil {
+		return nil, 0, fmt.Errorf("failed to allocate memory for int array")
+	}
+
+	// Copy values to C array
+	for i, v := range values {
+		ptr := unsafe.Pointer(uintptr(unsafe.Pointer(cArray)) + uintptr(i)*unsafe.Sizeof(C.int(0)))
+		*(*C.int)(ptr) = C.int(v)
+	}
+
+	return cArray, C.int(len(values)), nil
 }
 
-// BoolParam bool param
-type BoolParam struct {
-	Param
+// freeIntArray frees memory allocated for a C int array
+func freeIntArray(array *C.int) {
+	if array != nil {
+		C.free(unsafe.Pointer(array))
+	}
 }
 
-// Set bool param
-func (p *BoolParam) Set(v bool) {
-	p.set(v)
+// convertToBlendModeArray converts a Go BlendMode slice to a C int array and returns the length
+func convertToBlendModeArray(values []BlendMode) (*C.int, C.int, error) {
+	if len(values) == 0 {
+		return nil, 0, nil
+	}
+
+	// Allocate C memory
+	size := C.size_t(len(values)) * C.size_t(unsafe.Sizeof(C.int(0)))
+	cArray := (*C.int)(C.malloc(size))
+	if cArray == nil {
+		return nil, 0, fmt.Errorf("failed to allocate memory for BlendMode array")
+	}
+
+	// Copy values to C array
+	for i, v := range values {
+		ptr := unsafe.Pointer(uintptr(unsafe.Pointer(cArray)) + uintptr(i)*unsafe.Sizeof(C.int(0)))
+		*(*C.int)(ptr) = C.int(v)
+	}
+
+	return cArray, C.int(len(values)), nil
 }
 
-// Get bool param
-func (p *BoolParam) Get() bool {
-	return p.value.(bool)
+// convertToImageArray converts a Go []*Image slice to a C VipsImage** array and returns the length
+func convertToImageArray(images []*C.VipsImage) (**C.VipsImage, C.int, error) {
+	if len(images) == 0 {
+		return nil, 0, nil
+	}
+
+	// Allocate C memory for array of VipsImage pointers
+	size := C.size_t(len(images)) * C.size_t(unsafe.Sizeof((*C.VipsImage)(nil)))
+	cArray := (**C.VipsImage)(C.malloc(size))
+	if cArray == nil {
+		return nil, 0, fmt.Errorf("failed to allocate memory for image array")
+	}
+
+	// Convert each Image to a C VipsImage pointer and store in array
+	for i, img := range images {
+		ptr := unsafe.Pointer(uintptr(unsafe.Pointer(cArray)) + uintptr(i)*unsafe.Sizeof((*C.VipsImage)(nil)))
+		*(**C.VipsImage)(ptr) = img
+	}
+
+	return cArray, C.int(len(images)), nil
 }
 
-// IntParam int param
-type IntParam struct {
-	Param
-}
-
-// Set int param
-func (p *IntParam) Set(v int) {
-	p.set(v)
-}
-
-// Get int param
-func (p *IntParam) Get() int {
-	return p.value.(int)
+// freeImageArray frees memory allocated for a C VipsImage** array
+func freeImageArray(array **C.VipsImage) {
+	if array != nil {
+		C.free(unsafe.Pointer(array))
+	}
 }

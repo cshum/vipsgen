@@ -19,9 +19,9 @@ func main() {
 	source := vips.NewSource(resp.Body)
 	defer source.Close() // source needs to remain available during the lifetime of image
 
-	params := vips.NewLoadParams()
-	params.NumPages.Set(-1)                               // enable animation
-	image, err := vips.NewImageFromSource(source, params) // load image from source
+	loadOptions := vips.NewDefaultLoadOptions()
+	loadOptions.NumPages = -1
+	image, err := vips.NewImageFromSource(source, loadOptions) // load image from source
 	if err != nil {
 		panic(err)
 	}
@@ -29,10 +29,14 @@ func main() {
 	if err = image.ExtractArea(30, 40, 50, 70); err != nil {
 		panic(err)
 	}
-	if err = image.Flatten(); err != nil {
+	if err = image.Flatten(&vips.FlattenOptions{
+		Background: []float64{123, 123, 123},
+	}); err != nil {
 		panic(err)
 	}
-	buf, err := image.GifsaveBuffer()
+	options := vips.NewDefaultGifsaveBufferOptions()
+	options.Keep = vips.KeepIcc
+	buf, err := image.GifsaveBuffer(options)
 	if err != nil {
 		panic(err)
 	}

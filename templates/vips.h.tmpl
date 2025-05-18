@@ -41,10 +41,6 @@ int has_alpha_channel(VipsImage *image);
 
 void clear_image(VipsImage **image);
 
-int embed_image(VipsImage *in, VipsImage **out, int left, int top, int width,
-                int height, int extend);
-int embed_image_background(VipsImage *in, VipsImage **out, int left, int top, int width,
-                int height, double r, double g, double b, double a);
 int embed_multi_page_image(VipsImage *in, VipsImage **out, int left, int top, int width,
                 int height, int extend);
 int embed_multi_page_image_background(VipsImage *in, VipsImage **out, int left, int top,
@@ -61,16 +57,10 @@ int label_image(VipsImage *in, VipsImage **out,
           double r, double g, double b, float opacity);
 double max_alpha(VipsImage *in);
 
-int composite2_image(VipsImage *base, VipsImage *overlay, VipsImage **out,
-                     int mode, gint x, gint y);
-
 int is_16bit(VipsInterpretation interpretation);
 
 int find_trim(VipsImage *in, int *left, int *top, int *width, int *height,
   double threshold, int x, int y);
-
-int sharpen_image(VipsImage *in, VipsImage **out, double sigma, double x1,
-                  double m2);
 
 int remove_icc_profile(VipsImage *in);
 

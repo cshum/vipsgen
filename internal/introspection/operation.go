@@ -360,7 +360,7 @@ func (v *Introspection) GetOperationArguments(opName string) ([]Argument, error)
 		}
 		// Add input 'n' parameter for array operations like linear, remainder_const, etc.
 		var nParam Argument
-		if opName == "getpoint" {
+		if hasArrayNOutput >= 0 && !goArgs[hasArrayNOutput].IsImage {
 			// output 'n' parameter
 			nParam = Argument{
 				Name:        "n",
