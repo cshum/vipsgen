@@ -46,7 +46,7 @@ type Argument struct {
 	Flags        int
 	IsEnum       bool
 	EnumType     string
-	NArrayFrom   string
+	NInputFrom   string
 	DefaultValue interface{}
 }
 

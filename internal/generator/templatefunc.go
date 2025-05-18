@@ -472,8 +472,8 @@ func formatFunctionCallArgs(op introspection.Operation, withOptions bool) string
 			callArgs = append(callArgs, argStr)
 		} else {
 			// Handle IsNInput parameters specially - calculate from the referenced array
-			if arg.IsNInput && arg.NArrayFrom != "" {
-				argStr = fmt.Sprintf("C.int(len(%s))", arg.NArrayFrom)
+			if arg.IsNInput && arg.NInputFrom != "" {
+				argStr = fmt.Sprintf("C.int(len(%s))", arg.NInputFrom)
 				callArgs = append(callArgs, argStr)
 				continue
 			}

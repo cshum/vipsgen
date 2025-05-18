@@ -391,7 +391,7 @@ func (v *Introspection) GetOperationArguments(opName string) ([]Argument, error)
 				Description: "Array length",
 				Required:    true, // Required for input arrays in most cases
 				IsNInput:    true,
-				NArrayFrom:  nFrom,
+				NInputFrom:  nFrom,
 				IsInput:     true,
 				IsOutput:    false,
 				Flags:       19, // VIPS_ARGUMENT_REQUIRED | VIPS_ARGUMENT_INPUT
