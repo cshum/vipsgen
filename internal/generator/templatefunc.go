@@ -121,6 +121,28 @@ func formatErrorReturn(HasOneImageOutput, hasBufferOutput bool, outputs []intros
 	}
 }
 
+// Helper function to determine error return based on function type
+func generateErrorReturnForUtilityCall(op introspection.Operation) string {
+	// Determine the appropriate error return based on output type
+	if op.HasOneImageOutput {
+		return "return nil, err"
+	} else if op.HasBufferOutput {
+		return "return nil, err"
+	} else if len(op.RequiredOutputs) > 0 {
+		var values []string
+		for _, arg := range op.RequiredOutputs {
+			if arg.Name == "vector" || arg.Name == "out_array" {
+				values = append(values, "nil")
+			} else {
+				values = append(values, formatDefaultValue(arg.GoType))
+			}
+		}
+		return "return " + strings.Join(values, ", ") + ", err"
+	} else {
+		return "return err"
+	}
+}
+
 // formatGoArgList formats a list of function arguments for a Go function
 // e.g., "in *C.VipsImage, c []float64, n int"
 func formatGoArgList(op introspection.Operation, withOptions bool) string {
@@ -189,6 +211,7 @@ func formatVarDeclarations(op introspection.Operation, withOptions bool) string 
 		decls = append(decls, "// Reference src here so it's not garbage collected during image initialization.")
 		decls = append(decls, "defer runtime.KeepAlive(src)")
 	}
+
 	if op.HasOneImageOutput {
 		decls = append(decls, "var out *C.VipsImage")
 	} else if op.HasBufferOutput {
@@ -217,20 +240,109 @@ func formatVarDeclarations(op introspection.Operation, withOptions bool) string 
 			}
 		}
 	}
+
 	if stringConv := formatStringConversions(op.Arguments); stringConv != "" {
 		decls = append(decls, stringConv)
 	}
-	if arrayConv := formatArrayConversions(op.Arguments); arrayConv != "" {
-		decls = append(decls, arrayConv)
+
+	// Process array conversions using updated utility functions
+	args := op.Arguments
+	if withOptions {
+		args = append(args, op.OptionalInputs...)
 	}
+
+	for _, arg := range args {
+		if !arg.IsOutput && strings.HasPrefix(arg.GoType, "[]") {
+			if arg.GoType == "[]byte" && strings.Contains(arg.Name, "buf") {
+				continue // Skip buffer parameters
+			}
+
+			// Use utility functions with proper error handling
+			errorReturn := generateErrorReturnForUtilityCall(op)
+
+			if arg.GoType == "[]float64" || arg.GoType == "[]float32" {
+				// For required array parameters in non-options function, we don't need the length
+				lengthVar := fmt.Sprintf("c%sLength", arg.GoName)
+				if arg.Required {
+					lengthVar = "_" // Use underscore for unused length
+				}
+
+				decls = append(decls, fmt.Sprintf(
+					"c%s, %s, err := convertToDoubleArray(%s)\n"+
+						"	if err != nil {\n"+
+						"		%s\n"+
+						"	}\n"+
+						"	if c%s != nil {\n"+
+						"		defer freeDoubleArray(c%s)\n"+
+						"	}",
+					arg.GoName, lengthVar, arg.GoName, errorReturn, arg.GoName, arg.GoName))
+			} else if arg.GoType == "[]int" {
+				// For required array parameters in non-options function, we don't need the length
+				lengthVar := fmt.Sprintf("c%sLength", arg.GoName)
+				if arg.Required {
+					lengthVar = "_" // Use underscore for unused length
+				}
+
+				decls = append(decls, fmt.Sprintf(
+					"c%s, %s, err := convertToIntArray(%s)\n"+
+						"	if err != nil {\n"+
+						"		%s\n"+
+						"	}\n"+
+						"	if c%s != nil {\n"+
+						"		defer freeIntArray(c%s)\n"+
+						"	}",
+					arg.GoName, lengthVar, arg.GoName, errorReturn, arg.GoName, arg.GoName))
+			} else if arg.GoType == "[]BlendMode" {
+				// For required array parameters in non-options function, we don't need the length
+				lengthVar := fmt.Sprintf("c%sLength", arg.GoName)
+				if arg.Required {
+					lengthVar = "_" // Use underscore for unused length
+				}
+
+				decls = append(decls, fmt.Sprintf(
+					"c%s, %s, err := convertToBlendModeArray(%s)\n"+
+						"	if err != nil {\n"+
+						"		%s\n"+
+						"	}\n"+
+						"	if c%s != nil {\n"+
+						"		defer freeIntArray(c%s)\n"+
+						"	}",
+					arg.GoName, lengthVar, arg.GoName, errorReturn, arg.GoName, arg.GoName))
+			} else if arg.GoType == "[]*Image" || arg.GoType == "[]*C.VipsImage" {
+				// For required array parameters in non-options function, we don't need the length
+				lengthVar := fmt.Sprintf("c%sLength", arg.GoName)
+				if arg.Required {
+					lengthVar = "_" // Use underscore for unused length
+				}
+
+				// Use utility function for image arrays
+				decls = append(decls, fmt.Sprintf(
+					"c%s, %s, err := convertToImageArray(%s)\n"+
+						"	if err != nil {\n"+
+						"		%s\n"+
+						"	}\n"+
+						"	if c%s != nil {\n"+
+						"		defer freeImageArray(c%s)\n"+
+						"	}",
+					arg.GoName, lengthVar, arg.GoName, errorReturn, arg.GoName, arg.GoName))
+			} else {
+				// Legacy handling for other array types
+				decls = append(decls, fmt.Sprintf(
+					"var c%s unsafe.Pointer\n"+
+						"	if len(%s) > 0 {\n"+
+						"		c%s = unsafe.Pointer(&%s[0])\n"+
+						"	}",
+					arg.GoName, arg.GoName, arg.GoName, arg.GoName))
+			}
+		}
+	}
+
 	if withOptions {
 		if stringConv := formatStringConversions(op.OptionalInputs); stringConv != "" {
 			decls = append(decls, stringConv)
 		}
-		if arrayConv := formatArrayConversions(op.OptionalInputs); arrayConv != "" {
-			decls = append(decls, arrayConv)
-		}
 	}
+
 	return strings.Join(decls, "\n	")
 }
 
@@ -247,7 +359,7 @@ func formatStringConversions(args []introspection.Argument) string {
 }
 
 // formatArrayConversions formats array conversions for slice parameters
-func formatArrayConversions(args []introspection.Argument) string {
+func formatArrayConversions(op introspection.Operation, args []introspection.Argument) string {
 	var conversions []string
 	for _, arg := range args {
 		if !arg.IsOutput && strings.HasPrefix(arg.GoType, "[]") {
@@ -263,35 +375,42 @@ func formatArrayConversions(args []introspection.Argument) string {
 						"	c%s := unsafe.Pointer(&c%s_ptrs[0])",
 					arg.GoName, arg.GoName, arg.GoName,
 					arg.GoName, arg.GoName, arg.GoName, arg.GoName))
-			} else if arg.GoType == "[]BlendMode" {
-				// Special handling for BlendMode arrays
-				conversions = append(conversions, fmt.Sprintf(
-					"c%s_arr := make([]C.int, len(%s))\n"+
-						"	for i, v := range %s {\n"+
-						"		c%s_arr[i] = C.int(v)\n"+
-						"	}\n"+
-						"	var c%s unsafe.Pointer\n"+
-						"	if len(%s) > 0 {\n"+
-						"		c%s = unsafe.Pointer(&c%s_arr[0])\n"+
-						"	}",
-					arg.GoName, arg.GoName, arg.GoName,
-					arg.GoName, arg.GoName, arg.GoName, arg.GoName, arg.GoName))
 			} else if arg.GoType == "[]float64" || arg.GoType == "[]float32" {
-				// Special handling for float arrays - common in libvips const functions
+				// Use utility function for float arrays with proper error handling
+				errorReturn := generateErrorReturnForUtilityCall(op)
 				conversions = append(conversions, fmt.Sprintf(
-					"var c%s unsafe.Pointer\n"+
-						"	if len(%s) > 0 {\n"+
-						"		c%s = unsafe.Pointer(&%s[0])\n"+
+					"c%s, err := convertToDoubleArray(%s)\n"+
+						"	if err != nil {\n"+
+						"		%s\n"+
+						"	}\n"+
+						"	if c%s != nil {\n"+
+						"		defer freeDoubleArray(c%s)\n"+
 						"	}",
-					arg.GoName, arg.GoName, arg.GoName, arg.GoName))
+					arg.GoName, arg.GoName, errorReturn, arg.GoName, arg.GoName))
 			} else if arg.GoType == "[]int" {
-				// Standard int arrays
+				// Use utility function for int arrays with proper error handling
+				errorReturn := generateErrorReturnForUtilityCall(op)
 				conversions = append(conversions, fmt.Sprintf(
-					"var c%s unsafe.Pointer\n"+
-						"	if len(%s) > 0 {\n"+
-						"		c%s = unsafe.Pointer(&%s[0])\n"+
+					"c%s, err := convertToIntArray(%s)\n"+
+						"	if err != nil {\n"+
+						"		%s\n"+
+						"	}\n"+
+						"	if c%s != nil {\n"+
+						"		defer freeIntArray(c%s)\n"+
 						"	}",
-					arg.GoName, arg.GoName, arg.GoName, arg.GoName))
+					arg.GoName, arg.GoName, errorReturn, arg.GoName, arg.GoName))
+			} else if arg.GoType == "[]BlendMode" {
+				// Use utility function for BlendMode arrays with proper error handling
+				errorReturn := generateErrorReturnForUtilityCall(op)
+				conversions = append(conversions, fmt.Sprintf(
+					"c%s, err := convertToBlendModeArray(%s)\n"+
+						"	if err != nil {\n"+
+						"		%s\n"+
+						"	}\n"+
+						"	if c%s != nil {\n"+
+						"		defer freeIntArray(c%s)\n"+
+						"	}",
+					arg.GoName, arg.GoName, errorReturn, arg.GoName, arg.GoName))
 			} else {
 				// Generic array handling
 				conversions = append(conversions, fmt.Sprintf(
@@ -313,9 +432,15 @@ func formatFunctionCallArgs(op introspection.Operation, withOptions bool) string
 		args = append(args, op.OptionalInputs...)
 	}
 	var callArgs []string
+
+	// Track which arrays we've processed to handle their lengths
+	processedArrays := make(map[string]bool)
+
 	for _, arg := range args {
 		var argStr string
+
 		if arg.IsOutput {
+			// Handle output parameters (unchanged)
 			if arg.Name == "out" || op.HasOneImageOutput {
 				if arg.GoType == "*C.VipsImage" {
 					argStr = "&out"
@@ -337,59 +462,90 @@ func formatFunctionCallArgs(op introspection.Operation, withOptions bool) string
 					argStr = "&" + arg.GoName
 				}
 			}
+			callArgs = append(callArgs, argStr)
 		} else {
 			// Handle input parameters
 			if arg.GoType == "string" {
 				argStr = "c" + arg.GoName
+				callArgs = append(callArgs, argStr)
 			} else if arg.GoType == "bool" {
 				argStr = "C.int(boolToInt(" + arg.GoName + "))"
+				callArgs = append(callArgs, argStr)
 			} else if arg.GoType == "*C.VipsImage" {
 				argStr = arg.GoName
+				callArgs = append(callArgs, argStr)
 			} else if arg.GoType == "[]byte" && strings.Contains(arg.Name, "buf") {
 				// Special handling for byte buffers
 				argStr = "unsafe.Pointer(&src[0])"
+				callArgs = append(callArgs, argStr)
 			} else if arg.GoType == "*Interpolate" {
 				// Handle Interpolate parameters - convert from Go to C type
 				argStr = "vipsInterpolateToC(" + arg.GoName + ")"
+				callArgs = append(callArgs, argStr)
 			} else if arg.Name == "len" && arg.CType == "size_t" {
 				// input buffer
 				argStr = "C.size_t(len(src))"
+				callArgs = append(callArgs, argStr)
 			} else if strings.HasPrefix(arg.GoType, "[]") {
-				// For array parameters, handle each type specifically
-				if arg.GoType == "[]*C.VipsImage" {
-					// Use the appropriate casting for VipsImage arrays
-					argStr = "(**C.VipsImage)(c" + arg.GoName + ")"
-				} else if arg.GoType == "[]int" {
-					// Use the appropriate casting for int arrays
-					argStr = "(*C.int)(c" + arg.GoName + ")"
-				} else if arg.GoType == "[]BlendMode" {
-					// Special handling for BlendMode arrays
-					argStr = "(*C.int)(c" + arg.GoName + ")"
-				} else if arg.GoType == "[]float64" {
-					// Use the appropriate casting for float arrays
-					argStr = "(*C.double)(c" + arg.GoName + ")"
-				} else if arg.GoType == "[]float32" {
-					// Use the appropriate casting for float arrays
-					argStr = "(*C.float)(c" + arg.GoName + ")"
+				// For array parameters, add both the array pointer and its length
+
+				// Check if we should add array length parameter based on type
+				needsLengthParam := false
+				if !arg.Required && (arg.GoType == "[]float64" || arg.GoType == "[]float32" ||
+					arg.GoType == "[]int" || arg.GoType == "[]BlendMode" ||
+					arg.GoType == "[]*C.VipsImage" || arg.GoType == "[]*Image") {
+					needsLengthParam = true
+				}
+
+				// Mark this array as processed so we don't duplicate
+				processedArrays[arg.Name] = true
+
+				// Determine the array pointer variable name - different for with_options vs basic functions
+				arrayVarName := "c" + arg.GoName
+
+				// Add the array parameter - NO ADDITIONAL TYPE CASTING for utility function results
+				if withOptions {
+					// For functions with options, we use the utility function result directly
+					argStr = arrayVarName
 				} else {
-					// Generic unsafe pointer for other array types
-					argStr = "c" + arg.GoName
+					// For basic functions without options, we may need type casting
+					if arg.GoType == "[]*C.VipsImage" {
+						argStr = "(**C.VipsImage)(" + arrayVarName + ")"
+					} else if arg.GoType == "[]int" || arg.GoType == "[]BlendMode" {
+						argStr = arrayVarName // No additional casting needed
+					} else if arg.GoType == "[]float64" || arg.GoType == "[]float32" {
+						argStr = arrayVarName // No additional casting needed
+					} else {
+						// Generic unsafe pointer for other array types
+						argStr = arrayVarName
+					}
+				}
+				callArgs = append(callArgs, argStr)
+
+				// Add the length parameter if needed
+				if needsLengthParam {
+					lengthArg := "c" + arg.GoName + "Length"
+					callArgs = append(callArgs, lengthArg)
 				}
 			} else if arg.IsEnum {
 				argStr = "C." + arg.Type + "(" + arg.GoName + ")"
+				callArgs = append(callArgs, argStr)
 			} else if arg.CType == "void**" && arg.Name == "buf" {
 				// buffer output
 				argStr = "&buf"
+				callArgs = append(callArgs, argStr)
 			} else if arg.CType == "size_t*" && arg.Name == "len" {
 				// buffer output
 				argStr = "&length"
+				callArgs = append(callArgs, argStr)
 			} else {
 				// For regular scalar types, use normal C casting
 				argStr = "C." + arg.CType + "(" + arg.GoName + ")"
+				callArgs = append(callArgs, argStr)
 			}
 		}
-		callArgs = append(callArgs, argStr)
 	}
+
 	return strings.Join(callArgs, ", ")
 }
 
@@ -1132,25 +1288,95 @@ func formatCFunctionDeclaration(op introspection.Operation) string {
 		result.WriteString(formatCFunctionSignature(op, true))
 		result.WriteString(";")
 	}
+
 	// with_options function declaration if needed
 	if len(op.OptionalInputs) > 0 {
 		result.WriteString("\n")
-		result.WriteString(formatCFunctionWithOptionsSignature(op, true))
-		result.WriteString(";")
+
+		// Generate function declaration with array length parameters
+		result.WriteString(fmt.Sprintf("int vipsgen_%s_with_options(", op.Name))
+
+		// Regular arguments
+		if len(op.Arguments) > 0 {
+			for i, arg := range op.Arguments {
+				if i > 0 {
+					result.WriteString(", ")
+				}
+				result.WriteString(fmt.Sprintf("%s %s", arg.CType, arg.Name))
+			}
+		}
+
+		// Add optional arguments and array length parameters
+		for i, opt := range op.OptionalInputs {
+			if i > 0 || len(op.Arguments) > 0 {
+				result.WriteString(", ")
+			}
+			result.WriteString(fmt.Sprintf("%s %s", opt.CType, opt.Name))
+
+			// Add array length parameter if needed
+			if strings.HasPrefix(opt.GoType, "[]") {
+				// Check if this array type needs a length parameter
+				if opt.GoType == "[]float64" || opt.GoType == "[]float32" ||
+					opt.GoType == "[]int" || opt.GoType == "[]BlendMode" ||
+					opt.GoType == "[]*C.VipsImage" || opt.GoType == "[]*Image" {
+					result.WriteString(fmt.Sprintf(", int %s_n", opt.Name))
+				}
+			}
+		}
+		result.WriteString(");")
 	}
 	return result.String()
+}
+
+// Helper function to detect array type for proper VipsArray creation
+func getArrayType(goType string) string {
+	if strings.HasPrefix(goType, "[]float64") || strings.HasPrefix(goType, "[]float32") {
+		return "double"
+	} else if strings.HasPrefix(goType, "[]int") || strings.HasPrefix(goType, "[]BlendMode") {
+		return "int"
+	} else if strings.HasPrefix(goType, "[]*C.VipsImage") {
+		return "image"
+	} else {
+		return "unknown"
+	}
 }
 
 // formatCFunctionImplementation generates C implementations for vips operations
 func formatCFunctionImplementation(op introspection.Operation) string {
 	var result strings.Builder
 
+	// Check if any argument is an array type
+	hasRequiredArray := hasRequiredArrayParams(op)
+	hasOptionalArray := false
+
+	// Map of optional array arguments to their types
+	optionalArrayArgs := make(map[string]string) // Maps arg name to array type ("double", "int", "image")
+
+	// Check optional inputs for arrays
+	for _, arg := range op.OptionalInputs {
+		if strings.HasPrefix(arg.GoType, "[]") {
+			arrayType := getArrayType(arg.GoType)
+			if arrayType != "unknown" {
+				hasOptionalArray = true
+				optionalArrayArgs[arg.Name] = arrayType
+			}
+		}
+	}
+
+	// Handle basic function (no options)
+	// For required arguments with arrays, we don't need to convert to VipsArray
 	if len(op.Arguments) == 0 {
 		result.WriteString(fmt.Sprintf("int vipsgen_%s() {\n", op.Name))
 		result.WriteString(fmt.Sprintf("    return vips_%s(NULL);\n}", op.Name))
 	} else {
 		result.WriteString(formatCFunctionSignature(op, true))
 		result.WriteString(" {\n")
+
+		// For functions with required array parameters, add a comment about direct passing
+		if hasRequiredArray {
+			result.WriteString("    // Function has required array parameters - passing arrays directly\n")
+		}
+
 		result.WriteString(fmt.Sprintf("    return vips_%s(", op.Name))
 		for i, arg := range op.Arguments {
 			if i > 0 {
@@ -1161,11 +1387,72 @@ func formatCFunctionImplementation(op introspection.Operation) string {
 		result.WriteString(", NULL);\n}")
 	}
 
+	// Generate the with_options variant
 	if len(op.OptionalInputs) > 0 {
 		result.WriteString("\n\n")
-		result.WriteString(formatCFunctionWithOptionsSignature(op, true))
-		result.WriteString(" {\n")
-		result.WriteString(fmt.Sprintf("    return vips_%s(", op.Name))
+
+		// Generate function signature with array length parameters for array arguments
+		result.WriteString(fmt.Sprintf("int vipsgen_%s_with_options(", op.Name))
+
+		// Add regular arguments
+		if len(op.Arguments) > 0 {
+			for i, arg := range op.Arguments {
+				if i > 0 {
+					result.WriteString(", ")
+				}
+				result.WriteString(fmt.Sprintf("%s %s", arg.CType, arg.Name))
+			}
+		}
+
+		// Add optional arguments and array length parameters
+		for i, opt := range op.OptionalInputs {
+			if i > 0 || len(op.Arguments) > 0 {
+				result.WriteString(", ")
+			}
+			result.WriteString(fmt.Sprintf("%s %s", opt.CType, opt.Name))
+
+			// Add array length parameter if needed
+			if optionalArrayArgs[opt.Name] != "" {
+				result.WriteString(fmt.Sprintf(", int %s_n", opt.Name))
+			}
+		}
+		result.WriteString(") {\n")
+
+		// Add comment about required arrays if present
+		if hasRequiredArray {
+			result.WriteString("    // Function has required array parameters - these are passed directly\n\n")
+		}
+
+		// Handle array arguments by creating VipsArray objects - only for optional inputs
+		if hasOptionalArray {
+			// Add comment about optional arrays
+			result.WriteString("    // Create VipsArray objects for optional array parameters\n")
+
+			for name, arrayType := range optionalArrayArgs {
+				if arrayType == "double" {
+					result.WriteString(fmt.Sprintf("    VipsArrayDouble *%s_array = NULL;\n", name))
+					result.WriteString(fmt.Sprintf("    if (%s != NULL && %s_n > 0) {\n", name, name))
+					result.WriteString(fmt.Sprintf("        %s_array = vips_array_double_new(%s, %s_n);\n", name, name, name))
+					result.WriteString("    }\n\n")
+				} else if arrayType == "int" {
+					result.WriteString(fmt.Sprintf("    VipsArrayInt *%s_array = NULL;\n", name))
+					result.WriteString(fmt.Sprintf("    if (%s != NULL && %s_n > 0) {\n", name, name))
+					result.WriteString(fmt.Sprintf("        %s_array = vips_array_int_new(%s, %s_n);\n", name, name, name))
+					result.WriteString("    }\n\n")
+				} else if arrayType == "image" {
+					result.WriteString(fmt.Sprintf("    VipsArrayImage *%s_array = NULL;\n", name))
+					result.WriteString(fmt.Sprintf("    if (%s != NULL && %s_n > 0) {\n", name, name))
+					result.WriteString(fmt.Sprintf("        %s_array = vips_array_image_new(%s, %s_n);\n", name, name, name))
+					result.WriteString("    }\n\n")
+				}
+			}
+		}
+
+		// Call the vips function
+		result.WriteString("    // Call the vips function\n")
+		result.WriteString(fmt.Sprintf("    int result = vips_%s(", op.Name))
+
+		// Add regular arguments
 		if len(op.Arguments) > 0 {
 			for i, arg := range op.Arguments {
 				if i > 0 {
@@ -1174,15 +1461,42 @@ func formatCFunctionImplementation(op introspection.Operation) string {
 				result.WriteString(arg.Name)
 			}
 		}
-		for _, opt := range op.OptionalInputs {
-			if opt.GoType == "string" || !opt.IsEnum {
-				result.WriteString(fmt.Sprintf(", \"%s\", %s", opt.Name, opt.Name))
+
+		// Add optional arguments, using array objects if needed
+		for i, opt := range op.OptionalInputs {
+			if i > 0 || len(op.Arguments) > 0 {
+				result.WriteString(", ")
+			}
+
+			if optionalArrayArgs[opt.Name] != "" {
+				// For array parameters, use the array object if available
+				result.WriteString(fmt.Sprintf("\"%s\", ", opt.Name))
+				result.WriteString(fmt.Sprintf("%s_array ? %s_array : NULL", opt.Name, opt.Name))
+			} else if opt.GoType == "string" {
+				result.WriteString(fmt.Sprintf("\"%s\", %s", opt.Name, opt.Name))
+			} else if opt.IsEnum {
+				result.WriteString(fmt.Sprintf("\"%s\", (int)%s", opt.Name, opt.Name))
 			} else {
-				result.WriteString(fmt.Sprintf(", \"%s\", (int)%s", opt.Name, opt.Name))
+				result.WriteString(fmt.Sprintf("\"%s\", %s", opt.Name, opt.Name))
 			}
 		}
-		result.WriteString(", NULL);\n}")
+
+		result.WriteString(", NULL);\n\n")
+
+		// Clean up array objects
+		if hasOptionalArray {
+			result.WriteString("    // Clean up array objects\n")
+			for name := range optionalArrayArgs {
+				result.WriteString(fmt.Sprintf("    if (%s_array) {\n", name))
+				result.WriteString(fmt.Sprintf("        vips_area_unref(VIPS_AREA(%s_array));\n", name))
+				result.WriteString("    }\n")
+			}
+			result.WriteString("\n")
+		}
+
+		result.WriteString("    return result;\n}")
 	}
+
 	return result.String()
 }
 
@@ -1274,4 +1588,14 @@ func generateOptionalInputsStruct(op introspection.Operation) string {
 	result.WriteString("\t}\n}\n")
 
 	return result.String()
+}
+
+// Helper function to check if an operation has array parameters in required arguments
+func hasRequiredArrayParams(op introspection.Operation) bool {
+	for _, arg := range op.Arguments {
+		if strings.HasPrefix(arg.GoType, "[]") && !arg.IsOutput {
+			return true
+		}
+	}
+	return false
 }

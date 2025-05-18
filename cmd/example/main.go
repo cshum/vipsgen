@@ -29,10 +29,10 @@ func main() {
 	if err = image.ExtractArea(30, 40, 50, 70); err != nil {
 		panic(err)
 	}
-	if err = image.Flatten(); err != nil {
+	if err = image.Flatten(vips.DefaultFlattenOptions()); err != nil {
 		panic(err)
 	}
-	buf, err := image.GifsaveBuffer()
+	buf, err := image.GifsaveBuffer(vips.DefaultGifsaveBufferOptions())
 	if err != nil {
 		panic(err)
 	}
