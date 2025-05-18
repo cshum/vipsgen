@@ -28,24 +28,24 @@ type Image struct {
 {{range .Operations}}{{if and (or (not .HasImageInput) .HasArrayImageInput) .HasImageOutput}}
 {{generateOptionalInputsStruct .}}
 // New{{.GoName}} {{.Description}}
-func New{{.GoName}}({{formatCreatorMethodParams .}}) (*Image, error) {
-	{{formatCreatorMethodBody .}}
+func New{{.GoName}}({{generateCreatorMethodParams .}}) (*Image, error) {
+	{{generateCreatorMethodBody .}}
 }
 {{end}}{{end}}
 
 {{range .Operations}}{{if and .HasImageInput (not .HasArrayImageInput)}}
 {{generateOptionalInputsStruct .}}
 // {{.GoName}} {{.Description}}
-func (r *Image) {{.GoName}}({{formatImageMethodParams .}}) ({{formatImageMethodReturnTypes .}}) {
-	{{formatImageMethodBody .}}
+func (r *Image) {{.GoName}}({{generateImageMethodParams .}}) ({{generateImageMethodReturnTypes .}}) {
+	{{generateImageMethodBody .}}
 }
 {{end}}{{end}}
 
 {{range .Operations}}{{if and (or (not .HasImageInput) .HasArrayImageInput) (not .HasImageOutput)}}
 // {{.GoName}} {{.Description}}
-func {{.GoName}}({{formatCreatorMethodParams .}}) ([]byte, error) {
+func {{.GoName}}({{generateCreatorMethodParams .}}) ([]byte, error) {
     StartupDefault()
-    return vipsgen{{.GoName}}({{formatFunctionCallArgsWithoutThis .}})
+    return vipsgen{{.GoName}}({{generateFunctionCallArgsWithoutThis .}})
 }
 {{end}}{{end}}
 

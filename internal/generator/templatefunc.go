@@ -10,25 +10,25 @@ import (
 // GetTemplateFuncMap Helper functions for templates
 func GetTemplateFuncMap() template.FuncMap {
 	return template.FuncMap{
-		"formatGoFunctionBody":                formatGoFunctionBody,
-		"formatErrorReturn":                   formatErrorReturn,
-		"formatGoArgList":                     formatGoArgList,
-		"formatReturnTypes":                   formatReturnTypes,
-		"formatVarDeclarations":               formatVarDeclarations,
-		"formatFunctionCallArgs":              formatFunctionCallArgs,
-		"formatFunctionCall":                  formatFunctionCall,
-		"formatReturnValues":                  formatReturnValues,
-		"formatImageMethodBody":               formatImageMethodBody,
-		"formatImageMethodParams":             formatImageMethodParams,
-		"formatImageMethodReturnTypes":        formatImageMethodReturnTypes,
-		"formatCreatorMethodParams":           formatCreatorMethodParams,
-		"formatCreatorMethodBody":             formatCreatorMethodBody,
-		"formatCFunctionSignature":            formatCFunctionSignature,
-		"formatCFunctionWithOptionsSignature": formatCFunctionWithOptionsSignature,
-		"formatCFunctionDeclaration":          formatCFunctionDeclaration,
-		"formatCFunctionImplementation":       formatCFunctionImplementation,
-		"generateOptionalInputsStruct":        generateOptionalInputsStruct,
-		"formatFunctionCallArgsWithoutThis":   formatFunctionCallArgsWithoutThis,
+		"generateGoFunctionBody":                generateGoFunctionBody,
+		"generateErrorReturn":                   generateErrorReturn,
+		"generateGoArgList":                     generateGoArgList,
+		"generateReturnTypes":                   generateReturnTypes,
+		"generateVarDeclarations":               generateVarDeclarations,
+		"generateFunctionCallArgs":              generateFunctionCallArgs,
+		"generateFunctionCall":                  generateFunctionCall,
+		"generateReturnValues":                  generateReturnValues,
+		"generateImageMethodBody":               generateImageMethodBody,
+		"generateImageMethodParams":             generateImageMethodParams,
+		"generateImageMethodReturnTypes":        generateImageMethodReturnTypes,
+		"generateCreatorMethodParams":           generateCreatorMethodParams,
+		"generateCreatorMethodBody":             generateCreatorMethodBody,
+		"generateCFunctionSignature":            generateCFunctionSignature,
+		"generateCFunctionWithOptionsSignature": generateCFunctionWithOptionsSignature,
+		"generateCFunctionDeclaration":          generateCFunctionDeclaration,
+		"generateCFunctionImplementation":       generateCFunctionImplementation,
+		"generateOptionalInputsStruct":          generateOptionalInputsStruct,
+		"generateFunctionCallArgsWithoutThis":   generateFunctionCallArgsWithoutThis,
 	}
 }
 
@@ -58,8 +58,8 @@ func formatDefaultValue(goType string) string {
 	return "0"
 }
 
-// formatGoFunctionBody generates the shared body for Go wrapper functions
-func formatGoFunctionBody(op introspection.Operation, withOptions bool) string {
+// generateGoFunctionBody generates the shared body for Go wrapper functions
+func generateGoFunctionBody(op introspection.Operation, withOptions bool) string {
 	var result strings.Builder
 	// Function name and comment
 	if withOptions {
@@ -72,13 +72,13 @@ func formatGoFunctionBody(op introspection.Operation, withOptions bool) string {
 	}
 
 	// Function arguments
-	result.WriteString(formatGoArgList(op, withOptions))
+	result.WriteString(generateGoArgList(op, withOptions))
 	result.WriteString(") (")
-	result.WriteString(formatReturnTypes(op))
+	result.WriteString(generateReturnTypes(op))
 	result.WriteString(") {\n    ")
 
 	// Variable declarations
-	result.WriteString(formatVarDeclarations(op, withOptions))
+	result.WriteString(generateVarDeclarations(op, withOptions))
 	result.WriteString("\n    ")
 
 	// Function call
@@ -87,22 +87,22 @@ func formatGoFunctionBody(op introspection.Operation, withOptions bool) string {
 	} else {
 		result.WriteString(fmt.Sprintf("if err := C.vipsgen_%s(", op.Name))
 	}
-	result.WriteString(formatFunctionCallArgs(op, withOptions))
+	result.WriteString(generateFunctionCallArgs(op, withOptions))
 	result.WriteString("); err != 0 {\n        ")
 
 	// Error handling
-	result.WriteString(formatErrorReturn(op.HasOneImageOutput, op.HasBufferOutput, op.RequiredOutputs))
+	result.WriteString(generateErrorReturn(op.HasOneImageOutput, op.HasBufferOutput, op.RequiredOutputs))
 	result.WriteString("\n    }\n    ")
 
 	// Return values
-	result.WriteString(formatReturnValues(op))
+	result.WriteString(generateReturnValues(op))
 	result.WriteString("\n}")
 
 	return result.String()
 }
 
-// formatErrorReturn formats the error return statement for a function
-func formatErrorReturn(HasOneImageOutput, hasBufferOutput bool, outputs []introspection.Argument) string {
+// generateErrorReturn formats the error return statement for a function
+func generateErrorReturn(HasOneImageOutput, hasBufferOutput bool, outputs []introspection.Argument) string {
 	if HasOneImageOutput {
 		return "return nil, handleImageError(out)"
 	} else if hasBufferOutput {
@@ -144,9 +144,9 @@ func generateErrorReturnForUtilityCall(op introspection.Operation) string {
 	}
 }
 
-// formatGoArgList formats a list of function arguments for a Go function
+// generateGoArgList formats a list of function arguments for a Go function
 // e.g., "in *C.VipsImage, c []float64, n int"
-func formatGoArgList(op introspection.Operation, withOptions bool) string {
+func generateGoArgList(op introspection.Operation, withOptions bool) string {
 	args := op.Arguments
 	if withOptions {
 		args = append(args, op.OptionalInputs...)
@@ -184,9 +184,9 @@ func formatGoArgList(op introspection.Operation, withOptions bool) string {
 	return strings.Join(params, ", ")
 }
 
-// formatReturnTypes formats the return types for a Go function
+// generateReturnTypes formats the return types for a Go function
 // e.g., "*C.VipsImage, error" or "int, float64, error"
-func formatReturnTypes(op introspection.Operation) string {
+func generateReturnTypes(op introspection.Operation) string {
 	if op.HasOneImageOutput {
 		return "*C.VipsImage, error"
 	} else if op.HasBufferOutput {
@@ -208,8 +208,8 @@ func formatReturnTypes(op introspection.Operation) string {
 	}
 }
 
-// formatVarDeclarations formats variable declarations for output parameters
-func formatVarDeclarations(op introspection.Operation, withOptions bool) string {
+// generateVarDeclarations formats variable declarations for output parameters
+func generateVarDeclarations(op introspection.Operation, withOptions bool) string {
 	var decls []string
 	if op.HasBufferInput {
 		decls = append(decls, fmt.Sprintf("src := %s", getBufferParamName(op.Arguments)))
@@ -448,8 +448,8 @@ func formatArrayConversions(op introspection.Operation, args []introspection.Arg
 	return strings.Join(conversions, "\n\n	")
 }
 
-// formatFunctionCallArgs formats the arguments for the C function call
-func formatFunctionCallArgs(op introspection.Operation, withOptions bool) string {
+// generateFunctionCallArgs formats the arguments for the C function call
+func generateFunctionCallArgs(op introspection.Operation, withOptions bool) string {
 	args := op.Arguments
 	if withOptions {
 		args = append(args, op.OptionalInputs...)
@@ -585,8 +585,8 @@ func formatFunctionCallArgs(op introspection.Operation, withOptions bool) string
 	return strings.Join(callArgs, ", ")
 }
 
-// formatReturnValues formats the return values for the Go function
-func formatReturnValues(op introspection.Operation) string {
+// generateReturnValues formats the return values for the Go function
+func generateReturnValues(op introspection.Operation) string {
 	// Special handling for VipsBlob
 	for _, arg := range op.RequiredOutputs {
 		if arg.CType == "VipsBlob**" && arg.IsOutput {
@@ -624,8 +624,8 @@ func formatReturnValues(op introspection.Operation) string {
 	}
 }
 
-// formatFunctionCall formats the call to the underlying vipsgen function
-func formatFunctionCall(op introspection.Operation) string {
+// generateFunctionCall formats the call to the underlying vipsgen function
+func generateFunctionCall(op introspection.Operation) string {
 	var args []string
 	args = append(args, "r.image")
 
@@ -638,8 +638,8 @@ func formatFunctionCall(op introspection.Operation) string {
 	return fmt.Sprintf("%s(%s)", op.GoName, strings.Join(args, ", "))
 }
 
-// formatImageMethodBody formats the body of an image method using improved argument detection
-func formatImageMethodBody(op introspection.Operation) string {
+// generateImageMethodBody formats the body of an image method using improved argument detection
+func generateImageMethodBody(op introspection.Operation) string {
 	methodArgs := detectMethodArguments(op)
 	goFuncName := "vipsgen" + op.GoName
 	goFuncNameWithOptions := "vipsgen" + op.GoName + "WithOptions"
@@ -1107,8 +1107,8 @@ func detectMethodArguments(op introspection.Operation) []introspection.Argument 
 	return methodArgs
 }
 
-// formatImageMethodParams formats parameters for image methods using improved detection
-func formatImageMethodParams(op introspection.Operation) string {
+// generateImageMethodParams formats parameters for image methods using improved detection
+func generateImageMethodParams(op introspection.Operation) string {
 	methodArgs := detectMethodArguments(op)
 	var params []string
 	for _, arg := range methodArgs {
@@ -1136,8 +1136,8 @@ func formatImageMethodParams(op introspection.Operation) string {
 	return strings.Join(params, ", ")
 }
 
-// formatImageMethodReturnTypes formats return types for image methods
-func formatImageMethodReturnTypes(op introspection.Operation) string {
+// generateImageMethodReturnTypes formats return types for image methods
+func generateImageMethodReturnTypes(op introspection.Operation) string {
 	if op.HasOneImageOutput {
 		return "error"
 	} else if op.HasBufferOutput {
@@ -1165,8 +1165,8 @@ func formatImageMethodReturnTypes(op introspection.Operation) string {
 	}
 }
 
-// formatCreatorMethodParams formats the parameters for a creator method
-func formatCreatorMethodParams(op introspection.Operation) string {
+// generateCreatorMethodParams formats the parameters for a creator method
+func generateCreatorMethodParams(op introspection.Operation) string {
 	inputParams := op.RequiredInputs
 	var hasBufParam bool
 	var params []string
@@ -1196,8 +1196,8 @@ func formatCreatorMethodParams(op introspection.Operation) string {
 	return strings.Join(params, ", ")
 }
 
-// formatCreatorMethodBody formats the body of a creator method
-func formatCreatorMethodBody(op introspection.Operation) string {
+// generateCreatorMethodBody formats the body of a creator method
+func generateCreatorMethodBody(op introspection.Operation) string {
 	inputParams := op.RequiredInputs
 	var hasBufParam bool
 	goFuncName := "vipsgen" + op.GoName
@@ -1280,8 +1280,8 @@ func formatCreatorMethodBody(op introspection.Operation) string {
 	return body
 }
 
-// formatCFunctionSignature generates just the function signature for vips operations
-func formatCFunctionSignature(op introspection.Operation, includeParamNames bool) string {
+// generateCFunctionSignature generates just the function signature for vips operations
+func generateCFunctionSignature(op introspection.Operation, includeParamNames bool) string {
 	var result strings.Builder
 	result.WriteString(fmt.Sprintf("int vipsgen_%s(", op.Name))
 	if len(op.Arguments) > 0 {
@@ -1300,8 +1300,8 @@ func formatCFunctionSignature(op introspection.Operation, includeParamNames bool
 	return result.String()
 }
 
-// formatCFunctionWithOptionsSignature generates the signature for the _with_options variant
-func formatCFunctionWithOptionsSignature(op introspection.Operation, includeParamNames bool) string {
+// generateCFunctionWithOptionsSignature generates the signature for the _with_options variant
+func generateCFunctionWithOptionsSignature(op introspection.Operation, includeParamNames bool) string {
 	if len(op.OptionalInputs) == 0 {
 		return ""
 	}
@@ -1337,13 +1337,13 @@ func formatCFunctionWithOptionsSignature(op introspection.Operation, includePara
 	return result.String()
 }
 
-// formatCFunctionDeclaration generates header declarations for vips operations
-func formatCFunctionDeclaration(op introspection.Operation) string {
+// generateCFunctionDeclaration generates header declarations for vips operations
+func generateCFunctionDeclaration(op introspection.Operation) string {
 	var result strings.Builder
 	if len(op.Arguments) == 0 {
 		result.WriteString(fmt.Sprintf("int vipsgen_%s();", op.Name))
 	} else {
-		result.WriteString(formatCFunctionSignature(op, true))
+		result.WriteString(generateCFunctionSignature(op, true))
 		result.WriteString(";")
 	}
 
@@ -1399,8 +1399,8 @@ func getArrayType(goType string) string {
 	}
 }
 
-// formatCFunctionImplementation generates C implementations for vips operations
-func formatCFunctionImplementation(op introspection.Operation) string {
+// generateCFunctionImplementation generates C implementations for vips operations
+func generateCFunctionImplementation(op introspection.Operation) string {
 	var result strings.Builder
 	// Check if any argument is an array type
 	hasOptionalArray := false
@@ -1422,7 +1422,7 @@ func formatCFunctionImplementation(op introspection.Operation) string {
 		result.WriteString(fmt.Sprintf("int vipsgen_%s() {\n", op.Name))
 		result.WriteString(fmt.Sprintf("    return vips_%s(NULL);\n}", op.Name))
 	} else {
-		result.WriteString(formatCFunctionSignature(op, true))
+		result.WriteString(generateCFunctionSignature(op, true))
 		result.WriteString(" {\n")
 
 		result.WriteString(fmt.Sprintf("    return vips_%s(", op.Name))
@@ -1595,8 +1595,8 @@ func generateOptionalInputsStruct(op introspection.Operation) string {
 	return result.String()
 }
 
-// formatFunctionCallArgsWithoutThis formats function call arguments without the 'this' pointer
-func formatFunctionCallArgsWithoutThis(op introspection.Operation) string {
+// generateFunctionCallArgsWithoutThis formats function call arguments without the 'this' pointer
+func generateFunctionCallArgsWithoutThis(op introspection.Operation) string {
 	var args []string
 	for _, arg := range op.RequiredInputs {
 		if arg.IsNInput {

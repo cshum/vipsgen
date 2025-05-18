@@ -5,7 +5,7 @@
 #include <vips/vector.h>
 
 {{range .Operations}}
-{{formatCFunctionDeclaration .}}
+{{generateCFunctionDeclaration .}}
 {{end}}
 
 int image_new_from_source(VipsSourceCustom *source, VipsImage **out);

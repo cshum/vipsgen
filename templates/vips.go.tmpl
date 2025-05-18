@@ -9,9 +9,9 @@ import (
 )
 
 {{range .Operations}}
-{{formatGoFunctionBody . false}}
+{{generateGoFunctionBody . false}}
 {{if gt (len .OptionalInputs) 0}}
-{{formatGoFunctionBody . true}}
+{{generateGoFunctionBody . true}}
 {{end}}{{end}}
 
 // https://www.libvips.org/API/current/VipsImage.html#vips-image-new-from-source

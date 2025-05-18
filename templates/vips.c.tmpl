@@ -4,7 +4,7 @@
 #include <unistd.h>
 
 {{range .Operations}}
-{{formatCFunctionImplementation .}}
+{{generateCFunctionImplementation .}}
 {{end}}
 
 int image_new_from_source(VipsSourceCustom *source, VipsImage **out) {
