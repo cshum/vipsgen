@@ -27,7 +27,7 @@ func GetTemplateFuncMap() template.FuncMap {
 		"formatCFunctionWithOptionsSignature": formatCFunctionWithOptionsSignature,
 		"formatCFunctionDeclaration":          formatCFunctionDeclaration,
 		"formatCFunctionImplementation":       formatCFunctionImplementation,
-		"generateOptionalInputsParamsStruct":  generateOptionalInputsParamsStruct,
+		"generateOptionalInputsStruct":        generateOptionalInputsStruct,
 	}
 }
 
@@ -664,6 +664,9 @@ func formatImageMethodParams(op introspection.Operation) string {
 
 		params = append(params, fmt.Sprintf("%s %s", arg.GoName, paramType))
 	}
+	if len(op.OptionalInputs) > 0 {
+
+	}
 	return strings.Join(params, ", ")
 }
 
@@ -877,12 +880,15 @@ func formatCFunctionImplementation(op introspection.Operation) string {
 	return result.String()
 }
 
-// generateOptionalInputsParamsStruct generates a parameter struct for an operation
-func generateOptionalInputsParamsStruct(op introspection.Operation) string {
+// generateOptionalInputsStruct generates a parameter struct for an operation
+func generateOptionalInputsStruct(op introspection.Operation) string {
+	if len(op.OptionalInputs) == 0 {
+		return ""
+	}
 	var result strings.Builder
 
 	// Determine the struct name
-	var structName = op.GoName + "Params"
+	var structName = op.GoName + "Options"
 
 	result.WriteString(fmt.Sprintf("// %s optional arguments for vips_%s\n", structName, op.Name))
 	result.WriteString(fmt.Sprintf("type %s struct {\n", structName))
