@@ -1202,21 +1202,27 @@ func generateOptionalInputsStruct(op introspection.Operation) string {
 	// Add all optional parameters to the struct
 	for _, opt := range op.OptionalInputs {
 		fieldName := strings.Title(opt.GoName)
-		fieldType := opt.GoType
-
+		var fieldType string
+		// Convert parameter types for struct
+		if opt.GoType == "*C.VipsImage" {
+			fieldType = "*Image"
+		} else if opt.GoType == "[]*C.VipsImage" {
+			fieldType = "[]*Image"
+		} else if opt.CType == "void*" {
+			fieldType = "[]byte"
+		} else {
+			fieldType = opt.GoType
+		}
 		// Handle enum types by using the proper Go enum type
 		if opt.IsEnum && opt.EnumType != "" {
 			fieldType = opt.EnumType
 		}
-
 		// Add comment with description if available
 		if opt.Description != "" {
 			result.WriteString(fmt.Sprintf("\t// %s %s\n", fieldName, opt.Description))
 		}
-
 		result.WriteString(fmt.Sprintf("\t%s %s\n", fieldName, fieldType))
 	}
-
 	result.WriteString("}\n\n")
 
 	// Create a constructor with default values
