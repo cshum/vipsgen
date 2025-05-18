@@ -38,6 +38,7 @@ type Argument struct {
 	Description  string
 	Required     bool
 	IsInput      bool
+	IsNInput     bool
 	IsOutput     bool
 	IsImage      bool
 	IsBuffer     bool
@@ -45,6 +46,7 @@ type Argument struct {
 	Flags        int
 	IsEnum       bool
 	EnumType     string
+	NArrayFrom   string
 	DefaultValue interface{}
 }
 

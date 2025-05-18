@@ -174,6 +174,9 @@ func (v *Introspection) GetOperationArguments(opName string) ([]Argument, error)
 		// Determine Go type and C type based on GType
 		goArg.Type, goArg.GoType, goArg.CType = v.mapGTypeToTypes(arg.type_val, cTypeName, isOutput)
 
+		// Determine a special case for affine matrix
+		isAffineMatrix := opName == "affine" && name == "matrix"
+
 		// Extract default value if present
 		if hasDefault {
 			goArg.DefaultValue = v.extractDefaultValue(arg, goArg.GoType)
@@ -181,15 +184,15 @@ func (v *Introspection) GetOperationArguments(opName string) ([]Argument, error)
 
 		// If it's an enum or flags, get the proper type name
 		if goArg.IsEnum {
-			enumTypeName := C.GoString(C.g_type_name(arg.type_val))
-			goArg.EnumType = v.GetGoEnumName(enumTypeName)
-			v.AddEnumType(enumTypeName, goArg.EnumType)
+			enumName := C.GoString(C.g_type_name(arg.type_val))
+			goArg.EnumType = v.GetGoEnumName(enumName)
+			v.AddEnumType(enumName, goArg.EnumType)
 		}
 		// gather arguments and detect if we need to add an 'n' parameter
 		if name == "n" {
 			hasNParam = true
 		}
-		if isArray && isInput && required {
+		if isArray && isInput && required && !isAffineMatrix {
 			hasArrayInput = i
 		}
 		if (isArray || (hasArrayInput >= 0 && isImage)) && isOutput && required {
@@ -205,7 +208,7 @@ func (v *Introspection) GetOperationArguments(opName string) ([]Argument, error)
 		}
 
 		// special case: affine operation to use individual parameters
-		if opName == "affine" && goArg.Name == "matrix" {
+		if isAffineMatrix {
 			aArg := Argument{
 				Name:        "a",
 				GoName:      "a",
@@ -358,6 +361,10 @@ func (v *Introspection) GetOperationArguments(opName string) ([]Argument, error)
 		if i > len(goArgs) {
 			i = len(goArgs)
 		}
+		var nFrom string
+		if hasArrayInput >= 0 && hasArrayInput < len(goArgs) && goArgs[hasArrayInput].IsArray {
+			nFrom = goArgs[hasArrayInput].Name
+		}
 		// Add input 'n' parameter for array operations like linear, remainder_const, etc.
 		var nParam Argument
 		if hasArrayNOutput >= 0 && !goArgs[hasArrayNOutput].IsImage {
@@ -383,6 +390,8 @@ func (v *Introspection) GetOperationArguments(opName string) ([]Argument, error)
 				CType:       "int",
 				Description: "Array length",
 				Required:    true, // Required for input arrays in most cases
+				IsNInput:    true,
+				NArrayFrom:  nFrom,
 				IsInput:     true,
 				IsOutput:    false,
 				Flags:       19, // VIPS_ARGUMENT_REQUIRED | VIPS_ARGUMENT_INPUT
