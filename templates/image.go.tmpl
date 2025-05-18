@@ -50,7 +50,7 @@ func {{.GoName}}({{formatCreatorMethodParams .}}) ([]byte, error) {
 {{end}}{{end}}
 
 // LoadOptions are options for loading an image. Some are type-specific.
-// For default loading, use NewDefaultLoadOptions() or specify nil
+// For default loading, use DefaultLoadOptions() or specify nil
 type LoadOptions struct {
 	AutoRotate  bool
 	FailOnError bool
@@ -63,8 +63,8 @@ type LoadOptions struct {
 	SvgUnlimited     bool
 }
 
-// NewDefaultLoadOptions creates default LoadOptions
-func NewDefaultLoadOptions() *LoadOptions {
+// DefaultLoadOptions creates default LoadOptions
+func DefaultLoadOptions() *LoadOptions {
 	return &LoadOptions{
 		FailOnError: true,
 	}
@@ -105,7 +105,7 @@ func (i *LoadOptions) OptionString() string {
 func NewImageFromSource(s *Source, options *LoadOptions) (*Image, error) {
 	StartupDefault()
 	if options == nil {
-		options = NewDefaultLoadOptions()
+		options = DefaultLoadOptions()
 	}
 	vipsImage, format, err := vipsImageFromSource(s.src, options)
 	if err != nil {
@@ -119,7 +119,7 @@ func NewImageFromSource(s *Source, options *LoadOptions) (*Image, error) {
 func NewThumbnailFromSource(s *Source, width, height int, crop Interesting, size Size, options *LoadOptions) (*Image, error) {
 	StartupDefault()
 	if options == nil {
-		options = NewDefaultLoadOptions()
+		options = DefaultLoadOptions()
 	}
 	vipsImage, format, err := vipsThumbnailFromSource(
 		s.src, width, height, crop, size, options)
@@ -134,7 +134,7 @@ func NewThumbnailFromSource(s *Source, width, height int, crop Interesting, size
 func NewImageFromBuffer(buf []byte, options *LoadOptions) (*Image, error) {
 	StartupDefault()
 	if options == nil {
-		options = NewDefaultLoadOptions()
+		options = DefaultLoadOptions()
 	}
 	vipsImage, format, err := vipsImageFromBuffer(buf, options)
 	if err != nil {
@@ -148,7 +148,7 @@ func NewImageFromBuffer(buf []byte, options *LoadOptions) (*Image, error) {
 func NewImageFromFile(file string, options *LoadOptions) (*Image, error) {
 	StartupDefault()
 	if options == nil {
-		options = NewDefaultLoadOptions()
+		options = DefaultLoadOptions()
 	}
 	vipsImage, format, err := vipsImageFromFile(file, options)
 	if err != nil {
@@ -162,7 +162,7 @@ func NewImageFromFile(file string, options *LoadOptions) (*Image, error) {
 func NewThumbnailFromFile(file string, width, height int, crop Interesting, size Size, options *LoadOptions) (*Image, error) {
 	StartupDefault()
 	if options == nil {
-		options = NewDefaultLoadOptions()
+		options = DefaultLoadOptions()
 	}
 	vipsImage, format, err := vipsThumbnailFromFile(file, width, height, crop, size, options)
 	if err != nil {
@@ -176,7 +176,7 @@ func NewThumbnailFromFile(file string, width, height int, crop Interesting, size
 func NewThumbnailFromBuffer(buf []byte, width, height int, crop Interesting, size Size, options *LoadOptions) (*Image, error) {
 	StartupDefault()
 	if options == nil {
-		options = NewDefaultLoadOptions()
+		options = DefaultLoadOptions()
 	}
 	vipsImage, format, err := vipsThumbnailFromBuffer(buf, width, height, crop, size, options)
 	if err != nil {
