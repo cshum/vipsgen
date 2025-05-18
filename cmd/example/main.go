@@ -19,9 +19,9 @@ func main() {
 	source := vips.NewSource(resp.Body)
 	defer source.Close() // source needs to remain available during the lifetime of image
 
-	params := vips.NewLoadParams()
-	params.NumPages.Set(-1)                               // enable animation
-	image, err := vips.NewImageFromSource(source, params) // load image from source
+	loadOptions := vips.NewDefaultLoadOptions()
+	loadOptions.NumPages = -1
+	image, err := vips.NewImageFromSource(source, loadOptions) // load image from source
 	if err != nil {
 		panic(err)
 	}

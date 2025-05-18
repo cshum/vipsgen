@@ -41,65 +41,65 @@ func (r *Image) {{.GoName}}({{formatImageMethodParams .}}) ({{formatImageMethodR
 }
 {{end}}{{end}}
 
-// LoadParams are options for loading an image. Some are type-specific.
-// For default loading, use NewLoadParams() or specify nil
-type LoadParams struct {
-	AutoRotate  BoolParam
-	FailOnError BoolParam
-	Page        IntParam
-	NumPages    IntParam
-	Density     IntParam
+// LoadOptions are options for loading an image. Some are type-specific.
+// For default loading, use NewDefaultLoadOptions() or specify nil
+type LoadOptions struct {
+	AutoRotate  bool
+	FailOnError bool
+	Page        int
+	NumPages    int
+	Density     int
 
-	JpegShrinkFactor IntParam
-	HeifThumbnail    BoolParam
-	SvgUnlimited     BoolParam
+	JpegShrinkFactor int
+	HeifThumbnail    bool
+	SvgUnlimited     bool
 }
 
-// NewLoadParams creates default LoadParams
-func NewLoadParams() *LoadParams {
-	p := &LoadParams{}
-	p.FailOnError.Set(true)
-	return p
+// NewDefaultLoadOptions creates default LoadOptions
+func NewDefaultLoadOptions() *LoadOptions {
+	return &LoadOptions{
+		FailOnError: true,
+	}
 }
 
 // OptionString convert import params to option_string
-func (i *LoadParams) OptionString() string {
+func (i *LoadOptions) OptionString() string {
 	var values []string
-	if v := i.NumPages; v.IsSet() {
-		values = append(values, "n="+strconv.Itoa(v.Get()))
+	if v := i.NumPages; v != 0 {
+		values = append(values, "n="+strconv.Itoa(v))
 	}
-	if v := i.Page; v.IsSet() {
-		values = append(values, "page="+strconv.Itoa(v.Get()))
+	if v := i.Page; v != 0 {
+		values = append(values, "page="+strconv.Itoa(v))
 	}
-	if v := i.Density; v.IsSet() {
-		values = append(values, "dpi="+strconv.Itoa(v.Get()))
+	if v := i.Density; v != 0 {
+		values = append(values, "dpi="+strconv.Itoa(v))
 	}
-	if v := i.FailOnError; v.IsSet() {
-		values = append(values, "fail="+boolToStr(v.Get()))
+	if v := i.FailOnError; v {
+		values = append(values, "fail="+boolToStr(v))
 	}
-	if v := i.JpegShrinkFactor; v.IsSet() {
-		values = append(values, "shrink="+strconv.Itoa(v.Get()))
+	if v := i.JpegShrinkFactor; v != 0 {
+		values = append(values, "shrink="+strconv.Itoa(v))
 	}
-	if v := i.AutoRotate; v.IsSet() {
-		values = append(values, "autorotate="+boolToStr(v.Get()))
+	if v := i.AutoRotate; v {
+		values = append(values, "autorotate="+boolToStr(v))
 	}
-	if v := i.SvgUnlimited; v.IsSet() {
-		values = append(values, "unlimited="+boolToStr(v.Get()))
+	if v := i.SvgUnlimited; v {
+		values = append(values, "unlimited="+boolToStr(v))
 	}
-	if v := i.HeifThumbnail; v.IsSet() {
-		values = append(values, "thumbnail="+boolToStr(v.Get()))
+	if v := i.HeifThumbnail; v {
+		values = append(values, "thumbnail="+boolToStr(v))
 	}
 	return strings.Join(values, ",")
 }
 
 // NewImageFromSource loads a Source and creates a new Image
 // https://www.libvips.org/API/current/VipsImage.html#vips-image-new-from-source
-func NewImageFromSource(s *Source, params *LoadParams) (*Image, error) {
+func NewImageFromSource(s *Source, options *LoadOptions) (*Image, error) {
 	StartupDefault()
-	if params == nil {
-		params = NewLoadParams()
+	if options == nil {
+		options = NewDefaultLoadOptions()
 	}
-	vipsImage, format, err := vipsImageFromSource(s.src, params)
+	vipsImage, format, err := vipsImageFromSource(s.src, options)
 	if err != nil {
 		return nil, err
 	}
@@ -108,13 +108,13 @@ func NewImageFromSource(s *Source, params *LoadParams) (*Image, error) {
 
 // NewThumbnailFromSource loads a Source and creates a new Image with thumbnail crop and resize
 // https://www.libvips.org/API/current/libvips-resample.html#vips-thumbnail-source
-func NewThumbnailFromSource(s *Source, width, height int, crop Interesting, size Size, params *LoadParams) (*Image, error) {
+func NewThumbnailFromSource(s *Source, width, height int, crop Interesting, size Size, options *LoadOptions) (*Image, error) {
 	StartupDefault()
-	if params == nil {
-		params = NewLoadParams()
+	if options == nil {
+		options = NewDefaultLoadOptions()
 	}
 	vipsImage, format, err := vipsThumbnailFromSource(
-		s.src, width, height, crop, size, params)
+		s.src, width, height, crop, size, options)
 	if err != nil {
 		return nil, err
 	}
@@ -123,12 +123,12 @@ func NewThumbnailFromSource(s *Source, width, height int, crop Interesting, size
 
 // NewImageFromBuffer loads an image buffer and creates a new Image
 // https://www.libvips.org/API/current/VipsImage.html#vips-image-new-from-buffer
-func NewImageFromBuffer(buf []byte, params *LoadParams) (*Image, error) {
+func NewImageFromBuffer(buf []byte, options *LoadOptions) (*Image, error) {
 	StartupDefault()
-	if params == nil {
-		params = NewLoadParams()
+	if options == nil {
+		options = NewDefaultLoadOptions()
 	}
-	vipsImage, format, err := vipsImageFromBuffer(buf, params)
+	vipsImage, format, err := vipsImageFromBuffer(buf, options)
 	if err != nil {
 		return nil, err
 	}
@@ -137,12 +137,12 @@ func NewImageFromBuffer(buf []byte, params *LoadParams) (*Image, error) {
 
 // NewImageFromFile loads an image from file and creates a new Image
 // https://www.libvips.org/API/current/VipsImage.html#vips-image-new-from-file
-func NewImageFromFile(file string, params *LoadParams) (*Image, error) {
+func NewImageFromFile(file string, options *LoadOptions) (*Image, error) {
 	StartupDefault()
-	if params == nil {
-		params = NewLoadParams()
+	if options == nil {
+		options = NewDefaultLoadOptions()
 	}
-	vipsImage, format, err := vipsImageFromFile(file, params)
+	vipsImage, format, err := vipsImageFromFile(file, options)
 	if err != nil {
 		return nil, err
 	}
@@ -151,12 +151,12 @@ func NewImageFromFile(file string, params *LoadParams) (*Image, error) {
 
 // NewThumbnailFromFile loads a thumbnail from file with crop and resize
 // https://www.libvips.org/API/current/libvips-resample.html#vips-thumbnail
-func NewThumbnailFromFile(file string, width, height int, crop Interesting, size Size, params *LoadParams) (*Image, error) {
+func NewThumbnailFromFile(file string, width, height int, crop Interesting, size Size, options *LoadOptions) (*Image, error) {
 	StartupDefault()
-	if params == nil {
-		params = NewLoadParams()
+	if options == nil {
+		options = NewDefaultLoadOptions()
 	}
-	vipsImage, format, err := vipsThumbnailFromFile(file, width, height, crop, size, params)
+	vipsImage, format, err := vipsThumbnailFromFile(file, width, height, crop, size, options)
 	if err != nil {
 		return nil, err
 	}
@@ -165,12 +165,12 @@ func NewThumbnailFromFile(file string, width, height int, crop Interesting, size
 
 // NewThumbnailFromBuffer loads a thumbnail from buffer with crop and resize
 // https://www.libvips.org/API/current/libvips-resample.html#vips-thumbnail-buffer
-func NewThumbnailFromBuffer(buf []byte, width, height int, crop Interesting, size Size, params *LoadParams) (*Image, error) {
+func NewThumbnailFromBuffer(buf []byte, width, height int, crop Interesting, size Size, options *LoadOptions) (*Image, error) {
 	StartupDefault()
-	if params == nil {
-		params = NewLoadParams()
+	if options == nil {
+		options = NewDefaultLoadOptions()
 	}
-	vipsImage, format, err := vipsThumbnailFromBuffer(buf, width, height, crop, size, params)
+	vipsImage, format, err := vipsThumbnailFromBuffer(buf, width, height, crop, size, options)
 	if err != nil {
 		return nil, err
 	}
