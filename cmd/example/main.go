@@ -34,7 +34,9 @@ func main() {
 	}); err != nil {
 		panic(err)
 	}
-	buf, err := image.GifsaveBuffer(vips.DefaultGifsaveBufferOptions())
+	options := vips.NewDefaultGifsaveBufferOptions()
+	options.Keep = vips.KeepIcc
+	buf, err := image.GifsaveBuffer(options)
 	if err != nil {
 		panic(err)
 	}
