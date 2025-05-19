@@ -4,9 +4,7 @@ package introspection
 // #include "introspection.h"
 import "C"
 import (
-	"fmt"
 	"log"
-	"strings"
 )
 
 type enumTypeName struct {
@@ -71,51 +69,4 @@ func NewIntrospection() *Introspection {
 		discoveredImageTypes: map[string]ImageTypeInfo{},
 		enumTypeNames:        baseEnumTypeNames,
 	}
-}
-
-// FilterOperations filters operations based on availability in the current libvips installation,
-// excluded operations list, and deduplicates by Go function name
-func (v *Introspection) FilterOperations(operations []Operation) []Operation {
-	// Filter out excluded operations and deduplicate by Go function name
-	seenFunctions := make(map[string]bool)
-	var filteredOps []Operation
-	var excludedCount, duplicateCount int
-
-	for _, op := range operations {
-		if strings.Contains(op.Name, "_source") || strings.Contains(op.Name, "_target") ||
-			strings.Contains(op.Name, "_mime") {
-			fmt.Printf("Excluding operation: %s \n", op.Name)
-			excludedCount++
-			continue
-		}
-
-		// Check if operation is explicitly excluded
-		if ExcludedOperations[op.Name] {
-			fmt.Printf("Excluding operation: %s (in ExcludedOperations list)\n", op.Name)
-			excludedCount++
-			continue
-		}
-
-		// Check if operation is excluded by config
-		if config, ok := OperationConfigs[op.Name]; ok && config.SkipGen {
-			fmt.Printf("Skipping operation (configured in OperationConfigs): %s\n", op.Name)
-			excludedCount++
-			continue
-		}
-
-		// Check for duplicate Go function names
-		if seenFunctions[op.GoName] {
-			fmt.Printf("Skipping duplicate function: %s (from operation: %s)\n", op.GoName, op.Name)
-			duplicateCount++
-			continue
-		}
-		seenFunctions[op.GoName] = true
-
-		filteredOps = append(filteredOps, op)
-	}
-
-	fmt.Printf("Filtered operations: %d (%d excluded, %d duplicates)\n",
-		len(filteredOps), excludedCount, duplicateCount)
-
-	return filteredOps
 }

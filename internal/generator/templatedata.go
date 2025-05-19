@@ -34,11 +34,10 @@ func NewTemplateData(
 	}
 
 	return &TemplateData{
-		Operations:       operations,
-		OperationConfigs: introspection.OperationConfigs,
-		EnumTypes:        enumTypes,
-		ImageTypes:       imageTypes,
-		EnumTypeMap:      enumTypeMap,
+		Operations:  operations,
+		EnumTypes:   enumTypes,
+		ImageTypes:  imageTypes,
+		EnumTypeMap: enumTypeMap,
 
 		// Specific saver flags for templates that expect them
 		HasJpegSaver:      supportedSavers["HasJpegSaver"],

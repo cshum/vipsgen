@@ -24,6 +24,9 @@ func (v *Introspection) DiscoverOperations() []Operation {
 	opsSlice := (*[1 << 30]C.OperationInfo)(unsafe.Pointer(opsPtr))[:nOps:nOps]
 	var operations []Operation
 
+	seenOperations := make(map[string]bool)
+	var excludedCount, duplicateCount int
+
 	for i := 0; i < int(nOps); i++ {
 		cOp := opsSlice[i]
 		name := C.GoString(cOp.name)
@@ -89,9 +92,24 @@ func (v *Introspection) DiscoverOperations() []Operation {
 			// operations that should not mutate the Image object
 			op.HasOneImageOutput = false
 		}
+		if strings.Contains(op.Name, "_source") || strings.Contains(op.Name, "_target") ||
+			strings.Contains(op.Name, "_mime") {
+			fmt.Printf("Excluding operation: %s \n", op.Name)
+			excludedCount++
+			continue
+		}
+		// Check for duplicate Go function names
+		if seenOperations[op.GoName] {
+			fmt.Printf("Skipping duplicate function: %s (from operation: %s)\n", op.GoName, op.Name)
+			duplicateCount++
+			continue
+		}
+		seenOperations[op.GoName] = true
 
 		operations = append(operations, op)
 	}
+	fmt.Printf("Discovered Operations: %d (%d excluded, %d duplicates)\n",
+		len(operations), excludedCount, duplicateCount)
 
 	// Debug: Write the parsed GIR to a JSON file
 	jsonData, err := json.MarshalIndent(operations, "", "  ")
