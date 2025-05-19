@@ -8,7 +8,7 @@ import (
 )
 
 // Introspection provides discovery and analysis of libvips operations
-// through reflection of the C library's type system, extracting operation
+// through GObject Introspection, extracting operation
 // metadata, argument details, and supported enum types.
 type Introspection struct {
 	discoveredEnumTypes  map[string]string
