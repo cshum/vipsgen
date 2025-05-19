@@ -286,7 +286,7 @@ func generateVarDeclarations(op introspection.Operation, withOptions bool) strin
 			if arg.GoType == "[]float64" || arg.GoType == "[]float32" {
 				// For required array parameters in non-options function, we don't need the length
 				lengthVar := fmt.Sprintf("c%sLength", arg.GoName)
-				if arg.Required {
+				if arg.IsRequired {
 					lengthVar = "_" // Use underscore for unused length
 				}
 
@@ -302,7 +302,7 @@ func generateVarDeclarations(op introspection.Operation, withOptions bool) strin
 			} else if arg.GoType == "[]int" {
 				// For required array parameters in non-options function, we don't need the length
 				lengthVar := fmt.Sprintf("c%sLength", arg.GoName)
-				if arg.Required {
+				if arg.IsRequired {
 					lengthVar = "_" // Use underscore for unused length
 				}
 
@@ -318,7 +318,7 @@ func generateVarDeclarations(op introspection.Operation, withOptions bool) strin
 			} else if arg.GoType == "[]BlendMode" {
 				// For required array parameters in non-options function, we don't need the length
 				lengthVar := fmt.Sprintf("c%sLength", arg.GoName)
-				if arg.Required {
+				if arg.IsRequired {
 					lengthVar = "_" // Use underscore for unused length
 				}
 
@@ -334,7 +334,7 @@ func generateVarDeclarations(op introspection.Operation, withOptions bool) strin
 			} else if arg.GoType == "[]*Image" || arg.GoType == "[]*C.VipsImage" {
 				// For required array parameters in non-options function, we don't need the length
 				lengthVar := fmt.Sprintf("c%sLength", arg.GoName)
-				if arg.Required {
+				if arg.IsRequired {
 					lengthVar = "_" // Use underscore for unused length
 				}
 
@@ -527,7 +527,7 @@ func generateFunctionCallArgs(op introspection.Operation, withOptions bool) stri
 
 				// Check if we should add array length parameter based on type
 				needsLengthParam := false
-				if !arg.Required && (arg.GoType == "[]float64" || arg.GoType == "[]float32" ||
+				if !arg.IsRequired && (arg.GoType == "[]float64" || arg.GoType == "[]float32" ||
 					arg.GoType == "[]int" || arg.GoType == "[]BlendMode" ||
 					arg.GoType == "[]*C.VipsImage" || arg.GoType == "[]*Image") {
 					needsLengthParam = true

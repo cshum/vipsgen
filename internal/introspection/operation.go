@@ -54,7 +54,7 @@ func (v *Introspection) GetOperationArguments(opName string) ([]Argument, error)
 			Name:        FormatIdentifier(name),
 			GoName:      FormatGoIdentifier(name),
 			Description: description,
-			Required:    required,
+			IsRequired:  required,
 			IsInput:     isInput,
 			IsOutput:    isOutput,
 			IsImage:     isImage,
@@ -74,7 +74,7 @@ func (v *Introspection) GetOperationArguments(opName string) ([]Argument, error)
 		goArg.Type, goArg.GoType, goArg.CType = v.mapGTypeToTypes(arg.type_val, cTypeName, isOutput)
 
 		// Determine a special case for affine matrix
-		isAffineMatrix := goArg.Name == "matrix" && goArg.IsArray && goArg.Required && goArg.IsInput
+		isAffineMatrix := goArg.Name == "matrix" && goArg.IsArray && goArg.IsRequired && goArg.IsInput
 
 		// Extract default value if present
 		if hasDefault {
@@ -111,7 +111,7 @@ func (v *Introspection) GetOperationArguments(opName string) ([]Argument, error)
 				GoType:      "float64",
 				CType:       "double",
 				Description: "Coefficient a (horizontal scale)",
-				Required:    true,
+				IsRequired:  true,
 				IsInput:     true,
 				IsOutput:    false,
 				Flags:       19, // VIPS_ARGUMENT_REQUIRED | VIPS_ARGUMENT_INPUT
@@ -123,7 +123,7 @@ func (v *Introspection) GetOperationArguments(opName string) ([]Argument, error)
 				GoType:      "float64",
 				CType:       "double",
 				Description: "Coefficient b (horizontal shear)",
-				Required:    true,
+				IsRequired:  true,
 				IsInput:     true,
 				IsOutput:    false,
 				Flags:       19,
@@ -135,7 +135,7 @@ func (v *Introspection) GetOperationArguments(opName string) ([]Argument, error)
 				GoType:      "float64",
 				CType:       "double",
 				Description: "Coefficient c (vertical shear)",
-				Required:    true,
+				IsRequired:  true,
 				IsInput:     true,
 				IsOutput:    false,
 				Flags:       19,
@@ -147,7 +147,7 @@ func (v *Introspection) GetOperationArguments(opName string) ([]Argument, error)
 				GoType:      "float64",
 				CType:       "double",
 				Description: "Coefficient d (vertical scale)",
-				Required:    true,
+				IsRequired:  true,
 				IsInput:     true,
 				IsOutput:    false,
 				Flags:       19,
@@ -184,7 +184,7 @@ func (v *Introspection) GetOperationArguments(opName string) ([]Argument, error)
 					GoType:      "int",
 					CType:       "size_t",
 					Description: "Size of buffer in bytes",
-					Required:    true,
+					IsRequired:  true,
 					IsInput:     true,
 					IsOutput:    false,
 					Flags:       19, // VIPS_ARGUMENT_REQUIRED | VIPS_ARGUMENT_INPUT
@@ -235,7 +235,7 @@ func (v *Introspection) GetOperationArguments(opName string) ([]Argument, error)
 					GoType:      "int",
 					CType:       "size_t*",
 					Description: "Size of output buffer in bytes",
-					Required:    true,
+					IsRequired:  true,
 					IsInput:     false,
 					IsOutput:    true,
 					Flags:       35, // VIPS_ARGUMENT_REQUIRED | VIPS_ARGUMENT_OUTPUT
@@ -270,7 +270,7 @@ func (v *Introspection) GetOperationArguments(opName string) ([]Argument, error)
 				GoType:      "int",
 				CType:       "int*",
 				Description: "Length of output array",
-				Required:    true,
+				IsRequired:  true,
 				IsInput:     false,
 				IsOutput:    true,
 				Flags:       35, // VIPS_ARGUMENT_REQUIRED | VIPS_ARGUMENT_OUTPUT
@@ -284,7 +284,7 @@ func (v *Introspection) GetOperationArguments(opName string) ([]Argument, error)
 				GoType:      "int",
 				CType:       "int",
 				Description: "Array length",
-				Required:    true, // Required for input arrays in most cases
+				IsRequired:  true, // IsRequired for input arrays in most cases
 				IsNInput:    true,
 				NInputFrom:  nFrom,
 				IsInput:     true,

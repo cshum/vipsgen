@@ -11,6 +11,44 @@ import (
 	"unsafe"
 )
 
+// EnumValue represents a value in a libvips enum
+type EnumValue struct {
+	Name        string
+	Value       int
+	Nickname    string
+	Description string
+	GoName      string // The Go-friendly name
+}
+
+// EnumType represents a libvips enum type
+type EnumType struct {
+	Name        string // Original C name (e.g., VipsInterpretation)
+	GoName      string // Go name (e.g., Interpretation)
+	Values      []EnumValue
+	Description string
+}
+
+// EnumTypeInfo holds information about a vips enum type
+type EnumTypeInfo struct {
+	CName       string // Original C name (e.g. VipsInterpretation)
+	GoName      string // Go name (e.g. Interpretation)
+	Description string
+	Values      []EnumValueInfo
+}
+
+// EnumValueInfo holds information about an enum value
+type EnumValueInfo struct {
+	CName       string // C name
+	GoName      string // Go name
+	Value       int    // Numeric value
+	Description string
+}
+
+type enumTypeName struct {
+	CName  string
+	GoName string
+}
+
 // Define a more base list of common enum types to look for in libvips
 var baseEnumTypeNames []enumTypeName
 

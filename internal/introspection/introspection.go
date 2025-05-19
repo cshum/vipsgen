@@ -12,36 +12,46 @@ import (
 	"unsafe"
 )
 
-type enumTypeName struct {
-	CName  string
-	GoName string
+// Operation represents a libvips operation
+type Operation struct {
+	Name               string
+	GoName             string
+	Description        string
+	Arguments          []Argument
+	RequiredInputs     []Argument
+	OptionalInputs     []Argument
+	RequiredOutputs    []Argument
+	OptionalOutputs    []Argument
+	HasImageInput      bool
+	HasImageOutput     bool
+	HasOneImageOutput  bool
+	HasBufferInput     bool
+	HasBufferOutput    bool
+	HasArrayImageInput bool
+	ImageTypeString    string
+	Category           string // arithmetic, conversion, etc
 }
 
-// VipsFunctionInfo holds information needed to generate a wrapper function
-type VipsFunctionInfo struct {
-	Name           string
-	CIdentifier    string
-	ReturnType     string
-	Category       string
-	HasOutParam    bool
-	OutParamIndex  int
-	HasVarArgs     bool
-	Description    string
-	OriginalDoc    string
-	Params         []VipsParamInfo
-	RequiredParams []VipsParamInfo // Non-optional params
-	OptionalParams []VipsParamInfo // Optional params that can be passed as named args
-}
-
-// VipsParamInfo represents a parameter for a vips function
-type VipsParamInfo struct {
-	Name       string
-	CType      string
-	IsOutput   bool
-	IsOptional bool
-	IsArray    bool
-	ArrayType  string
-	IsVarArgs  bool
+// Argument represents an argument to a libvips operation
+type Argument struct {
+	Name         string
+	GoName       string
+	Type         string
+	GoType       string
+	CType        string
+	Description  string
+	IsRequired   bool
+	IsInput      bool
+	IsNInput     bool
+	IsOutput     bool
+	IsImage      bool
+	IsBuffer     bool
+	IsArray      bool
+	Flags        int
+	IsEnum       bool
+	EnumType     string
+	NInputFrom   string
+	DefaultValue interface{}
 }
 
 // Introspection provides discovery and analysis of libvips operations
@@ -50,7 +60,6 @@ type VipsParamInfo struct {
 type Introspection struct {
 	discoveredEnumTypes  map[string]string
 	enumTypeNames        []enumTypeName
-	functionInfo         []VipsFunctionInfo
 	discoveredImageTypes map[string]ImageTypeInfo
 }
 
@@ -136,14 +145,14 @@ func (v *Introspection) DiscoverOperations() []Operation {
 			// Categorize arguments
 			for _, arg := range args {
 				if arg.IsInput {
-					if arg.Required {
+					if arg.IsRequired {
 						op.Arguments = append(op.Arguments, arg)
 						op.RequiredInputs = append(op.RequiredInputs, arg)
 					} else {
 						op.OptionalInputs = append(op.OptionalInputs, arg)
 					}
 				} else if arg.IsOutput {
-					if arg.Required {
+					if arg.IsRequired {
 						op.Arguments = append(op.Arguments, arg)
 						op.RequiredOutputs = append(op.RequiredOutputs, arg)
 					} else {

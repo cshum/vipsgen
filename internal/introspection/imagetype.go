@@ -7,6 +7,14 @@ import (
 	"unsafe"
 )
 
+// ImageTypeInfo represents information about an image type
+type ImageTypeInfo struct {
+	TypeName string // Short name (e.g., "gif")
+	EnumName string // Go enum name (e.g., "ImageTypeGIF")
+	MimeType string // MIME type (e.g., "image/gif")
+	Order    int    // Position in the enum
+}
+
 // getMimeType returns the MIME type for a given image format
 func (v *Introspection) getMimeType(typeName string) string {
 	mimeTypes := map[string]string{
