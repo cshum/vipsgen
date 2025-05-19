@@ -205,12 +205,13 @@ func vipsEmbedMultiPage(in *C.VipsImage, left, top, width, height int, extend Ex
 	return out, nil
 }
 
-func vipsEmbedMultiPageBackground(in *C.VipsImage, left, top, width, height int, backgroundColor *ColorRGBA) (*C.VipsImage, error) {
+func vipsEmbedMultiPageBackground(in *C.VipsImage, left, top, width, height,
+	backgroundColorR, backgroundColorG, backgroundColorB, backgroundColorA int) (*C.VipsImage, error) {
 	var out *C.VipsImage
 
 	if err := C.embed_multi_page_image_background(in, &out, C.int(left), C.int(top), C.int(width),
-		C.int(height), C.double(backgroundColor.R),
-		C.double(backgroundColor.G), C.double(backgroundColor.B), C.double(backgroundColor.A)); err != 0 {
+		C.int(height), C.double(backgroundColorR),
+		C.double(backgroundColorG), C.double(backgroundColorB), C.double(backgroundColorA)); err != 0 {
 		return nil, handleImageError(out)
 	}
 
@@ -240,7 +241,7 @@ func vipsLabel(
 	in *C.VipsImage,
 	text, font string,
 	x, y, size int, align Align,
-	color *Color, opacity float64,
+	colorR, colorG, colorB int, opacity float64,
 ) (*C.VipsImage, error) {
 	var out *C.VipsImage
 	cText := C.CString(text)
@@ -250,7 +251,7 @@ func vipsLabel(
 
 	err := C.label_image(in, &out, cText, cFont,
 		C.int(x), C.int(y), C.int(size), C.VipsAlign(align),
-		C.double(color.R), C.double(color.G), C.double(color.B), C.float(float32(opacity)))
+		C.double(colorR), C.double(colorG), C.double(colorB), C.float(float32(opacity)))
 	if int(err) != 0 {
 		return nil, handleImageError(out)
 	}
