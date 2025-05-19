@@ -1233,6 +1233,11 @@ func generateCreatorMethodBody(op introspection.Operation) string {
 	// Add startup line
 	body = "Startup(nil)\n\t"
 
+	imageTypeString := op.ImageTypeString
+	if strings.Contains(op.Name, "thumbnail") {
+		imageTypeString = "vipsDetermineImageTypeFromMetaLoader(vipsImage)"
+	}
+
 	// Handle options if present
 	if len(op.OptionalInputs) > 0 {
 		// Create options arguments
@@ -1262,7 +1267,7 @@ func generateCreatorMethodBody(op introspection.Operation) string {
 	`,
 			goFuncNameWithOptions,
 			strings.Join(optionsCallArgs, ", "),
-			op.ImageTypeString,
+			imageTypeString,
 			imageRefBuf)
 	}
 
@@ -1274,7 +1279,7 @@ func generateCreatorMethodBody(op introspection.Operation) string {
 	return newImageRef(vipsImage, %s, %s), nil`,
 		goFuncName,
 		strings.Join(callArgs, ", "),
-		op.ImageTypeString,
+		imageTypeString,
 		imageRefBuf)
 
 	return body
