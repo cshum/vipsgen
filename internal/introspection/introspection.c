@@ -362,15 +362,15 @@ OperationDetails get_operation_details(const char *operation_name) {
     if (args) {
         for (int i = 0; i < arg_count; i++) {
             if (args[i].is_input) {
-                if (args[i].is_image) {
-                    details.has_image_input = 1;
-                }
                 if (args[i].is_buffer) {
                     details.has_buffer_input = 1;
                 }
                 GType type = args[i].type_val;
                 if (g_type_is_a(type, vips_array_image_get_type())) {
                     details.has_array_image_input = 1;
+                }
+                if (args[i].is_image && i == 0 && details.has_array_image_input != 1) {
+                    details.has_this_image_input = 1;
                 }
             }
             if (args[i].is_output) {

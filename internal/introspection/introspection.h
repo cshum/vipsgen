@@ -76,7 +76,7 @@ void free_operation_info(OperationInfo *ops, int count);
 
 // Get operation details including whether it has image input/output
 typedef struct {
-    int has_image_input;
+    int has_this_image_input;
     int has_image_output;
     int has_one_image_output;
     int has_buffer_input;

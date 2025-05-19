@@ -21,16 +21,13 @@ type Operation struct {
 	OptionalInputs     []Argument
 	RequiredOutputs    []Argument
 	OptionalOutputs    []Argument
-	HasImageInput      bool
+	HasThisImageInput  bool
 	HasImageOutput     bool
 	HasOneImageOutput  bool
 	HasBufferInput     bool
 	HasBufferOutput    bool
 	HasArrayImageInput bool
 	ImageTypeString    string
-	IsImageMethodFunc  bool
-	IsImageCreatorFunc bool
-	IsUtilFunc         bool
 }
 
 // Argument represents an argument to a libvips operation
@@ -92,7 +89,7 @@ func (v *Introspection) DiscoverOperations() []Operation {
 			Name:               name,
 			GoName:             formatGoFunctionName(name),
 			Description:        description,
-			HasImageInput:      int(details.has_image_input) != 0,
+			HasThisImageInput:  int(details.has_this_image_input) != 0,
 			HasImageOutput:     int(details.has_image_output) != 0,
 			HasOneImageOutput:  int(details.has_one_image_output) != 0,
 			HasBufferInput:     int(details.has_buffer_input) != 0,
@@ -130,11 +127,6 @@ func (v *Introspection) DiscoverOperations() []Operation {
 			// operations that should not mutate the Image object
 			op.HasOneImageOutput = false
 		}
-
-		// define function types
-		op.IsImageCreatorFunc = (op.HasArrayImageInput || !op.HasImageInput) && op.HasImageOutput
-		op.IsImageMethodFunc = op.HasImageInput && !op.HasArrayImageInput
-		op.IsUtilFunc = (!op.HasImageInput || op.HasArrayImageInput) && !op.HasImageOutput
 
 		if strings.Contains(op.Name, "_source") || strings.Contains(op.Name, "_target") ||
 			strings.Contains(op.Name, "_mime") {

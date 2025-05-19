@@ -25,15 +25,15 @@ type Image struct {
 	pageHeight int // cached page height
 }
 
-{{range .Operations}}{{if .IsImageCreatorFunc}}
+{{range .Operations}}{{if and (not .HasThisImageInput) .HasImageOutput}}
 {{generateOptionalInputsStruct .}}
 // New{{.GoName}} {{.Description}}
-func New{{.GoName}}({{generateCreatorMethodParams .}}) (*Image, error) {
+func New{{.GoName}}({{generateMethodParams .}}) (*Image, error) {
 	{{generateCreatorMethodBody .}}
 }
 {{end}}{{end}}
 
-{{range .Operations}}{{if .IsImageMethodFunc}}
+{{range .Operations}}{{if .HasThisImageInput}}
 {{generateOptionalInputsStruct .}}
 // {{.GoName}} {{.Description}}
 func (r *Image) {{.GoName}}({{generateImageMethodParams .}}) ({{generateImageMethodReturnTypes .}}) {
@@ -41,9 +41,9 @@ func (r *Image) {{.GoName}}({{generateImageMethodParams .}}) ({{generateImageMet
 }
 {{end}}{{end}}
 
-{{range .Operations}}{{if .IsUtilFunc}}
+{{range .Operations}}{{if and (not .HasThisImageInput) (not .HasImageOutput)}}
 // {{.GoName}} {{.Description}}
-func {{.GoName}}({{generateCreatorMethodParams .}}) ([]byte, error) {
+func {{.GoName}}({{generateMethodParams .}}) ([]byte, error) {
     Startup(nil)
     return vipsgen{{.GoName}}({{generateUtilFunctionCallArgs .}})
 }

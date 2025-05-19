@@ -16,7 +16,7 @@ func GetTemplateFuncMap() template.FuncMap {
 		"generateImageMethodBody":         generateImageMethodBody,
 		"generateImageMethodParams":       generateImageMethodParams,
 		"generateImageMethodReturnTypes":  generateImageMethodReturnTypes,
-		"generateCreatorMethodParams":     generateCreatorMethodParams,
+		"generateMethodParams":            generateMethodParams,
 		"generateCreatorMethodBody":       generateCreatorMethodBody,
 		"generateCFunctionDeclaration":    generateCFunctionDeclaration,
 		"generateCFunctionImplementation": generateCFunctionImplementation,
@@ -1065,8 +1065,8 @@ func generateImageMethodReturnTypes(op introspection.Operation) string {
 	}
 }
 
-// generateCreatorMethodParams formats the parameters for a creator method
-func generateCreatorMethodParams(op introspection.Operation) string {
+// generateMethodParams formats the parameters for a method
+func generateMethodParams(op introspection.Operation) string {
 	inputParams := op.RequiredInputs
 	var hasBufParam bool
 	var params []string
