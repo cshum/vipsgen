@@ -254,3 +254,134 @@ func (r *Image) SetPageHeight(height int) error {
 func (r *Image) SetPageDelay(delay []int) error {
 	return vipsImageSetDelay(r.image, delay)
 }
+
+// RemoveICCProfile removes the ICC profile from the image
+func (r *Image) RemoveICCProfile() bool {
+	return vipsRemoveICCProfile(r.image)
+}
+
+// RemoveExif removes all metadata from the image (except ICC profile)
+func (r *Image) RemoveExif() error {
+	out, err := vipsRemoveExif(r.image)
+	if err != nil {
+		return err
+	}
+	r.setImage(out)
+	return nil
+}
+
+// EmbedMultiPageOptions are options for EmbedMultiPage method
+type EmbedMultiPageOptions struct {
+	// Extend determines how the image edges are extended
+	Extend Extend
+	// Background color components [0-255]
+	Background []float64
+}
+
+// DefaultEmbedMultiPageOptions creates default options for EmbedMultiPage
+func DefaultEmbedMultiPageOptions() *EmbedMultiPageOptions {
+	return &EmbedMultiPageOptions{
+		Extend:     ExtendBlack,
+		Background: []float64{},
+	}
+}
+
+// EmbedMultiPage embeds the image in a larger image with the specified dimensions
+// When the image has multiple pages (e.g. animated GIF), this embeds each frame
+func (r *Image) EmbedMultiPage(left, top, width, height int, options *EmbedMultiPageOptions) error {
+	if options == nil {
+		options = DefaultEmbedMultiPageOptions()
+	}
+	if options.Extend == ExtendBackground {
+		bg := []float64{0, 0, 0, 255}
+		if len(options.Background) > 0 {
+			for i := 0; i < len(options.Background) && i < 4; i++ {
+				bg[i] = options.Background[i]
+			}
+		}
+		out, err := vipsEmbedMultiPageBackground(
+			r.image,
+			left, top, width, height,
+			int(bg[0]), int(bg[1]), int(bg[2]), int(bg[3]),
+		)
+		if err != nil {
+			return err
+		}
+		r.setImage(out)
+		return nil
+	}
+	out, err := vipsEmbedMultiPage(r.image, left, top, width, height, options.Extend)
+	if err != nil {
+		return err
+	}
+	r.setImage(out)
+	return nil
+}
+
+// ExtractAreaMultiPage extracts a region from the image, working correctly with multi-page (animated) images
+func (r *Image) ExtractAreaMultiPage(left, top, width, height int) error {
+	out, err := vipsExtractAreaMultiPage(r.image, left, top, width, height)
+	if err != nil {
+		return err
+	}
+	r.setImage(out)
+	return nil
+}
+
+// RotateMultiPage rotates an image by the specified angle, working correctly with multi-page (animated) images
+func (r *Image) RotateMultiPage(angle Angle) error {
+	out, err := vipsRotateMultiPage(r.image, angle)
+	if err != nil {
+		return err
+	}
+	r.setImage(out)
+	return nil
+}
+
+// LabelOptions are options for Label method
+type LabelOptions struct {
+	// Font name
+	Font string
+	// Text size
+	Size int
+	// Text alignment
+	Align Align
+	// Text color components [0-255]
+	Color []float64
+	// Text opacity (0-1)
+	Opacity float64
+}
+
+// DefaultLabelOptions creates default options for Label
+func DefaultLabelOptions() *LabelOptions {
+	return &LabelOptions{
+		Font:    "sans",
+		Size:    12,
+		Align:   AlignLow,
+		Color:   []float64{0, 0, 0},
+		Opacity: 1.0,
+	}
+}
+
+// Label adds text to the image
+func (r *Image) Label(text string, x, y int, options *LabelOptions) error {
+	if options == nil {
+		options = DefaultLabelOptions()
+	}
+	color := []float64{0, 0, 0}
+	if options.Color != nil {
+		for i := 0; i < len(options.Color) && i < 3; i++ {
+			color[i] = options.Color[i]
+		}
+	}
+	out, err := vipsLabel(r.image, text, options.Font,
+		x, y, options.Size, options.Align,
+		int(color[0]), int(color[1]), int(color[2]),
+		options.Opacity,
+	)
+	if err != nil {
+		return err
+	}
+	r.setImage(out)
+	return nil
+}
