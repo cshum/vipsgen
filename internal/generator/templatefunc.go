@@ -77,6 +77,10 @@ func generateErrorReturn(HasOneImageOutput, hasBufferOutput bool, outputs []intr
 	} else if len(outputs) > 0 {
 		var returnValues []string
 		for _, arg := range outputs {
+			// Skip returning the length parameter if it's marked as IsOutputN
+			if arg.IsOutputN {
+				continue
+			}
 			if arg.Name == "vector" || arg.Name == "out_array" {
 				returnValues = append(returnValues, "nil")
 			} else {
@@ -161,6 +165,10 @@ func generateReturnTypes(op introspection.Operation) string {
 	} else if len(op.RequiredOutputs) > 0 {
 		var types []string
 		for _, arg := range op.RequiredOutputs {
+			// Skip returning the length parameter if it's marked as IsOutputN
+			if arg.IsOutputN {
+				continue
+			}
 			// Special handling for vector/array return types
 			if arg.Name == "vector" || arg.Name == "out_array" {
 				types = append(types, "[]float64")
@@ -501,6 +509,10 @@ func generateReturnValues(op introspection.Operation) string {
 		var values []string
 
 		for _, arg := range op.RequiredOutputs {
+			// Skip returning the length parameter if it's marked as IsOutputN
+			if arg.IsOutputN {
+				continue
+			}
 			// Special handling for vector outputs like getpoint
 			if arg.Name == "vector" || arg.Name == "out_array" {
 				// Get the n parameter which should be the second output
@@ -736,6 +748,10 @@ func generateImageMethodBody(op introspection.Operation) string {
 			// Form the error return line
 			var errorValues []string
 			for _, arg := range op.RequiredOutputs {
+				// Skip returning the length parameter if it's marked as IsOutputN
+				if arg.IsOutputN {
+					continue
+				}
 				if arg.GoType == "*C.VipsImage" || arg.GoType == "[]*C.VipsImage" {
 					errorValues = append(errorValues, "nil")
 				} else if strings.HasPrefix(arg.GoType, "[]") {
@@ -783,6 +799,10 @@ func generateImageMethodBody(op introspection.Operation) string {
 				// Form conversion code for each image output with options
 				var optionsConversionCode strings.Builder
 				for i, arg := range op.RequiredOutputs {
+					// Skip returning the length parameter if it's marked as IsOutputN
+					if arg.IsOutputN {
+						continue
+					}
 					if arg.GoType == "*C.VipsImage" {
 						// Convert *C.VipsImage to *Image
 						optionsConversionCode.WriteString(fmt.Sprintf(`
@@ -825,6 +845,10 @@ func generateImageMethodBody(op introspection.Operation) string {
 			// Form the conversion code for each image output
 			var conversionCode strings.Builder
 			for i, arg := range op.RequiredOutputs {
+				// Skip returning the length parameter if it's marked as IsOutputN
+				if arg.IsOutputN {
+					continue
+				}
 				if arg.GoType == "*C.VipsImage" {
 					// Convert *C.VipsImage to *Image
 					conversionCode.WriteString(fmt.Sprintf(`
@@ -854,12 +878,20 @@ func generateImageMethodBody(op introspection.Operation) string {
 			// Get the names of the result variables
 			var resultVars []string
 			for _, arg := range op.RequiredOutputs {
+				// Skip returning the length parameter if it's marked as IsOutputN
+				if arg.IsOutputN {
+					continue
+				}
 				resultVars = append(resultVars, arg.GoName)
 			}
 
 			// Form the error return line
 			var errorValues []string
 			for _, arg := range op.RequiredOutputs {
+				// Skip returning the length parameter if it's marked as IsOutputN
+				if arg.IsOutputN {
+					continue
+				}
 				if strings.HasPrefix(arg.GoType, "[]") {
 					errorValues = append(errorValues, "nil")
 				} else if arg.GoType == "int" {
@@ -1045,6 +1077,10 @@ func generateImageMethodReturnTypes(op introspection.Operation) string {
 	} else if len(op.RequiredOutputs) > 0 {
 		var types []string
 		for _, arg := range op.RequiredOutputs {
+			// Skip returning the length parameter if it's marked as IsOutputN
+			if arg.IsOutputN {
+				continue
+			}
 			// Special handling for vector return types
 			if arg.Name == "vector" || arg.Name == "out_array" {
 				types = append(types, "[]float64")
