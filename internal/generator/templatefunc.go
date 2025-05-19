@@ -1321,7 +1321,12 @@ func generateCFunctionImplementation(op introspection.Operation) string {
 			if i > 0 {
 				result.WriteString(", ")
 			}
-			result.WriteString(arg.Name)
+			// Add type casting for VipsSourceCustom
+			if arg.IsSource {
+				result.WriteString("(VipsSource*) " + arg.Name)
+			} else {
+				result.WriteString(arg.Name)
+			}
 		}
 		result.WriteString(", NULL);\n}")
 	}
@@ -1373,7 +1378,12 @@ func generateCFunctionImplementation(op introspection.Operation) string {
 				if i > 0 {
 					result.WriteString(", ")
 				}
-				result.WriteString(arg.Name)
+				// Add type casting for VipsSourceCustom
+				if arg.IsSource {
+					result.WriteString("(VipsSource*) " + arg.Name)
+				} else {
+					result.WriteString(arg.Name)
+				}
 			}
 		}
 		// Add optional arguments, using array objects if needed
