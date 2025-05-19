@@ -15,9 +15,7 @@ import (
 {{end}}{{end}}
 
 // vipsImageFromSource vips_image_new_from_source
-func vipsImageFromSource(
-	src *C.VipsSourceCustom, params *LoadOptions,
-) (*C.VipsImage, ImageType, error) {
+func vipsImageFromSource(src *C.VipsSourceCustom, params *LoadOptions) (*C.VipsImage, error) {
 	var out *C.VipsImage
 	var code C.int
 	var optionString string
@@ -34,15 +32,13 @@ func vipsImageFromSource(
 		code = C.image_new_from_source_with_option(src, &out, cOptionString)
 	}
 	if code != 0 {
-		return nil, ImageTypeUnknown, handleImageError(out)
+		return nil, handleImageError(out)
 	}
-
-	imageType := vipsDetermineImageTypeFromMetaLoader(out)
-	return out, imageType, nil
+	return out, nil
 }
 
 // vipsImageFromBuffer vips_image_new_from_buffer
-func vipsImageFromBuffer(buf []byte, params *LoadOptions) (*C.VipsImage, ImageType, error) {
+func vipsImageFromBuffer(buf []byte, params *LoadOptions) (*C.VipsImage, error) {
 	src := buf
 	// Reference src here so it's not garbage collected during image initialization.
 	defer runtime.KeepAlive(src)
@@ -62,15 +58,13 @@ func vipsImageFromBuffer(buf []byte, params *LoadOptions) (*C.VipsImage, ImageTy
 		code = C.image_new_from_buffer_with_option(unsafe.Pointer(&src[0]), C.size_t(len(src)), &out, cOptionString)
 	}
 	if code != 0 {
-		return nil, ImageTypeUnknown, handleImageError(out)
+		return nil, handleImageError(out)
 	}
-
-	imageType := vipsDetermineImageTypeFromMetaLoader(out)
-	return out, imageType, nil
+	return out, nil
 }
 
 // vipsImageFromFile vips_image_new_from_file
-func vipsImageFromFile(path string, params *LoadOptions) (*C.VipsImage, ImageType, error) {
+func vipsImageFromFile(path string, params *LoadOptions) (*C.VipsImage, error) {
 	// Append options to the filename if needed
 	filenameOption := path
 	if params != nil && params.OptionString() != "" {
@@ -84,15 +78,13 @@ func vipsImageFromFile(path string, params *LoadOptions) (*C.VipsImage, ImageTyp
 	code := C.image_new_from_file(cPath, &out)
 
 	if code != 0 {
-		return nil, ImageTypeUnknown, handleImageError(out)
+		return nil, handleImageError(out)
 	}
-
-	imageType := vipsDetermineImageTypeFromMetaLoader(out)
-	return out, imageType, nil
+	return out, nil
 }
 
 // vipsImageFromMemory vips_image_new_memory
-func vipsImageFromMemory(buf []byte, width, height, bands int) (*C.VipsImage, ImageType, error) {
+func vipsImageFromMemory(buf []byte, width, height, bands int) (*C.VipsImage, error) {
 	src := buf
 	// Reference src here so it's not garbage collected during image initialization.
 	defer runtime.KeepAlive(src)
@@ -101,10 +93,9 @@ func vipsImageFromMemory(buf []byte, width, height, bands int) (*C.VipsImage, Im
 	var code C.int
 	code = C.image_new_from_memory(unsafe.Pointer(&src[0]), C.size_t(len(src)), C.int(width), C.int(height), C.int(bands), &out)
 	if code != 0 {
-		return nil, ImageTypeUnknown, handleImageError(out)
+		return nil, handleImageError(out)
 	}
-
-	return out, ImageTypeUnknown, nil
+	return out, nil
 }
 
 func vipsHasAlpha(in *C.VipsImage) bool {

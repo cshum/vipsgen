@@ -1175,7 +1175,7 @@ func generateCreatorMethodBody(op introspection.Operation) string {
 
 	imageTypeString := op.ImageTypeString
 	if strings.Contains(op.Name, "thumbnail") {
-		imageTypeString = "vipsDetermineImageTypeFromMetaLoader(vipsImage)"
+		imageTypeString = "vipsDetermineImageType(vipsImage)"
 	}
 
 	// Handle options if present

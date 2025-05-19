@@ -37,8 +37,8 @@ var ImageMimeTypes = map[ImageType]string{
 {{range .ImageTypes}}{{if and (ne .TypeName "unknown") (ne .MimeType "")}}	{{.EnumName}}: "{{.MimeType}}",
 {{end}}{{end}}}
 
-// vipsDetermineImageTypeFromMetaLoader determine the image type from vips-loader metadata
-func vipsDetermineImageTypeFromMetaLoader(in *C.VipsImage) ImageType {
+// vipsDetermineImageType determine the image type from loader metadata
+func vipsDetermineImageType(in *C.VipsImage) ImageType {
 	if in != nil {
 		if vipsLoader, ok := vipsImageGetMetaLoader(in); ok {
 			{{range .ImageTypes}}{{if and (ne .TypeName "unknown") (ne .TypeName "magick")}}if strings.HasPrefix(vipsLoader, "{{.TypeName}}") {

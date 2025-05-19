@@ -106,11 +106,11 @@ func NewImageFromSource(s *Source, options *LoadOptions) (*Image, error) {
 	if options == nil {
 		options = DefaultLoadOptions()
 	}
-	vipsImage, format, err := vipsImageFromSource(s.src, options)
+	vipsImage, err := vipsImageFromSource(s.src, options)
 	if err != nil {
 		return nil, err
 	}
-	return newImageRef(vipsImage, format, nil), nil
+	return newImageRef(vipsImage, vipsDetermineImageType(vipsImage), nil), nil
 }
 
 // NewImageFromBuffer vips_image_new_from_buffer loads an image buffer and creates a new Image
@@ -119,11 +119,11 @@ func NewImageFromBuffer(buf []byte, options *LoadOptions) (*Image, error) {
 	if options == nil {
 		options = DefaultLoadOptions()
 	}
-	vipsImage, format, err := vipsImageFromBuffer(buf, options)
+	vipsImage, err := vipsImageFromBuffer(buf, options)
 	if err != nil {
 		return nil, err
 	}
-	return newImageRef(vipsImage, format, buf), nil
+	return newImageRef(vipsImage, vipsDetermineImageType(vipsImage), buf), nil
 }
 
 // NewImageFromFile vips_image_new_from_file loads an image from file and creates a new Image
@@ -132,21 +132,21 @@ func NewImageFromFile(file string, options *LoadOptions) (*Image, error) {
 	if options == nil {
 		options = DefaultLoadOptions()
 	}
-	vipsImage, format, err := vipsImageFromFile(file, options)
+	vipsImage, err := vipsImageFromFile(file, options)
 	if err != nil {
 		return nil, err
 	}
-	return newImageRef(vipsImage, format, nil), nil
+	return newImageRef(vipsImage, vipsDetermineImageType(vipsImage), nil), nil
 }
 
 // NewImageFromMemory vips_image_new_from_memory loads a raw RGB/RGBA image buffer and creates a new Image
 func NewImageFromMemory(buf []byte, width, height, bands int) (*Image, error) {
 	Startup(nil)
-	vipsImage, format, err := vipsImageFromMemory(buf, width, height, bands)
+	vipsImage, err := vipsImageFromMemory(buf, width, height, bands)
 	if err != nil {
 		return nil, err
 	}
-	return newImageRef(vipsImage, format, buf), nil
+	return newImageRef(vipsImage, vipsDetermineImageType(vipsImage), buf), nil
 }
 
 
