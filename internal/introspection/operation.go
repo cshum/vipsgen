@@ -28,7 +28,9 @@ type Operation struct {
 	HasBufferOutput    bool
 	HasArrayImageInput bool
 	ImageTypeString    string
-	Category           string // arithmetic, conversion, etc
+	IsImageMethodFunc  bool
+	IsImageCreatorFunc bool
+	IsUtilFunc         bool
 }
 
 // Argument represents an argument to a libvips operation
@@ -96,12 +98,7 @@ func (v *Introspection) DiscoverOperations() []Operation {
 			HasBufferInput:     int(details.has_buffer_input) != 0,
 			HasBufferOutput:    int(details.has_buffer_output) != 0,
 			HasArrayImageInput: int(details.has_array_image_input) != 0,
-			Category:           C.GoString(details.category),
 			ImageTypeString:    v.determineImageTypeStringFromOperation(name),
-		}
-
-		if details.category != nil {
-			C.free(unsafe.Pointer(details.category))
 		}
 
 		v.discoverEnumsFromOperation(name)
@@ -109,7 +106,6 @@ func (v *Introspection) DiscoverOperations() []Operation {
 		// Get all arguments
 		args, err := v.DiscoverOperationArguments(name)
 		if err == nil {
-
 			// Categorize arguments
 			for _, arg := range args {
 				if arg.IsInput {
@@ -134,6 +130,12 @@ func (v *Introspection) DiscoverOperations() []Operation {
 			// operations that should not mutate the Image object
 			op.HasOneImageOutput = false
 		}
+
+		// define function types
+		op.IsImageCreatorFunc = (op.HasArrayImageInput || !op.HasImageInput) && op.HasImageOutput
+		op.IsImageMethodFunc = op.HasImageInput && !op.HasArrayImageInput
+		op.IsUtilFunc = (!op.HasImageInput || op.HasArrayImageInput) && !op.HasImageOutput
+
 		if strings.Contains(op.Name, "_source") || strings.Contains(op.Name, "_target") ||
 			strings.Contains(op.Name, "_mime") {
 			fmt.Printf("Excluded operation: vips_%s \n", op.Name)

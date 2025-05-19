@@ -25,7 +25,7 @@ type Image struct {
 	pageHeight int // cached page height
 }
 
-{{range .Operations}}{{if and (or (not .HasImageInput) .HasArrayImageInput) .HasImageOutput}}
+{{range .Operations}}{{if .IsImageCreatorFunc}}
 {{generateOptionalInputsStruct .}}
 // New{{.GoName}} {{.Description}}
 func New{{.GoName}}({{generateCreatorMethodParams .}}) (*Image, error) {
@@ -33,7 +33,7 @@ func New{{.GoName}}({{generateCreatorMethodParams .}}) (*Image, error) {
 }
 {{end}}{{end}}
 
-{{range .Operations}}{{if and .HasImageInput (not .HasArrayImageInput)}}
+{{range .Operations}}{{if .IsImageMethodFunc}}
 {{generateOptionalInputsStruct .}}
 // {{.GoName}} {{.Description}}
 func (r *Image) {{.GoName}}({{generateImageMethodParams .}}) ({{generateImageMethodReturnTypes .}}) {
@@ -41,7 +41,7 @@ func (r *Image) {{.GoName}}({{generateImageMethodParams .}}) ({{generateImageMet
 }
 {{end}}{{end}}
 
-{{range .Operations}}{{if and (or (not .HasImageInput) .HasArrayImageInput) (not .HasImageOutput)}}
+{{range .Operations}}{{if .IsUtilFunc}}
 // {{.GoName}} {{.Description}}
 func {{.GoName}}({{generateCreatorMethodParams .}}) ([]byte, error) {
     Startup(nil)
