@@ -73,7 +73,7 @@ func main() {
 
 	// Convert GIR data to vipsgen.Operation format
 	allOperations := vipsIntrospection.DiscoverOperations()
-	fmt.Printf("Extracted %d operations from GIR file\n", len(allOperations))
+	fmt.Printf("Extracted %d operations from GObject Introspection\n", len(allOperations))
 
 	// Get enum types
 	enumTypes := vipsIntrospection.GetEnumTypes()

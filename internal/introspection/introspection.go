@@ -79,14 +79,9 @@ func (v *Introspection) FilterOperations(operations []Operation) []Operation {
 	// Filter out excluded operations and deduplicate by Go function name
 	seenFunctions := make(map[string]bool)
 	var filteredOps []Operation
-	var notAvailableCount, excludedCount, duplicateCount int
+	var excludedCount, duplicateCount int
 
 	for _, op := range operations {
-		// Check if operation can be instantiated in current libvips
-		if !v.checkOperationExists(op.Name) {
-			notAvailableCount++
-			continue
-		}
 		if strings.Contains(op.Name, "_source") || strings.Contains(op.Name, "_target") ||
 			strings.Contains(op.Name, "_mime") {
 			fmt.Printf("Excluding operation: %s \n", op.Name)
@@ -119,8 +114,8 @@ func (v *Introspection) FilterOperations(operations []Operation) []Operation {
 		filteredOps = append(filteredOps, op)
 	}
 
-	fmt.Printf("Filtered operations: %d excluded, %d duplicates, %d remaining\n",
-		excludedCount, duplicateCount, len(filteredOps))
+	fmt.Printf("Filtered operations: %d (%d excluded, %d duplicates)\n",
+		len(filteredOps), excludedCount, duplicateCount)
 
 	return filteredOps
 }
