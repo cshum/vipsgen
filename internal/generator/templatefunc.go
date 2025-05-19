@@ -130,7 +130,7 @@ func generateGoArgList(op introspection.Operation, withOptions bool) string {
 	var params []string
 	for _, arg := range args {
 		// Skip n parameters that can be automatically calculated
-		if arg.IsNInput {
+		if arg.IsInputN {
 			continue
 		}
 		// Skip buffer length parameters
@@ -390,8 +390,8 @@ func generateFunctionCallArgs(op introspection.Operation, withOptions bool) stri
 			}
 			callArgs = append(callArgs, argStr)
 		} else {
-			// Handle IsNInput parameters specially - calculate from the referenced array
-			if arg.IsNInput && arg.NInputFrom != "" {
+			// Handle IsInputN parameters specially - calculate from the referenced array
+			if arg.IsInputN && arg.NInputFrom != "" {
 				argStr = fmt.Sprintf("C.int(len(%s))", arg.NInputFrom)
 				callArgs = append(callArgs, argStr)
 				continue
@@ -422,7 +422,7 @@ func generateFunctionCallArgs(op introspection.Operation, withOptions bool) stri
 			} else if strings.HasPrefix(arg.GoType, "[]") {
 				// For array parameters, add both the array pointer and its length
 
-				// Store the array name and length for possible reference by IsNInput parameters
+				// Store the array name and length for possible reference by IsInputN parameters
 				arrayLengths[arg.Name] = fmt.Sprintf("len(%s)", arg.GoName)
 
 				// Check if we should add array length parameter based on type
@@ -982,8 +982,8 @@ func detectMethodArguments(op introspection.Operation) []introspection.Argument 
 		if arg.IsOutput {
 			continue
 		}
-		// Skip IsNInput parameters (auto-calculated)
-		if arg.IsNInput {
+		// Skip IsInputN parameters (auto-calculated)
+		if arg.IsInputN {
 			continue
 		}
 		if arg.IsBuffer {
@@ -1012,8 +1012,8 @@ func generateImageMethodParams(op introspection.Operation) string {
 	methodArgs := detectMethodArguments(op)
 	var params []string
 	for _, arg := range methodArgs {
-		// Skip parameters marked as IsNInput (auto-calculated)
-		if arg.IsNInput {
+		// Skip parameters marked as IsInputN (auto-calculated)
+		if arg.IsInputN {
 			continue
 		}
 		// Convert parameter types for image methods
@@ -1071,8 +1071,8 @@ func generateMethodParams(op introspection.Operation) string {
 	var hasBufParam bool
 	var params []string
 	for _, arg := range inputParams {
-		// Skip IsNInput parameters (auto-calculated)
-		if arg.IsNInput {
+		// Skip IsInputN parameters (auto-calculated)
+		if arg.IsInputN {
 			continue
 		}
 		var paramType string
@@ -1105,8 +1105,8 @@ func generateCreatorMethodBody(op introspection.Operation) string {
 
 	var callArgs []string
 	for _, arg := range inputParams {
-		// Skip IsNInput parameters (auto-calculated)
-		if arg.IsNInput {
+		// Skip IsInputN parameters (auto-calculated)
+		if arg.IsInputN {
 			continue
 		}
 		if arg.GoType == "*C.VipsImage" {
@@ -1454,7 +1454,7 @@ func generateOptionalInputsStruct(op introspection.Operation) string {
 func generateUtilFunctionCallArgs(op introspection.Operation) string {
 	var args []string
 	for _, arg := range op.RequiredInputs {
-		if arg.IsNInput {
+		if arg.IsInputN {
 			continue
 		}
 		if arg.GoType == "*C.VipsImage" {

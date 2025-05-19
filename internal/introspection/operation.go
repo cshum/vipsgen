@@ -40,8 +40,9 @@ type Argument struct {
 	Description  string
 	IsRequired   bool
 	IsInput      bool
-	IsNInput     bool
+	IsInputN     bool
 	IsOutput     bool
+	IsOutputN    bool
 	IsImage      bool
 	IsBuffer     bool
 	IsArray      bool
@@ -428,6 +429,7 @@ func (v *Introspection) DiscoverOperationArguments(opName string) ([]Argument, e
 				IsRequired:  true,
 				IsInput:     false,
 				IsOutput:    true,
+				IsOutputN:   true,
 				Flags:       35, // VIPS_ARGUMENT_REQUIRED | VIPS_ARGUMENT_OUTPUT
 			}
 		} else {
@@ -440,9 +442,9 @@ func (v *Introspection) DiscoverOperationArguments(opName string) ([]Argument, e
 				CType:       "int",
 				Description: "Array length",
 				IsRequired:  true, // IsRequired for input arrays in most cases
-				IsNInput:    true,
 				NInputFrom:  nFrom,
 				IsInput:     true,
+				IsInputN:    true,
 				IsOutput:    false,
 				Flags:       19, // VIPS_ARGUMENT_REQUIRED | VIPS_ARGUMENT_INPUT
 			}
