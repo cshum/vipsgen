@@ -125,8 +125,7 @@ func (v *Introspection) GetOperationArguments(opName string) ([]Argument, error)
 	argsSlice := (*[1 << 30]C.ArgInfo)(unsafe.Pointer(argsPtr))[:nArgs:nArgs]
 	var goArgs []Argument
 
-	// First pass: gather arguments and detect if we need to add an 'n' parameter
-	hasNParam := false
+	// Detect if we need to add an 'n' parameter
 	hasArrayInput := -1
 	hasArrayNOutput := -1
 
@@ -175,7 +174,7 @@ func (v *Introspection) GetOperationArguments(opName string) ([]Argument, error)
 		goArg.Type, goArg.GoType, goArg.CType = v.mapGTypeToTypes(arg.type_val, cTypeName, isOutput)
 
 		// Determine a special case for affine matrix
-		isAffineMatrix := opName == "affine" && name == "matrix"
+		isAffineMatrix := goArg.Name == "matrix" && goArg.IsArray && goArg.Required && goArg.IsInput
 
 		// Extract default value if present
 		if hasDefault {
@@ -187,10 +186,6 @@ func (v *Introspection) GetOperationArguments(opName string) ([]Argument, error)
 			enumName := C.GoString(C.g_type_name(arg.type_val))
 			goArg.EnumType = v.GetGoEnumName(enumName)
 			v.AddEnumType(enumName, goArg.EnumType)
-		}
-		// gather arguments and detect if we need to add an 'n' parameter
-		if name == "n" {
-			hasNParam = true
 		}
 		if isArray && isInput && required && !isAffineMatrix {
 			hasArrayInput = i
@@ -353,7 +348,7 @@ func (v *Introspection) GetOperationArguments(opName string) ([]Argument, error)
 	}
 
 	// Special case: Add the missing 'n' parameter if needed
-	if !hasNParam && (hasArrayNOutput >= 0 || hasArrayInput >= 0) {
+	if hasArrayNOutput >= 0 || hasArrayInput >= 0 {
 		i := hasArrayInput + 1
 		if hasArrayNOutput >= 0 {
 			i = hasArrayNOutput + 1
@@ -365,10 +360,9 @@ func (v *Introspection) GetOperationArguments(opName string) ([]Argument, error)
 		if hasArrayInput >= 0 && hasArrayInput < len(goArgs) && goArgs[hasArrayInput].IsArray {
 			nFrom = goArgs[hasArrayInput].Name
 		}
-		// Add input 'n' parameter for array operations like linear, remainder_const, etc.
 		var nParam Argument
 		if hasArrayNOutput >= 0 && !goArgs[hasArrayNOutput].IsImage {
-			// output 'n' parameter
+			// output 'n' parameter for getpoint
 			nParam = Argument{
 				Name:        "n",
 				GoName:      "n",
@@ -382,6 +376,7 @@ func (v *Introspection) GetOperationArguments(opName string) ([]Argument, error)
 				Flags:       35, // VIPS_ARGUMENT_REQUIRED | VIPS_ARGUMENT_OUTPUT
 			}
 		} else {
+			// input 'n' parameter for array operations like linear, remainder_const, etc.
 			nParam = Argument{
 				Name:        "n",
 				GoName:      "n",
@@ -463,7 +458,6 @@ func (v *Introspection) mapGTypeToTypes(gtype C.GType, typeName string, isOutput
 		return "VipsBlob", "[]byte", "void*"
 	}
 
-	// Handle other common vips array types
 	switch {
 	case cTypeCheck(gtype, "VipsArrayInt"):
 		return "VipsArrayInt", "[]int", addOutputPointer("int*", isOutput)
