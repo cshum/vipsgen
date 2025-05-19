@@ -21,15 +21,15 @@ type TemplateLoader interface {
 	GenerateFile(templateName, outputFile string, data interface{}) error
 }
 
-// FSTemplateLoader loads templates from any fs.FS implementation
-type FSTemplateLoader struct {
+// templateLoader loads templates from any fs.FS implementation
+type templateLoader struct {
 	fs      fs.FS
 	funcMap template.FuncMap
 }
 
 // NewFSTemplateLoader creates a new template loader from any fs.FS implementation
 func NewFSTemplateLoader(filesystem fs.FS, funcMap template.FuncMap) TemplateLoader {
-	return &FSTemplateLoader{
+	return &templateLoader{
 		fs:      filesystem,
 		funcMap: funcMap,
 	}
@@ -41,14 +41,14 @@ func NewOSTemplateLoader(rootDir string, funcMap template.FuncMap) (TemplateLoad
 	if _, err := os.Stat(rootDir); os.IsNotExist(err) {
 		return nil, fmt.Errorf("template directory does not exist: %s", rootDir)
 	}
-	return &FSTemplateLoader{
+	return &templateLoader{
 		fs:      os.DirFS(rootDir),
 		funcMap: funcMap,
 	}, nil
 }
 
 // LoadTemplate loads a template from the filesystem
-func (t *FSTemplateLoader) LoadTemplate(templatePath string) (*template.Template, error) {
+func (t *templateLoader) LoadTemplate(templatePath string) (*template.Template, error) {
 	// Read template content
 	content, err := fs.ReadFile(t.fs, templatePath)
 	if err != nil {
@@ -65,7 +65,7 @@ func (t *FSTemplateLoader) LoadTemplate(templatePath string) (*template.Template
 }
 
 // ListFiles returns a list of all template files
-func (t *FSTemplateLoader) ListFiles() ([]string, error) {
+func (t *templateLoader) ListFiles() ([]string, error) {
 	var templateFiles []string
 
 	// Walk template directory
@@ -100,7 +100,7 @@ func (t *FSTemplateLoader) ListFiles() ([]string, error) {
 }
 
 // GenerateFile generates a file using a template and data
-func (t *FSTemplateLoader) GenerateFile(templateName, outputFile string, data interface{}) error {
+func (t *templateLoader) GenerateFile(templateName, outputFile string, data interface{}) error {
 	tmpl, err := t.LoadTemplate(templateName)
 	if err != nil {
 		return err
