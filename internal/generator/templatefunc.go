@@ -404,9 +404,9 @@ func generateFunctionCallArgs(op introspection.Operation, withOptions bool) stri
 				callArgs = append(callArgs, argStr)
 				continue
 			}
-
-			// Handle input parameters (rest unchanged)
-			if arg.GoType == "string" {
+			if arg.IsSource {
+				callArgs = append(callArgs, arg.GoName)
+			} else if arg.GoType == "string" {
 				argStr = "c" + arg.GoName
 				callArgs = append(callArgs, argStr)
 			} else if arg.GoType == "bool" {
