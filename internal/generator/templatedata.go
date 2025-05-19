@@ -5,6 +5,31 @@ import (
 	"strings"
 )
 
+// TemplateData holds all data needed by any template
+type TemplateData struct {
+	Operations  []introspection.Operation
+	EnumTypes   []introspection.EnumTypeInfo
+	ImageTypes  []introspection.ImageTypeInfo
+	EnumTypeMap map[string]bool
+
+	HasJpegSaver      bool
+	HasPngSaver       bool
+	HasWebpSaver      bool
+	HasTiffSaver      bool
+	HasHeifSaver      bool
+	HasLegacyGifSaver bool
+	HasCgifSaver      bool
+	HasAvifSaver      bool
+	HasJp2kSaver      bool
+	SupportedSavers   []SupportedSaverInfo
+}
+
+// SupportedSaverInfo holds information about supported image savers
+type SupportedSaverInfo struct {
+	EnumName string
+	TypeName string
+}
+
 // NewTemplateData creates a new TemplateData structure with all needed information
 func NewTemplateData(
 	operations []introspection.Operation,
