@@ -154,12 +154,15 @@ func (v *Introspection) DiscoverSupportedSavers() map[string]bool {
 // constant for a given operation name using the discovered image types
 func (v *Introspection) determineImageTypeStringFromOperation(opName string) string {
 	var format string
-	if strings.HasSuffix(opName, "load") || strings.HasSuffix(opName, "load_buffer") {
+	if strings.HasSuffix(opName, "load") ||
+		strings.HasSuffix(opName, "load_source") ||
+		strings.HasSuffix(opName, "load_buffer") {
 		parts := strings.Split(opName, "load")
 		if len(parts) > 1 {
 			format = parts[0]
 		}
-	} else if strings.HasSuffix(opName, "save") || strings.HasSuffix(opName, "save_buffer") {
+	} else if strings.HasSuffix(opName, "save") ||
+		strings.HasSuffix(opName, "save_buffer") {
 		parts := strings.Split(opName, "save")
 		if len(parts) > 1 {
 			format = parts[0]
