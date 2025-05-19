@@ -25,32 +25,6 @@ func GetTemplateFuncMap() template.FuncMap {
 	}
 }
 
-// generateDefaultValue returns the appropriate "zero value" for a given Go type
-func generateDefaultValue(goType string) string {
-	// Handle slice types
-	if strings.HasPrefix(goType, "[]") {
-		return "nil"
-	}
-
-	// Handle specific types
-	switch goType {
-	case "bool":
-		return "false"
-	case "string":
-		return "\"\""
-	case "error":
-		return "nil"
-	}
-
-	// Handle pointer types
-	if isPointerType(goType) {
-		return "nil"
-	}
-
-	// Default for numeric types
-	return "0"
-}
-
 // generateGoFunctionBody generates the shared body for Go wrapper functions
 func generateGoFunctionBody(op introspection.Operation, withOptions bool) string {
 	var result strings.Builder
@@ -106,7 +80,7 @@ func generateErrorReturn(HasOneImageOutput, hasBufferOutput bool, outputs []intr
 			if arg.Name == "vector" || arg.Name == "out_array" {
 				returnValues = append(returnValues, "nil")
 			} else {
-				returnValues = append(returnValues, generateDefaultValue(arg.GoType))
+				returnValues = append(returnValues, formatDefaultValue(arg.GoType))
 			}
 		}
 		return "return " + strings.Join(returnValues, ", ") + ", handleVipsError()"
@@ -128,7 +102,7 @@ func generateErrorReturnForUtilityCall(op introspection.Operation) string {
 			if arg.Name == "vector" || arg.Name == "out_array" {
 				values = append(values, "nil")
 			} else {
-				values = append(values, generateDefaultValue(arg.GoType))
+				values = append(values, formatDefaultValue(arg.GoType))
 			}
 		}
 		return "return " + strings.Join(values, ", ") + ", err"
@@ -372,73 +346,6 @@ func formatStringConversions(args []introspection.Argument) string {
 		}
 	}
 	return strings.Join(conversions, "\n	")
-}
-
-// formatArrayConversions formats array conversions for slice parameters
-func formatArrayConversions(op introspection.Operation, args []introspection.Argument) string {
-	var conversions []string
-	for _, arg := range args {
-		if !arg.IsOutput && strings.HasPrefix(arg.GoType, "[]") {
-			if arg.GoType == "[]byte" && strings.Contains(arg.Name, "buf") {
-				continue // Skip buffer parameters
-			} else if arg.GoType == "[]string" {
-				conversions = append(conversions, fmt.Sprintf(
-					"c%s_ptrs := make([]*C.char, len(%s))\n"+
-						"	for i, s := range %s {\n"+
-						"		c%s_ptrs[i] = C.CString(s)\n"+
-						"		defer freeCString(c%s_ptrs[i])\n"+
-						"	}\n"+
-						"	c%s := unsafe.Pointer(&c%s_ptrs[0])",
-					arg.GoName, arg.GoName, arg.GoName,
-					arg.GoName, arg.GoName, arg.GoName, arg.GoName))
-			} else if arg.GoType == "[]float64" || arg.GoType == "[]float32" {
-				// Use utility function for float arrays with proper error handling
-				errorReturn := generateErrorReturnForUtilityCall(op)
-				conversions = append(conversions, fmt.Sprintf(
-					"c%s, err := convertToDoubleArray(%s)\n"+
-						"	if err != nil {\n"+
-						"		%s\n"+
-						"	}\n"+
-						"	if c%s != nil {\n"+
-						"		defer freeDoubleArray(c%s)\n"+
-						"	}",
-					arg.GoName, arg.GoName, errorReturn, arg.GoName, arg.GoName))
-			} else if arg.GoType == "[]int" {
-				// Use utility function for int arrays with proper error handling
-				errorReturn := generateErrorReturnForUtilityCall(op)
-				conversions = append(conversions, fmt.Sprintf(
-					"c%s, err := convertToIntArray(%s)\n"+
-						"	if err != nil {\n"+
-						"		%s\n"+
-						"	}\n"+
-						"	if c%s != nil {\n"+
-						"		defer freeIntArray(c%s)\n"+
-						"	}",
-					arg.GoName, arg.GoName, errorReturn, arg.GoName, arg.GoName))
-			} else if arg.GoType == "[]BlendMode" {
-				// Use utility function for BlendMode arrays with proper error handling
-				errorReturn := generateErrorReturnForUtilityCall(op)
-				conversions = append(conversions, fmt.Sprintf(
-					"c%s, err := convertToBlendModeArray(%s)\n"+
-						"	if err != nil {\n"+
-						"		%s\n"+
-						"	}\n"+
-						"	if c%s != nil {\n"+
-						"		defer freeIntArray(c%s)\n"+
-						"	}",
-					arg.GoName, arg.GoName, errorReturn, arg.GoName, arg.GoName))
-			} else {
-				// Generic array handling
-				conversions = append(conversions, fmt.Sprintf(
-					"var c%s unsafe.Pointer\n"+
-						"	if len(%s) > 0 {\n"+
-						"		c%s = unsafe.Pointer(&%s[0])\n"+
-						"	}",
-					arg.GoName, arg.GoName, arg.GoName, arg.GoName))
-			}
-		}
-	}
-	return strings.Join(conversions, "\n\n	")
 }
 
 // generateFunctionCallArgs formats the arguments for the C function call
@@ -1298,43 +1205,6 @@ func generateCFunctionSignature(op introspection.Operation, includeParamNames bo
 	return result.String()
 }
 
-// generateCFunctionWithOptionsSignature generates the signature for the _with_options variant
-func generateCFunctionWithOptionsSignature(op introspection.Operation, includeParamNames bool) string {
-	if len(op.OptionalInputs) == 0 {
-		return ""
-	}
-	var result strings.Builder
-	result.WriteString(fmt.Sprintf("int vipsgen_%s_with_options(", op.Name))
-	if len(op.Arguments) > 0 {
-		for i, arg := range op.Arguments {
-			if i > 0 {
-				result.WriteString(", ")
-			}
-			if includeParamNames {
-				result.WriteString(fmt.Sprintf("%s %s", arg.CType, arg.Name))
-			} else {
-				result.WriteString(arg.CType)
-			}
-		}
-	}
-	if len(op.Arguments) > 0 && len(op.OptionalInputs) > 0 {
-		result.WriteString(", ")
-	}
-	for i, opt := range op.OptionalInputs {
-		if i > 0 {
-			result.WriteString(", ")
-		}
-		if includeParamNames {
-			result.WriteString(fmt.Sprintf("%s %s", opt.CType, opt.Name))
-		} else {
-			result.WriteString(opt.CType)
-		}
-	}
-	result.WriteString(")")
-
-	return result.String()
-}
-
 // generateCFunctionDeclaration generates header declarations for vips operations
 func generateCFunctionDeclaration(op introspection.Operation) string {
 	var result strings.Builder
@@ -1382,19 +1252,6 @@ func generateCFunctionDeclaration(op introspection.Operation) string {
 		result.WriteString(");")
 	}
 	return result.String()
-}
-
-// Helper function to detect array type for proper VipsArray creation
-func getArrayType(goType string) string {
-	if strings.HasPrefix(goType, "[]float64") || strings.HasPrefix(goType, "[]float32") {
-		return "double"
-	} else if strings.HasPrefix(goType, "[]int") || strings.HasPrefix(goType, "[]BlendMode") {
-		return "int"
-	} else if strings.HasPrefix(goType, "[]*C.VipsImage") {
-		return "image"
-	} else {
-		return "unknown"
-	}
 }
 
 // generateCFunctionImplementation generates C implementations for vips operations
