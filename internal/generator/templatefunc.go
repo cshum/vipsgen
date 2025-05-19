@@ -404,9 +404,9 @@ func generateFunctionCallArgs(op introspection.Operation, withOptions bool) stri
 				callArgs = append(callArgs, argStr)
 				continue
 			}
-
-			// Handle input parameters (rest unchanged)
-			if arg.GoType == "string" {
+			if arg.IsSource {
+				callArgs = append(callArgs, arg.GoName)
+			} else if arg.GoType == "string" {
 				argStr = "c" + arg.GoName
 				callArgs = append(callArgs, argStr)
 			} else if arg.GoType == "bool" {
@@ -1116,6 +1116,8 @@ func generateMethodParams(op introspection.Operation) string {
 			paramType = "*Image"
 		} else if arg.GoType == "[]*C.VipsImage" {
 			paramType = "[]*Image"
+		} else if arg.IsSource {
+			paramType = "*Source"
 		} else if arg.CType == "void*" && arg.Name == "buf" {
 			paramType = "[]byte"
 			hasBufParam = true
@@ -1149,6 +1151,8 @@ func generateCreatorMethodBody(op introspection.Operation) string {
 			callArgs = append(callArgs, fmt.Sprintf("%s.image", arg.GoName))
 		} else if arg.GoType == "[]*C.VipsImage" {
 			callArgs = append(callArgs, fmt.Sprintf("convertImagesToVipsImages(%s)", arg.GoName))
+		} else if arg.IsSource {
+			callArgs = append(callArgs, fmt.Sprintf("%s.src", arg.GoName))
 		} else if arg.Name == "len" && arg.CType == "size_t" && hasBufParam {
 			continue
 		} else {
@@ -1171,7 +1175,7 @@ func generateCreatorMethodBody(op introspection.Operation) string {
 
 	imageTypeString := op.ImageTypeString
 	if strings.Contains(op.Name, "thumbnail") {
-		imageTypeString = "vipsDetermineImageTypeFromMetaLoader(vipsImage)"
+		imageTypeString = "vipsDetermineImageType(vipsImage)"
 	}
 
 	// Handle options if present
@@ -1321,7 +1325,12 @@ func generateCFunctionImplementation(op introspection.Operation) string {
 			if i > 0 {
 				result.WriteString(", ")
 			}
-			result.WriteString(arg.Name)
+			// Add type casting for VipsSourceCustom
+			if arg.IsSource {
+				result.WriteString("(VipsSource*) " + arg.Name)
+			} else {
+				result.WriteString(arg.Name)
+			}
 		}
 		result.WriteString(", NULL);\n}")
 	}
@@ -1373,7 +1382,12 @@ func generateCFunctionImplementation(op introspection.Operation) string {
 				if i > 0 {
 					result.WriteString(", ")
 				}
-				result.WriteString(arg.Name)
+				// Add type casting for VipsSourceCustom
+				if arg.IsSource {
+					result.WriteString("(VipsSource*) " + arg.Name)
+				} else {
+					result.WriteString(arg.Name)
+				}
 			}
 		}
 		// Add optional arguments, using array objects if needed
