@@ -94,18 +94,19 @@ func (v *Introspection) DiscoverOperations() []Operation {
 		}
 		if strings.Contains(op.Name, "_source") || strings.Contains(op.Name, "_target") ||
 			strings.Contains(op.Name, "_mime") {
-			fmt.Printf("Excluding operation: %s \n", op.Name)
+			fmt.Printf("Excluded operation: vips_%s \n", op.Name)
 			excludedCount++
 			continue
 		}
 		// Check for duplicate Go function names
 		if seenOperations[op.GoName] {
-			fmt.Printf("Skipping duplicate function: %s (from operation: %s)\n", op.GoName, op.Name)
+			fmt.Printf("Skipping duplicated operation: vips_%s\n", op.Name)
 			duplicateCount++
 			continue
 		}
 		seenOperations[op.GoName] = true
 
+		fmt.Printf("Discovered operation: vips_%s \n", op.Name)
 		operations = append(operations, op)
 	}
 	fmt.Printf("Discovered Operations: %d (%d excluded, %d duplicates)\n",
