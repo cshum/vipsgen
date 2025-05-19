@@ -252,9 +252,5 @@ func (r *Image) SetPageHeight(height int) error {
 
 // SetPageDelay set the page delay array for animation
 func (r *Image) SetPageDelay(delay []int) error {
-	var data []C.int
-	for _, d := range delay {
-		data = append(data, C.int(d))
-	}
-	return vipsImageSetDelay(r.image, data)
+	return vipsImageSetDelay(r.image, delay)
 }

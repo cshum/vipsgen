@@ -194,9 +194,14 @@ func vipsImageGetMetaLoader(in *C.VipsImage) (string, bool) {
 	return C.GoString(out), code == 0
 }
 
-func vipsImageSetDelay(in *C.VipsImage, data []C.int) error {
-	if n := len(data); n > 0 {
-		C.set_image_delay(in, &data[0], C.int(n))
+func vipsImageSetDelay(in *C.VipsImage, delay []int) error {
+	cdelay, cn, err := convertToIntArray(delay)
+	if err != nil {
+		return err
+	}
+	if cdelay != nil {
+		defer freeIntArray(cdelay)
+		C.set_image_delay(in, cdelay, cn)
 	}
 	return nil
 }
