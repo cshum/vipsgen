@@ -25,15 +25,8 @@ func NewIntrospection() *Introspection {
 	}
 	defer C.vips_shutdown()
 
-	// Initialize map with known enum types
-	discoveredTypes := make(map[string]string)
-	for _, enum := range baseEnumTypeNames {
-		discoveredTypes[enum.CName] = enum.GoName
-	}
-
 	return &Introspection{
-		discoveredEnumTypes:  discoveredTypes,
+		discoveredEnumTypes:  make(map[string]string),
 		discoveredImageTypes: map[string]ImageTypeInfo{},
-		enumTypeNames:        baseEnumTypeNames,
 	}
 }

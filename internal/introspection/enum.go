@@ -11,23 +11,6 @@ import (
 	"unsafe"
 )
 
-// EnumValue represents a value in a libvips enum
-type EnumValue struct {
-	Name        string
-	Value       int
-	Nickname    string
-	Description string
-	GoName      string // The Go-friendly name
-}
-
-// EnumType represents a libvips enum type
-type EnumType struct {
-	Name        string // Original C name (e.g., VipsInterpretation)
-	GoName      string // Go name (e.g., Interpretation)
-	Values      []EnumValue
-	Description string
-}
-
 // EnumTypeInfo holds information about a vips enum type
 type EnumTypeInfo struct {
 	CName       string // Original C name (e.g. VipsInterpretation)
@@ -48,11 +31,6 @@ type enumTypeName struct {
 	CName  string
 	GoName string
 }
-
-// Define a more base list of common enum types to look for in libvips
-var baseEnumTypeNames []enumTypeName
-
-var excludedEnumTypeNames = map[string]bool{}
 
 // DiscoverEnumTypes retrieves all enum types from libvips
 func (v *Introspection) DiscoverEnumTypes() []EnumTypeInfo {
@@ -81,10 +59,6 @@ func (v *Introspection) DiscoverEnumTypes() []EnumTypeInfo {
 
 	// Now process all the discovered enum types
 	for _, typeName := range v.enumTypeNames {
-		if excludedEnumTypeNames[typeName.CName] {
-			fmt.Printf("Excluded enum type: %s -> %s\n", typeName.CName, typeName.GoName)
-			continue
-		}
 		// Check if the enum type exists first
 		cTypeName := C.CString(typeName.CName)
 		exists := C.type_exists(cTypeName)
@@ -176,11 +150,11 @@ func (v *Introspection) discoverEnumsFromOperation(opName string) {
 
 		// Check if it's an enum
 		if C.g_type_is_a(pspec.value_type, C.G_TYPE_ENUM) != 0 {
-			enumTypeName := C.GoString(C.g_type_name(pspec.value_type))
+			enumType := C.GoString(C.g_type_name(pspec.value_type))
 
 			// Add this enum type to our list
-			goEnumName := getGoEnumName(enumTypeName)
-			v.addEnumType(enumTypeName, goEnumName)
+			goEnumName := getGoEnumName(enumType)
+			v.addEnumType(enumType, goEnumName)
 		}
 
 		// Also check for flag types (similar to enums but can be combined as bit flags)
@@ -263,10 +237,6 @@ func (v *Introspection) getEnumType(cName, goName string) (EnumTypeInfo, error) 
 // addEnumType adds a newly discovered enum type
 func (v *Introspection) addEnumType(cName, goName string) {
 	cNameLower := strings.ToLower(cName)
-	if excludedEnumTypeNames[cName] {
-		fmt.Printf("Excluded enum type: %s -> %s\n", cName, goName)
-		return
-	}
 	if _, exists := v.discoveredEnumTypes[cNameLower]; !exists {
 		// Add to our enum type list for later processing
 		v.enumTypeNames = append(v.enumTypeNames, struct {
