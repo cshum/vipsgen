@@ -323,7 +323,7 @@ static void collect_operations_recursive(GType type, OperationInfo *info, int *c
 // Get all available operations
 OperationInfo* get_all_operations(int *count) {
     // Allocate space for a large number of operations
-    const int max_ops = 1000;
+    const int max_ops = 3000;
     OperationInfo *operations = (OperationInfo*)malloc(max_ops * sizeof(OperationInfo));
     *count = 0;
 
