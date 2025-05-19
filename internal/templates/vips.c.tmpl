@@ -48,7 +48,9 @@ void clear_image(VipsImage **image) {
   if (G_IS_OBJECT(*image)) g_clear_object(image);
 }
 
-int has_alpha_channel(VipsImage *image) { return vips_image_hasalpha(image); }
+int has_alpha_channel(VipsImage *image) {
+  return vips_image_hasalpha(image);
+}
 
 int embed_multi_page_image(VipsImage *in, VipsImage **out, int left, int top, int width,
                          int height, int extend) {
@@ -198,26 +200,6 @@ int rotate_image_multi_page(VipsImage *in, VipsImage **out, VipsAngle angle) {
   return 0;
 }
 
-int flatten_image(VipsImage *in, VipsImage **out, double r, double g,
-                  double b) {
-  if (!vips_image_hasalpha(in))
-    return vips_copy(in, out, NULL);
-  if (is_16bit(in->Type)) {
-    r = 65535 * r / 255;
-    g = 65535 * g / 255;
-    b = 65535 * b / 255;
-  }
-
-  double background[3] = {r, g, b};
-  VipsArrayDouble *vipsBackground = vips_array_double_new(background, 3);
-
-  int code = vips_flatten(in, out, "background", vipsBackground, "max_alpha",
-                          is_16bit(in->Type) ? 65535.0 : 255.0, NULL);
-
-  vips_area_unref(VIPS_AREA(vipsBackground));
-  return code;
-}
-
 int label_image(VipsImage *in, VipsImage **out,
           const char *text, const char *font,
           int x, int y, int size, VipsAlign align,
@@ -265,67 +247,6 @@ int label_image(VipsImage *in, VipsImage **out,
   return 0;
 }
 
-int is_16bit(VipsInterpretation interpretation) {
-  return interpretation == VIPS_INTERPRETATION_RGB16 ||
-         interpretation == VIPS_INTERPRETATION_GREY16;
-}
-
-double max_alpha(VipsImage *in) {
-  switch (in->BandFmt) {
-    case VIPS_FORMAT_USHORT:
-      return 65535;
-    case VIPS_FORMAT_FLOAT:
-    case VIPS_FORMAT_DOUBLE:
-      return 1.0;
-    default:
-      return 255;
-  }
-}
-
-int find_trim(VipsImage *in, int *left, int *top, int *width, int *height,
-  double threshold, int x, int y) {
-  VipsImage *base = vips_image_new();
-  VipsImage **t = (VipsImage **) vips_object_local_array(VIPS_OBJECT(base), 2);
-  VipsImage *tmp = in;
-
-  if (vips_image_guess_interpretation(in) != VIPS_INTERPRETATION_sRGB) {
-    if (vips_colourspace(in, &t[0], VIPS_INTERPRETATION_sRGB, NULL)) {
-      clear_image(&base);
-      return 1;
-    }
-    tmp = t[0];
-  }
-
-  if (vips_image_hasalpha(tmp)) {
-    if (flatten_image(tmp, &t[1], 255.0, 0, 255.0)) {
-      clear_image(&base);
-      return 1;
-    }
-    tmp = t[1];
-  }
-
-  double *bg = NULL;
-  int bgn;
-  VipsArrayDouble *bga;
-
-  if (vips_getpoint(tmp, &bg, &bgn, x, y, NULL)) {
-    clear_image(&base);
-    return 1;
-  }
-  bga = vips_array_double_new(bg, bgn);
-
-  int res = vips_find_trim(tmp, left, top, width, height, "background", bga, "threshold", threshold, NULL);
-
-  clear_image(&base);
-  vips_area_unref((VipsArea *)bga);
-  g_free(bg);
-
-  if (res) {
-    return 1;
-  }
-  return 0;
-}
-
 gboolean remove_icc_profile(VipsImage *in) {
   return vips_image_remove(in, VIPS_META_ICC_NAME);
 }
@@ -335,7 +256,6 @@ int get_meta_orientation(VipsImage *in) {
   if (vips_image_get_typeof(in, VIPS_META_ORIENTATION) != 0) {
     vips_image_get_int(in, VIPS_META_ORIENTATION, &orientation);
   }
-
   return orientation;
 }
 

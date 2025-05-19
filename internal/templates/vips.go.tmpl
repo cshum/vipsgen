@@ -14,7 +14,7 @@ import (
 {{generateGoFunctionBody . true}}
 {{end}}{{end}}
 
-// https://www.libvips.org/API/current/VipsImage.html#vips-image-new-from-source
+// vipsImageFromSource vips_image_new_from_source
 func vipsImageFromSource(
 	src *C.VipsSourceCustom, params *LoadOptions,
 ) (*C.VipsImage, ImageType, error) {
@@ -41,7 +41,7 @@ func vipsImageFromSource(
 	return out, imageType, nil
 }
 
-// https://www.libvips.org/API/current/VipsImage.html#vips-image-new-from-buffer
+// vipsImageFromBuffer vips_image_new_from_buffer
 func vipsImageFromBuffer(buf []byte, params *LoadOptions) (*C.VipsImage, ImageType, error) {
 	src := buf
 	// Reference src here so it's not garbage collected during image initialization.
@@ -69,7 +69,7 @@ func vipsImageFromBuffer(buf []byte, params *LoadOptions) (*C.VipsImage, ImageTy
 	return out, imageType, nil
 }
 
-// https://www.libvips.org/API/current/VipsImage.html#vips-image-new-from-file
+// vipsImageFromFile vips_image_new_from_file
 func vipsImageFromFile(path string, params *LoadOptions) (*C.VipsImage, ImageType, error) {
 	// Append options to the filename if needed
 	filenameOption := path
@@ -91,7 +91,7 @@ func vipsImageFromFile(path string, params *LoadOptions) (*C.VipsImage, ImageTyp
 	return out, imageType, nil
 }
 
-// https://www.libvips.org/API/current/VipsImage.html#vips-image-new-from-buffer
+// vipsImageFromMemory vips_image_new_memory
 func vipsImageFromMemory(buf []byte, width, height, bands int) (*C.VipsImage, ImageType, error) {
 	src := buf
 	// Reference src here so it's not garbage collected during image initialization.
@@ -113,38 +113,31 @@ func vipsHasAlpha(in *C.VipsImage) bool {
 
 func vipsEmbedMultiPage(in *C.VipsImage, left, top, width, height int, extend Extend) (*C.VipsImage, error) {
 	var out *C.VipsImage
-
 	if err := C.embed_multi_page_image(in, &out, C.int(left), C.int(top), C.int(width), C.int(height), C.int(extend)); err != 0 {
 		return nil, handleImageError(out)
 	}
-
 	return out, nil
 }
 
 func vipsEmbedMultiPageBackground(in *C.VipsImage, left, top, width, height,
 	backgroundColorR, backgroundColorG, backgroundColorB, backgroundColorA int) (*C.VipsImage, error) {
 	var out *C.VipsImage
-
 	if err := C.embed_multi_page_image_background(in, &out, C.int(left), C.int(top), C.int(width),
 		C.int(height), C.double(backgroundColorR),
 		C.double(backgroundColorG), C.double(backgroundColorB), C.double(backgroundColorA)); err != 0 {
 		return nil, handleImageError(out)
 	}
-
 	return out, nil
 }
 
 func vipsExtractAreaMultiPage(in *C.VipsImage, left, top, width, height int) (*C.VipsImage, error) {
 	var out *C.VipsImage
-
 	if err := C.extract_area_multi_page(in, &out, C.int(left), C.int(top), C.int(width), C.int(height)); err != 0 {
 		return nil, handleImageError(out)
 	}
-
 	return out, nil
 }
 
-// https://libvips.github.io/libvips/API/current/libvips-conversion.html#vips-rot
 func vipsRotateMultiPage(in *C.VipsImage, angle Angle) (*C.VipsImage, error) {
 	var out *C.VipsImage
 	if err := C.rotate_image_multi_page(in, &out, C.VipsAngle(angle)); err != 0 {
@@ -181,11 +174,9 @@ func vipsRemoveICCProfile(in *C.VipsImage) bool {
 
 func vipsRemoveExif(in *C.VipsImage) (*C.VipsImage, error) {
 	var out *C.VipsImage
-
 	if err := C.remove_exif(in, &out); err != 0 {
 		return nil, handleImageError(out)
 	}
-
 	return out, nil
 }
 

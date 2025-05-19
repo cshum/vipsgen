@@ -40,17 +40,11 @@ int extract_area_multi_page(VipsImage *in, VipsImage **out, int left, int top,
                        int width, int height);
 
 int rotate_image_multi_page(VipsImage *in, VipsImage **out, VipsAngle angle);
-int flatten_image(VipsImage *in, VipsImage **out, double r, double g, double b);
+
 int label_image(VipsImage *in, VipsImage **out,
           const char *text, const char *font,
           int x, int y, int size, VipsAlign align,
           double r, double g, double b, float opacity);
-double max_alpha(VipsImage *in);
-
-int is_16bit(VipsInterpretation interpretation);
-
-int find_trim(VipsImage *in, int *left, int *top, int *width, int *height,
-  double threshold, int x, int y);
 
 int remove_icc_profile(VipsImage *in);
 
