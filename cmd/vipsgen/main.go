@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/cshum/vipsgen/internal/generator"
 	"github.com/cshum/vipsgen/internal/introspection"
-	"github.com/cshum/vipsgen/templates"
+	"github.com/cshum/vipsgen/internal/templates"
 	"log"
 )
 
