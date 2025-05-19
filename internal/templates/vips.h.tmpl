@@ -12,13 +12,6 @@ int image_new_from_source(VipsSourceCustom *source, VipsImage **out);
 
 int image_new_from_source_with_option(VipsSourceCustom *source, VipsImage **out, const char *option_string);
 
-int thumbnail_source_with_option(VipsSourceCustom *source, VipsImage **out,
-                    int width, int height, int crop, int size,
-                    const char *option_string);
-
-int thumbnail_source(VipsSourceCustom *source, VipsImage **out,
-                    int width, int height, int crop, int size);
-
 int image_new_from_file(const char *name, VipsImage **out);
 
 int image_new_from_buffer(const void *buf, size_t len, VipsImage **out);
@@ -49,10 +42,17 @@ int label_image(VipsImage *in, VipsImage **out,
 int remove_icc_profile(VipsImage *in);
 
 int get_meta_orientation(VipsImage *in);
+
 int get_image_n_pages(VipsImage *in);
+
 int get_page_height(VipsImage *in);
+
 void set_page_height(VipsImage *in, int height);
+
 int get_meta_loader(const VipsImage *in, const char **out);
+
 void set_image_delay(VipsImage *in, const int *array, int n);
+
 const char * get_meta_string(const VipsImage *image, const char *name);
+
 int remove_exif(VipsImage *in, VipsImage **out);
