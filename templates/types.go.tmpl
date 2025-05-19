@@ -75,7 +75,7 @@ const (
 // NewInterpolate creates a new Interpolate with the given name
 // Valid names include: "nearest", "bilinear", "bicubic", "lbb", "nohalo", "vsqbs"
 func NewInterpolate(name InterpolateType) *Interpolate {
-	StartupDefault()
+	Startup(nil)
     cName := C.CString(string(name))
     defer C.free(unsafe.Pointer(cName))
 

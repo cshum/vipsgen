@@ -23,7 +23,7 @@ type Source struct {
 
 // NewSource creates Source from reader
 func NewSource(reader io.ReadCloser) *Source {
-	StartupDefault()
+	Startup(nil)
 
 	s := &Source{reader: reader}
 	seeker, ok := reader.(io.ReadSeeker)

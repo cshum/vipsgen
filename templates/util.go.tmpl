@@ -92,12 +92,6 @@ func disableLogging() {
 	C.unset_logging_handler()
 }
 
-
-// Startup sets up libvips with default config.
-func StartupDefault() {
-	Startup(nil)
-}
-
 // Startup sets up libvips and ensures the versions are correct. Pass in nil for default config.
 func Startup(config *Config) {
 	once.Do(func() {

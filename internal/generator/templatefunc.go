@@ -1231,7 +1231,7 @@ func generateCreatorMethodBody(op introspection.Operation) string {
 	var body string
 
 	// Add startup line
-	body = "StartupDefault()\n\t"
+	body = "Startup(nil)\n\t"
 
 	// Handle options if present
 	if len(op.OptionalInputs) > 0 {
