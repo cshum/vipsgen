@@ -19,11 +19,10 @@ type TemplateLoader interface {
 
 // TemplateData holds all data needed by any template
 type TemplateData struct {
-	Operations       []introspection.Operation
-	OperationConfigs map[string]introspection.OperationConfig
-	EnumTypes        []introspection.EnumTypeInfo
-	ImageTypes       []introspection.ImageTypeInfo
-	EnumTypeMap      map[string]bool // For quick lookups
+	Operations  []introspection.Operation
+	EnumTypes   []introspection.EnumTypeInfo
+	ImageTypes  []introspection.ImageTypeInfo
+	EnumTypeMap map[string]bool // For quick lookups
 
 	HasJpegSaver      bool
 	HasPngSaver       bool
