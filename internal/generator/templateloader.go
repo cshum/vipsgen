@@ -23,14 +23,6 @@ func NewFSTemplateLoader(filesystem fs.FS, funcMap template.FuncMap) TemplateLoa
 	}
 }
 
-// NewEmbeddedTemplateLoader creates a template loader from an embedded filesystem
-func NewEmbeddedTemplateLoader(embeddedFS fs.FS, funcMap template.FuncMap) TemplateLoader {
-	return &FSTemplateLoader{
-		fs:      embeddedFS,
-		funcMap: funcMap,
-	}
-}
-
 // NewOSTemplateLoader creates a template loader from the OS filesystem
 func NewOSTemplateLoader(rootDir string, funcMap template.FuncMap) (TemplateLoader, error) {
 	// Check if template directory exists
@@ -123,8 +115,8 @@ func (t *FSTemplateLoader) GenerateFile(templateName, outputFile string, data in
 	return nil
 }
 
-// ExtractEmbeddedFilesystem extracts an embedded filesystem to a directory
-func ExtractEmbeddedFilesystem(filesystem fs.FS, destDir string) error {
+// ExtractEmbeddedFS extracts an embedded filesystem to a directory
+func ExtractEmbeddedFS(filesystem fs.FS, destDir string) error {
 	// Create the destination directory if it doesn't exist
 	if err := os.MkdirAll(destDir, 0755); err != nil {
 		return fmt.Errorf("failed to create destination directory: %v", err)

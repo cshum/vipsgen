@@ -20,7 +20,7 @@ func main() {
 
 	// Extract templates and exit if requested
 	if *extractTemplates {
-		if err := generator.ExtractEmbeddedFilesystem(templates.Templates, *extractDir); err != nil {
+		if err := generator.ExtractEmbeddedFS(templates.Templates, *extractDir); err != nil {
 			log.Fatalf("Failed to extract templates: %v", err)
 		}
 
@@ -43,7 +43,7 @@ func main() {
 		fmt.Printf("Using templates from: %s\n", *templateDirFlag)
 	} else {
 		// Use embedded templates by default
-		loader = generator.NewEmbeddedTemplateLoader(templates.Templates, funcMap)
+		loader = generator.NewFSTemplateLoader(templates.Templates, funcMap)
 		fmt.Println("Using embedded templates")
 	}
 

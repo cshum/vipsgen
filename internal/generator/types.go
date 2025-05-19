@@ -22,7 +22,7 @@ type TemplateData struct {
 	Operations  []introspection.Operation
 	EnumTypes   []introspection.EnumTypeInfo
 	ImageTypes  []introspection.ImageTypeInfo
-	EnumTypeMap map[string]bool // For quick lookups
+	EnumTypeMap map[string]bool
 
 	HasJpegSaver      bool
 	HasPngSaver       bool
