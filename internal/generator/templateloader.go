@@ -11,26 +11,23 @@ import (
 
 // FSTemplateLoader loads templates from any fs.FS implementation
 type FSTemplateLoader struct {
-	fs       fs.FS
-	funcMap  template.FuncMap
-	tmplRoot string
+	fs      fs.FS
+	funcMap template.FuncMap
 }
 
 // NewFSTemplateLoader creates a new template loader from any fs.FS implementation
-func NewFSTemplateLoader(filesystem fs.FS, funcMap template.FuncMap, tmplRoot string) TemplateLoader {
+func NewFSTemplateLoader(filesystem fs.FS, funcMap template.FuncMap) TemplateLoader {
 	return &FSTemplateLoader{
-		fs:       filesystem,
-		funcMap:  funcMap,
-		tmplRoot: tmplRoot,
+		fs:      filesystem,
+		funcMap: funcMap,
 	}
 }
 
 // NewEmbeddedTemplateLoader creates a template loader from an embedded filesystem
 func NewEmbeddedTemplateLoader(embeddedFS fs.FS, funcMap template.FuncMap) TemplateLoader {
 	return &FSTemplateLoader{
-		fs:       embeddedFS,
-		funcMap:  funcMap,
-		tmplRoot: "templates",
+		fs:      embeddedFS,
+		funcMap: funcMap,
 	}
 }
 
@@ -40,18 +37,14 @@ func NewOSTemplateLoader(rootDir string, funcMap template.FuncMap) (TemplateLoad
 	if _, err := os.Stat(rootDir); os.IsNotExist(err) {
 		return nil, fmt.Errorf("template directory does not exist: %s", rootDir)
 	}
-
 	return &FSTemplateLoader{
-		fs:       os.DirFS(rootDir),
-		funcMap:  funcMap,
-		tmplRoot: "templates",
+		fs:      os.DirFS(rootDir),
+		funcMap: funcMap,
 	}, nil
 }
 
 // LoadTemplate loads a template from the filesystem
-func (t *FSTemplateLoader) LoadTemplate(name string) (*template.Template, error) {
-	templatePath := filepath.Join(t.tmplRoot, name)
-
+func (t *FSTemplateLoader) LoadTemplate(templatePath string) (*template.Template, error) {
 	// Read template content
 	content, err := fs.ReadFile(t.fs, templatePath)
 	if err != nil {
@@ -59,7 +52,7 @@ func (t *FSTemplateLoader) LoadTemplate(name string) (*template.Template, error)
 	}
 
 	// Parse template
-	tmpl, err := template.New(name).Funcs(t.funcMap).Parse(string(content))
+	tmpl, err := template.New(templatePath).Funcs(t.funcMap).Parse(string(content))
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse template: %v", err)
 	}
@@ -72,7 +65,7 @@ func (t *FSTemplateLoader) ListFiles() ([]string, error) {
 	var templateFiles []string
 
 	// Walk template directory
-	err := fs.WalkDir(t.fs, t.tmplRoot, func(path string, d fs.DirEntry, err error) error {
+	err := fs.WalkDir(t.fs, ".", func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
@@ -85,11 +78,10 @@ func (t *FSTemplateLoader) ListFiles() ([]string, error) {
 		// Only include .tmpl files
 		if strings.HasSuffix(d.Name(), ".tmpl") {
 			// Convert path to be relative to tmplRoot
-			relPath, err := filepath.Rel(t.tmplRoot, path)
 			if err != nil {
 				return fmt.Errorf("failed to get relative path: %v", err)
 			}
-			templateFiles = append(templateFiles, relPath)
+			templateFiles = append(templateFiles, path)
 		}
 
 		return nil

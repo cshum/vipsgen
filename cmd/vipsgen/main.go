@@ -3,9 +3,9 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/cshum/vipsgen"
 	"github.com/cshum/vipsgen/internal/generator"
 	"github.com/cshum/vipsgen/internal/introspection"
+	"github.com/cshum/vipsgen/templates"
 	"log"
 )
 
@@ -20,7 +20,7 @@ func main() {
 
 	// Extract templates and exit if requested
 	if *extractTemplates {
-		if err := generator.ExtractEmbeddedFilesystem(vipsgen.EmbeddedTemplates, *extractDir); err != nil {
+		if err := generator.ExtractEmbeddedFilesystem(templates.Templates, *extractDir); err != nil {
 			log.Fatalf("Failed to extract templates: %v", err)
 		}
 
@@ -43,7 +43,7 @@ func main() {
 		fmt.Printf("Using templates from: %s\n", *templateDirFlag)
 	} else {
 		// Use embedded templates by default
-		loader = generator.NewEmbeddedTemplateLoader(vipsgen.EmbeddedTemplates, funcMap)
+		loader = generator.NewEmbeddedTemplateLoader(templates.Templates, funcMap)
 		fmt.Println("Using embedded templates")
 	}
 
