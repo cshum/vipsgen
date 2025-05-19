@@ -76,7 +76,7 @@ func main() {
 	fmt.Printf("Extracted %d operations from GObject Introspection\n", len(operations))
 
 	// Get enum types
-	enumTypes := vipsIntrospection.GetEnumTypes()
+	enumTypes := vipsIntrospection.DiscoverEnumTypes()
 	fmt.Printf("Discovered %d enum types\n", len(enumTypes))
 
 	// Create unified template data

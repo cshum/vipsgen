@@ -21,8 +21,8 @@ func cachedCString(str string) *C.char {
 	return cstr
 }
 
-// SnakeToCamel converts a snake_case string to CamelCase
-func SnakeToCamel(s string) string {
+// snakeToCamel converts a snake_case string to CamelCase
+func snakeToCamel(s string) string {
 	parts := strings.Split(s, "_")
 	for i := range parts {
 		parts[i] = strings.Title(parts[i])
@@ -30,9 +30,9 @@ func SnakeToCamel(s string) string {
 	return strings.Join(parts, "")
 }
 
-// FormatGoIdentifier formats a name to a go identifier
-func FormatGoIdentifier(name string) string {
-	s := SnakeToCamel(FormatIdentifier(name))
+// formatGoIdentifier formats a name to a go identifier
+func formatGoIdentifier(name string) string {
+	s := snakeToCamel(formatIdentifier(name))
 
 	// first letter lower case
 	if len(s) == 0 {
@@ -44,8 +44,8 @@ func FormatGoIdentifier(name string) string {
 	return string(r)
 }
 
-// FormatIdentifier formats a name to an identifier
-func FormatIdentifier(name string) string {
+// formatIdentifier formats a name to an identifier
+func formatIdentifier(name string) string {
 	if name == "buffer" {
 		return "buf"
 	}
@@ -59,10 +59,10 @@ func FormatIdentifier(name string) string {
 	return name
 }
 
-// FormatEnumValueName converts a C enum name to a Go name
-func FormatEnumValueName(typeName, valueName string) string {
+// formatEnumValueName converts a C enum name to a Go name
+func formatEnumValueName(typeName, valueName string) string {
 	// Convert to CamelCase
-	camelValue := SnakeToCamel(strings.ToLower(valueName))
+	camelValue := snakeToCamel(strings.ToLower(valueName))
 
 	// Check if the value already contains "Vips" + typeName or "VipsForeign" + typeName
 	lowerCamelValue := strings.ToLower(camelValue)
@@ -70,15 +70,15 @@ func FormatEnumValueName(typeName, valueName string) string {
 
 	if strings.HasPrefix(lowerCamelValue, "vips"+lowerTypeName) ||
 		strings.HasPrefix(lowerCamelValue, "vipsforeign"+lowerTypeName) {
-		return GetGoEnumName(camelValue)
+		return getGoEnumName(camelValue)
 	}
 
 	// Otherwise, prepend the type name
-	return typeName + GetGoEnumName(camelValue)
+	return typeName + getGoEnumName(camelValue)
 }
 
-// GetGoEnumName converts a C enum type name to a Go type name
-func GetGoEnumName(cName string) string {
+// getGoEnumName converts a C enum type name to a Go type name
+func getGoEnumName(cName string) string {
 	// Strip "Vips" prefix if present
 	if strings.HasPrefix(cName, "Vips") {
 		cName = cName[4:]
@@ -92,8 +92,8 @@ func GetGoEnumName(cName string) string {
 	return cName
 }
 
-// FormatGoFunctionName formats an operation name to a Go function name
-func FormatGoFunctionName(name string) string {
+// formatGoFunctionName formats an operation name to a Go function name
+func formatGoFunctionName(name string) string {
 	// Convert operation names to match existing Go function style
 	// e.g., "extract_area" -> "ExtractArea"
 	parts := strings.Split(name, "_")

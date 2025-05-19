@@ -15,28 +15,6 @@ type ImageTypeInfo struct {
 	Order    int    // Position in the enum
 }
 
-// getMimeType returns the MIME type for a given image format
-func (v *Introspection) getMimeType(typeName string) string {
-	mimeTypes := map[string]string{
-		"gif":  "image/gif",
-		"jpeg": "image/jpeg",
-		"pdf":  "application/pdf",
-		"png":  "image/png",
-		"svg":  "image/svg+xml",
-		"tiff": "image/tiff",
-		"webp": "image/webp",
-		"heif": "image/heif",
-		"bmp":  "image/bmp",
-		"avif": "image/avif",
-		"jp2k": "image/jp2",
-	}
-
-	if mime, ok := mimeTypes[typeName]; ok {
-		return mime
-	}
-	return ""
-}
-
 // DiscoverImageTypes discovers supported image types in libvips
 func (v *Introspection) DiscoverImageTypes() []ImageTypeInfo {
 	// Some image types are always defined, even if not supported
@@ -172,9 +150,9 @@ func (v *Introspection) DiscoverSupportedSavers() map[string]bool {
 	return saverSupport
 }
 
-// DetermineImageTypeStringFromOperation determines the appropriate ImageType
+// determineImageTypeStringFromOperation determines the appropriate ImageType
 // constant for a given operation name using the discovered image types
-func (v *Introspection) DetermineImageTypeStringFromOperation(opName string) string {
+func (v *Introspection) determineImageTypeStringFromOperation(opName string) string {
 	var format string
 	if strings.HasSuffix(opName, "load") || strings.HasSuffix(opName, "load_buffer") {
 		parts := strings.Split(opName, "load")
@@ -197,18 +175,24 @@ func (v *Introspection) DetermineImageTypeStringFromOperation(opName string) str
 	return "ImageTypeUnknown"
 }
 
-// checkOperationExists checks if a libvips operation exists
-func (v *Introspection) checkOperationExists(name string) bool {
-	cName := C.CString(name)
-	defer C.free(unsafe.Pointer(cName))
-
-	// Try to create the operation - if it succeeds, the operation exists
-	vop := C.vips_operation_new(cName)
-	if vop == nil {
-		return false
+// getMimeType returns the MIME type for a given image format
+func (v *Introspection) getMimeType(typeName string) string {
+	mimeTypes := map[string]string{
+		"gif":  "image/gif",
+		"jpeg": "image/jpeg",
+		"pdf":  "application/pdf",
+		"png":  "image/png",
+		"svg":  "image/svg+xml",
+		"tiff": "image/tiff",
+		"webp": "image/webp",
+		"heif": "image/heif",
+		"bmp":  "image/bmp",
+		"avif": "image/avif",
+		"jp2k": "image/jp2",
 	}
 
-	// Clean up and return true
-	C.g_object_unref(C.gpointer(vop))
-	return true
+	if mime, ok := mimeTypes[typeName]; ok {
+		return mime
+	}
+	return ""
 }

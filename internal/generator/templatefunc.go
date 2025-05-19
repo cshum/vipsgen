@@ -10,30 +10,23 @@ import (
 // GetTemplateFuncMap Helper functions for templates
 func GetTemplateFuncMap() template.FuncMap {
 	return template.FuncMap{
-		"generateGoFunctionBody":                generateGoFunctionBody,
-		"generateErrorReturn":                   generateErrorReturn,
-		"generateGoArgList":                     generateGoArgList,
-		"generateReturnTypes":                   generateReturnTypes,
-		"generateVarDeclarations":               generateVarDeclarations,
-		"generateFunctionCallArgs":              generateFunctionCallArgs,
-		"generateFunctionCall":                  generateFunctionCall,
-		"generateReturnValues":                  generateReturnValues,
-		"generateImageMethodBody":               generateImageMethodBody,
-		"generateImageMethodParams":             generateImageMethodParams,
-		"generateImageMethodReturnTypes":        generateImageMethodReturnTypes,
-		"generateCreatorMethodParams":           generateCreatorMethodParams,
-		"generateCreatorMethodBody":             generateCreatorMethodBody,
-		"generateCFunctionSignature":            generateCFunctionSignature,
-		"generateCFunctionWithOptionsSignature": generateCFunctionWithOptionsSignature,
-		"generateCFunctionDeclaration":          generateCFunctionDeclaration,
-		"generateCFunctionImplementation":       generateCFunctionImplementation,
-		"generateOptionalInputsStruct":          generateOptionalInputsStruct,
-		"generateFunctionCallArgsWithoutThis":   generateFunctionCallArgsWithoutThis,
+		"generateGoFunctionBody":          generateGoFunctionBody,
+		"generateFunctionCallArgs":        generateFunctionCallArgs,
+		"generateFunctionCall":            generateFunctionCall,
+		"generateImageMethodBody":         generateImageMethodBody,
+		"generateImageMethodParams":       generateImageMethodParams,
+		"generateImageMethodReturnTypes":  generateImageMethodReturnTypes,
+		"generateCreatorMethodParams":     generateCreatorMethodParams,
+		"generateCreatorMethodBody":       generateCreatorMethodBody,
+		"generateCFunctionDeclaration":    generateCFunctionDeclaration,
+		"generateCFunctionImplementation": generateCFunctionImplementation,
+		"generateOptionalInputsStruct":    generateOptionalInputsStruct,
+		"generateUtilFunctionCallArgs":    generateUtilFunctionCallArgs,
 	}
 }
 
-// formatDefaultValue returns the appropriate "zero value" for a given Go type
-func formatDefaultValue(goType string) string {
+// generateDefaultValue returns the appropriate "zero value" for a given Go type
+func generateDefaultValue(goType string) string {
 	// Handle slice types
 	if strings.HasPrefix(goType, "[]") {
 		return "nil"
@@ -113,7 +106,7 @@ func generateErrorReturn(HasOneImageOutput, hasBufferOutput bool, outputs []intr
 			if arg.Name == "vector" || arg.Name == "out_array" {
 				returnValues = append(returnValues, "nil")
 			} else {
-				returnValues = append(returnValues, formatDefaultValue(arg.GoType))
+				returnValues = append(returnValues, generateDefaultValue(arg.GoType))
 			}
 		}
 		return "return " + strings.Join(returnValues, ", ") + ", handleVipsError()"
@@ -135,7 +128,7 @@ func generateErrorReturnForUtilityCall(op introspection.Operation) string {
 			if arg.Name == "vector" || arg.Name == "out_array" {
 				values = append(values, "nil")
 			} else {
-				values = append(values, formatDefaultValue(arg.GoType))
+				values = append(values, generateDefaultValue(arg.GoType))
 			}
 		}
 		return "return " + strings.Join(values, ", ") + ", err"
@@ -1600,8 +1593,8 @@ func generateOptionalInputsStruct(op introspection.Operation) string {
 	return result.String()
 }
 
-// generateFunctionCallArgsWithoutThis formats function call arguments without the 'this' pointer
-func generateFunctionCallArgsWithoutThis(op introspection.Operation) string {
+// generateUtilFunctionCallArgs formats function call arguments without the 'this' pointer
+func generateUtilFunctionCallArgs(op introspection.Operation) string {
 	var args []string
 	for _, arg := range op.RequiredInputs {
 		if arg.IsNInput {

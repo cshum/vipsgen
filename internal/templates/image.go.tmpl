@@ -45,7 +45,7 @@ func (r *Image) {{.GoName}}({{generateImageMethodParams .}}) ({{generateImageMet
 // {{.GoName}} {{.Description}}
 func {{.GoName}}({{generateCreatorMethodParams .}}) ([]byte, error) {
     Startup(nil)
-    return vipsgen{{.GoName}}({{generateFunctionCallArgsWithoutThis .}})
+    return vipsgen{{.GoName}}({{generateUtilFunctionCallArgs .}})
 }
 {{end}}{{end}}
 

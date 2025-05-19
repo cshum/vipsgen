@@ -88,7 +88,7 @@ func (v *Introspection) DiscoverOperations() []Operation {
 		// Create the Go operation structure
 		op := Operation{
 			Name:               name,
-			GoName:             FormatGoFunctionName(name),
+			GoName:             formatGoFunctionName(name),
 			Description:        description,
 			HasImageInput:      int(details.has_image_input) != 0,
 			HasImageOutput:     int(details.has_image_output) != 0,
@@ -97,17 +97,17 @@ func (v *Introspection) DiscoverOperations() []Operation {
 			HasBufferOutput:    int(details.has_buffer_output) != 0,
 			HasArrayImageInput: int(details.has_array_image_input) != 0,
 			Category:           C.GoString(details.category),
-			ImageTypeString:    v.DetermineImageTypeStringFromOperation(name),
+			ImageTypeString:    v.determineImageTypeStringFromOperation(name),
 		}
 
 		if details.category != nil {
 			C.free(unsafe.Pointer(details.category))
 		}
 
-		v.DiscoverEnumsFromOperation(name)
+		v.discoverEnumsFromOperation(name)
 
 		// Get all arguments
-		args, err := v.GetOperationArguments(name)
+		args, err := v.DiscoverOperationArguments(name)
 		if err == nil {
 
 			// Categorize arguments
@@ -170,8 +170,8 @@ func (v *Introspection) DiscoverOperations() []Operation {
 	return operations
 }
 
-// GetOperationArguments uses GObject introspection to extract all arguments for an operation
-func (v *Introspection) GetOperationArguments(opName string) ([]Argument, error) {
+// DiscoverOperationArguments uses GObject introspection to extract all arguments for an operation
+func (v *Introspection) DiscoverOperationArguments(opName string) ([]Argument, error) {
 	cOpName := C.CString(opName)
 	defer C.free(unsafe.Pointer(cOpName))
 
@@ -212,8 +212,8 @@ func (v *Introspection) GetOperationArguments(opName string) ([]Argument, error)
 
 		// Create the Go argument structure
 		goArg := Argument{
-			Name:        FormatIdentifier(name),
-			GoName:      FormatGoIdentifier(name),
+			Name:        formatIdentifier(name),
+			GoName:      formatGoIdentifier(name),
 			Description: description,
 			IsRequired:  required,
 			IsInput:     isInput,
@@ -245,8 +245,8 @@ func (v *Introspection) GetOperationArguments(opName string) ([]Argument, error)
 		// If it's an enum or flags, get the proper type name
 		if goArg.IsEnum {
 			enumName := C.GoString(C.g_type_name(arg.type_val))
-			goArg.EnumType = v.GetGoEnumName(enumName)
-			v.AddEnumType(enumName, goArg.EnumType)
+			goArg.EnumType = v.getGoEnumName(enumName)
+			v.addEnumType(enumName, goArg.EnumType)
 		}
 		if isArray && isInput && required && !isAffineMatrix {
 			hasArrayInput = i
@@ -580,7 +580,7 @@ func (v *Introspection) mapGTypeToTypes(gtype C.GType, typeName string, isOutput
 
 	// Check for enum/flags
 	if C.is_type_enum(gtype) != 0 || C.is_type_flags(gtype) != 0 {
-		goEnumName := v.GetGoEnumName(typeName)
+		goEnumName := v.getGoEnumName(typeName)
 		if isOutput {
 			return typeName, goEnumName, typeName + "*"
 		}
@@ -592,4 +592,20 @@ func (v *Introspection) mapGTypeToTypes(gtype C.GType, typeName string, isOutput
 		return typeName, "interface{}", "void**"
 	}
 	return typeName, "interface{}", "void*"
+}
+
+// checkOperationExists checks if a libvips operation exists
+func (v *Introspection) checkOperationExists(name string) bool {
+	cName := C.CString(name)
+	defer C.free(unsafe.Pointer(cName))
+
+	// Try to create the operation - if it succeeds, the operation exists
+	vop := C.vips_operation_new(cName)
+	if vop == nil {
+		return false
+	}
+
+	// Clean up and return true
+	C.g_object_unref(C.gpointer(vop))
+	return true
 }

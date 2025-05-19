@@ -54,8 +54,76 @@ var baseEnumTypeNames []enumTypeName
 
 var excludedEnumTypeNames = map[string]bool{}
 
-// DiscoverEnumsFromOperation discover enums from an operation
-func (v *Introspection) DiscoverEnumsFromOperation(opName string) {
+// DiscoverEnumTypes retrieves all enum types from libvips
+func (v *Introspection) DiscoverEnumTypes() []EnumTypeInfo {
+	var enumTypes []EnumTypeInfo
+
+	// First scan for all operations
+	var nOps C.int
+	opsPtr := C.get_all_operations(&nOps)
+	if opsPtr != nil && nOps > 0 {
+		defer C.free_operation_info(opsPtr, nOps)
+		opsSlice := (*[1 << 30]C.OperationInfo)(unsafe.Pointer(opsPtr))[:nOps:nOps]
+
+		// Loop through each operation to discover enums
+		for i := 0; i < int(nOps); i++ {
+			cOp := opsSlice[i]
+			name := C.GoString(cOp.name)
+
+			// Skip deprecated operations
+			if (cOp.flags & C.VIPS_OPERATION_DEPRECATED) != 0 {
+				continue
+			}
+			// Discover enums from this operation
+			v.discoverEnumsFromOperation(name)
+		}
+	}
+
+	// Now process all the discovered enum types
+	for _, typeName := range v.enumTypeNames {
+		if excludedEnumTypeNames[typeName.CName] {
+			fmt.Printf("Excluded enum type: %s -> %s\n", typeName.CName, typeName.GoName)
+			continue
+		}
+		// Check if the enum type exists first
+		cTypeName := C.CString(typeName.CName)
+		exists := C.type_exists(cTypeName)
+		C.free(unsafe.Pointer(cTypeName))
+
+		if exists == 0 {
+			fmt.Printf("Warning: enum type %s not found in libvips\n", typeName.CName)
+			continue
+		}
+
+		// Try to get the enum values
+		enumInfo, err := v.getEnumType(typeName.CName, typeName.GoName)
+		if err != nil {
+			fmt.Printf("Warning: couldn't process enum type %s: %v\n", typeName.CName, err)
+			continue
+		}
+
+		// Add successfully processed enum
+		enumTypes = append(enumTypes, enumInfo)
+	}
+
+	// Debug: Write the parsed GIR to a JSON file
+	jsonData, err := json.MarshalIndent(enumTypes, "", "  ")
+	if err != nil {
+		log.Printf("Warning: failed to marshal Enum Types to JSON: %v", err)
+	} else {
+		err = os.WriteFile("debug_enums.json", jsonData, 0644)
+		if err != nil {
+			log.Printf("Warning: failed to write debug_enums.json: %v", err)
+		} else {
+			log.Println("Wrote introspected Enum Types to debug_enums.json")
+		}
+	}
+
+	return enumTypes
+}
+
+// discoverEnumsFromOperation discover enums from an operation
+func (v *Introspection) discoverEnumsFromOperation(opName string) {
 	// Create operation instance
 	cName := C.CString(opName)
 	defer C.free(unsafe.Pointer(cName))
@@ -111,8 +179,8 @@ func (v *Introspection) DiscoverEnumsFromOperation(opName string) {
 			enumTypeName := C.GoString(C.g_type_name(pspec.value_type))
 
 			// Add this enum type to our list
-			goEnumName := GetGoEnumName(enumTypeName)
-			v.AddEnumType(enumTypeName, goEnumName)
+			goEnumName := getGoEnumName(enumTypeName)
+			v.addEnumType(enumTypeName, goEnumName)
 		}
 
 		// Also check for flag types (similar to enums but can be combined as bit flags)
@@ -120,79 +188,10 @@ func (v *Introspection) DiscoverEnumsFromOperation(opName string) {
 			flagTypeName := C.GoString(C.g_type_name(pspec.value_type))
 
 			// Add this flag type to our list
-			goFlagName := GetGoEnumName(flagTypeName)
-			v.AddEnumType(flagTypeName, goFlagName)
+			goFlagName := getGoEnumName(flagTypeName)
+			v.addEnumType(flagTypeName, goFlagName)
 		}
 	}
-}
-
-// GetEnumTypes retrieves all enum types from libvips
-func (v *Introspection) GetEnumTypes() []EnumTypeInfo {
-	var enumTypes []EnumTypeInfo
-
-	// First scan for all operations
-	var nOps C.int
-	opsPtr := C.get_all_operations(&nOps)
-	if opsPtr != nil && nOps > 0 {
-		defer C.free_operation_info(opsPtr, nOps)
-		opsSlice := (*[1 << 30]C.OperationInfo)(unsafe.Pointer(opsPtr))[:nOps:nOps]
-
-		// Loop through each operation to discover enums
-		for i := 0; i < int(nOps); i++ {
-			cOp := opsSlice[i]
-			name := C.GoString(cOp.name)
-
-			// Skip deprecated operations
-			if (cOp.flags & C.VIPS_OPERATION_DEPRECATED) != 0 {
-				continue
-			}
-
-			// Discover enums from this operation
-			v.DiscoverEnumsFromOperation(name)
-		}
-	}
-
-	// Now process all the discovered enum types
-	for _, typeName := range v.enumTypeNames {
-		if excludedEnumTypeNames[typeName.CName] {
-			fmt.Printf("Excluded enum type: %s -> %s\n", typeName.CName, typeName.GoName)
-			continue
-		}
-		// Check if the enum type exists first
-		cTypeName := C.CString(typeName.CName)
-		exists := C.type_exists(cTypeName)
-		C.free(unsafe.Pointer(cTypeName))
-
-		if exists == 0 {
-			fmt.Printf("Warning: enum type %s not found in libvips\n", typeName.CName)
-			continue
-		}
-
-		// Try to get the enum values
-		enumInfo, err := v.getEnumType(typeName.CName, typeName.GoName)
-		if err != nil {
-			fmt.Printf("Warning: couldn't process enum type %s: %v\n", typeName.CName, err)
-			continue
-		}
-
-		// Add successfully processed enum
-		enumTypes = append(enumTypes, enumInfo)
-	}
-
-	// Debug: Write the parsed GIR to a JSON file
-	jsonData, err := json.MarshalIndent(enumTypes, "", "  ")
-	if err != nil {
-		log.Printf("Warning: failed to marshal Enum Types to JSON: %v", err)
-	} else {
-		err = os.WriteFile("debug_enums.json", jsonData, 0644)
-		if err != nil {
-			log.Printf("Warning: failed to write debug_enums.json: %v", err)
-		} else {
-			log.Println("Wrote introspected Enum Types to debug_enums.json")
-		}
-	}
-
-	return enumTypes
 }
 
 // getEnumType retrieves information about a specific enum type
@@ -243,7 +242,7 @@ func (v *Introspection) getEnumType(cName, goName string) (EnumTypeInfo, error) 
 		nick := C.GoString(val.nick)
 
 		// Process name for Go usage
-		goValueName := FormatEnumValueName(goName, name)
+		goValueName := formatEnumValueName(goName, name)
 
 		// For "Foreign" types, we want to strip the "Foreign" prefix from the enum values
 		if isForeignType && strings.HasPrefix(goValueName, "Foreign") {
@@ -261,8 +260,8 @@ func (v *Introspection) getEnumType(cName, goName string) (EnumTypeInfo, error) 
 	return enumType, nil
 }
 
-// AddEnumType adds a newly discovered enum type
-func (v *Introspection) AddEnumType(cName, goName string) {
+// addEnumType adds a newly discovered enum type
+func (v *Introspection) addEnumType(cName, goName string) {
 	cNameLower := strings.ToLower(cName)
 	if excludedEnumTypeNames[cName] {
 		fmt.Printf("Excluded enum type: %s -> %s\n", cName, goName)
@@ -282,11 +281,11 @@ func (v *Introspection) AddEnumType(cName, goName string) {
 	}
 }
 
-func (v *Introspection) GetGoEnumName(typeName string) string {
+func (v *Introspection) getGoEnumName(typeName string) string {
 	if name, exists := v.discoveredEnumTypes[strings.ToLower(typeName)]; exists {
 		return name
 	}
-	return GetGoEnumName(typeName)
+	return getGoEnumName(typeName)
 }
 
 // checkEnumValueExists checks if a specific enum value exists
