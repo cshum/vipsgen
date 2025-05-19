@@ -114,21 +114,6 @@ func NewImageFromSource(s *Source, options *LoadOptions) (*Image, error) {
 	return newImageRef(vipsImage, format, nil), nil
 }
 
-// NewThumbnailFromSource loads a Source and creates a new Image with thumbnail crop and resize
-// https://www.libvips.org/API/current/libvips-resample.html#vips-thumbnail-source
-func NewThumbnailFromSource(s *Source, width, height int, crop Interesting, size Size, options *LoadOptions) (*Image, error) {
-	Startup(nil)
-	if options == nil {
-		options = DefaultLoadOptions()
-	}
-	vipsImage, format, err := vipsThumbnailFromSource(
-		s.src, width, height, crop, size, options)
-	if err != nil {
-		return nil, err
-	}
-	return newImageRef(vipsImage, format, nil), nil
-}
-
 // NewImageFromBuffer loads an image buffer and creates a new Image
 // https://www.libvips.org/API/current/VipsImage.html#vips-image-new-from-buffer
 func NewImageFromBuffer(buf []byte, options *LoadOptions) (*Image, error) {
@@ -155,34 +140,6 @@ func NewImageFromFile(file string, options *LoadOptions) (*Image, error) {
 		return nil, err
 	}
 	return newImageRef(vipsImage, format, nil), nil
-}
-
-// NewThumbnailFromFile loads a thumbnail from file with crop and resize
-// https://www.libvips.org/API/current/libvips-resample.html#vips-thumbnail
-func NewThumbnailFromFile(file string, width, height int, crop Interesting, size Size, options *LoadOptions) (*Image, error) {
-	Startup(nil)
-	if options == nil {
-		options = DefaultLoadOptions()
-	}
-	vipsImage, format, err := vipsThumbnailFromFile(file, width, height, crop, size, options)
-	if err != nil {
-		return nil, err
-	}
-	return newImageRef(vipsImage, format, nil), nil
-}
-
-// NewThumbnailFromBuffer loads a thumbnail from buffer with crop and resize
-// https://www.libvips.org/API/current/libvips-resample.html#vips-thumbnail-buffer
-func NewThumbnailFromBuffer(buf []byte, width, height int, crop Interesting, size Size, options *LoadOptions) (*Image, error) {
-	Startup(nil)
-	if options == nil {
-		options = DefaultLoadOptions()
-	}
-	vipsImage, format, err := vipsThumbnailFromBuffer(buf, width, height, crop, size, options)
-	if err != nil {
-		return nil, err
-	}
-	return newImageRef(vipsImage, format, buf), nil
 }
 
 // NewImageFromMemory loads a raw RGB/RGBA image buffer and creates a new Image
