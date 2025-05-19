@@ -75,6 +75,7 @@ const (
 // NewInterpolate creates a new Interpolate with the given name
 // Valid names include: "nearest", "bilinear", "bicubic", "lbb", "nohalo", "vsqbs"
 func NewInterpolate(name InterpolateType) *Interpolate {
+	StartupDefault()
     cName := C.CString(string(name))
     defer C.free(unsafe.Pointer(cName))
 
@@ -94,14 +95,4 @@ func (i *Interpolate) Close() {
         C.g_object_unref(C.gpointer(i.interp))
         i.interp = nil
     }
-}
-
-// Color represents an RGB
-type Color struct {
-	R, G, B uint8
-}
-
-// ColorRGBA represents an RGB with alpha channel (A)
-type ColorRGBA struct {
-	R, G, B, A uint8
 }
