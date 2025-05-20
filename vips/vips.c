@@ -45,6 +45,16 @@ static int set_array_image_param(VipsOperation *operation, const char *name, Vip
     return 0;
 }
 
+static int set_interpolate_param(VipsOperation *operation, const char *name, VipsInterpolate *value) {
+    if (value != NULL) { return vips_object_set(VIPS_OBJECT(operation), name, value, NULL); }
+    return 0;
+}
+
+static int set_source_param(VipsOperation *operation, const char *name, VipsSource *value) {
+    if (value != NULL) { return vips_object_set(VIPS_OBJECT(operation), name, value, NULL); }
+    return 0;
+}
+
 static int vipsgen_operation_execute(VipsOperation **operation, ...) {
     va_list ap;
     if (vips_cache_operation_buildp(operation)) {
@@ -2250,6 +2260,7 @@ int vipsgen_rawload_with_options(const char* filename, VipsImage** out, int widt
         return 1;
     }
     if (
+        (offset != 0 ? vips_object_set(VIPS_OBJECT(operation), "offset", offset, NULL) : 0) ||
         set_int_param(operation, "format", format) ||
         set_int_param(operation, "interpretation", interpretation) ||
         set_bool_param(operation, "memory", memory) ||
@@ -4649,6 +4660,7 @@ int vipsgen_mapim_with_options(VipsImage* in, VipsImage** out, VipsImage* index,
         return 1;
     }
     if (
+        set_interpolate_param(operation, "interpolate", interpolate) ||
         set_array_double_param(operation, "background", background_array) ||
         set_bool_param(operation, "premultiplied", premultiplied) ||
         set_int_param(operation, "extend", extend)
@@ -4832,6 +4844,13 @@ int vipsgen_quadratic_with_options(VipsImage* in, VipsImage** out, VipsImage* co
         g_object_unref(operation);
         return 1;
     }
+    if (
+        set_interpolate_param(operation, "interpolate", interpolate)
+    ) {
+        g_object_unref(operation);
+        return 1;
+    }
+
     int result = vipsgen_operation_execute(&operation, "out", out, NULL);
     return result;
 }
@@ -4860,6 +4879,7 @@ int vipsgen_affine_with_options(VipsImage* in, VipsImage** out, double a, double
         return 1;
     }
     if (
+        set_interpolate_param(operation, "interpolate", interpolate) ||
         set_array_int_param(operation, "oarea", oarea_array) ||
         set_double_param(operation, "odx", odx) ||
         set_double_param(operation, "ody", ody) ||
@@ -4900,6 +4920,7 @@ int vipsgen_similarity_with_options(VipsImage* in, VipsImage** out, double scale
     if (
         set_double_param(operation, "scale", scale) ||
         set_double_param(operation, "angle", angle) ||
+        set_interpolate_param(operation, "interpolate", interpolate) ||
         set_array_double_param(operation, "background", background_array) ||
         set_double_param(operation, "odx", odx) ||
         set_double_param(operation, "ody", ody) ||
@@ -4934,6 +4955,7 @@ int vipsgen_rotate_with_options(VipsImage* in, VipsImage** out, double angle, Vi
         return 1;
     }
     if (
+        set_interpolate_param(operation, "interpolate", interpolate) ||
         set_array_double_param(operation, "background", background_array) ||
         set_double_param(operation, "odx", odx) ||
         set_double_param(operation, "ody", ody) ||
@@ -5952,6 +5974,7 @@ int vipsgen_mosaic1_with_options(VipsImage* ref, VipsImage* sec, VipsImage** out
         set_int_param(operation, "hwindow", hwindow) ||
         set_int_param(operation, "harea", harea) ||
         set_bool_param(operation, "search", search) ||
+        set_interpolate_param(operation, "interpolate", interpolate) ||
         set_int_param(operation, "mblend", mblend)
     ) {
         g_object_unref(operation);
@@ -5991,7 +6014,8 @@ int vipsgen_match_with_options(VipsImage* ref, VipsImage* sec, VipsImage** out, 
     if (
         set_int_param(operation, "hwindow", hwindow) ||
         set_int_param(operation, "harea", harea) ||
-        set_bool_param(operation, "search", search)
+        set_bool_param(operation, "search", search) ||
+        set_interpolate_param(operation, "interpolate", interpolate)
     ) {
         g_object_unref(operation);
         return 1;
