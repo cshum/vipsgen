@@ -1,29 +1,35 @@
 # vipsgen
 
-Go binding generator for [libvips](https://github.com/libvips/libvips), a fast and efficient image processing library.
+vipsgen is a Go binding generator for [libvips](https://github.com/libvips/libvips) - a fast and efficient image processing library.
 
 Existing Go libvips bindings rely on manually written code that is often incomplete, error-prone, and difficult to maintain as libvips evolves. vipsgen aims to solve this problem by using GObject introspection to automatically generate type-safe, efficient, and fully documented Go bindings that adapt to your specific libvips installation.
 
 vipsgen provides a pre-generated library you can import directly (`github.com/cshum/vipsgen/vips`), but also allows you to generate bindings for your specific libvips installation.
 
-- **Coverage**: Comprehensive bindings that cover most of the libvips operations, with allowing custom code for a few complex operations
+- **Coverage**: Comprehensive bindings that cover most of the libvips operations, with allowing custom code
 - **Type-Safe**: Generates proper Go types for libvips enums and structs
-- **Idiomatic**: Creates clean, Go-style APIs that feel natural to use
-- **Source Support**: Includes VipsSource bindings with `io.ReadCloser` integration for streaming images
-
-
-## Requirements
-
-- Go 1.16+
-- libvips 8.10+
-- pkg-config
-- **GObject introspection support** enabled for libvips
-
-Note: Code generation requires libvips to be built with GObject introspection support. Most package managers include this by default, but custom builds may need to enable it explicitly.
+- **Idiomatic**: Creates Go style code that feels natural to use
+- **Streaming**: Includes `VipsSource` bindings with `io.ReadCloser` integration for streaming
 
 ## Quick Start
 
-Simply import the package directly:
+Use homebrew to install vips and pkg-config:
+```
+brew install vips pkg-config
+
+```
+
+On MacOS, vipsgen may not compile without first setting an environment variable:
+
+```bash
+export CGO_CFLAGS_ALLOW="-Xpreprocessor"
+```
+
+Use the package directly:
+
+```bash
+go get -u github.com/cshum/vipsgen/vips
+```
 
 ```go
 package main
@@ -74,25 +80,21 @@ func main() {
 }
 ```
 
-## Generate Code
+## Code Generation
 
-Generate code for your specific libvips installation:
+Code generation requires libvips to be built with GObject introspection support.
 
 ```bash
 go install github.com/cshum/vipsgen/cmd/vipsgen@latest
 ```
 
-1. Generate the bindings:
+Generate the bindings:
 
 ```bash
-# Using embedded templates (simplest)
-vipsgen -out ./myvips
-
-# Or with custom templates
-vipsgen -templates ./my-templates -out ./myvips
+vipsgen -out ./vips
 ```
 
-2. Use your custom-generated code:
+Use your custom-generated code:
 
 ```go
 package main
