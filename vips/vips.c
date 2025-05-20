@@ -548,8 +548,8 @@ int vipsgen_composite(VipsImage** in, VipsImage** out, int n, int* mode) {
 }
 
 int vipsgen_composite_with_options(VipsImage** in, VipsImage** out, int n, int* mode, int* x, int x_n, int* y, int y_n, VipsInterpretation compositing_space, gboolean premultiplied) {
-    VipsArrayInt *y_array = vips_array_int_new(y, y_n);
     VipsArrayInt *x_array = vips_array_int_new(x, x_n);
+    VipsArrayInt *y_array = vips_array_int_new(y, y_n);
     int result = vips_composite(in, out, n, mode, "x", x_array, "y", y_array, "compositing_space", (int)compositing_space, "premultiplied", premultiplied, NULL);
     vips_area_unref(VIPS_AREA(x_array));
     vips_area_unref(VIPS_AREA(y_array));
@@ -628,9 +628,9 @@ int vipsgen_sdf(VipsImage** out, int width, int height, VipsSdfShape shape) {
 }
 
 int vipsgen_sdf_with_options(VipsImage** out, int width, int height, VipsSdfShape shape, double r, double* a, int a_n, double* b, int b_n, double* corners, int corners_n) {
+    VipsArrayDouble *corners_array = vips_array_double_new(corners, corners_n);
     VipsArrayDouble *a_array = vips_array_double_new(a, a_n);
     VipsArrayDouble *b_array = vips_array_double_new(b, b_n);
-    VipsArrayDouble *corners_array = vips_array_double_new(corners, corners_n);
     int result = vips_sdf(out, width, height, shape, "r", r, "a", a_array, "b", b_array, "corners", corners_array, NULL);
     vips_area_unref(VIPS_AREA(a_array));
     vips_area_unref(VIPS_AREA(b_array));
@@ -1645,8 +1645,8 @@ int vipsgen_affine_with_options(VipsImage* in, VipsImage** out, double a, double
     VipsArrayInt *oarea_array = vips_array_int_new(oarea, oarea_n);
     VipsArrayDouble *background_array = vips_array_double_new(background, background_n);
     int result = vips_affine(in, out, a, b, c, d, "interpolate", interpolate, "oarea", oarea_array, "odx", odx, "ody", ody, "idx", idx, "idy", idy, "background", background_array, "premultiplied", premultiplied, "extend", (int)extend, NULL);
-    vips_area_unref(VIPS_AREA(oarea_array));
     vips_area_unref(VIPS_AREA(background_array));
+    vips_area_unref(VIPS_AREA(oarea_array));
     return result;
 }
 
