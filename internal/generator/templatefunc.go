@@ -1428,44 +1428,44 @@ func generateCFunctionImplementation(op introspection.Operation) string {
 				arrayType := getArrayType(opt.GoType)
 				if arrayType == "double" {
 					allParamsList = append(allParamsList,
-						fmt.Sprintf("set_array_double_param(operation, \"%s\", %s_array)", opt.Name, opt.Name))
+						fmt.Sprintf("vipsgen_set_array_double(operation, \"%s\", %s_array)", opt.Name, opt.Name))
 				} else if arrayType == "int" {
 					allParamsList = append(allParamsList,
-						fmt.Sprintf("set_array_int_param(operation, \"%s\", %s_array)", opt.Name, opt.Name))
+						fmt.Sprintf("vipsgen_set_array_int(operation, \"%s\", %s_array)", opt.Name, opt.Name))
 				} else if arrayType == "image" {
 					allParamsList = append(allParamsList,
-						fmt.Sprintf("set_array_image_param(operation, \"%s\", %s_array)", opt.Name, opt.Name))
+						fmt.Sprintf("vipsgen_set_array_image(operation, \"%s\", %s_array)", opt.Name, opt.Name))
 				}
 			} else if opt.GoType == "bool" {
 				allParamsList = append(allParamsList,
-					fmt.Sprintf("set_bool_param(operation, \"%s\", %s)", opt.Name, opt.Name))
+					fmt.Sprintf("vipsgen_set_bool(operation, \"%s\", %s)", opt.Name, opt.Name))
 			} else if opt.GoType == "string" {
 				allParamsList = append(allParamsList,
-					fmt.Sprintf("set_string_param(operation, \"%s\", %s)", opt.Name, opt.Name))
+					fmt.Sprintf("vipsgen_set_string(operation, \"%s\", %s)", opt.Name, opt.Name))
 			} else if opt.IsEnum {
 				allParamsList = append(allParamsList,
-					fmt.Sprintf("set_int_param(operation, \"%s\", %s)", opt.Name, opt.Name))
+					fmt.Sprintf("vipsgen_set_int(operation, \"%s\", %s)", opt.Name, opt.Name))
 			} else if opt.GoType == "*C.VipsImage" {
 				allParamsList = append(allParamsList,
-					fmt.Sprintf("set_image_param(operation, \"%s\", %s)", opt.Name, opt.Name))
+					fmt.Sprintf("vipsgen_set_image(operation, \"%s\", %s)", opt.Name, opt.Name))
 			} else if opt.GoType == "*Interpolate" || opt.GoType == "*C.VipsInterpolate" {
 				// Handle interpolate parameters
 				allParamsList = append(allParamsList,
-					fmt.Sprintf("set_interpolate_param(operation, \"%s\", %s)", opt.Name, opt.Name))
+					fmt.Sprintf("vipsgen_set_interpolate(operation, \"%s\", %s)", opt.Name, opt.Name))
 			} else if opt.IsSource {
 				// Handle source parameters
 				allParamsList = append(allParamsList,
-					fmt.Sprintf("set_source_param(operation, \"%s\", %s)", opt.Name, opt.Name))
+					fmt.Sprintf("vipsgen_set_source(operation, \"%s\", %s)", opt.Name, opt.Name))
 			} else if opt.GoType == "int" {
 				allParamsList = append(allParamsList,
-					fmt.Sprintf("set_int_param(operation, \"%s\", %s)", opt.Name, opt.Name))
+					fmt.Sprintf("vipsgen_set_int(operation, \"%s\", %s)", opt.Name, opt.Name))
 			} else if opt.GoType == "float64" {
 				allParamsList = append(allParamsList,
-					fmt.Sprintf("set_double_param(operation, \"%s\", %s)", opt.Name, opt.Name))
+					fmt.Sprintf("vipsgen_set_double(operation, \"%s\", %s)", opt.Name, opt.Name))
 			} else if strings.Contains(opt.CType, "guint64") {
 				// Handle guint64 parameters
 				allParamsList = append(allParamsList,
-					fmt.Sprintf("set_guint64_param(operation, \"%s\", %s)", opt.Name, opt.Name))
+					fmt.Sprintf("vipsgen_set_guint64(operation, \"%s\", %s)", opt.Name, opt.Name))
 			} else if strings.Contains(opt.CType, "unsigned int") || strings.Contains(opt.CType, "guint") {
 				// Handle unsigned int parameters
 				allParamsList = append(allParamsList,
@@ -1477,7 +1477,7 @@ func generateCFunctionImplementation(op introspection.Operation) string {
 			} else {
 				// For any other non-pointer scalar types, default to int
 				allParamsList = append(allParamsList,
-					fmt.Sprintf("set_int_param(operation, \"%s\", %s)", opt.Name, opt.Name))
+					fmt.Sprintf("vipsgen_set_int(operation, \"%s\", %s)", opt.Name, opt.Name))
 			}
 		}
 

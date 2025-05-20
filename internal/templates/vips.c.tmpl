@@ -5,57 +5,57 @@
 
 // Prerequisite functions to build, get outputs and cleanup a vips operation
 
-static int set_int_param(VipsOperation *operation, const char *name, int value) {
+static int vipsgen_set_int(VipsOperation *operation, const char *name, int value) {
     if (value != 0) { return vips_object_set(VIPS_OBJECT(operation), name, value, NULL); }
     return 0;
 }
 
-static int set_bool_param(VipsOperation *operation, const char *name, gboolean value) {
+static int vipsgen_set_bool(VipsOperation *operation, const char *name, gboolean value) {
     if (value) { return vips_object_set(VIPS_OBJECT(operation), name, value, NULL); }
     return 0;
 }
 
-static int set_double_param(VipsOperation *operation, const char *name, double value) {
+static int vipsgen_set_double(VipsOperation *operation, const char *name, double value) {
     if (value != 0.0) { return vips_object_set(VIPS_OBJECT(operation), name, value, NULL); }
     return 0;
 }
 
-static int set_guint64_param(VipsOperation *operation, const char *name, guint64 value) {
+static int vipsgen_set_guint64(VipsOperation *operation, const char *name, guint64 value) {
     if (value != 0) { return vips_object_set(VIPS_OBJECT(operation), name, value, NULL); }
     return 0;
 }
 
-static int set_string_param(VipsOperation *operation, const char *name, const char *value) {
+static int vipsgen_set_string(VipsOperation *operation, const char *name, const char *value) {
     if (value != NULL && strlen(value) > 0) { return vips_object_set(VIPS_OBJECT(operation), name, value, NULL); }
     return 0;
 }
 
-static int set_image_param(VipsOperation *operation, const char *name, VipsImage *value) {
+static int vipsgen_set_image(VipsOperation *operation, const char *name, VipsImage *value) {
     if (value != NULL) { return vips_object_set(VIPS_OBJECT(operation), name, value, NULL); }
     return 0;
 }
 
-static int set_array_double_param(VipsOperation *operation, const char *name, VipsArrayDouble *value) {
+static int vipsgen_set_array_double(VipsOperation *operation, const char *name, VipsArrayDouble *value) {
     if (value != NULL) { return vips_object_set(VIPS_OBJECT(operation), name, value, NULL); }
     return 0;
 }
 
-static int set_array_int_param(VipsOperation *operation, const char *name, VipsArrayInt *value) {
+static int vipsgen_set_array_int(VipsOperation *operation, const char *name, VipsArrayInt *value) {
     if (value != NULL) { return vips_object_set(VIPS_OBJECT(operation), name, value, NULL); }
     return 0;
 }
 
-static int set_array_image_param(VipsOperation *operation, const char *name, VipsArrayImage *value) {
+static int vipsgen_set_array_image(VipsOperation *operation, const char *name, VipsArrayImage *value) {
     if (value != NULL) { return vips_object_set(VIPS_OBJECT(operation), name, value, NULL); }
     return 0;
 }
 
-static int set_interpolate_param(VipsOperation *operation, const char *name, VipsInterpolate *value) {
+static int vipsgen_set_interpolate(VipsOperation *operation, const char *name, VipsInterpolate *value) {
     if (value != NULL) { return vips_object_set(VIPS_OBJECT(operation), name, value, NULL); }
     return 0;
 }
 
-static int set_source_param(VipsOperation *operation, const char *name, VipsSource *value) {
+static int vipsgen_set_source(VipsOperation *operation, const char *name, VipsSource *value) {
     if (value != NULL) { return vips_object_set(VIPS_OBJECT(operation), name, value, NULL); }
     return 0;
 }
