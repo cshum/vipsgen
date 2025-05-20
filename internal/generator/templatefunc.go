@@ -1361,6 +1361,21 @@ func generateCFunctionImplementation(op introspection.Operation) string {
 		result.WriteString("    if (!operation) return 1;\n")
 
 		// Create VipsArray objects for array inputs
+		for _, opt := range op.RequiredInputs {
+			if strings.HasPrefix(opt.GoType, "[]") {
+				arrayType := getArrayType(opt.GoType)
+				if arrayType == "double" {
+					result.WriteString(fmt.Sprintf("    VipsArrayDouble *%s_array = NULL;\n", opt.Name))
+					result.WriteString(fmt.Sprintf("    if (%s != NULL && n > 0) { %s_array = vips_array_double_new(%s, n); }\n", opt.Name, opt.Name, opt.Name))
+				} else if arrayType == "int" {
+					result.WriteString(fmt.Sprintf("    VipsArrayInt *%s_array = NULL;\n", opt.Name))
+					result.WriteString(fmt.Sprintf("    if (%s != NULL && n > 0) { %s_array = vips_array_int_new(%s, n); }\n", opt.Name, opt.Name, opt.Name))
+				} else if arrayType == "image" {
+					result.WriteString(fmt.Sprintf("    VipsArrayImage *%s_array = NULL;\n", opt.Name))
+					result.WriteString(fmt.Sprintf("    if (%s != NULL && n > 0) { %s_array = vips_array_image_new(%s, n); }\n", opt.Name, opt.Name, opt.Name))
+				}
+			}
+		}
 		for _, opt := range op.OptionalInputs {
 			if strings.HasPrefix(opt.GoType, "[]") {
 				arrayType := getArrayType(opt.GoType)
@@ -1387,7 +1402,10 @@ func generateCFunctionImplementation(op introspection.Operation) string {
 			}
 
 			// Special handling for different types of arguments
-			if arg.IsSource {
+			if arg.IsArray {
+				allParamsList = append(allParamsList,
+					fmt.Sprintf("vips_object_set(VIPS_OBJECT(operation), \"%s\", %s_array, NULL)", arg.Name, arg.Name))
+			} else if arg.IsSource {
 				allParamsList = append(allParamsList,
 					fmt.Sprintf("vips_object_set(VIPS_OBJECT(operation), \"%s\", (VipsSource*)%s, NULL)", arg.Name, arg.Name))
 			} else if arg.Name == "buf" || arg.Name == "buffer" {
