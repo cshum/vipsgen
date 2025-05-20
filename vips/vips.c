@@ -5,57 +5,57 @@
 
 // Prerequisite functions to build, get outputs and cleanup a vips operation
 
-static int set_int_param(VipsOperation *operation, const char *name, int value) {
+static int vipsgen_set_int(VipsOperation *operation, const char *name, int value) {
     if (value != 0) { return vips_object_set(VIPS_OBJECT(operation), name, value, NULL); }
     return 0;
 }
 
-static int set_bool_param(VipsOperation *operation, const char *name, gboolean value) {
+static int vipsgen_set_bool(VipsOperation *operation, const char *name, gboolean value) {
     if (value) { return vips_object_set(VIPS_OBJECT(operation), name, value, NULL); }
     return 0;
 }
 
-static int set_double_param(VipsOperation *operation, const char *name, double value) {
+static int vipsgen_set_double(VipsOperation *operation, const char *name, double value) {
     if (value != 0.0) { return vips_object_set(VIPS_OBJECT(operation), name, value, NULL); }
     return 0;
 }
 
-static int set_guint64_param(VipsOperation *operation, const char *name, guint64 value) {
+static int vipsgen_set_guint64(VipsOperation *operation, const char *name, guint64 value) {
     if (value != 0) { return vips_object_set(VIPS_OBJECT(operation), name, value, NULL); }
     return 0;
 }
 
-static int set_string_param(VipsOperation *operation, const char *name, const char *value) {
+static int vipsgen_set_string(VipsOperation *operation, const char *name, const char *value) {
     if (value != NULL && strlen(value) > 0) { return vips_object_set(VIPS_OBJECT(operation), name, value, NULL); }
     return 0;
 }
 
-static int set_image_param(VipsOperation *operation, const char *name, VipsImage *value) {
+static int vipsgen_set_image(VipsOperation *operation, const char *name, VipsImage *value) {
     if (value != NULL) { return vips_object_set(VIPS_OBJECT(operation), name, value, NULL); }
     return 0;
 }
 
-static int set_array_double_param(VipsOperation *operation, const char *name, VipsArrayDouble *value) {
+static int vipsgen_set_array_double(VipsOperation *operation, const char *name, VipsArrayDouble *value) {
     if (value != NULL) { return vips_object_set(VIPS_OBJECT(operation), name, value, NULL); }
     return 0;
 }
 
-static int set_array_int_param(VipsOperation *operation, const char *name, VipsArrayInt *value) {
+static int vipsgen_set_array_int(VipsOperation *operation, const char *name, VipsArrayInt *value) {
     if (value != NULL) { return vips_object_set(VIPS_OBJECT(operation), name, value, NULL); }
     return 0;
 }
 
-static int set_array_image_param(VipsOperation *operation, const char *name, VipsArrayImage *value) {
+static int vipsgen_set_array_image(VipsOperation *operation, const char *name, VipsArrayImage *value) {
     if (value != NULL) { return vips_object_set(VIPS_OBJECT(operation), name, value, NULL); }
     return 0;
 }
 
-static int set_interpolate_param(VipsOperation *operation, const char *name, VipsInterpolate *value) {
+static int vipsgen_set_interpolate(VipsOperation *operation, const char *name, VipsInterpolate *value) {
     if (value != NULL) { return vips_object_set(VIPS_OBJECT(operation), name, value, NULL); }
     return 0;
 }
 
-static int set_source_param(VipsOperation *operation, const char *name, VipsSource *value) {
+static int vipsgen_set_source(VipsOperation *operation, const char *name, VipsSource *value) {
     if (value != NULL) { return vips_object_set(VIPS_OBJECT(operation), name, value, NULL); }
     return 0;
 }
@@ -93,9 +93,9 @@ int vipsgen_system_with_options(const char* cmd_format, VipsImage** in, int in_n
     if (in != NULL && in_n > 0) { in_array = vips_array_image_new(in, in_n); }
     if (
         vips_object_set(VIPS_OBJECT(operation), "cmd_format", cmd_format, NULL) ||
-        set_array_image_param(operation, "in", in_array) ||
-        set_string_param(operation, "out_format", out_format) ||
-        set_string_param(operation, "in_format", in_format)
+        vipsgen_set_array_image(operation, "in", in_array) ||
+        vipsgen_set_string(operation, "out_format", out_format) ||
+        vipsgen_set_string(operation, "in_format", in_format)
     ) {
         g_object_unref(operation);
         if (in_array != NULL) { vips_area_unref(VIPS_AREA(in_array)); }
@@ -164,8 +164,8 @@ int vipsgen_clamp_with_options(VipsImage* in, VipsImage** out, double min, doubl
     if (!operation) return 1;
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
-        set_double_param(operation, "min", min) ||
-        set_double_param(operation, "max", max)
+        vipsgen_set_double(operation, "min", min) ||
+        vipsgen_set_double(operation, "max", max)
     ) {
         g_object_unref(operation);
         return 1;
@@ -191,7 +191,7 @@ int vipsgen_linear_with_options(VipsImage* in, VipsImage** out, double* a, doubl
         vips_object_set(VIPS_OBJECT(operation), "a", a, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "b", b, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "n", n, NULL) ||
-        set_bool_param(operation, "uchar", uchar)
+        vipsgen_set_bool(operation, "uchar", uchar)
     ) {
         g_object_unref(operation);
         return 1;
@@ -258,7 +258,7 @@ int vipsgen_min_with_options(VipsImage* in, double* out, int size) {
     if (!operation) return 1;
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
-        set_int_param(operation, "size", size)
+        vipsgen_set_int(operation, "size", size)
     ) {
         g_object_unref(operation);
         return 1;
@@ -277,7 +277,7 @@ int vipsgen_max_with_options(VipsImage* in, double* out, int size) {
     if (!operation) return 1;
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
-        set_int_param(operation, "size", size)
+        vipsgen_set_int(operation, "size", size)
     ) {
         g_object_unref(operation);
         return 1;
@@ -304,7 +304,7 @@ int vipsgen_hist_find_with_options(VipsImage* in, VipsImage** out, int band) {
     if (!operation) return 1;
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
-        set_int_param(operation, "band", band)
+        vipsgen_set_int(operation, "band", band)
     ) {
         g_object_unref(operation);
         return 1;
@@ -323,7 +323,7 @@ int vipsgen_hist_find_ndim_with_options(VipsImage* in, VipsImage** out, int bins
     if (!operation) return 1;
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
-        set_int_param(operation, "bins", bins)
+        vipsgen_set_int(operation, "bins", bins)
     ) {
         g_object_unref(operation);
         return 1;
@@ -343,7 +343,7 @@ int vipsgen_hist_find_indexed_with_options(VipsImage* in, VipsImage* index, Vips
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "index", index, NULL) ||
-        set_int_param(operation, "combine", combine)
+        vipsgen_set_int(operation, "combine", combine)
     ) {
         g_object_unref(operation);
         return 1;
@@ -362,8 +362,8 @@ int vipsgen_hough_line_with_options(VipsImage* in, VipsImage** out, int width, i
     if (!operation) return 1;
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
-        set_int_param(operation, "width", width) ||
-        set_int_param(operation, "height", height)
+        vipsgen_set_int(operation, "width", width) ||
+        vipsgen_set_int(operation, "height", height)
     ) {
         g_object_unref(operation);
         return 1;
@@ -382,9 +382,9 @@ int vipsgen_hough_circle_with_options(VipsImage* in, VipsImage** out, int scale,
     if (!operation) return 1;
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
-        set_int_param(operation, "scale", scale) ||
-        set_int_param(operation, "min_radius", min_radius) ||
-        set_int_param(operation, "max_radius", max_radius)
+        vipsgen_set_int(operation, "scale", scale) ||
+        vipsgen_set_int(operation, "min_radius", min_radius) ||
+        vipsgen_set_int(operation, "max_radius", max_radius)
     ) {
         g_object_unref(operation);
         return 1;
@@ -413,10 +413,10 @@ int vipsgen_measure_with_options(VipsImage* in, VipsImage** out, int h, int v, i
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "h", h, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "v", v, NULL) ||
-        set_int_param(operation, "left", left) ||
-        set_int_param(operation, "top", top) ||
-        set_int_param(operation, "width", width) ||
-        set_int_param(operation, "height", height)
+        vipsgen_set_int(operation, "left", left) ||
+        vipsgen_set_int(operation, "top", top) ||
+        vipsgen_set_int(operation, "width", width) ||
+        vipsgen_set_int(operation, "height", height)
     ) {
         g_object_unref(operation);
         return 1;
@@ -437,7 +437,7 @@ int vipsgen_getpoint_with_options(VipsImage* in, double** out_array, int* n, int
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "x", x, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "y", y, NULL) ||
-        set_bool_param(operation, "unpack_complex", unpack_complex)
+        vipsgen_set_bool(operation, "unpack_complex", unpack_complex)
     ) {
         g_object_unref(operation);
         return 1;
@@ -458,9 +458,9 @@ int vipsgen_find_trim_with_options(VipsImage* in, int* left, int* top, int* widt
     if (background != NULL && background_n > 0) { background_array = vips_array_double_new(background, background_n); }
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
-        set_double_param(operation, "threshold", threshold) ||
-        set_array_double_param(operation, "background", background_array) ||
-        set_bool_param(operation, "line_art", line_art)
+        vipsgen_set_double(operation, "threshold", threshold) ||
+        vipsgen_set_array_double(operation, "background", background_array) ||
+        vipsgen_set_bool(operation, "line_art", line_art)
     ) {
         g_object_unref(operation);
         if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
@@ -481,16 +481,16 @@ int vipsgen_copy_with_options(VipsImage* in, VipsImage** out, int width, int hei
     if (!operation) return 1;
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
-        set_int_param(operation, "width", width) ||
-        set_int_param(operation, "height", height) ||
-        set_int_param(operation, "bands", bands) ||
-        set_int_param(operation, "format", format) ||
-        set_int_param(operation, "coding", coding) ||
-        set_int_param(operation, "interpretation", interpretation) ||
-        set_double_param(operation, "xres", xres) ||
-        set_double_param(operation, "yres", yres) ||
-        set_int_param(operation, "xoffset", xoffset) ||
-        set_int_param(operation, "yoffset", yoffset)
+        vipsgen_set_int(operation, "width", width) ||
+        vipsgen_set_int(operation, "height", height) ||
+        vipsgen_set_int(operation, "bands", bands) ||
+        vipsgen_set_int(operation, "format", format) ||
+        vipsgen_set_int(operation, "coding", coding) ||
+        vipsgen_set_int(operation, "interpretation", interpretation) ||
+        vipsgen_set_double(operation, "xres", xres) ||
+        vipsgen_set_double(operation, "yres", yres) ||
+        vipsgen_set_int(operation, "xoffset", xoffset) ||
+        vipsgen_set_int(operation, "yoffset", yoffset)
     ) {
         g_object_unref(operation);
         return 1;
@@ -509,12 +509,12 @@ int vipsgen_tilecache_with_options(VipsImage* in, VipsImage** out, int tile_widt
     if (!operation) return 1;
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
-        set_int_param(operation, "tile_width", tile_width) ||
-        set_int_param(operation, "tile_height", tile_height) ||
-        set_int_param(operation, "max_tiles", max_tiles) ||
-        set_int_param(operation, "access", access) ||
-        set_bool_param(operation, "threaded", threaded) ||
-        set_bool_param(operation, "persistent", persistent)
+        vipsgen_set_int(operation, "tile_width", tile_width) ||
+        vipsgen_set_int(operation, "tile_height", tile_height) ||
+        vipsgen_set_int(operation, "max_tiles", max_tiles) ||
+        vipsgen_set_int(operation, "access", access) ||
+        vipsgen_set_bool(operation, "threaded", threaded) ||
+        vipsgen_set_bool(operation, "persistent", persistent)
     ) {
         g_object_unref(operation);
         return 1;
@@ -533,10 +533,10 @@ int vipsgen_linecache_with_options(VipsImage* in, VipsImage** out, int tile_heig
     if (!operation) return 1;
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
-        set_int_param(operation, "tile_height", tile_height) ||
-        set_int_param(operation, "access", access) ||
-        set_bool_param(operation, "threaded", threaded) ||
-        set_bool_param(operation, "persistent", persistent)
+        vipsgen_set_int(operation, "tile_height", tile_height) ||
+        vipsgen_set_int(operation, "access", access) ||
+        vipsgen_set_bool(operation, "threaded", threaded) ||
+        vipsgen_set_bool(operation, "persistent", persistent)
     ) {
         g_object_unref(operation);
         return 1;
@@ -555,7 +555,7 @@ int vipsgen_sequential_with_options(VipsImage* in, VipsImage** out, int tile_hei
     if (!operation) return 1;
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
-        set_int_param(operation, "tile_height", tile_height)
+        vipsgen_set_int(operation, "tile_height", tile_height)
     ) {
         g_object_unref(operation);
         return 1;
@@ -580,8 +580,8 @@ int vipsgen_embed_with_options(VipsImage* in, VipsImage** out, int x, int y, int
         vips_object_set(VIPS_OBJECT(operation), "y", y, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "width", width, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "height", height, NULL) ||
-        set_int_param(operation, "extend", extend) ||
-        set_array_double_param(operation, "background", background_array)
+        vipsgen_set_int(operation, "extend", extend) ||
+        vipsgen_set_array_double(operation, "background", background_array)
     ) {
         g_object_unref(operation);
         if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
@@ -607,8 +607,8 @@ int vipsgen_gravity_with_options(VipsImage* in, VipsImage** out, VipsCompassDire
         vips_object_set(VIPS_OBJECT(operation), "direction", direction, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "width", width, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "height", height, NULL) ||
-        set_int_param(operation, "extend", extend) ||
-        set_array_double_param(operation, "background", background_array)
+        vipsgen_set_int(operation, "extend", extend) ||
+        vipsgen_set_array_double(operation, "background", background_array)
     ) {
         g_object_unref(operation);
         if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
@@ -638,8 +638,8 @@ int vipsgen_insert_with_options(VipsImage* main, VipsImage* sub, VipsImage** out
         vips_object_set(VIPS_OBJECT(operation), "sub", sub, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "x", x, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "y", y, NULL) ||
-        set_bool_param(operation, "expand", expand) ||
-        set_array_double_param(operation, "background", background_array)
+        vipsgen_set_bool(operation, "expand", expand) ||
+        vipsgen_set_array_double(operation, "background", background_array)
     ) {
         g_object_unref(operation);
         if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
@@ -664,10 +664,10 @@ int vipsgen_join_with_options(VipsImage* in1, VipsImage* in2, VipsImage** out, V
         vips_object_set(VIPS_OBJECT(operation), "in1", in1, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "in2", in2, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "direction", direction, NULL) ||
-        set_bool_param(operation, "expand", expand) ||
-        set_int_param(operation, "shim", shim) ||
-        set_array_double_param(operation, "background", background_array) ||
-        set_int_param(operation, "align", align)
+        vipsgen_set_bool(operation, "expand", expand) ||
+        vipsgen_set_int(operation, "shim", shim) ||
+        vipsgen_set_array_double(operation, "background", background_array) ||
+        vipsgen_set_int(operation, "align", align)
     ) {
         g_object_unref(operation);
         if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
@@ -691,13 +691,13 @@ int vipsgen_arrayjoin_with_options(VipsImage** in, VipsImage** out, int n, int a
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "n", n, NULL) ||
-        set_int_param(operation, "across", across) ||
-        set_int_param(operation, "shim", shim) ||
-        set_array_double_param(operation, "background", background_array) ||
-        set_int_param(operation, "halign", halign) ||
-        set_int_param(operation, "valign", valign) ||
-        set_int_param(operation, "hspacing", hspacing) ||
-        set_int_param(operation, "vspacing", vspacing)
+        vipsgen_set_int(operation, "across", across) ||
+        vipsgen_set_int(operation, "shim", shim) ||
+        vipsgen_set_array_double(operation, "background", background_array) ||
+        vipsgen_set_int(operation, "halign", halign) ||
+        vipsgen_set_int(operation, "valign", valign) ||
+        vipsgen_set_int(operation, "hspacing", hspacing) ||
+        vipsgen_set_int(operation, "vspacing", vspacing)
     ) {
         g_object_unref(operation);
         if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
@@ -724,8 +724,8 @@ int vipsgen_smartcrop_with_options(VipsImage* input, VipsImage** out, int width,
         vips_object_set(VIPS_OBJECT(operation), "input", input, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "width", width, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "height", height, NULL) ||
-        set_int_param(operation, "interesting", interesting) ||
-        set_bool_param(operation, "premultiplied", premultiplied)
+        vipsgen_set_int(operation, "interesting", interesting) ||
+        vipsgen_set_bool(operation, "premultiplied", premultiplied)
     ) {
         g_object_unref(operation);
         return 1;
@@ -745,7 +745,7 @@ int vipsgen_extract_band_with_options(VipsImage* in, VipsImage** out, int band, 
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "band", band, NULL) ||
-        set_int_param(operation, "n", n)
+        vipsgen_set_int(operation, "n", n)
     ) {
         g_object_unref(operation);
         return 1;
@@ -773,7 +773,7 @@ int vipsgen_bandrank_with_options(VipsImage** in, VipsImage** out, int n, int in
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "n", n, NULL) ||
-        set_int_param(operation, "index", index)
+        vipsgen_set_int(operation, "index", index)
     ) {
         g_object_unref(operation);
         return 1;
@@ -805,7 +805,7 @@ int vipsgen_cast_with_options(VipsImage* in, VipsImage** out, VipsBandFormat for
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "format", format, NULL) ||
-        set_bool_param(operation, "shift", shift)
+        vipsgen_set_bool(operation, "shift", shift)
     ) {
         g_object_unref(operation);
         return 1;
@@ -828,7 +828,7 @@ int vipsgen_rot45_with_options(VipsImage* in, VipsImage** out, VipsAngle45 angle
     if (!operation) return 1;
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
-        set_int_param(operation, "angle", angle)
+        vipsgen_set_int(operation, "angle", angle)
     ) {
         g_object_unref(operation);
         return 1;
@@ -853,7 +853,7 @@ int vipsgen_ifthenelse_with_options(VipsImage* cond, VipsImage* in1, VipsImage* 
         vips_object_set(VIPS_OBJECT(operation), "cond", cond, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "in1", in1, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "in2", in2, NULL) ||
-        set_bool_param(operation, "blend", blend)
+        vipsgen_set_bool(operation, "blend", blend)
     ) {
         g_object_unref(operation);
         return 1;
@@ -876,7 +876,7 @@ int vipsgen_bandfold_with_options(VipsImage* in, VipsImage** out, int factor) {
     if (!operation) return 1;
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
-        set_int_param(operation, "factor", factor)
+        vipsgen_set_int(operation, "factor", factor)
     ) {
         g_object_unref(operation);
         return 1;
@@ -895,7 +895,7 @@ int vipsgen_bandunfold_with_options(VipsImage* in, VipsImage** out, int factor) 
     if (!operation) return 1;
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
-        set_int_param(operation, "factor", factor)
+        vipsgen_set_int(operation, "factor", factor)
     ) {
         g_object_unref(operation);
         return 1;
@@ -916,8 +916,8 @@ int vipsgen_flatten_with_options(VipsImage* in, VipsImage** out, double* backgro
     if (background != NULL && background_n > 0) { background_array = vips_array_double_new(background, background_n); }
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
-        set_array_double_param(operation, "background", background_array) ||
-        set_double_param(operation, "max_alpha", max_alpha)
+        vipsgen_set_array_double(operation, "background", background_array) ||
+        vipsgen_set_double(operation, "max_alpha", max_alpha)
     ) {
         g_object_unref(operation);
         if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
@@ -938,7 +938,7 @@ int vipsgen_premultiply_with_options(VipsImage* in, VipsImage** out, double max_
     if (!operation) return 1;
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
-        set_double_param(operation, "max_alpha", max_alpha)
+        vipsgen_set_double(operation, "max_alpha", max_alpha)
     ) {
         g_object_unref(operation);
         return 1;
@@ -957,8 +957,8 @@ int vipsgen_unpremultiply_with_options(VipsImage* in, VipsImage** out, double ma
     if (!operation) return 1;
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
-        set_double_param(operation, "max_alpha", max_alpha) ||
-        set_int_param(operation, "alpha_band", alpha_band)
+        vipsgen_set_double(operation, "max_alpha", max_alpha) ||
+        vipsgen_set_int(operation, "alpha_band", alpha_band)
     ) {
         g_object_unref(operation);
         return 1;
@@ -981,7 +981,7 @@ int vipsgen_transpose3d_with_options(VipsImage* in, VipsImage** out, int page_he
     if (!operation) return 1;
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
-        set_int_param(operation, "page_height", page_height)
+        vipsgen_set_int(operation, "page_height", page_height)
     ) {
         g_object_unref(operation);
         return 1;
@@ -1000,8 +1000,8 @@ int vipsgen_scale_with_options(VipsImage* in, VipsImage** out, double exp, gbool
     if (!operation) return 1;
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
-        set_double_param(operation, "exp", exp) ||
-        set_bool_param(operation, "log", log)
+        vipsgen_set_double(operation, "exp", exp) ||
+        vipsgen_set_bool(operation, "log", log)
     ) {
         g_object_unref(operation);
         return 1;
@@ -1020,8 +1020,8 @@ int vipsgen_wrap_with_options(VipsImage* in, VipsImage** out, int x, int y) {
     if (!operation) return 1;
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
-        set_int_param(operation, "x", x) ||
-        set_int_param(operation, "y", y)
+        vipsgen_set_int(operation, "x", x) ||
+        vipsgen_set_int(operation, "y", y)
     ) {
         g_object_unref(operation);
         return 1;
@@ -1046,7 +1046,7 @@ int vipsgen_subsample_with_options(VipsImage* input, VipsImage** out, int xfac, 
         vips_object_set(VIPS_OBJECT(operation), "input", input, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "xfac", xfac, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "yfac", yfac, NULL) ||
-        set_bool_param(operation, "point", point)
+        vipsgen_set_bool(operation, "point", point)
     ) {
         g_object_unref(operation);
         return 1;
@@ -1065,7 +1065,7 @@ int vipsgen_msb_with_options(VipsImage* in, VipsImage** out, int band) {
     if (!operation) return 1;
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
-        set_int_param(operation, "band", band)
+        vipsgen_set_int(operation, "band", band)
     ) {
         g_object_unref(operation);
         return 1;
@@ -1092,7 +1092,7 @@ int vipsgen_gamma_with_options(VipsImage* in, VipsImage** out, double exponent) 
     if (!operation) return 1;
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
-        set_double_param(operation, "exponent", exponent)
+        vipsgen_set_double(operation, "exponent", exponent)
     ) {
         g_object_unref(operation);
         return 1;
@@ -1117,10 +1117,10 @@ int vipsgen_composite_with_options(VipsImage** in, VipsImage** out, int n, int* 
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "n", n, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "mode", mode, NULL) ||
-        set_array_int_param(operation, "x", x_array) ||
-        set_array_int_param(operation, "y", y_array) ||
-        set_int_param(operation, "compositing_space", compositing_space) ||
-        set_bool_param(operation, "premultiplied", premultiplied)
+        vipsgen_set_array_int(operation, "x", x_array) ||
+        vipsgen_set_array_int(operation, "y", y_array) ||
+        vipsgen_set_int(operation, "compositing_space", compositing_space) ||
+        vipsgen_set_bool(operation, "premultiplied", premultiplied)
     ) {
         g_object_unref(operation);
         if (x_array != NULL) { vips_area_unref(VIPS_AREA(x_array)); }
@@ -1145,10 +1145,10 @@ int vipsgen_composite2_with_options(VipsImage* base, VipsImage* overlay, VipsIma
         vips_object_set(VIPS_OBJECT(operation), "base", base, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "overlay", overlay, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "mode", mode, NULL) ||
-        set_int_param(operation, "x", x) ||
-        set_int_param(operation, "y", y) ||
-        set_int_param(operation, "compositing_space", compositing_space) ||
-        set_bool_param(operation, "premultiplied", premultiplied)
+        vipsgen_set_int(operation, "x", x) ||
+        vipsgen_set_int(operation, "y", y) ||
+        vipsgen_set_int(operation, "compositing_space", compositing_space) ||
+        vipsgen_set_bool(operation, "premultiplied", premultiplied)
     ) {
         g_object_unref(operation);
         return 1;
@@ -1172,7 +1172,7 @@ int vipsgen_black_with_options(VipsImage** out, int width, int height, int bands
     if (
         vips_object_set(VIPS_OBJECT(operation), "width", width, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "height", height, NULL) ||
-        set_int_param(operation, "bands", bands)
+        vipsgen_set_int(operation, "bands", bands)
     ) {
         g_object_unref(operation);
         return 1;
@@ -1192,9 +1192,9 @@ int vipsgen_gaussnoise_with_options(VipsImage** out, int width, int height, doub
     if (
         vips_object_set(VIPS_OBJECT(operation), "width", width, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "height", height, NULL) ||
-        set_double_param(operation, "sigma", sigma) ||
-        set_double_param(operation, "mean", mean) ||
-        set_int_param(operation, "seed", seed)
+        vipsgen_set_double(operation, "sigma", sigma) ||
+        vipsgen_set_double(operation, "mean", mean) ||
+        vipsgen_set_int(operation, "seed", seed)
     ) {
         g_object_unref(operation);
         return 1;
@@ -1214,9 +1214,9 @@ int vipsgen_xyz_with_options(VipsImage** out, int width, int height, int csize, 
     if (
         vips_object_set(VIPS_OBJECT(operation), "width", width, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "height", height, NULL) ||
-        set_int_param(operation, "csize", csize) ||
-        set_int_param(operation, "dsize", dsize) ||
-        set_int_param(operation, "esize", esize)
+        vipsgen_set_int(operation, "csize", csize) ||
+        vipsgen_set_int(operation, "dsize", dsize) ||
+        vipsgen_set_int(operation, "esize", esize)
     ) {
         g_object_unref(operation);
         return 1;
@@ -1236,8 +1236,8 @@ int vipsgen_gaussmat_with_options(VipsImage** out, double sigma, double min_ampl
     if (
         vips_object_set(VIPS_OBJECT(operation), "sigma", sigma, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "min_ampl", min_ampl, NULL) ||
-        set_bool_param(operation, "separable", separable) ||
-        set_int_param(operation, "precision", precision)
+        vipsgen_set_bool(operation, "separable", separable) ||
+        vipsgen_set_int(operation, "precision", precision)
     ) {
         g_object_unref(operation);
         return 1;
@@ -1257,8 +1257,8 @@ int vipsgen_logmat_with_options(VipsImage** out, double sigma, double min_ampl, 
     if (
         vips_object_set(VIPS_OBJECT(operation), "sigma", sigma, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "min_ampl", min_ampl, NULL) ||
-        set_bool_param(operation, "separable", separable) ||
-        set_int_param(operation, "precision", precision)
+        vipsgen_set_bool(operation, "separable", separable) ||
+        vipsgen_set_int(operation, "precision", precision)
     ) {
         g_object_unref(operation);
         return 1;
@@ -1277,16 +1277,16 @@ int vipsgen_text_with_options(VipsImage** out, const char* text, const char* fon
     if (!operation) return 1;
     if (
         vips_object_set(VIPS_OBJECT(operation), "text", text, NULL) ||
-        set_string_param(operation, "font", font) ||
-        set_int_param(operation, "width", width) ||
-        set_int_param(operation, "height", height) ||
-        set_int_param(operation, "align", align) ||
-        set_bool_param(operation, "justify", justify) ||
-        set_int_param(operation, "dpi", dpi) ||
-        set_int_param(operation, "spacing", spacing) ||
-        set_string_param(operation, "fontfile", fontfile) ||
-        set_bool_param(operation, "rgba", rgba) ||
-        set_int_param(operation, "wrap", wrap)
+        vipsgen_set_string(operation, "font", font) ||
+        vipsgen_set_int(operation, "width", width) ||
+        vipsgen_set_int(operation, "height", height) ||
+        vipsgen_set_int(operation, "align", align) ||
+        vipsgen_set_bool(operation, "justify", justify) ||
+        vipsgen_set_int(operation, "dpi", dpi) ||
+        vipsgen_set_int(operation, "spacing", spacing) ||
+        vipsgen_set_string(operation, "fontfile", fontfile) ||
+        vipsgen_set_bool(operation, "rgba", rgba) ||
+        vipsgen_set_int(operation, "wrap", wrap)
     ) {
         g_object_unref(operation);
         return 1;
@@ -1313,10 +1313,10 @@ int vipsgen_sdf_with_options(VipsImage** out, int width, int height, VipsSdfShap
         vips_object_set(VIPS_OBJECT(operation), "width", width, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "height", height, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "shape", shape, NULL) ||
-        set_double_param(operation, "r", r) ||
-        set_array_double_param(operation, "a", a_array) ||
-        set_array_double_param(operation, "b", b_array) ||
-        set_array_double_param(operation, "corners", corners_array)
+        vipsgen_set_double(operation, "r", r) ||
+        vipsgen_set_array_double(operation, "a", a_array) ||
+        vipsgen_set_array_double(operation, "b", b_array) ||
+        vipsgen_set_array_double(operation, "corners", corners_array)
     ) {
         g_object_unref(operation);
         if (a_array != NULL) { vips_area_unref(VIPS_AREA(a_array)); }
@@ -1342,8 +1342,8 @@ int vipsgen_eye_with_options(VipsImage** out, int width, int height, gboolean uc
     if (
         vips_object_set(VIPS_OBJECT(operation), "width", width, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "height", height, NULL) ||
-        set_bool_param(operation, "uchar", uchar) ||
-        set_double_param(operation, "factor", factor)
+        vipsgen_set_bool(operation, "uchar", uchar) ||
+        vipsgen_set_double(operation, "factor", factor)
     ) {
         g_object_unref(operation);
         return 1;
@@ -1363,7 +1363,7 @@ int vipsgen_grey_with_options(VipsImage** out, int width, int height, gboolean u
     if (
         vips_object_set(VIPS_OBJECT(operation), "width", width, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "height", height, NULL) ||
-        set_bool_param(operation, "uchar", uchar)
+        vipsgen_set_bool(operation, "uchar", uchar)
     ) {
         g_object_unref(operation);
         return 1;
@@ -1383,7 +1383,7 @@ int vipsgen_zone_with_options(VipsImage** out, int width, int height, gboolean u
     if (
         vips_object_set(VIPS_OBJECT(operation), "width", width, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "height", height, NULL) ||
-        set_bool_param(operation, "uchar", uchar)
+        vipsgen_set_bool(operation, "uchar", uchar)
     ) {
         g_object_unref(operation);
         return 1;
@@ -1403,9 +1403,9 @@ int vipsgen_sines_with_options(VipsImage** out, int width, int height, gboolean 
     if (
         vips_object_set(VIPS_OBJECT(operation), "width", width, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "height", height, NULL) ||
-        set_bool_param(operation, "uchar", uchar) ||
-        set_double_param(operation, "hfreq", hfreq) ||
-        set_double_param(operation, "vfreq", vfreq)
+        vipsgen_set_bool(operation, "uchar", uchar) ||
+        vipsgen_set_double(operation, "hfreq", hfreq) ||
+        vipsgen_set_double(operation, "vfreq", vfreq)
     ) {
         g_object_unref(operation);
         return 1;
@@ -1426,10 +1426,10 @@ int vipsgen_mask_ideal_with_options(VipsImage** out, int width, int height, doub
         vips_object_set(VIPS_OBJECT(operation), "width", width, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "height", height, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "frequency_cutoff", frequency_cutoff, NULL) ||
-        set_bool_param(operation, "uchar", uchar) ||
-        set_bool_param(operation, "nodc", nodc) ||
-        set_bool_param(operation, "reject", reject) ||
-        set_bool_param(operation, "optical", optical)
+        vipsgen_set_bool(operation, "uchar", uchar) ||
+        vipsgen_set_bool(operation, "nodc", nodc) ||
+        vipsgen_set_bool(operation, "reject", reject) ||
+        vipsgen_set_bool(operation, "optical", optical)
     ) {
         g_object_unref(operation);
         return 1;
@@ -1451,10 +1451,10 @@ int vipsgen_mask_ideal_ring_with_options(VipsImage** out, int width, int height,
         vips_object_set(VIPS_OBJECT(operation), "height", height, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "frequency_cutoff", frequency_cutoff, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "ringwidth", ringwidth, NULL) ||
-        set_bool_param(operation, "uchar", uchar) ||
-        set_bool_param(operation, "nodc", nodc) ||
-        set_bool_param(operation, "reject", reject) ||
-        set_bool_param(operation, "optical", optical)
+        vipsgen_set_bool(operation, "uchar", uchar) ||
+        vipsgen_set_bool(operation, "nodc", nodc) ||
+        vipsgen_set_bool(operation, "reject", reject) ||
+        vipsgen_set_bool(operation, "optical", optical)
     ) {
         g_object_unref(operation);
         return 1;
@@ -1477,10 +1477,10 @@ int vipsgen_mask_ideal_band_with_options(VipsImage** out, int width, int height,
         vips_object_set(VIPS_OBJECT(operation), "frequency_cutoff_x", frequency_cutoff_x, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "frequency_cutoff_y", frequency_cutoff_y, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "radius", radius, NULL) ||
-        set_bool_param(operation, "uchar", uchar) ||
-        set_bool_param(operation, "nodc", nodc) ||
-        set_bool_param(operation, "reject", reject) ||
-        set_bool_param(operation, "optical", optical)
+        vipsgen_set_bool(operation, "uchar", uchar) ||
+        vipsgen_set_bool(operation, "nodc", nodc) ||
+        vipsgen_set_bool(operation, "reject", reject) ||
+        vipsgen_set_bool(operation, "optical", optical)
     ) {
         g_object_unref(operation);
         return 1;
@@ -1503,10 +1503,10 @@ int vipsgen_mask_butterworth_with_options(VipsImage** out, int width, int height
         vips_object_set(VIPS_OBJECT(operation), "order", order, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "frequency_cutoff", frequency_cutoff, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "amplitude_cutoff", amplitude_cutoff, NULL) ||
-        set_bool_param(operation, "uchar", uchar) ||
-        set_bool_param(operation, "nodc", nodc) ||
-        set_bool_param(operation, "reject", reject) ||
-        set_bool_param(operation, "optical", optical)
+        vipsgen_set_bool(operation, "uchar", uchar) ||
+        vipsgen_set_bool(operation, "nodc", nodc) ||
+        vipsgen_set_bool(operation, "reject", reject) ||
+        vipsgen_set_bool(operation, "optical", optical)
     ) {
         g_object_unref(operation);
         return 1;
@@ -1530,10 +1530,10 @@ int vipsgen_mask_butterworth_ring_with_options(VipsImage** out, int width, int h
         vips_object_set(VIPS_OBJECT(operation), "frequency_cutoff", frequency_cutoff, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "amplitude_cutoff", amplitude_cutoff, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "ringwidth", ringwidth, NULL) ||
-        set_bool_param(operation, "uchar", uchar) ||
-        set_bool_param(operation, "nodc", nodc) ||
-        set_bool_param(operation, "reject", reject) ||
-        set_bool_param(operation, "optical", optical)
+        vipsgen_set_bool(operation, "uchar", uchar) ||
+        vipsgen_set_bool(operation, "nodc", nodc) ||
+        vipsgen_set_bool(operation, "reject", reject) ||
+        vipsgen_set_bool(operation, "optical", optical)
     ) {
         g_object_unref(operation);
         return 1;
@@ -1558,10 +1558,10 @@ int vipsgen_mask_butterworth_band_with_options(VipsImage** out, int width, int h
         vips_object_set(VIPS_OBJECT(operation), "frequency_cutoff_y", frequency_cutoff_y, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "radius", radius, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "amplitude_cutoff", amplitude_cutoff, NULL) ||
-        set_bool_param(operation, "uchar", uchar) ||
-        set_bool_param(operation, "nodc", nodc) ||
-        set_bool_param(operation, "reject", reject) ||
-        set_bool_param(operation, "optical", optical)
+        vipsgen_set_bool(operation, "uchar", uchar) ||
+        vipsgen_set_bool(operation, "nodc", nodc) ||
+        vipsgen_set_bool(operation, "reject", reject) ||
+        vipsgen_set_bool(operation, "optical", optical)
     ) {
         g_object_unref(operation);
         return 1;
@@ -1583,10 +1583,10 @@ int vipsgen_mask_gaussian_with_options(VipsImage** out, int width, int height, d
         vips_object_set(VIPS_OBJECT(operation), "height", height, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "frequency_cutoff", frequency_cutoff, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "amplitude_cutoff", amplitude_cutoff, NULL) ||
-        set_bool_param(operation, "uchar", uchar) ||
-        set_bool_param(operation, "nodc", nodc) ||
-        set_bool_param(operation, "reject", reject) ||
-        set_bool_param(operation, "optical", optical)
+        vipsgen_set_bool(operation, "uchar", uchar) ||
+        vipsgen_set_bool(operation, "nodc", nodc) ||
+        vipsgen_set_bool(operation, "reject", reject) ||
+        vipsgen_set_bool(operation, "optical", optical)
     ) {
         g_object_unref(operation);
         return 1;
@@ -1609,10 +1609,10 @@ int vipsgen_mask_gaussian_ring_with_options(VipsImage** out, int width, int heig
         vips_object_set(VIPS_OBJECT(operation), "frequency_cutoff", frequency_cutoff, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "amplitude_cutoff", amplitude_cutoff, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "ringwidth", ringwidth, NULL) ||
-        set_bool_param(operation, "uchar", uchar) ||
-        set_bool_param(operation, "nodc", nodc) ||
-        set_bool_param(operation, "reject", reject) ||
-        set_bool_param(operation, "optical", optical)
+        vipsgen_set_bool(operation, "uchar", uchar) ||
+        vipsgen_set_bool(operation, "nodc", nodc) ||
+        vipsgen_set_bool(operation, "reject", reject) ||
+        vipsgen_set_bool(operation, "optical", optical)
     ) {
         g_object_unref(operation);
         return 1;
@@ -1636,10 +1636,10 @@ int vipsgen_mask_gaussian_band_with_options(VipsImage** out, int width, int heig
         vips_object_set(VIPS_OBJECT(operation), "frequency_cutoff_y", frequency_cutoff_y, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "radius", radius, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "amplitude_cutoff", amplitude_cutoff, NULL) ||
-        set_bool_param(operation, "uchar", uchar) ||
-        set_bool_param(operation, "nodc", nodc) ||
-        set_bool_param(operation, "reject", reject) ||
-        set_bool_param(operation, "optical", optical)
+        vipsgen_set_bool(operation, "uchar", uchar) ||
+        vipsgen_set_bool(operation, "nodc", nodc) ||
+        vipsgen_set_bool(operation, "reject", reject) ||
+        vipsgen_set_bool(operation, "optical", optical)
     ) {
         g_object_unref(operation);
         return 1;
@@ -1660,10 +1660,10 @@ int vipsgen_mask_fractal_with_options(VipsImage** out, int width, int height, do
         vips_object_set(VIPS_OBJECT(operation), "width", width, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "height", height, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "fractal_dimension", fractal_dimension, NULL) ||
-        set_bool_param(operation, "uchar", uchar) ||
-        set_bool_param(operation, "nodc", nodc) ||
-        set_bool_param(operation, "reject", reject) ||
-        set_bool_param(operation, "optical", optical)
+        vipsgen_set_bool(operation, "uchar", uchar) ||
+        vipsgen_set_bool(operation, "nodc", nodc) ||
+        vipsgen_set_bool(operation, "reject", reject) ||
+        vipsgen_set_bool(operation, "optical", optical)
     ) {
         g_object_unref(operation);
         return 1;
@@ -1686,7 +1686,7 @@ int vipsgen_invertlut_with_options(VipsImage* in, VipsImage** out, int size) {
     if (!operation) return 1;
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
-        set_int_param(operation, "size", size)
+        vipsgen_set_int(operation, "size", size)
     ) {
         g_object_unref(operation);
         return 1;
@@ -1704,16 +1704,16 @@ int vipsgen_tonelut_with_options(VipsImage** out, int in_max, int out_max, doubl
     VipsOperation *operation = vips_operation_new("tonelut");
     if (!operation) return 1;
     if (
-        set_int_param(operation, "in_max", in_max) ||
-        set_int_param(operation, "out_max", out_max) ||
-        set_double_param(operation, "Lb", Lb) ||
-        set_double_param(operation, "Lw", Lw) ||
-        set_double_param(operation, "Ps", Ps) ||
-        set_double_param(operation, "Pm", Pm) ||
-        set_double_param(operation, "Ph", Ph) ||
-        set_double_param(operation, "S", S) ||
-        set_double_param(operation, "M", M) ||
-        set_double_param(operation, "H", H)
+        vipsgen_set_int(operation, "in_max", in_max) ||
+        vipsgen_set_int(operation, "out_max", out_max) ||
+        vipsgen_set_double(operation, "Lb", Lb) ||
+        vipsgen_set_double(operation, "Lw", Lw) ||
+        vipsgen_set_double(operation, "Ps", Ps) ||
+        vipsgen_set_double(operation, "Pm", Pm) ||
+        vipsgen_set_double(operation, "Ph", Ph) ||
+        vipsgen_set_double(operation, "S", S) ||
+        vipsgen_set_double(operation, "M", M) ||
+        vipsgen_set_double(operation, "H", H)
     ) {
         g_object_unref(operation);
         return 1;
@@ -1731,9 +1731,9 @@ int vipsgen_identity_with_options(VipsImage** out, int bands, gboolean ushort, i
     VipsOperation *operation = vips_operation_new("identity");
     if (!operation) return 1;
     if (
-        set_int_param(operation, "bands", bands) ||
-        set_bool_param(operation, "ushort", ushort) ||
-        set_int_param(operation, "size", size)
+        vipsgen_set_int(operation, "bands", bands) ||
+        vipsgen_set_bool(operation, "ushort", ushort) ||
+        vipsgen_set_int(operation, "size", size)
     ) {
         g_object_unref(operation);
         return 1;
@@ -1757,8 +1757,8 @@ int vipsgen_worley_with_options(VipsImage** out, int width, int height, int cell
     if (
         vips_object_set(VIPS_OBJECT(operation), "width", width, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "height", height, NULL) ||
-        set_int_param(operation, "cell_size", cell_size) ||
-        set_int_param(operation, "seed", seed)
+        vipsgen_set_int(operation, "cell_size", cell_size) ||
+        vipsgen_set_int(operation, "seed", seed)
     ) {
         g_object_unref(operation);
         return 1;
@@ -1778,9 +1778,9 @@ int vipsgen_perlin_with_options(VipsImage** out, int width, int height, int cell
     if (
         vips_object_set(VIPS_OBJECT(operation), "width", width, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "height", height, NULL) ||
-        set_int_param(operation, "cell_size", cell_size) ||
-        set_bool_param(operation, "uchar", uchar) ||
-        set_int_param(operation, "seed", seed)
+        vipsgen_set_int(operation, "cell_size", cell_size) ||
+        vipsgen_set_bool(operation, "uchar", uchar) ||
+        vipsgen_set_int(operation, "seed", seed)
     ) {
         g_object_unref(operation);
         return 1;
@@ -1803,14 +1803,14 @@ int vipsgen_csvload_with_options(const char* filename, VipsImage** out, int skip
     if (!operation) return 1;
     if (
         vips_object_set(VIPS_OBJECT(operation), "filename", filename, NULL) ||
-        set_int_param(operation, "skip", skip) ||
-        set_int_param(operation, "lines", lines) ||
-        set_string_param(operation, "whitespace", whitespace) ||
-        set_string_param(operation, "separator", separator) ||
-        set_bool_param(operation, "memory", memory) ||
-        set_int_param(operation, "access", access) ||
-        set_int_param(operation, "fail_on", fail_on) ||
-        set_bool_param(operation, "revalidate", revalidate)
+        vipsgen_set_int(operation, "skip", skip) ||
+        vipsgen_set_int(operation, "lines", lines) ||
+        vipsgen_set_string(operation, "whitespace", whitespace) ||
+        vipsgen_set_string(operation, "separator", separator) ||
+        vipsgen_set_bool(operation, "memory", memory) ||
+        vipsgen_set_int(operation, "access", access) ||
+        vipsgen_set_int(operation, "fail_on", fail_on) ||
+        vipsgen_set_bool(operation, "revalidate", revalidate)
     ) {
         g_object_unref(operation);
         return 1;
@@ -1829,14 +1829,14 @@ int vipsgen_csvload_source_with_options(VipsSourceCustom* source, VipsImage** ou
     if (!operation) return 1;
     if (
         vips_object_set(VIPS_OBJECT(operation), "source", (VipsSource*)source, NULL) ||
-        set_int_param(operation, "skip", skip) ||
-        set_int_param(operation, "lines", lines) ||
-        set_string_param(operation, "whitespace", whitespace) ||
-        set_string_param(operation, "separator", separator) ||
-        set_bool_param(operation, "memory", memory) ||
-        set_int_param(operation, "access", access) ||
-        set_int_param(operation, "fail_on", fail_on) ||
-        set_bool_param(operation, "revalidate", revalidate)
+        vipsgen_set_int(operation, "skip", skip) ||
+        vipsgen_set_int(operation, "lines", lines) ||
+        vipsgen_set_string(operation, "whitespace", whitespace) ||
+        vipsgen_set_string(operation, "separator", separator) ||
+        vipsgen_set_bool(operation, "memory", memory) ||
+        vipsgen_set_int(operation, "access", access) ||
+        vipsgen_set_int(operation, "fail_on", fail_on) ||
+        vipsgen_set_bool(operation, "revalidate", revalidate)
     ) {
         g_object_unref(operation);
         return 1;
@@ -1855,10 +1855,10 @@ int vipsgen_matrixload_with_options(const char* filename, VipsImage** out, gbool
     if (!operation) return 1;
     if (
         vips_object_set(VIPS_OBJECT(operation), "filename", filename, NULL) ||
-        set_bool_param(operation, "memory", memory) ||
-        set_int_param(operation, "access", access) ||
-        set_int_param(operation, "fail_on", fail_on) ||
-        set_bool_param(operation, "revalidate", revalidate)
+        vipsgen_set_bool(operation, "memory", memory) ||
+        vipsgen_set_int(operation, "access", access) ||
+        vipsgen_set_int(operation, "fail_on", fail_on) ||
+        vipsgen_set_bool(operation, "revalidate", revalidate)
     ) {
         g_object_unref(operation);
         return 1;
@@ -1877,10 +1877,10 @@ int vipsgen_matrixload_source_with_options(VipsSourceCustom* source, VipsImage**
     if (!operation) return 1;
     if (
         vips_object_set(VIPS_OBJECT(operation), "source", (VipsSource*)source, NULL) ||
-        set_bool_param(operation, "memory", memory) ||
-        set_int_param(operation, "access", access) ||
-        set_int_param(operation, "fail_on", fail_on) ||
-        set_bool_param(operation, "revalidate", revalidate)
+        vipsgen_set_bool(operation, "memory", memory) ||
+        vipsgen_set_int(operation, "access", access) ||
+        vipsgen_set_int(operation, "fail_on", fail_on) ||
+        vipsgen_set_bool(operation, "revalidate", revalidate)
     ) {
         g_object_unref(operation);
         return 1;
@@ -1902,13 +1902,13 @@ int vipsgen_rawload_with_options(const char* filename, VipsImage** out, int widt
         vips_object_set(VIPS_OBJECT(operation), "width", width, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "height", height, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "bands", bands, NULL) ||
-        set_guint64_param(operation, "offset", offset) ||
-        set_int_param(operation, "format", format) ||
-        set_int_param(operation, "interpretation", interpretation) ||
-        set_bool_param(operation, "memory", memory) ||
-        set_int_param(operation, "access", access) ||
-        set_int_param(operation, "fail_on", fail_on) ||
-        set_bool_param(operation, "revalidate", revalidate)
+        vipsgen_set_guint64(operation, "offset", offset) ||
+        vipsgen_set_int(operation, "format", format) ||
+        vipsgen_set_int(operation, "interpretation", interpretation) ||
+        vipsgen_set_bool(operation, "memory", memory) ||
+        vipsgen_set_int(operation, "access", access) ||
+        vipsgen_set_int(operation, "fail_on", fail_on) ||
+        vipsgen_set_bool(operation, "revalidate", revalidate)
     ) {
         g_object_unref(operation);
         return 1;
@@ -1927,10 +1927,10 @@ int vipsgen_vipsload_with_options(const char* filename, VipsImage** out, gboolea
     if (!operation) return 1;
     if (
         vips_object_set(VIPS_OBJECT(operation), "filename", filename, NULL) ||
-        set_bool_param(operation, "memory", memory) ||
-        set_int_param(operation, "access", access) ||
-        set_int_param(operation, "fail_on", fail_on) ||
-        set_bool_param(operation, "revalidate", revalidate)
+        vipsgen_set_bool(operation, "memory", memory) ||
+        vipsgen_set_int(operation, "access", access) ||
+        vipsgen_set_int(operation, "fail_on", fail_on) ||
+        vipsgen_set_bool(operation, "revalidate", revalidate)
     ) {
         g_object_unref(operation);
         return 1;
@@ -1949,10 +1949,10 @@ int vipsgen_vipsload_source_with_options(VipsSourceCustom* source, VipsImage** o
     if (!operation) return 1;
     if (
         vips_object_set(VIPS_OBJECT(operation), "source", (VipsSource*)source, NULL) ||
-        set_bool_param(operation, "memory", memory) ||
-        set_int_param(operation, "access", access) ||
-        set_int_param(operation, "fail_on", fail_on) ||
-        set_bool_param(operation, "revalidate", revalidate)
+        vipsgen_set_bool(operation, "memory", memory) ||
+        vipsgen_set_int(operation, "access", access) ||
+        vipsgen_set_int(operation, "fail_on", fail_on) ||
+        vipsgen_set_bool(operation, "revalidate", revalidate)
     ) {
         g_object_unref(operation);
         return 1;
@@ -1971,10 +1971,10 @@ int vipsgen_analyzeload_with_options(const char* filename, VipsImage** out, gboo
     if (!operation) return 1;
     if (
         vips_object_set(VIPS_OBJECT(operation), "filename", filename, NULL) ||
-        set_bool_param(operation, "memory", memory) ||
-        set_int_param(operation, "access", access) ||
-        set_int_param(operation, "fail_on", fail_on) ||
-        set_bool_param(operation, "revalidate", revalidate)
+        vipsgen_set_bool(operation, "memory", memory) ||
+        vipsgen_set_int(operation, "access", access) ||
+        vipsgen_set_int(operation, "fail_on", fail_on) ||
+        vipsgen_set_bool(operation, "revalidate", revalidate)
     ) {
         g_object_unref(operation);
         return 1;
@@ -1993,10 +1993,10 @@ int vipsgen_ppmload_with_options(const char* filename, VipsImage** out, gboolean
     if (!operation) return 1;
     if (
         vips_object_set(VIPS_OBJECT(operation), "filename", filename, NULL) ||
-        set_bool_param(operation, "memory", memory) ||
-        set_int_param(operation, "access", access) ||
-        set_int_param(operation, "fail_on", fail_on) ||
-        set_bool_param(operation, "revalidate", revalidate)
+        vipsgen_set_bool(operation, "memory", memory) ||
+        vipsgen_set_int(operation, "access", access) ||
+        vipsgen_set_int(operation, "fail_on", fail_on) ||
+        vipsgen_set_bool(operation, "revalidate", revalidate)
     ) {
         g_object_unref(operation);
         return 1;
@@ -2015,10 +2015,10 @@ int vipsgen_ppmload_source_with_options(VipsSourceCustom* source, VipsImage** ou
     if (!operation) return 1;
     if (
         vips_object_set(VIPS_OBJECT(operation), "source", (VipsSource*)source, NULL) ||
-        set_bool_param(operation, "memory", memory) ||
-        set_int_param(operation, "access", access) ||
-        set_int_param(operation, "fail_on", fail_on) ||
-        set_bool_param(operation, "revalidate", revalidate)
+        vipsgen_set_bool(operation, "memory", memory) ||
+        vipsgen_set_int(operation, "access", access) ||
+        vipsgen_set_int(operation, "fail_on", fail_on) ||
+        vipsgen_set_bool(operation, "revalidate", revalidate)
     ) {
         g_object_unref(operation);
         return 1;
@@ -2037,10 +2037,10 @@ int vipsgen_radload_with_options(const char* filename, VipsImage** out, gboolean
     if (!operation) return 1;
     if (
         vips_object_set(VIPS_OBJECT(operation), "filename", filename, NULL) ||
-        set_bool_param(operation, "memory", memory) ||
-        set_int_param(operation, "access", access) ||
-        set_int_param(operation, "fail_on", fail_on) ||
-        set_bool_param(operation, "revalidate", revalidate)
+        vipsgen_set_bool(operation, "memory", memory) ||
+        vipsgen_set_int(operation, "access", access) ||
+        vipsgen_set_int(operation, "fail_on", fail_on) ||
+        vipsgen_set_bool(operation, "revalidate", revalidate)
     ) {
         g_object_unref(operation);
         return 1;
@@ -2060,10 +2060,10 @@ int vipsgen_radload_buffer_with_options(void* buf, size_t len, VipsImage** out, 
     if (
         vips_object_set(VIPS_OBJECT(operation), "buf", buf, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "len", len, NULL) ||
-        set_bool_param(operation, "memory", memory) ||
-        set_int_param(operation, "access", access) ||
-        set_int_param(operation, "fail_on", fail_on) ||
-        set_bool_param(operation, "revalidate", revalidate)
+        vipsgen_set_bool(operation, "memory", memory) ||
+        vipsgen_set_int(operation, "access", access) ||
+        vipsgen_set_int(operation, "fail_on", fail_on) ||
+        vipsgen_set_bool(operation, "revalidate", revalidate)
     ) {
         g_object_unref(operation);
         return 1;
@@ -2082,10 +2082,10 @@ int vipsgen_radload_source_with_options(VipsSourceCustom* source, VipsImage** ou
     if (!operation) return 1;
     if (
         vips_object_set(VIPS_OBJECT(operation), "source", (VipsSource*)source, NULL) ||
-        set_bool_param(operation, "memory", memory) ||
-        set_int_param(operation, "access", access) ||
-        set_int_param(operation, "fail_on", fail_on) ||
-        set_bool_param(operation, "revalidate", revalidate)
+        vipsgen_set_bool(operation, "memory", memory) ||
+        vipsgen_set_int(operation, "access", access) ||
+        vipsgen_set_int(operation, "fail_on", fail_on) ||
+        vipsgen_set_bool(operation, "revalidate", revalidate)
     ) {
         g_object_unref(operation);
         return 1;
@@ -2104,13 +2104,13 @@ int vipsgen_svgload_with_options(const char* filename, VipsImage** out, double d
     if (!operation) return 1;
     if (
         vips_object_set(VIPS_OBJECT(operation), "filename", filename, NULL) ||
-        set_double_param(operation, "dpi", dpi) ||
-        set_double_param(operation, "scale", scale) ||
-        set_bool_param(operation, "unlimited", unlimited) ||
-        set_bool_param(operation, "memory", memory) ||
-        set_int_param(operation, "access", access) ||
-        set_int_param(operation, "fail_on", fail_on) ||
-        set_bool_param(operation, "revalidate", revalidate)
+        vipsgen_set_double(operation, "dpi", dpi) ||
+        vipsgen_set_double(operation, "scale", scale) ||
+        vipsgen_set_bool(operation, "unlimited", unlimited) ||
+        vipsgen_set_bool(operation, "memory", memory) ||
+        vipsgen_set_int(operation, "access", access) ||
+        vipsgen_set_int(operation, "fail_on", fail_on) ||
+        vipsgen_set_bool(operation, "revalidate", revalidate)
     ) {
         g_object_unref(operation);
         return 1;
@@ -2130,13 +2130,13 @@ int vipsgen_svgload_buffer_with_options(void* buf, size_t len, VipsImage** out, 
     if (
         vips_object_set(VIPS_OBJECT(operation), "buf", buf, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "len", len, NULL) ||
-        set_double_param(operation, "dpi", dpi) ||
-        set_double_param(operation, "scale", scale) ||
-        set_bool_param(operation, "unlimited", unlimited) ||
-        set_bool_param(operation, "memory", memory) ||
-        set_int_param(operation, "access", access) ||
-        set_int_param(operation, "fail_on", fail_on) ||
-        set_bool_param(operation, "revalidate", revalidate)
+        vipsgen_set_double(operation, "dpi", dpi) ||
+        vipsgen_set_double(operation, "scale", scale) ||
+        vipsgen_set_bool(operation, "unlimited", unlimited) ||
+        vipsgen_set_bool(operation, "memory", memory) ||
+        vipsgen_set_int(operation, "access", access) ||
+        vipsgen_set_int(operation, "fail_on", fail_on) ||
+        vipsgen_set_bool(operation, "revalidate", revalidate)
     ) {
         g_object_unref(operation);
         return 1;
@@ -2155,13 +2155,13 @@ int vipsgen_svgload_source_with_options(VipsSourceCustom* source, VipsImage** ou
     if (!operation) return 1;
     if (
         vips_object_set(VIPS_OBJECT(operation), "source", (VipsSource*)source, NULL) ||
-        set_double_param(operation, "dpi", dpi) ||
-        set_double_param(operation, "scale", scale) ||
-        set_bool_param(operation, "unlimited", unlimited) ||
-        set_bool_param(operation, "memory", memory) ||
-        set_int_param(operation, "access", access) ||
-        set_int_param(operation, "fail_on", fail_on) ||
-        set_bool_param(operation, "revalidate", revalidate)
+        vipsgen_set_double(operation, "dpi", dpi) ||
+        vipsgen_set_double(operation, "scale", scale) ||
+        vipsgen_set_bool(operation, "unlimited", unlimited) ||
+        vipsgen_set_bool(operation, "memory", memory) ||
+        vipsgen_set_int(operation, "access", access) ||
+        vipsgen_set_int(operation, "fail_on", fail_on) ||
+        vipsgen_set_bool(operation, "revalidate", revalidate)
     ) {
         g_object_unref(operation);
         return 1;
@@ -2180,11 +2180,11 @@ int vipsgen_jp2kload_with_options(const char* filename, VipsImage** out, int pag
     if (!operation) return 1;
     if (
         vips_object_set(VIPS_OBJECT(operation), "filename", filename, NULL) ||
-        set_int_param(operation, "page", page) ||
-        set_bool_param(operation, "memory", memory) ||
-        set_int_param(operation, "access", access) ||
-        set_int_param(operation, "fail_on", fail_on) ||
-        set_bool_param(operation, "revalidate", revalidate)
+        vipsgen_set_int(operation, "page", page) ||
+        vipsgen_set_bool(operation, "memory", memory) ||
+        vipsgen_set_int(operation, "access", access) ||
+        vipsgen_set_int(operation, "fail_on", fail_on) ||
+        vipsgen_set_bool(operation, "revalidate", revalidate)
     ) {
         g_object_unref(operation);
         return 1;
@@ -2204,11 +2204,11 @@ int vipsgen_jp2kload_buffer_with_options(void* buf, size_t len, VipsImage** out,
     if (
         vips_object_set(VIPS_OBJECT(operation), "buf", buf, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "len", len, NULL) ||
-        set_int_param(operation, "page", page) ||
-        set_bool_param(operation, "memory", memory) ||
-        set_int_param(operation, "access", access) ||
-        set_int_param(operation, "fail_on", fail_on) ||
-        set_bool_param(operation, "revalidate", revalidate)
+        vipsgen_set_int(operation, "page", page) ||
+        vipsgen_set_bool(operation, "memory", memory) ||
+        vipsgen_set_int(operation, "access", access) ||
+        vipsgen_set_int(operation, "fail_on", fail_on) ||
+        vipsgen_set_bool(operation, "revalidate", revalidate)
     ) {
         g_object_unref(operation);
         return 1;
@@ -2227,11 +2227,11 @@ int vipsgen_jp2kload_source_with_options(VipsSourceCustom* source, VipsImage** o
     if (!operation) return 1;
     if (
         vips_object_set(VIPS_OBJECT(operation), "source", (VipsSource*)source, NULL) ||
-        set_int_param(operation, "page", page) ||
-        set_bool_param(operation, "memory", memory) ||
-        set_int_param(operation, "access", access) ||
-        set_int_param(operation, "fail_on", fail_on) ||
-        set_bool_param(operation, "revalidate", revalidate)
+        vipsgen_set_int(operation, "page", page) ||
+        vipsgen_set_bool(operation, "memory", memory) ||
+        vipsgen_set_int(operation, "access", access) ||
+        vipsgen_set_int(operation, "fail_on", fail_on) ||
+        vipsgen_set_bool(operation, "revalidate", revalidate)
     ) {
         g_object_unref(operation);
         return 1;
@@ -2250,12 +2250,12 @@ int vipsgen_gifload_with_options(const char* filename, VipsImage** out, int n, i
     if (!operation) return 1;
     if (
         vips_object_set(VIPS_OBJECT(operation), "filename", filename, NULL) ||
-        set_int_param(operation, "n", n) ||
-        set_int_param(operation, "page", page) ||
-        set_bool_param(operation, "memory", memory) ||
-        set_int_param(operation, "access", access) ||
-        set_int_param(operation, "fail_on", fail_on) ||
-        set_bool_param(operation, "revalidate", revalidate)
+        vipsgen_set_int(operation, "n", n) ||
+        vipsgen_set_int(operation, "page", page) ||
+        vipsgen_set_bool(operation, "memory", memory) ||
+        vipsgen_set_int(operation, "access", access) ||
+        vipsgen_set_int(operation, "fail_on", fail_on) ||
+        vipsgen_set_bool(operation, "revalidate", revalidate)
     ) {
         g_object_unref(operation);
         return 1;
@@ -2275,12 +2275,12 @@ int vipsgen_gifload_buffer_with_options(void* buf, size_t len, VipsImage** out, 
     if (
         vips_object_set(VIPS_OBJECT(operation), "buf", buf, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "len", len, NULL) ||
-        set_int_param(operation, "n", n) ||
-        set_int_param(operation, "page", page) ||
-        set_bool_param(operation, "memory", memory) ||
-        set_int_param(operation, "access", access) ||
-        set_int_param(operation, "fail_on", fail_on) ||
-        set_bool_param(operation, "revalidate", revalidate)
+        vipsgen_set_int(operation, "n", n) ||
+        vipsgen_set_int(operation, "page", page) ||
+        vipsgen_set_bool(operation, "memory", memory) ||
+        vipsgen_set_int(operation, "access", access) ||
+        vipsgen_set_int(operation, "fail_on", fail_on) ||
+        vipsgen_set_bool(operation, "revalidate", revalidate)
     ) {
         g_object_unref(operation);
         return 1;
@@ -2299,12 +2299,12 @@ int vipsgen_gifload_source_with_options(VipsSourceCustom* source, VipsImage** ou
     if (!operation) return 1;
     if (
         vips_object_set(VIPS_OBJECT(operation), "source", (VipsSource*)source, NULL) ||
-        set_int_param(operation, "n", n) ||
-        set_int_param(operation, "page", page) ||
-        set_bool_param(operation, "memory", memory) ||
-        set_int_param(operation, "access", access) ||
-        set_int_param(operation, "fail_on", fail_on) ||
-        set_bool_param(operation, "revalidate", revalidate)
+        vipsgen_set_int(operation, "n", n) ||
+        vipsgen_set_int(operation, "page", page) ||
+        vipsgen_set_bool(operation, "memory", memory) ||
+        vipsgen_set_int(operation, "access", access) ||
+        vipsgen_set_int(operation, "fail_on", fail_on) ||
+        vipsgen_set_bool(operation, "revalidate", revalidate)
     ) {
         g_object_unref(operation);
         return 1;
@@ -2323,11 +2323,11 @@ int vipsgen_pngload_with_options(const char* filename, VipsImage** out, gboolean
     if (!operation) return 1;
     if (
         vips_object_set(VIPS_OBJECT(operation), "filename", filename, NULL) ||
-        set_bool_param(operation, "unlimited", unlimited) ||
-        set_bool_param(operation, "memory", memory) ||
-        set_int_param(operation, "access", access) ||
-        set_int_param(operation, "fail_on", fail_on) ||
-        set_bool_param(operation, "revalidate", revalidate)
+        vipsgen_set_bool(operation, "unlimited", unlimited) ||
+        vipsgen_set_bool(operation, "memory", memory) ||
+        vipsgen_set_int(operation, "access", access) ||
+        vipsgen_set_int(operation, "fail_on", fail_on) ||
+        vipsgen_set_bool(operation, "revalidate", revalidate)
     ) {
         g_object_unref(operation);
         return 1;
@@ -2347,11 +2347,11 @@ int vipsgen_pngload_buffer_with_options(void* buf, size_t len, VipsImage** out, 
     if (
         vips_object_set(VIPS_OBJECT(operation), "buf", buf, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "len", len, NULL) ||
-        set_bool_param(operation, "unlimited", unlimited) ||
-        set_bool_param(operation, "memory", memory) ||
-        set_int_param(operation, "access", access) ||
-        set_int_param(operation, "fail_on", fail_on) ||
-        set_bool_param(operation, "revalidate", revalidate)
+        vipsgen_set_bool(operation, "unlimited", unlimited) ||
+        vipsgen_set_bool(operation, "memory", memory) ||
+        vipsgen_set_int(operation, "access", access) ||
+        vipsgen_set_int(operation, "fail_on", fail_on) ||
+        vipsgen_set_bool(operation, "revalidate", revalidate)
     ) {
         g_object_unref(operation);
         return 1;
@@ -2370,11 +2370,11 @@ int vipsgen_pngload_source_with_options(VipsSourceCustom* source, VipsImage** ou
     if (!operation) return 1;
     if (
         vips_object_set(VIPS_OBJECT(operation), "source", (VipsSource*)source, NULL) ||
-        set_bool_param(operation, "unlimited", unlimited) ||
-        set_bool_param(operation, "memory", memory) ||
-        set_int_param(operation, "access", access) ||
-        set_int_param(operation, "fail_on", fail_on) ||
-        set_bool_param(operation, "revalidate", revalidate)
+        vipsgen_set_bool(operation, "unlimited", unlimited) ||
+        vipsgen_set_bool(operation, "memory", memory) ||
+        vipsgen_set_int(operation, "access", access) ||
+        vipsgen_set_int(operation, "fail_on", fail_on) ||
+        vipsgen_set_bool(operation, "revalidate", revalidate)
     ) {
         g_object_unref(operation);
         return 1;
@@ -2393,13 +2393,13 @@ int vipsgen_jpegload_with_options(const char* filename, VipsImage** out, int shr
     if (!operation) return 1;
     if (
         vips_object_set(VIPS_OBJECT(operation), "filename", filename, NULL) ||
-        set_int_param(operation, "shrink", shrink) ||
-        set_bool_param(operation, "autorotate", autorotate) ||
-        set_bool_param(operation, "unlimited", unlimited) ||
-        set_bool_param(operation, "memory", memory) ||
-        set_int_param(operation, "access", access) ||
-        set_int_param(operation, "fail_on", fail_on) ||
-        set_bool_param(operation, "revalidate", revalidate)
+        vipsgen_set_int(operation, "shrink", shrink) ||
+        vipsgen_set_bool(operation, "autorotate", autorotate) ||
+        vipsgen_set_bool(operation, "unlimited", unlimited) ||
+        vipsgen_set_bool(operation, "memory", memory) ||
+        vipsgen_set_int(operation, "access", access) ||
+        vipsgen_set_int(operation, "fail_on", fail_on) ||
+        vipsgen_set_bool(operation, "revalidate", revalidate)
     ) {
         g_object_unref(operation);
         return 1;
@@ -2419,13 +2419,13 @@ int vipsgen_jpegload_buffer_with_options(void* buf, size_t len, VipsImage** out,
     if (
         vips_object_set(VIPS_OBJECT(operation), "buf", buf, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "len", len, NULL) ||
-        set_int_param(operation, "shrink", shrink) ||
-        set_bool_param(operation, "autorotate", autorotate) ||
-        set_bool_param(operation, "unlimited", unlimited) ||
-        set_bool_param(operation, "memory", memory) ||
-        set_int_param(operation, "access", access) ||
-        set_int_param(operation, "fail_on", fail_on) ||
-        set_bool_param(operation, "revalidate", revalidate)
+        vipsgen_set_int(operation, "shrink", shrink) ||
+        vipsgen_set_bool(operation, "autorotate", autorotate) ||
+        vipsgen_set_bool(operation, "unlimited", unlimited) ||
+        vipsgen_set_bool(operation, "memory", memory) ||
+        vipsgen_set_int(operation, "access", access) ||
+        vipsgen_set_int(operation, "fail_on", fail_on) ||
+        vipsgen_set_bool(operation, "revalidate", revalidate)
     ) {
         g_object_unref(operation);
         return 1;
@@ -2444,13 +2444,13 @@ int vipsgen_jpegload_source_with_options(VipsSourceCustom* source, VipsImage** o
     if (!operation) return 1;
     if (
         vips_object_set(VIPS_OBJECT(operation), "source", (VipsSource*)source, NULL) ||
-        set_int_param(operation, "shrink", shrink) ||
-        set_bool_param(operation, "autorotate", autorotate) ||
-        set_bool_param(operation, "unlimited", unlimited) ||
-        set_bool_param(operation, "memory", memory) ||
-        set_int_param(operation, "access", access) ||
-        set_int_param(operation, "fail_on", fail_on) ||
-        set_bool_param(operation, "revalidate", revalidate)
+        vipsgen_set_int(operation, "shrink", shrink) ||
+        vipsgen_set_bool(operation, "autorotate", autorotate) ||
+        vipsgen_set_bool(operation, "unlimited", unlimited) ||
+        vipsgen_set_bool(operation, "memory", memory) ||
+        vipsgen_set_int(operation, "access", access) ||
+        vipsgen_set_int(operation, "fail_on", fail_on) ||
+        vipsgen_set_bool(operation, "revalidate", revalidate)
     ) {
         g_object_unref(operation);
         return 1;
@@ -2469,13 +2469,13 @@ int vipsgen_webpload_with_options(const char* filename, VipsImage** out, int pag
     if (!operation) return 1;
     if (
         vips_object_set(VIPS_OBJECT(operation), "filename", filename, NULL) ||
-        set_int_param(operation, "page", page) ||
-        set_int_param(operation, "n", n) ||
-        set_double_param(operation, "scale", scale) ||
-        set_bool_param(operation, "memory", memory) ||
-        set_int_param(operation, "access", access) ||
-        set_int_param(operation, "fail_on", fail_on) ||
-        set_bool_param(operation, "revalidate", revalidate)
+        vipsgen_set_int(operation, "page", page) ||
+        vipsgen_set_int(operation, "n", n) ||
+        vipsgen_set_double(operation, "scale", scale) ||
+        vipsgen_set_bool(operation, "memory", memory) ||
+        vipsgen_set_int(operation, "access", access) ||
+        vipsgen_set_int(operation, "fail_on", fail_on) ||
+        vipsgen_set_bool(operation, "revalidate", revalidate)
     ) {
         g_object_unref(operation);
         return 1;
@@ -2495,13 +2495,13 @@ int vipsgen_webpload_buffer_with_options(void* buf, size_t len, VipsImage** out,
     if (
         vips_object_set(VIPS_OBJECT(operation), "buf", buf, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "len", len, NULL) ||
-        set_int_param(operation, "page", page) ||
-        set_int_param(operation, "n", n) ||
-        set_double_param(operation, "scale", scale) ||
-        set_bool_param(operation, "memory", memory) ||
-        set_int_param(operation, "access", access) ||
-        set_int_param(operation, "fail_on", fail_on) ||
-        set_bool_param(operation, "revalidate", revalidate)
+        vipsgen_set_int(operation, "page", page) ||
+        vipsgen_set_int(operation, "n", n) ||
+        vipsgen_set_double(operation, "scale", scale) ||
+        vipsgen_set_bool(operation, "memory", memory) ||
+        vipsgen_set_int(operation, "access", access) ||
+        vipsgen_set_int(operation, "fail_on", fail_on) ||
+        vipsgen_set_bool(operation, "revalidate", revalidate)
     ) {
         g_object_unref(operation);
         return 1;
@@ -2520,13 +2520,13 @@ int vipsgen_webpload_source_with_options(VipsSourceCustom* source, VipsImage** o
     if (!operation) return 1;
     if (
         vips_object_set(VIPS_OBJECT(operation), "source", (VipsSource*)source, NULL) ||
-        set_int_param(operation, "page", page) ||
-        set_int_param(operation, "n", n) ||
-        set_double_param(operation, "scale", scale) ||
-        set_bool_param(operation, "memory", memory) ||
-        set_int_param(operation, "access", access) ||
-        set_int_param(operation, "fail_on", fail_on) ||
-        set_bool_param(operation, "revalidate", revalidate)
+        vipsgen_set_int(operation, "page", page) ||
+        vipsgen_set_int(operation, "n", n) ||
+        vipsgen_set_double(operation, "scale", scale) ||
+        vipsgen_set_bool(operation, "memory", memory) ||
+        vipsgen_set_int(operation, "access", access) ||
+        vipsgen_set_int(operation, "fail_on", fail_on) ||
+        vipsgen_set_bool(operation, "revalidate", revalidate)
     ) {
         g_object_unref(operation);
         return 1;
@@ -2545,14 +2545,14 @@ int vipsgen_tiffload_with_options(const char* filename, VipsImage** out, int pag
     if (!operation) return 1;
     if (
         vips_object_set(VIPS_OBJECT(operation), "filename", filename, NULL) ||
-        set_int_param(operation, "page", page) ||
-        set_int_param(operation, "subifd", subifd) ||
-        set_int_param(operation, "n", n) ||
-        set_bool_param(operation, "autorotate", autorotate) ||
-        set_bool_param(operation, "memory", memory) ||
-        set_int_param(operation, "access", access) ||
-        set_int_param(operation, "fail_on", fail_on) ||
-        set_bool_param(operation, "revalidate", revalidate)
+        vipsgen_set_int(operation, "page", page) ||
+        vipsgen_set_int(operation, "subifd", subifd) ||
+        vipsgen_set_int(operation, "n", n) ||
+        vipsgen_set_bool(operation, "autorotate", autorotate) ||
+        vipsgen_set_bool(operation, "memory", memory) ||
+        vipsgen_set_int(operation, "access", access) ||
+        vipsgen_set_int(operation, "fail_on", fail_on) ||
+        vipsgen_set_bool(operation, "revalidate", revalidate)
     ) {
         g_object_unref(operation);
         return 1;
@@ -2572,14 +2572,14 @@ int vipsgen_tiffload_buffer_with_options(void* buf, size_t len, VipsImage** out,
     if (
         vips_object_set(VIPS_OBJECT(operation), "buf", buf, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "len", len, NULL) ||
-        set_int_param(operation, "page", page) ||
-        set_int_param(operation, "subifd", subifd) ||
-        set_int_param(operation, "n", n) ||
-        set_bool_param(operation, "autorotate", autorotate) ||
-        set_bool_param(operation, "memory", memory) ||
-        set_int_param(operation, "access", access) ||
-        set_int_param(operation, "fail_on", fail_on) ||
-        set_bool_param(operation, "revalidate", revalidate)
+        vipsgen_set_int(operation, "page", page) ||
+        vipsgen_set_int(operation, "subifd", subifd) ||
+        vipsgen_set_int(operation, "n", n) ||
+        vipsgen_set_bool(operation, "autorotate", autorotate) ||
+        vipsgen_set_bool(operation, "memory", memory) ||
+        vipsgen_set_int(operation, "access", access) ||
+        vipsgen_set_int(operation, "fail_on", fail_on) ||
+        vipsgen_set_bool(operation, "revalidate", revalidate)
     ) {
         g_object_unref(operation);
         return 1;
@@ -2598,14 +2598,14 @@ int vipsgen_tiffload_source_with_options(VipsSourceCustom* source, VipsImage** o
     if (!operation) return 1;
     if (
         vips_object_set(VIPS_OBJECT(operation), "source", (VipsSource*)source, NULL) ||
-        set_int_param(operation, "page", page) ||
-        set_int_param(operation, "subifd", subifd) ||
-        set_int_param(operation, "n", n) ||
-        set_bool_param(operation, "autorotate", autorotate) ||
-        set_bool_param(operation, "memory", memory) ||
-        set_int_param(operation, "access", access) ||
-        set_int_param(operation, "fail_on", fail_on) ||
-        set_bool_param(operation, "revalidate", revalidate)
+        vipsgen_set_int(operation, "page", page) ||
+        vipsgen_set_int(operation, "subifd", subifd) ||
+        vipsgen_set_int(operation, "n", n) ||
+        vipsgen_set_bool(operation, "autorotate", autorotate) ||
+        vipsgen_set_bool(operation, "memory", memory) ||
+        vipsgen_set_int(operation, "access", access) ||
+        vipsgen_set_int(operation, "fail_on", fail_on) ||
+        vipsgen_set_bool(operation, "revalidate", revalidate)
     ) {
         g_object_unref(operation);
         return 1;
@@ -2624,10 +2624,10 @@ int vipsgen_fitsload_with_options(const char* filename, VipsImage** out, gboolea
     if (!operation) return 1;
     if (
         vips_object_set(VIPS_OBJECT(operation), "filename", filename, NULL) ||
-        set_bool_param(operation, "memory", memory) ||
-        set_int_param(operation, "access", access) ||
-        set_int_param(operation, "fail_on", fail_on) ||
-        set_bool_param(operation, "revalidate", revalidate)
+        vipsgen_set_bool(operation, "memory", memory) ||
+        vipsgen_set_int(operation, "access", access) ||
+        vipsgen_set_int(operation, "fail_on", fail_on) ||
+        vipsgen_set_bool(operation, "revalidate", revalidate)
     ) {
         g_object_unref(operation);
         return 1;
@@ -2646,10 +2646,10 @@ int vipsgen_openexrload_with_options(const char* filename, VipsImage** out, gboo
     if (!operation) return 1;
     if (
         vips_object_set(VIPS_OBJECT(operation), "filename", filename, NULL) ||
-        set_bool_param(operation, "memory", memory) ||
-        set_int_param(operation, "access", access) ||
-        set_int_param(operation, "fail_on", fail_on) ||
-        set_bool_param(operation, "revalidate", revalidate)
+        vipsgen_set_bool(operation, "memory", memory) ||
+        vipsgen_set_int(operation, "access", access) ||
+        vipsgen_set_int(operation, "fail_on", fail_on) ||
+        vipsgen_set_bool(operation, "revalidate", revalidate)
     ) {
         g_object_unref(operation);
         return 1;
@@ -2668,13 +2668,13 @@ int vipsgen_magickload_with_options(const char* filename, VipsImage** out, const
     if (!operation) return 1;
     if (
         vips_object_set(VIPS_OBJECT(operation), "filename", filename, NULL) ||
-        set_string_param(operation, "density", density) ||
-        set_int_param(operation, "page", page) ||
-        set_int_param(operation, "n", n) ||
-        set_bool_param(operation, "memory", memory) ||
-        set_int_param(operation, "access", access) ||
-        set_int_param(operation, "fail_on", fail_on) ||
-        set_bool_param(operation, "revalidate", revalidate)
+        vipsgen_set_string(operation, "density", density) ||
+        vipsgen_set_int(operation, "page", page) ||
+        vipsgen_set_int(operation, "n", n) ||
+        vipsgen_set_bool(operation, "memory", memory) ||
+        vipsgen_set_int(operation, "access", access) ||
+        vipsgen_set_int(operation, "fail_on", fail_on) ||
+        vipsgen_set_bool(operation, "revalidate", revalidate)
     ) {
         g_object_unref(operation);
         return 1;
@@ -2694,13 +2694,13 @@ int vipsgen_magickload_buffer_with_options(void* buf, size_t len, VipsImage** ou
     if (
         vips_object_set(VIPS_OBJECT(operation), "buf", buf, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "len", len, NULL) ||
-        set_string_param(operation, "density", density) ||
-        set_int_param(operation, "page", page) ||
-        set_int_param(operation, "n", n) ||
-        set_bool_param(operation, "memory", memory) ||
-        set_int_param(operation, "access", access) ||
-        set_int_param(operation, "fail_on", fail_on) ||
-        set_bool_param(operation, "revalidate", revalidate)
+        vipsgen_set_string(operation, "density", density) ||
+        vipsgen_set_int(operation, "page", page) ||
+        vipsgen_set_int(operation, "n", n) ||
+        vipsgen_set_bool(operation, "memory", memory) ||
+        vipsgen_set_int(operation, "access", access) ||
+        vipsgen_set_int(operation, "fail_on", fail_on) ||
+        vipsgen_set_bool(operation, "revalidate", revalidate)
     ) {
         g_object_unref(operation);
         return 1;
@@ -2719,14 +2719,14 @@ int vipsgen_heifload_with_options(const char* filename, VipsImage** out, int pag
     if (!operation) return 1;
     if (
         vips_object_set(VIPS_OBJECT(operation), "filename", filename, NULL) ||
-        set_int_param(operation, "page", page) ||
-        set_int_param(operation, "n", n) ||
-        set_bool_param(operation, "thumbnail", thumbnail) ||
-        set_bool_param(operation, "unlimited", unlimited) ||
-        set_bool_param(operation, "memory", memory) ||
-        set_int_param(operation, "access", access) ||
-        set_int_param(operation, "fail_on", fail_on) ||
-        set_bool_param(operation, "revalidate", revalidate)
+        vipsgen_set_int(operation, "page", page) ||
+        vipsgen_set_int(operation, "n", n) ||
+        vipsgen_set_bool(operation, "thumbnail", thumbnail) ||
+        vipsgen_set_bool(operation, "unlimited", unlimited) ||
+        vipsgen_set_bool(operation, "memory", memory) ||
+        vipsgen_set_int(operation, "access", access) ||
+        vipsgen_set_int(operation, "fail_on", fail_on) ||
+        vipsgen_set_bool(operation, "revalidate", revalidate)
     ) {
         g_object_unref(operation);
         return 1;
@@ -2746,14 +2746,14 @@ int vipsgen_heifload_buffer_with_options(void* buf, size_t len, VipsImage** out,
     if (
         vips_object_set(VIPS_OBJECT(operation), "buf", buf, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "len", len, NULL) ||
-        set_int_param(operation, "page", page) ||
-        set_int_param(operation, "n", n) ||
-        set_bool_param(operation, "thumbnail", thumbnail) ||
-        set_bool_param(operation, "unlimited", unlimited) ||
-        set_bool_param(operation, "memory", memory) ||
-        set_int_param(operation, "access", access) ||
-        set_int_param(operation, "fail_on", fail_on) ||
-        set_bool_param(operation, "revalidate", revalidate)
+        vipsgen_set_int(operation, "page", page) ||
+        vipsgen_set_int(operation, "n", n) ||
+        vipsgen_set_bool(operation, "thumbnail", thumbnail) ||
+        vipsgen_set_bool(operation, "unlimited", unlimited) ||
+        vipsgen_set_bool(operation, "memory", memory) ||
+        vipsgen_set_int(operation, "access", access) ||
+        vipsgen_set_int(operation, "fail_on", fail_on) ||
+        vipsgen_set_bool(operation, "revalidate", revalidate)
     ) {
         g_object_unref(operation);
         return 1;
@@ -2772,14 +2772,14 @@ int vipsgen_heifload_source_with_options(VipsSourceCustom* source, VipsImage** o
     if (!operation) return 1;
     if (
         vips_object_set(VIPS_OBJECT(operation), "source", (VipsSource*)source, NULL) ||
-        set_int_param(operation, "page", page) ||
-        set_int_param(operation, "n", n) ||
-        set_bool_param(operation, "thumbnail", thumbnail) ||
-        set_bool_param(operation, "unlimited", unlimited) ||
-        set_bool_param(operation, "memory", memory) ||
-        set_int_param(operation, "access", access) ||
-        set_int_param(operation, "fail_on", fail_on) ||
-        set_bool_param(operation, "revalidate", revalidate)
+        vipsgen_set_int(operation, "page", page) ||
+        vipsgen_set_int(operation, "n", n) ||
+        vipsgen_set_bool(operation, "thumbnail", thumbnail) ||
+        vipsgen_set_bool(operation, "unlimited", unlimited) ||
+        vipsgen_set_bool(operation, "memory", memory) ||
+        vipsgen_set_int(operation, "access", access) ||
+        vipsgen_set_int(operation, "fail_on", fail_on) ||
+        vipsgen_set_bool(operation, "revalidate", revalidate)
     ) {
         g_object_unref(operation);
         return 1;
@@ -2798,15 +2798,15 @@ int vipsgen_openslideload_with_options(const char* filename, VipsImage** out, in
     if (!operation) return 1;
     if (
         vips_object_set(VIPS_OBJECT(operation), "filename", filename, NULL) ||
-        set_int_param(operation, "level", level) ||
-        set_bool_param(operation, "autocrop", autocrop) ||
-        set_string_param(operation, "associated", associated) ||
-        set_bool_param(operation, "attach_associated", attach_associated) ||
-        set_bool_param(operation, "rgb", rgb) ||
-        set_bool_param(operation, "memory", memory) ||
-        set_int_param(operation, "access", access) ||
-        set_int_param(operation, "fail_on", fail_on) ||
-        set_bool_param(operation, "revalidate", revalidate)
+        vipsgen_set_int(operation, "level", level) ||
+        vipsgen_set_bool(operation, "autocrop", autocrop) ||
+        vipsgen_set_string(operation, "associated", associated) ||
+        vipsgen_set_bool(operation, "attach_associated", attach_associated) ||
+        vipsgen_set_bool(operation, "rgb", rgb) ||
+        vipsgen_set_bool(operation, "memory", memory) ||
+        vipsgen_set_int(operation, "access", access) ||
+        vipsgen_set_int(operation, "fail_on", fail_on) ||
+        vipsgen_set_bool(operation, "revalidate", revalidate)
     ) {
         g_object_unref(operation);
         return 1;
@@ -2825,15 +2825,15 @@ int vipsgen_openslideload_source_with_options(VipsSourceCustom* source, VipsImag
     if (!operation) return 1;
     if (
         vips_object_set(VIPS_OBJECT(operation), "source", (VipsSource*)source, NULL) ||
-        set_int_param(operation, "level", level) ||
-        set_bool_param(operation, "autocrop", autocrop) ||
-        set_string_param(operation, "associated", associated) ||
-        set_bool_param(operation, "attach_associated", attach_associated) ||
-        set_bool_param(operation, "rgb", rgb) ||
-        set_bool_param(operation, "memory", memory) ||
-        set_int_param(operation, "access", access) ||
-        set_int_param(operation, "fail_on", fail_on) ||
-        set_bool_param(operation, "revalidate", revalidate)
+        vipsgen_set_int(operation, "level", level) ||
+        vipsgen_set_bool(operation, "autocrop", autocrop) ||
+        vipsgen_set_string(operation, "associated", associated) ||
+        vipsgen_set_bool(operation, "attach_associated", attach_associated) ||
+        vipsgen_set_bool(operation, "rgb", rgb) ||
+        vipsgen_set_bool(operation, "memory", memory) ||
+        vipsgen_set_int(operation, "access", access) ||
+        vipsgen_set_int(operation, "fail_on", fail_on) ||
+        vipsgen_set_bool(operation, "revalidate", revalidate)
     ) {
         g_object_unref(operation);
         return 1;
@@ -2854,16 +2854,16 @@ int vipsgen_pdfload_with_options(const char* filename, VipsImage** out, int page
     if (background != NULL && background_n > 0) { background_array = vips_array_double_new(background, background_n); }
     if (
         vips_object_set(VIPS_OBJECT(operation), "filename", filename, NULL) ||
-        set_int_param(operation, "page", page) ||
-        set_int_param(operation, "n", n) ||
-        set_double_param(operation, "dpi", dpi) ||
-        set_double_param(operation, "scale", scale) ||
-        set_array_double_param(operation, "background", background_array) ||
-        set_string_param(operation, "password", password) ||
-        set_bool_param(operation, "memory", memory) ||
-        set_int_param(operation, "access", access) ||
-        set_int_param(operation, "fail_on", fail_on) ||
-        set_bool_param(operation, "revalidate", revalidate)
+        vipsgen_set_int(operation, "page", page) ||
+        vipsgen_set_int(operation, "n", n) ||
+        vipsgen_set_double(operation, "dpi", dpi) ||
+        vipsgen_set_double(operation, "scale", scale) ||
+        vipsgen_set_array_double(operation, "background", background_array) ||
+        vipsgen_set_string(operation, "password", password) ||
+        vipsgen_set_bool(operation, "memory", memory) ||
+        vipsgen_set_int(operation, "access", access) ||
+        vipsgen_set_int(operation, "fail_on", fail_on) ||
+        vipsgen_set_bool(operation, "revalidate", revalidate)
     ) {
         g_object_unref(operation);
         if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
@@ -2887,16 +2887,16 @@ int vipsgen_pdfload_buffer_with_options(void* buf, size_t len, VipsImage** out, 
     if (
         vips_object_set(VIPS_OBJECT(operation), "buf", buf, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "len", len, NULL) ||
-        set_int_param(operation, "page", page) ||
-        set_int_param(operation, "n", n) ||
-        set_double_param(operation, "dpi", dpi) ||
-        set_double_param(operation, "scale", scale) ||
-        set_array_double_param(operation, "background", background_array) ||
-        set_string_param(operation, "password", password) ||
-        set_bool_param(operation, "memory", memory) ||
-        set_int_param(operation, "access", access) ||
-        set_int_param(operation, "fail_on", fail_on) ||
-        set_bool_param(operation, "revalidate", revalidate)
+        vipsgen_set_int(operation, "page", page) ||
+        vipsgen_set_int(operation, "n", n) ||
+        vipsgen_set_double(operation, "dpi", dpi) ||
+        vipsgen_set_double(operation, "scale", scale) ||
+        vipsgen_set_array_double(operation, "background", background_array) ||
+        vipsgen_set_string(operation, "password", password) ||
+        vipsgen_set_bool(operation, "memory", memory) ||
+        vipsgen_set_int(operation, "access", access) ||
+        vipsgen_set_int(operation, "fail_on", fail_on) ||
+        vipsgen_set_bool(operation, "revalidate", revalidate)
     ) {
         g_object_unref(operation);
         if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
@@ -2919,16 +2919,16 @@ int vipsgen_pdfload_source_with_options(VipsSourceCustom* source, VipsImage** ou
     if (background != NULL && background_n > 0) { background_array = vips_array_double_new(background, background_n); }
     if (
         vips_object_set(VIPS_OBJECT(operation), "source", (VipsSource*)source, NULL) ||
-        set_int_param(operation, "page", page) ||
-        set_int_param(operation, "n", n) ||
-        set_double_param(operation, "dpi", dpi) ||
-        set_double_param(operation, "scale", scale) ||
-        set_array_double_param(operation, "background", background_array) ||
-        set_string_param(operation, "password", password) ||
-        set_bool_param(operation, "memory", memory) ||
-        set_int_param(operation, "access", access) ||
-        set_int_param(operation, "fail_on", fail_on) ||
-        set_bool_param(operation, "revalidate", revalidate)
+        vipsgen_set_int(operation, "page", page) ||
+        vipsgen_set_int(operation, "n", n) ||
+        vipsgen_set_double(operation, "dpi", dpi) ||
+        vipsgen_set_double(operation, "scale", scale) ||
+        vipsgen_set_array_double(operation, "background", background_array) ||
+        vipsgen_set_string(operation, "password", password) ||
+        vipsgen_set_bool(operation, "memory", memory) ||
+        vipsgen_set_int(operation, "access", access) ||
+        vipsgen_set_int(operation, "fail_on", fail_on) ||
+        vipsgen_set_bool(operation, "revalidate", revalidate)
     ) {
         g_object_unref(operation);
         if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
@@ -2952,11 +2952,11 @@ int vipsgen_csvsave_with_options(VipsImage* in, const char* filename, const char
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "filename", filename, NULL) ||
-        set_string_param(operation, "separator", separator) ||
-        set_int_param(operation, "keep", keep) ||
-        set_array_double_param(operation, "background", background_array) ||
-        set_int_param(operation, "page_height", page_height) ||
-        set_string_param(operation, "profile", profile)
+        vipsgen_set_string(operation, "separator", separator) ||
+        vipsgen_set_int(operation, "keep", keep) ||
+        vipsgen_set_array_double(operation, "background", background_array) ||
+        vipsgen_set_int(operation, "page_height", page_height) ||
+        vipsgen_set_string(operation, "profile", profile)
     ) {
         g_object_unref(operation);
         if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
@@ -2980,10 +2980,10 @@ int vipsgen_matrixsave_with_options(VipsImage* in, const char* filename, VipsFor
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "filename", filename, NULL) ||
-        set_int_param(operation, "keep", keep) ||
-        set_array_double_param(operation, "background", background_array) ||
-        set_int_param(operation, "page_height", page_height) ||
-        set_string_param(operation, "profile", profile)
+        vipsgen_set_int(operation, "keep", keep) ||
+        vipsgen_set_array_double(operation, "background", background_array) ||
+        vipsgen_set_int(operation, "page_height", page_height) ||
+        vipsgen_set_string(operation, "profile", profile)
     ) {
         g_object_unref(operation);
         if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
@@ -3006,10 +3006,10 @@ int vipsgen_matrixprint_with_options(VipsImage* in, VipsForeignKeep keep, double
     if (background != NULL && background_n > 0) { background_array = vips_array_double_new(background, background_n); }
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
-        set_int_param(operation, "keep", keep) ||
-        set_array_double_param(operation, "background", background_array) ||
-        set_int_param(operation, "page_height", page_height) ||
-        set_string_param(operation, "profile", profile)
+        vipsgen_set_int(operation, "keep", keep) ||
+        vipsgen_set_array_double(operation, "background", background_array) ||
+        vipsgen_set_int(operation, "page_height", page_height) ||
+        vipsgen_set_string(operation, "profile", profile)
     ) {
         g_object_unref(operation);
         if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
@@ -3033,10 +3033,10 @@ int vipsgen_rawsave_with_options(VipsImage* in, const char* filename, VipsForeig
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "filename", filename, NULL) ||
-        set_int_param(operation, "keep", keep) ||
-        set_array_double_param(operation, "background", background_array) ||
-        set_int_param(operation, "page_height", page_height) ||
-        set_string_param(operation, "profile", profile)
+        vipsgen_set_int(operation, "keep", keep) ||
+        vipsgen_set_array_double(operation, "background", background_array) ||
+        vipsgen_set_int(operation, "page_height", page_height) ||
+        vipsgen_set_string(operation, "profile", profile)
     ) {
         g_object_unref(operation);
         if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
@@ -3059,10 +3059,10 @@ int vipsgen_rawsave_buffer_with_options(VipsImage* in, void** buf, size_t* len, 
     if (background != NULL && background_n > 0) { background_array = vips_array_double_new(background, background_n); }
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
-        set_int_param(operation, "keep", keep) ||
-        set_array_double_param(operation, "background", background_array) ||
-        set_int_param(operation, "page_height", page_height) ||
-        set_string_param(operation, "profile", profile)
+        vipsgen_set_int(operation, "keep", keep) ||
+        vipsgen_set_array_double(operation, "background", background_array) ||
+        vipsgen_set_int(operation, "page_height", page_height) ||
+        vipsgen_set_string(operation, "profile", profile)
     ) {
         g_object_unref(operation);
         if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
@@ -3086,10 +3086,10 @@ int vipsgen_vipssave_with_options(VipsImage* in, const char* filename, VipsForei
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "filename", filename, NULL) ||
-        set_int_param(operation, "keep", keep) ||
-        set_array_double_param(operation, "background", background_array) ||
-        set_int_param(operation, "page_height", page_height) ||
-        set_string_param(operation, "profile", profile)
+        vipsgen_set_int(operation, "keep", keep) ||
+        vipsgen_set_array_double(operation, "background", background_array) ||
+        vipsgen_set_int(operation, "page_height", page_height) ||
+        vipsgen_set_string(operation, "profile", profile)
     ) {
         g_object_unref(operation);
         if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
@@ -3113,13 +3113,13 @@ int vipsgen_ppmsave_with_options(VipsImage* in, const char* filename, VipsForeig
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "filename", filename, NULL) ||
-        set_int_param(operation, "format", format) ||
-        set_bool_param(operation, "ascii", ascii) ||
-        set_int_param(operation, "bitdepth", bitdepth) ||
-        set_int_param(operation, "keep", keep) ||
-        set_array_double_param(operation, "background", background_array) ||
-        set_int_param(operation, "page_height", page_height) ||
-        set_string_param(operation, "profile", profile)
+        vipsgen_set_int(operation, "format", format) ||
+        vipsgen_set_bool(operation, "ascii", ascii) ||
+        vipsgen_set_int(operation, "bitdepth", bitdepth) ||
+        vipsgen_set_int(operation, "keep", keep) ||
+        vipsgen_set_array_double(operation, "background", background_array) ||
+        vipsgen_set_int(operation, "page_height", page_height) ||
+        vipsgen_set_string(operation, "profile", profile)
     ) {
         g_object_unref(operation);
         if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
@@ -3143,10 +3143,10 @@ int vipsgen_radsave_with_options(VipsImage* in, const char* filename, VipsForeig
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "filename", filename, NULL) ||
-        set_int_param(operation, "keep", keep) ||
-        set_array_double_param(operation, "background", background_array) ||
-        set_int_param(operation, "page_height", page_height) ||
-        set_string_param(operation, "profile", profile)
+        vipsgen_set_int(operation, "keep", keep) ||
+        vipsgen_set_array_double(operation, "background", background_array) ||
+        vipsgen_set_int(operation, "page_height", page_height) ||
+        vipsgen_set_string(operation, "profile", profile)
     ) {
         g_object_unref(operation);
         if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
@@ -3169,10 +3169,10 @@ int vipsgen_radsave_buffer_with_options(VipsImage* in, void** buf, size_t* len, 
     if (background != NULL && background_n > 0) { background_array = vips_array_double_new(background, background_n); }
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
-        set_int_param(operation, "keep", keep) ||
-        set_array_double_param(operation, "background", background_array) ||
-        set_int_param(operation, "page_height", page_height) ||
-        set_string_param(operation, "profile", profile)
+        vipsgen_set_int(operation, "keep", keep) ||
+        vipsgen_set_array_double(operation, "background", background_array) ||
+        vipsgen_set_int(operation, "page_height", page_height) ||
+        vipsgen_set_string(operation, "profile", profile)
     ) {
         g_object_unref(operation);
         if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
@@ -3196,15 +3196,15 @@ int vipsgen_jp2ksave_with_options(VipsImage* in, const char* filename, int tile_
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "filename", filename, NULL) ||
-        set_int_param(operation, "tile_width", tile_width) ||
-        set_int_param(operation, "tile_height", tile_height) ||
-        set_bool_param(operation, "lossless", lossless) ||
-        set_int_param(operation, "Q", Q) ||
-        set_int_param(operation, "subsample_mode", subsample_mode) ||
-        set_int_param(operation, "keep", keep) ||
-        set_array_double_param(operation, "background", background_array) ||
-        set_int_param(operation, "page_height", page_height) ||
-        set_string_param(operation, "profile", profile)
+        vipsgen_set_int(operation, "tile_width", tile_width) ||
+        vipsgen_set_int(operation, "tile_height", tile_height) ||
+        vipsgen_set_bool(operation, "lossless", lossless) ||
+        vipsgen_set_int(operation, "Q", Q) ||
+        vipsgen_set_int(operation, "subsample_mode", subsample_mode) ||
+        vipsgen_set_int(operation, "keep", keep) ||
+        vipsgen_set_array_double(operation, "background", background_array) ||
+        vipsgen_set_int(operation, "page_height", page_height) ||
+        vipsgen_set_string(operation, "profile", profile)
     ) {
         g_object_unref(operation);
         if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
@@ -3227,15 +3227,15 @@ int vipsgen_jp2ksave_buffer_with_options(VipsImage* in, void** buf, size_t* len,
     if (background != NULL && background_n > 0) { background_array = vips_array_double_new(background, background_n); }
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
-        set_int_param(operation, "tile_width", tile_width) ||
-        set_int_param(operation, "tile_height", tile_height) ||
-        set_bool_param(operation, "lossless", lossless) ||
-        set_int_param(operation, "Q", Q) ||
-        set_int_param(operation, "subsample_mode", subsample_mode) ||
-        set_int_param(operation, "keep", keep) ||
-        set_array_double_param(operation, "background", background_array) ||
-        set_int_param(operation, "page_height", page_height) ||
-        set_string_param(operation, "profile", profile)
+        vipsgen_set_int(operation, "tile_width", tile_width) ||
+        vipsgen_set_int(operation, "tile_height", tile_height) ||
+        vipsgen_set_bool(operation, "lossless", lossless) ||
+        vipsgen_set_int(operation, "Q", Q) ||
+        vipsgen_set_int(operation, "subsample_mode", subsample_mode) ||
+        vipsgen_set_int(operation, "keep", keep) ||
+        vipsgen_set_array_double(operation, "background", background_array) ||
+        vipsgen_set_int(operation, "page_height", page_height) ||
+        vipsgen_set_string(operation, "profile", profile)
     ) {
         g_object_unref(operation);
         if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
@@ -3259,17 +3259,17 @@ int vipsgen_gifsave_with_options(VipsImage* in, const char* filename, double dit
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "filename", filename, NULL) ||
-        set_double_param(operation, "dither", dither) ||
-        set_int_param(operation, "effort", effort) ||
-        set_int_param(operation, "bitdepth", bitdepth) ||
-        set_double_param(operation, "interframe_maxerror", interframe_maxerror) ||
-        set_bool_param(operation, "reuse", reuse) ||
-        set_double_param(operation, "interpalette_maxerror", interpalette_maxerror) ||
-        set_bool_param(operation, "interlace", interlace) ||
-        set_int_param(operation, "keep", keep) ||
-        set_array_double_param(operation, "background", background_array) ||
-        set_int_param(operation, "page_height", page_height) ||
-        set_string_param(operation, "profile", profile)
+        vipsgen_set_double(operation, "dither", dither) ||
+        vipsgen_set_int(operation, "effort", effort) ||
+        vipsgen_set_int(operation, "bitdepth", bitdepth) ||
+        vipsgen_set_double(operation, "interframe_maxerror", interframe_maxerror) ||
+        vipsgen_set_bool(operation, "reuse", reuse) ||
+        vipsgen_set_double(operation, "interpalette_maxerror", interpalette_maxerror) ||
+        vipsgen_set_bool(operation, "interlace", interlace) ||
+        vipsgen_set_int(operation, "keep", keep) ||
+        vipsgen_set_array_double(operation, "background", background_array) ||
+        vipsgen_set_int(operation, "page_height", page_height) ||
+        vipsgen_set_string(operation, "profile", profile)
     ) {
         g_object_unref(operation);
         if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
@@ -3292,17 +3292,17 @@ int vipsgen_gifsave_buffer_with_options(VipsImage* in, void** buf, size_t* len, 
     if (background != NULL && background_n > 0) { background_array = vips_array_double_new(background, background_n); }
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
-        set_double_param(operation, "dither", dither) ||
-        set_int_param(operation, "effort", effort) ||
-        set_int_param(operation, "bitdepth", bitdepth) ||
-        set_double_param(operation, "interframe_maxerror", interframe_maxerror) ||
-        set_bool_param(operation, "reuse", reuse) ||
-        set_double_param(operation, "interpalette_maxerror", interpalette_maxerror) ||
-        set_bool_param(operation, "interlace", interlace) ||
-        set_int_param(operation, "keep", keep) ||
-        set_array_double_param(operation, "background", background_array) ||
-        set_int_param(operation, "page_height", page_height) ||
-        set_string_param(operation, "profile", profile)
+        vipsgen_set_double(operation, "dither", dither) ||
+        vipsgen_set_int(operation, "effort", effort) ||
+        vipsgen_set_int(operation, "bitdepth", bitdepth) ||
+        vipsgen_set_double(operation, "interframe_maxerror", interframe_maxerror) ||
+        vipsgen_set_bool(operation, "reuse", reuse) ||
+        vipsgen_set_double(operation, "interpalette_maxerror", interpalette_maxerror) ||
+        vipsgen_set_bool(operation, "interlace", interlace) ||
+        vipsgen_set_int(operation, "keep", keep) ||
+        vipsgen_set_array_double(operation, "background", background_array) ||
+        vipsgen_set_int(operation, "page_height", page_height) ||
+        vipsgen_set_string(operation, "profile", profile)
     ) {
         g_object_unref(operation);
         if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
@@ -3326,18 +3326,18 @@ int vipsgen_pngsave_with_options(VipsImage* in, const char* filename, int compre
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "filename", filename, NULL) ||
-        set_int_param(operation, "compression", compression) ||
-        set_bool_param(operation, "interlace", interlace) ||
-        set_int_param(operation, "filter", filter) ||
-        set_bool_param(operation, "palette", palette) ||
-        set_int_param(operation, "Q", Q) ||
-        set_double_param(operation, "dither", dither) ||
-        set_int_param(operation, "bitdepth", bitdepth) ||
-        set_int_param(operation, "effort", effort) ||
-        set_int_param(operation, "keep", keep) ||
-        set_array_double_param(operation, "background", background_array) ||
-        set_int_param(operation, "page_height", page_height) ||
-        set_string_param(operation, "profile", profile)
+        vipsgen_set_int(operation, "compression", compression) ||
+        vipsgen_set_bool(operation, "interlace", interlace) ||
+        vipsgen_set_int(operation, "filter", filter) ||
+        vipsgen_set_bool(operation, "palette", palette) ||
+        vipsgen_set_int(operation, "Q", Q) ||
+        vipsgen_set_double(operation, "dither", dither) ||
+        vipsgen_set_int(operation, "bitdepth", bitdepth) ||
+        vipsgen_set_int(operation, "effort", effort) ||
+        vipsgen_set_int(operation, "keep", keep) ||
+        vipsgen_set_array_double(operation, "background", background_array) ||
+        vipsgen_set_int(operation, "page_height", page_height) ||
+        vipsgen_set_string(operation, "profile", profile)
     ) {
         g_object_unref(operation);
         if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
@@ -3360,18 +3360,18 @@ int vipsgen_pngsave_buffer_with_options(VipsImage* in, void** buf, size_t* len, 
     if (background != NULL && background_n > 0) { background_array = vips_array_double_new(background, background_n); }
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
-        set_int_param(operation, "compression", compression) ||
-        set_bool_param(operation, "interlace", interlace) ||
-        set_int_param(operation, "filter", filter) ||
-        set_bool_param(operation, "palette", palette) ||
-        set_int_param(operation, "Q", Q) ||
-        set_double_param(operation, "dither", dither) ||
-        set_int_param(operation, "bitdepth", bitdepth) ||
-        set_int_param(operation, "effort", effort) ||
-        set_int_param(operation, "keep", keep) ||
-        set_array_double_param(operation, "background", background_array) ||
-        set_int_param(operation, "page_height", page_height) ||
-        set_string_param(operation, "profile", profile)
+        vipsgen_set_int(operation, "compression", compression) ||
+        vipsgen_set_bool(operation, "interlace", interlace) ||
+        vipsgen_set_int(operation, "filter", filter) ||
+        vipsgen_set_bool(operation, "palette", palette) ||
+        vipsgen_set_int(operation, "Q", Q) ||
+        vipsgen_set_double(operation, "dither", dither) ||
+        vipsgen_set_int(operation, "bitdepth", bitdepth) ||
+        vipsgen_set_int(operation, "effort", effort) ||
+        vipsgen_set_int(operation, "keep", keep) ||
+        vipsgen_set_array_double(operation, "background", background_array) ||
+        vipsgen_set_int(operation, "page_height", page_height) ||
+        vipsgen_set_string(operation, "profile", profile)
     ) {
         g_object_unref(operation);
         if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
@@ -3395,19 +3395,19 @@ int vipsgen_jpegsave_with_options(VipsImage* in, const char* filename, int Q, gb
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "filename", filename, NULL) ||
-        set_int_param(operation, "Q", Q) ||
-        set_bool_param(operation, "optimize_coding", optimize_coding) ||
-        set_bool_param(operation, "interlace", interlace) ||
-        set_bool_param(operation, "trellis_quant", trellis_quant) ||
-        set_bool_param(operation, "overshoot_deringing", overshoot_deringing) ||
-        set_bool_param(operation, "optimize_scans", optimize_scans) ||
-        set_int_param(operation, "quant_table", quant_table) ||
-        set_int_param(operation, "subsample_mode", subsample_mode) ||
-        set_int_param(operation, "restart_interval", restart_interval) ||
-        set_int_param(operation, "keep", keep) ||
-        set_array_double_param(operation, "background", background_array) ||
-        set_int_param(operation, "page_height", page_height) ||
-        set_string_param(operation, "profile", profile)
+        vipsgen_set_int(operation, "Q", Q) ||
+        vipsgen_set_bool(operation, "optimize_coding", optimize_coding) ||
+        vipsgen_set_bool(operation, "interlace", interlace) ||
+        vipsgen_set_bool(operation, "trellis_quant", trellis_quant) ||
+        vipsgen_set_bool(operation, "overshoot_deringing", overshoot_deringing) ||
+        vipsgen_set_bool(operation, "optimize_scans", optimize_scans) ||
+        vipsgen_set_int(operation, "quant_table", quant_table) ||
+        vipsgen_set_int(operation, "subsample_mode", subsample_mode) ||
+        vipsgen_set_int(operation, "restart_interval", restart_interval) ||
+        vipsgen_set_int(operation, "keep", keep) ||
+        vipsgen_set_array_double(operation, "background", background_array) ||
+        vipsgen_set_int(operation, "page_height", page_height) ||
+        vipsgen_set_string(operation, "profile", profile)
     ) {
         g_object_unref(operation);
         if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
@@ -3430,19 +3430,19 @@ int vipsgen_jpegsave_buffer_with_options(VipsImage* in, void** buf, size_t* len,
     if (background != NULL && background_n > 0) { background_array = vips_array_double_new(background, background_n); }
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
-        set_int_param(operation, "Q", Q) ||
-        set_bool_param(operation, "optimize_coding", optimize_coding) ||
-        set_bool_param(operation, "interlace", interlace) ||
-        set_bool_param(operation, "trellis_quant", trellis_quant) ||
-        set_bool_param(operation, "overshoot_deringing", overshoot_deringing) ||
-        set_bool_param(operation, "optimize_scans", optimize_scans) ||
-        set_int_param(operation, "quant_table", quant_table) ||
-        set_int_param(operation, "subsample_mode", subsample_mode) ||
-        set_int_param(operation, "restart_interval", restart_interval) ||
-        set_int_param(operation, "keep", keep) ||
-        set_array_double_param(operation, "background", background_array) ||
-        set_int_param(operation, "page_height", page_height) ||
-        set_string_param(operation, "profile", profile)
+        vipsgen_set_int(operation, "Q", Q) ||
+        vipsgen_set_bool(operation, "optimize_coding", optimize_coding) ||
+        vipsgen_set_bool(operation, "interlace", interlace) ||
+        vipsgen_set_bool(operation, "trellis_quant", trellis_quant) ||
+        vipsgen_set_bool(operation, "overshoot_deringing", overshoot_deringing) ||
+        vipsgen_set_bool(operation, "optimize_scans", optimize_scans) ||
+        vipsgen_set_int(operation, "quant_table", quant_table) ||
+        vipsgen_set_int(operation, "subsample_mode", subsample_mode) ||
+        vipsgen_set_int(operation, "restart_interval", restart_interval) ||
+        vipsgen_set_int(operation, "keep", keep) ||
+        vipsgen_set_array_double(operation, "background", background_array) ||
+        vipsgen_set_int(operation, "page_height", page_height) ||
+        vipsgen_set_string(operation, "profile", profile)
     ) {
         g_object_unref(operation);
         if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
@@ -3466,24 +3466,24 @@ int vipsgen_webpsave_with_options(VipsImage* in, const char* filename, int Q, gb
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "filename", filename, NULL) ||
-        set_int_param(operation, "Q", Q) ||
-        set_bool_param(operation, "lossless", lossless) ||
-        set_int_param(operation, "preset", preset) ||
-        set_bool_param(operation, "smart_subsample", smart_subsample) ||
-        set_bool_param(operation, "near_lossless", near_lossless) ||
-        set_int_param(operation, "alpha_q", alpha_q) ||
-        set_bool_param(operation, "min_size", min_size) ||
-        set_int_param(operation, "kmin", kmin) ||
-        set_int_param(operation, "kmax", kmax) ||
-        set_int_param(operation, "effort", effort) ||
-        set_int_param(operation, "target_size", target_size) ||
-        set_bool_param(operation, "mixed", mixed) ||
-        set_bool_param(operation, "smart_deblock", smart_deblock) ||
-        set_int_param(operation, "passes", passes) ||
-        set_int_param(operation, "keep", keep) ||
-        set_array_double_param(operation, "background", background_array) ||
-        set_int_param(operation, "page_height", page_height) ||
-        set_string_param(operation, "profile", profile)
+        vipsgen_set_int(operation, "Q", Q) ||
+        vipsgen_set_bool(operation, "lossless", lossless) ||
+        vipsgen_set_int(operation, "preset", preset) ||
+        vipsgen_set_bool(operation, "smart_subsample", smart_subsample) ||
+        vipsgen_set_bool(operation, "near_lossless", near_lossless) ||
+        vipsgen_set_int(operation, "alpha_q", alpha_q) ||
+        vipsgen_set_bool(operation, "min_size", min_size) ||
+        vipsgen_set_int(operation, "kmin", kmin) ||
+        vipsgen_set_int(operation, "kmax", kmax) ||
+        vipsgen_set_int(operation, "effort", effort) ||
+        vipsgen_set_int(operation, "target_size", target_size) ||
+        vipsgen_set_bool(operation, "mixed", mixed) ||
+        vipsgen_set_bool(operation, "smart_deblock", smart_deblock) ||
+        vipsgen_set_int(operation, "passes", passes) ||
+        vipsgen_set_int(operation, "keep", keep) ||
+        vipsgen_set_array_double(operation, "background", background_array) ||
+        vipsgen_set_int(operation, "page_height", page_height) ||
+        vipsgen_set_string(operation, "profile", profile)
     ) {
         g_object_unref(operation);
         if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
@@ -3506,24 +3506,24 @@ int vipsgen_webpsave_buffer_with_options(VipsImage* in, void** buf, size_t* len,
     if (background != NULL && background_n > 0) { background_array = vips_array_double_new(background, background_n); }
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
-        set_int_param(operation, "Q", Q) ||
-        set_bool_param(operation, "lossless", lossless) ||
-        set_int_param(operation, "preset", preset) ||
-        set_bool_param(operation, "smart_subsample", smart_subsample) ||
-        set_bool_param(operation, "near_lossless", near_lossless) ||
-        set_int_param(operation, "alpha_q", alpha_q) ||
-        set_bool_param(operation, "min_size", min_size) ||
-        set_int_param(operation, "kmin", kmin) ||
-        set_int_param(operation, "kmax", kmax) ||
-        set_int_param(operation, "effort", effort) ||
-        set_int_param(operation, "target_size", target_size) ||
-        set_bool_param(operation, "mixed", mixed) ||
-        set_bool_param(operation, "smart_deblock", smart_deblock) ||
-        set_int_param(operation, "passes", passes) ||
-        set_int_param(operation, "keep", keep) ||
-        set_array_double_param(operation, "background", background_array) ||
-        set_int_param(operation, "page_height", page_height) ||
-        set_string_param(operation, "profile", profile)
+        vipsgen_set_int(operation, "Q", Q) ||
+        vipsgen_set_bool(operation, "lossless", lossless) ||
+        vipsgen_set_int(operation, "preset", preset) ||
+        vipsgen_set_bool(operation, "smart_subsample", smart_subsample) ||
+        vipsgen_set_bool(operation, "near_lossless", near_lossless) ||
+        vipsgen_set_int(operation, "alpha_q", alpha_q) ||
+        vipsgen_set_bool(operation, "min_size", min_size) ||
+        vipsgen_set_int(operation, "kmin", kmin) ||
+        vipsgen_set_int(operation, "kmax", kmax) ||
+        vipsgen_set_int(operation, "effort", effort) ||
+        vipsgen_set_int(operation, "target_size", target_size) ||
+        vipsgen_set_bool(operation, "mixed", mixed) ||
+        vipsgen_set_bool(operation, "smart_deblock", smart_deblock) ||
+        vipsgen_set_int(operation, "passes", passes) ||
+        vipsgen_set_int(operation, "keep", keep) ||
+        vipsgen_set_array_double(operation, "background", background_array) ||
+        vipsgen_set_int(operation, "page_height", page_height) ||
+        vipsgen_set_string(operation, "profile", profile)
     ) {
         g_object_unref(operation);
         if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
@@ -3547,30 +3547,30 @@ int vipsgen_tiffsave_with_options(VipsImage* in, const char* filename, VipsForei
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "filename", filename, NULL) ||
-        set_int_param(operation, "compression", compression) ||
-        set_int_param(operation, "Q", Q) ||
-        set_int_param(operation, "predictor", predictor) ||
-        set_bool_param(operation, "tile", tile) ||
-        set_int_param(operation, "tile_width", tile_width) ||
-        set_int_param(operation, "tile_height", tile_height) ||
-        set_bool_param(operation, "pyramid", pyramid) ||
-        set_bool_param(operation, "miniswhite", miniswhite) ||
-        set_int_param(operation, "bitdepth", bitdepth) ||
-        set_int_param(operation, "resunit", resunit) ||
-        set_double_param(operation, "xres", xres) ||
-        set_double_param(operation, "yres", yres) ||
-        set_bool_param(operation, "bigtiff", bigtiff) ||
-        set_bool_param(operation, "properties", properties) ||
-        set_int_param(operation, "region_shrink", region_shrink) ||
-        set_int_param(operation, "level", level) ||
-        set_bool_param(operation, "lossless", lossless) ||
-        set_int_param(operation, "depth", depth) ||
-        set_bool_param(operation, "subifd", subifd) ||
-        set_bool_param(operation, "premultiply", premultiply) ||
-        set_int_param(operation, "keep", keep) ||
-        set_array_double_param(operation, "background", background_array) ||
-        set_int_param(operation, "page_height", page_height) ||
-        set_string_param(operation, "profile", profile)
+        vipsgen_set_int(operation, "compression", compression) ||
+        vipsgen_set_int(operation, "Q", Q) ||
+        vipsgen_set_int(operation, "predictor", predictor) ||
+        vipsgen_set_bool(operation, "tile", tile) ||
+        vipsgen_set_int(operation, "tile_width", tile_width) ||
+        vipsgen_set_int(operation, "tile_height", tile_height) ||
+        vipsgen_set_bool(operation, "pyramid", pyramid) ||
+        vipsgen_set_bool(operation, "miniswhite", miniswhite) ||
+        vipsgen_set_int(operation, "bitdepth", bitdepth) ||
+        vipsgen_set_int(operation, "resunit", resunit) ||
+        vipsgen_set_double(operation, "xres", xres) ||
+        vipsgen_set_double(operation, "yres", yres) ||
+        vipsgen_set_bool(operation, "bigtiff", bigtiff) ||
+        vipsgen_set_bool(operation, "properties", properties) ||
+        vipsgen_set_int(operation, "region_shrink", region_shrink) ||
+        vipsgen_set_int(operation, "level", level) ||
+        vipsgen_set_bool(operation, "lossless", lossless) ||
+        vipsgen_set_int(operation, "depth", depth) ||
+        vipsgen_set_bool(operation, "subifd", subifd) ||
+        vipsgen_set_bool(operation, "premultiply", premultiply) ||
+        vipsgen_set_int(operation, "keep", keep) ||
+        vipsgen_set_array_double(operation, "background", background_array) ||
+        vipsgen_set_int(operation, "page_height", page_height) ||
+        vipsgen_set_string(operation, "profile", profile)
     ) {
         g_object_unref(operation);
         if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
@@ -3593,30 +3593,30 @@ int vipsgen_tiffsave_buffer_with_options(VipsImage* in, void** buf, size_t* len,
     if (background != NULL && background_n > 0) { background_array = vips_array_double_new(background, background_n); }
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
-        set_int_param(operation, "compression", compression) ||
-        set_int_param(operation, "Q", Q) ||
-        set_int_param(operation, "predictor", predictor) ||
-        set_bool_param(operation, "tile", tile) ||
-        set_int_param(operation, "tile_width", tile_width) ||
-        set_int_param(operation, "tile_height", tile_height) ||
-        set_bool_param(operation, "pyramid", pyramid) ||
-        set_bool_param(operation, "miniswhite", miniswhite) ||
-        set_int_param(operation, "bitdepth", bitdepth) ||
-        set_int_param(operation, "resunit", resunit) ||
-        set_double_param(operation, "xres", xres) ||
-        set_double_param(operation, "yres", yres) ||
-        set_bool_param(operation, "bigtiff", bigtiff) ||
-        set_bool_param(operation, "properties", properties) ||
-        set_int_param(operation, "region_shrink", region_shrink) ||
-        set_int_param(operation, "level", level) ||
-        set_bool_param(operation, "lossless", lossless) ||
-        set_int_param(operation, "depth", depth) ||
-        set_bool_param(operation, "subifd", subifd) ||
-        set_bool_param(operation, "premultiply", premultiply) ||
-        set_int_param(operation, "keep", keep) ||
-        set_array_double_param(operation, "background", background_array) ||
-        set_int_param(operation, "page_height", page_height) ||
-        set_string_param(operation, "profile", profile)
+        vipsgen_set_int(operation, "compression", compression) ||
+        vipsgen_set_int(operation, "Q", Q) ||
+        vipsgen_set_int(operation, "predictor", predictor) ||
+        vipsgen_set_bool(operation, "tile", tile) ||
+        vipsgen_set_int(operation, "tile_width", tile_width) ||
+        vipsgen_set_int(operation, "tile_height", tile_height) ||
+        vipsgen_set_bool(operation, "pyramid", pyramid) ||
+        vipsgen_set_bool(operation, "miniswhite", miniswhite) ||
+        vipsgen_set_int(operation, "bitdepth", bitdepth) ||
+        vipsgen_set_int(operation, "resunit", resunit) ||
+        vipsgen_set_double(operation, "xres", xres) ||
+        vipsgen_set_double(operation, "yres", yres) ||
+        vipsgen_set_bool(operation, "bigtiff", bigtiff) ||
+        vipsgen_set_bool(operation, "properties", properties) ||
+        vipsgen_set_int(operation, "region_shrink", region_shrink) ||
+        vipsgen_set_int(operation, "level", level) ||
+        vipsgen_set_bool(operation, "lossless", lossless) ||
+        vipsgen_set_int(operation, "depth", depth) ||
+        vipsgen_set_bool(operation, "subifd", subifd) ||
+        vipsgen_set_bool(operation, "premultiply", premultiply) ||
+        vipsgen_set_int(operation, "keep", keep) ||
+        vipsgen_set_array_double(operation, "background", background_array) ||
+        vipsgen_set_int(operation, "page_height", page_height) ||
+        vipsgen_set_string(operation, "profile", profile)
     ) {
         g_object_unref(operation);
         if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
@@ -3640,10 +3640,10 @@ int vipsgen_fitssave_with_options(VipsImage* in, const char* filename, VipsForei
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "filename", filename, NULL) ||
-        set_int_param(operation, "keep", keep) ||
-        set_array_double_param(operation, "background", background_array) ||
-        set_int_param(operation, "page_height", page_height) ||
-        set_string_param(operation, "profile", profile)
+        vipsgen_set_int(operation, "keep", keep) ||
+        vipsgen_set_array_double(operation, "background", background_array) ||
+        vipsgen_set_int(operation, "page_height", page_height) ||
+        vipsgen_set_string(operation, "profile", profile)
     ) {
         g_object_unref(operation);
         if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
@@ -3667,15 +3667,15 @@ int vipsgen_magicksave_with_options(VipsImage* in, const char* filename, const c
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "filename", filename, NULL) ||
-        set_string_param(operation, "format", format) ||
-        set_int_param(operation, "quality", quality) ||
-        set_bool_param(operation, "optimize_gif_frames", optimize_gif_frames) ||
-        set_bool_param(operation, "optimize_gif_transparency", optimize_gif_transparency) ||
-        set_int_param(operation, "bitdepth", bitdepth) ||
-        set_int_param(operation, "keep", keep) ||
-        set_array_double_param(operation, "background", background_array) ||
-        set_int_param(operation, "page_height", page_height) ||
-        set_string_param(operation, "profile", profile)
+        vipsgen_set_string(operation, "format", format) ||
+        vipsgen_set_int(operation, "quality", quality) ||
+        vipsgen_set_bool(operation, "optimize_gif_frames", optimize_gif_frames) ||
+        vipsgen_set_bool(operation, "optimize_gif_transparency", optimize_gif_transparency) ||
+        vipsgen_set_int(operation, "bitdepth", bitdepth) ||
+        vipsgen_set_int(operation, "keep", keep) ||
+        vipsgen_set_array_double(operation, "background", background_array) ||
+        vipsgen_set_int(operation, "page_height", page_height) ||
+        vipsgen_set_string(operation, "profile", profile)
     ) {
         g_object_unref(operation);
         if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
@@ -3698,15 +3698,15 @@ int vipsgen_magicksave_buffer_with_options(VipsImage* in, void** buf, size_t* le
     if (background != NULL && background_n > 0) { background_array = vips_array_double_new(background, background_n); }
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
-        set_string_param(operation, "format", format) ||
-        set_int_param(operation, "quality", quality) ||
-        set_bool_param(operation, "optimize_gif_frames", optimize_gif_frames) ||
-        set_bool_param(operation, "optimize_gif_transparency", optimize_gif_transparency) ||
-        set_int_param(operation, "bitdepth", bitdepth) ||
-        set_int_param(operation, "keep", keep) ||
-        set_array_double_param(operation, "background", background_array) ||
-        set_int_param(operation, "page_height", page_height) ||
-        set_string_param(operation, "profile", profile)
+        vipsgen_set_string(operation, "format", format) ||
+        vipsgen_set_int(operation, "quality", quality) ||
+        vipsgen_set_bool(operation, "optimize_gif_frames", optimize_gif_frames) ||
+        vipsgen_set_bool(operation, "optimize_gif_transparency", optimize_gif_transparency) ||
+        vipsgen_set_int(operation, "bitdepth", bitdepth) ||
+        vipsgen_set_int(operation, "keep", keep) ||
+        vipsgen_set_array_double(operation, "background", background_array) ||
+        vipsgen_set_int(operation, "page_height", page_height) ||
+        vipsgen_set_string(operation, "profile", profile)
     ) {
         g_object_unref(operation);
         if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
@@ -3730,17 +3730,17 @@ int vipsgen_heifsave_with_options(VipsImage* in, const char* filename, int Q, in
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "filename", filename, NULL) ||
-        set_int_param(operation, "Q", Q) ||
-        set_int_param(operation, "bitdepth", bitdepth) ||
-        set_bool_param(operation, "lossless", lossless) ||
-        set_int_param(operation, "compression", compression) ||
-        set_int_param(operation, "effort", effort) ||
-        set_int_param(operation, "subsample_mode", subsample_mode) ||
-        set_int_param(operation, "encoder", encoder) ||
-        set_int_param(operation, "keep", keep) ||
-        set_array_double_param(operation, "background", background_array) ||
-        set_int_param(operation, "page_height", page_height) ||
-        set_string_param(operation, "profile", profile)
+        vipsgen_set_int(operation, "Q", Q) ||
+        vipsgen_set_int(operation, "bitdepth", bitdepth) ||
+        vipsgen_set_bool(operation, "lossless", lossless) ||
+        vipsgen_set_int(operation, "compression", compression) ||
+        vipsgen_set_int(operation, "effort", effort) ||
+        vipsgen_set_int(operation, "subsample_mode", subsample_mode) ||
+        vipsgen_set_int(operation, "encoder", encoder) ||
+        vipsgen_set_int(operation, "keep", keep) ||
+        vipsgen_set_array_double(operation, "background", background_array) ||
+        vipsgen_set_int(operation, "page_height", page_height) ||
+        vipsgen_set_string(operation, "profile", profile)
     ) {
         g_object_unref(operation);
         if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
@@ -3763,17 +3763,17 @@ int vipsgen_heifsave_buffer_with_options(VipsImage* in, void** buf, size_t* len,
     if (background != NULL && background_n > 0) { background_array = vips_array_double_new(background, background_n); }
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
-        set_int_param(operation, "Q", Q) ||
-        set_int_param(operation, "bitdepth", bitdepth) ||
-        set_bool_param(operation, "lossless", lossless) ||
-        set_int_param(operation, "compression", compression) ||
-        set_int_param(operation, "effort", effort) ||
-        set_int_param(operation, "subsample_mode", subsample_mode) ||
-        set_int_param(operation, "encoder", encoder) ||
-        set_int_param(operation, "keep", keep) ||
-        set_array_double_param(operation, "background", background_array) ||
-        set_int_param(operation, "page_height", page_height) ||
-        set_string_param(operation, "profile", profile)
+        vipsgen_set_int(operation, "Q", Q) ||
+        vipsgen_set_int(operation, "bitdepth", bitdepth) ||
+        vipsgen_set_bool(operation, "lossless", lossless) ||
+        vipsgen_set_int(operation, "compression", compression) ||
+        vipsgen_set_int(operation, "effort", effort) ||
+        vipsgen_set_int(operation, "subsample_mode", subsample_mode) ||
+        vipsgen_set_int(operation, "encoder", encoder) ||
+        vipsgen_set_int(operation, "keep", keep) ||
+        vipsgen_set_array_double(operation, "background", background_array) ||
+        vipsgen_set_int(operation, "page_height", page_height) ||
+        vipsgen_set_string(operation, "profile", profile)
     ) {
         g_object_unref(operation);
         if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
@@ -3795,15 +3795,15 @@ int vipsgen_thumbnail_with_options(const char* filename, VipsImage** out, int wi
     if (
         vips_object_set(VIPS_OBJECT(operation), "filename", filename, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "width", width, NULL) ||
-        set_int_param(operation, "height", height) ||
-        set_int_param(operation, "size", size) ||
-        set_bool_param(operation, "no_rotate", no_rotate) ||
-        set_int_param(operation, "crop", crop) ||
-        set_bool_param(operation, "linear", linear) ||
-        set_string_param(operation, "import_profile", import_profile) ||
-        set_string_param(operation, "export_profile", export_profile) ||
-        set_int_param(operation, "intent", intent) ||
-        set_int_param(operation, "fail_on", fail_on)
+        vipsgen_set_int(operation, "height", height) ||
+        vipsgen_set_int(operation, "size", size) ||
+        vipsgen_set_bool(operation, "no_rotate", no_rotate) ||
+        vipsgen_set_int(operation, "crop", crop) ||
+        vipsgen_set_bool(operation, "linear", linear) ||
+        vipsgen_set_string(operation, "import_profile", import_profile) ||
+        vipsgen_set_string(operation, "export_profile", export_profile) ||
+        vipsgen_set_int(operation, "intent", intent) ||
+        vipsgen_set_int(operation, "fail_on", fail_on)
     ) {
         g_object_unref(operation);
         return 1;
@@ -3824,16 +3824,16 @@ int vipsgen_thumbnail_buffer_with_options(void* buf, size_t len, VipsImage** out
         vips_object_set(VIPS_OBJECT(operation), "buf", buf, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "len", len, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "width", width, NULL) ||
-        set_string_param(operation, "option_string", option_string) ||
-        set_int_param(operation, "height", height) ||
-        set_int_param(operation, "size", size) ||
-        set_bool_param(operation, "no_rotate", no_rotate) ||
-        set_int_param(operation, "crop", crop) ||
-        set_bool_param(operation, "linear", linear) ||
-        set_string_param(operation, "import_profile", import_profile) ||
-        set_string_param(operation, "export_profile", export_profile) ||
-        set_int_param(operation, "intent", intent) ||
-        set_int_param(operation, "fail_on", fail_on)
+        vipsgen_set_string(operation, "option_string", option_string) ||
+        vipsgen_set_int(operation, "height", height) ||
+        vipsgen_set_int(operation, "size", size) ||
+        vipsgen_set_bool(operation, "no_rotate", no_rotate) ||
+        vipsgen_set_int(operation, "crop", crop) ||
+        vipsgen_set_bool(operation, "linear", linear) ||
+        vipsgen_set_string(operation, "import_profile", import_profile) ||
+        vipsgen_set_string(operation, "export_profile", export_profile) ||
+        vipsgen_set_int(operation, "intent", intent) ||
+        vipsgen_set_int(operation, "fail_on", fail_on)
     ) {
         g_object_unref(operation);
         return 1;
@@ -3853,15 +3853,15 @@ int vipsgen_thumbnail_image_with_options(VipsImage* in, VipsImage** out, int wid
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "width", width, NULL) ||
-        set_int_param(operation, "height", height) ||
-        set_int_param(operation, "size", size) ||
-        set_bool_param(operation, "no_rotate", no_rotate) ||
-        set_int_param(operation, "crop", crop) ||
-        set_bool_param(operation, "linear", linear) ||
-        set_string_param(operation, "import_profile", import_profile) ||
-        set_string_param(operation, "export_profile", export_profile) ||
-        set_int_param(operation, "intent", intent) ||
-        set_int_param(operation, "fail_on", fail_on)
+        vipsgen_set_int(operation, "height", height) ||
+        vipsgen_set_int(operation, "size", size) ||
+        vipsgen_set_bool(operation, "no_rotate", no_rotate) ||
+        vipsgen_set_int(operation, "crop", crop) ||
+        vipsgen_set_bool(operation, "linear", linear) ||
+        vipsgen_set_string(operation, "import_profile", import_profile) ||
+        vipsgen_set_string(operation, "export_profile", export_profile) ||
+        vipsgen_set_int(operation, "intent", intent) ||
+        vipsgen_set_int(operation, "fail_on", fail_on)
     ) {
         g_object_unref(operation);
         return 1;
@@ -3881,16 +3881,16 @@ int vipsgen_thumbnail_source_with_options(VipsSourceCustom* source, VipsImage** 
     if (
         vips_object_set(VIPS_OBJECT(operation), "source", (VipsSource*)source, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "width", width, NULL) ||
-        set_string_param(operation, "option_string", option_string) ||
-        set_int_param(operation, "height", height) ||
-        set_int_param(operation, "size", size) ||
-        set_bool_param(operation, "no_rotate", no_rotate) ||
-        set_int_param(operation, "crop", crop) ||
-        set_bool_param(operation, "linear", linear) ||
-        set_string_param(operation, "import_profile", import_profile) ||
-        set_string_param(operation, "export_profile", export_profile) ||
-        set_int_param(operation, "intent", intent) ||
-        set_int_param(operation, "fail_on", fail_on)
+        vipsgen_set_string(operation, "option_string", option_string) ||
+        vipsgen_set_int(operation, "height", height) ||
+        vipsgen_set_int(operation, "size", size) ||
+        vipsgen_set_bool(operation, "no_rotate", no_rotate) ||
+        vipsgen_set_int(operation, "crop", crop) ||
+        vipsgen_set_bool(operation, "linear", linear) ||
+        vipsgen_set_string(operation, "import_profile", import_profile) ||
+        vipsgen_set_string(operation, "export_profile", export_profile) ||
+        vipsgen_set_int(operation, "intent", intent) ||
+        vipsgen_set_int(operation, "fail_on", fail_on)
     ) {
         g_object_unref(operation);
         return 1;
@@ -3912,10 +3912,10 @@ int vipsgen_mapim_with_options(VipsImage* in, VipsImage** out, VipsImage* index,
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "index", index, NULL) ||
-        set_interpolate_param(operation, "interpolate", interpolate) ||
-        set_array_double_param(operation, "background", background_array) ||
-        set_bool_param(operation, "premultiplied", premultiplied) ||
-        set_int_param(operation, "extend", extend)
+        vipsgen_set_interpolate(operation, "interpolate", interpolate) ||
+        vipsgen_set_array_double(operation, "background", background_array) ||
+        vipsgen_set_bool(operation, "premultiplied", premultiplied) ||
+        vipsgen_set_int(operation, "extend", extend)
     ) {
         g_object_unref(operation);
         if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
@@ -3938,7 +3938,7 @@ int vipsgen_shrink_with_options(VipsImage* in, VipsImage** out, double hshrink, 
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "hshrink", hshrink, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "vshrink", vshrink, NULL) ||
-        set_bool_param(operation, "ceil", ceil)
+        vipsgen_set_bool(operation, "ceil", ceil)
     ) {
         g_object_unref(operation);
         return 1;
@@ -3958,7 +3958,7 @@ int vipsgen_shrinkh_with_options(VipsImage* in, VipsImage** out, int hshrink, gb
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "hshrink", hshrink, NULL) ||
-        set_bool_param(operation, "ceil", ceil)
+        vipsgen_set_bool(operation, "ceil", ceil)
     ) {
         g_object_unref(operation);
         return 1;
@@ -3978,7 +3978,7 @@ int vipsgen_shrinkv_with_options(VipsImage* in, VipsImage** out, int vshrink, gb
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "vshrink", vshrink, NULL) ||
-        set_bool_param(operation, "ceil", ceil)
+        vipsgen_set_bool(operation, "ceil", ceil)
     ) {
         g_object_unref(operation);
         return 1;
@@ -3998,8 +3998,8 @@ int vipsgen_reduceh_with_options(VipsImage* in, VipsImage** out, double hshrink,
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "hshrink", hshrink, NULL) ||
-        set_int_param(operation, "kernel", kernel) ||
-        set_double_param(operation, "gap", gap)
+        vipsgen_set_int(operation, "kernel", kernel) ||
+        vipsgen_set_double(operation, "gap", gap)
     ) {
         g_object_unref(operation);
         return 1;
@@ -4019,8 +4019,8 @@ int vipsgen_reducev_with_options(VipsImage* in, VipsImage** out, double vshrink,
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "vshrink", vshrink, NULL) ||
-        set_int_param(operation, "kernel", kernel) ||
-        set_double_param(operation, "gap", gap)
+        vipsgen_set_int(operation, "kernel", kernel) ||
+        vipsgen_set_double(operation, "gap", gap)
     ) {
         g_object_unref(operation);
         return 1;
@@ -4041,8 +4041,8 @@ int vipsgen_reduce_with_options(VipsImage* in, VipsImage** out, double hshrink, 
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "hshrink", hshrink, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "vshrink", vshrink, NULL) ||
-        set_int_param(operation, "kernel", kernel) ||
-        set_double_param(operation, "gap", gap)
+        vipsgen_set_int(operation, "kernel", kernel) ||
+        vipsgen_set_double(operation, "gap", gap)
     ) {
         g_object_unref(operation);
         return 1;
@@ -4062,7 +4062,7 @@ int vipsgen_quadratic_with_options(VipsImage* in, VipsImage** out, VipsImage* co
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "coeff", coeff, NULL) ||
-        set_interpolate_param(operation, "interpolate", interpolate)
+        vipsgen_set_interpolate(operation, "interpolate", interpolate)
     ) {
         g_object_unref(operation);
         return 1;
@@ -4089,15 +4089,15 @@ int vipsgen_affine_with_options(VipsImage* in, VipsImage** out, double a, double
         vips_object_set(VIPS_OBJECT(operation), "b", b, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "c", c, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "d", d, NULL) ||
-        set_interpolate_param(operation, "interpolate", interpolate) ||
-        set_array_int_param(operation, "oarea", oarea_array) ||
-        set_double_param(operation, "odx", odx) ||
-        set_double_param(operation, "ody", ody) ||
-        set_double_param(operation, "idx", idx) ||
-        set_double_param(operation, "idy", idy) ||
-        set_array_double_param(operation, "background", background_array) ||
-        set_bool_param(operation, "premultiplied", premultiplied) ||
-        set_int_param(operation, "extend", extend)
+        vipsgen_set_interpolate(operation, "interpolate", interpolate) ||
+        vipsgen_set_array_int(operation, "oarea", oarea_array) ||
+        vipsgen_set_double(operation, "odx", odx) ||
+        vipsgen_set_double(operation, "ody", ody) ||
+        vipsgen_set_double(operation, "idx", idx) ||
+        vipsgen_set_double(operation, "idy", idy) ||
+        vipsgen_set_array_double(operation, "background", background_array) ||
+        vipsgen_set_bool(operation, "premultiplied", premultiplied) ||
+        vipsgen_set_int(operation, "extend", extend)
     ) {
         g_object_unref(operation);
         if (oarea_array != NULL) { vips_area_unref(VIPS_AREA(oarea_array)); }
@@ -4122,14 +4122,14 @@ int vipsgen_similarity_with_options(VipsImage* in, VipsImage** out, double scale
     if (background != NULL && background_n > 0) { background_array = vips_array_double_new(background, background_n); }
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
-        set_double_param(operation, "scale", scale) ||
-        set_double_param(operation, "angle", angle) ||
-        set_interpolate_param(operation, "interpolate", interpolate) ||
-        set_array_double_param(operation, "background", background_array) ||
-        set_double_param(operation, "odx", odx) ||
-        set_double_param(operation, "ody", ody) ||
-        set_double_param(operation, "idx", idx) ||
-        set_double_param(operation, "idy", idy)
+        vipsgen_set_double(operation, "scale", scale) ||
+        vipsgen_set_double(operation, "angle", angle) ||
+        vipsgen_set_interpolate(operation, "interpolate", interpolate) ||
+        vipsgen_set_array_double(operation, "background", background_array) ||
+        vipsgen_set_double(operation, "odx", odx) ||
+        vipsgen_set_double(operation, "ody", ody) ||
+        vipsgen_set_double(operation, "idx", idx) ||
+        vipsgen_set_double(operation, "idy", idy)
     ) {
         g_object_unref(operation);
         if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
@@ -4153,12 +4153,12 @@ int vipsgen_rotate_with_options(VipsImage* in, VipsImage** out, double angle, Vi
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "angle", angle, NULL) ||
-        set_interpolate_param(operation, "interpolate", interpolate) ||
-        set_array_double_param(operation, "background", background_array) ||
-        set_double_param(operation, "odx", odx) ||
-        set_double_param(operation, "ody", ody) ||
-        set_double_param(operation, "idx", idx) ||
-        set_double_param(operation, "idy", idy)
+        vipsgen_set_interpolate(operation, "interpolate", interpolate) ||
+        vipsgen_set_array_double(operation, "background", background_array) ||
+        vipsgen_set_double(operation, "odx", odx) ||
+        vipsgen_set_double(operation, "ody", ody) ||
+        vipsgen_set_double(operation, "idx", idx) ||
+        vipsgen_set_double(operation, "idy", idy)
     ) {
         g_object_unref(operation);
         if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
@@ -4180,9 +4180,9 @@ int vipsgen_resize_with_options(VipsImage* in, VipsImage** out, double scale, Vi
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "scale", scale, NULL) ||
-        set_int_param(operation, "kernel", kernel) ||
-        set_double_param(operation, "gap", gap) ||
-        set_double_param(operation, "vscale", vscale)
+        vipsgen_set_int(operation, "kernel", kernel) ||
+        vipsgen_set_double(operation, "gap", gap) ||
+        vipsgen_set_double(operation, "vscale", vscale)
     ) {
         g_object_unref(operation);
         return 1;
@@ -4202,7 +4202,7 @@ int vipsgen_colourspace_with_options(VipsImage* in, VipsImage** out, VipsInterpr
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "space", space, NULL) ||
-        set_int_param(operation, "source_space", source_space)
+        vipsgen_set_int(operation, "source_space", source_space)
     ) {
         g_object_unref(operation);
         return 1;
@@ -4223,7 +4223,7 @@ int vipsgen_Lab2XYZ_with_options(VipsImage* in, VipsImage** out, double* temp, i
     if (temp != NULL && temp_n > 0) { temp_array = vips_array_double_new(temp, temp_n); }
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
-        set_array_double_param(operation, "temp", temp_array)
+        vipsgen_set_array_double(operation, "temp", temp_array)
     ) {
         g_object_unref(operation);
         if (temp_array != NULL) { vips_area_unref(VIPS_AREA(temp_array)); }
@@ -4246,7 +4246,7 @@ int vipsgen_XYZ2Lab_with_options(VipsImage* in, VipsImage** out, double* temp, i
     if (temp != NULL && temp_n > 0) { temp_array = vips_array_double_new(temp, temp_n); }
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
-        set_array_double_param(operation, "temp", temp_array)
+        vipsgen_set_array_double(operation, "temp", temp_array)
     ) {
         g_object_unref(operation);
         if (temp_array != NULL) { vips_area_unref(VIPS_AREA(temp_array)); }
@@ -4335,11 +4335,11 @@ int vipsgen_icc_import_with_options(VipsImage* in, VipsImage** out, VipsPCS pcs,
     if (!operation) return 1;
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
-        set_int_param(operation, "pcs", pcs) ||
-        set_int_param(operation, "intent", intent) ||
-        set_bool_param(operation, "black_point_compensation", black_point_compensation) ||
-        set_bool_param(operation, "embedded", embedded) ||
-        set_string_param(operation, "input_profile", input_profile)
+        vipsgen_set_int(operation, "pcs", pcs) ||
+        vipsgen_set_int(operation, "intent", intent) ||
+        vipsgen_set_bool(operation, "black_point_compensation", black_point_compensation) ||
+        vipsgen_set_bool(operation, "embedded", embedded) ||
+        vipsgen_set_string(operation, "input_profile", input_profile)
     ) {
         g_object_unref(operation);
         return 1;
@@ -4358,11 +4358,11 @@ int vipsgen_icc_export_with_options(VipsImage* in, VipsImage** out, VipsPCS pcs,
     if (!operation) return 1;
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
-        set_int_param(operation, "pcs", pcs) ||
-        set_int_param(operation, "intent", intent) ||
-        set_bool_param(operation, "black_point_compensation", black_point_compensation) ||
-        set_string_param(operation, "output_profile", output_profile) ||
-        set_int_param(operation, "depth", depth)
+        vipsgen_set_int(operation, "pcs", pcs) ||
+        vipsgen_set_int(operation, "intent", intent) ||
+        vipsgen_set_bool(operation, "black_point_compensation", black_point_compensation) ||
+        vipsgen_set_string(operation, "output_profile", output_profile) ||
+        vipsgen_set_int(operation, "depth", depth)
     ) {
         g_object_unref(operation);
         return 1;
@@ -4382,12 +4382,12 @@ int vipsgen_icc_transform_with_options(VipsImage* in, VipsImage** out, const cha
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "output_profile", output_profile, NULL) ||
-        set_int_param(operation, "pcs", pcs) ||
-        set_int_param(operation, "intent", intent) ||
-        set_bool_param(operation, "black_point_compensation", black_point_compensation) ||
-        set_bool_param(operation, "embedded", embedded) ||
-        set_string_param(operation, "input_profile", input_profile) ||
-        set_int_param(operation, "depth", depth)
+        vipsgen_set_int(operation, "pcs", pcs) ||
+        vipsgen_set_int(operation, "intent", intent) ||
+        vipsgen_set_bool(operation, "black_point_compensation", black_point_compensation) ||
+        vipsgen_set_bool(operation, "embedded", embedded) ||
+        vipsgen_set_string(operation, "input_profile", input_profile) ||
+        vipsgen_set_int(operation, "depth", depth)
     ) {
         g_object_unref(operation);
         return 1;
@@ -4426,7 +4426,7 @@ int vipsgen_scRGB2BW_with_options(VipsImage* in, VipsImage** out, int depth) {
     if (!operation) return 1;
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
-        set_int_param(operation, "depth", depth)
+        vipsgen_set_int(operation, "depth", depth)
     ) {
         g_object_unref(operation);
         return 1;
@@ -4449,7 +4449,7 @@ int vipsgen_scRGB2sRGB_with_options(VipsImage* in, VipsImage** out, int depth) {
     if (!operation) return 1;
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
-        set_int_param(operation, "depth", depth)
+        vipsgen_set_int(operation, "depth", depth)
     ) {
         g_object_unref(operation);
         return 1;
@@ -4481,7 +4481,7 @@ int vipsgen_maplut_with_options(VipsImage* in, VipsImage** out, VipsImage* lut, 
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "lut", lut, NULL) ||
-        set_int_param(operation, "band", band)
+        vipsgen_set_int(operation, "band", band)
     ) {
         g_object_unref(operation);
         return 1;
@@ -4510,10 +4510,10 @@ int vipsgen_stdif_with_options(VipsImage* in, VipsImage** out, int width, int he
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "width", width, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "height", height, NULL) ||
-        set_double_param(operation, "s0", s0) ||
-        set_double_param(operation, "b", b) ||
-        set_double_param(operation, "m0", m0) ||
-        set_double_param(operation, "a", a)
+        vipsgen_set_double(operation, "s0", s0) ||
+        vipsgen_set_double(operation, "b", b) ||
+        vipsgen_set_double(operation, "m0", m0) ||
+        vipsgen_set_double(operation, "a", a)
     ) {
         g_object_unref(operation);
         return 1;
@@ -4544,7 +4544,7 @@ int vipsgen_hist_equal_with_options(VipsImage* in, VipsImage** out, int band) {
     if (!operation) return 1;
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
-        set_int_param(operation, "band", band)
+        vipsgen_set_int(operation, "band", band)
     ) {
         g_object_unref(operation);
         return 1;
@@ -4569,7 +4569,7 @@ int vipsgen_hist_local_with_options(VipsImage* in, VipsImage** out, int width, i
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "width", width, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "height", height, NULL) ||
-        set_int_param(operation, "max_slope", max_slope)
+        vipsgen_set_int(operation, "max_slope", max_slope)
     ) {
         g_object_unref(operation);
         return 1;
@@ -4597,9 +4597,9 @@ int vipsgen_conv_with_options(VipsImage* in, VipsImage** out, VipsImage* mask, V
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "mask", mask, NULL) ||
-        set_int_param(operation, "precision", precision) ||
-        set_int_param(operation, "layers", layers) ||
-        set_int_param(operation, "cluster", cluster)
+        vipsgen_set_int(operation, "precision", precision) ||
+        vipsgen_set_int(operation, "layers", layers) ||
+        vipsgen_set_int(operation, "cluster", cluster)
     ) {
         g_object_unref(operation);
         return 1;
@@ -4619,8 +4619,8 @@ int vipsgen_conva_with_options(VipsImage* in, VipsImage** out, VipsImage* mask, 
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "mask", mask, NULL) ||
-        set_int_param(operation, "layers", layers) ||
-        set_int_param(operation, "cluster", cluster)
+        vipsgen_set_int(operation, "layers", layers) ||
+        vipsgen_set_int(operation, "cluster", cluster)
     ) {
         g_object_unref(operation);
         return 1;
@@ -4648,12 +4648,12 @@ int vipsgen_compass_with_options(VipsImage* in, VipsImage** out, VipsImage* mask
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "mask", mask, NULL) ||
-        set_int_param(operation, "times", times) ||
-        set_int_param(operation, "angle", angle) ||
-        set_int_param(operation, "combine", combine) ||
-        set_int_param(operation, "precision", precision) ||
-        set_int_param(operation, "layers", layers) ||
-        set_int_param(operation, "cluster", cluster)
+        vipsgen_set_int(operation, "times", times) ||
+        vipsgen_set_int(operation, "angle", angle) ||
+        vipsgen_set_int(operation, "combine", combine) ||
+        vipsgen_set_int(operation, "precision", precision) ||
+        vipsgen_set_int(operation, "layers", layers) ||
+        vipsgen_set_int(operation, "cluster", cluster)
     ) {
         g_object_unref(operation);
         return 1;
@@ -4673,9 +4673,9 @@ int vipsgen_convsep_with_options(VipsImage* in, VipsImage** out, VipsImage* mask
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "mask", mask, NULL) ||
-        set_int_param(operation, "precision", precision) ||
-        set_int_param(operation, "layers", layers) ||
-        set_int_param(operation, "cluster", cluster)
+        vipsgen_set_int(operation, "precision", precision) ||
+        vipsgen_set_int(operation, "layers", layers) ||
+        vipsgen_set_int(operation, "cluster", cluster)
     ) {
         g_object_unref(operation);
         return 1;
@@ -4695,7 +4695,7 @@ int vipsgen_convasep_with_options(VipsImage* in, VipsImage** out, VipsImage* mas
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "mask", mask, NULL) ||
-        set_int_param(operation, "layers", layers)
+        vipsgen_set_int(operation, "layers", layers)
     ) {
         g_object_unref(operation);
         return 1;
@@ -4722,12 +4722,12 @@ int vipsgen_sharpen_with_options(VipsImage* in, VipsImage** out, double sigma, d
     if (!operation) return 1;
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
-        set_double_param(operation, "sigma", sigma) ||
-        set_double_param(operation, "x1", x1) ||
-        set_double_param(operation, "y2", y2) ||
-        set_double_param(operation, "y3", y3) ||
-        set_double_param(operation, "m1", m1) ||
-        set_double_param(operation, "m2", m2)
+        vipsgen_set_double(operation, "sigma", sigma) ||
+        vipsgen_set_double(operation, "x1", x1) ||
+        vipsgen_set_double(operation, "y2", y2) ||
+        vipsgen_set_double(operation, "y3", y3) ||
+        vipsgen_set_double(operation, "m1", m1) ||
+        vipsgen_set_double(operation, "m2", m2)
     ) {
         g_object_unref(operation);
         return 1;
@@ -4747,8 +4747,8 @@ int vipsgen_gaussblur_with_options(VipsImage* in, VipsImage** out, double sigma,
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "sigma", sigma, NULL) ||
-        set_double_param(operation, "min_ampl", min_ampl) ||
-        set_int_param(operation, "precision", precision)
+        vipsgen_set_double(operation, "min_ampl", min_ampl) ||
+        vipsgen_set_int(operation, "precision", precision)
     ) {
         g_object_unref(operation);
         return 1;
@@ -4779,8 +4779,8 @@ int vipsgen_canny_with_options(VipsImage* in, VipsImage** out, double sigma, Vip
     if (!operation) return 1;
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
-        set_double_param(operation, "sigma", sigma) ||
-        set_int_param(operation, "precision", precision)
+        vipsgen_set_double(operation, "sigma", sigma) ||
+        vipsgen_set_int(operation, "precision", precision)
     ) {
         g_object_unref(operation);
         return 1;
@@ -4803,7 +4803,7 @@ int vipsgen_invfft_with_options(VipsImage* in, VipsImage** out, gboolean real) {
     if (!operation) return 1;
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
-        set_bool_param(operation, "real", real)
+        vipsgen_set_bool(operation, "real", real)
     ) {
         g_object_unref(operation);
         return 1;
@@ -4860,7 +4860,7 @@ int vipsgen_draw_rect_with_options(VipsImage* image, double* ink, int n, int lef
         vips_object_set(VIPS_OBJECT(operation), "top", top, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "width", width, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "height", height, NULL) ||
-        set_bool_param(operation, "fill", fill)
+        vipsgen_set_bool(operation, "fill", fill)
     ) {
         g_object_unref(operation);
         return 1;
@@ -4892,7 +4892,7 @@ int vipsgen_draw_circle_with_options(VipsImage* image, double* ink, int n, int c
         vips_object_set(VIPS_OBJECT(operation), "cx", cx, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "cy", cy, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "radius", radius, NULL) ||
-        set_bool_param(operation, "fill", fill)
+        vipsgen_set_bool(operation, "fill", fill)
     ) {
         g_object_unref(operation);
         return 1;
@@ -4915,8 +4915,8 @@ int vipsgen_draw_flood_with_options(VipsImage* image, double* ink, int n, int x,
         vips_object_set(VIPS_OBJECT(operation), "n", n, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "x", x, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "y", y, NULL) ||
-        set_image_param(operation, "test", test) ||
-        set_bool_param(operation, "equal", equal)
+        vipsgen_set_image(operation, "test", test) ||
+        vipsgen_set_bool(operation, "equal", equal)
     ) {
         g_object_unref(operation);
         return 1;
@@ -4938,7 +4938,7 @@ int vipsgen_draw_image_with_options(VipsImage* image, VipsImage* sub, int x, int
         vips_object_set(VIPS_OBJECT(operation), "sub", sub, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "x", x, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "y", y, NULL) ||
-        set_int_param(operation, "mode", mode)
+        vipsgen_set_int(operation, "mode", mode)
     ) {
         g_object_unref(operation);
         return 1;
@@ -4965,7 +4965,7 @@ int vipsgen_merge_with_options(VipsImage* ref, VipsImage* sec, VipsImage** out, 
         vips_object_set(VIPS_OBJECT(operation), "direction", direction, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "dx", dx, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "dy", dy, NULL) ||
-        set_int_param(operation, "mblend", mblend)
+        vipsgen_set_int(operation, "mblend", mblend)
     ) {
         g_object_unref(operation);
         return 1;
@@ -4990,10 +4990,10 @@ int vipsgen_mosaic_with_options(VipsImage* ref, VipsImage* sec, VipsImage** out,
         vips_object_set(VIPS_OBJECT(operation), "yref", yref, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "xsec", xsec, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "ysec", ysec, NULL) ||
-        set_int_param(operation, "hwindow", hwindow) ||
-        set_int_param(operation, "harea", harea) ||
-        set_int_param(operation, "mblend", mblend) ||
-        set_int_param(operation, "bandno", bandno)
+        vipsgen_set_int(operation, "hwindow", hwindow) ||
+        vipsgen_set_int(operation, "harea", harea) ||
+        vipsgen_set_int(operation, "mblend", mblend) ||
+        vipsgen_set_int(operation, "bandno", bandno)
     ) {
         g_object_unref(operation);
         return 1;
@@ -5022,11 +5022,11 @@ int vipsgen_mosaic1_with_options(VipsImage* ref, VipsImage* sec, VipsImage** out
         vips_object_set(VIPS_OBJECT(operation), "yr2", yr2, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "xs2", xs2, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "ys2", ys2, NULL) ||
-        set_int_param(operation, "hwindow", hwindow) ||
-        set_int_param(operation, "harea", harea) ||
-        set_bool_param(operation, "search", search) ||
-        set_interpolate_param(operation, "interpolate", interpolate) ||
-        set_int_param(operation, "mblend", mblend)
+        vipsgen_set_int(operation, "hwindow", hwindow) ||
+        vipsgen_set_int(operation, "harea", harea) ||
+        vipsgen_set_bool(operation, "search", search) ||
+        vipsgen_set_interpolate(operation, "interpolate", interpolate) ||
+        vipsgen_set_int(operation, "mblend", mblend)
     ) {
         g_object_unref(operation);
         return 1;
@@ -5058,10 +5058,10 @@ int vipsgen_match_with_options(VipsImage* ref, VipsImage* sec, VipsImage** out, 
         vips_object_set(VIPS_OBJECT(operation), "yr2", yr2, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "xs2", xs2, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "ys2", ys2, NULL) ||
-        set_int_param(operation, "hwindow", hwindow) ||
-        set_int_param(operation, "harea", harea) ||
-        set_bool_param(operation, "search", search) ||
-        set_interpolate_param(operation, "interpolate", interpolate)
+        vipsgen_set_int(operation, "hwindow", hwindow) ||
+        vipsgen_set_int(operation, "harea", harea) ||
+        vipsgen_set_bool(operation, "search", search) ||
+        vipsgen_set_interpolate(operation, "interpolate", interpolate)
     ) {
         g_object_unref(operation);
         return 1;
@@ -5080,8 +5080,8 @@ int vipsgen_globalbalance_with_options(VipsImage* in, VipsImage** out, double ga
     if (!operation) return 1;
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
-        set_double_param(operation, "gamma", gamma) ||
-        set_bool_param(operation, "int_output", int_output)
+        vipsgen_set_double(operation, "gamma", gamma) ||
+        vipsgen_set_bool(operation, "int_output", int_output)
     ) {
         g_object_unref(operation);
         return 1;
