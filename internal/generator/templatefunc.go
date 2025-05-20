@@ -1377,8 +1377,10 @@ func generateCFunctionImplementation(op introspection.Operation) string {
 			}
 		}
 
-		// Set required parameters first
-		var requiredParamsList []string
+		// Combine required and optional parameters in a single condition
+		var allParamsList []string
+
+		// Add required parameters first
 		for _, arg := range op.Arguments {
 			if arg.IsOutput {
 				continue // Skip output arguments, they'll be handled after build
@@ -1386,11 +1388,11 @@ func generateCFunctionImplementation(op introspection.Operation) string {
 
 			// Special handling for different types of arguments
 			if arg.IsSource {
-				requiredParamsList = append(requiredParamsList,
+				allParamsList = append(allParamsList,
 					fmt.Sprintf("vips_object_set(VIPS_OBJECT(operation), \"%s\", (VipsSource*)%s, NULL)", arg.Name, arg.Name))
 			} else if arg.Name == "buf" || arg.Name == "buffer" {
 				// Handle buffer parameter
-				requiredParamsList = append(requiredParamsList,
+				allParamsList = append(allParamsList,
 					fmt.Sprintf("vips_object_set(VIPS_OBJECT(operation), \"%s\", %s, NULL)", arg.Name, arg.Name))
 			} else if arg.Name == "len" {
 				// Handle len parameter (check if associated with buffer)
@@ -1402,103 +1404,87 @@ func generateCFunctionImplementation(op introspection.Operation) string {
 					}
 				}
 				if isBufferLen {
-					requiredParamsList = append(requiredParamsList,
+					allParamsList = append(allParamsList,
 						fmt.Sprintf("vips_object_set(VIPS_OBJECT(operation), \"%s\", %s, NULL)", arg.Name, arg.Name))
 				}
 			} else if arg.GoType == "string" {
 				// String parameter
-				requiredParamsList = append(requiredParamsList,
+				allParamsList = append(allParamsList,
 					fmt.Sprintf("vips_object_set(VIPS_OBJECT(operation), \"%s\", %s, NULL)", arg.Name, arg.Name))
 			} else if arg.GoType == "*C.VipsImage" {
 				// Image parameter
-				requiredParamsList = append(requiredParamsList,
+				allParamsList = append(allParamsList,
 					fmt.Sprintf("vips_object_set(VIPS_OBJECT(operation), \"%s\", %s, NULL)", arg.Name, arg.Name))
 			} else {
 				// Other scalar parameters
-				requiredParamsList = append(requiredParamsList,
+				allParamsList = append(allParamsList,
 					fmt.Sprintf("vips_object_set(VIPS_OBJECT(operation), \"%s\", %s, NULL)", arg.Name, arg.Name))
 			}
 		}
 
-		// Join all required parameters with the || operator for short-circuit evaluation
-		if len(requiredParamsList) > 0 {
-			result.WriteString("    if (\n        ")
-			result.WriteString(strings.Join(requiredParamsList, " ||\n        "))
-			result.WriteString("\n    ) {\n")
-			result.WriteString("        g_object_unref(operation);\n")
-
-			// Free all array resources on error
-			for _, cleanupOpt := range op.OptionalInputs {
-				if strings.HasPrefix(cleanupOpt.GoType, "[]") {
-					arrayType := getArrayType(cleanupOpt.GoType)
-					if arrayType != "unknown" {
-						result.WriteString(fmt.Sprintf("        if (%s_array != NULL) { vips_area_unref(VIPS_AREA(%s_array)); }\n", cleanupOpt.Name, cleanupOpt.Name))
-					}
-				}
-			}
-
-			result.WriteString("        return 1;\n    }\n")
-		}
-
-		// Set optional parameters using type-specific setter functions
-		var optionalParamsList []string
+		// Add optional parameters using type-specific setter functions
 		for _, opt := range op.OptionalInputs {
 			if strings.HasPrefix(opt.GoType, "[]") {
 				arrayType := getArrayType(opt.GoType)
 				if arrayType == "double" {
-					optionalParamsList = append(optionalParamsList,
+					allParamsList = append(allParamsList,
 						fmt.Sprintf("set_array_double_param(operation, \"%s\", %s_array)", opt.Name, opt.Name))
 				} else if arrayType == "int" {
-					optionalParamsList = append(optionalParamsList,
+					allParamsList = append(allParamsList,
 						fmt.Sprintf("set_array_int_param(operation, \"%s\", %s_array)", opt.Name, opt.Name))
 				} else if arrayType == "image" {
-					optionalParamsList = append(optionalParamsList,
+					allParamsList = append(allParamsList,
 						fmt.Sprintf("set_array_image_param(operation, \"%s\", %s_array)", opt.Name, opt.Name))
 				}
 			} else if opt.GoType == "bool" {
-				optionalParamsList = append(optionalParamsList,
+				allParamsList = append(allParamsList,
 					fmt.Sprintf("set_bool_param(operation, \"%s\", %s)", opt.Name, opt.Name))
 			} else if opt.GoType == "string" {
-				optionalParamsList = append(optionalParamsList,
+				allParamsList = append(allParamsList,
 					fmt.Sprintf("set_string_param(operation, \"%s\", %s)", opt.Name, opt.Name))
 			} else if opt.IsEnum {
-				optionalParamsList = append(optionalParamsList,
+				allParamsList = append(allParamsList,
 					fmt.Sprintf("set_int_param(operation, \"%s\", %s)", opt.Name, opt.Name))
 			} else if opt.GoType == "*C.VipsImage" {
-				optionalParamsList = append(optionalParamsList,
+				allParamsList = append(allParamsList,
 					fmt.Sprintf("set_image_param(operation, \"%s\", %s)", opt.Name, opt.Name))
 			} else if opt.GoType == "*Interpolate" || opt.GoType == "*C.VipsInterpolate" {
 				// Handle interpolate parameters
-				optionalParamsList = append(optionalParamsList,
+				allParamsList = append(allParamsList,
 					fmt.Sprintf("set_interpolate_param(operation, \"%s\", %s)", opt.Name, opt.Name))
 			} else if opt.IsSource {
 				// Handle source parameters
-				optionalParamsList = append(optionalParamsList,
+				allParamsList = append(allParamsList,
 					fmt.Sprintf("set_source_param(operation, \"%s\", %s)", opt.Name, opt.Name))
 			} else if opt.GoType == "int" {
-				optionalParamsList = append(optionalParamsList,
+				allParamsList = append(allParamsList,
 					fmt.Sprintf("set_int_param(operation, \"%s\", %s)", opt.Name, opt.Name))
 			} else if opt.GoType == "float64" {
-				optionalParamsList = append(optionalParamsList,
+				allParamsList = append(allParamsList,
 					fmt.Sprintf("set_double_param(operation, \"%s\", %s)", opt.Name, opt.Name))
+			} else if strings.Contains(opt.CType, "guint64") {
+				// Handle guint64 parameters
+				allParamsList = append(allParamsList,
+					fmt.Sprintf("set_guint64_param(operation, \"%s\", %s)", opt.Name, opt.Name))
+			} else if strings.Contains(opt.CType, "unsigned int") || strings.Contains(opt.CType, "guint") {
+				// Handle unsigned int parameters
+				allParamsList = append(allParamsList,
+					fmt.Sprintf("set_uint_param(operation, \"%s\", %s)", opt.Name, opt.Name))
 			} else if strings.Contains(opt.CType, "*") || strings.Contains(opt.GoType, "*") {
-				// This is a pointer type - only set if not NULL
-				optionalParamsList = append(optionalParamsList,
-					fmt.Sprintf("(%s != NULL ? vips_object_set(VIPS_OBJECT(operation), \"%s\", %s, NULL) : 0)",
-						opt.Name, opt.Name, opt.Name))
+				// This is a pointer type - use general pointer handler
+				allParamsList = append(allParamsList,
+					fmt.Sprintf("set_pointer_param(operation, \"%s\", %s)", opt.Name, opt.Name))
 			} else {
-				// For non-pointer scalar types, we should use a type-appropriate check
-				// Default to setting all non-zero values
-				optionalParamsList = append(optionalParamsList,
-					fmt.Sprintf("(%s != 0 ? vips_object_set(VIPS_OBJECT(operation), \"%s\", %s, NULL) : 0)",
-						opt.Name, opt.Name, opt.Name))
+				// For any other non-pointer scalar types, default to int
+				allParamsList = append(allParamsList,
+					fmt.Sprintf("set_int_param(operation, \"%s\", %s)", opt.Name, opt.Name))
 			}
 		}
 
-		// Join all optional parameters with the || operator for short-circuit evaluation
-		if len(optionalParamsList) > 0 {
+		// Join all parameters with the || operator for short-circuit evaluation
+		if len(allParamsList) > 0 {
 			result.WriteString("    if (\n        ")
-			result.WriteString(strings.Join(optionalParamsList, " ||\n        "))
+			result.WriteString(strings.Join(allParamsList, " ||\n        "))
 			result.WriteString("\n    ) {\n")
 			result.WriteString("        g_object_unref(operation);\n")
 
@@ -1515,7 +1501,6 @@ func generateCFunctionImplementation(op introspection.Operation) string {
 			result.WriteString("        return 1;\n    }\n\n")
 		}
 
-		// Use helper function to execute the operation with output parameters
 		// Collect the output parameters
 		var outputParams []string
 		for _, arg := range op.Arguments {

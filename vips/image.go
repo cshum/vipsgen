@@ -2041,6 +2041,41 @@ func NewPngloadSource(source *Source, options *PngloadSourceOptions) (*Image, er
 	return newImageRef(vipsImage, ImageTypePng, nil), nil
 }
 
+// MatloadOptions optional arguments for vips_matload
+type MatloadOptions struct {
+	// Memory Force open via memory
+	Memory bool
+	// Access Required access pattern for this file
+	Access Access
+	// FailOn Error level to fail on
+	FailOn FailOn
+	// Revalidate Don't use a cached result for this operation
+	Revalidate bool
+}
+
+// DefaultMatloadOptions creates default value for vips_matload optional arguments
+func DefaultMatloadOptions() *MatloadOptions {
+	return &MatloadOptions{
+	}
+}
+
+// NewMatload vips_matload load mat from file
+func NewMatload(filename string, options *MatloadOptions) (*Image, error) {
+	Startup(nil)
+	if options != nil {
+		vipsImage, err := vipsgenMatloadWithOptions(filename, options.Memory, options.Access, options.FailOn, options.Revalidate)
+		if err != nil {
+			return nil, err
+		}
+		return newImageRef(vipsImage, ImageTypeUnknown, nil), nil
+	}
+	vipsImage, err := vipsgenMatload(filename)
+	if err != nil {
+		return nil, err
+	}
+	return newImageRef(vipsImage, ImageTypeUnknown, nil), nil
+}
+
 // JpegloadOptions optional arguments for vips_jpegload
 type JpegloadOptions struct {
 	// Shrink Shrink factor on load
@@ -2501,90 +2536,6 @@ func NewOpenexrload(filename string, options *OpenexrloadOptions) (*Image, error
 	return newImageRef(vipsImage, ImageTypeUnknown, nil), nil
 }
 
-// MagickloadOptions optional arguments for vips_magickload
-type MagickloadOptions struct {
-	// Density Canvas resolution for rendering vector formats like SVG
-	Density string
-	// Page First page to load
-	Page int
-	// N Number of pages to load, -1 for all
-	N int
-	// Memory Force open via memory
-	Memory bool
-	// Access Required access pattern for this file
-	Access Access
-	// FailOn Error level to fail on
-	FailOn FailOn
-	// Revalidate Don't use a cached result for this operation
-	Revalidate bool
-}
-
-// DefaultMagickloadOptions creates default value for vips_magickload optional arguments
-func DefaultMagickloadOptions() *MagickloadOptions {
-	return &MagickloadOptions{
-		N: 1,
-	}
-}
-
-// NewMagickload vips_magickload load file with ImageMagick
-func NewMagickload(filename string, options *MagickloadOptions) (*Image, error) {
-	Startup(nil)
-	if options != nil {
-		vipsImage, err := vipsgenMagickloadWithOptions(filename, options.Density, options.Page, options.N, options.Memory, options.Access, options.FailOn, options.Revalidate)
-		if err != nil {
-			return nil, err
-		}
-		return newImageRef(vipsImage, ImageTypeMagick, nil), nil
-	}
-	vipsImage, err := vipsgenMagickload(filename)
-	if err != nil {
-		return nil, err
-	}
-	return newImageRef(vipsImage, ImageTypeMagick, nil), nil
-}
-
-// MagickloadBufferOptions optional arguments for vips_magickload_buffer
-type MagickloadBufferOptions struct {
-	// Density Canvas resolution for rendering vector formats like SVG
-	Density string
-	// Page First page to load
-	Page int
-	// N Number of pages to load, -1 for all
-	N int
-	// Memory Force open via memory
-	Memory bool
-	// Access Required access pattern for this file
-	Access Access
-	// FailOn Error level to fail on
-	FailOn FailOn
-	// Revalidate Don't use a cached result for this operation
-	Revalidate bool
-}
-
-// DefaultMagickloadBufferOptions creates default value for vips_magickload_buffer optional arguments
-func DefaultMagickloadBufferOptions() *MagickloadBufferOptions {
-	return &MagickloadBufferOptions{
-		N: 1,
-	}
-}
-
-// NewMagickloadBuffer vips_magickload_buffer load buffer with ImageMagick
-func NewMagickloadBuffer(buf []byte, options *MagickloadBufferOptions) (*Image, error) {
-	Startup(nil)
-	if options != nil {
-		vipsImage, err := vipsgenMagickloadBufferWithOptions(buf, options.Density, options.Page, options.N, options.Memory, options.Access, options.FailOn, options.Revalidate)
-		if err != nil {
-			return nil, err
-		}
-		return newImageRef(vipsImage, ImageTypeMagick, buf), nil
-	}
-	vipsImage, err := vipsgenMagickloadBuffer(buf)
-	if err != nil {
-		return nil, err
-	}
-	return newImageRef(vipsImage, ImageTypeMagick, buf), nil
-}
-
 // HeifloadOptions optional arguments for vips_heifload
 type HeifloadOptions struct {
 	// Page First page to load
@@ -2717,18 +2668,14 @@ func NewHeifloadSource(source *Source, options *HeifloadSourceOptions) (*Image, 
 	return newImageRef(vipsImage, ImageTypeHeif, nil), nil
 }
 
-// OpenslideloadOptions optional arguments for vips_openslideload
-type OpenslideloadOptions struct {
-	// Level Load this level from the file
-	Level int
-	// Autocrop Crop to image bounds
-	Autocrop bool
-	// Associated Load this associated image
-	Associated string
-	// AttachAssociated Attach all associated images
-	AttachAssociated bool
-	// Rgb Output RGB (not RGBA)
-	Rgb bool
+// MagickloadOptions optional arguments for vips_magickload
+type MagickloadOptions struct {
+	// Density Canvas resolution for rendering vector formats like SVG
+	Density string
+	// Page First page to load
+	Page int
+	// N Number of pages to load, -1 for all
+	N int
 	// Memory Force open via memory
 	Memory bool
 	// Access Required access pattern for this file
@@ -2739,41 +2686,38 @@ type OpenslideloadOptions struct {
 	Revalidate bool
 }
 
-// DefaultOpenslideloadOptions creates default value for vips_openslideload optional arguments
-func DefaultOpenslideloadOptions() *OpenslideloadOptions {
-	return &OpenslideloadOptions{
+// DefaultMagickloadOptions creates default value for vips_magickload optional arguments
+func DefaultMagickloadOptions() *MagickloadOptions {
+	return &MagickloadOptions{
+		N: 1,
 	}
 }
 
-// NewOpenslideload vips_openslideload load file with OpenSlide
-func NewOpenslideload(filename string, options *OpenslideloadOptions) (*Image, error) {
+// NewMagickload vips_magickload load file with ImageMagick7
+func NewMagickload(filename string, options *MagickloadOptions) (*Image, error) {
 	Startup(nil)
 	if options != nil {
-		vipsImage, err := vipsgenOpenslideloadWithOptions(filename, options.Level, options.Autocrop, options.Associated, options.AttachAssociated, options.Rgb, options.Memory, options.Access, options.FailOn, options.Revalidate)
+		vipsImage, err := vipsgenMagickloadWithOptions(filename, options.Density, options.Page, options.N, options.Memory, options.Access, options.FailOn, options.Revalidate)
 		if err != nil {
 			return nil, err
 		}
-		return newImageRef(vipsImage, ImageTypeUnknown, nil), nil
+		return newImageRef(vipsImage, ImageTypeMagick, nil), nil
 	}
-	vipsImage, err := vipsgenOpenslideload(filename)
+	vipsImage, err := vipsgenMagickload(filename)
 	if err != nil {
 		return nil, err
 	}
-	return newImageRef(vipsImage, ImageTypeUnknown, nil), nil
+	return newImageRef(vipsImage, ImageTypeMagick, nil), nil
 }
 
-// OpenslideloadSourceOptions optional arguments for vips_openslideload_source
-type OpenslideloadSourceOptions struct {
-	// Level Load this level from the file
-	Level int
-	// Autocrop Crop to image bounds
-	Autocrop bool
-	// Associated Load this associated image
-	Associated string
-	// AttachAssociated Attach all associated images
-	AttachAssociated bool
-	// Rgb Output RGB (not RGBA)
-	Rgb bool
+// MagickloadBufferOptions optional arguments for vips_magickload_buffer
+type MagickloadBufferOptions struct {
+	// Density Canvas resolution for rendering vector formats like SVG
+	Density string
+	// Page First page to load
+	Page int
+	// N Number of pages to load, -1 for all
+	N int
 	// Memory Force open via memory
 	Memory bool
 	// Access Required access pattern for this file
@@ -2784,27 +2728,28 @@ type OpenslideloadSourceOptions struct {
 	Revalidate bool
 }
 
-// DefaultOpenslideloadSourceOptions creates default value for vips_openslideload_source optional arguments
-func DefaultOpenslideloadSourceOptions() *OpenslideloadSourceOptions {
-	return &OpenslideloadSourceOptions{
+// DefaultMagickloadBufferOptions creates default value for vips_magickload_buffer optional arguments
+func DefaultMagickloadBufferOptions() *MagickloadBufferOptions {
+	return &MagickloadBufferOptions{
+		N: 1,
 	}
 }
 
-// NewOpenslideloadSource vips_openslideload_source load source with OpenSlide
-func NewOpenslideloadSource(source *Source, options *OpenslideloadSourceOptions) (*Image, error) {
+// NewMagickloadBuffer vips_magickload_buffer load buffer with ImageMagick7
+func NewMagickloadBuffer(buf []byte, options *MagickloadBufferOptions) (*Image, error) {
 	Startup(nil)
 	if options != nil {
-		vipsImage, err := vipsgenOpenslideloadSourceWithOptions(source.src, options.Level, options.Autocrop, options.Associated, options.AttachAssociated, options.Rgb, options.Memory, options.Access, options.FailOn, options.Revalidate)
+		vipsImage, err := vipsgenMagickloadBufferWithOptions(buf, options.Density, options.Page, options.N, options.Memory, options.Access, options.FailOn, options.Revalidate)
 		if err != nil {
 			return nil, err
 		}
-		return newImageRef(vipsImage, ImageTypeUnknown, nil), nil
+		return newImageRef(vipsImage, ImageTypeMagick, buf), nil
 	}
-	vipsImage, err := vipsgenOpenslideloadSource(source.src)
+	vipsImage, err := vipsgenMagickloadBuffer(buf)
 	if err != nil {
 		return nil, err
 	}
-	return newImageRef(vipsImage, ImageTypeUnknown, nil), nil
+	return newImageRef(vipsImage, ImageTypeMagick, buf), nil
 }
 
 // PdfloadOptions optional arguments for vips_pdfload
@@ -2955,6 +2900,216 @@ func NewPdfloadSource(source *Source, options *PdfloadSourceOptions) (*Image, er
 		return nil, err
 	}
 	return newImageRef(vipsImage, ImageTypePdf, nil), nil
+}
+
+// OpenslideloadOptions optional arguments for vips_openslideload
+type OpenslideloadOptions struct {
+	// Level Load this level from the file
+	Level int
+	// Autocrop Crop to image bounds
+	Autocrop bool
+	// Associated Load this associated image
+	Associated string
+	// AttachAssociated Attach all associated images
+	AttachAssociated bool
+	// Rgb Output RGB (not RGBA)
+	Rgb bool
+	// Memory Force open via memory
+	Memory bool
+	// Access Required access pattern for this file
+	Access Access
+	// FailOn Error level to fail on
+	FailOn FailOn
+	// Revalidate Don't use a cached result for this operation
+	Revalidate bool
+}
+
+// DefaultOpenslideloadOptions creates default value for vips_openslideload optional arguments
+func DefaultOpenslideloadOptions() *OpenslideloadOptions {
+	return &OpenslideloadOptions{
+	}
+}
+
+// NewOpenslideload vips_openslideload load file with OpenSlide
+func NewOpenslideload(filename string, options *OpenslideloadOptions) (*Image, error) {
+	Startup(nil)
+	if options != nil {
+		vipsImage, err := vipsgenOpenslideloadWithOptions(filename, options.Level, options.Autocrop, options.Associated, options.AttachAssociated, options.Rgb, options.Memory, options.Access, options.FailOn, options.Revalidate)
+		if err != nil {
+			return nil, err
+		}
+		return newImageRef(vipsImage, ImageTypeUnknown, nil), nil
+	}
+	vipsImage, err := vipsgenOpenslideload(filename)
+	if err != nil {
+		return nil, err
+	}
+	return newImageRef(vipsImage, ImageTypeUnknown, nil), nil
+}
+
+// OpenslideloadSourceOptions optional arguments for vips_openslideload_source
+type OpenslideloadSourceOptions struct {
+	// Level Load this level from the file
+	Level int
+	// Autocrop Crop to image bounds
+	Autocrop bool
+	// Associated Load this associated image
+	Associated string
+	// AttachAssociated Attach all associated images
+	AttachAssociated bool
+	// Rgb Output RGB (not RGBA)
+	Rgb bool
+	// Memory Force open via memory
+	Memory bool
+	// Access Required access pattern for this file
+	Access Access
+	// FailOn Error level to fail on
+	FailOn FailOn
+	// Revalidate Don't use a cached result for this operation
+	Revalidate bool
+}
+
+// DefaultOpenslideloadSourceOptions creates default value for vips_openslideload_source optional arguments
+func DefaultOpenslideloadSourceOptions() *OpenslideloadSourceOptions {
+	return &OpenslideloadSourceOptions{
+	}
+}
+
+// NewOpenslideloadSource vips_openslideload_source load source with OpenSlide
+func NewOpenslideloadSource(source *Source, options *OpenslideloadSourceOptions) (*Image, error) {
+	Startup(nil)
+	if options != nil {
+		vipsImage, err := vipsgenOpenslideloadSourceWithOptions(source.src, options.Level, options.Autocrop, options.Associated, options.AttachAssociated, options.Rgb, options.Memory, options.Access, options.FailOn, options.Revalidate)
+		if err != nil {
+			return nil, err
+		}
+		return newImageRef(vipsImage, ImageTypeUnknown, nil), nil
+	}
+	vipsImage, err := vipsgenOpenslideloadSource(source.src)
+	if err != nil {
+		return nil, err
+	}
+	return newImageRef(vipsImage, ImageTypeUnknown, nil), nil
+}
+
+// JxlloadOptions optional arguments for vips_jxlload
+type JxlloadOptions struct {
+	// Page First page to load
+	Page int
+	// N Number of pages to load, -1 for all
+	N int
+	// Memory Force open via memory
+	Memory bool
+	// Access Required access pattern for this file
+	Access Access
+	// FailOn Error level to fail on
+	FailOn FailOn
+	// Revalidate Don't use a cached result for this operation
+	Revalidate bool
+}
+
+// DefaultJxlloadOptions creates default value for vips_jxlload optional arguments
+func DefaultJxlloadOptions() *JxlloadOptions {
+	return &JxlloadOptions{
+		N: 1,
+	}
+}
+
+// NewJxlload vips_jxlload load JPEG-XL image
+func NewJxlload(filename string, options *JxlloadOptions) (*Image, error) {
+	Startup(nil)
+	if options != nil {
+		vipsImage, err := vipsgenJxlloadWithOptions(filename, options.Page, options.N, options.Memory, options.Access, options.FailOn, options.Revalidate)
+		if err != nil {
+			return nil, err
+		}
+		return newImageRef(vipsImage, ImageTypeUnknown, nil), nil
+	}
+	vipsImage, err := vipsgenJxlload(filename)
+	if err != nil {
+		return nil, err
+	}
+	return newImageRef(vipsImage, ImageTypeUnknown, nil), nil
+}
+
+// JxlloadBufferOptions optional arguments for vips_jxlload_buffer
+type JxlloadBufferOptions struct {
+	// Page First page to load
+	Page int
+	// N Number of pages to load, -1 for all
+	N int
+	// Memory Force open via memory
+	Memory bool
+	// Access Required access pattern for this file
+	Access Access
+	// FailOn Error level to fail on
+	FailOn FailOn
+	// Revalidate Don't use a cached result for this operation
+	Revalidate bool
+}
+
+// DefaultJxlloadBufferOptions creates default value for vips_jxlload_buffer optional arguments
+func DefaultJxlloadBufferOptions() *JxlloadBufferOptions {
+	return &JxlloadBufferOptions{
+		N: 1,
+	}
+}
+
+// NewJxlloadBuffer vips_jxlload_buffer load JPEG-XL image
+func NewJxlloadBuffer(buf []byte, options *JxlloadBufferOptions) (*Image, error) {
+	Startup(nil)
+	if options != nil {
+		vipsImage, err := vipsgenJxlloadBufferWithOptions(buf, options.Page, options.N, options.Memory, options.Access, options.FailOn, options.Revalidate)
+		if err != nil {
+			return nil, err
+		}
+		return newImageRef(vipsImage, ImageTypeUnknown, buf), nil
+	}
+	vipsImage, err := vipsgenJxlloadBuffer(buf)
+	if err != nil {
+		return nil, err
+	}
+	return newImageRef(vipsImage, ImageTypeUnknown, buf), nil
+}
+
+// JxlloadSourceOptions optional arguments for vips_jxlload_source
+type JxlloadSourceOptions struct {
+	// Page First page to load
+	Page int
+	// N Number of pages to load, -1 for all
+	N int
+	// Memory Force open via memory
+	Memory bool
+	// Access Required access pattern for this file
+	Access Access
+	// FailOn Error level to fail on
+	FailOn FailOn
+	// Revalidate Don't use a cached result for this operation
+	Revalidate bool
+}
+
+// DefaultJxlloadSourceOptions creates default value for vips_jxlload_source optional arguments
+func DefaultJxlloadSourceOptions() *JxlloadSourceOptions {
+	return &JxlloadSourceOptions{
+		N: 1,
+	}
+}
+
+// NewJxlloadSource vips_jxlload_source load JPEG-XL image
+func NewJxlloadSource(source *Source, options *JxlloadSourceOptions) (*Image, error) {
+	Startup(nil)
+	if options != nil {
+		vipsImage, err := vipsgenJxlloadSourceWithOptions(source.src, options.Page, options.N, options.Memory, options.Access, options.FailOn, options.Revalidate)
+		if err != nil {
+			return nil, err
+		}
+		return newImageRef(vipsImage, ImageTypeUnknown, nil), nil
+	}
+	vipsImage, err := vipsgenJxlloadSource(source.src)
+	if err != nil {
+		return nil, err
+	}
+	return newImageRef(vipsImage, ImageTypeUnknown, nil), nil
 }
 
 // ThumbnailOptions optional arguments for vips_thumbnail
@@ -5334,13 +5489,149 @@ func (r *Image) GifsaveBuffer(options *GifsaveBufferOptions) ([]byte, error) {
 	return buf, nil
 }
 
+// DzsaveOptions optional arguments for vips_dzsave
+type DzsaveOptions struct {
+	// Imagename Image name
+	Imagename string
+	// Layout Directory layout
+	Layout DzLayout
+	// Suffix Filename suffix for tiles
+	Suffix string
+	// Overlap Tile overlap in pixels
+	Overlap int
+	// TileSize Tile size in pixels
+	TileSize int
+	// Centre Center image in tile
+	Centre bool
+	// Depth Pyramid depth
+	Depth DzDepth
+	// Angle Rotate image during save
+	Angle Angle
+	// Container Pyramid container type
+	Container DzContainer
+	// Compression ZIP deflate compression level
+	Compression int
+	// RegionShrink Method to shrink regions
+	RegionShrink RegionShrink
+	// SkipBlanks Skip tiles which are nearly equal to the background
+	SkipBlanks int
+	// Id Resource ID
+	Id string
+	// Q Q factor
+	Q int
+	// Keep Which metadata to retain
+	Keep Keep
+	// Background Background value
+	Background []float64
+	// PageHeight Set page height for multipage save
+	PageHeight int
+	// Profile Filename of ICC profile to embed
+	Profile string
+}
+
+// DefaultDzsaveOptions creates default value for vips_dzsave optional arguments
+func DefaultDzsaveOptions() *DzsaveOptions {
+	return &DzsaveOptions{
+		Suffix: ".jpeg",
+		Overlap: 1,
+		TileSize: 254,
+		SkipBlanks: -1,
+		Id: "https://example.com/iiif",
+		Q: 75,
+	}
+}
+
+// Dzsave vips_dzsave save image to deepzoom file
+func (r *Image) Dzsave(filename string, options *DzsaveOptions) (error) {
+	if options != nil {
+		err := vipsgenDzsaveWithOptions(r.image, filename, options.Imagename, options.Layout, options.Suffix, options.Overlap, options.TileSize, options.Centre, options.Depth, options.Angle, options.Container, options.Compression, options.RegionShrink, options.SkipBlanks, options.Id, options.Q, options.Keep, options.Background, options.PageHeight, options.Profile)
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+	err := vipsgenDzsave(r.image, filename)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// DzsaveBufferOptions optional arguments for vips_dzsave_buffer
+type DzsaveBufferOptions struct {
+	// Imagename Image name
+	Imagename string
+	// Layout Directory layout
+	Layout DzLayout
+	// Suffix Filename suffix for tiles
+	Suffix string
+	// Overlap Tile overlap in pixels
+	Overlap int
+	// TileSize Tile size in pixels
+	TileSize int
+	// Centre Center image in tile
+	Centre bool
+	// Depth Pyramid depth
+	Depth DzDepth
+	// Angle Rotate image during save
+	Angle Angle
+	// Container Pyramid container type
+	Container DzContainer
+	// Compression ZIP deflate compression level
+	Compression int
+	// RegionShrink Method to shrink regions
+	RegionShrink RegionShrink
+	// SkipBlanks Skip tiles which are nearly equal to the background
+	SkipBlanks int
+	// Id Resource ID
+	Id string
+	// Q Q factor
+	Q int
+	// Keep Which metadata to retain
+	Keep Keep
+	// Background Background value
+	Background []float64
+	// PageHeight Set page height for multipage save
+	PageHeight int
+	// Profile Filename of ICC profile to embed
+	Profile string
+}
+
+// DefaultDzsaveBufferOptions creates default value for vips_dzsave_buffer optional arguments
+func DefaultDzsaveBufferOptions() *DzsaveBufferOptions {
+	return &DzsaveBufferOptions{
+		Suffix: ".jpeg",
+		Overlap: 1,
+		TileSize: 254,
+		SkipBlanks: -1,
+		Id: "https://example.com/iiif",
+		Q: 75,
+	}
+}
+
+// DzsaveBuffer vips_dzsave_buffer save image to dz buffer
+func (r *Image) DzsaveBuffer(options *DzsaveBufferOptions) ([]byte, error) {
+	if options != nil {
+		buf, err := vipsgenDzsaveBufferWithOptions(r.image, options.Imagename, options.Layout, options.Suffix, options.Overlap, options.TileSize, options.Centre, options.Depth, options.Angle, options.Container, options.Compression, options.RegionShrink, options.SkipBlanks, options.Id, options.Q, options.Keep, options.Background, options.PageHeight, options.Profile)
+		if err != nil {
+			return nil, err
+		}
+		return buf, nil
+	}
+	buf, err := vipsgenDzsaveBuffer(r.image)
+	if err != nil {
+		return nil, err
+	}
+	return buf, nil
+}
+
 // PngsaveOptions optional arguments for vips_pngsave
 type PngsaveOptions struct {
 	// Compression Compression factor
 	Compression int
 	// Interlace Interlace image
 	Interlace bool
-	// Filter libpng row filter flag(s)
+	// Filter libspng row filter flag(s)
 	Filter PngFilter
 	// Palette Quantise to 8bpp palette
 	Palette bool
@@ -5373,7 +5664,7 @@ func DefaultPngsaveOptions() *PngsaveOptions {
 	}
 }
 
-// Pngsave vips_pngsave save image to png file
+// Pngsave vips_pngsave save image to file as PNG
 func (r *Image) Pngsave(filename string, options *PngsaveOptions) (error) {
 	if options != nil {
 		err := vipsgenPngsaveWithOptions(r.image, filename, options.Compression, options.Interlace, options.Filter, options.Palette, options.Q, options.Dither, options.Bitdepth, options.Effort, options.Keep, options.Background, options.PageHeight, options.Profile)
@@ -5395,7 +5686,7 @@ type PngsaveBufferOptions struct {
 	Compression int
 	// Interlace Interlace image
 	Interlace bool
-	// Filter libpng row filter flag(s)
+	// Filter libspng row filter flag(s)
 	Filter PngFilter
 	// Palette Quantise to 8bpp palette
 	Palette bool
@@ -5428,7 +5719,7 @@ func DefaultPngsaveBufferOptions() *PngsaveBufferOptions {
 	}
 }
 
-// PngsaveBuffer vips_pngsave_buffer save image to png buffer
+// PngsaveBuffer vips_pngsave_buffer save image to buffer as PNG
 func (r *Image) PngsaveBuffer(options *PngsaveBufferOptions) ([]byte, error) {
 	if options != nil {
 		buf, err := vipsgenPngsaveBufferWithOptions(r.image, options.Compression, options.Interlace, options.Filter, options.Palette, options.Q, options.Dither, options.Bitdepth, options.Effort, options.Keep, options.Background, options.PageHeight, options.Profile)
@@ -5884,94 +6175,6 @@ func (r *Image) Fitssave(filename string, options *FitssaveOptions) (error) {
 	return nil
 }
 
-// MagicksaveOptions optional arguments for vips_magicksave
-type MagicksaveOptions struct {
-	// Format Format to save in
-	Format string
-	// Quality Quality to use
-	Quality int
-	// OptimizeGifFrames Apply GIF frames optimization
-	OptimizeGifFrames bool
-	// OptimizeGifTransparency Apply GIF transparency optimization
-	OptimizeGifTransparency bool
-	// Bitdepth Number of bits per pixel
-	Bitdepth int
-	// Keep Which metadata to retain
-	Keep Keep
-	// Background Background value
-	Background []float64
-	// PageHeight Set page height for multipage save
-	PageHeight int
-	// Profile Filename of ICC profile to embed
-	Profile string
-}
-
-// DefaultMagicksaveOptions creates default value for vips_magicksave optional arguments
-func DefaultMagicksaveOptions() *MagicksaveOptions {
-	return &MagicksaveOptions{
-	}
-}
-
-// Magicksave vips_magicksave save file with ImageMagick
-func (r *Image) Magicksave(filename string, options *MagicksaveOptions) (error) {
-	if options != nil {
-		err := vipsgenMagicksaveWithOptions(r.image, filename, options.Format, options.Quality, options.OptimizeGifFrames, options.OptimizeGifTransparency, options.Bitdepth, options.Keep, options.Background, options.PageHeight, options.Profile)
-		if err != nil {
-			return err
-		}
-		return nil
-	}
-	err := vipsgenMagicksave(r.image, filename)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-// MagicksaveBufferOptions optional arguments for vips_magicksave_buffer
-type MagicksaveBufferOptions struct {
-	// Format Format to save in
-	Format string
-	// Quality Quality to use
-	Quality int
-	// OptimizeGifFrames Apply GIF frames optimization
-	OptimizeGifFrames bool
-	// OptimizeGifTransparency Apply GIF transparency optimization
-	OptimizeGifTransparency bool
-	// Bitdepth Number of bits per pixel
-	Bitdepth int
-	// Keep Which metadata to retain
-	Keep Keep
-	// Background Background value
-	Background []float64
-	// PageHeight Set page height for multipage save
-	PageHeight int
-	// Profile Filename of ICC profile to embed
-	Profile string
-}
-
-// DefaultMagicksaveBufferOptions creates default value for vips_magicksave_buffer optional arguments
-func DefaultMagicksaveBufferOptions() *MagicksaveBufferOptions {
-	return &MagicksaveBufferOptions{
-	}
-}
-
-// MagicksaveBuffer vips_magicksave_buffer save image to magick buffer
-func (r *Image) MagicksaveBuffer(options *MagicksaveBufferOptions) ([]byte, error) {
-	if options != nil {
-		buf, err := vipsgenMagicksaveBufferWithOptions(r.image, options.Format, options.Quality, options.OptimizeGifFrames, options.OptimizeGifTransparency, options.Bitdepth, options.Keep, options.Background, options.PageHeight, options.Profile)
-		if err != nil {
-			return nil, err
-		}
-		return buf, nil
-	}
-	buf, err := vipsgenMagicksaveBuffer(r.image)
-	if err != nil {
-		return nil, err
-	}
-	return buf, nil
-}
-
 // HeifsaveOptions optional arguments for vips_heifsave
 type HeifsaveOptions struct {
 	// Q Q factor
@@ -6070,6 +6273,188 @@ func (r *Image) HeifsaveBuffer(options *HeifsaveBufferOptions) ([]byte, error) {
 		return buf, nil
 	}
 	buf, err := vipsgenHeifsaveBuffer(r.image)
+	if err != nil {
+		return nil, err
+	}
+	return buf, nil
+}
+
+// MagicksaveOptions optional arguments for vips_magicksave
+type MagicksaveOptions struct {
+	// Format Format to save in
+	Format string
+	// Quality Quality to use
+	Quality int
+	// OptimizeGifFrames Apply GIF frames optimization
+	OptimizeGifFrames bool
+	// OptimizeGifTransparency Apply GIF transparency optimization
+	OptimizeGifTransparency bool
+	// Bitdepth Number of bits per pixel
+	Bitdepth int
+	// Keep Which metadata to retain
+	Keep Keep
+	// Background Background value
+	Background []float64
+	// PageHeight Set page height for multipage save
+	PageHeight int
+	// Profile Filename of ICC profile to embed
+	Profile string
+}
+
+// DefaultMagicksaveOptions creates default value for vips_magicksave optional arguments
+func DefaultMagicksaveOptions() *MagicksaveOptions {
+	return &MagicksaveOptions{
+	}
+}
+
+// Magicksave vips_magicksave save file with ImageMagick
+func (r *Image) Magicksave(filename string, options *MagicksaveOptions) (error) {
+	if options != nil {
+		err := vipsgenMagicksaveWithOptions(r.image, filename, options.Format, options.Quality, options.OptimizeGifFrames, options.OptimizeGifTransparency, options.Bitdepth, options.Keep, options.Background, options.PageHeight, options.Profile)
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+	err := vipsgenMagicksave(r.image, filename)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// MagicksaveBufferOptions optional arguments for vips_magicksave_buffer
+type MagicksaveBufferOptions struct {
+	// Format Format to save in
+	Format string
+	// Quality Quality to use
+	Quality int
+	// OptimizeGifFrames Apply GIF frames optimization
+	OptimizeGifFrames bool
+	// OptimizeGifTransparency Apply GIF transparency optimization
+	OptimizeGifTransparency bool
+	// Bitdepth Number of bits per pixel
+	Bitdepth int
+	// Keep Which metadata to retain
+	Keep Keep
+	// Background Background value
+	Background []float64
+	// PageHeight Set page height for multipage save
+	PageHeight int
+	// Profile Filename of ICC profile to embed
+	Profile string
+}
+
+// DefaultMagicksaveBufferOptions creates default value for vips_magicksave_buffer optional arguments
+func DefaultMagicksaveBufferOptions() *MagicksaveBufferOptions {
+	return &MagicksaveBufferOptions{
+	}
+}
+
+// MagicksaveBuffer vips_magicksave_buffer save image to magick buffer
+func (r *Image) MagicksaveBuffer(options *MagicksaveBufferOptions) ([]byte, error) {
+	if options != nil {
+		buf, err := vipsgenMagicksaveBufferWithOptions(r.image, options.Format, options.Quality, options.OptimizeGifFrames, options.OptimizeGifTransparency, options.Bitdepth, options.Keep, options.Background, options.PageHeight, options.Profile)
+		if err != nil {
+			return nil, err
+		}
+		return buf, nil
+	}
+	buf, err := vipsgenMagicksaveBuffer(r.image)
+	if err != nil {
+		return nil, err
+	}
+	return buf, nil
+}
+
+// JxlsaveOptions optional arguments for vips_jxlsave
+type JxlsaveOptions struct {
+	// Tier Decode speed tier
+	Tier int
+	// Distance Target butteraugli distance
+	Distance float64
+	// Effort Encoding effort
+	Effort int
+	// Lossless Enable lossless compression
+	Lossless bool
+	// Q Quality factor
+	Q int
+	// Keep Which metadata to retain
+	Keep Keep
+	// Background Background value
+	Background []float64
+	// PageHeight Set page height for multipage save
+	PageHeight int
+	// Profile Filename of ICC profile to embed
+	Profile string
+}
+
+// DefaultJxlsaveOptions creates default value for vips_jxlsave optional arguments
+func DefaultJxlsaveOptions() *JxlsaveOptions {
+	return &JxlsaveOptions{
+		Distance: 1,
+		Effort: 7,
+		Q: 75,
+	}
+}
+
+// Jxlsave vips_jxlsave save image in JPEG-XL format
+func (r *Image) Jxlsave(filename string, options *JxlsaveOptions) (error) {
+	if options != nil {
+		err := vipsgenJxlsaveWithOptions(r.image, filename, options.Tier, options.Distance, options.Effort, options.Lossless, options.Q, options.Keep, options.Background, options.PageHeight, options.Profile)
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+	err := vipsgenJxlsave(r.image, filename)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// JxlsaveBufferOptions optional arguments for vips_jxlsave_buffer
+type JxlsaveBufferOptions struct {
+	// Tier Decode speed tier
+	Tier int
+	// Distance Target butteraugli distance
+	Distance float64
+	// Effort Encoding effort
+	Effort int
+	// Lossless Enable lossless compression
+	Lossless bool
+	// Q Quality factor
+	Q int
+	// Keep Which metadata to retain
+	Keep Keep
+	// Background Background value
+	Background []float64
+	// PageHeight Set page height for multipage save
+	PageHeight int
+	// Profile Filename of ICC profile to embed
+	Profile string
+}
+
+// DefaultJxlsaveBufferOptions creates default value for vips_jxlsave_buffer optional arguments
+func DefaultJxlsaveBufferOptions() *JxlsaveBufferOptions {
+	return &JxlsaveBufferOptions{
+		Distance: 1,
+		Effort: 7,
+		Q: 75,
+	}
+}
+
+// JxlsaveBuffer vips_jxlsave_buffer save image in JPEG-XL format
+func (r *Image) JxlsaveBuffer(options *JxlsaveBufferOptions) ([]byte, error) {
+	if options != nil {
+		buf, err := vipsgenJxlsaveBufferWithOptions(r.image, options.Tier, options.Distance, options.Effort, options.Lossless, options.Q, options.Keep, options.Background, options.PageHeight, options.Profile)
+		if err != nil {
+			return nil, err
+		}
+		return buf, nil
+	}
+	buf, err := vipsgenJxlsaveBuffer(r.image)
 	if err != nil {
 		return nil, err
 	}

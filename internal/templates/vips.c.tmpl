@@ -20,6 +20,11 @@ static int set_double_param(VipsOperation *operation, const char *name, double v
     return 0;
 }
 
+static int set_guint64_param(VipsOperation *operation, const char *name, guint64 value) {
+    if (value != 0) { return vips_object_set(VIPS_OBJECT(operation), name, value, NULL); }
+    return 0;
+}
+
 static int set_string_param(VipsOperation *operation, const char *name, const char *value) {
     if (value != NULL && strlen(value) > 0) { return vips_object_set(VIPS_OBJECT(operation), name, value, NULL); }
     return 0;
