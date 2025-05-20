@@ -3,6 +3,9 @@ package introspection
 // #include "introspection.h"
 import "C"
 import (
+	"encoding/json"
+	"log"
+	"os"
 	"strings"
 	"sync"
 	"unicode"
@@ -135,4 +138,19 @@ func cTypeCheck(gtype C.GType, name string) bool {
 
 	cTypeName := C.GoString(cTypeNamePtr)
 	return cTypeName == name
+}
+
+func debugJson(data any, filename string) {
+	// Debug: Write the parsed GIR to a JSON file
+	jsonData, err := json.MarshalIndent(data, "", "  ")
+	if err != nil {
+		log.Printf("Warning: failed to marshal Enum Types to JSON: %v", err)
+	} else {
+		err = os.WriteFile(filename, jsonData, 0644)
+		if err != nil {
+			log.Printf("Warning: failed to write %s: %v", filename, err)
+		} else {
+			log.Printf("Wrote introspected Enum Types to %s", filename)
+		}
+	}
 }
