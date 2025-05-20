@@ -1,16 +1,14 @@
-name: Generate
+name: CI
 
 on:
   push:
     paths:
       - 'internal/**'
       - 'cmd/**'
-      - '.github/workflows/generate.yml'
   pull_request:
     paths:
       - 'internal/**'
       - 'cmd/**'
-      - '.github/workflows/generate.yml'
   workflow_dispatch:  # Allow manual trigger
 
 jobs:
@@ -115,4 +113,3 @@ jobs:
           commit_user_name: GitHub Actions
           commit_user_email: actions@github.com
           commit_author: GitHub Actions <actions@github.com>
-          push_options: '--force'
