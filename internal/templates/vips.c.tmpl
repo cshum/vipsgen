@@ -45,6 +45,16 @@ static int set_array_image_param(VipsOperation *operation, const char *name, Vip
     return 0;
 }
 
+static int set_interpolate_param(VipsOperation *operation, const char *name, VipsInterpolate *value) {
+    if (value != NULL) { return vips_object_set(VIPS_OBJECT(operation), name, value, NULL); }
+    return 0;
+}
+
+static int set_source_param(VipsOperation *operation, const char *name, VipsSource *value) {
+    if (value != NULL) { return vips_object_set(VIPS_OBJECT(operation), name, value, NULL); }
+    return 0;
+}
+
 static int vipsgen_operation_execute(VipsOperation **operation, ...) {
     va_list ap;
     if (vips_cache_operation_buildp(operation)) {

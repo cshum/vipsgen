@@ -1467,12 +1467,31 @@ func generateCFunctionImplementation(op introspection.Operation) string {
 			} else if opt.GoType == "*C.VipsImage" {
 				optionalParamsList = append(optionalParamsList,
 					fmt.Sprintf("set_image_param(operation, \"%s\", %s)", opt.Name, opt.Name))
+			} else if opt.GoType == "*Interpolate" || opt.GoType == "*C.VipsInterpolate" {
+				// Handle interpolate parameters
+				optionalParamsList = append(optionalParamsList,
+					fmt.Sprintf("set_interpolate_param(operation, \"%s\", %s)", opt.Name, opt.Name))
+			} else if opt.IsSource {
+				// Handle source parameters
+				optionalParamsList = append(optionalParamsList,
+					fmt.Sprintf("set_source_param(operation, \"%s\", %s)", opt.Name, opt.Name))
 			} else if opt.GoType == "int" {
 				optionalParamsList = append(optionalParamsList,
 					fmt.Sprintf("set_int_param(operation, \"%s\", %s)", opt.Name, opt.Name))
 			} else if opt.GoType == "float64" {
 				optionalParamsList = append(optionalParamsList,
 					fmt.Sprintf("set_double_param(operation, \"%s\", %s)", opt.Name, opt.Name))
+			} else if strings.Contains(opt.CType, "*") || strings.Contains(opt.GoType, "*") {
+				// This is a pointer type - only set if not NULL
+				optionalParamsList = append(optionalParamsList,
+					fmt.Sprintf("(%s != NULL ? vips_object_set(VIPS_OBJECT(operation), \"%s\", %s, NULL) : 0)",
+						opt.Name, opt.Name, opt.Name))
+			} else {
+				// For non-pointer scalar types, we should use a type-appropriate check
+				// Default to setting all non-zero values
+				optionalParamsList = append(optionalParamsList,
+					fmt.Sprintf("(%s != 0 ? vips_object_set(VIPS_OBJECT(operation), \"%s\", %s, NULL) : 0)",
+						opt.Name, opt.Name, opt.Name))
 			}
 		}
 
@@ -1497,7 +1516,6 @@ func generateCFunctionImplementation(op introspection.Operation) string {
 		}
 
 		// Use helper function to execute the operation with output parameters
-
 		// Collect the output parameters
 		var outputParams []string
 		for _, arg := range op.Arguments {
