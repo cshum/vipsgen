@@ -96,6 +96,10 @@ jobs:
           # Check what was generated
           ls -la ./vips
 
+      - name: Run tests
+        run: |
+          $(CGO_CFLAGS_ALLOW="-Xpreprocessor") go test -v ./vips/...
+
       - name: Commit generated files
         if: github.event_name != 'pull_request'
         uses: stefanzweifel/git-auto-commit-action@v4

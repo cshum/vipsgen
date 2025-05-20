@@ -5,11 +5,11 @@
 
 // Prerequisites to build, get outputs and cleanup a vips operation
 
-int vipsgen_operation_execute(VipsOperation **operation, ...) {
+int vipsgen_operation_execute(VipsOperation *operation, ...) {
     va_list ap;
-    if (vips_cache_operation_buildp(operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(*operation));
-        g_object_unref(*operation);
+    if (vips_cache_operation_buildp(&operation)) {
+        vips_object_unref_outputs(VIPS_OBJECT(operation));
+        g_object_unref(operation);
         return 1;
     }
     va_start(ap, operation);
@@ -17,12 +17,30 @@ int vipsgen_operation_execute(VipsOperation **operation, ...) {
     while ((name = va_arg(ap, const char *)) != NULL) {
         void *value = va_arg(ap, void *);
         if (value != NULL) {
-            g_object_get(VIPS_OBJECT(*operation), name, value, NULL);
+            g_object_get(VIPS_OBJECT(operation), name, value, NULL);
         }
     }
     va_end(ap);
-    vips_object_unref_outputs(VIPS_OBJECT(*operation));
-    g_object_unref(*operation);
+    vips_object_unref_outputs(VIPS_OBJECT(operation));
+    g_object_unref(operation);
+    return 0;
+}
+
+int vipsgen_operation_save_buffer(VipsOperation *operation, void** buf, size_t* len) {
+    if (vips_cache_operation_buildp(&operation)) {
+        vips_object_unref_outputs(VIPS_OBJECT(operation));
+        g_object_unref(operation);
+        return 1;
+    }
+    VipsBlob *blob;
+    g_object_get(VIPS_OBJECT(operation), "buffer", &blob, NULL);
+    VipsArea *area = VIPS_AREA(blob);
+    *buf = (char *)(area->data);
+    *len = area->length;
+    area->free_fn = NULL;
+    vips_area_unref(area);
+    vips_object_unref_outputs(VIPS_OBJECT(operation));
+    g_object_unref(operation);
     return 0;
 }
 
