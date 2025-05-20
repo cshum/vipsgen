@@ -4,6 +4,8 @@
 #include <vips/vips.h>
 #include <vips/vector.h>
 
+int vipsgen_operation_execute(VipsOperation **operation, ...);
+
 {{range .Operations}}
 {{generateCFunctionDeclaration .}}
 {{end}}
