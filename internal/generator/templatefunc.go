@@ -1501,32 +1501,29 @@ func generateCFunctionImplementation(op introspection.Operation) string {
 			result.WriteString("        return 1;\n    }\n")
 		}
 
-		// Collect the output parameters
-		var outputParams []string
-		for _, arg := range op.Arguments {
-			if arg.IsOutput {
-				if arg.Name == "out" {
-					outputParams = append(outputParams, "\"out\", out")
-				} else if arg.CType == "double*" {
-					outputParams = append(outputParams, fmt.Sprintf("\"%s\", %s", arg.Name, arg.Name))
-				} else if arg.CType == "int*" {
-					outputParams = append(outputParams, fmt.Sprintf("\"%s\", %s", arg.Name, arg.Name))
-				} else if arg.CType == "void**" && arg.Name == "buf" {
-					outputParams = append(outputParams, "\"buffer\", buf")
-				} else if arg.CType == "size_t*" && arg.Name == "len" {
-					outputParams = append(outputParams, "\"buffer_length\", len")
-				} else {
-					outputParams = append(outputParams, fmt.Sprintf("\"%s\", %s", arg.Name, arg.Name))
+		// Generate the call to the helper function
+		if strings.HasSuffix(op.Name, "save_buffer") {
+			result.WriteString(fmt.Sprintf("    int result = vipsgen_operation_save_buffer(operation, buf, len);\n"))
+		} else {
+			// Collect the output parameters
+			var outputParams []string
+			for _, arg := range op.Arguments {
+				if arg.IsOutput {
+					if arg.Name == "out" {
+						outputParams = append(outputParams, "\"out\", out")
+					} else if arg.CType == "double*" {
+						outputParams = append(outputParams, fmt.Sprintf("\"%s\", %s", arg.Name, arg.Name))
+					} else if arg.CType == "int*" {
+						outputParams = append(outputParams, fmt.Sprintf("\"%s\", %s", arg.Name, arg.Name))
+					} else {
+						outputParams = append(outputParams, fmt.Sprintf("\"%s\", %s", arg.Name, arg.Name))
+					}
 				}
 			}
+			// Add NULL terminator
+			outputParams = append(outputParams, "NULL")
+			result.WriteString(fmt.Sprintf("    int result = vipsgen_operation_execute(operation, %s);\n", strings.Join(outputParams, ", ")))
 		}
-
-		// Add NULL terminator
-		outputParams = append(outputParams, "NULL")
-
-		// Generate the call to the helper function
-		result.WriteString(fmt.Sprintf("    int result = vipsgen_operation_execute(&operation, %s);\n", strings.Join(outputParams, ", ")))
-
 		// Clean up array objects
 		hasArrays := false
 		for _, opt := range op.OptionalInputs {

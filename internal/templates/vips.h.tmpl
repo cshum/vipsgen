@@ -6,7 +6,8 @@
 
 // Prerequisites to build, get outputs and cleanup a vips operation
 
-int vipsgen_operation_execute(VipsOperation **operation, ...);
+int vipsgen_operation_execute(VipsOperation *operation, ...);
+int vipsgen_operation_save_buffer(VipsOperation *operation, void** buf, size_t* len);
 int vipsgen_set_source(VipsOperation *operation, const char *name, VipsSource *value);
 int vipsgen_set_int(VipsOperation *operation, const char *name, int value);
 int vipsgen_set_bool(VipsOperation *operation, const char *name, gboolean value);
