@@ -1498,7 +1498,7 @@ func generateCFunctionImplementation(op introspection.Operation) string {
 				}
 			}
 
-			result.WriteString("        return 1;\n    }\n\n")
+			result.WriteString("        return 1;\n    }\n")
 		}
 
 		// Collect the output parameters
