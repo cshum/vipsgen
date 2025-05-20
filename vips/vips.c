@@ -3,64 +3,9 @@
 #include "vips.h"
 #include <unistd.h>
 
-// Prerequisite functions to build, get outputs and cleanup a vips operation
+// Prerequisites to build, get outputs and cleanup a vips operation
 
-static int vipsgen_set_int(VipsOperation *operation, const char *name, int value) {
-    if (value != 0) { return vips_object_set(VIPS_OBJECT(operation), name, value, NULL); }
-    return 0;
-}
-
-static int vipsgen_set_bool(VipsOperation *operation, const char *name, gboolean value) {
-    if (value) { return vips_object_set(VIPS_OBJECT(operation), name, value, NULL); }
-    return 0;
-}
-
-static int vipsgen_set_double(VipsOperation *operation, const char *name, double value) {
-    if (value != 0.0) { return vips_object_set(VIPS_OBJECT(operation), name, value, NULL); }
-    return 0;
-}
-
-static int vipsgen_set_guint64(VipsOperation *operation, const char *name, guint64 value) {
-    if (value != 0) { return vips_object_set(VIPS_OBJECT(operation), name, value, NULL); }
-    return 0;
-}
-
-static int vipsgen_set_string(VipsOperation *operation, const char *name, const char *value) {
-    if (value != NULL && strlen(value) > 0) { return vips_object_set(VIPS_OBJECT(operation), name, value, NULL); }
-    return 0;
-}
-
-static int vipsgen_set_image(VipsOperation *operation, const char *name, VipsImage *value) {
-    if (value != NULL) { return vips_object_set(VIPS_OBJECT(operation), name, value, NULL); }
-    return 0;
-}
-
-static int vipsgen_set_array_double(VipsOperation *operation, const char *name, VipsArrayDouble *value) {
-    if (value != NULL) { return vips_object_set(VIPS_OBJECT(operation), name, value, NULL); }
-    return 0;
-}
-
-static int vipsgen_set_array_int(VipsOperation *operation, const char *name, VipsArrayInt *value) {
-    if (value != NULL) { return vips_object_set(VIPS_OBJECT(operation), name, value, NULL); }
-    return 0;
-}
-
-static int vipsgen_set_array_image(VipsOperation *operation, const char *name, VipsArrayImage *value) {
-    if (value != NULL) { return vips_object_set(VIPS_OBJECT(operation), name, value, NULL); }
-    return 0;
-}
-
-static int vipsgen_set_interpolate(VipsOperation *operation, const char *name, VipsInterpolate *value) {
-    if (value != NULL) { return vips_object_set(VIPS_OBJECT(operation), name, value, NULL); }
-    return 0;
-}
-
-static int vipsgen_set_source(VipsOperation *operation, const char *name, VipsSource *value) {
-    if (value != NULL) { return vips_object_set(VIPS_OBJECT(operation), name, value, NULL); }
-    return 0;
-}
-
-static int vipsgen_operation_execute(VipsOperation **operation, ...) {
+int vipsgen_operation_execute(VipsOperation **operation, ...) {
     va_list ap;
     if (vips_cache_operation_buildp(operation)) {
         vips_object_unref_outputs(VIPS_OBJECT(*operation));
@@ -80,6 +25,63 @@ static int vipsgen_operation_execute(VipsOperation **operation, ...) {
     g_object_unref(*operation);
     return 0;
 }
+
+int vipsgen_set_int(VipsOperation *operation, const char *name, int value) {
+    if (value != 0) { return vips_object_set(VIPS_OBJECT(operation), name, value, NULL); }
+    return 0;
+}
+
+int vipsgen_set_bool(VipsOperation *operation, const char *name, gboolean value) {
+    if (value) { return vips_object_set(VIPS_OBJECT(operation), name, value, NULL); }
+    return 0;
+}
+
+int vipsgen_set_double(VipsOperation *operation, const char *name, double value) {
+    if (value != 0.0) { return vips_object_set(VIPS_OBJECT(operation), name, value, NULL); }
+    return 0;
+}
+
+int vipsgen_set_guint64(VipsOperation *operation, const char *name, guint64 value) {
+    if (value != 0) { return vips_object_set(VIPS_OBJECT(operation), name, value, NULL); }
+    return 0;
+}
+
+int vipsgen_set_string(VipsOperation *operation, const char *name, const char *value) {
+    if (value != NULL && strlen(value) > 0) { return vips_object_set(VIPS_OBJECT(operation), name, value, NULL); }
+    return 0;
+}
+
+int vipsgen_set_image(VipsOperation *operation, const char *name, VipsImage *value) {
+    if (value != NULL) { return vips_object_set(VIPS_OBJECT(operation), name, value, NULL); }
+    return 0;
+}
+
+int vipsgen_set_array_double(VipsOperation *operation, const char *name, VipsArrayDouble *value) {
+    if (value != NULL) { return vips_object_set(VIPS_OBJECT(operation), name, value, NULL); }
+    return 0;
+}
+
+int vipsgen_set_array_int(VipsOperation *operation, const char *name, VipsArrayInt *value) {
+    if (value != NULL) { return vips_object_set(VIPS_OBJECT(operation), name, value, NULL); }
+    return 0;
+}
+
+int vipsgen_set_array_image(VipsOperation *operation, const char *name, VipsArrayImage *value) {
+    if (value != NULL) { return vips_object_set(VIPS_OBJECT(operation), name, value, NULL); }
+    return 0;
+}
+
+int vipsgen_set_interpolate(VipsOperation *operation, const char *name, VipsInterpolate *value) {
+    if (value != NULL) { return vips_object_set(VIPS_OBJECT(operation), name, value, NULL); }
+    return 0;
+}
+
+int vipsgen_set_source(VipsOperation *operation, const char *name, VipsSource *value) {
+    if (value != NULL) { return vips_object_set(VIPS_OBJECT(operation), name, value, NULL); }
+    return 0;
+}
+
+// Generated operations
 
 
 int vipsgen_system(const char* cmd_format) {
@@ -5092,6 +5094,8 @@ int vipsgen_globalbalance_with_options(VipsImage* in, VipsImage** out, double ga
 }
 
 
+// Custom operations
+
 int image_new_from_source(VipsSourceCustom *source, VipsImage **out) {
   *out = vips_image_new_from_source((VipsSource*) source, "", NULL);
   if (!*out) return 1;
@@ -5402,3 +5406,4 @@ int remove_exif(VipsImage *in, VipsImage **out) {
   g_strfreev(fields);
   return 0;
 }
+

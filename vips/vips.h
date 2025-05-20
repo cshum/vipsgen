@@ -4,6 +4,22 @@
 #include <vips/vips.h>
 #include <vips/vector.h>
 
+// Prerequisites to build, get outputs and cleanup a vips operation
+
+int vipsgen_operation_execute(VipsOperation **operation, ...);
+int vipsgen_set_source(VipsOperation *operation, const char *name, VipsSource *value);
+int vipsgen_set_int(VipsOperation *operation, const char *name, int value);
+int vipsgen_set_bool(VipsOperation *operation, const char *name, gboolean value);
+int vipsgen_set_double(VipsOperation *operation, const char *name, double value);
+int vipsgen_set_guint64(VipsOperation *operation, const char *name, guint64 value);
+int vipsgen_set_string(VipsOperation *operation, const char *name, const char *value);
+int vipsgen_set_image(VipsOperation *operation, const char *name, VipsImage *value);
+int vipsgen_set_array_double(VipsOperation *operation, const char *name, VipsArrayDouble *value);
+int vipsgen_set_array_int(VipsOperation *operation, const char *name, VipsArrayInt *value);
+int vipsgen_set_array_image(VipsOperation *operation, const char *name, VipsArrayImage *value);
+int vipsgen_set_interpolate(VipsOperation *operation, const char *name, VipsInterpolate *value);
+
+// Generated operations
 
 int vipsgen_system(const char* cmd_format);
 int vipsgen_system_with_options(const char* cmd_format, VipsImage** in, int in_n, const char* out_format, const char* in_format);
@@ -763,16 +779,13 @@ int vipsgen_globalbalance(VipsImage* in, VipsImage** out);
 int vipsgen_globalbalance_with_options(VipsImage* in, VipsImage** out, double gamma, gboolean int_output);
 
 
+// Custom operations
+
 int image_new_from_source(VipsSourceCustom *source, VipsImage **out);
-
 int image_new_from_source_with_option(VipsSourceCustom *source, VipsImage **out, const char *option_string);
-
 int image_new_from_file(const char *name, VipsImage **out);
-
 int image_new_from_buffer(const void *buf, size_t len, VipsImage **out);
-
 int image_new_from_buffer_with_option(const void *buf, size_t len, VipsImage **out, const char *option_string);
-
 int image_new_from_memory(const void *buf, size_t len, int width, int height, int bands, VipsImage **out);
 
 int has_alpha_channel(VipsImage *image);
@@ -811,3 +824,4 @@ void set_image_delay(VipsImage *in, const int *array, int n);
 const char * get_meta_string(const VipsImage *image, const char *name);
 
 int remove_exif(VipsImage *in, VipsImage **out);
+
