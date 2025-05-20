@@ -1,4 +1,4 @@
-name: Generate libvips bindings
+name: Generate
 
 on:
   push:
@@ -11,7 +11,7 @@ on:
       - 'internal/**'
       - 'cmd/**'
       - '.github/workflows/generate.yml'
-  workflow_dispatch:
+  workflow_dispatch:  # Allow manual trigger
 
 jobs:
   generate:
@@ -20,6 +20,7 @@ jobs:
     env:
       CGO_CFLAGS_ALLOW: -Xpreprocessor
       VIPS_VERSION: 8.16.1
+      V: 1
 
     steps:
       - name: Set up Go
@@ -41,7 +42,8 @@ jobs:
           libopenslide-dev libcfitsio-dev liborc-0.4-dev libpango1.0-dev \
           libtiff5-dev libgsf-1-dev giflib-tools libwebp-dev libheif-dev \
           libopenjp2-7-dev libcgif-dev \
-          gobject-introspection libmagickwand-dev
+          gobject-introspection libgirepository1.0-dev \
+          libmagickwand-dev
 
       - name: Cache libvips
         uses: actions/cache@v3
@@ -71,6 +73,14 @@ jobs:
           sudo ninja -C _build install
           sudo ldconfig
 
+      - name: Verify vips and introspection
+        run: |
+          echo "Checking vips version and introspection files"
+          vips --version
+          ls -la /usr/local/share/gir-1.0/ || true
+          ls -la /usr/share/gir-1.0/ || true
+          pkg-config --modversion gobject-introspection-1.0 || true
+
       - name: Cache Go dependencies
         uses: actions/cache@v3
         with:
@@ -94,6 +104,8 @@ jobs:
           rm -rf vips || true
           mkdir -p vips
           ./bin/vipsgen -out ./vips
+          # Check what was generated
+          ls -la ./vips
 
       - name: Commit generated files
         uses: stefanzweifel/git-auto-commit-action@v4
