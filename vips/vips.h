@@ -4,8 +4,6 @@
 #include <vips/vips.h>
 #include <vips/vector.h>
 
-int vipsgen_operation_execute(VipsOperation **operation, ...);
-
 
 int vipsgen_system(const char* cmd_format);
 int vipsgen_system_with_options(const char* cmd_format, VipsImage** in, int in_n, const char* out_format, const char* in_format);
