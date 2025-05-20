@@ -1400,6 +1400,9 @@ func generateCFunctionImplementation(op introspection.Operation) string {
 			if arg.IsOutput {
 				continue // Skip output arguments, they'll be handled after build
 			}
+			if arg.IsInputN {
+				continue // Skip n
+			}
 
 			// Special handling for different types of arguments
 			if arg.IsArray {
