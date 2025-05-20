@@ -194,7 +194,7 @@ func vipsgenLinear(in *C.VipsImage, a []float64, b []float64) (*C.VipsImage, err
 	if cb != nil {
 		defer freeDoubleArray(cb)
 	}
-	if err := C.vipsgen_linear(in, &out, ca, cb, C.int(len(b))); err != 0 {
+	if err := C.vipsgen_linear(in, &out, ca, cb, C.int(len(a))); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
@@ -217,7 +217,7 @@ func vipsgenLinearWithOptions(in *C.VipsImage, a []float64, b []float64, uchar b
 	if cb != nil {
 		defer freeDoubleArray(cb)
 	}
-	if err := C.vipsgen_linear_with_options(in, &out, ca, cb, C.int(len(b)), C.int(boolToInt(uchar))); err != 0 {
+	if err := C.vipsgen_linear_with_options(in, &out, ca, cb, C.int(len(a)), C.int(boolToInt(uchar))); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
@@ -1312,7 +1312,7 @@ func vipsgenComposite(in []*C.VipsImage, mode []BlendMode) (*C.VipsImage, error)
 	if cmode != nil {
 		defer freeIntArray(cmode)
 	}
-	if err := C.vipsgen_composite((**C.VipsImage)(cin), &out, C.int(len(mode)), cmode); err != 0 {
+	if err := C.vipsgen_composite((**C.VipsImage)(cin), &out, C.int(len(in)), cmode); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
@@ -1349,7 +1349,7 @@ func vipsgenCompositeWithOptions(in []*C.VipsImage, mode []BlendMode, x []int, y
 	if cy != nil {
 		defer freeIntArray(cy)
 	}
-	if err := C.vipsgen_composite_with_options(cin, &out, C.int(len(mode)), cmode, cx, cxLength, cy, cyLength, C.VipsInterpretation(compositingSpace), C.int(boolToInt(premultiplied))); err != 0 {
+	if err := C.vipsgen_composite_with_options(cin, &out, C.int(len(in)), cmode, cx, cxLength, cy, cyLength, C.VipsInterpretation(compositingSpace), C.int(boolToInt(premultiplied))); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
