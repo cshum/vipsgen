@@ -1,21 +1,10 @@
 name: CI
 
-on:
-  push:
-    paths:
-      - 'internal/**'
-      - '.github/workflows/**'
-      - 'cmd/**'
-  pull_request:
-    paths:
-      - 'internal/**'
-      - '.github/workflows/**'
-      - 'cmd/**'
-  workflow_dispatch:
+on: [push, pull_request]
 
 jobs:
   generate:
-    name: Test and Generate
+    name: CI
     runs-on: ubuntu-22.04
     env:
       CGO_CFLAGS_ALLOW: -Xpreprocessor
