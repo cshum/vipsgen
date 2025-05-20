@@ -1,0 +1,106 @@
+name: Generate libvips bindings
+
+on:
+  push:
+    paths:
+      - 'internal/**'
+      - 'cmd/**'
+      - '.github/workflows/generate.yml'
+  pull_request:
+    paths:
+      - 'internal/**'
+      - 'cmd/**'
+      - '.github/workflows/generate.yml'
+  workflow_dispatch:
+
+jobs:
+  generate:
+    name: Generate Vips Package
+    runs-on: ubuntu-22.04
+    env:
+      CGO_CFLAGS_ALLOW: -Xpreprocessor
+      VIPS_VERSION: 8.16.1
+
+    steps:
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: ^1.24
+
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+          meson ninja-build \
+          libglib2.0-dev libexpat-dev librsvg2-dev libpng-dev \
+          libjpeg-turbo8-dev libimagequant-dev libfftw3-dev \
+          libpoppler-glib-dev libxml2-dev \
+          libopenslide-dev libcfitsio-dev liborc-0.4-dev libpango1.0-dev \
+          libtiff5-dev libgsf-1-dev giflib-tools libwebp-dev libheif-dev \
+          libopenjp2-7-dev libcgif-dev \
+          gobject-introspection libmagickwand-dev
+
+      - name: Cache libvips
+        uses: actions/cache@v3
+        with:
+          path: vips-${{ env.VIPS_VERSION }}
+          key: ${{ runner.os }}-vips-introspection-magick-${{ env.V }}-${{ env.VIPS_VERSION }}
+          restore-keys: |
+            ${{ runner.os }}-vips-introspection-magick-${{ env.V }}-
+
+      - name: Build libvips from source
+        run: |
+          if [ ! -d "vips-${{ env.VIPS_VERSION }}" ]
+          then
+            wget https://github.com/libvips/libvips/releases/download/v${{ env.VIPS_VERSION }}/vips-${{ env.VIPS_VERSION }}.tar.xz
+            tar xf vips-${{ env.VIPS_VERSION }}.tar.xz
+          fi
+          cd vips-${{ env.VIPS_VERSION }}
+          meson setup _build \
+          --buildtype=release \
+          --strip \
+          --prefix=/usr/local \
+          --libdir=lib \
+          -Dgtk_doc=false \
+          -Dmagick=enabled \
+          -Dintrospection=enabled
+          ninja -C _build
+          sudo ninja -C _build install
+          sudo ldconfig
+
+      - name: Cache Go dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
+      - name: Get dependencies
+        run: go mod download
+
+      - name: Build vipsgen
+        run: |
+          mkdir -p bin
+          go build -o bin/vipsgen cmd/vipsgen/main.go
+
+      - name: Generate vips package
+        run: |
+          rm -rf vips || true
+          mkdir -p vips
+          ./bin/vipsgen -out ./vips
+
+      - name: Commit generated files
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: "chore: update generated vips package"
+          file_pattern: "vips"
+          commit_user_name: GitHub Actions
+          commit_user_email: actions@github.com
+          commit_author: GitHub Actions <actions@github.com>
+          push_options: '--force'
