@@ -9,10 +9,12 @@ import (
 
 // ImageTypeInfo represents information about an image type
 type ImageTypeInfo struct {
-	TypeName string // Short name (e.g., "gif")
-	EnumName string // Go enum name (e.g., "ImageTypeGIF")
-	MimeType string // MIME type (e.g., "image/gif")
-	Order    int    // Position in the enum
+	TypeName  string // Short name (e.g., "gif")
+	EnumName  string // Go enum name (e.g., "ImageTypeGIF")
+	MimeType  string // MIME type (e.g., "image/gif")
+	Order     int    // Position in the enum
+	HasLoader bool
+	HasSaver  bool
 }
 
 // DiscoverImageTypes discovers supported image types in libvips
@@ -38,7 +40,7 @@ func (v *Introspection) DiscoverImageTypes() []ImageTypeInfo {
 		{"webp", "image/webp", ""},
 		{"heif", "image/heif", ""},
 		{"bmp", "image/bmp", ""},
-		// The AVIF format needs special handling - see below
+		// The AVIF format needs special handling
 		{"jp2k", "image/jp2", ""},
 	}
 
@@ -57,21 +59,23 @@ func (v *Introspection) DiscoverImageTypes() []ImageTypeInfo {
 		}
 
 		cLoader := C.CString(opName)
-		loaderExists := int(C.vips_type_find(cachedCString("VipsOperation"), cLoader)) != 0
+		hasLoader := int(C.vips_type_find(cachedCString("VipsOperation"), cLoader)) != 0
 		C.free(unsafe.Pointer(cLoader))
 
 		saverName := typeInfo.TypeName + "save"
 		cSaver := C.CString(saverName)
-		saverExists := int(C.vips_type_find(cachedCString("VipsOperation"), cSaver)) != 0
+		hasSaver := int(C.vips_type_find(cachedCString("VipsOperation"), cSaver)) != 0
 		C.free(unsafe.Pointer(cSaver))
 
 		// If either loader or saver exists, this format is supported
-		if loaderExists || saverExists {
+		if hasLoader || hasSaver {
 			imageType := ImageTypeInfo{
-				TypeName: typeInfo.TypeName,
-				EnumName: enumName,
-				MimeType: typeInfo.MimeType,
-				Order:    currentOrder,
+				TypeName:  typeInfo.TypeName,
+				EnumName:  enumName,
+				MimeType:  typeInfo.MimeType,
+				Order:     currentOrder,
+				HasLoader: hasLoader,
+				HasSaver:  hasSaver,
 			}
 			imageTypes = append(imageTypes, imageType)
 			v.discoveredImageTypes[typeInfo.TypeName] = imageType
@@ -93,6 +97,8 @@ func (v *Introspection) DiscoverImageTypes() []ImageTypeInfo {
 		})
 		currentOrder++
 	}
+
+	debugJson(imageTypes, "debug_image_types.json")
 
 	return imageTypes
 }
@@ -162,6 +168,7 @@ func (v *Introspection) determineImageTypeStringFromOperation(opName string) str
 			format = parts[0]
 		}
 	} else if strings.HasSuffix(opName, "save") ||
+		strings.HasSuffix(opName, "save_target") ||
 		strings.HasSuffix(opName, "save_buffer") {
 		parts := strings.Split(opName, "save")
 		if len(parts) > 1 {
@@ -176,26 +183,4 @@ func (v *Introspection) determineImageTypeStringFromOperation(opName string) str
 	}
 	// Default fallback
 	return "ImageTypeUnknown"
-}
-
-// getMimeType returns the MIME type for a given image format
-func (v *Introspection) getMimeType(typeName string) string {
-	mimeTypes := map[string]string{
-		"gif":  "image/gif",
-		"jpeg": "image/jpeg",
-		"pdf":  "application/pdf",
-		"png":  "image/png",
-		"svg":  "image/svg+xml",
-		"tiff": "image/tiff",
-		"webp": "image/webp",
-		"heif": "image/heif",
-		"bmp":  "image/bmp",
-		"avif": "image/avif",
-		"jp2k": "image/jp2",
-	}
-
-	if mime, ok := mimeTypes[typeName]; ok {
-		return mime
-	}
-	return ""
 }

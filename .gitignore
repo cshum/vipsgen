@@ -16,4 +16,5 @@ repomix-output.xml
 vips
 debug_enums.json
 debug_operations.json
+debug_image_types.json
 dancing-banana.gif
