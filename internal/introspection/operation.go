@@ -172,6 +172,7 @@ func (v *Introspection) DiscoverOperationArguments(opName string) ([]Argument, e
 
 	// Detect if we need to add an 'n' parameter
 	hasArrayInput := -1
+	hasFirstArrayInput := -1
 	hasArrayNOutput := -1
 
 	// Second pass: create Go arguments and add 'n' parameter if needed
@@ -236,6 +237,9 @@ func (v *Introspection) DiscoverOperationArguments(opName string) ([]Argument, e
 		}
 		if isArray && isInput && required && !isAffineMatrix {
 			hasArrayInput = i
+			if hasFirstArrayInput < 0 {
+				hasFirstArrayInput = i
+			}
 		}
 		if (isArray || (hasArrayInput >= 0 && isImage)) && isOutput && required {
 			hasArrayNOutput = i
@@ -404,8 +408,8 @@ func (v *Introspection) DiscoverOperationArguments(opName string) ([]Argument, e
 			i = len(goArgs)
 		}
 		var nFrom string
-		if hasArrayInput >= 0 && hasArrayInput < len(goArgs) && goArgs[hasArrayInput].IsArray {
-			nFrom = goArgs[hasArrayInput].Name
+		if hasFirstArrayInput >= 0 && hasFirstArrayInput < len(goArgs) && goArgs[hasFirstArrayInput].IsArray {
+			nFrom = goArgs[hasFirstArrayInput].Name
 		}
 		var nParam Argument
 		if hasArrayNOutput >= 0 && !goArgs[hasArrayNOutput].IsImage {
