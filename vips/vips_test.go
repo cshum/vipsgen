@@ -506,8 +506,8 @@ func TestOperationComposition(t *testing.T) {
 		t.Logf("Composite2 operation failed: %v", err)
 	} else {
 		t.Log("Composite2 operation succeeded")
+		composite.Close()
 	}
-	composite.Close()
 }
 
 // TestLabel tests the label functionality
