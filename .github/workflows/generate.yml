@@ -110,7 +110,7 @@ jobs:
       - name: Commit generated files
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
-          commit_message: "chore: update generated vips package"
+          commit_message: "build: update generated vips package"
           file_pattern: "vips"
           commit_user_name: GitHub Actions
           commit_user_email: actions@github.com
