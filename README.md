@@ -30,8 +30,6 @@ Note: Code generation requires libvips to be built with GObject introspection su
 
 ## Quick Start
 
-### Option 1: Use the pre-generated library
-
 Simply import the package directly:
 
 ```go
@@ -83,9 +81,9 @@ func main() {
 }
 ```
 
-### Option 2: Generate your own bindings
+## Generate Code
 
-For maximum compatibility with your specific libvips installation:
+Generate code for your specific libvips installation:
 
 1. Generate the bindings:
 
@@ -106,7 +104,6 @@ import (
     "yourproject/vips"
 )
 
-```
 ```
 
 ## How It Works
