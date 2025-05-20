@@ -1,40 +1,22 @@
 # vipsgen
 
-A Go code generator for libvips bindings—solving the maintenance and compatibility challenges of manual bindings.
+Go binding generator for [libvips](https://github.com/libvips/libvips), a fast and efficient image processing library.
 
-## Overview
+Existing Go libvips bindings rely on manually written code that is often incomplete, error-prone, and difficult to maintain as libvips evolves. vipsgen aims to solve this problem by using GObject introspection to automatically generate type-safe, efficient, and fully documented Go bindings that adapt to your specific libvips installation.
 
-vipsgen automatically generates Go bindings for [libvips](https://github.com/libvips/libvips), a fast image processing library. Unlike existing Go libraries that rely on manual CGO bindings, vipsgen takes a true Go approach by using code generation to create bindings that automatically adapt to libvips changes.
-
-## Why vipsgen?
-
-The traditional approach to Go bindings for C libraries like libvips has significant drawbacks:
-
-- **Manual maintenance burden**: Existing libraries require manual updates when libvips adds or changes operations
-- **Build inconsistencies**: Different build environments and libvips versions can cause unexpected behavior
-- **Incomplete coverage**: Manual bindings typically cover only a subset of libvips functionality
-- **Incompatibility issues**: Breaking changes in libvips often lead to broken Go bindings
-
-vipsgen solves these problems by:
-
-- **Introspecting libvips at build time**: Dynamically discovers available operations
-- **Generating type-safe bindings**: Creates Go code that matches the exact API of your libvips installation
-- **Automating updates**: When libvips changes, regenerate your bindings with a single command
-- **Following Go idioms**: Uses code generation, which is the Go way of solving interface challenges
+vipsgen provides a pre-generated library you can import directly (`github.com/cshum/vipsgen/vips`), but also allows you to generate bindings for your specific libvips installation.
 
 ## Features
 
-- **Full Coverage**: Automatically generates bindings for all available libvips operations
+- **Coverage**: Comprehensive bindings that cover most of the libvips operations, with allowing custom code for a few complex operations
 - **Type-Safe**: Generates proper Go types for libvips enums and structs
 - **Idiomatic**: Creates clean, Go-style APIs that feel natural to use
-- **Embedded Templates**: Includes templates in the binary for easy distribution
-- **Customizable**: Override or exclude specific operations when needed
-- **Zero Dependencies**: Just needs libvips and Go
+- **Source Support**: Includes VipsSource bindings with `io.ReadCloser` integration for streaming images
 
 ## Installation
 
 ```bash
-go install github.com/yourusername/vipsgen/cmd/vipsgen@latest
+go install github.com/cshum/vipsgen/cmd/vipsgen@latest
 ```
 
 ## Requirements
@@ -42,51 +24,89 @@ go install github.com/yourusername/vipsgen/cmd/vipsgen@latest
 - Go 1.16+
 - libvips 8.10+
 - pkg-config
+- **GObject introspection support** enabled for libvips
+
+Note: Code generation requires libvips to be built with GObject introspection support. Most package managers include this by default, but custom builds may need to enable it explicitly.
 
 ## Quick Start
 
-1. Generate the bindings:
+### Option 1: Use the pre-generated library
 
-```bash
-# Using embedded templates (simplest)
-vipsgen -out ./vips
-
-# Or with custom templates
-vipsgen -templates ./my-templates -out ./vips
-```
-
-2. Use the generated code in your project:
+Simply import the package directly:
 
 ```go
 package main
 
 import (
 	"fmt"
-	"github.com/yourusername/vips"
+	"log"
+	"net/http"
+	"os"
+	"github.com/cshum/vipsgen/vips"
 )
 
 func main() {
-	// Initialize vips
-	vips.Initialize()
-	defer vips.Shutdown()
-
-	// Load an image
-	image, err := vips.NewImageFromFile("input.jpg")
+	// Fetch an image from URL
+	resp, err := http.Get("https://raw.githubusercontent.com/cshum/imagor/master/testdata/gopher.png")
 	if err != nil {
-		panic(err)
+		log.Fatalf("Failed to fetch image: %v", err)
 	}
-	defer image.Close()
+
+	// Create source from io.ReadCloser
+	source := vips.NewSource(resp.Body)
+	defer source.Close() // source needs to remain available during image lifetime
+
+	// Load image from source
+	image, err := vips.NewImageFromSource(source, nil)
+	if err != nil {
+		log.Fatalf("Failed to load image: %v", err)
+	}
+	defer image.Close() // always close images to free memory
 
 	// Resize the image
 	if err := image.Resize(0.5, nil); err != nil {
-		panic(err)
+		log.Fatalf("Failed to resize image: %v", err)
 	}
 
-	// Save the result
-	if err := image.WriteToFile("output.jpg", vips.NewJpegSaveParams()); err != nil {
-		panic(err)
+	// Save the result as WebP
+	buf, err := image.WebpsaveBuffer(nil)
+	if err != nil {
+		log.Fatalf("Failed to save image as WebP: %v", err)
 	}
+
+	// Write to file
+	if err := os.WriteFile("resized-gopher.webp", buf, 0666); err != nil {
+		log.Fatalf("Failed to write file: %v", err)
+	}
+
+	fmt.Println("Successfully resized image to resized-gopher.webp")
 }
+```
+
+### Option 2: Generate your own bindings
+
+For maximum compatibility with your specific libvips installation:
+
+1. Generate the bindings:
+
+```bash
+# Using embedded templates (simplest)
+vipsgen -out ./myvips
+
+# Or with custom templates
+vipsgen -templates ./my-templates -out ./myvips
+```
+
+2. Use your custom-generated code:
+
+```go
+package main
+
+import (
+    "yourproject/vips"
+)
+
+```
 ```
 
 ## How It Works
@@ -106,10 +126,10 @@ The result is a complete, type-safe, and efficient binding to libvips that stays
 Usage: vipsgen [options]
 
 Options:
-  -out string            Output directory (default "./out")
-  -templates string      Template directory (uses embedded templates if not specified)
-  -extract               Extract embedded templates and exit
-  -extract-dir string    Directory to extract templates to (default "./templates")
+-out string            Output directory (default "./out")
+-templates string      Template directory (uses embedded templates if not specified)
+-extract               Extract embedded templates and exit
+-extract-dir string    Directory to extract templates to (default "./templates")
 ```
 
 ## Contributing
