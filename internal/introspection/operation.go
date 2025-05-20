@@ -132,7 +132,7 @@ func (v *Introspection) DiscoverOperations() []Operation {
 
 		if strings.Contains(op.Name, "_target") ||
 			strings.Contains(op.Name, "_mime") ||
-			strings.Contains(op.Name, "fitsload") {
+			strings.Contains(op.Name, "fitsload_source") {
 			fmt.Printf("Excluded operation: vips_%s \n", op.Name)
 			excludedCount++
 			continue
