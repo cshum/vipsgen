@@ -1297,7 +1297,6 @@ func generateCFunctionDeclaration(op introspection.Operation) string {
 // generateCFunctionImplementation generates C implementations for vips operations
 func generateCFunctionImplementation(op introspection.Operation) string {
 	var result strings.Builder
-
 	// Handle basic function (no options)
 	if len(op.Arguments) == 0 {
 		result.WriteString(fmt.Sprintf("int vipsgen_%s() {\n", op.Name))
@@ -1441,60 +1440,52 @@ func generateCFunctionImplementation(op introspection.Operation) string {
 			}
 		}
 
-		// Build and run the operation
-		result.WriteString("    if (vips_cache_operation_buildp(&operation)) {\n")
+		result.WriteString("\n")
 
-		// Free all array resources on error
-		for _, cleanupOpt := range op.OptionalInputs {
-			if strings.HasPrefix(cleanupOpt.GoType, "[]") {
-				arrayType := getArrayType(cleanupOpt.GoType)
-				if arrayType != "unknown" {
-					result.WriteString(fmt.Sprintf("        if (%s_array != NULL) { vips_area_unref(VIPS_AREA(%s_array)); }\n", cleanupOpt.Name, cleanupOpt.Name))
-				}
-			}
-		}
-
-		result.WriteString("        vips_object_unref_outputs(VIPS_OBJECT(operation));\n")
-		result.WriteString("        g_object_unref(operation);\n")
-		result.WriteString("        return 1;\n    }\n")
-
-		// Get output parameters
-		hasOutputs := false
+		// Collect the output parameters
+		var outputParams []string
 		for _, arg := range op.Arguments {
 			if arg.IsOutput {
-				hasOutputs = true
 				if arg.Name == "out" {
-					result.WriteString("    g_object_get(VIPS_OBJECT(operation), \"out\", out, NULL);\n")
+					outputParams = append(outputParams, "\"out\", out")
 				} else if arg.CType == "double*" {
-					result.WriteString(fmt.Sprintf("    g_object_get(VIPS_OBJECT(operation), \"%s\", %s, NULL);\n", arg.Name, arg.Name))
+					outputParams = append(outputParams, fmt.Sprintf("\"%s\", %s", arg.Name, arg.Name))
 				} else if arg.CType == "int*" {
-					result.WriteString(fmt.Sprintf("    g_object_get(VIPS_OBJECT(operation), \"%s\", %s, NULL);\n", arg.Name, arg.Name))
+					outputParams = append(outputParams, fmt.Sprintf("\"%s\", %s", arg.Name, arg.Name))
 				} else if arg.CType == "void**" && arg.Name == "buf" {
-					result.WriteString("    g_object_get(VIPS_OBJECT(operation), \"buffer\", buf, NULL);\n")
+					outputParams = append(outputParams, "\"buffer\", buf")
 				} else if arg.CType == "size_t*" && arg.Name == "len" {
-					result.WriteString("    g_object_get(VIPS_OBJECT(operation), \"buffer_length\", len, NULL);\n")
+					outputParams = append(outputParams, "\"buffer_length\", len")
 				} else {
-					result.WriteString(fmt.Sprintf("    g_object_get(VIPS_OBJECT(operation), \"%s\", %s, NULL);\n", arg.Name, arg.Name))
+					outputParams = append(outputParams, fmt.Sprintf("\"%s\", %s", arg.Name, arg.Name))
 				}
 			}
 		}
 
-		// Clean up array objects
+		// Add NULL terminator
+		outputParams = append(outputParams, "NULL")
+
+		// Clean up array objects in case of error
+		cleanupArraysCode := ""
 		for _, opt := range op.OptionalInputs {
 			if strings.HasPrefix(opt.GoType, "[]") {
 				arrayType := getArrayType(opt.GoType)
 				if arrayType != "unknown" {
-					result.WriteString(fmt.Sprintf("    if (%s_array != NULL) { vips_area_unref(VIPS_AREA(%s_array)); }\n", opt.Name, opt.Name))
+					cleanupArraysCode += fmt.Sprintf("    if (%s_array != NULL) { vips_area_unref(VIPS_AREA(%s_array)); }\n", opt.Name, opt.Name)
 				}
 			}
 		}
 
-		// Clean up operation
-		if hasOutputs {
-			result.WriteString("    vips_object_unref_outputs(VIPS_OBJECT(operation));\n")
+		// Generate the call to the helper function
+		result.WriteString(fmt.Sprintf("    int result = vipsgen_operation_execute(&operation, %s);\n", strings.Join(outputParams, ", ")))
+
+		// Clean up array objects
+		if cleanupArraysCode != "" {
+			result.WriteString("\n")
+			result.WriteString(cleanupArraysCode)
 		}
-		result.WriteString("    g_object_unref(operation);\n")
-		result.WriteString("    return 0;\n}")
+
+		result.WriteString("    return result;\n}")
 	}
 
 	return result.String()
