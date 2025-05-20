@@ -1645,8 +1645,8 @@ int vipsgen_affine_with_options(VipsImage* in, VipsImage** out, double a, double
     VipsArrayInt *oarea_array = vips_array_int_new(oarea, oarea_n);
     VipsArrayDouble *background_array = vips_array_double_new(background, background_n);
     int result = vips_affine(in, out, a, b, c, d, "interpolate", interpolate, "oarea", oarea_array, "odx", odx, "ody", ody, "idx", idx, "idy", idy, "background", background_array, "premultiplied", premultiplied, "extend", (int)extend, NULL);
-    vips_area_unref(VIPS_AREA(background_array));
     vips_area_unref(VIPS_AREA(oarea_array));
+    vips_area_unref(VIPS_AREA(background_array));
     return result;
 }
 
