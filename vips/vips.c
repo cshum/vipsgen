@@ -3,6 +3,38 @@
 #include "vips.h"
 #include <unistd.h>
 
+// Prerequisite function to build, get outputs and cleanup a vips operation
+int vipsgen_operation_execute(VipsOperation **operation, ...) {
+    va_list ap;
+    int result = 0;
+
+    // Build the operation
+    if (vips_cache_operation_buildp(operation)) {
+        vips_object_unref_outputs(VIPS_OBJECT(*operation));
+        g_object_unref(*operation);
+        return 1;
+    }
+
+    // Get output parameters from operation
+    va_start(ap, operation);
+
+    // First, get the param name
+    const char *name;
+    while ((name = va_arg(ap, const char *)) != NULL) {
+        // Get the corresponding value pointer
+        void *value = va_arg(ap, void *);
+        if (value != NULL) {
+            g_object_get(VIPS_OBJECT(*operation), name, value, NULL);
+        }
+    }
+    va_end(ap);
+
+    // Cleanup
+    vips_object_unref_outputs(VIPS_OBJECT(*operation));
+    g_object_unref(*operation);
+    return 0;
+}
+
 
 int vipsgen_system(const char* cmd_format) {
     return vips_system(cmd_format, NULL);
@@ -17,15 +49,11 @@ int vipsgen_system_with_options(const char* cmd_format, VipsImage** in, int in_n
     if (in_array != NULL) { if (vips_object_set(VIPS_OBJECT(operation), "in", in_array, NULL)) { g_object_unref(operation); if (in_array != NULL) { vips_area_unref(VIPS_AREA(in_array)); } return 1; } }
     if (out_format != NULL && strlen(out_format) > 0) { if (vips_object_set(VIPS_OBJECT(operation), "out_format", out_format, NULL)) { g_object_unref(operation); if (in_array != NULL) { vips_area_unref(VIPS_AREA(in_array)); } return 1; } }
     if (in_format != NULL && strlen(in_format) > 0) { if (vips_object_set(VIPS_OBJECT(operation), "in_format", in_format, NULL)) { g_object_unref(operation); if (in_array != NULL) { vips_area_unref(VIPS_AREA(in_array)); } return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        if (in_array != NULL) { vips_area_unref(VIPS_AREA(in_array)); }
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
+
+    int result = vipsgen_operation_execute(&operation, NULL);
+
     if (in_array != NULL) { vips_area_unref(VIPS_AREA(in_array)); }
-    g_object_unref(operation);
-    return 0;
+    return result;
 }
 
 int vipsgen_add(VipsImage* left, VipsImage* right, VipsImage** out) {
@@ -86,15 +114,9 @@ int vipsgen_clamp_with_options(VipsImage* in, VipsImage** out, double min, doubl
     if (vips_object_set(VIPS_OBJECT(operation), "in", in, NULL)) { g_object_unref(operation); return 1; }
     if (min != 0) { if (vips_object_set(VIPS_OBJECT(operation), "min", min, NULL)) { g_object_unref(operation); return 1; } }
     if (max != 0) { if (vips_object_set(VIPS_OBJECT(operation), "max", max, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_invert(VipsImage* in, VipsImage** out) {
@@ -113,15 +135,9 @@ int vipsgen_linear_with_options(VipsImage* in, VipsImage** out, double* a, doubl
     if (vips_object_set(VIPS_OBJECT(operation), "b", b, NULL)) { g_object_unref(operation); return 1; }
     if (vips_object_set(VIPS_OBJECT(operation), "n", n, NULL)) { g_object_unref(operation); return 1; }
     if (uchar) { if (vips_object_set(VIPS_OBJECT(operation), "uchar", uchar, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_math(VipsImage* in, VipsImage** out, VipsOperationMath math) {
@@ -181,15 +197,9 @@ int vipsgen_min_with_options(VipsImage* in, double* out, int size) {
     if (!operation) return 1;
     if (vips_object_set(VIPS_OBJECT(operation), "in", in, NULL)) { g_object_unref(operation); return 1; }
     if (size != 0) { if (vips_object_set(VIPS_OBJECT(operation), "size", size, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_max(VipsImage* in, double* out) {
@@ -201,15 +211,9 @@ int vipsgen_max_with_options(VipsImage* in, double* out, int size) {
     if (!operation) return 1;
     if (vips_object_set(VIPS_OBJECT(operation), "in", in, NULL)) { g_object_unref(operation); return 1; }
     if (size != 0) { if (vips_object_set(VIPS_OBJECT(operation), "size", size, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_deviate(VipsImage* in, double* out) {
@@ -229,15 +233,9 @@ int vipsgen_hist_find_with_options(VipsImage* in, VipsImage** out, int band) {
     if (!operation) return 1;
     if (vips_object_set(VIPS_OBJECT(operation), "in", in, NULL)) { g_object_unref(operation); return 1; }
     if (band != 0) { if (vips_object_set(VIPS_OBJECT(operation), "band", band, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_hist_find_ndim(VipsImage* in, VipsImage** out) {
@@ -249,15 +247,9 @@ int vipsgen_hist_find_ndim_with_options(VipsImage* in, VipsImage** out, int bins
     if (!operation) return 1;
     if (vips_object_set(VIPS_OBJECT(operation), "in", in, NULL)) { g_object_unref(operation); return 1; }
     if (bins != 0) { if (vips_object_set(VIPS_OBJECT(operation), "bins", bins, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_hist_find_indexed(VipsImage* in, VipsImage* index, VipsImage** out) {
@@ -270,15 +262,9 @@ int vipsgen_hist_find_indexed_with_options(VipsImage* in, VipsImage* index, Vips
     if (vips_object_set(VIPS_OBJECT(operation), "in", in, NULL)) { g_object_unref(operation); return 1; }
     if (vips_object_set(VIPS_OBJECT(operation), "index", index, NULL)) { g_object_unref(operation); return 1; }
     if (combine != 0) { if (vips_object_set(VIPS_OBJECT(operation), "combine", combine, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_hough_line(VipsImage* in, VipsImage** out) {
@@ -291,15 +277,9 @@ int vipsgen_hough_line_with_options(VipsImage* in, VipsImage** out, int width, i
     if (vips_object_set(VIPS_OBJECT(operation), "in", in, NULL)) { g_object_unref(operation); return 1; }
     if (width != 0) { if (vips_object_set(VIPS_OBJECT(operation), "width", width, NULL)) { g_object_unref(operation); return 1; } }
     if (height != 0) { if (vips_object_set(VIPS_OBJECT(operation), "height", height, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_hough_circle(VipsImage* in, VipsImage** out) {
@@ -313,15 +293,9 @@ int vipsgen_hough_circle_with_options(VipsImage* in, VipsImage** out, int scale,
     if (scale != 0) { if (vips_object_set(VIPS_OBJECT(operation), "scale", scale, NULL)) { g_object_unref(operation); return 1; } }
     if (min_radius != 0) { if (vips_object_set(VIPS_OBJECT(operation), "min_radius", min_radius, NULL)) { g_object_unref(operation); return 1; } }
     if (max_radius != 0) { if (vips_object_set(VIPS_OBJECT(operation), "max_radius", max_radius, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_project(VipsImage* in, VipsImage** columns, VipsImage** rows) {
@@ -346,15 +320,9 @@ int vipsgen_measure_with_options(VipsImage* in, VipsImage** out, int h, int v, i
     if (top != 0) { if (vips_object_set(VIPS_OBJECT(operation), "top", top, NULL)) { g_object_unref(operation); return 1; } }
     if (width != 0) { if (vips_object_set(VIPS_OBJECT(operation), "width", width, NULL)) { g_object_unref(operation); return 1; } }
     if (height != 0) { if (vips_object_set(VIPS_OBJECT(operation), "height", height, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_getpoint(VipsImage* in, double** out_array, int* n, int x, int y) {
@@ -368,16 +336,9 @@ int vipsgen_getpoint_with_options(VipsImage* in, double** out_array, int* n, int
     if (vips_object_set(VIPS_OBJECT(operation), "x", x, NULL)) { g_object_unref(operation); return 1; }
     if (vips_object_set(VIPS_OBJECT(operation), "y", y, NULL)) { g_object_unref(operation); return 1; }
     if (unpack_complex) { if (vips_object_set(VIPS_OBJECT(operation), "unpack_complex", unpack_complex, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out_array", out_array, NULL);
-    g_object_get(VIPS_OBJECT(operation), "n", n, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out_array", out_array, "n", n, NULL);
+    return result;
 }
 
 int vipsgen_find_trim(VipsImage* in, int* left, int* top, int* width, int* height) {
@@ -393,20 +354,11 @@ int vipsgen_find_trim_with_options(VipsImage* in, int* left, int* top, int* widt
     if (threshold != 0) { if (vips_object_set(VIPS_OBJECT(operation), "threshold", threshold, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
     if (background_array != NULL) { if (vips_object_set(VIPS_OBJECT(operation), "background", background_array, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
     if (line_art) { if (vips_object_set(VIPS_OBJECT(operation), "line_art", line_art, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "left", left, NULL);
-    g_object_get(VIPS_OBJECT(operation), "top", top, NULL);
-    g_object_get(VIPS_OBJECT(operation), "width", width, NULL);
-    g_object_get(VIPS_OBJECT(operation), "height", height, NULL);
+
+    int result = vipsgen_operation_execute(&operation, "left", left, "top", top, "width", width, "height", height, NULL);
+
     if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+    return result;
 }
 
 int vipsgen_copy(VipsImage* in, VipsImage** out) {
@@ -427,15 +379,9 @@ int vipsgen_copy_with_options(VipsImage* in, VipsImage** out, int width, int hei
     if (yres != 0) { if (vips_object_set(VIPS_OBJECT(operation), "yres", yres, NULL)) { g_object_unref(operation); return 1; } }
     if (xoffset != 0) { if (vips_object_set(VIPS_OBJECT(operation), "xoffset", xoffset, NULL)) { g_object_unref(operation); return 1; } }
     if (yoffset != 0) { if (vips_object_set(VIPS_OBJECT(operation), "yoffset", yoffset, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_tilecache(VipsImage* in, VipsImage** out) {
@@ -452,15 +398,9 @@ int vipsgen_tilecache_with_options(VipsImage* in, VipsImage** out, int tile_widt
     if (access != 0) { if (vips_object_set(VIPS_OBJECT(operation), "access", access, NULL)) { g_object_unref(operation); return 1; } }
     if (threaded) { if (vips_object_set(VIPS_OBJECT(operation), "threaded", threaded, NULL)) { g_object_unref(operation); return 1; } }
     if (persistent) { if (vips_object_set(VIPS_OBJECT(operation), "persistent", persistent, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_linecache(VipsImage* in, VipsImage** out) {
@@ -475,15 +415,9 @@ int vipsgen_linecache_with_options(VipsImage* in, VipsImage** out, int tile_heig
     if (access != 0) { if (vips_object_set(VIPS_OBJECT(operation), "access", access, NULL)) { g_object_unref(operation); return 1; } }
     if (threaded) { if (vips_object_set(VIPS_OBJECT(operation), "threaded", threaded, NULL)) { g_object_unref(operation); return 1; } }
     if (persistent) { if (vips_object_set(VIPS_OBJECT(operation), "persistent", persistent, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_sequential(VipsImage* in, VipsImage** out) {
@@ -495,15 +429,9 @@ int vipsgen_sequential_with_options(VipsImage* in, VipsImage** out, int tile_hei
     if (!operation) return 1;
     if (vips_object_set(VIPS_OBJECT(operation), "in", in, NULL)) { g_object_unref(operation); return 1; }
     if (tile_height != 0) { if (vips_object_set(VIPS_OBJECT(operation), "tile_height", tile_height, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_embed(VipsImage* in, VipsImage** out, int x, int y, int width, int height) {
@@ -522,17 +450,11 @@ int vipsgen_embed_with_options(VipsImage* in, VipsImage** out, int x, int y, int
     if (background != NULL && background_n > 0) { background_array = vips_array_double_new(background, background_n); }
     if (extend != 0) { if (vips_object_set(VIPS_OBJECT(operation), "extend", extend, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
     if (background_array != NULL) { if (vips_object_set(VIPS_OBJECT(operation), "background", background_array, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+
     if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+    return result;
 }
 
 int vipsgen_gravity(VipsImage* in, VipsImage** out, VipsCompassDirection direction, int width, int height) {
@@ -550,17 +472,11 @@ int vipsgen_gravity_with_options(VipsImage* in, VipsImage** out, VipsCompassDire
     if (background != NULL && background_n > 0) { background_array = vips_array_double_new(background, background_n); }
     if (extend != 0) { if (vips_object_set(VIPS_OBJECT(operation), "extend", extend, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
     if (background_array != NULL) { if (vips_object_set(VIPS_OBJECT(operation), "background", background_array, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+
     if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+    return result;
 }
 
 int vipsgen_flip(VipsImage* in, VipsImage** out, VipsDirection direction) {
@@ -582,17 +498,11 @@ int vipsgen_insert_with_options(VipsImage* main, VipsImage* sub, VipsImage** out
     if (background != NULL && background_n > 0) { background_array = vips_array_double_new(background, background_n); }
     if (expand) { if (vips_object_set(VIPS_OBJECT(operation), "expand", expand, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
     if (background_array != NULL) { if (vips_object_set(VIPS_OBJECT(operation), "background", background_array, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+
     if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+    return result;
 }
 
 int vipsgen_join(VipsImage* in1, VipsImage* in2, VipsImage** out, VipsDirection direction) {
@@ -611,17 +521,11 @@ int vipsgen_join_with_options(VipsImage* in1, VipsImage* in2, VipsImage** out, V
     if (shim != 0) { if (vips_object_set(VIPS_OBJECT(operation), "shim", shim, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
     if (background_array != NULL) { if (vips_object_set(VIPS_OBJECT(operation), "background", background_array, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
     if (align != 0) { if (vips_object_set(VIPS_OBJECT(operation), "align", align, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+
     if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+    return result;
 }
 
 int vipsgen_arrayjoin(VipsImage** in, VipsImage** out, int n) {
@@ -642,17 +546,11 @@ int vipsgen_arrayjoin_with_options(VipsImage** in, VipsImage** out, int n, int a
     if (valign != 0) { if (vips_object_set(VIPS_OBJECT(operation), "valign", valign, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
     if (hspacing != 0) { if (vips_object_set(VIPS_OBJECT(operation), "hspacing", hspacing, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
     if (vspacing != 0) { if (vips_object_set(VIPS_OBJECT(operation), "vspacing", vspacing, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+
     if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+    return result;
 }
 
 int vipsgen_extract_area(VipsImage* input, VipsImage** out, int left, int top, int width, int height) {
@@ -671,15 +569,9 @@ int vipsgen_smartcrop_with_options(VipsImage* input, VipsImage** out, int width,
     if (vips_object_set(VIPS_OBJECT(operation), "height", height, NULL)) { g_object_unref(operation); return 1; }
     if (interesting != 0) { if (vips_object_set(VIPS_OBJECT(operation), "interesting", interesting, NULL)) { g_object_unref(operation); return 1; } }
     if (premultiplied) { if (vips_object_set(VIPS_OBJECT(operation), "premultiplied", premultiplied, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_extract_band(VipsImage* in, VipsImage** out, int band) {
@@ -692,15 +584,9 @@ int vipsgen_extract_band_with_options(VipsImage* in, VipsImage** out, int band, 
     if (vips_object_set(VIPS_OBJECT(operation), "in", in, NULL)) { g_object_unref(operation); return 1; }
     if (vips_object_set(VIPS_OBJECT(operation), "band", band, NULL)) { g_object_unref(operation); return 1; }
     if (n != 0) { if (vips_object_set(VIPS_OBJECT(operation), "n", n, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_bandjoin(VipsImage** in, VipsImage** out, int n) {
@@ -721,15 +607,9 @@ int vipsgen_bandrank_with_options(VipsImage** in, VipsImage** out, int n, int in
     if (vips_object_set(VIPS_OBJECT(operation), "in", in, NULL)) { g_object_unref(operation); return 1; }
     if (vips_object_set(VIPS_OBJECT(operation), "n", n, NULL)) { g_object_unref(operation); return 1; }
     if (index != 0) { if (vips_object_set(VIPS_OBJECT(operation), "index", index, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_bandmean(VipsImage* in, VipsImage** out) {
@@ -754,15 +634,9 @@ int vipsgen_cast_with_options(VipsImage* in, VipsImage** out, VipsBandFormat for
     if (vips_object_set(VIPS_OBJECT(operation), "in", in, NULL)) { g_object_unref(operation); return 1; }
     if (vips_object_set(VIPS_OBJECT(operation), "format", format, NULL)) { g_object_unref(operation); return 1; }
     if (shift) { if (vips_object_set(VIPS_OBJECT(operation), "shift", shift, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_rot(VipsImage* in, VipsImage** out, VipsAngle angle) {
@@ -778,15 +652,9 @@ int vipsgen_rot45_with_options(VipsImage* in, VipsImage** out, VipsAngle45 angle
     if (!operation) return 1;
     if (vips_object_set(VIPS_OBJECT(operation), "in", in, NULL)) { g_object_unref(operation); return 1; }
     if (angle != 0) { if (vips_object_set(VIPS_OBJECT(operation), "angle", angle, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_autorot(VipsImage* in, VipsImage** out) {
@@ -804,15 +672,9 @@ int vipsgen_ifthenelse_with_options(VipsImage* cond, VipsImage* in1, VipsImage* 
     if (vips_object_set(VIPS_OBJECT(operation), "in1", in1, NULL)) { g_object_unref(operation); return 1; }
     if (vips_object_set(VIPS_OBJECT(operation), "in2", in2, NULL)) { g_object_unref(operation); return 1; }
     if (blend) { if (vips_object_set(VIPS_OBJECT(operation), "blend", blend, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_recomb(VipsImage* in, VipsImage** out, VipsImage* m) {
@@ -828,15 +690,9 @@ int vipsgen_bandfold_with_options(VipsImage* in, VipsImage** out, int factor) {
     if (!operation) return 1;
     if (vips_object_set(VIPS_OBJECT(operation), "in", in, NULL)) { g_object_unref(operation); return 1; }
     if (factor != 0) { if (vips_object_set(VIPS_OBJECT(operation), "factor", factor, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_bandunfold(VipsImage* in, VipsImage** out) {
@@ -848,15 +704,9 @@ int vipsgen_bandunfold_with_options(VipsImage* in, VipsImage** out, int factor) 
     if (!operation) return 1;
     if (vips_object_set(VIPS_OBJECT(operation), "in", in, NULL)) { g_object_unref(operation); return 1; }
     if (factor != 0) { if (vips_object_set(VIPS_OBJECT(operation), "factor", factor, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_flatten(VipsImage* in, VipsImage** out) {
@@ -871,17 +721,11 @@ int vipsgen_flatten_with_options(VipsImage* in, VipsImage** out, double* backgro
     if (background != NULL && background_n > 0) { background_array = vips_array_double_new(background, background_n); }
     if (background_array != NULL) { if (vips_object_set(VIPS_OBJECT(operation), "background", background_array, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
     if (max_alpha != 0) { if (vips_object_set(VIPS_OBJECT(operation), "max_alpha", max_alpha, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+
     if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+    return result;
 }
 
 int vipsgen_premultiply(VipsImage* in, VipsImage** out) {
@@ -893,15 +737,9 @@ int vipsgen_premultiply_with_options(VipsImage* in, VipsImage** out, double max_
     if (!operation) return 1;
     if (vips_object_set(VIPS_OBJECT(operation), "in", in, NULL)) { g_object_unref(operation); return 1; }
     if (max_alpha != 0) { if (vips_object_set(VIPS_OBJECT(operation), "max_alpha", max_alpha, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_unpremultiply(VipsImage* in, VipsImage** out) {
@@ -914,15 +752,9 @@ int vipsgen_unpremultiply_with_options(VipsImage* in, VipsImage** out, double ma
     if (vips_object_set(VIPS_OBJECT(operation), "in", in, NULL)) { g_object_unref(operation); return 1; }
     if (max_alpha != 0) { if (vips_object_set(VIPS_OBJECT(operation), "max_alpha", max_alpha, NULL)) { g_object_unref(operation); return 1; } }
     if (alpha_band != 0) { if (vips_object_set(VIPS_OBJECT(operation), "alpha_band", alpha_band, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_grid(VipsImage* in, VipsImage** out, int tile_height, int across, int down) {
@@ -938,15 +770,9 @@ int vipsgen_transpose3d_with_options(VipsImage* in, VipsImage** out, int page_he
     if (!operation) return 1;
     if (vips_object_set(VIPS_OBJECT(operation), "in", in, NULL)) { g_object_unref(operation); return 1; }
     if (page_height != 0) { if (vips_object_set(VIPS_OBJECT(operation), "page_height", page_height, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_scale(VipsImage* in, VipsImage** out) {
@@ -959,15 +785,9 @@ int vipsgen_scale_with_options(VipsImage* in, VipsImage** out, double exp, gbool
     if (vips_object_set(VIPS_OBJECT(operation), "in", in, NULL)) { g_object_unref(operation); return 1; }
     if (exp != 0) { if (vips_object_set(VIPS_OBJECT(operation), "exp", exp, NULL)) { g_object_unref(operation); return 1; } }
     if (log) { if (vips_object_set(VIPS_OBJECT(operation), "log", log, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_wrap(VipsImage* in, VipsImage** out) {
@@ -980,15 +800,9 @@ int vipsgen_wrap_with_options(VipsImage* in, VipsImage** out, int x, int y) {
     if (vips_object_set(VIPS_OBJECT(operation), "in", in, NULL)) { g_object_unref(operation); return 1; }
     if (x != 0) { if (vips_object_set(VIPS_OBJECT(operation), "x", x, NULL)) { g_object_unref(operation); return 1; } }
     if (y != 0) { if (vips_object_set(VIPS_OBJECT(operation), "y", y, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_zoom(VipsImage* input, VipsImage** out, int xfac, int yfac) {
@@ -1006,15 +820,9 @@ int vipsgen_subsample_with_options(VipsImage* input, VipsImage** out, int xfac, 
     if (vips_object_set(VIPS_OBJECT(operation), "xfac", xfac, NULL)) { g_object_unref(operation); return 1; }
     if (vips_object_set(VIPS_OBJECT(operation), "yfac", yfac, NULL)) { g_object_unref(operation); return 1; }
     if (point) { if (vips_object_set(VIPS_OBJECT(operation), "point", point, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_msb(VipsImage* in, VipsImage** out) {
@@ -1026,15 +834,9 @@ int vipsgen_msb_with_options(VipsImage* in, VipsImage** out, int band) {
     if (!operation) return 1;
     if (vips_object_set(VIPS_OBJECT(operation), "in", in, NULL)) { g_object_unref(operation); return 1; }
     if (band != 0) { if (vips_object_set(VIPS_OBJECT(operation), "band", band, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_byteswap(VipsImage* in, VipsImage** out) {
@@ -1054,15 +856,9 @@ int vipsgen_gamma_with_options(VipsImage* in, VipsImage** out, double exponent) 
     if (!operation) return 1;
     if (vips_object_set(VIPS_OBJECT(operation), "in", in, NULL)) { g_object_unref(operation); return 1; }
     if (exponent != 0) { if (vips_object_set(VIPS_OBJECT(operation), "exponent", exponent, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_composite(VipsImage** in, VipsImage** out, int n, int* mode) {
@@ -1083,19 +879,12 @@ int vipsgen_composite_with_options(VipsImage** in, VipsImage** out, int n, int* 
     if (y_array != NULL) { if (vips_object_set(VIPS_OBJECT(operation), "y", y_array, NULL)) { g_object_unref(operation); if (x_array != NULL) { vips_area_unref(VIPS_AREA(x_array)); } if (y_array != NULL) { vips_area_unref(VIPS_AREA(y_array)); } return 1; } }
     if (compositing_space != 0) { if (vips_object_set(VIPS_OBJECT(operation), "compositing_space", compositing_space, NULL)) { g_object_unref(operation); if (x_array != NULL) { vips_area_unref(VIPS_AREA(x_array)); } if (y_array != NULL) { vips_area_unref(VIPS_AREA(y_array)); } return 1; } }
     if (premultiplied) { if (vips_object_set(VIPS_OBJECT(operation), "premultiplied", premultiplied, NULL)) { g_object_unref(operation); if (x_array != NULL) { vips_area_unref(VIPS_AREA(x_array)); } if (y_array != NULL) { vips_area_unref(VIPS_AREA(y_array)); } return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        if (x_array != NULL) { vips_area_unref(VIPS_AREA(x_array)); }
-        if (y_array != NULL) { vips_area_unref(VIPS_AREA(y_array)); }
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+
     if (x_array != NULL) { vips_area_unref(VIPS_AREA(x_array)); }
     if (y_array != NULL) { vips_area_unref(VIPS_AREA(y_array)); }
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+    return result;
 }
 
 int vipsgen_composite2(VipsImage* base, VipsImage* overlay, VipsImage** out, VipsBlendMode mode) {
@@ -1112,15 +901,9 @@ int vipsgen_composite2_with_options(VipsImage* base, VipsImage* overlay, VipsIma
     if (y != 0) { if (vips_object_set(VIPS_OBJECT(operation), "y", y, NULL)) { g_object_unref(operation); return 1; } }
     if (compositing_space != 0) { if (vips_object_set(VIPS_OBJECT(operation), "compositing_space", compositing_space, NULL)) { g_object_unref(operation); return 1; } }
     if (premultiplied) { if (vips_object_set(VIPS_OBJECT(operation), "premultiplied", premultiplied, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_addalpha(VipsImage* in, VipsImage** out) {
@@ -1137,15 +920,9 @@ int vipsgen_black_with_options(VipsImage** out, int width, int height, int bands
     if (vips_object_set(VIPS_OBJECT(operation), "width", width, NULL)) { g_object_unref(operation); return 1; }
     if (vips_object_set(VIPS_OBJECT(operation), "height", height, NULL)) { g_object_unref(operation); return 1; }
     if (bands != 0) { if (vips_object_set(VIPS_OBJECT(operation), "bands", bands, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_gaussnoise(VipsImage** out, int width, int height) {
@@ -1160,15 +937,9 @@ int vipsgen_gaussnoise_with_options(VipsImage** out, int width, int height, doub
     if (sigma != 0) { if (vips_object_set(VIPS_OBJECT(operation), "sigma", sigma, NULL)) { g_object_unref(operation); return 1; } }
     if (mean != 0) { if (vips_object_set(VIPS_OBJECT(operation), "mean", mean, NULL)) { g_object_unref(operation); return 1; } }
     if (seed != 0) { if (vips_object_set(VIPS_OBJECT(operation), "seed", seed, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_xyz(VipsImage** out, int width, int height) {
@@ -1183,15 +954,9 @@ int vipsgen_xyz_with_options(VipsImage** out, int width, int height, int csize, 
     if (csize != 0) { if (vips_object_set(VIPS_OBJECT(operation), "csize", csize, NULL)) { g_object_unref(operation); return 1; } }
     if (dsize != 0) { if (vips_object_set(VIPS_OBJECT(operation), "dsize", dsize, NULL)) { g_object_unref(operation); return 1; } }
     if (esize != 0) { if (vips_object_set(VIPS_OBJECT(operation), "esize", esize, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_gaussmat(VipsImage** out, double sigma, double min_ampl) {
@@ -1205,15 +970,9 @@ int vipsgen_gaussmat_with_options(VipsImage** out, double sigma, double min_ampl
     if (vips_object_set(VIPS_OBJECT(operation), "min_ampl", min_ampl, NULL)) { g_object_unref(operation); return 1; }
     if (separable) { if (vips_object_set(VIPS_OBJECT(operation), "separable", separable, NULL)) { g_object_unref(operation); return 1; } }
     if (precision != 0) { if (vips_object_set(VIPS_OBJECT(operation), "precision", precision, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_logmat(VipsImage** out, double sigma, double min_ampl) {
@@ -1227,15 +986,9 @@ int vipsgen_logmat_with_options(VipsImage** out, double sigma, double min_ampl, 
     if (vips_object_set(VIPS_OBJECT(operation), "min_ampl", min_ampl, NULL)) { g_object_unref(operation); return 1; }
     if (separable) { if (vips_object_set(VIPS_OBJECT(operation), "separable", separable, NULL)) { g_object_unref(operation); return 1; } }
     if (precision != 0) { if (vips_object_set(VIPS_OBJECT(operation), "precision", precision, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_text(VipsImage** out, const char* text) {
@@ -1256,15 +1009,9 @@ int vipsgen_text_with_options(VipsImage** out, const char* text, const char* fon
     if (fontfile != NULL && strlen(fontfile) > 0) { if (vips_object_set(VIPS_OBJECT(operation), "fontfile", fontfile, NULL)) { g_object_unref(operation); return 1; } }
     if (rgba) { if (vips_object_set(VIPS_OBJECT(operation), "rgba", rgba, NULL)) { g_object_unref(operation); return 1; } }
     if (wrap != 0) { if (vips_object_set(VIPS_OBJECT(operation), "wrap", wrap, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_sdf(VipsImage** out, int width, int height, VipsSdfShape shape) {
@@ -1287,21 +1034,13 @@ int vipsgen_sdf_with_options(VipsImage** out, int width, int height, VipsSdfShap
     if (a_array != NULL) { if (vips_object_set(VIPS_OBJECT(operation), "a", a_array, NULL)) { g_object_unref(operation); if (a_array != NULL) { vips_area_unref(VIPS_AREA(a_array)); } if (b_array != NULL) { vips_area_unref(VIPS_AREA(b_array)); } if (corners_array != NULL) { vips_area_unref(VIPS_AREA(corners_array)); } return 1; } }
     if (b_array != NULL) { if (vips_object_set(VIPS_OBJECT(operation), "b", b_array, NULL)) { g_object_unref(operation); if (a_array != NULL) { vips_area_unref(VIPS_AREA(a_array)); } if (b_array != NULL) { vips_area_unref(VIPS_AREA(b_array)); } if (corners_array != NULL) { vips_area_unref(VIPS_AREA(corners_array)); } return 1; } }
     if (corners_array != NULL) { if (vips_object_set(VIPS_OBJECT(operation), "corners", corners_array, NULL)) { g_object_unref(operation); if (a_array != NULL) { vips_area_unref(VIPS_AREA(a_array)); } if (b_array != NULL) { vips_area_unref(VIPS_AREA(b_array)); } if (corners_array != NULL) { vips_area_unref(VIPS_AREA(corners_array)); } return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        if (a_array != NULL) { vips_area_unref(VIPS_AREA(a_array)); }
-        if (b_array != NULL) { vips_area_unref(VIPS_AREA(b_array)); }
-        if (corners_array != NULL) { vips_area_unref(VIPS_AREA(corners_array)); }
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+
     if (a_array != NULL) { vips_area_unref(VIPS_AREA(a_array)); }
     if (b_array != NULL) { vips_area_unref(VIPS_AREA(b_array)); }
     if (corners_array != NULL) { vips_area_unref(VIPS_AREA(corners_array)); }
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+    return result;
 }
 
 int vipsgen_eye(VipsImage** out, int width, int height) {
@@ -1315,15 +1054,9 @@ int vipsgen_eye_with_options(VipsImage** out, int width, int height, gboolean uc
     if (vips_object_set(VIPS_OBJECT(operation), "height", height, NULL)) { g_object_unref(operation); return 1; }
     if (uchar) { if (vips_object_set(VIPS_OBJECT(operation), "uchar", uchar, NULL)) { g_object_unref(operation); return 1; } }
     if (factor != 0) { if (vips_object_set(VIPS_OBJECT(operation), "factor", factor, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_grey(VipsImage** out, int width, int height) {
@@ -1336,15 +1069,9 @@ int vipsgen_grey_with_options(VipsImage** out, int width, int height, gboolean u
     if (vips_object_set(VIPS_OBJECT(operation), "width", width, NULL)) { g_object_unref(operation); return 1; }
     if (vips_object_set(VIPS_OBJECT(operation), "height", height, NULL)) { g_object_unref(operation); return 1; }
     if (uchar) { if (vips_object_set(VIPS_OBJECT(operation), "uchar", uchar, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_zone(VipsImage** out, int width, int height) {
@@ -1357,15 +1084,9 @@ int vipsgen_zone_with_options(VipsImage** out, int width, int height, gboolean u
     if (vips_object_set(VIPS_OBJECT(operation), "width", width, NULL)) { g_object_unref(operation); return 1; }
     if (vips_object_set(VIPS_OBJECT(operation), "height", height, NULL)) { g_object_unref(operation); return 1; }
     if (uchar) { if (vips_object_set(VIPS_OBJECT(operation), "uchar", uchar, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_sines(VipsImage** out, int width, int height) {
@@ -1380,15 +1101,9 @@ int vipsgen_sines_with_options(VipsImage** out, int width, int height, gboolean 
     if (uchar) { if (vips_object_set(VIPS_OBJECT(operation), "uchar", uchar, NULL)) { g_object_unref(operation); return 1; } }
     if (hfreq != 0) { if (vips_object_set(VIPS_OBJECT(operation), "hfreq", hfreq, NULL)) { g_object_unref(operation); return 1; } }
     if (vfreq != 0) { if (vips_object_set(VIPS_OBJECT(operation), "vfreq", vfreq, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_mask_ideal(VipsImage** out, int width, int height, double frequency_cutoff) {
@@ -1405,15 +1120,9 @@ int vipsgen_mask_ideal_with_options(VipsImage** out, int width, int height, doub
     if (nodc) { if (vips_object_set(VIPS_OBJECT(operation), "nodc", nodc, NULL)) { g_object_unref(operation); return 1; } }
     if (reject) { if (vips_object_set(VIPS_OBJECT(operation), "reject", reject, NULL)) { g_object_unref(operation); return 1; } }
     if (optical) { if (vips_object_set(VIPS_OBJECT(operation), "optical", optical, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_mask_ideal_ring(VipsImage** out, int width, int height, double frequency_cutoff, double ringwidth) {
@@ -1431,15 +1140,9 @@ int vipsgen_mask_ideal_ring_with_options(VipsImage** out, int width, int height,
     if (nodc) { if (vips_object_set(VIPS_OBJECT(operation), "nodc", nodc, NULL)) { g_object_unref(operation); return 1; } }
     if (reject) { if (vips_object_set(VIPS_OBJECT(operation), "reject", reject, NULL)) { g_object_unref(operation); return 1; } }
     if (optical) { if (vips_object_set(VIPS_OBJECT(operation), "optical", optical, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_mask_ideal_band(VipsImage** out, int width, int height, double frequency_cutoff_x, double frequency_cutoff_y, double radius) {
@@ -1458,15 +1161,9 @@ int vipsgen_mask_ideal_band_with_options(VipsImage** out, int width, int height,
     if (nodc) { if (vips_object_set(VIPS_OBJECT(operation), "nodc", nodc, NULL)) { g_object_unref(operation); return 1; } }
     if (reject) { if (vips_object_set(VIPS_OBJECT(operation), "reject", reject, NULL)) { g_object_unref(operation); return 1; } }
     if (optical) { if (vips_object_set(VIPS_OBJECT(operation), "optical", optical, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_mask_butterworth(VipsImage** out, int width, int height, double order, double frequency_cutoff, double amplitude_cutoff) {
@@ -1485,15 +1182,9 @@ int vipsgen_mask_butterworth_with_options(VipsImage** out, int width, int height
     if (nodc) { if (vips_object_set(VIPS_OBJECT(operation), "nodc", nodc, NULL)) { g_object_unref(operation); return 1; } }
     if (reject) { if (vips_object_set(VIPS_OBJECT(operation), "reject", reject, NULL)) { g_object_unref(operation); return 1; } }
     if (optical) { if (vips_object_set(VIPS_OBJECT(operation), "optical", optical, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_mask_butterworth_ring(VipsImage** out, int width, int height, double order, double frequency_cutoff, double amplitude_cutoff, double ringwidth) {
@@ -1513,15 +1204,9 @@ int vipsgen_mask_butterworth_ring_with_options(VipsImage** out, int width, int h
     if (nodc) { if (vips_object_set(VIPS_OBJECT(operation), "nodc", nodc, NULL)) { g_object_unref(operation); return 1; } }
     if (reject) { if (vips_object_set(VIPS_OBJECT(operation), "reject", reject, NULL)) { g_object_unref(operation); return 1; } }
     if (optical) { if (vips_object_set(VIPS_OBJECT(operation), "optical", optical, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_mask_butterworth_band(VipsImage** out, int width, int height, double order, double frequency_cutoff_x, double frequency_cutoff_y, double radius, double amplitude_cutoff) {
@@ -1542,15 +1227,9 @@ int vipsgen_mask_butterworth_band_with_options(VipsImage** out, int width, int h
     if (nodc) { if (vips_object_set(VIPS_OBJECT(operation), "nodc", nodc, NULL)) { g_object_unref(operation); return 1; } }
     if (reject) { if (vips_object_set(VIPS_OBJECT(operation), "reject", reject, NULL)) { g_object_unref(operation); return 1; } }
     if (optical) { if (vips_object_set(VIPS_OBJECT(operation), "optical", optical, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_mask_gaussian(VipsImage** out, int width, int height, double frequency_cutoff, double amplitude_cutoff) {
@@ -1568,15 +1247,9 @@ int vipsgen_mask_gaussian_with_options(VipsImage** out, int width, int height, d
     if (nodc) { if (vips_object_set(VIPS_OBJECT(operation), "nodc", nodc, NULL)) { g_object_unref(operation); return 1; } }
     if (reject) { if (vips_object_set(VIPS_OBJECT(operation), "reject", reject, NULL)) { g_object_unref(operation); return 1; } }
     if (optical) { if (vips_object_set(VIPS_OBJECT(operation), "optical", optical, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_mask_gaussian_ring(VipsImage** out, int width, int height, double frequency_cutoff, double amplitude_cutoff, double ringwidth) {
@@ -1595,15 +1268,9 @@ int vipsgen_mask_gaussian_ring_with_options(VipsImage** out, int width, int heig
     if (nodc) { if (vips_object_set(VIPS_OBJECT(operation), "nodc", nodc, NULL)) { g_object_unref(operation); return 1; } }
     if (reject) { if (vips_object_set(VIPS_OBJECT(operation), "reject", reject, NULL)) { g_object_unref(operation); return 1; } }
     if (optical) { if (vips_object_set(VIPS_OBJECT(operation), "optical", optical, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_mask_gaussian_band(VipsImage** out, int width, int height, double frequency_cutoff_x, double frequency_cutoff_y, double radius, double amplitude_cutoff) {
@@ -1623,15 +1290,9 @@ int vipsgen_mask_gaussian_band_with_options(VipsImage** out, int width, int heig
     if (nodc) { if (vips_object_set(VIPS_OBJECT(operation), "nodc", nodc, NULL)) { g_object_unref(operation); return 1; } }
     if (reject) { if (vips_object_set(VIPS_OBJECT(operation), "reject", reject, NULL)) { g_object_unref(operation); return 1; } }
     if (optical) { if (vips_object_set(VIPS_OBJECT(operation), "optical", optical, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_mask_fractal(VipsImage** out, int width, int height, double fractal_dimension) {
@@ -1648,15 +1309,9 @@ int vipsgen_mask_fractal_with_options(VipsImage** out, int width, int height, do
     if (nodc) { if (vips_object_set(VIPS_OBJECT(operation), "nodc", nodc, NULL)) { g_object_unref(operation); return 1; } }
     if (reject) { if (vips_object_set(VIPS_OBJECT(operation), "reject", reject, NULL)) { g_object_unref(operation); return 1; } }
     if (optical) { if (vips_object_set(VIPS_OBJECT(operation), "optical", optical, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_buildlut(VipsImage* in, VipsImage** out) {
@@ -1672,15 +1327,9 @@ int vipsgen_invertlut_with_options(VipsImage* in, VipsImage** out, int size) {
     if (!operation) return 1;
     if (vips_object_set(VIPS_OBJECT(operation), "in", in, NULL)) { g_object_unref(operation); return 1; }
     if (size != 0) { if (vips_object_set(VIPS_OBJECT(operation), "size", size, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_tonelut(VipsImage** out) {
@@ -1700,15 +1349,9 @@ int vipsgen_tonelut_with_options(VipsImage** out, int in_max, int out_max, doubl
     if (S != 0) { if (vips_object_set(VIPS_OBJECT(operation), "S", S, NULL)) { g_object_unref(operation); return 1; } }
     if (M != 0) { if (vips_object_set(VIPS_OBJECT(operation), "M", M, NULL)) { g_object_unref(operation); return 1; } }
     if (H != 0) { if (vips_object_set(VIPS_OBJECT(operation), "H", H, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_identity(VipsImage** out) {
@@ -1721,15 +1364,9 @@ int vipsgen_identity_with_options(VipsImage** out, int bands, gboolean ushort, i
     if (bands != 0) { if (vips_object_set(VIPS_OBJECT(operation), "bands", bands, NULL)) { g_object_unref(operation); return 1; } }
     if (ushort) { if (vips_object_set(VIPS_OBJECT(operation), "ushort", ushort, NULL)) { g_object_unref(operation); return 1; } }
     if (size != 0) { if (vips_object_set(VIPS_OBJECT(operation), "size", size, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_fractsurf(VipsImage** out, int width, int height, double fractal_dimension) {
@@ -1747,15 +1384,9 @@ int vipsgen_worley_with_options(VipsImage** out, int width, int height, int cell
     if (vips_object_set(VIPS_OBJECT(operation), "height", height, NULL)) { g_object_unref(operation); return 1; }
     if (cell_size != 0) { if (vips_object_set(VIPS_OBJECT(operation), "cell_size", cell_size, NULL)) { g_object_unref(operation); return 1; } }
     if (seed != 0) { if (vips_object_set(VIPS_OBJECT(operation), "seed", seed, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_perlin(VipsImage** out, int width, int height) {
@@ -1770,15 +1401,9 @@ int vipsgen_perlin_with_options(VipsImage** out, int width, int height, int cell
     if (cell_size != 0) { if (vips_object_set(VIPS_OBJECT(operation), "cell_size", cell_size, NULL)) { g_object_unref(operation); return 1; } }
     if (uchar) { if (vips_object_set(VIPS_OBJECT(operation), "uchar", uchar, NULL)) { g_object_unref(operation); return 1; } }
     if (seed != 0) { if (vips_object_set(VIPS_OBJECT(operation), "seed", seed, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_switch(VipsImage** tests, VipsImage** out, int n) {
@@ -1801,15 +1426,9 @@ int vipsgen_csvload_with_options(const char* filename, VipsImage** out, int skip
     if (access != 0) { if (vips_object_set(VIPS_OBJECT(operation), "access", access, NULL)) { g_object_unref(operation); return 1; } }
     if (fail_on != 0) { if (vips_object_set(VIPS_OBJECT(operation), "fail_on", fail_on, NULL)) { g_object_unref(operation); return 1; } }
     if (revalidate) { if (vips_object_set(VIPS_OBJECT(operation), "revalidate", revalidate, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_csvload_source(VipsSourceCustom* source, VipsImage** out) {
@@ -1828,15 +1447,9 @@ int vipsgen_csvload_source_with_options(VipsSourceCustom* source, VipsImage** ou
     if (access != 0) { if (vips_object_set(VIPS_OBJECT(operation), "access", access, NULL)) { g_object_unref(operation); return 1; } }
     if (fail_on != 0) { if (vips_object_set(VIPS_OBJECT(operation), "fail_on", fail_on, NULL)) { g_object_unref(operation); return 1; } }
     if (revalidate) { if (vips_object_set(VIPS_OBJECT(operation), "revalidate", revalidate, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_matrixload(const char* filename, VipsImage** out) {
@@ -1851,15 +1464,9 @@ int vipsgen_matrixload_with_options(const char* filename, VipsImage** out, gbool
     if (access != 0) { if (vips_object_set(VIPS_OBJECT(operation), "access", access, NULL)) { g_object_unref(operation); return 1; } }
     if (fail_on != 0) { if (vips_object_set(VIPS_OBJECT(operation), "fail_on", fail_on, NULL)) { g_object_unref(operation); return 1; } }
     if (revalidate) { if (vips_object_set(VIPS_OBJECT(operation), "revalidate", revalidate, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_matrixload_source(VipsSourceCustom* source, VipsImage** out) {
@@ -1874,15 +1481,9 @@ int vipsgen_matrixload_source_with_options(VipsSourceCustom* source, VipsImage**
     if (access != 0) { if (vips_object_set(VIPS_OBJECT(operation), "access", access, NULL)) { g_object_unref(operation); return 1; } }
     if (fail_on != 0) { if (vips_object_set(VIPS_OBJECT(operation), "fail_on", fail_on, NULL)) { g_object_unref(operation); return 1; } }
     if (revalidate) { if (vips_object_set(VIPS_OBJECT(operation), "revalidate", revalidate, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_rawload(const char* filename, VipsImage** out, int width, int height, int bands) {
@@ -1902,15 +1503,9 @@ int vipsgen_rawload_with_options(const char* filename, VipsImage** out, int widt
     if (access != 0) { if (vips_object_set(VIPS_OBJECT(operation), "access", access, NULL)) { g_object_unref(operation); return 1; } }
     if (fail_on != 0) { if (vips_object_set(VIPS_OBJECT(operation), "fail_on", fail_on, NULL)) { g_object_unref(operation); return 1; } }
     if (revalidate) { if (vips_object_set(VIPS_OBJECT(operation), "revalidate", revalidate, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_vipsload(const char* filename, VipsImage** out) {
@@ -1925,15 +1520,9 @@ int vipsgen_vipsload_with_options(const char* filename, VipsImage** out, gboolea
     if (access != 0) { if (vips_object_set(VIPS_OBJECT(operation), "access", access, NULL)) { g_object_unref(operation); return 1; } }
     if (fail_on != 0) { if (vips_object_set(VIPS_OBJECT(operation), "fail_on", fail_on, NULL)) { g_object_unref(operation); return 1; } }
     if (revalidate) { if (vips_object_set(VIPS_OBJECT(operation), "revalidate", revalidate, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_vipsload_source(VipsSourceCustom* source, VipsImage** out) {
@@ -1948,15 +1537,9 @@ int vipsgen_vipsload_source_with_options(VipsSourceCustom* source, VipsImage** o
     if (access != 0) { if (vips_object_set(VIPS_OBJECT(operation), "access", access, NULL)) { g_object_unref(operation); return 1; } }
     if (fail_on != 0) { if (vips_object_set(VIPS_OBJECT(operation), "fail_on", fail_on, NULL)) { g_object_unref(operation); return 1; } }
     if (revalidate) { if (vips_object_set(VIPS_OBJECT(operation), "revalidate", revalidate, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_analyzeload(const char* filename, VipsImage** out) {
@@ -1971,15 +1554,9 @@ int vipsgen_analyzeload_with_options(const char* filename, VipsImage** out, gboo
     if (access != 0) { if (vips_object_set(VIPS_OBJECT(operation), "access", access, NULL)) { g_object_unref(operation); return 1; } }
     if (fail_on != 0) { if (vips_object_set(VIPS_OBJECT(operation), "fail_on", fail_on, NULL)) { g_object_unref(operation); return 1; } }
     if (revalidate) { if (vips_object_set(VIPS_OBJECT(operation), "revalidate", revalidate, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_ppmload(const char* filename, VipsImage** out) {
@@ -1994,15 +1571,9 @@ int vipsgen_ppmload_with_options(const char* filename, VipsImage** out, gboolean
     if (access != 0) { if (vips_object_set(VIPS_OBJECT(operation), "access", access, NULL)) { g_object_unref(operation); return 1; } }
     if (fail_on != 0) { if (vips_object_set(VIPS_OBJECT(operation), "fail_on", fail_on, NULL)) { g_object_unref(operation); return 1; } }
     if (revalidate) { if (vips_object_set(VIPS_OBJECT(operation), "revalidate", revalidate, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_ppmload_source(VipsSourceCustom* source, VipsImage** out) {
@@ -2017,15 +1588,9 @@ int vipsgen_ppmload_source_with_options(VipsSourceCustom* source, VipsImage** ou
     if (access != 0) { if (vips_object_set(VIPS_OBJECT(operation), "access", access, NULL)) { g_object_unref(operation); return 1; } }
     if (fail_on != 0) { if (vips_object_set(VIPS_OBJECT(operation), "fail_on", fail_on, NULL)) { g_object_unref(operation); return 1; } }
     if (revalidate) { if (vips_object_set(VIPS_OBJECT(operation), "revalidate", revalidate, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_radload(const char* filename, VipsImage** out) {
@@ -2040,15 +1605,9 @@ int vipsgen_radload_with_options(const char* filename, VipsImage** out, gboolean
     if (access != 0) { if (vips_object_set(VIPS_OBJECT(operation), "access", access, NULL)) { g_object_unref(operation); return 1; } }
     if (fail_on != 0) { if (vips_object_set(VIPS_OBJECT(operation), "fail_on", fail_on, NULL)) { g_object_unref(operation); return 1; } }
     if (revalidate) { if (vips_object_set(VIPS_OBJECT(operation), "revalidate", revalidate, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_radload_buffer(void* buf, size_t len, VipsImage** out) {
@@ -2064,15 +1623,9 @@ int vipsgen_radload_buffer_with_options(void* buf, size_t len, VipsImage** out, 
     if (access != 0) { if (vips_object_set(VIPS_OBJECT(operation), "access", access, NULL)) { g_object_unref(operation); return 1; } }
     if (fail_on != 0) { if (vips_object_set(VIPS_OBJECT(operation), "fail_on", fail_on, NULL)) { g_object_unref(operation); return 1; } }
     if (revalidate) { if (vips_object_set(VIPS_OBJECT(operation), "revalidate", revalidate, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_radload_source(VipsSourceCustom* source, VipsImage** out) {
@@ -2087,15 +1640,9 @@ int vipsgen_radload_source_with_options(VipsSourceCustom* source, VipsImage** ou
     if (access != 0) { if (vips_object_set(VIPS_OBJECT(operation), "access", access, NULL)) { g_object_unref(operation); return 1; } }
     if (fail_on != 0) { if (vips_object_set(VIPS_OBJECT(operation), "fail_on", fail_on, NULL)) { g_object_unref(operation); return 1; } }
     if (revalidate) { if (vips_object_set(VIPS_OBJECT(operation), "revalidate", revalidate, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_svgload(const char* filename, VipsImage** out) {
@@ -2113,15 +1660,9 @@ int vipsgen_svgload_with_options(const char* filename, VipsImage** out, double d
     if (access != 0) { if (vips_object_set(VIPS_OBJECT(operation), "access", access, NULL)) { g_object_unref(operation); return 1; } }
     if (fail_on != 0) { if (vips_object_set(VIPS_OBJECT(operation), "fail_on", fail_on, NULL)) { g_object_unref(operation); return 1; } }
     if (revalidate) { if (vips_object_set(VIPS_OBJECT(operation), "revalidate", revalidate, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_svgload_buffer(void* buf, size_t len, VipsImage** out) {
@@ -2140,15 +1681,9 @@ int vipsgen_svgload_buffer_with_options(void* buf, size_t len, VipsImage** out, 
     if (access != 0) { if (vips_object_set(VIPS_OBJECT(operation), "access", access, NULL)) { g_object_unref(operation); return 1; } }
     if (fail_on != 0) { if (vips_object_set(VIPS_OBJECT(operation), "fail_on", fail_on, NULL)) { g_object_unref(operation); return 1; } }
     if (revalidate) { if (vips_object_set(VIPS_OBJECT(operation), "revalidate", revalidate, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_svgload_source(VipsSourceCustom* source, VipsImage** out) {
@@ -2166,15 +1701,9 @@ int vipsgen_svgload_source_with_options(VipsSourceCustom* source, VipsImage** ou
     if (access != 0) { if (vips_object_set(VIPS_OBJECT(operation), "access", access, NULL)) { g_object_unref(operation); return 1; } }
     if (fail_on != 0) { if (vips_object_set(VIPS_OBJECT(operation), "fail_on", fail_on, NULL)) { g_object_unref(operation); return 1; } }
     if (revalidate) { if (vips_object_set(VIPS_OBJECT(operation), "revalidate", revalidate, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_jp2kload(const char* filename, VipsImage** out) {
@@ -2190,15 +1719,9 @@ int vipsgen_jp2kload_with_options(const char* filename, VipsImage** out, int pag
     if (access != 0) { if (vips_object_set(VIPS_OBJECT(operation), "access", access, NULL)) { g_object_unref(operation); return 1; } }
     if (fail_on != 0) { if (vips_object_set(VIPS_OBJECT(operation), "fail_on", fail_on, NULL)) { g_object_unref(operation); return 1; } }
     if (revalidate) { if (vips_object_set(VIPS_OBJECT(operation), "revalidate", revalidate, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_jp2kload_buffer(void* buf, size_t len, VipsImage** out) {
@@ -2215,15 +1738,9 @@ int vipsgen_jp2kload_buffer_with_options(void* buf, size_t len, VipsImage** out,
     if (access != 0) { if (vips_object_set(VIPS_OBJECT(operation), "access", access, NULL)) { g_object_unref(operation); return 1; } }
     if (fail_on != 0) { if (vips_object_set(VIPS_OBJECT(operation), "fail_on", fail_on, NULL)) { g_object_unref(operation); return 1; } }
     if (revalidate) { if (vips_object_set(VIPS_OBJECT(operation), "revalidate", revalidate, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_jp2kload_source(VipsSourceCustom* source, VipsImage** out) {
@@ -2239,15 +1756,9 @@ int vipsgen_jp2kload_source_with_options(VipsSourceCustom* source, VipsImage** o
     if (access != 0) { if (vips_object_set(VIPS_OBJECT(operation), "access", access, NULL)) { g_object_unref(operation); return 1; } }
     if (fail_on != 0) { if (vips_object_set(VIPS_OBJECT(operation), "fail_on", fail_on, NULL)) { g_object_unref(operation); return 1; } }
     if (revalidate) { if (vips_object_set(VIPS_OBJECT(operation), "revalidate", revalidate, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_gifload(const char* filename, VipsImage** out) {
@@ -2264,15 +1775,9 @@ int vipsgen_gifload_with_options(const char* filename, VipsImage** out, int n, i
     if (access != 0) { if (vips_object_set(VIPS_OBJECT(operation), "access", access, NULL)) { g_object_unref(operation); return 1; } }
     if (fail_on != 0) { if (vips_object_set(VIPS_OBJECT(operation), "fail_on", fail_on, NULL)) { g_object_unref(operation); return 1; } }
     if (revalidate) { if (vips_object_set(VIPS_OBJECT(operation), "revalidate", revalidate, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_gifload_buffer(void* buf, size_t len, VipsImage** out) {
@@ -2290,15 +1795,9 @@ int vipsgen_gifload_buffer_with_options(void* buf, size_t len, VipsImage** out, 
     if (access != 0) { if (vips_object_set(VIPS_OBJECT(operation), "access", access, NULL)) { g_object_unref(operation); return 1; } }
     if (fail_on != 0) { if (vips_object_set(VIPS_OBJECT(operation), "fail_on", fail_on, NULL)) { g_object_unref(operation); return 1; } }
     if (revalidate) { if (vips_object_set(VIPS_OBJECT(operation), "revalidate", revalidate, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_gifload_source(VipsSourceCustom* source, VipsImage** out) {
@@ -2315,15 +1814,9 @@ int vipsgen_gifload_source_with_options(VipsSourceCustom* source, VipsImage** ou
     if (access != 0) { if (vips_object_set(VIPS_OBJECT(operation), "access", access, NULL)) { g_object_unref(operation); return 1; } }
     if (fail_on != 0) { if (vips_object_set(VIPS_OBJECT(operation), "fail_on", fail_on, NULL)) { g_object_unref(operation); return 1; } }
     if (revalidate) { if (vips_object_set(VIPS_OBJECT(operation), "revalidate", revalidate, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_pngload(const char* filename, VipsImage** out) {
@@ -2339,15 +1832,9 @@ int vipsgen_pngload_with_options(const char* filename, VipsImage** out, gboolean
     if (access != 0) { if (vips_object_set(VIPS_OBJECT(operation), "access", access, NULL)) { g_object_unref(operation); return 1; } }
     if (fail_on != 0) { if (vips_object_set(VIPS_OBJECT(operation), "fail_on", fail_on, NULL)) { g_object_unref(operation); return 1; } }
     if (revalidate) { if (vips_object_set(VIPS_OBJECT(operation), "revalidate", revalidate, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_pngload_buffer(void* buf, size_t len, VipsImage** out) {
@@ -2364,15 +1851,9 @@ int vipsgen_pngload_buffer_with_options(void* buf, size_t len, VipsImage** out, 
     if (access != 0) { if (vips_object_set(VIPS_OBJECT(operation), "access", access, NULL)) { g_object_unref(operation); return 1; } }
     if (fail_on != 0) { if (vips_object_set(VIPS_OBJECT(operation), "fail_on", fail_on, NULL)) { g_object_unref(operation); return 1; } }
     if (revalidate) { if (vips_object_set(VIPS_OBJECT(operation), "revalidate", revalidate, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_pngload_source(VipsSourceCustom* source, VipsImage** out) {
@@ -2388,15 +1869,9 @@ int vipsgen_pngload_source_with_options(VipsSourceCustom* source, VipsImage** ou
     if (access != 0) { if (vips_object_set(VIPS_OBJECT(operation), "access", access, NULL)) { g_object_unref(operation); return 1; } }
     if (fail_on != 0) { if (vips_object_set(VIPS_OBJECT(operation), "fail_on", fail_on, NULL)) { g_object_unref(operation); return 1; } }
     if (revalidate) { if (vips_object_set(VIPS_OBJECT(operation), "revalidate", revalidate, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_jpegload(const char* filename, VipsImage** out) {
@@ -2414,15 +1889,9 @@ int vipsgen_jpegload_with_options(const char* filename, VipsImage** out, int shr
     if (access != 0) { if (vips_object_set(VIPS_OBJECT(operation), "access", access, NULL)) { g_object_unref(operation); return 1; } }
     if (fail_on != 0) { if (vips_object_set(VIPS_OBJECT(operation), "fail_on", fail_on, NULL)) { g_object_unref(operation); return 1; } }
     if (revalidate) { if (vips_object_set(VIPS_OBJECT(operation), "revalidate", revalidate, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_jpegload_buffer(void* buf, size_t len, VipsImage** out) {
@@ -2441,15 +1910,9 @@ int vipsgen_jpegload_buffer_with_options(void* buf, size_t len, VipsImage** out,
     if (access != 0) { if (vips_object_set(VIPS_OBJECT(operation), "access", access, NULL)) { g_object_unref(operation); return 1; } }
     if (fail_on != 0) { if (vips_object_set(VIPS_OBJECT(operation), "fail_on", fail_on, NULL)) { g_object_unref(operation); return 1; } }
     if (revalidate) { if (vips_object_set(VIPS_OBJECT(operation), "revalidate", revalidate, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_jpegload_source(VipsSourceCustom* source, VipsImage** out) {
@@ -2467,15 +1930,9 @@ int vipsgen_jpegload_source_with_options(VipsSourceCustom* source, VipsImage** o
     if (access != 0) { if (vips_object_set(VIPS_OBJECT(operation), "access", access, NULL)) { g_object_unref(operation); return 1; } }
     if (fail_on != 0) { if (vips_object_set(VIPS_OBJECT(operation), "fail_on", fail_on, NULL)) { g_object_unref(operation); return 1; } }
     if (revalidate) { if (vips_object_set(VIPS_OBJECT(operation), "revalidate", revalidate, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_webpload(const char* filename, VipsImage** out) {
@@ -2493,15 +1950,9 @@ int vipsgen_webpload_with_options(const char* filename, VipsImage** out, int pag
     if (access != 0) { if (vips_object_set(VIPS_OBJECT(operation), "access", access, NULL)) { g_object_unref(operation); return 1; } }
     if (fail_on != 0) { if (vips_object_set(VIPS_OBJECT(operation), "fail_on", fail_on, NULL)) { g_object_unref(operation); return 1; } }
     if (revalidate) { if (vips_object_set(VIPS_OBJECT(operation), "revalidate", revalidate, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_webpload_buffer(void* buf, size_t len, VipsImage** out) {
@@ -2520,15 +1971,9 @@ int vipsgen_webpload_buffer_with_options(void* buf, size_t len, VipsImage** out,
     if (access != 0) { if (vips_object_set(VIPS_OBJECT(operation), "access", access, NULL)) { g_object_unref(operation); return 1; } }
     if (fail_on != 0) { if (vips_object_set(VIPS_OBJECT(operation), "fail_on", fail_on, NULL)) { g_object_unref(operation); return 1; } }
     if (revalidate) { if (vips_object_set(VIPS_OBJECT(operation), "revalidate", revalidate, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_webpload_source(VipsSourceCustom* source, VipsImage** out) {
@@ -2546,15 +1991,9 @@ int vipsgen_webpload_source_with_options(VipsSourceCustom* source, VipsImage** o
     if (access != 0) { if (vips_object_set(VIPS_OBJECT(operation), "access", access, NULL)) { g_object_unref(operation); return 1; } }
     if (fail_on != 0) { if (vips_object_set(VIPS_OBJECT(operation), "fail_on", fail_on, NULL)) { g_object_unref(operation); return 1; } }
     if (revalidate) { if (vips_object_set(VIPS_OBJECT(operation), "revalidate", revalidate, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_tiffload(const char* filename, VipsImage** out) {
@@ -2573,15 +2012,9 @@ int vipsgen_tiffload_with_options(const char* filename, VipsImage** out, int pag
     if (access != 0) { if (vips_object_set(VIPS_OBJECT(operation), "access", access, NULL)) { g_object_unref(operation); return 1; } }
     if (fail_on != 0) { if (vips_object_set(VIPS_OBJECT(operation), "fail_on", fail_on, NULL)) { g_object_unref(operation); return 1; } }
     if (revalidate) { if (vips_object_set(VIPS_OBJECT(operation), "revalidate", revalidate, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_tiffload_buffer(void* buf, size_t len, VipsImage** out) {
@@ -2601,15 +2034,9 @@ int vipsgen_tiffload_buffer_with_options(void* buf, size_t len, VipsImage** out,
     if (access != 0) { if (vips_object_set(VIPS_OBJECT(operation), "access", access, NULL)) { g_object_unref(operation); return 1; } }
     if (fail_on != 0) { if (vips_object_set(VIPS_OBJECT(operation), "fail_on", fail_on, NULL)) { g_object_unref(operation); return 1; } }
     if (revalidate) { if (vips_object_set(VIPS_OBJECT(operation), "revalidate", revalidate, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_tiffload_source(VipsSourceCustom* source, VipsImage** out) {
@@ -2628,15 +2055,9 @@ int vipsgen_tiffload_source_with_options(VipsSourceCustom* source, VipsImage** o
     if (access != 0) { if (vips_object_set(VIPS_OBJECT(operation), "access", access, NULL)) { g_object_unref(operation); return 1; } }
     if (fail_on != 0) { if (vips_object_set(VIPS_OBJECT(operation), "fail_on", fail_on, NULL)) { g_object_unref(operation); return 1; } }
     if (revalidate) { if (vips_object_set(VIPS_OBJECT(operation), "revalidate", revalidate, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_fitsload(const char* filename, VipsImage** out) {
@@ -2651,15 +2072,9 @@ int vipsgen_fitsload_with_options(const char* filename, VipsImage** out, gboolea
     if (access != 0) { if (vips_object_set(VIPS_OBJECT(operation), "access", access, NULL)) { g_object_unref(operation); return 1; } }
     if (fail_on != 0) { if (vips_object_set(VIPS_OBJECT(operation), "fail_on", fail_on, NULL)) { g_object_unref(operation); return 1; } }
     if (revalidate) { if (vips_object_set(VIPS_OBJECT(operation), "revalidate", revalidate, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_openexrload(const char* filename, VipsImage** out) {
@@ -2674,15 +2089,9 @@ int vipsgen_openexrload_with_options(const char* filename, VipsImage** out, gboo
     if (access != 0) { if (vips_object_set(VIPS_OBJECT(operation), "access", access, NULL)) { g_object_unref(operation); return 1; } }
     if (fail_on != 0) { if (vips_object_set(VIPS_OBJECT(operation), "fail_on", fail_on, NULL)) { g_object_unref(operation); return 1; } }
     if (revalidate) { if (vips_object_set(VIPS_OBJECT(operation), "revalidate", revalidate, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_magickload(const char* filename, VipsImage** out) {
@@ -2700,15 +2109,9 @@ int vipsgen_magickload_with_options(const char* filename, VipsImage** out, const
     if (access != 0) { if (vips_object_set(VIPS_OBJECT(operation), "access", access, NULL)) { g_object_unref(operation); return 1; } }
     if (fail_on != 0) { if (vips_object_set(VIPS_OBJECT(operation), "fail_on", fail_on, NULL)) { g_object_unref(operation); return 1; } }
     if (revalidate) { if (vips_object_set(VIPS_OBJECT(operation), "revalidate", revalidate, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_magickload_buffer(void* buf, size_t len, VipsImage** out) {
@@ -2727,15 +2130,9 @@ int vipsgen_magickload_buffer_with_options(void* buf, size_t len, VipsImage** ou
     if (access != 0) { if (vips_object_set(VIPS_OBJECT(operation), "access", access, NULL)) { g_object_unref(operation); return 1; } }
     if (fail_on != 0) { if (vips_object_set(VIPS_OBJECT(operation), "fail_on", fail_on, NULL)) { g_object_unref(operation); return 1; } }
     if (revalidate) { if (vips_object_set(VIPS_OBJECT(operation), "revalidate", revalidate, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_heifload(const char* filename, VipsImage** out) {
@@ -2754,15 +2151,9 @@ int vipsgen_heifload_with_options(const char* filename, VipsImage** out, int pag
     if (access != 0) { if (vips_object_set(VIPS_OBJECT(operation), "access", access, NULL)) { g_object_unref(operation); return 1; } }
     if (fail_on != 0) { if (vips_object_set(VIPS_OBJECT(operation), "fail_on", fail_on, NULL)) { g_object_unref(operation); return 1; } }
     if (revalidate) { if (vips_object_set(VIPS_OBJECT(operation), "revalidate", revalidate, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_heifload_buffer(void* buf, size_t len, VipsImage** out) {
@@ -2782,15 +2173,9 @@ int vipsgen_heifload_buffer_with_options(void* buf, size_t len, VipsImage** out,
     if (access != 0) { if (vips_object_set(VIPS_OBJECT(operation), "access", access, NULL)) { g_object_unref(operation); return 1; } }
     if (fail_on != 0) { if (vips_object_set(VIPS_OBJECT(operation), "fail_on", fail_on, NULL)) { g_object_unref(operation); return 1; } }
     if (revalidate) { if (vips_object_set(VIPS_OBJECT(operation), "revalidate", revalidate, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_heifload_source(VipsSourceCustom* source, VipsImage** out) {
@@ -2809,15 +2194,9 @@ int vipsgen_heifload_source_with_options(VipsSourceCustom* source, VipsImage** o
     if (access != 0) { if (vips_object_set(VIPS_OBJECT(operation), "access", access, NULL)) { g_object_unref(operation); return 1; } }
     if (fail_on != 0) { if (vips_object_set(VIPS_OBJECT(operation), "fail_on", fail_on, NULL)) { g_object_unref(operation); return 1; } }
     if (revalidate) { if (vips_object_set(VIPS_OBJECT(operation), "revalidate", revalidate, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_openslideload(const char* filename, VipsImage** out) {
@@ -2837,15 +2216,9 @@ int vipsgen_openslideload_with_options(const char* filename, VipsImage** out, in
     if (access != 0) { if (vips_object_set(VIPS_OBJECT(operation), "access", access, NULL)) { g_object_unref(operation); return 1; } }
     if (fail_on != 0) { if (vips_object_set(VIPS_OBJECT(operation), "fail_on", fail_on, NULL)) { g_object_unref(operation); return 1; } }
     if (revalidate) { if (vips_object_set(VIPS_OBJECT(operation), "revalidate", revalidate, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_openslideload_source(VipsSourceCustom* source, VipsImage** out) {
@@ -2865,15 +2238,9 @@ int vipsgen_openslideload_source_with_options(VipsSourceCustom* source, VipsImag
     if (access != 0) { if (vips_object_set(VIPS_OBJECT(operation), "access", access, NULL)) { g_object_unref(operation); return 1; } }
     if (fail_on != 0) { if (vips_object_set(VIPS_OBJECT(operation), "fail_on", fail_on, NULL)) { g_object_unref(operation); return 1; } }
     if (revalidate) { if (vips_object_set(VIPS_OBJECT(operation), "revalidate", revalidate, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_pdfload(const char* filename, VipsImage** out) {
@@ -2896,17 +2263,11 @@ int vipsgen_pdfload_with_options(const char* filename, VipsImage** out, int page
     if (access != 0) { if (vips_object_set(VIPS_OBJECT(operation), "access", access, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
     if (fail_on != 0) { if (vips_object_set(VIPS_OBJECT(operation), "fail_on", fail_on, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
     if (revalidate) { if (vips_object_set(VIPS_OBJECT(operation), "revalidate", revalidate, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+
     if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+    return result;
 }
 
 int vipsgen_pdfload_buffer(void* buf, size_t len, VipsImage** out) {
@@ -2930,17 +2291,11 @@ int vipsgen_pdfload_buffer_with_options(void* buf, size_t len, VipsImage** out, 
     if (access != 0) { if (vips_object_set(VIPS_OBJECT(operation), "access", access, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
     if (fail_on != 0) { if (vips_object_set(VIPS_OBJECT(operation), "fail_on", fail_on, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
     if (revalidate) { if (vips_object_set(VIPS_OBJECT(operation), "revalidate", revalidate, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+
     if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+    return result;
 }
 
 int vipsgen_pdfload_source(VipsSourceCustom* source, VipsImage** out) {
@@ -2963,17 +2318,11 @@ int vipsgen_pdfload_source_with_options(VipsSourceCustom* source, VipsImage** ou
     if (access != 0) { if (vips_object_set(VIPS_OBJECT(operation), "access", access, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
     if (fail_on != 0) { if (vips_object_set(VIPS_OBJECT(operation), "fail_on", fail_on, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
     if (revalidate) { if (vips_object_set(VIPS_OBJECT(operation), "revalidate", revalidate, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+
     if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+    return result;
 }
 
 int vipsgen_csvsave(VipsImage* in, const char* filename) {
@@ -2992,15 +2341,11 @@ int vipsgen_csvsave_with_options(VipsImage* in, const char* filename, const char
     if (background_array != NULL) { if (vips_object_set(VIPS_OBJECT(operation), "background", background_array, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
     if (page_height != 0) { if (vips_object_set(VIPS_OBJECT(operation), "page_height", page_height, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
     if (profile != NULL && strlen(profile) > 0) { if (vips_object_set(VIPS_OBJECT(operation), "profile", profile, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
+
+    int result = vipsgen_operation_execute(&operation, NULL);
+
     if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
-    g_object_unref(operation);
-    return 0;
+    return result;
 }
 
 int vipsgen_matrixsave(VipsImage* in, const char* filename) {
@@ -3018,15 +2363,11 @@ int vipsgen_matrixsave_with_options(VipsImage* in, const char* filename, VipsFor
     if (background_array != NULL) { if (vips_object_set(VIPS_OBJECT(operation), "background", background_array, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
     if (page_height != 0) { if (vips_object_set(VIPS_OBJECT(operation), "page_height", page_height, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
     if (profile != NULL && strlen(profile) > 0) { if (vips_object_set(VIPS_OBJECT(operation), "profile", profile, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
+
+    int result = vipsgen_operation_execute(&operation, NULL);
+
     if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
-    g_object_unref(operation);
-    return 0;
+    return result;
 }
 
 int vipsgen_matrixprint(VipsImage* in) {
@@ -3043,15 +2384,11 @@ int vipsgen_matrixprint_with_options(VipsImage* in, VipsForeignKeep keep, double
     if (background_array != NULL) { if (vips_object_set(VIPS_OBJECT(operation), "background", background_array, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
     if (page_height != 0) { if (vips_object_set(VIPS_OBJECT(operation), "page_height", page_height, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
     if (profile != NULL && strlen(profile) > 0) { if (vips_object_set(VIPS_OBJECT(operation), "profile", profile, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
+
+    int result = vipsgen_operation_execute(&operation, NULL);
+
     if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
-    g_object_unref(operation);
-    return 0;
+    return result;
 }
 
 int vipsgen_rawsave(VipsImage* in, const char* filename) {
@@ -3069,15 +2406,11 @@ int vipsgen_rawsave_with_options(VipsImage* in, const char* filename, VipsForeig
     if (background_array != NULL) { if (vips_object_set(VIPS_OBJECT(operation), "background", background_array, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
     if (page_height != 0) { if (vips_object_set(VIPS_OBJECT(operation), "page_height", page_height, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
     if (profile != NULL && strlen(profile) > 0) { if (vips_object_set(VIPS_OBJECT(operation), "profile", profile, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
+
+    int result = vipsgen_operation_execute(&operation, NULL);
+
     if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
-    g_object_unref(operation);
-    return 0;
+    return result;
 }
 
 int vipsgen_rawsave_buffer(VipsImage* in, void** buf, size_t* len) {
@@ -3094,18 +2427,11 @@ int vipsgen_rawsave_buffer_with_options(VipsImage* in, void** buf, size_t* len, 
     if (background_array != NULL) { if (vips_object_set(VIPS_OBJECT(operation), "background", background_array, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
     if (page_height != 0) { if (vips_object_set(VIPS_OBJECT(operation), "page_height", page_height, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
     if (profile != NULL && strlen(profile) > 0) { if (vips_object_set(VIPS_OBJECT(operation), "profile", profile, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "buffer", buf, NULL);
-    g_object_get(VIPS_OBJECT(operation), "buffer_length", len, NULL);
+
+    int result = vipsgen_operation_execute(&operation, "buffer", buf, "buffer_length", len, NULL);
+
     if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+    return result;
 }
 
 int vipsgen_vipssave(VipsImage* in, const char* filename) {
@@ -3123,15 +2449,11 @@ int vipsgen_vipssave_with_options(VipsImage* in, const char* filename, VipsForei
     if (background_array != NULL) { if (vips_object_set(VIPS_OBJECT(operation), "background", background_array, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
     if (page_height != 0) { if (vips_object_set(VIPS_OBJECT(operation), "page_height", page_height, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
     if (profile != NULL && strlen(profile) > 0) { if (vips_object_set(VIPS_OBJECT(operation), "profile", profile, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
+
+    int result = vipsgen_operation_execute(&operation, NULL);
+
     if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
-    g_object_unref(operation);
-    return 0;
+    return result;
 }
 
 int vipsgen_ppmsave(VipsImage* in, const char* filename) {
@@ -3152,15 +2474,11 @@ int vipsgen_ppmsave_with_options(VipsImage* in, const char* filename, VipsForeig
     if (background_array != NULL) { if (vips_object_set(VIPS_OBJECT(operation), "background", background_array, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
     if (page_height != 0) { if (vips_object_set(VIPS_OBJECT(operation), "page_height", page_height, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
     if (profile != NULL && strlen(profile) > 0) { if (vips_object_set(VIPS_OBJECT(operation), "profile", profile, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
+
+    int result = vipsgen_operation_execute(&operation, NULL);
+
     if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
-    g_object_unref(operation);
-    return 0;
+    return result;
 }
 
 int vipsgen_radsave(VipsImage* in, const char* filename) {
@@ -3178,15 +2496,11 @@ int vipsgen_radsave_with_options(VipsImage* in, const char* filename, VipsForeig
     if (background_array != NULL) { if (vips_object_set(VIPS_OBJECT(operation), "background", background_array, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
     if (page_height != 0) { if (vips_object_set(VIPS_OBJECT(operation), "page_height", page_height, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
     if (profile != NULL && strlen(profile) > 0) { if (vips_object_set(VIPS_OBJECT(operation), "profile", profile, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
+
+    int result = vipsgen_operation_execute(&operation, NULL);
+
     if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
-    g_object_unref(operation);
-    return 0;
+    return result;
 }
 
 int vipsgen_radsave_buffer(VipsImage* in, void** buf, size_t* len) {
@@ -3203,18 +2517,11 @@ int vipsgen_radsave_buffer_with_options(VipsImage* in, void** buf, size_t* len, 
     if (background_array != NULL) { if (vips_object_set(VIPS_OBJECT(operation), "background", background_array, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
     if (page_height != 0) { if (vips_object_set(VIPS_OBJECT(operation), "page_height", page_height, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
     if (profile != NULL && strlen(profile) > 0) { if (vips_object_set(VIPS_OBJECT(operation), "profile", profile, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "buffer", buf, NULL);
-    g_object_get(VIPS_OBJECT(operation), "buffer_length", len, NULL);
+
+    int result = vipsgen_operation_execute(&operation, "buffer", buf, "buffer_length", len, NULL);
+
     if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+    return result;
 }
 
 int vipsgen_jp2ksave(VipsImage* in, const char* filename) {
@@ -3237,15 +2544,11 @@ int vipsgen_jp2ksave_with_options(VipsImage* in, const char* filename, int tile_
     if (background_array != NULL) { if (vips_object_set(VIPS_OBJECT(operation), "background", background_array, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
     if (page_height != 0) { if (vips_object_set(VIPS_OBJECT(operation), "page_height", page_height, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
     if (profile != NULL && strlen(profile) > 0) { if (vips_object_set(VIPS_OBJECT(operation), "profile", profile, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
+
+    int result = vipsgen_operation_execute(&operation, NULL);
+
     if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
-    g_object_unref(operation);
-    return 0;
+    return result;
 }
 
 int vipsgen_jp2ksave_buffer(VipsImage* in, void** buf, size_t* len) {
@@ -3267,18 +2570,11 @@ int vipsgen_jp2ksave_buffer_with_options(VipsImage* in, void** buf, size_t* len,
     if (background_array != NULL) { if (vips_object_set(VIPS_OBJECT(operation), "background", background_array, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
     if (page_height != 0) { if (vips_object_set(VIPS_OBJECT(operation), "page_height", page_height, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
     if (profile != NULL && strlen(profile) > 0) { if (vips_object_set(VIPS_OBJECT(operation), "profile", profile, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "buffer", buf, NULL);
-    g_object_get(VIPS_OBJECT(operation), "buffer_length", len, NULL);
+
+    int result = vipsgen_operation_execute(&operation, "buffer", buf, "buffer_length", len, NULL);
+
     if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+    return result;
 }
 
 int vipsgen_gifsave(VipsImage* in, const char* filename) {
@@ -3303,15 +2599,11 @@ int vipsgen_gifsave_with_options(VipsImage* in, const char* filename, double dit
     if (background_array != NULL) { if (vips_object_set(VIPS_OBJECT(operation), "background", background_array, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
     if (page_height != 0) { if (vips_object_set(VIPS_OBJECT(operation), "page_height", page_height, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
     if (profile != NULL && strlen(profile) > 0) { if (vips_object_set(VIPS_OBJECT(operation), "profile", profile, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
+
+    int result = vipsgen_operation_execute(&operation, NULL);
+
     if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
-    g_object_unref(operation);
-    return 0;
+    return result;
 }
 
 int vipsgen_gifsave_buffer(VipsImage* in, void** buf, size_t* len) {
@@ -3335,18 +2627,11 @@ int vipsgen_gifsave_buffer_with_options(VipsImage* in, void** buf, size_t* len, 
     if (background_array != NULL) { if (vips_object_set(VIPS_OBJECT(operation), "background", background_array, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
     if (page_height != 0) { if (vips_object_set(VIPS_OBJECT(operation), "page_height", page_height, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
     if (profile != NULL && strlen(profile) > 0) { if (vips_object_set(VIPS_OBJECT(operation), "profile", profile, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "buffer", buf, NULL);
-    g_object_get(VIPS_OBJECT(operation), "buffer_length", len, NULL);
+
+    int result = vipsgen_operation_execute(&operation, "buffer", buf, "buffer_length", len, NULL);
+
     if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+    return result;
 }
 
 int vipsgen_pngsave(VipsImage* in, const char* filename) {
@@ -3372,15 +2657,11 @@ int vipsgen_pngsave_with_options(VipsImage* in, const char* filename, int compre
     if (background_array != NULL) { if (vips_object_set(VIPS_OBJECT(operation), "background", background_array, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
     if (page_height != 0) { if (vips_object_set(VIPS_OBJECT(operation), "page_height", page_height, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
     if (profile != NULL && strlen(profile) > 0) { if (vips_object_set(VIPS_OBJECT(operation), "profile", profile, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
+
+    int result = vipsgen_operation_execute(&operation, NULL);
+
     if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
-    g_object_unref(operation);
-    return 0;
+    return result;
 }
 
 int vipsgen_pngsave_buffer(VipsImage* in, void** buf, size_t* len) {
@@ -3405,18 +2686,11 @@ int vipsgen_pngsave_buffer_with_options(VipsImage* in, void** buf, size_t* len, 
     if (background_array != NULL) { if (vips_object_set(VIPS_OBJECT(operation), "background", background_array, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
     if (page_height != 0) { if (vips_object_set(VIPS_OBJECT(operation), "page_height", page_height, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
     if (profile != NULL && strlen(profile) > 0) { if (vips_object_set(VIPS_OBJECT(operation), "profile", profile, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "buffer", buf, NULL);
-    g_object_get(VIPS_OBJECT(operation), "buffer_length", len, NULL);
+
+    int result = vipsgen_operation_execute(&operation, "buffer", buf, "buffer_length", len, NULL);
+
     if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+    return result;
 }
 
 int vipsgen_jpegsave(VipsImage* in, const char* filename) {
@@ -3443,15 +2717,11 @@ int vipsgen_jpegsave_with_options(VipsImage* in, const char* filename, int Q, gb
     if (background_array != NULL) { if (vips_object_set(VIPS_OBJECT(operation), "background", background_array, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
     if (page_height != 0) { if (vips_object_set(VIPS_OBJECT(operation), "page_height", page_height, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
     if (profile != NULL && strlen(profile) > 0) { if (vips_object_set(VIPS_OBJECT(operation), "profile", profile, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
+
+    int result = vipsgen_operation_execute(&operation, NULL);
+
     if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
-    g_object_unref(operation);
-    return 0;
+    return result;
 }
 
 int vipsgen_jpegsave_buffer(VipsImage* in, void** buf, size_t* len) {
@@ -3477,18 +2747,11 @@ int vipsgen_jpegsave_buffer_with_options(VipsImage* in, void** buf, size_t* len,
     if (background_array != NULL) { if (vips_object_set(VIPS_OBJECT(operation), "background", background_array, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
     if (page_height != 0) { if (vips_object_set(VIPS_OBJECT(operation), "page_height", page_height, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
     if (profile != NULL && strlen(profile) > 0) { if (vips_object_set(VIPS_OBJECT(operation), "profile", profile, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "buffer", buf, NULL);
-    g_object_get(VIPS_OBJECT(operation), "buffer_length", len, NULL);
+
+    int result = vipsgen_operation_execute(&operation, "buffer", buf, "buffer_length", len, NULL);
+
     if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+    return result;
 }
 
 int vipsgen_webpsave(VipsImage* in, const char* filename) {
@@ -3520,15 +2783,11 @@ int vipsgen_webpsave_with_options(VipsImage* in, const char* filename, int Q, gb
     if (background_array != NULL) { if (vips_object_set(VIPS_OBJECT(operation), "background", background_array, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
     if (page_height != 0) { if (vips_object_set(VIPS_OBJECT(operation), "page_height", page_height, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
     if (profile != NULL && strlen(profile) > 0) { if (vips_object_set(VIPS_OBJECT(operation), "profile", profile, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
+
+    int result = vipsgen_operation_execute(&operation, NULL);
+
     if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
-    g_object_unref(operation);
-    return 0;
+    return result;
 }
 
 int vipsgen_webpsave_buffer(VipsImage* in, void** buf, size_t* len) {
@@ -3559,18 +2818,11 @@ int vipsgen_webpsave_buffer_with_options(VipsImage* in, void** buf, size_t* len,
     if (background_array != NULL) { if (vips_object_set(VIPS_OBJECT(operation), "background", background_array, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
     if (page_height != 0) { if (vips_object_set(VIPS_OBJECT(operation), "page_height", page_height, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
     if (profile != NULL && strlen(profile) > 0) { if (vips_object_set(VIPS_OBJECT(operation), "profile", profile, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "buffer", buf, NULL);
-    g_object_get(VIPS_OBJECT(operation), "buffer_length", len, NULL);
+
+    int result = vipsgen_operation_execute(&operation, "buffer", buf, "buffer_length", len, NULL);
+
     if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+    return result;
 }
 
 int vipsgen_tiffsave(VipsImage* in, const char* filename) {
@@ -3608,15 +2860,11 @@ int vipsgen_tiffsave_with_options(VipsImage* in, const char* filename, VipsForei
     if (background_array != NULL) { if (vips_object_set(VIPS_OBJECT(operation), "background", background_array, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
     if (page_height != 0) { if (vips_object_set(VIPS_OBJECT(operation), "page_height", page_height, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
     if (profile != NULL && strlen(profile) > 0) { if (vips_object_set(VIPS_OBJECT(operation), "profile", profile, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
+
+    int result = vipsgen_operation_execute(&operation, NULL);
+
     if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
-    g_object_unref(operation);
-    return 0;
+    return result;
 }
 
 int vipsgen_tiffsave_buffer(VipsImage* in, void** buf, size_t* len) {
@@ -3653,18 +2901,11 @@ int vipsgen_tiffsave_buffer_with_options(VipsImage* in, void** buf, size_t* len,
     if (background_array != NULL) { if (vips_object_set(VIPS_OBJECT(operation), "background", background_array, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
     if (page_height != 0) { if (vips_object_set(VIPS_OBJECT(operation), "page_height", page_height, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
     if (profile != NULL && strlen(profile) > 0) { if (vips_object_set(VIPS_OBJECT(operation), "profile", profile, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "buffer", buf, NULL);
-    g_object_get(VIPS_OBJECT(operation), "buffer_length", len, NULL);
+
+    int result = vipsgen_operation_execute(&operation, "buffer", buf, "buffer_length", len, NULL);
+
     if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+    return result;
 }
 
 int vipsgen_fitssave(VipsImage* in, const char* filename) {
@@ -3682,15 +2923,11 @@ int vipsgen_fitssave_with_options(VipsImage* in, const char* filename, VipsForei
     if (background_array != NULL) { if (vips_object_set(VIPS_OBJECT(operation), "background", background_array, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
     if (page_height != 0) { if (vips_object_set(VIPS_OBJECT(operation), "page_height", page_height, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
     if (profile != NULL && strlen(profile) > 0) { if (vips_object_set(VIPS_OBJECT(operation), "profile", profile, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
+
+    int result = vipsgen_operation_execute(&operation, NULL);
+
     if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
-    g_object_unref(operation);
-    return 0;
+    return result;
 }
 
 int vipsgen_magicksave(VipsImage* in, const char* filename) {
@@ -3713,15 +2950,11 @@ int vipsgen_magicksave_with_options(VipsImage* in, const char* filename, const c
     if (background_array != NULL) { if (vips_object_set(VIPS_OBJECT(operation), "background", background_array, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
     if (page_height != 0) { if (vips_object_set(VIPS_OBJECT(operation), "page_height", page_height, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
     if (profile != NULL && strlen(profile) > 0) { if (vips_object_set(VIPS_OBJECT(operation), "profile", profile, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
+
+    int result = vipsgen_operation_execute(&operation, NULL);
+
     if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
-    g_object_unref(operation);
-    return 0;
+    return result;
 }
 
 int vipsgen_magicksave_buffer(VipsImage* in, void** buf, size_t* len) {
@@ -3743,18 +2976,11 @@ int vipsgen_magicksave_buffer_with_options(VipsImage* in, void** buf, size_t* le
     if (background_array != NULL) { if (vips_object_set(VIPS_OBJECT(operation), "background", background_array, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
     if (page_height != 0) { if (vips_object_set(VIPS_OBJECT(operation), "page_height", page_height, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
     if (profile != NULL && strlen(profile) > 0) { if (vips_object_set(VIPS_OBJECT(operation), "profile", profile, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "buffer", buf, NULL);
-    g_object_get(VIPS_OBJECT(operation), "buffer_length", len, NULL);
+
+    int result = vipsgen_operation_execute(&operation, "buffer", buf, "buffer_length", len, NULL);
+
     if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+    return result;
 }
 
 int vipsgen_heifsave(VipsImage* in, const char* filename) {
@@ -3779,15 +3005,11 @@ int vipsgen_heifsave_with_options(VipsImage* in, const char* filename, int Q, in
     if (background_array != NULL) { if (vips_object_set(VIPS_OBJECT(operation), "background", background_array, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
     if (page_height != 0) { if (vips_object_set(VIPS_OBJECT(operation), "page_height", page_height, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
     if (profile != NULL && strlen(profile) > 0) { if (vips_object_set(VIPS_OBJECT(operation), "profile", profile, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
+
+    int result = vipsgen_operation_execute(&operation, NULL);
+
     if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
-    g_object_unref(operation);
-    return 0;
+    return result;
 }
 
 int vipsgen_heifsave_buffer(VipsImage* in, void** buf, size_t* len) {
@@ -3811,18 +3033,11 @@ int vipsgen_heifsave_buffer_with_options(VipsImage* in, void** buf, size_t* len,
     if (background_array != NULL) { if (vips_object_set(VIPS_OBJECT(operation), "background", background_array, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
     if (page_height != 0) { if (vips_object_set(VIPS_OBJECT(operation), "page_height", page_height, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
     if (profile != NULL && strlen(profile) > 0) { if (vips_object_set(VIPS_OBJECT(operation), "profile", profile, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "buffer", buf, NULL);
-    g_object_get(VIPS_OBJECT(operation), "buffer_length", len, NULL);
+
+    int result = vipsgen_operation_execute(&operation, "buffer", buf, "buffer_length", len, NULL);
+
     if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+    return result;
 }
 
 int vipsgen_thumbnail(const char* filename, VipsImage** out, int width) {
@@ -3843,15 +3058,9 @@ int vipsgen_thumbnail_with_options(const char* filename, VipsImage** out, int wi
     if (export_profile != NULL && strlen(export_profile) > 0) { if (vips_object_set(VIPS_OBJECT(operation), "export_profile", export_profile, NULL)) { g_object_unref(operation); return 1; } }
     if (intent != 0) { if (vips_object_set(VIPS_OBJECT(operation), "intent", intent, NULL)) { g_object_unref(operation); return 1; } }
     if (fail_on != 0) { if (vips_object_set(VIPS_OBJECT(operation), "fail_on", fail_on, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_thumbnail_buffer(void* buf, size_t len, VipsImage** out, int width) {
@@ -3874,15 +3083,9 @@ int vipsgen_thumbnail_buffer_with_options(void* buf, size_t len, VipsImage** out
     if (export_profile != NULL && strlen(export_profile) > 0) { if (vips_object_set(VIPS_OBJECT(operation), "export_profile", export_profile, NULL)) { g_object_unref(operation); return 1; } }
     if (intent != 0) { if (vips_object_set(VIPS_OBJECT(operation), "intent", intent, NULL)) { g_object_unref(operation); return 1; } }
     if (fail_on != 0) { if (vips_object_set(VIPS_OBJECT(operation), "fail_on", fail_on, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_thumbnail_image(VipsImage* in, VipsImage** out, int width) {
@@ -3903,15 +3106,9 @@ int vipsgen_thumbnail_image_with_options(VipsImage* in, VipsImage** out, int wid
     if (export_profile != NULL && strlen(export_profile) > 0) { if (vips_object_set(VIPS_OBJECT(operation), "export_profile", export_profile, NULL)) { g_object_unref(operation); return 1; } }
     if (intent != 0) { if (vips_object_set(VIPS_OBJECT(operation), "intent", intent, NULL)) { g_object_unref(operation); return 1; } }
     if (fail_on != 0) { if (vips_object_set(VIPS_OBJECT(operation), "fail_on", fail_on, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_thumbnail_source(VipsSourceCustom* source, VipsImage** out, int width) {
@@ -3933,15 +3130,9 @@ int vipsgen_thumbnail_source_with_options(VipsSourceCustom* source, VipsImage** 
     if (export_profile != NULL && strlen(export_profile) > 0) { if (vips_object_set(VIPS_OBJECT(operation), "export_profile", export_profile, NULL)) { g_object_unref(operation); return 1; } }
     if (intent != 0) { if (vips_object_set(VIPS_OBJECT(operation), "intent", intent, NULL)) { g_object_unref(operation); return 1; } }
     if (fail_on != 0) { if (vips_object_set(VIPS_OBJECT(operation), "fail_on", fail_on, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_mapim(VipsImage* in, VipsImage** out, VipsImage* index) {
@@ -3958,17 +3149,11 @@ int vipsgen_mapim_with_options(VipsImage* in, VipsImage** out, VipsImage* index,
     if (background_array != NULL) { if (vips_object_set(VIPS_OBJECT(operation), "background", background_array, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
     if (premultiplied) { if (vips_object_set(VIPS_OBJECT(operation), "premultiplied", premultiplied, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
     if (extend != 0) { if (vips_object_set(VIPS_OBJECT(operation), "extend", extend, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+
     if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+    return result;
 }
 
 int vipsgen_shrink(VipsImage* in, VipsImage** out, double hshrink, double vshrink) {
@@ -3982,15 +3167,9 @@ int vipsgen_shrink_with_options(VipsImage* in, VipsImage** out, double hshrink, 
     if (vips_object_set(VIPS_OBJECT(operation), "hshrink", hshrink, NULL)) { g_object_unref(operation); return 1; }
     if (vips_object_set(VIPS_OBJECT(operation), "vshrink", vshrink, NULL)) { g_object_unref(operation); return 1; }
     if (ceil) { if (vips_object_set(VIPS_OBJECT(operation), "ceil", ceil, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_shrinkh(VipsImage* in, VipsImage** out, int hshrink) {
@@ -4003,15 +3182,9 @@ int vipsgen_shrinkh_with_options(VipsImage* in, VipsImage** out, int hshrink, gb
     if (vips_object_set(VIPS_OBJECT(operation), "in", in, NULL)) { g_object_unref(operation); return 1; }
     if (vips_object_set(VIPS_OBJECT(operation), "hshrink", hshrink, NULL)) { g_object_unref(operation); return 1; }
     if (ceil) { if (vips_object_set(VIPS_OBJECT(operation), "ceil", ceil, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_shrinkv(VipsImage* in, VipsImage** out, int vshrink) {
@@ -4024,15 +3197,9 @@ int vipsgen_shrinkv_with_options(VipsImage* in, VipsImage** out, int vshrink, gb
     if (vips_object_set(VIPS_OBJECT(operation), "in", in, NULL)) { g_object_unref(operation); return 1; }
     if (vips_object_set(VIPS_OBJECT(operation), "vshrink", vshrink, NULL)) { g_object_unref(operation); return 1; }
     if (ceil) { if (vips_object_set(VIPS_OBJECT(operation), "ceil", ceil, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_reduceh(VipsImage* in, VipsImage** out, double hshrink) {
@@ -4046,15 +3213,9 @@ int vipsgen_reduceh_with_options(VipsImage* in, VipsImage** out, double hshrink,
     if (vips_object_set(VIPS_OBJECT(operation), "hshrink", hshrink, NULL)) { g_object_unref(operation); return 1; }
     if (kernel != 0) { if (vips_object_set(VIPS_OBJECT(operation), "kernel", kernel, NULL)) { g_object_unref(operation); return 1; } }
     if (gap != 0) { if (vips_object_set(VIPS_OBJECT(operation), "gap", gap, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_reducev(VipsImage* in, VipsImage** out, double vshrink) {
@@ -4068,15 +3229,9 @@ int vipsgen_reducev_with_options(VipsImage* in, VipsImage** out, double vshrink,
     if (vips_object_set(VIPS_OBJECT(operation), "vshrink", vshrink, NULL)) { g_object_unref(operation); return 1; }
     if (kernel != 0) { if (vips_object_set(VIPS_OBJECT(operation), "kernel", kernel, NULL)) { g_object_unref(operation); return 1; } }
     if (gap != 0) { if (vips_object_set(VIPS_OBJECT(operation), "gap", gap, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_reduce(VipsImage* in, VipsImage** out, double hshrink, double vshrink) {
@@ -4091,15 +3246,9 @@ int vipsgen_reduce_with_options(VipsImage* in, VipsImage** out, double hshrink, 
     if (vips_object_set(VIPS_OBJECT(operation), "vshrink", vshrink, NULL)) { g_object_unref(operation); return 1; }
     if (kernel != 0) { if (vips_object_set(VIPS_OBJECT(operation), "kernel", kernel, NULL)) { g_object_unref(operation); return 1; } }
     if (gap != 0) { if (vips_object_set(VIPS_OBJECT(operation), "gap", gap, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_quadratic(VipsImage* in, VipsImage** out, VipsImage* coeff) {
@@ -4111,15 +3260,9 @@ int vipsgen_quadratic_with_options(VipsImage* in, VipsImage** out, VipsImage* co
     if (!operation) return 1;
     if (vips_object_set(VIPS_OBJECT(operation), "in", in, NULL)) { g_object_unref(operation); return 1; }
     if (vips_object_set(VIPS_OBJECT(operation), "coeff", coeff, NULL)) { g_object_unref(operation); return 1; }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_affine(VipsImage* in, VipsImage** out, double a, double b, double c, double d) {
@@ -4146,19 +3289,12 @@ int vipsgen_affine_with_options(VipsImage* in, VipsImage** out, double a, double
     if (background_array != NULL) { if (vips_object_set(VIPS_OBJECT(operation), "background", background_array, NULL)) { g_object_unref(operation); if (oarea_array != NULL) { vips_area_unref(VIPS_AREA(oarea_array)); } if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
     if (premultiplied) { if (vips_object_set(VIPS_OBJECT(operation), "premultiplied", premultiplied, NULL)) { g_object_unref(operation); if (oarea_array != NULL) { vips_area_unref(VIPS_AREA(oarea_array)); } if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
     if (extend != 0) { if (vips_object_set(VIPS_OBJECT(operation), "extend", extend, NULL)) { g_object_unref(operation); if (oarea_array != NULL) { vips_area_unref(VIPS_AREA(oarea_array)); } if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        if (oarea_array != NULL) { vips_area_unref(VIPS_AREA(oarea_array)); }
-        if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+
     if (oarea_array != NULL) { vips_area_unref(VIPS_AREA(oarea_array)); }
     if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+    return result;
 }
 
 int vipsgen_similarity(VipsImage* in, VipsImage** out) {
@@ -4178,17 +3314,11 @@ int vipsgen_similarity_with_options(VipsImage* in, VipsImage** out, double scale
     if (ody != 0) { if (vips_object_set(VIPS_OBJECT(operation), "ody", ody, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
     if (idx != 0) { if (vips_object_set(VIPS_OBJECT(operation), "idx", idx, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
     if (idy != 0) { if (vips_object_set(VIPS_OBJECT(operation), "idy", idy, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+
     if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+    return result;
 }
 
 int vipsgen_rotate(VipsImage* in, VipsImage** out, double angle) {
@@ -4207,17 +3337,11 @@ int vipsgen_rotate_with_options(VipsImage* in, VipsImage** out, double angle, Vi
     if (ody != 0) { if (vips_object_set(VIPS_OBJECT(operation), "ody", ody, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
     if (idx != 0) { if (vips_object_set(VIPS_OBJECT(operation), "idx", idx, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
     if (idy != 0) { if (vips_object_set(VIPS_OBJECT(operation), "idy", idy, NULL)) { g_object_unref(operation); if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); } return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+
     if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+    return result;
 }
 
 int vipsgen_resize(VipsImage* in, VipsImage** out, double scale) {
@@ -4232,15 +3356,9 @@ int vipsgen_resize_with_options(VipsImage* in, VipsImage** out, double scale, Vi
     if (kernel != 0) { if (vips_object_set(VIPS_OBJECT(operation), "kernel", kernel, NULL)) { g_object_unref(operation); return 1; } }
     if (gap != 0) { if (vips_object_set(VIPS_OBJECT(operation), "gap", gap, NULL)) { g_object_unref(operation); return 1; } }
     if (vscale != 0) { if (vips_object_set(VIPS_OBJECT(operation), "vscale", vscale, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_colourspace(VipsImage* in, VipsImage** out, VipsInterpretation space) {
@@ -4253,15 +3371,9 @@ int vipsgen_colourspace_with_options(VipsImage* in, VipsImage** out, VipsInterpr
     if (vips_object_set(VIPS_OBJECT(operation), "in", in, NULL)) { g_object_unref(operation); return 1; }
     if (vips_object_set(VIPS_OBJECT(operation), "space", space, NULL)) { g_object_unref(operation); return 1; }
     if (source_space != 0) { if (vips_object_set(VIPS_OBJECT(operation), "source_space", source_space, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_Lab2XYZ(VipsImage* in, VipsImage** out) {
@@ -4275,17 +3387,11 @@ int vipsgen_Lab2XYZ_with_options(VipsImage* in, VipsImage** out, double* temp, i
     VipsArrayDouble *temp_array = NULL;
     if (temp != NULL && temp_n > 0) { temp_array = vips_array_double_new(temp, temp_n); }
     if (temp_array != NULL) { if (vips_object_set(VIPS_OBJECT(operation), "temp", temp_array, NULL)) { g_object_unref(operation); if (temp_array != NULL) { vips_area_unref(VIPS_AREA(temp_array)); } return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        if (temp_array != NULL) { vips_area_unref(VIPS_AREA(temp_array)); }
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+
     if (temp_array != NULL) { vips_area_unref(VIPS_AREA(temp_array)); }
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+    return result;
 }
 
 int vipsgen_XYZ2Lab(VipsImage* in, VipsImage** out) {
@@ -4299,17 +3405,11 @@ int vipsgen_XYZ2Lab_with_options(VipsImage* in, VipsImage** out, double* temp, i
     VipsArrayDouble *temp_array = NULL;
     if (temp != NULL && temp_n > 0) { temp_array = vips_array_double_new(temp, temp_n); }
     if (temp_array != NULL) { if (vips_object_set(VIPS_OBJECT(operation), "temp", temp_array, NULL)) { g_object_unref(operation); if (temp_array != NULL) { vips_area_unref(VIPS_AREA(temp_array)); } return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        if (temp_array != NULL) { vips_area_unref(VIPS_AREA(temp_array)); }
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+
     if (temp_array != NULL) { vips_area_unref(VIPS_AREA(temp_array)); }
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+    return result;
 }
 
 int vipsgen_Lab2LCh(VipsImage* in, VipsImage** out) {
@@ -4393,15 +3493,9 @@ int vipsgen_icc_import_with_options(VipsImage* in, VipsImage** out, VipsPCS pcs,
     if (black_point_compensation) { if (vips_object_set(VIPS_OBJECT(operation), "black_point_compensation", black_point_compensation, NULL)) { g_object_unref(operation); return 1; } }
     if (embedded) { if (vips_object_set(VIPS_OBJECT(operation), "embedded", embedded, NULL)) { g_object_unref(operation); return 1; } }
     if (input_profile != NULL && strlen(input_profile) > 0) { if (vips_object_set(VIPS_OBJECT(operation), "input_profile", input_profile, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_icc_export(VipsImage* in, VipsImage** out) {
@@ -4417,15 +3511,9 @@ int vipsgen_icc_export_with_options(VipsImage* in, VipsImage** out, VipsPCS pcs,
     if (black_point_compensation) { if (vips_object_set(VIPS_OBJECT(operation), "black_point_compensation", black_point_compensation, NULL)) { g_object_unref(operation); return 1; } }
     if (output_profile != NULL && strlen(output_profile) > 0) { if (vips_object_set(VIPS_OBJECT(operation), "output_profile", output_profile, NULL)) { g_object_unref(operation); return 1; } }
     if (depth != 0) { if (vips_object_set(VIPS_OBJECT(operation), "depth", depth, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_icc_transform(VipsImage* in, VipsImage** out, const char* output_profile) {
@@ -4443,15 +3531,9 @@ int vipsgen_icc_transform_with_options(VipsImage* in, VipsImage** out, const cha
     if (embedded) { if (vips_object_set(VIPS_OBJECT(operation), "embedded", embedded, NULL)) { g_object_unref(operation); return 1; } }
     if (input_profile != NULL && strlen(input_profile) > 0) { if (vips_object_set(VIPS_OBJECT(operation), "input_profile", input_profile, NULL)) { g_object_unref(operation); return 1; } }
     if (depth != 0) { if (vips_object_set(VIPS_OBJECT(operation), "depth", depth, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_dE76(VipsImage* left, VipsImage* right, VipsImage** out) {
@@ -4483,15 +3565,9 @@ int vipsgen_scRGB2BW_with_options(VipsImage* in, VipsImage** out, int depth) {
     if (!operation) return 1;
     if (vips_object_set(VIPS_OBJECT(operation), "in", in, NULL)) { g_object_unref(operation); return 1; }
     if (depth != 0) { if (vips_object_set(VIPS_OBJECT(operation), "depth", depth, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_XYZ2scRGB(VipsImage* in, VipsImage** out) {
@@ -4507,15 +3583,9 @@ int vipsgen_scRGB2sRGB_with_options(VipsImage* in, VipsImage** out, int depth) {
     if (!operation) return 1;
     if (vips_object_set(VIPS_OBJECT(operation), "in", in, NULL)) { g_object_unref(operation); return 1; }
     if (depth != 0) { if (vips_object_set(VIPS_OBJECT(operation), "depth", depth, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_CMYK2XYZ(VipsImage* in, VipsImage** out) {
@@ -4540,15 +3610,9 @@ int vipsgen_maplut_with_options(VipsImage* in, VipsImage** out, VipsImage* lut, 
     if (vips_object_set(VIPS_OBJECT(operation), "in", in, NULL)) { g_object_unref(operation); return 1; }
     if (vips_object_set(VIPS_OBJECT(operation), "lut", lut, NULL)) { g_object_unref(operation); return 1; }
     if (band != 0) { if (vips_object_set(VIPS_OBJECT(operation), "band", band, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_case(VipsImage* index, VipsImage** cases, VipsImage** out, int n) {
@@ -4573,15 +3637,9 @@ int vipsgen_stdif_with_options(VipsImage* in, VipsImage** out, int width, int he
     if (b != 0) { if (vips_object_set(VIPS_OBJECT(operation), "b", b, NULL)) { g_object_unref(operation); return 1; } }
     if (m0 != 0) { if (vips_object_set(VIPS_OBJECT(operation), "m0", m0, NULL)) { g_object_unref(operation); return 1; } }
     if (a != 0) { if (vips_object_set(VIPS_OBJECT(operation), "a", a, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_hist_cum(VipsImage* in, VipsImage** out) {
@@ -4605,15 +3663,9 @@ int vipsgen_hist_equal_with_options(VipsImage* in, VipsImage** out, int band) {
     if (!operation) return 1;
     if (vips_object_set(VIPS_OBJECT(operation), "in", in, NULL)) { g_object_unref(operation); return 1; }
     if (band != 0) { if (vips_object_set(VIPS_OBJECT(operation), "band", band, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_hist_plot(VipsImage* in, VipsImage** out) {
@@ -4631,15 +3683,9 @@ int vipsgen_hist_local_with_options(VipsImage* in, VipsImage** out, int width, i
     if (vips_object_set(VIPS_OBJECT(operation), "width", width, NULL)) { g_object_unref(operation); return 1; }
     if (vips_object_set(VIPS_OBJECT(operation), "height", height, NULL)) { g_object_unref(operation); return 1; }
     if (max_slope != 0) { if (vips_object_set(VIPS_OBJECT(operation), "max_slope", max_slope, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_hist_ismonotonic(VipsImage* in, gboolean* monotonic) {
@@ -4662,15 +3708,9 @@ int vipsgen_conv_with_options(VipsImage* in, VipsImage** out, VipsImage* mask, V
     if (precision != 0) { if (vips_object_set(VIPS_OBJECT(operation), "precision", precision, NULL)) { g_object_unref(operation); return 1; } }
     if (layers != 0) { if (vips_object_set(VIPS_OBJECT(operation), "layers", layers, NULL)) { g_object_unref(operation); return 1; } }
     if (cluster != 0) { if (vips_object_set(VIPS_OBJECT(operation), "cluster", cluster, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_conva(VipsImage* in, VipsImage** out, VipsImage* mask) {
@@ -4684,15 +3724,9 @@ int vipsgen_conva_with_options(VipsImage* in, VipsImage** out, VipsImage* mask, 
     if (vips_object_set(VIPS_OBJECT(operation), "mask", mask, NULL)) { g_object_unref(operation); return 1; }
     if (layers != 0) { if (vips_object_set(VIPS_OBJECT(operation), "layers", layers, NULL)) { g_object_unref(operation); return 1; } }
     if (cluster != 0) { if (vips_object_set(VIPS_OBJECT(operation), "cluster", cluster, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_convf(VipsImage* in, VipsImage** out, VipsImage* mask) {
@@ -4718,15 +3752,9 @@ int vipsgen_compass_with_options(VipsImage* in, VipsImage** out, VipsImage* mask
     if (precision != 0) { if (vips_object_set(VIPS_OBJECT(operation), "precision", precision, NULL)) { g_object_unref(operation); return 1; } }
     if (layers != 0) { if (vips_object_set(VIPS_OBJECT(operation), "layers", layers, NULL)) { g_object_unref(operation); return 1; } }
     if (cluster != 0) { if (vips_object_set(VIPS_OBJECT(operation), "cluster", cluster, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_convsep(VipsImage* in, VipsImage** out, VipsImage* mask) {
@@ -4741,15 +3769,9 @@ int vipsgen_convsep_with_options(VipsImage* in, VipsImage** out, VipsImage* mask
     if (precision != 0) { if (vips_object_set(VIPS_OBJECT(operation), "precision", precision, NULL)) { g_object_unref(operation); return 1; } }
     if (layers != 0) { if (vips_object_set(VIPS_OBJECT(operation), "layers", layers, NULL)) { g_object_unref(operation); return 1; } }
     if (cluster != 0) { if (vips_object_set(VIPS_OBJECT(operation), "cluster", cluster, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_convasep(VipsImage* in, VipsImage** out, VipsImage* mask) {
@@ -4762,15 +3784,9 @@ int vipsgen_convasep_with_options(VipsImage* in, VipsImage** out, VipsImage* mas
     if (vips_object_set(VIPS_OBJECT(operation), "in", in, NULL)) { g_object_unref(operation); return 1; }
     if (vips_object_set(VIPS_OBJECT(operation), "mask", mask, NULL)) { g_object_unref(operation); return 1; }
     if (layers != 0) { if (vips_object_set(VIPS_OBJECT(operation), "layers", layers, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_fastcor(VipsImage* in, VipsImage* ref, VipsImage** out) {
@@ -4795,15 +3811,9 @@ int vipsgen_sharpen_with_options(VipsImage* in, VipsImage** out, double sigma, d
     if (y3 != 0) { if (vips_object_set(VIPS_OBJECT(operation), "y3", y3, NULL)) { g_object_unref(operation); return 1; } }
     if (m1 != 0) { if (vips_object_set(VIPS_OBJECT(operation), "m1", m1, NULL)) { g_object_unref(operation); return 1; } }
     if (m2 != 0) { if (vips_object_set(VIPS_OBJECT(operation), "m2", m2, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_gaussblur(VipsImage* in, VipsImage** out, double sigma) {
@@ -4817,15 +3827,9 @@ int vipsgen_gaussblur_with_options(VipsImage* in, VipsImage** out, double sigma,
     if (vips_object_set(VIPS_OBJECT(operation), "sigma", sigma, NULL)) { g_object_unref(operation); return 1; }
     if (min_ampl != 0) { if (vips_object_set(VIPS_OBJECT(operation), "min_ampl", min_ampl, NULL)) { g_object_unref(operation); return 1; } }
     if (precision != 0) { if (vips_object_set(VIPS_OBJECT(operation), "precision", precision, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_sobel(VipsImage* in, VipsImage** out) {
@@ -4850,15 +3854,9 @@ int vipsgen_canny_with_options(VipsImage* in, VipsImage** out, double sigma, Vip
     if (vips_object_set(VIPS_OBJECT(operation), "in", in, NULL)) { g_object_unref(operation); return 1; }
     if (sigma != 0) { if (vips_object_set(VIPS_OBJECT(operation), "sigma", sigma, NULL)) { g_object_unref(operation); return 1; } }
     if (precision != 0) { if (vips_object_set(VIPS_OBJECT(operation), "precision", precision, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_fwfft(VipsImage* in, VipsImage** out) {
@@ -4874,15 +3872,9 @@ int vipsgen_invfft_with_options(VipsImage* in, VipsImage** out, gboolean real) {
     if (!operation) return 1;
     if (vips_object_set(VIPS_OBJECT(operation), "in", in, NULL)) { g_object_unref(operation); return 1; }
     if (real) { if (vips_object_set(VIPS_OBJECT(operation), "real", real, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_freqmult(VipsImage* in, VipsImage* mask, VipsImage** out) {
@@ -4932,13 +3924,9 @@ int vipsgen_draw_rect_with_options(VipsImage* image, double* ink, int n, int lef
     if (vips_object_set(VIPS_OBJECT(operation), "width", width, NULL)) { g_object_unref(operation); return 1; }
     if (vips_object_set(VIPS_OBJECT(operation), "height", height, NULL)) { g_object_unref(operation); return 1; }
     if (fill) { if (vips_object_set(VIPS_OBJECT(operation), "fill", fill, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, NULL);
+    return result;
 }
 
 int vipsgen_draw_mask(VipsImage* image, double* ink, int n, VipsImage* mask, int x, int y) {
@@ -4963,13 +3951,9 @@ int vipsgen_draw_circle_with_options(VipsImage* image, double* ink, int n, int c
     if (vips_object_set(VIPS_OBJECT(operation), "cy", cy, NULL)) { g_object_unref(operation); return 1; }
     if (vips_object_set(VIPS_OBJECT(operation), "radius", radius, NULL)) { g_object_unref(operation); return 1; }
     if (fill) { if (vips_object_set(VIPS_OBJECT(operation), "fill", fill, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, NULL);
+    return result;
 }
 
 int vipsgen_draw_flood(VipsImage* image, double* ink, int n, int x, int y) {
@@ -4986,13 +3970,9 @@ int vipsgen_draw_flood_with_options(VipsImage* image, double* ink, int n, int x,
     if (vips_object_set(VIPS_OBJECT(operation), "y", y, NULL)) { g_object_unref(operation); return 1; }
     if (test != NULL) { if (vips_object_set(VIPS_OBJECT(operation), "test", test, NULL)) { g_object_unref(operation); return 1; } }
     if (equal) { if (vips_object_set(VIPS_OBJECT(operation), "equal", equal, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, NULL);
+    return result;
 }
 
 int vipsgen_draw_image(VipsImage* image, VipsImage* sub, int x, int y) {
@@ -5007,13 +3987,9 @@ int vipsgen_draw_image_with_options(VipsImage* image, VipsImage* sub, int x, int
     if (vips_object_set(VIPS_OBJECT(operation), "x", x, NULL)) { g_object_unref(operation); return 1; }
     if (vips_object_set(VIPS_OBJECT(operation), "y", y, NULL)) { g_object_unref(operation); return 1; }
     if (mode != 0) { if (vips_object_set(VIPS_OBJECT(operation), "mode", mode, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, NULL);
+    return result;
 }
 
 int vipsgen_draw_smudge(VipsImage* image, int left, int top, int width, int height) {
@@ -5033,15 +4009,9 @@ int vipsgen_merge_with_options(VipsImage* ref, VipsImage* sec, VipsImage** out, 
     if (vips_object_set(VIPS_OBJECT(operation), "dx", dx, NULL)) { g_object_unref(operation); return 1; }
     if (vips_object_set(VIPS_OBJECT(operation), "dy", dy, NULL)) { g_object_unref(operation); return 1; }
     if (mblend != 0) { if (vips_object_set(VIPS_OBJECT(operation), "mblend", mblend, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_mosaic(VipsImage* ref, VipsImage* sec, VipsImage** out, VipsDirection direction, int xref, int yref, int xsec, int ysec) {
@@ -5062,15 +4032,9 @@ int vipsgen_mosaic_with_options(VipsImage* ref, VipsImage* sec, VipsImage** out,
     if (harea != 0) { if (vips_object_set(VIPS_OBJECT(operation), "harea", harea, NULL)) { g_object_unref(operation); return 1; } }
     if (mblend != 0) { if (vips_object_set(VIPS_OBJECT(operation), "mblend", mblend, NULL)) { g_object_unref(operation); return 1; } }
     if (bandno != 0) { if (vips_object_set(VIPS_OBJECT(operation), "bandno", bandno, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_mosaic1(VipsImage* ref, VipsImage* sec, VipsImage** out, VipsDirection direction, int xr1, int yr1, int xs1, int ys1, int xr2, int yr2, int xs2, int ys2) {
@@ -5095,15 +4059,9 @@ int vipsgen_mosaic1_with_options(VipsImage* ref, VipsImage* sec, VipsImage** out
     if (harea != 0) { if (vips_object_set(VIPS_OBJECT(operation), "harea", harea, NULL)) { g_object_unref(operation); return 1; } }
     if (search) { if (vips_object_set(VIPS_OBJECT(operation), "search", search, NULL)) { g_object_unref(operation); return 1; } }
     if (mblend != 0) { if (vips_object_set(VIPS_OBJECT(operation), "mblend", mblend, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_matrixinvert(VipsImage* in, VipsImage** out) {
@@ -5130,15 +4088,9 @@ int vipsgen_match_with_options(VipsImage* ref, VipsImage* sec, VipsImage** out, 
     if (hwindow != 0) { if (vips_object_set(VIPS_OBJECT(operation), "hwindow", hwindow, NULL)) { g_object_unref(operation); return 1; } }
     if (harea != 0) { if (vips_object_set(VIPS_OBJECT(operation), "harea", harea, NULL)) { g_object_unref(operation); return 1; } }
     if (search) { if (vips_object_set(VIPS_OBJECT(operation), "search", search, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 int vipsgen_globalbalance(VipsImage* in, VipsImage** out) {
@@ -5151,15 +4103,9 @@ int vipsgen_globalbalance_with_options(VipsImage* in, VipsImage** out, double ga
     if (vips_object_set(VIPS_OBJECT(operation), "in", in, NULL)) { g_object_unref(operation); return 1; }
     if (gamma != 0) { if (vips_object_set(VIPS_OBJECT(operation), "gamma", gamma, NULL)) { g_object_unref(operation); return 1; } }
     if (int_output) { if (vips_object_set(VIPS_OBJECT(operation), "int_output", int_output, NULL)) { g_object_unref(operation); return 1; } }
-    if (vips_cache_operation_buildp(&operation)) {
-        vips_object_unref_outputs(VIPS_OBJECT(operation));
-        g_object_unref(operation);
-        return 1;
-    }
-    g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
-    vips_object_unref_outputs(VIPS_OBJECT(operation));
-    g_object_unref(operation);
-    return 0;
+
+    int result = vipsgen_operation_execute(&operation, "out", out, NULL);
+    return result;
 }
 
 
