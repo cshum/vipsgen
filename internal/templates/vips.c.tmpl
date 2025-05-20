@@ -3,33 +3,64 @@
 #include "vips.h"
 #include <unistd.h>
 
-// Prerequisite function to build, get outputs and cleanup a vips operation
-int vipsgen_operation_execute(VipsOperation **operation, ...) {
-    va_list ap;
-    int result = 0;
+// Prerequisite functions to build, get outputs and cleanup a vips operation
 
-    // Build the operation
+static int set_int_param(VipsOperation *operation, const char *name, int value) {
+    if (value != 0) { return vips_object_set(VIPS_OBJECT(operation), name, value, NULL); }
+    return 0;
+}
+
+static int set_bool_param(VipsOperation *operation, const char *name, gboolean value) {
+    if (value) { return vips_object_set(VIPS_OBJECT(operation), name, value, NULL); }
+    return 0;
+}
+
+static int set_double_param(VipsOperation *operation, const char *name, double value) {
+    if (value != 0.0) { return vips_object_set(VIPS_OBJECT(operation), name, value, NULL); }
+    return 0;
+}
+
+static int set_string_param(VipsOperation *operation, const char *name, const char *value) {
+    if (value != NULL && strlen(value) > 0) { return vips_object_set(VIPS_OBJECT(operation), name, value, NULL); }
+    return 0;
+}
+
+static int set_image_param(VipsOperation *operation, const char *name, VipsImage *value) {
+    if (value != NULL) { return vips_object_set(VIPS_OBJECT(operation), name, value, NULL); }
+    return 0;
+}
+
+static int set_array_double_param(VipsOperation *operation, const char *name, VipsArrayDouble *value) {
+    if (value != NULL) { return vips_object_set(VIPS_OBJECT(operation), name, value, NULL); }
+    return 0;
+}
+
+static int set_array_int_param(VipsOperation *operation, const char *name, VipsArrayInt *value) {
+    if (value != NULL) { return vips_object_set(VIPS_OBJECT(operation), name, value, NULL); }
+    return 0;
+}
+
+static int set_array_image_param(VipsOperation *operation, const char *name, VipsArrayImage *value) {
+    if (value != NULL) { return vips_object_set(VIPS_OBJECT(operation), name, value, NULL); }
+    return 0;
+}
+
+static int vipsgen_operation_execute(VipsOperation **operation, ...) {
+    va_list ap;
     if (vips_cache_operation_buildp(operation)) {
         vips_object_unref_outputs(VIPS_OBJECT(*operation));
         g_object_unref(*operation);
         return 1;
     }
-
-    // Get output parameters from operation
     va_start(ap, operation);
-
-    // First, get the param name
     const char *name;
     while ((name = va_arg(ap, const char *)) != NULL) {
-        // Get the corresponding value pointer
         void *value = va_arg(ap, void *);
         if (value != NULL) {
             g_object_get(VIPS_OBJECT(*operation), name, value, NULL);
         }
     }
     va_end(ap);
-
-    // Cleanup
     vips_object_unref_outputs(VIPS_OBJECT(*operation));
     g_object_unref(*operation);
     return 0;

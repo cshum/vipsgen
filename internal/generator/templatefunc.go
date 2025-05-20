@@ -1297,6 +1297,7 @@ func generateCFunctionDeclaration(op introspection.Operation) string {
 // generateCFunctionImplementation generates C implementations for vips operations
 func generateCFunctionImplementation(op introspection.Operation) string {
 	var result strings.Builder
+
 	// Handle basic function (no options)
 	if len(op.Arguments) == 0 {
 		result.WriteString(fmt.Sprintf("int vipsgen_%s() {\n", op.Name))
@@ -1359,31 +1360,6 @@ func generateCFunctionImplementation(op introspection.Operation) string {
 		result.WriteString(fmt.Sprintf("    VipsOperation *operation = vips_operation_new(\"%s\");\n", op.Name))
 		result.WriteString("    if (!operation) return 1;\n")
 
-		// Handle required arguments first
-		for _, arg := range op.Arguments {
-			if arg.IsOutput {
-				continue // Skip output arguments, they'll be handled after build
-			}
-
-			// Special handling for different types of arguments
-			if arg.IsSource {
-				result.WriteString(fmt.Sprintf("    if (vips_object_set(VIPS_OBJECT(operation), \"%s\", (VipsSource*)%s, NULL)) { g_object_unref(operation); return 1; }\n", arg.Name, arg.Name))
-			} else if arg.Name == "buf" || arg.Name == "buffer" {
-				// Handle buffer and its length together
-				result.WriteString(fmt.Sprintf("    if (vips_object_set(VIPS_OBJECT(operation), \"%s\", %s, NULL)) { g_object_unref(operation); return 1; }\n", arg.Name, arg.Name))
-				for _, lenArg := range op.Arguments {
-					if lenArg.Name == "len" {
-						result.WriteString(fmt.Sprintf("    if (vips_object_set(VIPS_OBJECT(operation), \"%s\", %s, NULL)) { g_object_unref(operation); return 1; }\n", lenArg.Name, lenArg.Name))
-						break
-					}
-				}
-			} else if arg.Name != "len" { // Skip "len" as it's handled with buffer
-				result.WriteString(fmt.Sprintf("    if (vips_object_set(VIPS_OBJECT(operation), \"%s\", %s, NULL)) { g_object_unref(operation); return 1; }\n", arg.Name, arg.Name))
-			} else {
-				continue // Skip len parameter, already handled
-			}
-		}
-
 		// Create VipsArray objects for array inputs
 		for _, opt := range op.OptionalInputs {
 			if strings.HasPrefix(opt.GoType, "[]") {
@@ -1401,46 +1377,126 @@ func generateCFunctionImplementation(op introspection.Operation) string {
 			}
 		}
 
-		// Handle optional arguments - only set if they have non-default values
-		for _, opt := range op.OptionalInputs {
-			// Create a cleanup function for error cases
-			cleanupCode := "g_object_unref(operation); "
+		// Set required parameters first
+		var requiredParamsList []string
+		for _, arg := range op.Arguments {
+			if arg.IsOutput {
+				continue // Skip output arguments, they'll be handled after build
+			}
+
+			// Special handling for different types of arguments
+			if arg.IsSource {
+				requiredParamsList = append(requiredParamsList,
+					fmt.Sprintf("vips_object_set(VIPS_OBJECT(operation), \"%s\", (VipsSource*)%s, NULL)", arg.Name, arg.Name))
+			} else if arg.Name == "buf" || arg.Name == "buffer" {
+				// Handle buffer parameter
+				requiredParamsList = append(requiredParamsList,
+					fmt.Sprintf("vips_object_set(VIPS_OBJECT(operation), \"%s\", %s, NULL)", arg.Name, arg.Name))
+			} else if arg.Name == "len" {
+				// Handle len parameter (check if associated with buffer)
+				var isBufferLen bool
+				for _, bArg := range op.Arguments {
+					if bArg.Name == "buf" || bArg.Name == "buffer" {
+						isBufferLen = true
+						break
+					}
+				}
+				if isBufferLen {
+					requiredParamsList = append(requiredParamsList,
+						fmt.Sprintf("vips_object_set(VIPS_OBJECT(operation), \"%s\", %s, NULL)", arg.Name, arg.Name))
+				}
+			} else if arg.GoType == "string" {
+				// String parameter
+				requiredParamsList = append(requiredParamsList,
+					fmt.Sprintf("vips_object_set(VIPS_OBJECT(operation), \"%s\", %s, NULL)", arg.Name, arg.Name))
+			} else if arg.GoType == "*C.VipsImage" {
+				// Image parameter
+				requiredParamsList = append(requiredParamsList,
+					fmt.Sprintf("vips_object_set(VIPS_OBJECT(operation), \"%s\", %s, NULL)", arg.Name, arg.Name))
+			} else {
+				// Other scalar parameters
+				requiredParamsList = append(requiredParamsList,
+					fmt.Sprintf("vips_object_set(VIPS_OBJECT(operation), \"%s\", %s, NULL)", arg.Name, arg.Name))
+			}
+		}
+
+		// Join all required parameters with the || operator for short-circuit evaluation
+		if len(requiredParamsList) > 0 {
+			result.WriteString("    if (\n        ")
+			result.WriteString(strings.Join(requiredParamsList, " ||\n        "))
+			result.WriteString("\n    ) {\n")
+			result.WriteString("        g_object_unref(operation);\n")
+
+			// Free all array resources on error
 			for _, cleanupOpt := range op.OptionalInputs {
 				if strings.HasPrefix(cleanupOpt.GoType, "[]") {
 					arrayType := getArrayType(cleanupOpt.GoType)
 					if arrayType != "unknown" {
-						cleanupCode += fmt.Sprintf("if (%s_array != NULL) { vips_area_unref(VIPS_AREA(%s_array)); } ", cleanupOpt.Name, cleanupOpt.Name)
+						result.WriteString(fmt.Sprintf("        if (%s_array != NULL) { vips_area_unref(VIPS_AREA(%s_array)); }\n", cleanupOpt.Name, cleanupOpt.Name))
 					}
 				}
 			}
-			cleanupCode += "return 1;"
 
-			// Different handling for different types of optional arguments
+			result.WriteString("        return 1;\n    }\n")
+		}
+
+		// Set optional parameters using type-specific setter functions
+		var optionalParamsList []string
+		for _, opt := range op.OptionalInputs {
 			if strings.HasPrefix(opt.GoType, "[]") {
 				arrayType := getArrayType(opt.GoType)
-				if arrayType != "unknown" {
-					result.WriteString(fmt.Sprintf("    if (%s_array != NULL) { if (vips_object_set(VIPS_OBJECT(operation), \"%s\", %s_array, NULL)) { %s } }\n",
-						opt.Name, opt.Name, opt.Name, cleanupCode))
+				if arrayType == "double" {
+					optionalParamsList = append(optionalParamsList,
+						fmt.Sprintf("set_array_double_param(operation, \"%s\", %s_array)", opt.Name, opt.Name))
+				} else if arrayType == "int" {
+					optionalParamsList = append(optionalParamsList,
+						fmt.Sprintf("set_array_int_param(operation, \"%s\", %s_array)", opt.Name, opt.Name))
+				} else if arrayType == "image" {
+					optionalParamsList = append(optionalParamsList,
+						fmt.Sprintf("set_array_image_param(operation, \"%s\", %s_array)", opt.Name, opt.Name))
 				}
 			} else if opt.GoType == "bool" {
-				result.WriteString(fmt.Sprintf("    if (%s) { if (vips_object_set(VIPS_OBJECT(operation), \"%s\", %s, NULL)) { %s } }\n",
-					opt.Name, opt.Name, opt.Name, cleanupCode))
+				optionalParamsList = append(optionalParamsList,
+					fmt.Sprintf("set_bool_param(operation, \"%s\", %s)", opt.Name, opt.Name))
 			} else if opt.GoType == "string" {
-				result.WriteString(fmt.Sprintf("    if (%s != NULL && strlen(%s) > 0) { if (vips_object_set(VIPS_OBJECT(operation), \"%s\", %s, NULL)) { %s } }\n",
-					opt.Name, opt.Name, opt.Name, opt.Name, cleanupCode))
+				optionalParamsList = append(optionalParamsList,
+					fmt.Sprintf("set_string_param(operation, \"%s\", %s)", opt.Name, opt.Name))
 			} else if opt.IsEnum {
-				result.WriteString(fmt.Sprintf("    if (%s != 0) { if (vips_object_set(VIPS_OBJECT(operation), \"%s\", %s, NULL)) { %s } }\n",
-					opt.Name, opt.Name, opt.Name, cleanupCode))
+				optionalParamsList = append(optionalParamsList,
+					fmt.Sprintf("set_int_param(operation, \"%s\", %s)", opt.Name, opt.Name))
 			} else if opt.GoType == "*C.VipsImage" {
-				result.WriteString(fmt.Sprintf("    if (%s != NULL) { if (vips_object_set(VIPS_OBJECT(operation), \"%s\", %s, NULL)) { %s } }\n",
-					opt.Name, opt.Name, opt.Name, cleanupCode))
-			} else if opt.GoType == "int" || opt.GoType == "float64" {
-				result.WriteString(fmt.Sprintf("    if (%s != 0) { if (vips_object_set(VIPS_OBJECT(operation), \"%s\", %s, NULL)) { %s } }\n",
-					opt.Name, opt.Name, opt.Name, cleanupCode))
+				optionalParamsList = append(optionalParamsList,
+					fmt.Sprintf("set_image_param(operation, \"%s\", %s)", opt.Name, opt.Name))
+			} else if opt.GoType == "int" {
+				optionalParamsList = append(optionalParamsList,
+					fmt.Sprintf("set_int_param(operation, \"%s\", %s)", opt.Name, opt.Name))
+			} else if opt.GoType == "float64" {
+				optionalParamsList = append(optionalParamsList,
+					fmt.Sprintf("set_double_param(operation, \"%s\", %s)", opt.Name, opt.Name))
 			}
 		}
 
-		result.WriteString("\n")
+		// Join all optional parameters with the || operator for short-circuit evaluation
+		if len(optionalParamsList) > 0 {
+			result.WriteString("    if (\n        ")
+			result.WriteString(strings.Join(optionalParamsList, " ||\n        "))
+			result.WriteString("\n    ) {\n")
+			result.WriteString("        g_object_unref(operation);\n")
+
+			// Free all array resources on error
+			for _, cleanupOpt := range op.OptionalInputs {
+				if strings.HasPrefix(cleanupOpt.GoType, "[]") {
+					arrayType := getArrayType(cleanupOpt.GoType)
+					if arrayType != "unknown" {
+						result.WriteString(fmt.Sprintf("        if (%s_array != NULL) { vips_area_unref(VIPS_AREA(%s_array)); }\n", cleanupOpt.Name, cleanupOpt.Name))
+					}
+				}
+			}
+
+			result.WriteString("        return 1;\n    }\n\n")
+		}
+
+		// Use helper function to execute the operation with output parameters
 
 		// Collect the output parameters
 		var outputParams []string
@@ -1465,24 +1521,21 @@ func generateCFunctionImplementation(op introspection.Operation) string {
 		// Add NULL terminator
 		outputParams = append(outputParams, "NULL")
 
-		// Clean up array objects in case of error
-		cleanupArraysCode := ""
-		for _, opt := range op.OptionalInputs {
-			if strings.HasPrefix(opt.GoType, "[]") {
-				arrayType := getArrayType(opt.GoType)
-				if arrayType != "unknown" {
-					cleanupArraysCode += fmt.Sprintf("    if (%s_array != NULL) { vips_area_unref(VIPS_AREA(%s_array)); }\n", opt.Name, opt.Name)
-				}
-			}
-		}
-
 		// Generate the call to the helper function
 		result.WriteString(fmt.Sprintf("    int result = vipsgen_operation_execute(&operation, %s);\n", strings.Join(outputParams, ", ")))
 
 		// Clean up array objects
-		if cleanupArraysCode != "" {
-			result.WriteString("\n")
-			result.WriteString(cleanupArraysCode)
+		hasArrays := false
+		for _, opt := range op.OptionalInputs {
+			if strings.HasPrefix(opt.GoType, "[]") {
+				arrayType := getArrayType(opt.GoType)
+				if arrayType != "unknown" {
+					if !hasArrays {
+						hasArrays = true
+					}
+					result.WriteString(fmt.Sprintf("    if (%s_array != NULL) { vips_area_unref(VIPS_AREA(%s_array)); }\n", opt.Name, opt.Name))
+				}
+			}
 		}
 
 		result.WriteString("    return result;\n}")
