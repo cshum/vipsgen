@@ -90,11 +90,8 @@ jobs:
 
       - name: Generate vips package
         run: |
-          rm -rf vips || true
           mkdir -p vips
           ./bin/vipsgen -out ./vips
-          # Check what was generated
-          ls -la ./vips
 
       - name: Run tests
         run: |
