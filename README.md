@@ -6,18 +6,11 @@ Existing Go libvips bindings rely on manually written code that is often incompl
 
 vipsgen provides a pre-generated library you can import directly (`github.com/cshum/vipsgen/vips`), but also allows you to generate bindings for your specific libvips installation.
 
-## Features
-
 - **Coverage**: Comprehensive bindings that cover most of the libvips operations, with allowing custom code for a few complex operations
 - **Type-Safe**: Generates proper Go types for libvips enums and structs
 - **Idiomatic**: Creates clean, Go-style APIs that feel natural to use
 - **Source Support**: Includes VipsSource bindings with `io.ReadCloser` integration for streaming images
 
-## Installation
-
-```bash
-go install github.com/cshum/vipsgen/cmd/vipsgen@latest
-```
 
 ## Requirements
 
@@ -84,6 +77,10 @@ func main() {
 ## Generate Code
 
 Generate code for your specific libvips installation:
+
+```bash
+go install github.com/cshum/vipsgen/cmd/vipsgen@latest
+```
 
 1. Generate the bindings:
 
