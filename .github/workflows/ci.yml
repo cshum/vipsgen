@@ -4,10 +4,12 @@ on:
   push:
     paths:
       - 'internal/**'
+      - '.github/workflows/**'
       - 'cmd/**'
   pull_request:
     paths:
       - 'internal/**'
+      - '.github/workflows/**'
       - 'cmd/**'
   workflow_dispatch:  # Allow manual trigger
 
@@ -110,6 +112,3 @@ jobs:
         with:
           commit_message: "build: update generated vips package"
           file_pattern: "vips"
-          commit_user_name: GitHub Actions
-          commit_user_email: actions@github.com
-          commit_author: GitHub Actions <actions@github.com>
