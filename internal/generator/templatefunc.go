@@ -42,11 +42,11 @@ func generateGoFunctionBody(op introspection.Operation, withOptions bool) string
 	result.WriteString(generateGoArgList(op, withOptions))
 	result.WriteString(") (")
 	result.WriteString(generateReturnTypes(op))
-	result.WriteString(") {\n    ")
+	result.WriteString(") {\n\t")
 
 	// Variable declarations
 	result.WriteString(generateVarDeclarations(op, withOptions))
-	result.WriteString("\n    ")
+	result.WriteString("\n\t")
 
 	// Function call
 	if withOptions {
@@ -55,11 +55,11 @@ func generateGoFunctionBody(op introspection.Operation, withOptions bool) string
 		result.WriteString(fmt.Sprintf("if err := C.vipsgen_%s(", op.Name))
 	}
 	result.WriteString(generateFunctionCallArgs(op, withOptions))
-	result.WriteString("); err != 0 {\n        ")
+	result.WriteString("); err != 0 {\n\t\t")
 
 	// Error handling
 	result.WriteString(generateErrorReturn(op.HasOneImageOutput, op.HasBufferOutput, op.RequiredOutputs))
-	result.WriteString("\n    }\n    ")
+	result.WriteString("\n\t}\n\t")
 
 	// Return values
 	result.WriteString(generateReturnValues(op))
