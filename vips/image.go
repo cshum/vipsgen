@@ -2041,6 +2041,41 @@ func NewPngloadSource(source *Source, options *PngloadSourceOptions) (*Image, er
 	return newImageRef(vipsImage, ImageTypePng, nil), nil
 }
 
+// MatloadOptions optional arguments for vips_matload
+type MatloadOptions struct {
+	// Memory Force open via memory
+	Memory bool
+	// Access Required access pattern for this file
+	Access Access
+	// FailOn Error level to fail on
+	FailOn FailOn
+	// Revalidate Don't use a cached result for this operation
+	Revalidate bool
+}
+
+// DefaultMatloadOptions creates default value for vips_matload optional arguments
+func DefaultMatloadOptions() *MatloadOptions {
+	return &MatloadOptions{
+	}
+}
+
+// NewMatload vips_matload load mat from file
+func NewMatload(filename string, options *MatloadOptions) (*Image, error) {
+	Startup(nil)
+	if options != nil {
+		vipsImage, err := vipsgenMatloadWithOptions(filename, options.Memory, options.Access, options.FailOn, options.Revalidate)
+		if err != nil {
+			return nil, err
+		}
+		return newImageRef(vipsImage, ImageTypeUnknown, nil), nil
+	}
+	vipsImage, err := vipsgenMatload(filename)
+	if err != nil {
+		return nil, err
+	}
+	return newImageRef(vipsImage, ImageTypeUnknown, nil), nil
+}
+
 // JpegloadOptions optional arguments for vips_jpegload
 type JpegloadOptions struct {
 	// Shrink Shrink factor on load

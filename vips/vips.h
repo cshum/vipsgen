@@ -392,6 +392,9 @@ int vipsgen_pngload_buffer_with_options(void* buf, size_t len, VipsImage** out, 
 int vipsgen_pngload_source(VipsSourceCustom* source, VipsImage** out);
 int vipsgen_pngload_source_with_options(VipsSourceCustom* source, VipsImage** out, gboolean unlimited, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
 
+int vipsgen_matload(const char* filename, VipsImage** out);
+int vipsgen_matload_with_options(const char* filename, VipsImage** out, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
+
 int vipsgen_jpegload(const char* filename, VipsImage** out);
 int vipsgen_jpegload_with_options(const char* filename, VipsImage** out, int shrink, gboolean autorotate, gboolean unlimited, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
 
