@@ -133,6 +133,7 @@ Options:
 -templates string      Template directory (uses embedded templates if not specified)
 -extract               Extract embedded templates and exit
 -extract-dir string    Directory to extract templates to (default "./templates")
+-debug                 Enable debug json output
 ```
 
 ## Contributing

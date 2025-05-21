@@ -12,8 +12,8 @@ func main() {
 	extractTemplates := flag.Bool("extract", false, "Extract embedded templates to a directory")
 	extractDir := flag.String("extract-dir", "./templates", "Directory to extract templates to")
 	outputDirFlag := flag.String("out", "./vips", "Output directory")
-	isDebug := flag.Bool("debug", false, "Enable debug json output")
 	templateDirFlag := flag.String("templates", "", "Template directory (uses embedded templates if not specified)")
+	isDebug := flag.Bool("debug", false, "Enable debug json output")
 
 	flag.Parse()
 
