@@ -1,8 +1,8 @@
 # vipsgen
 
+[![CI](https://github.com/cshum/vipsgen/actions/workflows/ci.yml/badge.svg)](https://github.com/cshum/vipsgen/actions/workflows/ci.yml)
 [![Go Reference](https://pkg.go.dev/badge/github.com/cshum/vipsgen.svg)](https://pkg.go.dev/github.com/cshum/vipsgen)
 ![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/cshum/vipsgen)
-[![CI](https://github.com/cshum/vipsgen/actions/workflows/ci.yml/badge.svg)](https://github.com/cshum/vipsgen/actions/workflows/ci.yml)
 
 vipsgen is a Go binding generator for [libvips](https://github.com/libvips/libvips) - a fast and efficient image processing library.
 
