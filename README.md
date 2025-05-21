@@ -10,7 +10,7 @@ Existing Go libvips bindings rely on manually written code that is often incompl
 
 vipsgen provides a pre-generated library you can import directly `github.com/cshum/vipsgen/vips`. Also allows code generation via `vipsgen` command that adapts to your specific libvips installation.
 
-- **Coverage**: Comprehensive bindings for over 200 libvips operations
+- **Coverage**: Comprehensive bindings for around 300 libvips operations
 - **Type-Safe**: Generates proper Go types for libvips enums and structs
 - **Idiomatic**: Creates clear Go style code that feels natural to use
 - **Streaming**: Includes `VipsSource` bindings with `io.ReadCloser` integration for streaming
