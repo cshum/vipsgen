@@ -75,7 +75,7 @@ jobs:
           ls -la /usr/share/gir-1.0/ || true
           pkg-config --modversion gobject-introspection-1.0 || true
           # List supported loaders and savers to verify our new formats
-          vips --list classes | grep -E "load|save"
+          vips --list | grep -E "load|save"
 
       - name: Cache Go dependencies
         uses: actions/cache@v3
