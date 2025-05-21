@@ -2041,6 +2041,41 @@ func NewPngloadSource(source *Source, options *PngloadSourceOptions) (*Image, er
 	return newImageRef(vipsImage, ImageTypePng, nil), nil
 }
 
+// MatloadOptions optional arguments for vips_matload
+type MatloadOptions struct {
+	// Memory Force open via memory
+	Memory bool
+	// Access Required access pattern for this file
+	Access Access
+	// FailOn Error level to fail on
+	FailOn FailOn
+	// Revalidate Don't use a cached result for this operation
+	Revalidate bool
+}
+
+// DefaultMatloadOptions creates default value for vips_matload optional arguments
+func DefaultMatloadOptions() *MatloadOptions {
+	return &MatloadOptions{
+	}
+}
+
+// NewMatload vips_matload load mat from file
+func NewMatload(filename string, options *MatloadOptions) (*Image, error) {
+	Startup(nil)
+	if options != nil {
+		vipsImage, err := vipsgenMatloadWithOptions(filename, options.Memory, options.Access, options.FailOn, options.Revalidate)
+		if err != nil {
+			return nil, err
+		}
+		return newImageRef(vipsImage, ImageTypeUnknown, nil), nil
+	}
+	vipsImage, err := vipsgenMatload(filename)
+	if err != nil {
+		return nil, err
+	}
+	return newImageRef(vipsImage, ImageTypeUnknown, nil), nil
+}
+
 // JpegloadOptions optional arguments for vips_jpegload
 type JpegloadOptions struct {
 	// Shrink Shrink factor on load
@@ -8162,17 +8197,27 @@ func ProfileLoad(name string) ([]byte, error) {
 
 
 // LoadOptions are options for loading an image. Some are type-specific.
-// For default loading, use DefaultLoadOptions() or specify nil
 type LoadOptions struct {
-	AutoRotate  bool
+	// N Number of pages to load, -1 for all
+	N int
+	// Page First page to load
+	Page int
+	// Dpi Resolution in DPI
+	Dpi int
+	// Autorotate Rotate image using exif orientation
+	Autorotate bool
+	// FailOnError Fail on first error
 	FailOnError bool
-	Page        int
-	NumPages    int
-	Density     int
-
-	JpegShrinkFactor int
-	HeifThumbnail    bool
-	SvgUnlimited     bool
+	// Shrink Shrink factor for jpeg load
+	Shrink int
+	// Thumbnail Load the thumbnail instead of main image (for HEIF)
+	Thumbnail bool
+	// Unlimited Allow without size restrictions
+	Unlimited bool
+	// Memory Force open via memory
+	Memory bool
+	// Access Required access pattern for this file
+	Access Access
 }
 
 // DefaultLoadOptions creates default LoadOptions
@@ -8185,29 +8230,35 @@ func DefaultLoadOptions() *LoadOptions {
 // OptionString convert import params to option_string
 func (i *LoadOptions) OptionString() string {
 	var values []string
-	if v := i.NumPages; v != 0 {
+	if v := i.N; v != 0 {
 		values = append(values, "n="+strconv.Itoa(v))
 	}
 	if v := i.Page; v != 0 {
 		values = append(values, "page="+strconv.Itoa(v))
 	}
-	if v := i.Density; v != 0 {
+	if v := i.Dpi; v != 0 {
 		values = append(values, "dpi="+strconv.Itoa(v))
 	}
 	if v := i.FailOnError; v {
 		values = append(values, "fail="+boolToStr(v))
 	}
-	if v := i.JpegShrinkFactor; v != 0 {
+	if v := i.Shrink; v != 0 {
 		values = append(values, "shrink="+strconv.Itoa(v))
 	}
-	if v := i.AutoRotate; v {
+	if v := i.Autorotate; v {
 		values = append(values, "autorotate="+boolToStr(v))
 	}
-	if v := i.SvgUnlimited; v {
+	if v := i.Unlimited; v {
 		values = append(values, "unlimited="+boolToStr(v))
 	}
-	if v := i.HeifThumbnail; v {
+	if v := i.Thumbnail; v {
 		values = append(values, "thumbnail="+boolToStr(v))
+	}
+	if v := i.Memory; v {
+		values = append(values, "memory="+boolToStr(v))
+	}
+	if v := i.Access; v != 0 {
+		values = append(values, "access="+strconv.Itoa(int(v)))
 	}
 	return strings.Join(values, ",")
 }

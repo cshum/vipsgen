@@ -32,15 +32,16 @@ jobs:
           libtiff5-dev libgsf-1-dev giflib-tools libwebp-dev libheif-dev \
           libopenjp2-7-dev libcgif-dev \
           gobject-introspection libgirepository1.0-dev \
-          libmagickwand-dev
+          libmagickwand-dev \
+          libmatio-dev
 
       - name: Cache libvips
         uses: actions/cache@v3
         with:
           path: vips-${{ env.VIPS_VERSION }}
-          key: ${{ runner.os }}-vips-introspection-magick-${{ env.V }}-${{ env.VIPS_VERSION }}
+          key: ${{ runner.os }}-vips-introspection-${{ env.V }}-${{ env.VIPS_VERSION }}
           restore-keys: |
-            ${{ runner.os }}-vips-introspection-magick-${{ env.V }}-
+            ${{ runner.os }}-vips-introspection-${{ env.V }}-
 
       - name: Build libvips from source
         run: |
@@ -50,14 +51,18 @@ jobs:
             tar xf vips-${{ env.VIPS_VERSION }}.tar.xz
           fi
           cd vips-${{ env.VIPS_VERSION }}
-          meson setup _build \
+          
+          # Detect all available features
+          PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/usr/lib/pkgconfig meson setup _build \
           --buildtype=release \
           --strip \
           --prefix=/usr/local \
           --libdir=lib \
           -Dgtk_doc=false \
           -Dmagick=enabled \
+          -Dopenslide=enabled \
           -Dintrospection=enabled
+          
           ninja -C _build
           sudo ninja -C _build install
           sudo ldconfig
@@ -69,6 +74,8 @@ jobs:
           ls -la /usr/local/share/gir-1.0/ || true
           ls -la /usr/share/gir-1.0/ || true
           pkg-config --modversion gobject-introspection-1.0 || true
+          # List supported loaders and savers to verify our new formats
+          vips --list | grep -E "load|save"
 
       - name: Cache Go dependencies
         uses: actions/cache@v3

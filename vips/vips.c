@@ -2334,6 +2334,27 @@ int vipsgen_pngload_source_with_options(VipsSourceCustom* source, VipsImage** ou
     return result;
 }
 
+int vipsgen_matload(const char* filename, VipsImage** out) {
+    return vips_matload(filename, out, NULL);
+}
+
+int vipsgen_matload_with_options(const char* filename, VipsImage** out, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
+    VipsOperation *operation = vips_operation_new("matload");
+    if (!operation) return 1;
+    if (
+        vips_object_set(VIPS_OBJECT(operation), "filename", filename, NULL) ||
+        vipsgen_set_bool(operation, "memory", memory) ||
+        vipsgen_set_int(operation, "access", access) ||
+        vipsgen_set_int(operation, "fail_on", fail_on) ||
+        vipsgen_set_bool(operation, "revalidate", revalidate)
+    ) {
+        g_object_unref(operation);
+        return 1;
+    }
+    int result = vipsgen_operation_execute(operation, "out", out, NULL);
+    return result;
+}
+
 int vipsgen_jpegload(const char* filename, VipsImage** out) {
     return vips_jpegload(filename, out, NULL);
 }
