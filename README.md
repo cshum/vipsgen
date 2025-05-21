@@ -88,7 +88,6 @@ func main() {
 	// Save the result as WebP file with options
 	err = image.Webpsave("resized-gopher.webp", &vips.WebpsaveOptions{
 		Q:              85,    // Quality factor (0-100)
-		Lossless:       false, // Use lossy compression
 		Effort:         4,     // Compression effort (0-6)
 		SmartSubsample: true,  // Better chroma subsampling
 	})
