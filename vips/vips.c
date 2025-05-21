@@ -4939,37 +4939,37 @@ int vipsgen_globalbalance_with_options(VipsImage* in, VipsImage** out, double ga
 
 // Custom operations
 
-int image_new_from_source(VipsSourceCustom *source, VipsImage **out) {
+int vipsgen_image_new_from_source(VipsSourceCustom *source, VipsImage **out) {
   *out = vips_image_new_from_source((VipsSource*) source, "", NULL);
   if (!*out) return 1;
   return 0;
 }
 
-int image_new_from_source_with_option(VipsSourceCustom *source, VipsImage **out, const char *option_string) {
+int vipsgen_image_new_from_source_with_option(VipsSourceCustom *source, VipsImage **out, const char *option_string) {
   *out = vips_image_new_from_source((VipsSource*) source, option_string, NULL);
   if (!*out) return 1;
   return 0;
 }
 
-int image_new_from_file(const char *name, VipsImage **out) {
+int vipsgen_image_new_from_file(const char *name, VipsImage **out) {
   *out = vips_image_new_from_file(name, NULL);
   if (!*out) return 1;
   return 0;
 }
 
-int image_new_from_buffer(const void *buf, size_t len, VipsImage **out) {
+int vipsgen_image_new_from_buffer(const void *buf, size_t len, VipsImage **out) {
   *out = vips_image_new_from_buffer(buf, len, "", NULL);
   if (!*out) return 1;
   return 0;
 }
 
-int image_new_from_memory(const void *buf, size_t len, int width, int height, int bands, VipsImage **out) {
+int vipsgen_image_new_from_memory(const void *buf, size_t len, int width, int height, int bands, VipsImage **out) {
   *out = vips_image_new_from_memory(buf, len, width, height, bands, VIPS_FORMAT_UCHAR);
   if (!*out) return 1;
   return 0;
 }
 
-int image_new_from_buffer_with_option(const void *buf, size_t len, VipsImage **out, const char *option_string) {
+int vipsgen_image_new_from_buffer_with_option(const void *buf, size_t len, VipsImage **out, const char *option_string) {
   *out = vips_image_new_from_buffer(buf, len, option_string, NULL);
   if (!*out) return 1;
   return 0;
@@ -5054,7 +5054,7 @@ int remove_exif(VipsImage *in, VipsImage **out) {
   return 0;
 }
 
-int embed_multi_page_image(VipsImage *in, VipsImage **out, int left, int top, int width,
+int embed_multi_page(VipsImage *in, VipsImage **out, int left, int top, int width,
                          int height, int extend) {
   VipsObject *base = VIPS_OBJECT(vips_image_new());
   int page_height = vips_image_get_page_height(in);
@@ -5089,7 +5089,7 @@ int embed_multi_page_image(VipsImage *in, VipsImage **out, int left, int top, in
   return 0;
 }
 
-int embed_multi_page_image_background(VipsImage *in, VipsImage **out, int left, int top, int width,
+int embed_multi_page_background(VipsImage *in, VipsImage **out, int left, int top, int width,
                                    int height, double r, double g, double b, double a) {
   double background[3] = {r, g, b};
   double backgroundRGBA[4] = {r, g, b, a};
