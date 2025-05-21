@@ -20,7 +20,6 @@ vipsgen provides a pre-generated library you can import directly `github.com/csh
 Use homebrew to install vips and pkg-config:
 ```
 brew install vips pkg-config
-
 ```
 
 On MacOS, vipsgen may not compile without first setting an environment variable:
