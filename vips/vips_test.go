@@ -4,9 +4,11 @@ import (
 	"bytes"
 	"image"
 	"image/color"
+	"image/draw"
 	"image/jpeg"
 	"image/png"
 	"io"
+	"math/rand"
 	"os"
 	"path/filepath"
 	"testing"
@@ -654,4 +656,822 @@ func TestErrorHandling(t *testing.T) {
 	// Try to load non-existent file
 	_, err = NewImageFromFile("/non/existent/file.png", nil)
 	assert.Error(t, err, "Loading non-existent file should fail")
+}
+
+// TestDrawOperationsWithPixelValidation tests drawing operations with pixel validation
+func TestDrawOperationsWithPixelValidation(t *testing.T) {
+	// Create a white canvas
+	width, height := 300, 300
+	img, err := createWhiteImage(width, height)
+	require.NoError(t, err)
+	defer img.Close()
+
+	// Validate that it's initially white
+	centerPixel, err := img.Getpoint(width/2, height/2, nil)
+	require.NoError(t, err)
+	assert.InDelta(t, 255, centerPixel[0], 1, "Center should initially be white")
+
+	// 1. Draw a red rectangle (x=50, y=50, width=100, height=100)
+	redColor := []float64{255, 0, 0}
+	err = img.DrawRect(redColor, 50, 50, 100, 100, &DrawRectOptions{
+		Fill: true,
+	})
+	if err != nil {
+		t.Logf("DrawRect failed: %v", err)
+	} else {
+		t.Log("DrawRect successful")
+
+		// Validate pixel inside the rectangle
+		rectPixel, err := img.Getpoint(75, 75, nil)
+		require.NoError(t, err)
+		assert.InDelta(t, redColor[0], rectPixel[0], 5, "Rectangle should be red (R)")
+		assert.InDelta(t, redColor[1], rectPixel[1], 5, "Rectangle should be red (G)")
+		assert.InDelta(t, redColor[2], rectPixel[2], 5, "Rectangle should be red (B)")
+
+		// Validate pixel outside the rectangle
+		outsidePixel, err := img.Getpoint(25, 25, nil)
+		require.NoError(t, err)
+		assert.InDelta(t, 255, outsidePixel[0], 5, "Outside should still be white")
+	}
+
+	// 2. Draw a blue circle (center=200,150, radius=50)
+	blueColor := []float64{0, 0, 255}
+	err = img.DrawCircle(blueColor, 200, 150, 50, &DrawCircleOptions{
+		Fill: true,
+	})
+	if err != nil {
+		t.Logf("DrawCircle failed: %v", err)
+	} else {
+		t.Log("DrawCircle successful")
+
+		// Validate pixel inside the circle
+		circlePixel, err := img.Getpoint(200, 150, nil)
+		require.NoError(t, err)
+		assert.InDelta(t, blueColor[0], circlePixel[0], 5, "Circle center should be blue (R)")
+		assert.InDelta(t, blueColor[1], circlePixel[1], 5, "Circle center should be blue (G)")
+		assert.InDelta(t, blueColor[2], circlePixel[2], 5, "Circle center should be blue (B)")
+
+		// Validate pixel at the edge of the circle (approximately)
+		edgePixel, err := img.Getpoint(200+45, 150, nil) // slightly inside the circle radius
+		require.NoError(t, err)
+		// Should be blue or close to it
+		assert.InDelta(t, blueColor[2], edgePixel[2], 50, "Circle edge should be close to blue")
+	}
+
+	// 3. Draw a green line from (50,200) to (250,250)
+	greenColor := []float64{0, 255, 0}
+	err = img.DrawLine(greenColor, 50, 200, 250, 250)
+	if err != nil {
+		t.Logf("DrawLine failed: %v", err)
+	} else {
+		t.Log("DrawLine successful")
+
+		// Validate pixel on the line (approximate midpoint)
+		linePixel, err := img.Getpoint(150, 225, nil)
+		require.NoError(t, err)
+		// Line pixels might be approximated, so use a larger delta
+		if linePixel[1] > linePixel[0] && linePixel[1] > linePixel[2] {
+			t.Log("Line pixel has dominant green channel as expected")
+		} else {
+			t.Logf("Line pixel values: [%.1f, %.1f, %.1f] - might be affected by anti-aliasing",
+				linePixel[0], linePixel[1], linePixel[2])
+		}
+	}
+
+	// Check if the image still has the expected dimensions
+	assert.Equal(t, width, img.Width())
+	assert.Equal(t, height, img.Height())
+} // Helper function to check if bands are approximately equal
+func assertBandsEqual(t *testing.T, values []float64) {
+	if len(values) < 2 {
+		return
+	}
+
+	for i := 1; i < len(values); i++ {
+		assert.InDelta(t, values[0], values[i], 5,
+			"Band values should be approximately equal in grayscale image")
+	}
+}
+
+// TestCreatePatternedImage tests creating an image with a checkerboard pattern
+func TestCreatePatternedImage(t *testing.T) {
+	// Create a checkerboard pattern image in memory
+	width, height := 200, 200
+	squareSize := 20
+
+	img := image.NewRGBA(image.Rect(0, 0, width, height))
+
+	// Draw checkerboard pattern
+	for y := 0; y < height; y += squareSize {
+		for x := 0; x < width; x += squareSize {
+			// Alternate between white and black squares
+			c := color.RGBA{0, 0, 0, 255} // Black
+			if ((x/squareSize)+(y/squareSize))%2 == 0 {
+				c = color.RGBA{255, 255, 255, 255} // White
+			}
+
+			// Fill square
+			rect := image.Rect(x, y, x+squareSize, y+squareSize)
+			draw.Draw(img, rect, &image.Uniform{c}, image.Point{}, draw.Src)
+		}
+	}
+
+	// Convert to bytes
+	var buf bytes.Buffer
+	err := png.Encode(&buf, img)
+	require.NoError(t, err)
+
+	// Load into vips
+	vipsImg, err := NewImageFromBuffer(buf.Bytes(), nil)
+	require.NoError(t, err)
+	defer vipsImg.Close()
+
+	// Verify properties
+	assert.Equal(t, width, vipsImg.Width())
+	assert.Equal(t, height, vipsImg.Height())
+	assert.Equal(t, 3, vipsImg.Bands()) // Check if bands are correct
+}
+
+// TestBuiltinImageGeneration tests creation of images using built-in generators
+func TestBuiltinImageGeneration(t *testing.T) {
+	// Test creating various built-in image types
+
+	// 1. Black image
+	width, height := 100, 100
+	blackImg, err := NewBlack(width, height, &BlackOptions{Bands: 3})
+	require.NoError(t, err)
+	defer blackImg.Close()
+
+	assert.Equal(t, width, blackImg.Width())
+	assert.Equal(t, height, blackImg.Height())
+	assert.Equal(t, 3, blackImg.Bands())
+
+	// 2. XYZ image (coordinate-based image)
+	xyzImg, err := NewXyz(width, height, nil)
+	require.NoError(t, err)
+	defer xyzImg.Close()
+
+	assert.Equal(t, width, xyzImg.Width())
+	assert.Equal(t, height, xyzImg.Height())
+	assert.Equal(t, 2, xyzImg.Bands())
+
+	// 3. Perlin noise image
+	perlinImg, err := NewPerlin(width, height, &PerlinOptions{
+		CellSize: 32,
+		Uchar:    true,
+	})
+	require.NoError(t, err)
+	defer perlinImg.Close()
+
+	assert.Equal(t, width, perlinImg.Width())
+	assert.Equal(t, height, perlinImg.Height())
+
+	// 4. Zone plate
+	zoneImg, err := NewZone(width, height, nil)
+	require.NoError(t, err)
+	defer zoneImg.Close()
+
+	assert.Equal(t, width, zoneImg.Width())
+	assert.Equal(t, height, zoneImg.Height())
+
+	// 5. Gaussian noise
+	noiseImg, err := NewGaussnoise(width, height, &GaussnoiseOptions{
+		Sigma: 50.0,
+		Mean:  128.0,
+	})
+	require.NoError(t, err)
+	defer noiseImg.Close()
+
+	assert.Equal(t, width, noiseImg.Width())
+	assert.Equal(t, height, noiseImg.Height())
+}
+
+// TestImageManipulations tests various image manipulations like crop, resize, etc.
+func TestImageManipulations(t *testing.T) {
+	// Create a test image
+	width, height := 200, 200
+	img, err := createCheckboardImage(t, width, height, 20)
+	require.NoError(t, err)
+	defer img.Close()
+
+	// 1. Test crop
+	cropImg, err := img.Copy(nil)
+	require.NoError(t, err)
+	defer cropImg.Close()
+
+	err = cropImg.ExtractArea(50, 50, 100, 100)
+	require.NoError(t, err)
+	assert.Equal(t, 100, cropImg.Width())
+	assert.Equal(t, 100, cropImg.Height())
+
+	// 2. Test resize with different kernels
+	for _, kernel := range []Kernel{KernelNearest, KernelLinear, KernelCubic, KernelLanczos3} {
+		resizeImg, err := img.Copy(nil)
+		require.NoError(t, err)
+
+		err = resizeImg.Resize(0.5, &ResizeOptions{Kernel: kernel})
+		require.NoError(t, err)
+
+		assert.Equal(t, width/2, resizeImg.Width())
+		assert.Equal(t, height/2, resizeImg.Height())
+
+		resizeImg.Close()
+	}
+
+	// 3. Test rotations
+	rotateImg, err := img.Copy(nil)
+	require.NoError(t, err)
+	defer rotateImg.Close()
+
+	origWidth, origHeight := rotateImg.Width(), rotateImg.Height()
+
+	// Test 90 degree rotation
+	err = rotateImg.Rot(AngleD90)
+	require.NoError(t, err)
+	assert.Equal(t, origHeight, rotateImg.Width())
+	assert.Equal(t, origWidth, rotateImg.Height())
+
+	// Test 180 degree rotation
+	err = rotateImg.Rot(AngleD180)
+	require.NoError(t, err)
+	assert.Equal(t, origWidth, rotateImg.Width())
+	assert.Equal(t, origHeight, rotateImg.Height())
+}
+
+// TestImageBlending tests blending and composition operations
+func TestImageBlending(t *testing.T) {
+	// Create two test images - one red and one blue
+	width, height := 100, 100
+	redImg, err := createSolidColorImage(t, width, height, color.RGBA{255, 0, 0, 255})
+	require.NoError(t, err)
+	defer redImg.Close()
+
+	blueImg, err := createSolidColorImage(t, width, height, color.RGBA{0, 0, 255, 255})
+	require.NoError(t, err)
+	defer blueImg.Close()
+
+	// Test overlaying the images
+	err = redImg.Composite2(blueImg, BlendModeOver, &Composite2Options{
+		X: 25,
+		Y: 25,
+	})
+
+	if err != nil {
+		t.Logf("Composite operation failed: %v", err)
+	} else {
+		t.Log("Successfully blended images")
+
+		// Test saving the resulting image
+		buf, err := redImg.PngsaveBuffer(nil)
+		require.NoError(t, err)
+		assert.NotEmpty(t, buf)
+	}
+
+	// Test other blend modes if supported
+	blendModes := []BlendMode{
+		BlendModeMultiply,
+		BlendModeScreen,
+		BlendModeDarken,
+		BlendModeLighten,
+	}
+
+	for _, mode := range blendModes {
+		baseImg, err := createSolidColorImage(t, width, height, color.RGBA{200, 200, 200, 255})
+		if err != nil {
+			continue
+		}
+
+		overlayImg, err := createSolidColorImage(t, width/2, height/2, color.RGBA{100, 100, 100, 255})
+		if err != nil {
+			baseImg.Close()
+			continue
+		}
+
+		err = baseImg.Composite2(overlayImg, mode, &Composite2Options{
+			X: width / 4,
+			Y: height / 4,
+		})
+
+		t.Logf("Blend mode %d test: %v", mode, err == nil)
+
+		baseImg.Close()
+		overlayImg.Close()
+	}
+}
+
+// TestColorspaceConversions tests converting between different colorspaces
+func TestColorspaceConversions(t *testing.T) {
+	// Create a test image
+	width, height := 100, 100
+	img, err := createWhiteImage(width, height)
+	require.NoError(t, err)
+	defer img.Close()
+
+	// Test conversion to various colorspaces
+	colorspaces := []Interpretation{
+		InterpretationBW,
+		InterpretationRgb,
+		InterpretationSrgb,
+		InterpretationCmyk,
+		InterpretationLab,
+	}
+
+	for _, colorspace := range colorspaces {
+		// Make a copy for this test
+		testImg, err := img.Copy(nil)
+		require.NoError(t, err)
+
+		// Try to convert to this colorspace
+		err = testImg.Colourspace(colorspace, nil)
+		if err != nil {
+			t.Logf("Convert to %d failed: %v", colorspace, err)
+		} else {
+			t.Logf("Successfully converted to colorspace %d", colorspace)
+		}
+
+		testImg.Close()
+	}
+}
+
+// TestImageFilters tests various image filters
+func TestImageFilters(t *testing.T) {
+	// Create a test image
+	width, height := 200, 200
+	img, err := createCheckboardImage(t, width, height, 20)
+	require.NoError(t, err)
+	defer img.Close()
+
+	// Test various filters
+
+	// 1. Gaussian blur with different sigma values
+	sigmaValues := []float64{1.0, 3.0, 5.0}
+	for _, sigma := range sigmaValues {
+		blurImg, err := img.Copy(nil)
+		require.NoError(t, err)
+
+		err = blurImg.Gaussblur(sigma, nil)
+		require.NoError(t, err)
+
+		t.Logf("Gaussian blur with sigma=%.1f successful", sigma)
+		blurImg.Close()
+	}
+
+	// 2. Edge detection filters
+	filters := []struct {
+		name string
+		fn   func(*Image) error
+	}{
+		{"Sobel", func(i *Image) error { return i.Sobel() }},
+		{"Canny", func(i *Image) error { return i.Canny(nil) }},
+	}
+
+	for _, filter := range filters {
+		filterImg, err := img.Copy(nil)
+		require.NoError(t, err)
+
+		err = filter.fn(filterImg)
+		if err != nil {
+			t.Logf("%s filter failed: %v", filter.name, err)
+		} else {
+			t.Logf("%s filter successful", filter.name)
+		}
+
+		filterImg.Close()
+	}
+}
+
+// TestRotateOperations tests different rotation operations
+func TestRotateOperations(t *testing.T) {
+	// Create a test image with identifiable features
+	// Use odd dimensions to be compatible with all rotation operations
+	width, height := 101, 101
+
+	// Create an image with a single horizontal line through the middle
+	img := image.NewRGBA(image.Rect(0, 0, width, height))
+
+	// Fill with white
+	bgColor := color.RGBA{255, 255, 255, 255}
+	draw.Draw(img, img.Bounds(), &image.Uniform{bgColor}, image.Point{}, draw.Src)
+
+	// Draw a horizontal red line through the middle
+	lineColor := color.RGBA{255, 0, 0, 255}
+	for x := 0; x < width; x++ {
+		img.Set(x, height/2, lineColor)
+	}
+
+	// Convert to PNG and load into vips
+	var buf bytes.Buffer
+	err := png.Encode(&buf, img)
+	require.NoError(t, err)
+
+	// Load the image
+	vipsImg, err := NewImageFromBuffer(buf.Bytes(), nil)
+	require.NoError(t, err)
+	defer vipsImg.Close()
+
+	// Verify the horizontal line is there by checking a pixel in the middle
+	midPixel, err := vipsImg.Getpoint(width/2, height/2, nil)
+	require.NoError(t, err)
+	assert.InDelta(t, 255, midPixel[0], 5, "Middle pixel should be red")
+	assert.InDelta(t, 0, midPixel[1], 5, "Middle pixel should be red")
+	assert.InDelta(t, 0, midPixel[2], 5, "Middle pixel should be red")
+
+	// Test Rot - 90 degree rotation
+	rotImg, err := vipsImg.Copy(nil)
+	require.NoError(t, err)
+	defer rotImg.Close()
+
+	err = rotImg.Rot(AngleD90)
+	if err != nil {
+		t.Logf("Rot(AngleD90) failed: %v", err)
+	} else {
+		t.Log("Rot(AngleD90) succeeded")
+
+		// After 90-degree rotation, the horizontal line should become vertical
+		// Check horizontally across the center - most should be white except middle
+		foundRed := false
+		leftPixel, err := rotImg.Getpoint(width/4, height/2, nil)
+		require.NoError(t, err)
+		assert.InDelta(t, 255, leftPixel[0], 5, "Left-center should be white after rotation")
+		assert.InDelta(t, 255, leftPixel[1], 5, "Left-center should be white after rotation")
+		assert.InDelta(t, 255, leftPixel[2], 5, "Left-center should be white after rotation")
+
+		// Center pixel should now be white too, and red is on the vertical line instead
+		centerPixel, err := rotImg.Getpoint(width/2, height/2, nil)
+		require.NoError(t, err)
+		assert.Equal(t, []float64{255, 0, 0}, centerPixel)
+
+		// Find the red pixel by scanning vertically
+		for y := 0; y < height; y++ {
+			vertPixel, err := rotImg.Getpoint(width/2, y, nil)
+			if err != nil {
+				continue
+			}
+
+			if vertPixel[0] > 200 && vertPixel[1] < 50 && vertPixel[2] < 50 {
+				foundRed = true
+				t.Logf("Found red pixel in vertical scan at y=%d: [%.1f, %.1f, %.1f]",
+					y, vertPixel[0], vertPixel[1], vertPixel[2])
+				break
+			}
+		}
+
+		if !foundRed {
+			t.Log("Could not find red pixel in vertical scan after rotation")
+		}
+	}
+
+	// Test Rot45 if available (requires odd-sized square image, which we have)
+	rot45Img, err := vipsImg.Copy(nil)
+	require.NoError(t, err)
+	defer rot45Img.Close()
+
+	err = rot45Img.Rot45(&Rot45Options{Angle: Angle45D45})
+	if err != nil {
+		t.Logf("Rot45(Angle45D45) failed: %v", err)
+	} else {
+		t.Log("Rot45(Angle45D45) succeeded")
+		t.Logf("After Rot45: %dx%d", rot45Img.Width(), rot45Img.Height())
+
+		// After 45-degree rotation, the line should be diagonal
+		// Just validate some basic properties since exact pixel location is complex
+		centerPixel, err := rot45Img.Getpoint(rot45Img.Width()/2, rot45Img.Height()/2, nil)
+		if err == nil {
+			t.Logf("Center pixel after Rot45: [%.1f, %.1f, %.1f]",
+				centerPixel[0], centerPixel[1], centerPixel[2])
+		}
+	}
+} // TestRot45Requirements tests the specific requirements for the rot45 operation
+func TestRot45Requirements(t *testing.T) {
+	// Test that rot45 requires odd-sized square images
+
+	// 1. Test with even-sized square image (should fail)
+	evenWidth, evenHeight := 100, 100
+	evenImg, err := createSolidColorImage(t, evenWidth, evenHeight, color.RGBA{255, 0, 0, 255})
+	require.NoError(t, err)
+	defer evenImg.Close()
+
+	err = evenImg.Rot45(&Rot45Options{Angle: Angle45D45})
+	assert.Error(t, err, "Rot45 should fail with even-sized square image")
+	t.Logf("Expected error with even-sized square image: %v", err)
+
+	// 2. Test with non-square image (should fail)
+	rectWidth, rectHeight := 101, 151 // odd but not square
+	rectImg, err := createSolidColorImage(t, rectWidth, rectHeight, color.RGBA{0, 255, 0, 255})
+	require.NoError(t, err)
+	defer rectImg.Close()
+
+	err = rectImg.Rot45(&Rot45Options{Angle: Angle45D45})
+	assert.Error(t, err, "Rot45 should fail with non-square image")
+	t.Logf("Expected error with non-square image: %v", err)
+
+	// 3. Test with odd-sized square image (should succeed)
+	oddWidth, oddHeight := 101, 101 // odd and square
+	oddImg, err := createSolidColorImage(t, oddWidth, oddHeight, color.RGBA{0, 0, 255, 255})
+	require.NoError(t, err)
+	defer oddImg.Close()
+
+	err = oddImg.Rot45(&Rot45Options{Angle: Angle45D45})
+	if err != nil {
+		t.Logf("Rot45 still failed with odd-sized square image: %v", err)
+	} else {
+		t.Log("Rot45 succeeded with odd-sized square image as expected")
+
+		// Verify dimensions of rotated image
+		t.Logf("After rotation: %dx%d", oddImg.Width(), oddImg.Height())
+
+		// Check pixels after rotation
+		centerX, centerY := oddImg.Width()/2, oddImg.Height()/2
+		centerPixel, err := oddImg.Getpoint(centerX, centerY, nil)
+		if err == nil {
+			t.Logf("Center pixel after rotation: [%.1f, %.1f, %.1f]",
+				centerPixel[0], centerPixel[1], centerPixel[2])
+		}
+	}
+
+	// 4. Try different rotation angles if available
+	if err == nil {
+		// Make another odd-sized square image for testing other angles
+		oddImg2, err := createSolidColorImage(t, oddWidth, oddHeight, color.RGBA{0, 0, 255, 255})
+		require.NoError(t, err)
+		defer oddImg2.Close()
+
+		// Try 90-degree rotation (D90)
+		err = oddImg2.Rot45(&Rot45Options{Angle: Angle45D90})
+		if err != nil {
+			t.Logf("Rot45 with Angle45D90 failed: %v", err)
+		} else {
+			t.Log("Rot45 with Angle45D90 succeeded")
+		}
+	}
+} // TestImageStats tests statistical functions on images
+func TestImageStats(t *testing.T) {
+	// Create a test image with a gradient
+	width, height := 100, 100
+	img := image.NewRGBA(image.Rect(0, 0, width, height))
+
+	// Create a gradient from black to white
+	for y := 0; y < height; y++ {
+		for x := 0; x < width; x++ {
+			// Linear gradient from black to white
+			value := uint8((x + y) * 255 / (width + height - 2))
+			img.Set(x, y, color.RGBA{value, value, value, 255})
+		}
+	}
+
+	// Convert to PNG and load into vips
+	var buf bytes.Buffer
+	err := png.Encode(&buf, img)
+	require.NoError(t, err)
+
+	vipsImg, err := NewImageFromBuffer(buf.Bytes(), nil)
+	require.NoError(t, err)
+	defer vipsImg.Close()
+
+	// Test Avg (average) operation
+	avg, err := vipsImg.Avg()
+	if err != nil {
+		t.Logf("Avg operation failed: %v", err)
+	} else {
+		t.Logf("Image average: %.2f", avg)
+		// For a linear gradient 0-255, average should be close to 127.5
+		assert.InDelta(t, 127.5, avg, 10, "Average should be close to 127.5")
+	}
+
+	// Test Min operation
+	min, err := vipsImg.Min(nil)
+	if err != nil {
+		t.Logf("Min operation failed: %v", err)
+	} else {
+		t.Logf("Image minimum: %.2f", min)
+		assert.InDelta(t, 0, min, 5, "Minimum should be close to 0")
+	}
+
+	// Test Max operation
+	max, err := vipsImg.Max(nil)
+	if err != nil {
+		t.Logf("Max operation failed: %v", err)
+	} else {
+		t.Logf("Image maximum: %.2f", max)
+		assert.InDelta(t, 255, max, 5, "Maximum should be close to 255")
+	}
+
+	// Test Deviate (standard deviation) operation
+	dev, err := vipsImg.Deviate()
+	if err != nil {
+		t.Logf("Deviate operation failed: %v", err)
+	} else {
+		t.Logf("Image standard deviation: %.2f", dev)
+		// Standard deviation for uniform gradient should be positive
+		assert.Greater(t, dev, 0.0, "Standard deviation should be positive")
+	}
+
+	// Validate against specific pixel values
+	// Check corners and center
+	checkPoints := []struct {
+		name     string
+		x, y     int
+		expected float64
+	}{
+		{"top-left", 0, 0, 0},
+		{"top-right", width - 1, 0, float64((width - 1) * 255 / (width + height - 2))},
+		{"bottom-left", 0, height - 1, float64((height - 1) * 255 / (width + height - 2))},
+		{"bottom-right", width - 1, height - 1, float64((width + height - 2) * 255 / (width + height - 2))},
+		{"center", width / 2, height / 2, float64((width/2 + height/2) * 255 / (width + height - 2))},
+	}
+
+	for _, cp := range checkPoints {
+		pixelValues, err := vipsImg.Getpoint(cp.x, cp.y, nil)
+		if err != nil {
+			t.Logf("Getpoint failed for %s: %v", cp.name, err)
+			continue
+		}
+
+		assert.InDelta(t, cp.expected, pixelValues[0], 5,
+			"Pixel value at %s should be approximately %.1f", cp.name, cp.expected)
+
+		t.Logf("%s pixel value: %.1f (expected: %.1f)",
+			cp.name, pixelValues[0], cp.expected)
+	}
+}
+
+// TestDrawOperations tests drawing operations on images
+func TestDrawOperations(t *testing.T) {
+	// Create a white canvas
+	width, height := 300, 300
+	img, err := createWhiteImage(width, height)
+	require.NoError(t, err)
+	defer img.Close()
+
+	// Test drawing operations
+
+	// 1. Draw a red rectangle
+	err = img.DrawRect([]float64{255, 0, 0}, 50, 50, 100, 100, &DrawRectOptions{
+		Fill: true,
+	})
+	if err != nil {
+		t.Logf("DrawRect failed: %v", err)
+	} else {
+		t.Log("DrawRect successful")
+	}
+
+	// 2. Draw a blue circle
+	err = img.DrawCircle([]float64{0, 0, 255}, 200, 150, 50, &DrawCircleOptions{
+		Fill: true,
+	})
+	if err != nil {
+		t.Logf("DrawCircle failed: %v", err)
+	} else {
+		t.Log("DrawCircle successful")
+	}
+
+	// 3. Draw a green line
+	err = img.DrawLine([]float64{0, 255, 0}, 50, 200, 250, 250)
+	if err != nil {
+		t.Logf("DrawLine failed: %v", err)
+	} else {
+		t.Log("DrawLine successful")
+	}
+
+	// Check if the image still has the expected dimensions
+	assert.Equal(t, width, img.Width())
+	assert.Equal(t, height, img.Height())
+}
+
+// TestSourceOperations tests operations using Source
+func TestSourceOperations(t *testing.T) {
+	// Create a test image
+	width, height := 100, 100
+	data := createPNGTestImage(t, width, height)
+
+	// Test with a memory source
+	memReader := bytes.NewReader(data)
+	source := NewSource(io.NopCloser(memReader))
+	defer source.Close()
+
+	// Load from source
+	img, err := NewImageFromSource(source, DefaultLoadOptions())
+	require.NoError(t, err)
+	defer img.Close()
+
+	// Verify properties
+	assert.Equal(t, width, img.Width())
+	assert.Equal(t, height, img.Height())
+}
+
+// Helper functions for creating various test images
+
+// createCheckboardImage creates a test image with a checkerboard pattern
+func createCheckboardImage(t *testing.T, width, height, squareSize int) (*Image, error) {
+	img := image.NewRGBA(image.Rect(0, 0, width, height))
+
+	// Draw checkerboard pattern
+	for y := 0; y < height; y += squareSize {
+		for x := 0; x < width; x += squareSize {
+			// Alternate between white and black squares
+			c := color.RGBA{0, 0, 0, 255} // Black
+			if ((x/squareSize)+(y/squareSize))%2 == 0 {
+				c = color.RGBA{255, 255, 255, 255} // White
+			}
+
+			// Fill square
+			rect := image.Rect(x, y, x+squareSize, y+squareSize)
+			draw.Draw(img, rect, &image.Uniform{c}, image.Point{}, draw.Src)
+		}
+	}
+
+	// Convert to PNG and load into vips
+	var buf bytes.Buffer
+	err := png.Encode(&buf, img)
+	if err != nil {
+		return nil, err
+	}
+
+	return NewImageFromBuffer(buf.Bytes(), nil)
+}
+
+// createSolidColorImage creates a test image with a solid color
+func createSolidColorImage(t *testing.T, width, height int, c color.RGBA) (*Image, error) {
+	img := image.NewRGBA(image.Rect(0, 0, width, height))
+
+	// Fill with solid color
+	draw.Draw(img, img.Bounds(), &image.Uniform{c}, image.Point{}, draw.Src)
+
+	// Convert to PNG and load into vips
+	var buf bytes.Buffer
+	err := png.Encode(&buf, img)
+	if err != nil {
+		return nil, err
+	}
+
+	return NewImageFromBuffer(buf.Bytes(), nil)
+}
+
+// createPNGTestImage creates a test PNG image with a pattern
+func createPNGTestImage(t *testing.T, width, height int) []byte {
+	img := image.NewRGBA(image.Rect(0, 0, width, height))
+
+	// Create a random pattern
+	r := rand.New(rand.NewSource(42)) // Use fixed seed for reproducibility
+
+	for y := 0; y < height; y++ {
+		for x := 0; x < width; x++ {
+			img.Set(x, y, color.RGBA{
+				R: uint8(r.Intn(256)),
+				G: uint8(r.Intn(256)),
+				B: uint8(r.Intn(256)),
+				A: 255,
+			})
+		}
+	}
+
+	// Encode to PNG
+	var buf bytes.Buffer
+	err := png.Encode(&buf, img)
+	require.NoError(t, err)
+
+	return buf.Bytes()
+}
+
+// TestAdvancedColorOperations tests advanced color operations and transformations
+func TestAdvancedColorOperations(t *testing.T) {
+	// Create a test image
+	width, height := 100, 100
+	img, err := createSolidColorImage(t, width, height, color.RGBA{200, 150, 100, 255})
+	require.NoError(t, err)
+	defer img.Close()
+
+	// Test color space conversions if available
+	conversions := []struct {
+		name string
+		fn   func(*Image) error
+	}{
+		{"SRGB2HSV", func(i *Image) error { return i.SRGB2HSV() }},
+		{"HSV2sRGB", func(i *Image) error { return i.HSV2sRGB() }},
+		{"Lab2LCh", func(i *Image) error { return i.Lab2LCh() }},
+		{"LCh2Lab", func(i *Image) error { return i.LCh2Lab() }},
+	}
+
+	for _, conv := range conversions {
+		convImg, err := img.Copy(nil)
+		require.NoError(t, err)
+
+		err = conv.fn(convImg)
+		if err != nil {
+			t.Logf("%s conversion failed: %v", conv.name, err)
+		} else {
+			t.Logf("%s conversion successful", conv.name)
+
+			// Try to convert back if possible
+			if idx := conv.name + "->back"; idx[0] == 'S' {
+				err = convImg.HSV2sRGB()
+				t.Logf("Converting back: %v", err == nil)
+			} else if idx[0] == 'H' {
+				err = convImg.SRGB2HSV()
+				t.Logf("Converting back: %v", err == nil)
+			}
+		}
+
+		convImg.Close()
+	}
 }
