@@ -100,12 +100,7 @@ func createWhiteImage(width, height int) (*Image, error) {
 
 // createBlackImage creates a solid black image in memory
 func createBlackImage(width, height int) (*Image, error) {
-	bands := 3 // RGB
-	data := make([]byte, width*height*bands)
-
-	// Data is already initialized to zeros (black)
-
-	return NewImageFromMemory(data, width, height, bands)
+	return NewBlack(width, height, &BlackOptions{Bands: 3})
 }
 
 func TestVersionInfo(t *testing.T) {
@@ -210,7 +205,7 @@ func TestImageLoadSaveBuffer(t *testing.T) {
 	pngData := createTestPNG(t, 150, 100)
 
 	// Load from buffer
-	img, err := NewImageFromBuffer(pngData, nil)
+	img, err := NewPngloadBuffer(pngData, DefaultPngloadBufferOptions())
 	require.NoError(t, err)
 	defer img.Close()
 
@@ -241,7 +236,7 @@ func TestSource(t *testing.T) {
 	defer source.Close()
 
 	// Load from source
-	imgFromSource, err := NewImageFromSource(source, nil)
+	imgFromSource, err := NewImageFromSource(source, DefaultLoadOptions())
 	require.NoError(t, err)
 	defer imgFromSource.Close()
 
@@ -299,7 +294,7 @@ func TestBasicFormatConversions(t *testing.T) {
 
 	// Create a test gradient image
 	width, height := 100, 80
-	img, err := NewImageFromBuffer(createTestPNG(t, width, height), nil)
+	img, err := NewImageFromBuffer(createTestPNG(t, width, height), DefaultLoadOptions())
 	require.NoError(t, err)
 	defer img.Close()
 
@@ -420,18 +415,6 @@ func TestImageOperations(t *testing.T) {
 
 // TestFormatConversionChain tests a chain of conversions between formats
 func TestFormatConversionChain(t *testing.T) {
-	// Skip the test if JPEG is not supported
-	jpegSupported := false
-	for _, mime := range ImageMimeTypes {
-		if mime == "image/jpeg" {
-			jpegSupported = true
-			break
-		}
-	}
-	if !jpegSupported {
-		t.Skip("JPEG format not supported, skipping test")
-	}
-
 	// Create a simple white image
 	img, err := createWhiteImage(100, 80)
 	require.NoError(t, err)
@@ -439,14 +422,14 @@ func TestFormatConversionChain(t *testing.T) {
 
 	// 1. First save as JPEG with minimal options
 	jpegBuf, err := img.JpegsaveBuffer(&JpegsaveBufferOptions{
-		Q: 90,
+		Q: 80,
 	})
 	require.NoError(t, err)
 	require.NotEmpty(t, jpegBuf)
 	t.Logf("JPEG save produced %d bytes", len(jpegBuf))
 
 	// 2. Load the JPEG
-	jpegImg, err := NewImageFromBuffer(jpegBuf, nil)
+	jpegImg, err := NewJpegloadBuffer(jpegBuf, DefaultJpegloadBufferOptions())
 	require.NoError(t, err)
 	defer jpegImg.Close()
 
@@ -485,7 +468,7 @@ func TestOperationComposition(t *testing.T) {
 	// Compose operations: resize, embed, and composite
 
 	// 1. Resize second image
-	err = img2.Resize(1.5, nil)
+	err = img2.Resize(1.5, DefaultResizeOptions())
 	require.NoError(t, err)
 	assert.Equal(t, 75, img2.Width())
 	assert.Equal(t, 75, img2.Height())
@@ -545,23 +528,11 @@ func TestICCProfile(t *testing.T) {
 
 // TestExif tests EXIF operations
 func TestExif(t *testing.T) {
-	// Skip if we can't load a JPEG file
-	jpegSupported := false
-	for _, mime := range ImageMimeTypes {
-		if mime == "image/jpeg" {
-			jpegSupported = true
-			break
-		}
-	}
-	if !jpegSupported {
-		t.Skip("JPEG format not supported, skipping EXIF test")
-	}
-
 	// Create a JPEG with some basic structure
 	jpegData := createTestJPEG(t, 120, 80)
 
 	// Load JPEG
-	img, err := NewImageFromBuffer(jpegData, nil)
+	img, err := NewJpegloadBuffer(jpegData, nil)
 	require.NoError(t, err)
 	defer img.Close()
 
@@ -606,57 +577,61 @@ func TestMultiPageOperations(t *testing.T) {
 	assert.Equal(t, 100, img.PageHeight())
 }
 
-// TestAllFormatsSupport tests saving in all supported formats
 func TestAllFormatsSupport(t *testing.T) {
 	// Create a test image
 	img, err := createWhiteImage(100, 100)
 	require.NoError(t, err)
 	defer img.Close()
 
-	// Try saving in each supported format
+	// Define all format tests in a slice
+	type formatTest struct {
+		name     string
+		saveFunc func() ([]byte, error)
+	}
+
+	tests := []formatTest{
+		{name: "PNG", saveFunc: func() ([]byte, error) {
+			return img.PngsaveBuffer(nil)
+		}},
+		{name: "PNG", saveFunc: func() ([]byte, error) {
+			return img.PngsaveBuffer(DefaultPngsaveBufferOptions())
+		}},
+		{name: "JPEG", saveFunc: func() ([]byte, error) {
+			return img.JpegsaveBuffer(nil)
+		}},
+		{name: "JPEG", saveFunc: func() ([]byte, error) {
+			return img.JpegsaveBuffer(DefaultJpegsaveBufferOptions())
+		}},
+		{name: "WebP", saveFunc: func() ([]byte, error) {
+			return img.WebpsaveBuffer(nil)
+		}},
+		{name: "WebP", saveFunc: func() ([]byte, error) {
+			return img.WebpsaveBuffer(DefaultWebpsaveBufferOptions())
+		}},
+		{name: "TIFF", saveFunc: func() ([]byte, error) {
+			return img.TiffsaveBuffer(nil)
+		}},
+		{name: "TIFF", saveFunc: func() ([]byte, error) {
+			return img.TiffsaveBuffer(DefaultTiffsaveBufferOptions())
+		}},
+		{name: "GIF", saveFunc: func() ([]byte, error) {
+			return img.GifsaveBuffer(nil)
+		}},
+		{name: "GIF", saveFunc: func() ([]byte, error) {
+			return img.GifsaveBuffer(DefaultGifsaveBufferOptions())
+		}},
+	}
+
+	// Run all the tests
 	t.Log("Testing all supported save formats:")
-
-	// 1. PNG
-	pngBuf, err := img.PngsaveBuffer(nil)
-	if err != nil {
-		t.Logf("  - PNG save failed: %v", err)
-	} else {
-		t.Logf("  - PNG save succeeded: %d bytes", len(pngBuf))
-		assert.NotEmpty(t, pngBuf)
-	}
-
-	// 2. JPEG
-	jpegBuf, err := img.JpegsaveBuffer(nil)
-	if err != nil {
-		t.Logf("  - JPEG save failed: %v", err)
-	} else {
-		t.Logf("  - JPEG save succeeded: %d bytes", len(jpegBuf))
-		assert.NotEmpty(t, jpegBuf)
-	}
-
-	webpBuf, err := img.WebpsaveBuffer(nil)
-	if err != nil {
-		t.Logf("  - WebP save failed: %v", err)
-	} else {
-		t.Logf("  - WebP save succeeded: %d bytes", len(webpBuf))
-		assert.NotEmpty(t, webpBuf)
-	}
-
-	// 4. TIFF (if supported)
-	tiffBuf, err := img.TiffsaveBuffer(nil)
-	if err != nil {
-		t.Logf("  - TIFF save failed: %v", err)
-	} else {
-		t.Logf("  - TIFF save succeeded: %d bytes", len(tiffBuf))
-		assert.NotEmpty(t, tiffBuf)
-	}
-
-	gifBuf, err := img.GifsaveBuffer(nil)
-	if err != nil {
-		t.Logf("  - GIF save failed: %v", err)
-	} else {
-		t.Logf("  - GIF save succeeded: %d bytes", len(gifBuf))
-		assert.NotEmpty(t, gifBuf)
+	for _, test := range tests {
+		buf, err := test.saveFunc()
+		if err != nil {
+			t.Logf("  - %s save failed: %v", test.name, err)
+		} else {
+			t.Logf("  - %s save succeeded: %d bytes", test.name, len(buf))
+			assert.NotEmpty(t, buf)
+		}
 	}
 }
 

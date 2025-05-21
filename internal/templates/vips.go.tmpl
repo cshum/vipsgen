@@ -24,12 +24,12 @@ func vipsImageFromSource(src *C.VipsSourceCustom, params *LoadOptions) (*C.VipsI
 		optionString = params.OptionString()
 	}
 	if optionString == "" {
-		code = C.image_new_from_source(src, &out)
+		code = C.vipsgen_image_new_from_source(src, &out)
 	} else {
 		cOptionString := C.CString(optionString)
 		defer freeCString(cOptionString)
 
-		code = C.image_new_from_source_with_option(src, &out, cOptionString)
+		code = C.vipsgen_image_new_from_source_with_option(src, &out, cOptionString)
 	}
 	if code != 0 {
 		return nil, handleImageError(out)
@@ -50,12 +50,12 @@ func vipsImageFromBuffer(buf []byte, params *LoadOptions) (*C.VipsImage, error) 
 		optionString = params.OptionString()
 	}
 	if optionString == "" {
-		code = C.image_new_from_buffer(unsafe.Pointer(&src[0]), C.size_t(len(src)), &out)
+		code = C.vipsgen_image_new_from_buffer(unsafe.Pointer(&src[0]), C.size_t(len(src)), &out)
 	} else {
 		cOptionString := C.CString(optionString)
 		defer freeCString(cOptionString)
 
-		code = C.image_new_from_buffer_with_option(unsafe.Pointer(&src[0]), C.size_t(len(src)), &out, cOptionString)
+		code = C.vipsgen_image_new_from_buffer_with_option(unsafe.Pointer(&src[0]), C.size_t(len(src)), &out, cOptionString)
 	}
 	if code != 0 {
 		return nil, handleImageError(out)
@@ -75,7 +75,7 @@ func vipsImageFromFile(path string, params *LoadOptions) (*C.VipsImage, error) {
 	defer freeCString(cPath)
 
 	var out *C.VipsImage
-	code := C.image_new_from_file(cPath, &out)
+	code := C.vipsgen_image_new_from_file(cPath, &out)
 
 	if code != 0 {
 		return nil, handleImageError(out)
@@ -91,7 +91,7 @@ func vipsImageFromMemory(buf []byte, width, height, bands int) (*C.VipsImage, er
 
 	var out *C.VipsImage
 	var code C.int
-	code = C.image_new_from_memory(unsafe.Pointer(&src[0]), C.size_t(len(src)), C.int(width), C.int(height), C.int(bands), &out)
+	code = C.vipsgen_image_new_from_memory(unsafe.Pointer(&src[0]), C.size_t(len(src)), C.int(width), C.int(height), C.int(bands), &out)
 	if code != 0 {
 		return nil, handleImageError(out)
 	}
@@ -104,7 +104,7 @@ func vipsHasAlpha(in *C.VipsImage) bool {
 
 func vipsEmbedMultiPage(in *C.VipsImage, left, top, width, height int, extend Extend) (*C.VipsImage, error) {
 	var out *C.VipsImage
-	if err := C.embed_multi_page_image(in, &out, C.int(left), C.int(top), C.int(width), C.int(height), C.int(extend)); err != 0 {
+	if err := C.embed_multi_page(in, &out, C.int(left), C.int(top), C.int(width), C.int(height), C.int(extend)); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
@@ -113,7 +113,7 @@ func vipsEmbedMultiPage(in *C.VipsImage, left, top, width, height int, extend Ex
 func vipsEmbedMultiPageBackground(in *C.VipsImage, left, top, width, height,
 	backgroundColorR, backgroundColorG, backgroundColorB, backgroundColorA int) (*C.VipsImage, error) {
 	var out *C.VipsImage
-	if err := C.embed_multi_page_image_background(in, &out, C.int(left), C.int(top), C.int(width),
+	if err := C.embed_multi_page_background(in, &out, C.int(left), C.int(top), C.int(width),
 		C.int(height), C.double(backgroundColorR),
 		C.double(backgroundColorG), C.double(backgroundColorB), C.double(backgroundColorA)); err != 0 {
 		return nil, handleImageError(out)
