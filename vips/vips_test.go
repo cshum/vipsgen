@@ -100,12 +100,7 @@ func createWhiteImage(width, height int) (*Image, error) {
 
 // createBlackImage creates a solid black image in memory
 func createBlackImage(width, height int) (*Image, error) {
-	bands := 3 // RGB
-	data := make([]byte, width*height*bands)
-
-	// Data is already initialized to zeros (black)
-
-	return NewImageFromMemory(data, width, height, bands)
+	return NewBlack(width, height, &BlackOptions{Bands: 3})
 }
 
 func TestVersionInfo(t *testing.T) {
@@ -473,7 +468,7 @@ func TestOperationComposition(t *testing.T) {
 	// Compose operations: resize, embed, and composite
 
 	// 1. Resize second image
-	err = img2.Resize(1.5, nil)
+	err = img2.Resize(1.5, DefaultResizeOptions())
 	require.NoError(t, err)
 	assert.Equal(t, 75, img2.Width())
 	assert.Equal(t, 75, img2.Height())
