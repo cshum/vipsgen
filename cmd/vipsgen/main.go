@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"github.com/cshum/vipsgen/internal/generator"
 	"github.com/cshum/vipsgen/internal/introspection"
 	"github.com/cshum/vipsgen/internal/templates"
@@ -44,7 +43,7 @@ func main() {
 	} else {
 		// Use embedded templates by default
 		loader = generator.NewFSTemplateLoader(templates.Templates, funcMap)
-		fmt.Println("Using embedded templates")
+		log.Printf("Using embedded templates\n")
 	}
 
 	// Determine output directory
