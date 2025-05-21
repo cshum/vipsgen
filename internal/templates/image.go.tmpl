@@ -44,8 +44,8 @@ func (r *Image) {{.GoName}}({{generateImageMethodParams .}}) ({{generateImageMet
 {{range .Operations}}{{if and (not .HasThisImageInput) (not .HasImageOutput)}}
 // {{.GoName}} {{.Description}}
 func {{.GoName}}({{generateMethodParams .}}) ([]byte, error) {
-    Startup(nil)
-    return vipsgen{{.GoName}}({{generateUtilFunctionCallArgs .}})
+	Startup(nil)
+	return vipsgen{{.GoName}}({{generateUtilFunctionCallArgs .}})
 }
 {{end}}{{end}}
 
@@ -240,14 +240,14 @@ func (r *Image) Interpretation() Interpretation {
 // Pages returns the number of pages in the Image
 // For animated images this corresponds to the number of frames
 func (r *Image) Pages() int {
-    {{range .ImageTypes}}{{if eq .TypeName "jp2k"}}
-    // libvips uses the same attribute (n_pages) to represent the number of pyramid layers in JP2K
-    // as we interpret the attribute as frames and JP2K does not support animation we override this with 1
-    if r.format == ImageTypeJp2k {
-        return 1
-    }
-    {{end}}{{end}}
-    return vipsGetImageNPages(r.image)
+	{{range .ImageTypes}}{{if eq .TypeName "jp2k"}}
+	// libvips uses the same attribute (n_pages) to represent the number of pyramid layers in JP2K
+	// as we interpret the attribute as frames and JP2K does not support animation we override this with 1
+	if r.format == ImageTypeJp2k {
+		return 1
+	}
+	{{end}}{{end}}
+	return vipsGetImageNPages(r.image)
 }
 
 // PageHeight return the height of a single page
