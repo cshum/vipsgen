@@ -101,7 +101,6 @@ int vipsgen_set_source(VipsOperation *operation, const char *name, VipsSource *v
 
 // Generated operations
 
-
 int vipsgen_system(const char* cmd_format) {
     return vips_system(cmd_format, NULL);
 }
@@ -4984,6 +4983,76 @@ void clear_image(VipsImage **image) {
 int has_alpha_channel(VipsImage *image) {
   return vips_image_hasalpha(image);
 }
+gboolean remove_icc_profile(VipsImage *in) {
+  return vips_image_remove(in, VIPS_META_ICC_NAME);
+}
+
+int get_meta_orientation(VipsImage *in) {
+  int orientation = 0;
+  if (vips_image_get_typeof(in, VIPS_META_ORIENTATION) != 0) {
+    vips_image_get_int(in, VIPS_META_ORIENTATION, &orientation);
+  }
+  return orientation;
+}
+
+// https://libvips.github.io/libvips/API/current/libvips-header.html#vips-image-get-n-pages
+int get_image_n_pages(VipsImage *in) {
+  int n_pages = 0;
+  n_pages = vips_image_get_n_pages(in);
+  return n_pages;
+}
+
+// https://www.libvips.org/API/current/libvips-header.html#vips-image-get-page-height
+int get_page_height(VipsImage *in) {
+  int page_height = 0;
+  page_height = vips_image_get_page_height(in);
+  return page_height;
+}
+
+void set_page_height(VipsImage *in, int height) {
+  vips_image_set_int(in, VIPS_META_PAGE_HEIGHT, height);
+}
+
+int get_meta_loader(const VipsImage *in, const char **out) {
+  return vips_image_get_string(in, VIPS_META_LOADER, out);
+}
+
+void set_image_delay(VipsImage *in, const int *array, int n) {
+  return vips_image_set_array_int(in, "delay", array, n);
+}
+
+const char * get_meta_string(const VipsImage *image, const char *name) {
+  const char *val;
+  if (vips_image_get_typeof(image, name) != 0 && !vips_image_get_string(image, name, &val)) {
+    return &val[0];
+  }
+  return "";
+}
+
+int remove_exif(VipsImage *in, VipsImage **out) {
+  static double default_resolution = 72.0 / 25.4;
+
+  if (vips_copy(
+    in, out,
+    "xres", default_resolution,
+    "yres", default_resolution,
+    NULL
+  )) return 1;
+
+  gchar **fields = vips_image_get_fields(in);
+
+  for (int i = 0; fields[i] != NULL; i++) {
+    gchar *name = fields[i];
+    if (strcmp(name, VIPS_META_ICC_NAME) == 0) continue;
+    if (strcmp(name, VIPS_META_ORIENTATION) == 0) continue;
+    if (strcmp(name, VIPS_META_N_PAGES) == 0) continue;
+    if (strcmp(name, VIPS_META_PAGE_HEIGHT) == 0) continue;
+    if (strcmp(name, "palette-bit-depth") == 0) continue;
+    vips_image_remove(*out, name);
+  }
+  g_strfreev(fields);
+  return 0;
+}
 
 int embed_multi_page_image(VipsImage *in, VipsImage **out, int left, int top, int width,
                          int height, int extend) {
@@ -5179,75 +5248,3 @@ int label_image(VipsImage *in, VipsImage **out,
   g_object_unref(base);
   return 0;
 }
-
-gboolean remove_icc_profile(VipsImage *in) {
-  return vips_image_remove(in, VIPS_META_ICC_NAME);
-}
-
-int get_meta_orientation(VipsImage *in) {
-  int orientation = 0;
-  if (vips_image_get_typeof(in, VIPS_META_ORIENTATION) != 0) {
-    vips_image_get_int(in, VIPS_META_ORIENTATION, &orientation);
-  }
-  return orientation;
-}
-
-// https://libvips.github.io/libvips/API/current/libvips-header.html#vips-image-get-n-pages
-int get_image_n_pages(VipsImage *in) {
-  int n_pages = 0;
-  n_pages = vips_image_get_n_pages(in);
-  return n_pages;
-}
-
-// https://www.libvips.org/API/current/libvips-header.html#vips-image-get-page-height
-int get_page_height(VipsImage *in) {
-  int page_height = 0;
-  page_height = vips_image_get_page_height(in);
-  return page_height;
-}
-
-void set_page_height(VipsImage *in, int height) {
-  vips_image_set_int(in, VIPS_META_PAGE_HEIGHT, height);
-}
-
-int get_meta_loader(const VipsImage *in, const char **out) {
-  return vips_image_get_string(in, VIPS_META_LOADER, out);
-}
-
-void set_image_delay(VipsImage *in, const int *array, int n) {
-  return vips_image_set_array_int(in, "delay", array, n);
-}
-
-const char * get_meta_string(const VipsImage *image, const char *name) {
-  const char *val;
-  if (vips_image_get_typeof(image, name) != 0 && !vips_image_get_string(image, name, &val)) {
-    return &val[0];
-  }
-  return "";
-}
-
-int remove_exif(VipsImage *in, VipsImage **out) {
-  static double default_resolution = 72.0 / 25.4;
-
-  if (vips_copy(
-    in, out,
-    "xres", default_resolution,
-    "yres", default_resolution,
-    NULL
-  )) return 1;
-
-  gchar **fields = vips_image_get_fields(in);
-
-  for (int i = 0; fields[i] != NULL; i++) {
-    gchar *name = fields[i];
-    if (strcmp(name, VIPS_META_ICC_NAME) == 0) continue;
-    if (strcmp(name, VIPS_META_ORIENTATION) == 0) continue;
-    if (strcmp(name, VIPS_META_N_PAGES) == 0) continue;
-    if (strcmp(name, VIPS_META_PAGE_HEIGHT) == 0) continue;
-    if (strcmp(name, "palette-bit-depth") == 0) continue;
-    vips_image_remove(*out, name);
-  }
-  g_strfreev(fields);
-  return 0;
-}
-
