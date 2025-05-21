@@ -4,6 +4,7 @@ package introspection
 import "C"
 import (
 	"fmt"
+	"log"
 	"strings"
 	"unsafe"
 )
@@ -62,14 +63,14 @@ func (v *Introspection) DiscoverEnumTypes() []EnumTypeInfo {
 		C.free(unsafe.Pointer(cTypeName))
 
 		if exists == 0 {
-			fmt.Printf("Warning: enum type %s not found in libvips\n", typeName.CName)
+			log.Printf("Warning: enum type %s not found in libvips\n", typeName.CName)
 			continue
 		}
 
 		// Try to get the enum values
 		enumInfo, err := v.getEnumType(typeName.CName, typeName.GoName)
 		if err != nil {
-			fmt.Printf("Warning: couldn't process enum type %s: %v\n", typeName.CName, err)
+			log.Printf("Warning: couldn't process enum type %s: %v\n", typeName.CName, err)
 			continue
 		}
 
@@ -77,7 +78,9 @@ func (v *Introspection) DiscoverEnumTypes() []EnumTypeInfo {
 		enumTypes = append(enumTypes, enumInfo)
 	}
 
-	debugJson(enumTypes, "debug_enums.json")
+	if v.isDebug {
+		debugJson(enumTypes, "debug_enums.json")
+	}
 
 	return enumTypes
 }
@@ -233,7 +236,7 @@ func (v *Introspection) addEnumType(cName, goName string) {
 			GoName: goName,
 		})
 		v.discoveredEnumTypes[cNameLower] = goName
-		fmt.Printf("Discovered enum type: %s -> %s\n", cName, goName)
+		log.Printf("Discovered enum type: %s -> %s\n", cName, goName)
 	}
 }
 

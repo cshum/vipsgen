@@ -1,8 +1,8 @@
 # vipsgen
 
-[![Go Reference](https://pkg.go.dev/badge/github.com/cshum/vipsgen.svg)](https://pkg.go.dev/github.com/cshum/vipsgen)
-![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/cshum/vipsgen)
 [![CI](https://github.com/cshum/vipsgen/actions/workflows/ci.yml/badge.svg)](https://github.com/cshum/vipsgen/actions/workflows/ci.yml)
+[![Go Reference](https://pkg.go.dev/badge/github.com/cshum/vipsgen/vips.svg)](https://pkg.go.dev/github.com/cshum/vipsgen/vips)
+![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/cshum/vipsgen)
 
 vipsgen is a Go binding generator for [libvips](https://github.com/libvips/libvips) - a fast and efficient image processing library.
 
@@ -10,7 +10,7 @@ Existing Go libvips bindings rely on manually written code that is often incompl
 
 vipsgen provides a pre-generated library you can import directly `github.com/cshum/vipsgen/vips`. Also allows code generation via `vipsgen` command that adapts to your specific libvips installation.
 
-- **Coverage**: Comprehensive bindings for over 200 libvips operations
+- **Coverage**: Comprehensive bindings for around 300 libvips operations
 - **Type-Safe**: Generates proper Go types for libvips enums and structs
 - **Idiomatic**: Creates clear Go style code that feels natural to use
 - **Streaming**: Includes `VipsSource` bindings with `io.ReadCloser` integration for streaming
@@ -20,7 +20,6 @@ vipsgen provides a pre-generated library you can import directly `github.com/csh
 Use homebrew to install vips and pkg-config:
 ```
 brew install vips pkg-config
-
 ```
 
 On MacOS, vipsgen may not compile without first setting an environment variable:
@@ -89,7 +88,6 @@ func main() {
 	// Save the result as WebP file with options
 	err = image.Webpsave("resized-gopher.webp", &vips.WebpsaveOptions{
 		Q:              85,    // Quality factor (0-100)
-		Lossless:       false, // Use lossy compression
 		Effort:         4,     // Compression effort (0-6)
 		SmartSubsample: true,  // Better chroma subsampling
 	})
@@ -135,6 +133,7 @@ Options:
 -templates string      Template directory (uses embedded templates if not specified)
 -extract               Extract embedded templates and exit
 -extract-dir string    Directory to extract templates to (default "./templates")
+-debug                 Enable debug json output
 ```
 
 ## Contributing

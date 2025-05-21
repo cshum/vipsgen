@@ -131,25 +131,27 @@ func (v *Introspection) DiscoverOperations() []Operation {
 		if strings.Contains(op.Name, "_target") ||
 			strings.Contains(op.Name, "_mime") ||
 			strings.Contains(op.Name, "fitsload_source") {
-			fmt.Printf("Excluded operation: vips_%s \n", op.Name)
+			log.Printf("Excluded operation: vips_%s \n", op.Name)
 			excludedCount++
 			continue
 		}
 		// Check for duplicate Go function names
 		if seenOperations[op.GoName] {
-			fmt.Printf("Skipping duplicated operation: vips_%s\n", op.Name)
+			log.Printf("Skipping duplicated operation: vips_%s\n", op.Name)
 			duplicateCount++
 			continue
 		}
 		seenOperations[op.GoName] = true
 
-		fmt.Printf("Discovered operation: vips_%s \n", op.Name)
+		log.Printf("Discovered operation: vips_%s \n", op.Name)
 		operations = append(operations, op)
 	}
-	fmt.Printf("Discovered Operations: %d (%d excluded, %d duplicates)\n",
+	log.Printf("Discovered Operations: %d (%d excluded, %d duplicates)\n",
 		len(operations), excludedCount, duplicateCount)
 
-	debugJson(operations, "debug_operations.json")
+	if v.isDebug {
+		debugJson(operations, "debug_operations.json")
+	}
 
 	return operations
 }
@@ -533,9 +535,6 @@ func (v *Introspection) mapGTypeToTypes(gtype C.GType, typeName string, isOutput
 		cTypeNamePtr := C.g_type_name(gtype)
 		if cTypeNamePtr != nil {
 			actualTypeName := C.GoString(cTypeNamePtr)
-
-			// Log for debugging
-			log.Printf("Found object type: %s", actualTypeName)
 
 			if isOutput {
 				return actualTypeName, "*C." + actualTypeName, actualTypeName + "**"

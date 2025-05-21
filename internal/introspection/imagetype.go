@@ -98,7 +98,9 @@ func (v *Introspection) DiscoverImageTypes() []ImageTypeInfo {
 		currentOrder++
 	}
 
-	debugJson(imageTypes, "debug_image_types.json")
+	if v.isDebug {
+		debugJson(imageTypes, "debug_image_types.json")
+	}
 
 	return imageTypes
 }

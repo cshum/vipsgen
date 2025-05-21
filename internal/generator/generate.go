@@ -2,6 +2,7 @@ package generator
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -39,11 +40,9 @@ func Generate(
 		generatedFiles = append(generatedFiles, outputFile)
 	}
 
-	fmt.Printf("\nSuccessfully generated files from templates: %d\n", len(generatedFiles))
+	log.Printf("\nSuccessfully generated files from templates: %d\n", len(generatedFiles))
 	for _, file := range generatedFiles {
-		fmt.Printf("  - %s\n", file)
+		log.Printf("  - %s\n", file)
 	}
-	fmt.Println("\nAdditional static files were also copied to the output directory.")
-
 	return nil
 }

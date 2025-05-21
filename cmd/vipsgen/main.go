@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"github.com/cshum/vipsgen/internal/generator"
 	"github.com/cshum/vipsgen/internal/introspection"
 	"github.com/cshum/vipsgen/internal/templates"
@@ -10,11 +9,11 @@ import (
 )
 
 func main() {
-	// Define flags
 	extractTemplates := flag.Bool("extract", false, "Extract embedded templates to a directory")
 	extractDir := flag.String("extract-dir", "./templates", "Directory to extract templates to")
 	outputDirFlag := flag.String("out", "./vips", "Output directory")
 	templateDirFlag := flag.String("templates", "", "Template directory (uses embedded templates if not specified)")
+	isDebug := flag.Bool("debug", false, "Enable debug json output")
 
 	flag.Parse()
 
@@ -24,7 +23,7 @@ func main() {
 			log.Fatalf("Failed to extract templates: %v", err)
 		}
 
-		fmt.Printf("Templates and static files extracted to: %s\n", *extractDir)
+		log.Printf("Templates and static files extracted to: %s\n", *extractDir)
 		return
 	}
 
@@ -40,11 +39,11 @@ func main() {
 		if err != nil {
 			log.Fatalf("Failed to create template loader: %v", err)
 		}
-		fmt.Printf("Using templates from: %s\n", *templateDirFlag)
+		log.Printf("Using templates from: %s\n", *templateDirFlag)
 	} else {
 		// Use embedded templates by default
 		loader = generator.NewFSTemplateLoader(templates.Templates, funcMap)
-		fmt.Println("Using embedded templates")
+		log.Printf("Using embedded templates\n")
 	}
 
 	// Determine output directory
@@ -57,27 +56,27 @@ func main() {
 	}
 
 	// Create operation manager for C-based introspection
-	vipsIntrospection := introspection.NewIntrospection()
+	vipsIntrospection := introspection.NewIntrospection(*isDebug)
 
 	// Extract image types from operations
 	imageTypes := vipsIntrospection.DiscoverImageTypes()
 
 	// Discover supported savers
 	supportedSavers := vipsIntrospection.DiscoverSupportedSavers()
-	fmt.Printf("Discovered supported savers:\n")
+	log.Printf("Discovered supported savers:\n")
 	for name, supported := range supportedSavers {
 		if supported {
-			fmt.Printf("  - %s: supported\n", name)
+			log.Printf("  - %s: supported\n", name)
 		}
 	}
 
 	// Convert GIR data to vipsgen.Operation format
 	operations := vipsIntrospection.DiscoverOperations()
-	fmt.Printf("Extracted %d operations from GObject Introspection\n", len(operations))
+	log.Printf("Extracted %d operations from GObject Introspection\n", len(operations))
 
 	// Get enum types
 	enumTypes := vipsIntrospection.DiscoverEnumTypes()
-	fmt.Printf("Discovered %d enum types\n", len(enumTypes))
+	log.Printf("Discovered %d enum types\n", len(enumTypes))
 
 	// Create unified template data
 	templateData := generator.NewTemplateData(operations, enumTypes, imageTypes, supportedSavers)

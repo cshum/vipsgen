@@ -9,9 +9,5 @@ tmp/
 .env
 bin/vipsgen
 profile.cov
-
-repomix-output.xml
-
-debug_enums.json
-debug_operations.json
-debug_image_types.json
+*-output.xml
+debug_*.json
