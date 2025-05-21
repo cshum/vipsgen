@@ -1306,6 +1306,7 @@ func generateCFunctionImplementation(op introspection.Operation) string {
 		result.WriteString(generateCFunctionSignature(op, true))
 		result.WriteString(" {\n")
 
+		// Handle direct C function calls for simple operations without options
 		result.WriteString(fmt.Sprintf("    return vips_%s(", op.Name))
 		for i, arg := range op.Arguments {
 			if i > 0 {
@@ -1360,6 +1361,24 @@ func generateCFunctionImplementation(op introspection.Operation) string {
 		result.WriteString(fmt.Sprintf("    VipsOperation *operation = vips_operation_new(\"%s\");\n", op.Name))
 		result.WriteString("    if (!operation) return 1;\n")
 
+		// Detect if this is a buffer operation that needs special handling
+		isBufferLoadOperation := strings.Contains(op.Name, "load_buffer")
+		isBufferSaveOperation := strings.Contains(op.Name, "save_buffer")
+		hasBufferArg := false
+
+		for _, arg := range op.Arguments {
+			if arg.Name == "buf" || arg.Name == "buffer" {
+				hasBufferArg = true
+				break
+			}
+		}
+
+		// Special handling for buffer load operations - create a VipsBlob
+		if isBufferLoadOperation && hasBufferArg {
+			result.WriteString("    VipsBlob *blob = vips_blob_new(NULL, buf, len);\n")
+			result.WriteString("    if (!blob) { g_object_unref(operation); return 1; }\n")
+		}
+
 		// Create VipsArray objects for array inputs
 		for _, opt := range op.RequiredInputs {
 			if strings.HasPrefix(opt.GoType, "[]") {
@@ -1411,23 +1430,13 @@ func generateCFunctionImplementation(op introspection.Operation) string {
 			} else if arg.IsSource {
 				allParamsList = append(allParamsList,
 					fmt.Sprintf("vips_object_set(VIPS_OBJECT(operation), \"%s\", (VipsSource*)%s, NULL)", arg.Name, arg.Name))
-			} else if arg.Name == "buf" || arg.Name == "buffer" {
-				// Handle buffer parameter
+			} else if (arg.Name == "buf" || arg.Name == "buffer") && isBufferLoadOperation {
+				// For buffer load operations, set the VipsBlob as the "buffer" property
 				allParamsList = append(allParamsList,
-					fmt.Sprintf("vips_object_set(VIPS_OBJECT(operation), \"%s\", %s, NULL)", arg.Name, arg.Name))
-			} else if arg.Name == "len" {
-				// Handle len parameter (check if associated with buffer)
-				var isBufferLen bool
-				for _, bArg := range op.Arguments {
-					if bArg.Name == "buf" || bArg.Name == "buffer" {
-						isBufferLen = true
-						break
-					}
-				}
-				if isBufferLen {
-					allParamsList = append(allParamsList,
-						fmt.Sprintf("vips_object_set(VIPS_OBJECT(operation), \"%s\", %s, NULL)", arg.Name, arg.Name))
-				}
+					fmt.Sprintf("vips_object_set(VIPS_OBJECT(operation), \"buffer\", blob, NULL)"))
+			} else if arg.Name == "len" && isBufferLoadOperation {
+				// Skip length parameter for buffer load operations, as it's included in the VipsBlob
+				continue
 			} else if arg.GoType == "string" {
 				// String parameter
 				allParamsList = append(allParamsList,
@@ -1490,11 +1499,11 @@ func generateCFunctionImplementation(op introspection.Operation) string {
 			} else if strings.Contains(opt.CType, "unsigned int") || strings.Contains(opt.CType, "guint") {
 				// Handle unsigned int parameters
 				allParamsList = append(allParamsList,
-					fmt.Sprintf("set_uint_param(operation, \"%s\", %s)", opt.Name, opt.Name))
+					fmt.Sprintf("vipsgen_set_int(operation, \"%s\", %s)", opt.Name, opt.Name))
 			} else if strings.Contains(opt.CType, "*") || strings.Contains(opt.GoType, "*") {
 				// This is a pointer type - use general pointer handler
 				allParamsList = append(allParamsList,
-					fmt.Sprintf("set_pointer_param(operation, \"%s\", %s)", opt.Name, opt.Name))
+					fmt.Sprintf("vips_object_set(VIPS_OBJECT(operation), \"%s\", %s, NULL)", opt.Name, opt.Name))
 			} else {
 				// For any other non-pointer scalar types, default to int
 				allParamsList = append(allParamsList,
@@ -1507,6 +1516,12 @@ func generateCFunctionImplementation(op introspection.Operation) string {
 			result.WriteString("    if (\n        ")
 			result.WriteString(strings.Join(allParamsList, " ||\n        "))
 			result.WriteString("\n    ) {\n")
+
+			// Additional cleanup for VipsBlob if this is a buffer load operation
+			if isBufferLoadOperation && hasBufferArg {
+				result.WriteString("        vips_area_unref((VipsArea *)blob);\n")
+			}
+
 			result.WriteString("        g_object_unref(operation);\n")
 
 			// Free all array resources on error
@@ -1522,9 +1537,15 @@ func generateCFunctionImplementation(op introspection.Operation) string {
 			result.WriteString("        return 1;\n    }\n")
 		}
 
+		// Unreference VipsBlob for buffer operations after the operation takes its reference
+		if isBufferLoadOperation && hasBufferArg {
+			result.WriteString("    vips_area_unref((VipsArea *)blob);\n")
+		}
+
 		// Generate the call to the helper function
-		if strings.HasSuffix(op.Name, "save_buffer") {
-			result.WriteString(fmt.Sprintf("    int result = vipsgen_operation_save_buffer(operation, buf, len);\n"))
+		if isBufferSaveOperation {
+			// For buffer save operations, use the vipsgen_operation_save_buffer helper
+			result.WriteString("    int result = vipsgen_operation_save_buffer(operation, buf, len);\n")
 		} else {
 			// Collect the output parameters
 			var outputParams []string
@@ -1545,6 +1566,7 @@ func generateCFunctionImplementation(op introspection.Operation) string {
 			outputParams = append(outputParams, "NULL")
 			result.WriteString(fmt.Sprintf("    int result = vipsgen_operation_execute(operation, %s);\n", strings.Join(outputParams, ", ")))
 		}
+
 		// Clean up array objects
 		hasArrays := false
 		for _, opt := range op.OptionalInputs {
