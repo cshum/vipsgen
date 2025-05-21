@@ -8191,8 +8191,8 @@ func (r *Image) Globalbalance(options *GlobalbalanceOptions) (error) {
 
 // ProfileLoad vips_profile_load load named ICC profile
 func ProfileLoad(name string) ([]byte, error) {
-    Startup(nil)
-    return vipsgenProfileLoad(name)
+	Startup(nil)
+	return vipsgenProfileLoad(name)
 }
 
 
@@ -8257,8 +8257,15 @@ func (i *LoadOptions) OptionString() string {
 	if v := i.Memory; v {
 		values = append(values, "memory="+boolToStr(v))
 	}
-	if v := i.Access; v != 0 {
-		values = append(values, "access="+strconv.Itoa(int(v)))
+	if access := i.Access; access != 0 {
+		switch access {
+		case AccessSequential:
+			values = append(values, "access=sequential")
+		case AccessRandom:
+			values = append(values, "access=random")
+		case AccessSequentialUnbuffered:
+			values = append(values, "access=sequential-unbuffered")
+		}
 	}
 	return strings.Join(values, ",")
 }
@@ -8309,7 +8316,7 @@ func NewImageFromMemory(buf []byte, width, height, bands int) (*Image, error) {
 	if err != nil {
 		return nil, err
 	}
-	return newImageRef(vipsImage, vipsDetermineImageType(vipsImage), buf), nil
+	return newImageRef(vipsImage, ImageTypeUnknown, buf), nil
 }
 
 
@@ -8387,14 +8394,14 @@ func (r *Image) Interpretation() Interpretation {
 // Pages returns the number of pages in the Image
 // For animated images this corresponds to the number of frames
 func (r *Image) Pages() int {
-    
-    // libvips uses the same attribute (n_pages) to represent the number of pyramid layers in JP2K
-    // as we interpret the attribute as frames and JP2K does not support animation we override this with 1
-    if r.format == ImageTypeJp2k {
-        return 1
-    }
-    
-    return vipsGetImageNPages(r.image)
+	
+	// libvips uses the same attribute (n_pages) to represent the number of pyramid layers in JP2K
+	// as we interpret the attribute as frames and JP2K does not support animation we override this with 1
+	if r.format == ImageTypeJp2k {
+		return 1
+	}
+	
+	return vipsGetImageNPages(r.image)
 }
 
 // PageHeight return the height of a single page

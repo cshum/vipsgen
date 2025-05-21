@@ -270,46 +270,46 @@ func clearImage(img *C.VipsImage) {
 // bufferToBytes converts a C buffer to Go bytes and frees the original buffer.
 // This function takes ownership of the buffer and will free it after conversion.
 func bufferToBytes(buf unsafe.Pointer, length C.size_t) []byte {
-    if buf == nil {
-        return nil
-    }
-    bytes := C.GoBytes(buf, C.int(length))
-    C.g_free(C.gpointer(buf))
-    return bytes
+	if buf == nil {
+		return nil
+	}
+	bytes := C.GoBytes(buf, C.int(length))
+	C.g_free(C.gpointer(buf))
+	return bytes
 }
 
 // convertImagesToVipsImages converts from Image slice to VipsImage slice
 func convertImagesToVipsImages(images []*Image) []*C.VipsImage {
-    vipsImages := make([]*C.VipsImage, len(images))
-    for i, img := range images {
-        vipsImages[i] = img.image
-    }
-    return vipsImages
+	vipsImages := make([]*C.VipsImage, len(images))
+	for i, img := range images {
+		vipsImages[i] = img.image
+	}
+	return vipsImages
 }
 
 // convertVipsImagesToImages converts a slice of *C.VipsImage to []*Image
 func convertVipsImagesToImages(vipsImages []*C.VipsImage) []*Image {
-    images := make([]*Image, len(vipsImages))
-    for i, vipsImg := range vipsImages {
-        images[i] = newImageRef(vipsImg, ImageTypeUnknown, nil)
-    }
-    return images
+	images := make([]*Image, len(vipsImages))
+	for i, vipsImg := range vipsImages {
+		images[i] = newImageRef(vipsImg, ImageTypeUnknown, nil)
+	}
+	return images
 }
 
 // vipsInterpolateToC converts a Go Interpolate to a C VipsInterpolate pointer
 func vipsInterpolateToC(interp *Interpolate) *C.VipsInterpolate {
-    if interp == nil {
-        return nil
-    }
-    return interp.interp
+	if interp == nil {
+		return nil
+	}
+	return interp.interp
 }
 
 // vipsInterpolateFromC converts a C VipsInterpolate pointer to a Go Interpolate
 func vipsInterpolateFromC(interp *C.VipsInterpolate) *Interpolate {
-    if interp == nil {
-        return nil
-    }
-    return &Interpolate{interp: interp}
+	if interp == nil {
+		return nil
+	}
+	return &Interpolate{interp: interp}
 }
 
 // convertToDoubleArray converts a Go float64 slice to a C double array and returns the length
@@ -423,12 +423,12 @@ func freeImageArray(array **C.VipsImage) {
 
 // vipsBlobToBytes converts a VipsBlob to a Go byte slice and unrefs the blob
 func vipsBlobToBytes(blob *C.VipsBlob) []byte {
-    if blob == nil {
-        return nil
-    }
-    var size C.size_t
-    ptr := C.vips_blob_get(blob, &size)
-    data := C.GoBytes(ptr, C.int(size))
-    C.vips_area_unref((*C.VipsArea)(unsafe.Pointer(blob)))
-    return data
+	if blob == nil {
+		return nil
+	}
+	var size C.size_t
+	ptr := C.vips_blob_get(blob, &size)
+	data := C.GoBytes(ptr, C.int(size))
+	C.vips_area_unref((*C.VipsArea)(unsafe.Pointer(blob)))
+	return data
 }
