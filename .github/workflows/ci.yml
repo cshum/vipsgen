@@ -42,9 +42,34 @@ jobs:
           wget https://github.com/libjxl/libjxl/releases/download/v0.11.1/jxl-debs-amd64-ubuntu-22.04-v0.11.1.tar.gz
           tar -xzf jxl-debs-amd64-ubuntu-22.04-v0.11.1.tar.gz
           
-          # Install the necessary packages
-          cd jxl-debs-amd64-ubuntu-22.04
-          sudo apt install -y ./libjxl_0.11.1-0ubuntu1~22.04.sav0_amd64.deb ./libjxl-dev_0.11.1-0ubuntu1~22.04.sav0_amd64.deb
+          # Find the actual directory name in the extracted contents
+          extracted_dir=$(find . -type d -name "*jxl*" | grep -i ubuntu | head -n 1)
+          
+          if [ -z "$extracted_dir" ]; then
+            # List all directories to help debug
+            echo "Could not find jxl directory. Listing extracted content:"
+            find . -type d
+            find . -name "*.deb"
+          
+            # Try to locate the .deb files directly
+            libjxl_deb=$(find . -name "libjxl*.deb" | head -n 1)
+            libjxl_dev_deb=$(find . -name "libjxl-dev*.deb" | head -n 1)
+          
+            if [ -n "$libjxl_deb" ] && [ -n "$libjxl_dev_deb" ]; then
+              echo "Found .deb files directly:"
+              echo "$libjxl_deb"
+              echo "$libjxl_dev_deb"
+              sudo apt install -y "$libjxl_deb" "$libjxl_dev_deb"
+            else
+              echo "ERROR: Could not find libjxl .deb files"
+              exit 1
+            fi
+          else
+            echo "Found JXL directory: $extracted_dir"
+            cd "$extracted_dir"
+            sudo apt install -y ./libjxl_*.deb ./libjxl-dev_*.deb
+          fi
+          
           sudo ldconfig
 
       - name: Cache libvips
