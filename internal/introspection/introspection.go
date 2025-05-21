@@ -14,11 +14,12 @@ type Introspection struct {
 	discoveredEnumTypes  map[string]string
 	enumTypeNames        []enumTypeName
 	discoveredImageTypes map[string]ImageTypeInfo
+	isDebug              bool
 }
 
 // NewIntrospection creates a new Introspection instance for analyzing libvips
 // operations, initializing the libvips library in the process.
-func NewIntrospection() *Introspection {
+func NewIntrospection(isDebug bool) *Introspection {
 	// Initialize libvips
 	if C.vips_init(C.CString("vipsgen")) != 0 {
 		log.Fatal("Failed to initialize libvips")
@@ -28,5 +29,6 @@ func NewIntrospection() *Introspection {
 	return &Introspection{
 		discoveredEnumTypes:  make(map[string]string),
 		discoveredImageTypes: map[string]ImageTypeInfo{},
+		isDebug:              isDebug,
 	}
 }

@@ -149,7 +149,9 @@ func (v *Introspection) DiscoverOperations() []Operation {
 	log.Printf("Discovered Operations: %d (%d excluded, %d duplicates)\n",
 		len(operations), excludedCount, duplicateCount)
 
-	debugJson(operations, "debug_operations.json")
+	if v.isDebug {
+		debugJson(operations, "debug_operations.json")
+	}
 
 	return operations
 }

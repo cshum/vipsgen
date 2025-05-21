@@ -78,7 +78,9 @@ func (v *Introspection) DiscoverEnumTypes() []EnumTypeInfo {
 		enumTypes = append(enumTypes, enumInfo)
 	}
 
-	debugJson(enumTypes, "debug_enums.json")
+	if v.isDebug {
+		debugJson(enumTypes, "debug_enums.json")
+	}
 
 	return enumTypes
 }

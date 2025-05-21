@@ -44,7 +44,5 @@ func Generate(
 	for _, file := range generatedFiles {
 		log.Printf("  - %s\n", file)
 	}
-	log.Printf("\nAdditional static files were also copied to the output directory.")
-
 	return nil
 }
