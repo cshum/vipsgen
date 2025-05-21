@@ -10,7 +10,7 @@ Existing Go libvips bindings rely on manually written code that is often incompl
 
 vipsgen provides a pre-generated library you can import directly `github.com/cshum/vipsgen/vips`. Also allows code generation via `vipsgen` command that adapts to your specific libvips installation.
 
-- **Coverage**: Comprehensive bindings for around 300 libvips operations
+- **Coverage**: Comprehensive bindings for over 200 libvips operations
 - **Type-Safe**: Generates proper Go types for libvips enums and structs
 - **Idiomatic**: Creates clear Go style code that feels natural to use
 - **Streaming**: Includes `VipsSource` bindings with `io.ReadCloser` integration for streaming
@@ -35,52 +35,67 @@ Use the package directly:
 go get -u github.com/cshum/vipsgen/vips
 ```
 
+vipsgen provides rich options for fine-tuning image operations. Each operation can accept a nil value for default options, or customize optional arguments with specific option structs:
+
 ```go
 package main
 
 import (
 	"fmt"
+	"github.com/cshum/vipsgen/vips"
 	"log"
 	"net/http"
-	"os"
-	"github.com/cshum/vipsgen/vips"
 )
 
 func main() {
-	// Fetch an image from URL
+	// Fetch an image from http.Get
 	resp, err := http.Get("https://raw.githubusercontent.com/cshum/imagor/master/testdata/gopher.png")
 	if err != nil {
 		log.Fatalf("Failed to fetch image: %v", err)
 	}
+	defer resp.Body.Close()
 
 	// Create source from io.ReadCloser
 	source := vips.NewSource(resp.Body)
 	defer source.Close() // source needs to remain available during image lifetime
 
-	// Load image from source
-	image, err := vips.NewImageFromSource(source, nil)
+	// Shrink-on-load via creating image from thumbnail source with options
+	image, err := vips.NewThumbnailSource(source, 800, &vips.ThumbnailSourceOptions{
+		Height: 1000,
+		FailOn: vips.FailOnError, // Fail on first error
+	})
 	if err != nil {
 		log.Fatalf("Failed to load image: %v", err)
 	}
 	defer image.Close() // always close images to free memory
 
-	// Resize the image
-	if err := image.Resize(0.5, nil); err != nil {
-		log.Fatalf("Failed to resize image: %v", err)
+	// Add a yellow border using vips_embed
+	border := 10
+	if err := image.Embed(
+		border, border,
+		image.Width()+border*2,
+		image.Height()+border*2,
+		&vips.EmbedOptions{
+			Extend:     vips.ExtendBackground,
+			Background: []float64{255, 255, 0, 255}, // Yellow border
+		},
+	); err != nil {
+		log.Fatalf("Failed to add border: %v", err)
 	}
 
-	// Save the result as WebP
-	buf, err := image.WebpsaveBuffer(nil)
+	fmt.Printf("Processed image: %dx%d\n", image.Width(), image.Height())
+
+	// Save the result as WebP file with options
+	err = image.Webpsave("resized-gopher.webp", &vips.WebpsaveOptions{
+		Q:              85,    // Quality factor (0-100)
+		Lossless:       false, // Use lossy compression
+		Effort:         4,     // Compression effort (0-6)
+		SmartSubsample: true,  // Better chroma subsampling
+	})
 	if err != nil {
 		log.Fatalf("Failed to save image as WebP: %v", err)
 	}
-
-	// Write to file
-	if err := os.WriteFile("resized-gopher.webp", buf, 0666); err != nil {
-		log.Fatalf("Failed to write file: %v", err)
-	}
-
-	fmt.Println("Successfully resized image to resized-gopher.webp")
+	fmt.Println("Successfully saved processed images")
 }
 ```
 
