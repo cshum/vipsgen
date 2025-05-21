@@ -42,9 +42,10 @@ package main
 
 import (
 	"fmt"
-	"github.com/cshum/vipsgen/vips"
 	"log"
 	"net/http"
+	
+	"github.com/cshum/vipsgen/vips"
 )
 
 func main() {
