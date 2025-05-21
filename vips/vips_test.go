@@ -528,23 +528,11 @@ func TestICCProfile(t *testing.T) {
 
 // TestExif tests EXIF operations
 func TestExif(t *testing.T) {
-	// Skip if we can't load a JPEG file
-	jpegSupported := false
-	for _, mime := range ImageMimeTypes {
-		if mime == "image/jpeg" {
-			jpegSupported = true
-			break
-		}
-	}
-	if !jpegSupported {
-		t.Skip("JPEG format not supported, skipping EXIF test")
-	}
-
 	// Create a JPEG with some basic structure
 	jpegData := createTestJPEG(t, 120, 80)
 
 	// Load JPEG
-	img, err := NewImageFromBuffer(jpegData, nil)
+	img, err := NewJpegloadBuffer(jpegData, nil)
 	require.NoError(t, err)
 	defer img.Close()
 
@@ -589,57 +577,61 @@ func TestMultiPageOperations(t *testing.T) {
 	assert.Equal(t, 100, img.PageHeight())
 }
 
-// TestAllFormatsSupport tests saving in all supported formats
 func TestAllFormatsSupport(t *testing.T) {
 	// Create a test image
 	img, err := createWhiteImage(100, 100)
 	require.NoError(t, err)
 	defer img.Close()
 
-	// Try saving in each supported format
+	// Define all format tests in a slice
+	type formatTest struct {
+		name     string
+		saveFunc func() ([]byte, error)
+	}
+
+	tests := []formatTest{
+		{name: "PNG", saveFunc: func() ([]byte, error) {
+			return img.PngsaveBuffer(nil)
+		}},
+		{name: "PNG", saveFunc: func() ([]byte, error) {
+			return img.PngsaveBuffer(DefaultPngsaveBufferOptions())
+		}},
+		{name: "JPEG", saveFunc: func() ([]byte, error) {
+			return img.JpegsaveBuffer(nil)
+		}},
+		{name: "JPEG", saveFunc: func() ([]byte, error) {
+			return img.JpegsaveBuffer(DefaultJpegsaveBufferOptions())
+		}},
+		{name: "WebP", saveFunc: func() ([]byte, error) {
+			return img.WebpsaveBuffer(nil)
+		}},
+		{name: "WebP", saveFunc: func() ([]byte, error) {
+			return img.WebpsaveBuffer(DefaultWebpsaveBufferOptions())
+		}},
+		{name: "TIFF", saveFunc: func() ([]byte, error) {
+			return img.TiffsaveBuffer(nil)
+		}},
+		{name: "TIFF", saveFunc: func() ([]byte, error) {
+			return img.TiffsaveBuffer(DefaultTiffsaveBufferOptions())
+		}},
+		{name: "GIF", saveFunc: func() ([]byte, error) {
+			return img.GifsaveBuffer(nil)
+		}},
+		{name: "GIF", saveFunc: func() ([]byte, error) {
+			return img.GifsaveBuffer(DefaultGifsaveBufferOptions())
+		}},
+	}
+
+	// Run all the tests
 	t.Log("Testing all supported save formats:")
-
-	// 1. PNG
-	pngBuf, err := img.PngsaveBuffer(nil)
-	if err != nil {
-		t.Logf("  - PNG save failed: %v", err)
-	} else {
-		t.Logf("  - PNG save succeeded: %d bytes", len(pngBuf))
-		assert.NotEmpty(t, pngBuf)
-	}
-
-	// 2. JPEG
-	jpegBuf, err := img.JpegsaveBuffer(nil)
-	if err != nil {
-		t.Logf("  - JPEG save failed: %v", err)
-	} else {
-		t.Logf("  - JPEG save succeeded: %d bytes", len(jpegBuf))
-		assert.NotEmpty(t, jpegBuf)
-	}
-
-	webpBuf, err := img.WebpsaveBuffer(nil)
-	if err != nil {
-		t.Logf("  - WebP save failed: %v", err)
-	} else {
-		t.Logf("  - WebP save succeeded: %d bytes", len(webpBuf))
-		assert.NotEmpty(t, webpBuf)
-	}
-
-	// 4. TIFF (if supported)
-	tiffBuf, err := img.TiffsaveBuffer(nil)
-	if err != nil {
-		t.Logf("  - TIFF save failed: %v", err)
-	} else {
-		t.Logf("  - TIFF save succeeded: %d bytes", len(tiffBuf))
-		assert.NotEmpty(t, tiffBuf)
-	}
-
-	gifBuf, err := img.GifsaveBuffer(nil)
-	if err != nil {
-		t.Logf("  - GIF save failed: %v", err)
-	} else {
-		t.Logf("  - GIF save succeeded: %d bytes", len(gifBuf))
-		assert.NotEmpty(t, gifBuf)
+	for _, test := range tests {
+		buf, err := test.saveFunc()
+		if err != nil {
+			t.Logf("  - %s save failed: %v", test.name, err)
+		} else {
+			t.Logf("  - %s save succeeded: %d bytes", test.name, len(buf))
+			assert.NotEmpty(t, buf)
+		}
 	}
 }
 
