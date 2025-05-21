@@ -2445,6 +2445,28 @@ func vipsgenPngloadSourceWithOptions(source *C.VipsSourceCustom, unlimited bool,
 	return out, nil
 }
 
+// vipsgenMatload vips_matload load mat from file
+func vipsgenMatload(filename string) (*C.VipsImage, error) {
+	var out *C.VipsImage
+	cfilename := C.CString(filename)
+	defer freeCString(cfilename)
+	if err := C.vipsgen_matload(cfilename, &out); err != 0 {
+		return nil, handleImageError(out)
+	}
+	return out, nil
+}
+
+// vipsgenMatloadWithOptions vips_matload load mat from file with optional arguments
+func vipsgenMatloadWithOptions(filename string, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
+	var out *C.VipsImage
+	cfilename := C.CString(filename)
+	defer freeCString(cfilename)
+	if err := C.vipsgen_matload_with_options(cfilename, &out, C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
+		return nil, handleImageError(out)
+	}
+	return out, nil
+}
+
 // vipsgenJpegload vips_jpegload load jpeg from file
 func vipsgenJpegload(filename string) (*C.VipsImage, error) {
 	var out *C.VipsImage
