@@ -1475,3 +1475,602 @@ func TestAdvancedColorOperations(t *testing.T) {
 		convImg.Close()
 	}
 }
+
+// Helper function to create a random noise image
+func createRandomNoiseImage(t *testing.T, width, height int) (*Image, error) {
+	// Create random noise image
+	img := image.NewRGBA(image.Rect(0, 0, width, height))
+
+	// Fill with random noise
+	for y := 0; y < height; y++ {
+		for x := 0; x < width; x++ {
+			r := uint8(rand.Intn(256))
+			g := uint8(rand.Intn(256))
+			b := uint8(rand.Intn(256))
+			img.Set(x, y, color.RGBA{r, g, b, 255})
+		}
+	}
+
+	// Convert to PNG and load into vips
+	var buf bytes.Buffer
+	err := png.Encode(&buf, img)
+	if err != nil {
+		return nil, err
+	}
+
+	return NewImageFromBuffer(buf.Bytes(), nil)
+}
+
+func TestFilterOptions(t *testing.T) {
+	// Create a test image
+	width, height := 300, 200
+	img, err := createRandomNoiseImage(t, width, height)
+	require.NoError(t, err)
+	defer img.Close()
+
+	// 1. Test GaussBlur with different options
+
+	// 1.1. Gaussian blur with different sigma values
+	sigmaValues := []float64{1.0, 3.0, 5.0, 10.0}
+	for _, sigma := range sigmaValues {
+		blurImg, err := img.Copy(nil)
+		require.NoError(t, err)
+
+		err = blurImg.Gaussblur(sigma, nil)
+		if err != nil {
+			t.Logf("Gaussblur with sigma=%.1f failed: %v", sigma, err)
+		} else {
+			t.Logf("Gaussblur with sigma=%.1f succeeded", sigma)
+
+			// Check center pixel
+			center, err := blurImg.Getpoint(width/2, height/2, nil)
+			if err == nil {
+				t.Logf("Center pixel with sigma=%.1f: [%.1f, %.1f, %.1f]",
+					sigma, center[0], center[1], center[2])
+			}
+		}
+
+		blurImg.Close()
+	}
+
+	// 1.2. Test with minAmpl parameter
+	blurMinAmplImg, err := img.Copy(nil)
+	require.NoError(t, err)
+	defer blurMinAmplImg.Close()
+
+	err = blurMinAmplImg.Gaussblur(5.0, &GaussblurOptions{
+		MinAmpl: 0.01, // Very small minimum amplitude
+	})
+	require.NoError(t, err)
+	t.Log("Gaussblur with minAmpl succeeded")
+
+	// 2. Test Sharpen with different options
+
+	// 2.1. Default sharpen
+	sharpenImg, err := img.Copy(nil)
+	require.NoError(t, err)
+	defer sharpenImg.Close()
+
+	err = sharpenImg.Sharpen(nil)
+	if err != nil {
+		t.Logf("Sharpen with nil options failed: %v", err)
+	} else {
+		t.Log("Sharpen with nil options succeeded")
+	}
+
+	// 2.2. Custom sharpen parameters
+	customSharpenImg, err := img.Copy(nil)
+	require.NoError(t, err)
+	defer customSharpenImg.Close()
+
+	err = customSharpenImg.Sharpen(&SharpenOptions{
+		Sigma: 3.0,  // Larger radius
+		X1:    2.0,  // Different threshold
+		Y2:    20.0, // Different brightening
+		Y3:    20.0, // Different darkening
+	})
+	if err != nil {
+		t.Logf("Sharpen with custom options failed: %v", err)
+	} else {
+		t.Log("Sharpen with custom options succeeded")
+	}
+
+	// 3. Test Canny edge detection with different options
+
+	// 3.1. Default Canny
+	cannyImg, err := img.Copy(nil)
+	require.NoError(t, err)
+	defer cannyImg.Close()
+
+	err = cannyImg.Canny(nil)
+	if err != nil {
+		t.Logf("Canny with nil options failed: %v", err)
+	} else {
+		t.Log("Canny with nil options succeeded")
+	}
+
+	// 3.2. Custom Canny parameters
+	customCannyImg, err := img.Copy(nil)
+	require.NoError(t, err)
+	defer customCannyImg.Close()
+
+	err = customCannyImg.Canny(&CannyOptions{
+		Sigma:     2.0,              // Custom sigma
+		Precision: PrecisionInteger, // Integer precision
+	})
+	if err != nil {
+		t.Logf("Canny with custom options failed: %v", err)
+	} else {
+		t.Log("Canny with custom options succeeded")
+	}
+
+	// 4. Test Sobel edge detection
+	sobelImg, err := img.Copy(nil)
+	require.NoError(t, err)
+	defer sobelImg.Close()
+
+	err = sobelImg.Sobel()
+	if err != nil {
+		t.Logf("Sobel failed: %v", err)
+	} else {
+		t.Log("Sobel succeeded")
+	}
+
+	// 5. Test with a combination of operations
+
+	// Create image with sequential operations
+	seqImg, err := img.Copy(nil)
+	require.NoError(t, err)
+	defer seqImg.Close()
+
+	// First blur to reduce noise
+	err = seqImg.Gaussblur(2.0, nil)
+	require.NoError(t, err)
+
+	// Then apply edge detection
+	err = seqImg.Canny(nil)
+	if err != nil {
+		t.Logf("Sequential operations (blur->canny) failed: %v", err)
+	} else {
+		t.Log("Sequential operations (blur->canny) succeeded")
+	}
+}
+
+// TestLoadOptions tests loading operations with different option combinations
+func TestLoadOptions(t *testing.T) {
+	// 1. Create a JPEG test image
+	jpegImg := image.NewRGBA(image.Rect(0, 0, 400, 300))
+
+	// Fill with a gradient
+	for y := 0; y < 300; y++ {
+		for x := 0; x < 400; x++ {
+			r := uint8(float64(x) / 400.0 * 255)
+			g := uint8(float64(y) / 300.0 * 255)
+			b := uint8(float64(x+y) / 700.0 * 255)
+			jpegImg.Set(x, y, color.RGBA{r, g, b, 255})
+		}
+	}
+
+	// Encode as JPEG
+	var jpegBuf bytes.Buffer
+	err := jpeg.Encode(&jpegBuf, jpegImg, &jpeg.Options{Quality: 90})
+	require.NoError(t, err)
+	jpegData := jpegBuf.Bytes()
+
+	// Test loading options for JPEG
+
+	// 1.1. With nil options
+	img1, err := NewJpegloadBuffer(jpegData, nil)
+	require.NoError(t, err)
+	defer img1.Close()
+	t.Logf("JPEG loaded with nil options: %dx%d", img1.Width(), img1.Height())
+
+	// 1.2. With default options
+	img2, err := NewJpegloadBuffer(jpegData, DefaultJpegloadBufferOptions())
+	require.NoError(t, err)
+	defer img2.Close()
+	t.Logf("JPEG loaded with default options: %dx%d", img2.Width(), img2.Height())
+
+	// 1.3. With shrink factor (load at reduced size)
+	img3, err := NewJpegloadBuffer(jpegData, &JpegloadBufferOptions{
+		Shrink: 2, // Load at half size
+	})
+	require.NoError(t, err)
+	defer img3.Close()
+	t.Logf("JPEG loaded with shrink=2: %dx%d", img3.Width(), img3.Height())
+
+	// Verify the size is approximately halved
+	assert.InDelta(t, 400/2, img3.Width(), 2)
+	assert.InDelta(t, 300/2, img3.Height(), 2)
+
+	// 1.4. With autorotate option
+	img4, err := NewJpegloadBuffer(jpegData, &JpegloadBufferOptions{
+		Autorotate: true,
+	})
+	require.NoError(t, err)
+	defer img4.Close()
+	t.Logf("JPEG loaded with autorotate: %dx%d", img4.Width(), img4.Height())
+
+	// 2. Create a PNG test image
+	pngImg := image.NewRGBA(image.Rect(0, 0, 300, 200))
+
+	// Fill with a pattern
+	for y := 0; y < 200; y++ {
+		for x := 0; x < 300; x++ {
+			if (x/20+y/20)%2 == 0 {
+				pngImg.Set(x, y, color.RGBA{255, 0, 0, 255})
+			} else {
+				pngImg.Set(x, y, color.RGBA{0, 0, 255, 255})
+			}
+		}
+	}
+
+	// Encode as PNG
+	var pngBuf bytes.Buffer
+	err = png.Encode(&pngBuf, pngImg)
+	require.NoError(t, err)
+	pngData := pngBuf.Bytes()
+
+	// Test loading options for PNG
+
+	// 2.1. With nil options
+	png1, err := NewPngloadBuffer(pngData, nil)
+	require.NoError(t, err)
+	defer png1.Close()
+	t.Logf("PNG loaded with nil options: %dx%d", png1.Width(), png1.Height())
+
+	// 2.2. With default options
+	png2, err := NewPngloadBuffer(pngData, DefaultPngloadBufferOptions())
+	require.NoError(t, err)
+	defer png2.Close()
+	t.Logf("PNG loaded with default options: %dx%d", png2.Width(), png2.Height())
+
+	// 2.3. With unlimited option
+	png3, err := NewPngloadBuffer(pngData, &PngloadBufferOptions{
+		Unlimited: true,
+	})
+	require.NoError(t, err)
+	defer png3.Close()
+	t.Logf("PNG loaded with unlimited: %dx%d", png3.Width(), png3.Height())
+
+	// 3. Test with generic loading via NewImageFromBuffer
+
+	// 3.1. With nil options
+	gen1, err := NewImageFromBuffer(pngData, nil)
+	require.NoError(t, err)
+	defer gen1.Close()
+	t.Logf("Generic load with nil options: %dx%d", gen1.Width(), gen1.Height())
+
+	// 3.2. With default options
+	gen2, err := NewImageFromBuffer(pngData, DefaultLoadOptions())
+	require.NoError(t, err)
+	defer gen2.Close()
+	t.Logf("Generic load with default options: %dx%d", gen2.Width(), gen2.Height())
+
+	// 3.3. With custom options
+	gen3, err := NewImageFromBuffer(pngData, &LoadOptions{
+		FailOnError: true,
+	})
+	require.NoError(t, err)
+	defer gen3.Close()
+	t.Logf("Generic load with custom options: %dx%d", gen3.Width(), gen3.Height())
+
+	// 4. Test loading from memory
+	memImg, err := NewImageFromMemory([]byte{
+		255, 0, 0, 0, 255, 0, 0, 0, 255, 255, 255, 255,
+		255, 255, 0, 0, 255, 255, 255, 0, 255, 0, 0, 0,
+	}, 4, 2, 3) // 4x2 RGB image
+
+	if err != nil {
+		t.Logf("Load from memory failed: %v", err)
+	} else {
+		defer memImg.Close()
+		t.Logf("Loaded from memory: %dx%d", memImg.Width(), memImg.Height())
+
+		// Verify dimensions
+		assert.Equal(t, 4, memImg.Width())
+		assert.Equal(t, 2, memImg.Height())
+		assert.Equal(t, 3, memImg.Bands())
+
+		// Check a few pixels
+		topLeft, err := memImg.Getpoint(0, 0, nil)
+		if err == nil {
+			t.Logf("Top-left pixel: [%.1f, %.1f, %.1f]", topLeft[0], topLeft[1], topLeft[2])
+			assert.InDelta(t, 255, topLeft[0], 5, "Should be red")
+			assert.InDelta(t, 0, topLeft[1], 5, "Should be red")
+			assert.InDelta(t, 0, topLeft[2], 5, "Should be red")
+		}
+
+		topRight, err := memImg.Getpoint(3, 0, nil)
+		if err == nil {
+			t.Logf("Top-right pixel: [%.1f, %.1f, %.1f]", topRight[0], topRight[1], topRight[2])
+			assert.InDelta(t, 255, topRight[0], 5, "Should be white")
+			assert.InDelta(t, 255, topRight[1], 5, "Should be white")
+			assert.InDelta(t, 255, topRight[2], 5, "Should be white")
+		}
+	}
+}
+
+// TestSaveOptions tests save operations with different option combinations
+func TestSaveOptions(t *testing.T) {
+	// Create a test image
+	width, height := 150, 100
+	img, err := createSolidColorImage(t, width, height, color.RGBA{100, 150, 200, 255})
+	require.NoError(t, err)
+	defer img.Close()
+
+	// Test save operations with various option combinations
+
+	// 1. PNG save options
+
+	// 1.1. With nil options
+	pngNilBuf, err := img.PngsaveBuffer(nil)
+	require.NoError(t, err)
+	t.Logf("PNG save with nil options: %d bytes", len(pngNilBuf))
+
+	// 1.2. With default options
+	pngDefaultBuf, err := img.PngsaveBuffer(DefaultPngsaveBufferOptions())
+	require.NoError(t, err)
+	t.Logf("PNG save with default options: %d bytes", len(pngDefaultBuf))
+
+	// 1.3. With custom options - low compression
+	pngLowCompBuf, err := img.PngsaveBuffer(&PngsaveBufferOptions{
+		Compression: 1, // Low compression
+	})
+	require.NoError(t, err)
+	t.Logf("PNG save with low compression: %d bytes", len(pngLowCompBuf))
+
+	// 1.4. With custom options - high compression
+	pngHighCompBuf, err := img.PngsaveBuffer(&PngsaveBufferOptions{
+		Compression: 9, // High compression
+	})
+	require.NoError(t, err)
+	t.Logf("PNG save with high compression: %d bytes", len(pngHighCompBuf))
+
+	// 1.5. With custom options - filter
+	pngWithFilterBuf, err := img.PngsaveBuffer(&PngsaveBufferOptions{
+		Compression: 6,
+		Filter:      PngFilterPaeth,
+	})
+	require.NoError(t, err)
+	t.Logf("PNG save with filter: %d bytes", len(pngWithFilterBuf))
+
+	// 1.6. With custom options - interlaced
+	pngInterlacedBuf, err := img.PngsaveBuffer(&PngsaveBufferOptions{
+		Compression: 6,
+		Interlace:   true,
+	})
+	require.NoError(t, err)
+	t.Logf("PNG save with interlace: %d bytes", len(pngInterlacedBuf))
+
+	// 2. JPEG save options
+
+	// 2.1. With nil options
+	jpegNilBuf, err := img.JpegsaveBuffer(nil)
+	require.NoError(t, err)
+	t.Logf("JPEG save with nil options: %d bytes", len(jpegNilBuf))
+
+	// 2.2. With default options
+	jpegDefaultBuf, err := img.JpegsaveBuffer(DefaultJpegsaveBufferOptions())
+	require.NoError(t, err)
+	t.Logf("JPEG save with default options: %d bytes", len(jpegDefaultBuf))
+
+	// 2.3. With custom options - low quality
+	jpegLowQualBuf, err := img.JpegsaveBuffer(&JpegsaveBufferOptions{
+		Q: 25, // Low quality
+	})
+	require.NoError(t, err)
+	t.Logf("JPEG save with low quality: %d bytes", len(jpegLowQualBuf))
+
+	// 2.4. With custom options - high quality
+	jpegHighQualBuf, err := img.JpegsaveBuffer(&JpegsaveBufferOptions{
+		Q: 95, // High quality
+	})
+	require.NoError(t, err)
+	t.Logf("JPEG save with high quality: %d bytes", len(jpegHighQualBuf))
+
+	// 2.5. With custom options - optimize coding
+	jpegOptimizedBuf, err := img.JpegsaveBuffer(&JpegsaveBufferOptions{
+		Q:              75,
+		OptimizeCoding: true,
+	})
+	require.NoError(t, err)
+	t.Logf("JPEG save with optimize coding: %d bytes", len(jpegOptimizedBuf))
+
+	// 2.6. With custom options - interlaced/progressive
+	jpegInterlacedBuf, err := img.JpegsaveBuffer(&JpegsaveBufferOptions{
+		Q:         75,
+		Interlace: true,
+	})
+	require.NoError(t, err)
+	t.Logf("JPEG save with interlace: %d bytes", len(jpegInterlacedBuf))
+
+	// 3. WebP save options
+
+	// 3.1. With nil options
+	webpNilBuf, err := img.WebpsaveBuffer(nil)
+	require.NoError(t, err)
+	t.Logf("WebP save with nil options: %d bytes", len(webpNilBuf))
+
+	// 3.2. With default options
+	webpDefaultBuf, err := img.WebpsaveBuffer(DefaultWebpsaveBufferOptions())
+	require.NoError(t, err)
+	t.Logf("WebP save with default options: %d bytes", len(webpDefaultBuf))
+
+	// 3.3. With custom options - lossless
+	webpLosslessBuf, err := img.WebpsaveBuffer(&WebpsaveBufferOptions{
+		Lossless: true,
+	})
+	require.NoError(t, err)
+	t.Logf("WebP save with lossless: %d bytes", len(webpLosslessBuf))
+
+	// 3.4. With custom options - quality
+	webpQualityBuf, err := img.WebpsaveBuffer(&WebpsaveBufferOptions{
+		Q: 50, // Medium quality
+	})
+	require.NoError(t, err)
+	t.Logf("WebP save with quality 50: %d bytes", len(webpQualityBuf))
+
+	// 3.5. With custom options - low effort (faster encoding)
+	webpLowEffortBuf, err := img.WebpsaveBuffer(&WebpsaveBufferOptions{
+		Q:      75,
+		Effort: 1, // Low effort
+	})
+	require.NoError(t, err)
+	t.Logf("WebP save with low effort: %d bytes", len(webpLowEffortBuf))
+
+	// 3.6. With custom options - high effort (better compression)
+	webpHighEffortBuf, err := img.WebpsaveBuffer(&WebpsaveBufferOptions{
+		Q:      75,
+		Effort: 6, // High effort
+	})
+	require.NoError(t, err)
+	t.Logf("WebP save with high effort: %d bytes", len(webpHighEffortBuf))
+
+	// Compare file sizes with different options
+	t.Log("PNG size comparisons:")
+	if len(pngLowCompBuf) != 0 && len(pngHighCompBuf) != 0 {
+		t.Logf("  Low vs High compression ratio: %.2f", float64(len(pngLowCompBuf))/float64(len(pngHighCompBuf)))
+	}
+
+	t.Log("JPEG size comparisons:")
+	if len(jpegLowQualBuf) != 0 && len(jpegHighQualBuf) != 0 {
+		t.Logf("  Low vs High quality ratio: %.2f", float64(len(jpegLowQualBuf))/float64(len(jpegHighQualBuf)))
+	}
+
+	t.Log("WebP size comparisons:")
+	if len(webpQualityBuf) != 0 && len(webpLosslessBuf) != 0 {
+		t.Logf("  Lossy vs Lossless ratio: %.2f", float64(len(webpQualityBuf))/float64(len(webpLosslessBuf)))
+	}
+	if len(webpLowEffortBuf) != 0 && len(webpHighEffortBuf) != 0 {
+		t.Logf("  Low vs High effort ratio: %.2f", float64(len(webpLowEffortBuf))/float64(len(webpHighEffortBuf)))
+	}
+} // TestOptionsVariants tests operations with different option combinations
+func TestOptionsVariants(t *testing.T) {
+	// Create a test image
+	width, height := 200, 150
+	img, err := createSolidColorImage(t, width, height, color.RGBA{200, 100, 50, 255})
+	require.NoError(t, err)
+	defer img.Close()
+
+	// 1. Test the same operation with nil options, default options, and custom options
+
+	// A. Resize operation
+
+	// A.1. With nil options
+	nilOptionsImg, err := img.Copy(nil)
+	require.NoError(t, err)
+	defer nilOptionsImg.Close()
+
+	err = nilOptionsImg.Resize(0.75, nil)
+	require.NoError(t, err)
+	t.Log("Resize with nil options succeeded")
+	assert.Equal(t, int(float64(width)*0.75), nilOptionsImg.Width())
+
+	// A.2. With default options
+	defaultOptionsImg, err := img.Copy(nil)
+	require.NoError(t, err)
+	defer defaultOptionsImg.Close()
+
+	err = defaultOptionsImg.Resize(0.75, DefaultResizeOptions())
+	require.NoError(t, err)
+	t.Log("Resize with default options succeeded")
+	assert.Equal(t, int(float64(width)*0.75), defaultOptionsImg.Width())
+
+	// A.3. With custom options
+	customOptionsImg, err := img.Copy(nil)
+	require.NoError(t, err)
+	defer customOptionsImg.Close()
+
+	customOptions := &ResizeOptions{
+		Kernel: KernelLanczos3,
+		Vscale: 0.5, // Different vertical scale
+	}
+	err = customOptionsImg.Resize(0.75, customOptions)
+	require.NoError(t, err)
+	t.Log("Resize with custom options succeeded")
+	assert.Equal(t, int(float64(width)*0.75), customOptionsImg.Width())
+	assert.Equal(t, int(float64(height)*0.5), customOptionsImg.Height())
+
+	// B. GaussBlur operation
+
+	// B.1. With nil options
+	blurNilImg, err := img.Copy(nil)
+	require.NoError(t, err)
+	defer blurNilImg.Close()
+
+	err = blurNilImg.Gaussblur(5.0, nil)
+	require.NoError(t, err)
+	t.Log("Gaussblur with nil options succeeded")
+
+	// B.2. With default options
+	blurDefaultImg, err := img.Copy(nil)
+	require.NoError(t, err)
+	defer blurDefaultImg.Close()
+
+	err = blurDefaultImg.Gaussblur(5.0, DefaultGaussblurOptions())
+	require.NoError(t, err)
+	t.Log("Gaussblur with default options succeeded")
+
+	// B.3. With custom options
+	blurCustomImg, err := img.Copy(nil)
+	require.NoError(t, err)
+	defer blurCustomImg.Close()
+
+	customBlurOptions := &GaussblurOptions{
+		MinAmpl:   0.1, // Minimum amplitude
+		Precision: PrecisionInteger,
+	}
+	err = blurCustomImg.Gaussblur(5.0, customBlurOptions)
+	require.NoError(t, err)
+	t.Log("Gaussblur with custom options succeeded")
+
+	// C. Embed operation
+
+	// C.1. With nil options
+	embedNilImg, err := img.Copy(nil)
+	require.NoError(t, err)
+	defer embedNilImg.Close()
+
+	err = embedNilImg.Embed(10, 10, width+20, height+20, nil)
+	require.NoError(t, err)
+	t.Log("Embed with nil options succeeded")
+	assert.Equal(t, width+20, embedNilImg.Width())
+	assert.Equal(t, height+20, embedNilImg.Height())
+
+	// C.2. With default options
+	embedDefaultImg, err := img.Copy(nil)
+	require.NoError(t, err)
+	defer embedDefaultImg.Close()
+
+	err = embedDefaultImg.Embed(10, 10, width+20, height+20, DefaultEmbedOptions())
+	require.NoError(t, err)
+	t.Log("Embed with default options succeeded")
+	assert.Equal(t, width+20, embedDefaultImg.Width())
+	assert.Equal(t, height+20, embedDefaultImg.Height())
+
+	// C.3. With custom options
+	embedCustomImg, err := img.Copy(nil)
+	require.NoError(t, err)
+	defer embedCustomImg.Close()
+
+	customEmbedOptions := &EmbedOptions{
+		Extend:     ExtendWhite,
+		Background: []float64{255, 0, 0}, // Red background
+	}
+	err = embedCustomImg.Embed(10, 10, width+20, height+20, customEmbedOptions)
+	require.NoError(t, err)
+	t.Log("Embed with custom options succeeded")
+	assert.Equal(t, width+20, embedCustomImg.Width())
+	assert.Equal(t, height+20, embedCustomImg.Height())
+
+	// Verify the background color of the embedded image
+	topLeftPixel, err := embedCustomImg.Getpoint(5, 5, nil) // Should be in the background
+	require.NoError(t, err)
+	t.Logf("Background pixel: [%.1f, %.1f, %.1f]",
+		topLeftPixel[0], topLeftPixel[1], topLeftPixel[2])
+
+	assert.Equal(t, float64(255), topLeftPixel[0])
+	assert.Equal(t, float64(255), topLeftPixel[1])
+	assert.Equal(t, float64(255), topLeftPixel[2])
+}
