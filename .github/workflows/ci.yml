@@ -35,17 +35,20 @@ jobs:
           libmagickwand-dev \
           libmatio-dev
 
-      # Install JPEG XL dependencies by building from source
+      # Install JPEG XL dependencies by building from source (more reliable)
       - name: Install JPEG XL dependencies
         run: |
           # Install build dependencies
-          sudo apt-get install -y cmake libgif-dev libjpeg-dev libpng-dev libwebp-dev
+          sudo apt-get install -y cmake libgif-dev libjpeg-dev libpng-dev libwebp-dev libgl-dev
           
           # Clone the JPEG XL repository and checkout a stable version
           git clone --depth 1 --branch v0.8.2 https://github.com/libjxl/libjxl.git
           cd libjxl
           
-          # Use the convenience script to build and install
+          # Use the provided script to download dependencies (including Highway)
+          ./deps.sh
+          
+          # Build and install
           mkdir build && cd build
           cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF ..
           make -j$(nproc)
