@@ -35,39 +35,13 @@ jobs:
           libmagickwand-dev \
           libmatio-dev
 
-      # Install JPEG XL dependencies by building from source (more reliable)
-      - name: Install JPEG XL dependencies
-        run: |
-          # Install build dependencies
-          sudo apt-get install -y cmake libgif-dev libjpeg-dev libpng-dev libwebp-dev libgl-dev
-          
-          # Clone the JPEG XL repository and checkout a stable version
-          git clone --depth 1 --branch v0.8.2 https://github.com/libjxl/libjxl.git
-          cd libjxl
-          
-          # Use the provided script to download dependencies (including Highway)
-          ./deps.sh
-          
-          # Build and install
-          mkdir build && cd build
-          cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF ..
-          make -j$(nproc)
-          sudo make install
-          sudo ldconfig
-          
-          # Verify the installation
-          pkg-config --modversion libjxl || echo "libjxl not found via pkg-config"
-          ls -la /usr/local/lib/lib*jxl*
-
-
-
       - name: Cache libvips
         uses: actions/cache@v3
         with:
           path: vips-${{ env.VIPS_VERSION }}
-          key: ${{ runner.os }}-vips-introspection-magick-jxl-matlab-${{ env.V }}-${{ env.VIPS_VERSION }}
+          key: ${{ runner.os }}-vips-introspection-${{ env.V }}-${{ env.VIPS_VERSION }}
           restore-keys: |
-            ${{ runner.os }}-vips-introspection-magick-jxl-matlab-${{ env.V }}-
+            ${{ runner.os }}-vips-introspection-${{ env.V }}-
 
       - name: Build libvips from source
         run: |
@@ -86,7 +60,6 @@ jobs:
           --libdir=lib \
           -Dgtk_doc=false \
           -Dmagick=enabled \
-          -Djpegxl=enabled \
           -Dopenslide=enabled \
           -Dintrospection=enabled
           
