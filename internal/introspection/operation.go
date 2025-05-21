@@ -4,7 +4,6 @@ package introspection
 import "C"
 import (
 	"fmt"
-	"log"
 	"strings"
 	"unsafe"
 )
@@ -533,9 +532,6 @@ func (v *Introspection) mapGTypeToTypes(gtype C.GType, typeName string, isOutput
 		cTypeNamePtr := C.g_type_name(gtype)
 		if cTypeNamePtr != nil {
 			actualTypeName := C.GoString(cTypeNamePtr)
-
-			// Log for debugging
-			log.Printf("Found object type: %s", actualTypeName)
 
 			if isOutput {
 				return actualTypeName, "*C." + actualTypeName, actualTypeName + "**"
