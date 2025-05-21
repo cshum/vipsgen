@@ -24,7 +24,7 @@ func main() {
 			log.Fatalf("Failed to extract templates: %v", err)
 		}
 
-		fmt.Printf("Templates and static files extracted to: %s\n", *extractDir)
+		log.Printf("Templates and static files extracted to: %s\n", *extractDir)
 		return
 	}
 
@@ -40,7 +40,7 @@ func main() {
 		if err != nil {
 			log.Fatalf("Failed to create template loader: %v", err)
 		}
-		fmt.Printf("Using templates from: %s\n", *templateDirFlag)
+		log.Printf("Using templates from: %s\n", *templateDirFlag)
 	} else {
 		// Use embedded templates by default
 		loader = generator.NewFSTemplateLoader(templates.Templates, funcMap)
@@ -64,20 +64,20 @@ func main() {
 
 	// Discover supported savers
 	supportedSavers := vipsIntrospection.DiscoverSupportedSavers()
-	fmt.Printf("Discovered supported savers:\n")
+	log.Printf("Discovered supported savers:\n")
 	for name, supported := range supportedSavers {
 		if supported {
-			fmt.Printf("  - %s: supported\n", name)
+			log.Printf("  - %s: supported\n", name)
 		}
 	}
 
 	// Convert GIR data to vipsgen.Operation format
 	operations := vipsIntrospection.DiscoverOperations()
-	fmt.Printf("Extracted %d operations from GObject Introspection\n", len(operations))
+	log.Printf("Extracted %d operations from GObject Introspection\n", len(operations))
 
 	// Get enum types
 	enumTypes := vipsIntrospection.DiscoverEnumTypes()
-	fmt.Printf("Discovered %d enum types\n", len(enumTypes))
+	log.Printf("Discovered %d enum types\n", len(enumTypes))
 
 	// Create unified template data
 	templateData := generator.NewTemplateData(operations, enumTypes, imageTypes, supportedSavers)

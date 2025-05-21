@@ -3,6 +3,7 @@ package generator
 import (
 	"fmt"
 	"io/fs"
+	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -166,7 +167,7 @@ func ExtractEmbeddedFS(filesystem fs.FS, destDir string) error {
 			return fmt.Errorf("failed to write file %s: %v", outPath, err)
 		}
 
-		fmt.Printf("  - Extracted: %s\n", path)
+		log.Printf("  - Extracted: %s\n", path)
 		return nil
 	})
 
