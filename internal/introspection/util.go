@@ -76,6 +76,11 @@ func formatEnumValueName(typeName, valueName string) string {
 		return getGoEnumName(camelValue)
 	}
 
+	// BandFormatFormat fix
+	if typeName == "BandFormat" {
+		typeName = "Band"
+	}
+
 	// Otherwise, prepend the type name
 	return typeName + getGoEnumName(camelValue)
 }
@@ -92,6 +97,7 @@ func getGoEnumName(cName string) string {
 	if strings.HasPrefix(cName, "Foreign") {
 		cName = cName[7:]
 	}
+
 	return cName
 }
 

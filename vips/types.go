@@ -148,18 +148,18 @@ type BandFormat int
 
 // BandFormat enum
 const (
-	BandFormatFormatNotset BandFormat = C.VIPS_FORMAT_NOTSET
-	BandFormatFormatUchar BandFormat = C.VIPS_FORMAT_UCHAR
-	BandFormatFormatChar BandFormat = C.VIPS_FORMAT_CHAR
-	BandFormatFormatUshort BandFormat = C.VIPS_FORMAT_USHORT
-	BandFormatFormatShort BandFormat = C.VIPS_FORMAT_SHORT
-	BandFormatFormatUint BandFormat = C.VIPS_FORMAT_UINT
-	BandFormatFormatInt BandFormat = C.VIPS_FORMAT_INT
-	BandFormatFormatFloat BandFormat = C.VIPS_FORMAT_FLOAT
-	BandFormatFormatComplex BandFormat = C.VIPS_FORMAT_COMPLEX
-	BandFormatFormatDouble BandFormat = C.VIPS_FORMAT_DOUBLE
-	BandFormatFormatDpcomplex BandFormat = C.VIPS_FORMAT_DPCOMPLEX
-	BandFormatFormatLast BandFormat = C.VIPS_FORMAT_LAST
+	BandFormatNotset BandFormat = C.VIPS_FORMAT_NOTSET
+	BandFormatUchar BandFormat = C.VIPS_FORMAT_UCHAR
+	BandFormatChar BandFormat = C.VIPS_FORMAT_CHAR
+	BandFormatUshort BandFormat = C.VIPS_FORMAT_USHORT
+	BandFormatShort BandFormat = C.VIPS_FORMAT_SHORT
+	BandFormatUint BandFormat = C.VIPS_FORMAT_UINT
+	BandFormatInt BandFormat = C.VIPS_FORMAT_INT
+	BandFormatFloat BandFormat = C.VIPS_FORMAT_FLOAT
+	BandFormatComplex BandFormat = C.VIPS_FORMAT_COMPLEX
+	BandFormatDouble BandFormat = C.VIPS_FORMAT_DOUBLE
+	BandFormatDpcomplex BandFormat = C.VIPS_FORMAT_DPCOMPLEX
+	BandFormatLast BandFormat = C.VIPS_FORMAT_LAST
 )
 
 // Coding represents VipsCoding type
