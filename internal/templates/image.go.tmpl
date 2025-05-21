@@ -162,7 +162,7 @@ func NewImageFromMemory(buf []byte, width, height, bands int) (*Image, error) {
 	if err != nil {
 		return nil, err
 	}
-	return newImageRef(vipsImage, vipsDetermineImageType(vipsImage), buf), nil
+	return newImageRef(vipsImage, ImageTypeUnknown, buf), nil
 }
 
 
