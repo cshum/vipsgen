@@ -2006,17 +2006,20 @@ int vipsgen_radload_buffer(void* buf, size_t len, VipsImage** out) {
 int vipsgen_radload_buffer_with_options(void* buf, size_t len, VipsImage** out, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
     VipsOperation *operation = vips_operation_new("radload_buffer");
     if (!operation) return 1;
+    VipsBlob *blob = vips_blob_new(NULL, buf, len);
+    if (!blob) { g_object_unref(operation); return 1; }
     if (
-        vips_object_set(VIPS_OBJECT(operation), "buf", buf, NULL) ||
-        vips_object_set(VIPS_OBJECT(operation), "len", len, NULL) ||
+        vips_object_set(VIPS_OBJECT(operation), "buffer", blob, NULL) ||
         vipsgen_set_bool(operation, "memory", memory) ||
         vipsgen_set_int(operation, "access", access) ||
         vipsgen_set_int(operation, "fail_on", fail_on) ||
         vipsgen_set_bool(operation, "revalidate", revalidate)
     ) {
+        vips_area_unref((VipsArea *)blob);
         g_object_unref(operation);
         return 1;
     }
+    vips_area_unref((VipsArea *)blob);
     int result = vipsgen_operation_execute(operation, "out", out, NULL);
     return result;
 }
@@ -2073,9 +2076,10 @@ int vipsgen_svgload_buffer(void* buf, size_t len, VipsImage** out) {
 int vipsgen_svgload_buffer_with_options(void* buf, size_t len, VipsImage** out, double dpi, double scale, gboolean unlimited, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
     VipsOperation *operation = vips_operation_new("svgload_buffer");
     if (!operation) return 1;
+    VipsBlob *blob = vips_blob_new(NULL, buf, len);
+    if (!blob) { g_object_unref(operation); return 1; }
     if (
-        vips_object_set(VIPS_OBJECT(operation), "buf", buf, NULL) ||
-        vips_object_set(VIPS_OBJECT(operation), "len", len, NULL) ||
+        vips_object_set(VIPS_OBJECT(operation), "buffer", blob, NULL) ||
         vipsgen_set_double(operation, "dpi", dpi) ||
         vipsgen_set_double(operation, "scale", scale) ||
         vipsgen_set_bool(operation, "unlimited", unlimited) ||
@@ -2084,9 +2088,11 @@ int vipsgen_svgload_buffer_with_options(void* buf, size_t len, VipsImage** out, 
         vipsgen_set_int(operation, "fail_on", fail_on) ||
         vipsgen_set_bool(operation, "revalidate", revalidate)
     ) {
+        vips_area_unref((VipsArea *)blob);
         g_object_unref(operation);
         return 1;
     }
+    vips_area_unref((VipsArea *)blob);
     int result = vipsgen_operation_execute(operation, "out", out, NULL);
     return result;
 }
@@ -2144,18 +2150,21 @@ int vipsgen_jp2kload_buffer(void* buf, size_t len, VipsImage** out) {
 int vipsgen_jp2kload_buffer_with_options(void* buf, size_t len, VipsImage** out, int page, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
     VipsOperation *operation = vips_operation_new("jp2kload_buffer");
     if (!operation) return 1;
+    VipsBlob *blob = vips_blob_new(NULL, buf, len);
+    if (!blob) { g_object_unref(operation); return 1; }
     if (
-        vips_object_set(VIPS_OBJECT(operation), "buf", buf, NULL) ||
-        vips_object_set(VIPS_OBJECT(operation), "len", len, NULL) ||
+        vips_object_set(VIPS_OBJECT(operation), "buffer", blob, NULL) ||
         vipsgen_set_int(operation, "page", page) ||
         vipsgen_set_bool(operation, "memory", memory) ||
         vipsgen_set_int(operation, "access", access) ||
         vipsgen_set_int(operation, "fail_on", fail_on) ||
         vipsgen_set_bool(operation, "revalidate", revalidate)
     ) {
+        vips_area_unref((VipsArea *)blob);
         g_object_unref(operation);
         return 1;
     }
+    vips_area_unref((VipsArea *)blob);
     int result = vipsgen_operation_execute(operation, "out", out, NULL);
     return result;
 }
@@ -2212,9 +2221,10 @@ int vipsgen_gifload_buffer(void* buf, size_t len, VipsImage** out) {
 int vipsgen_gifload_buffer_with_options(void* buf, size_t len, VipsImage** out, int n, int page, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
     VipsOperation *operation = vips_operation_new("gifload_buffer");
     if (!operation) return 1;
+    VipsBlob *blob = vips_blob_new(NULL, buf, len);
+    if (!blob) { g_object_unref(operation); return 1; }
     if (
-        vips_object_set(VIPS_OBJECT(operation), "buf", buf, NULL) ||
-        vips_object_set(VIPS_OBJECT(operation), "len", len, NULL) ||
+        vips_object_set(VIPS_OBJECT(operation), "buffer", blob, NULL) ||
         vipsgen_set_int(operation, "n", n) ||
         vipsgen_set_int(operation, "page", page) ||
         vipsgen_set_bool(operation, "memory", memory) ||
@@ -2222,9 +2232,11 @@ int vipsgen_gifload_buffer_with_options(void* buf, size_t len, VipsImage** out, 
         vipsgen_set_int(operation, "fail_on", fail_on) ||
         vipsgen_set_bool(operation, "revalidate", revalidate)
     ) {
+        vips_area_unref((VipsArea *)blob);
         g_object_unref(operation);
         return 1;
     }
+    vips_area_unref((VipsArea *)blob);
     int result = vipsgen_operation_execute(operation, "out", out, NULL);
     return result;
 }
@@ -2281,18 +2293,21 @@ int vipsgen_pngload_buffer(void* buf, size_t len, VipsImage** out) {
 int vipsgen_pngload_buffer_with_options(void* buf, size_t len, VipsImage** out, gboolean unlimited, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
     VipsOperation *operation = vips_operation_new("pngload_buffer");
     if (!operation) return 1;
+    VipsBlob *blob = vips_blob_new(NULL, buf, len);
+    if (!blob) { g_object_unref(operation); return 1; }
     if (
-        vips_object_set(VIPS_OBJECT(operation), "buf", buf, NULL) ||
-        vips_object_set(VIPS_OBJECT(operation), "len", len, NULL) ||
+        vips_object_set(VIPS_OBJECT(operation), "buffer", blob, NULL) ||
         vipsgen_set_bool(operation, "unlimited", unlimited) ||
         vipsgen_set_bool(operation, "memory", memory) ||
         vipsgen_set_int(operation, "access", access) ||
         vipsgen_set_int(operation, "fail_on", fail_on) ||
         vipsgen_set_bool(operation, "revalidate", revalidate)
     ) {
+        vips_area_unref((VipsArea *)blob);
         g_object_unref(operation);
         return 1;
     }
+    vips_area_unref((VipsArea *)blob);
     int result = vipsgen_operation_execute(operation, "out", out, NULL);
     return result;
 }
@@ -2350,9 +2365,10 @@ int vipsgen_jpegload_buffer(void* buf, size_t len, VipsImage** out) {
 int vipsgen_jpegload_buffer_with_options(void* buf, size_t len, VipsImage** out, int shrink, gboolean autorotate, gboolean unlimited, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
     VipsOperation *operation = vips_operation_new("jpegload_buffer");
     if (!operation) return 1;
+    VipsBlob *blob = vips_blob_new(NULL, buf, len);
+    if (!blob) { g_object_unref(operation); return 1; }
     if (
-        vips_object_set(VIPS_OBJECT(operation), "buf", buf, NULL) ||
-        vips_object_set(VIPS_OBJECT(operation), "len", len, NULL) ||
+        vips_object_set(VIPS_OBJECT(operation), "buffer", blob, NULL) ||
         vipsgen_set_int(operation, "shrink", shrink) ||
         vipsgen_set_bool(operation, "autorotate", autorotate) ||
         vipsgen_set_bool(operation, "unlimited", unlimited) ||
@@ -2361,9 +2377,11 @@ int vipsgen_jpegload_buffer_with_options(void* buf, size_t len, VipsImage** out,
         vipsgen_set_int(operation, "fail_on", fail_on) ||
         vipsgen_set_bool(operation, "revalidate", revalidate)
     ) {
+        vips_area_unref((VipsArea *)blob);
         g_object_unref(operation);
         return 1;
     }
+    vips_area_unref((VipsArea *)blob);
     int result = vipsgen_operation_execute(operation, "out", out, NULL);
     return result;
 }
@@ -2423,9 +2441,10 @@ int vipsgen_webpload_buffer(void* buf, size_t len, VipsImage** out) {
 int vipsgen_webpload_buffer_with_options(void* buf, size_t len, VipsImage** out, int page, int n, double scale, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
     VipsOperation *operation = vips_operation_new("webpload_buffer");
     if (!operation) return 1;
+    VipsBlob *blob = vips_blob_new(NULL, buf, len);
+    if (!blob) { g_object_unref(operation); return 1; }
     if (
-        vips_object_set(VIPS_OBJECT(operation), "buf", buf, NULL) ||
-        vips_object_set(VIPS_OBJECT(operation), "len", len, NULL) ||
+        vips_object_set(VIPS_OBJECT(operation), "buffer", blob, NULL) ||
         vipsgen_set_int(operation, "page", page) ||
         vipsgen_set_int(operation, "n", n) ||
         vipsgen_set_double(operation, "scale", scale) ||
@@ -2434,9 +2453,11 @@ int vipsgen_webpload_buffer_with_options(void* buf, size_t len, VipsImage** out,
         vipsgen_set_int(operation, "fail_on", fail_on) ||
         vipsgen_set_bool(operation, "revalidate", revalidate)
     ) {
+        vips_area_unref((VipsArea *)blob);
         g_object_unref(operation);
         return 1;
     }
+    vips_area_unref((VipsArea *)blob);
     int result = vipsgen_operation_execute(operation, "out", out, NULL);
     return result;
 }
@@ -2497,9 +2518,10 @@ int vipsgen_tiffload_buffer(void* buf, size_t len, VipsImage** out) {
 int vipsgen_tiffload_buffer_with_options(void* buf, size_t len, VipsImage** out, int page, int subifd, int n, gboolean autorotate, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
     VipsOperation *operation = vips_operation_new("tiffload_buffer");
     if (!operation) return 1;
+    VipsBlob *blob = vips_blob_new(NULL, buf, len);
+    if (!blob) { g_object_unref(operation); return 1; }
     if (
-        vips_object_set(VIPS_OBJECT(operation), "buf", buf, NULL) ||
-        vips_object_set(VIPS_OBJECT(operation), "len", len, NULL) ||
+        vips_object_set(VIPS_OBJECT(operation), "buffer", blob, NULL) ||
         vipsgen_set_int(operation, "page", page) ||
         vipsgen_set_int(operation, "subifd", subifd) ||
         vipsgen_set_int(operation, "n", n) ||
@@ -2509,9 +2531,11 @@ int vipsgen_tiffload_buffer_with_options(void* buf, size_t len, VipsImage** out,
         vipsgen_set_int(operation, "fail_on", fail_on) ||
         vipsgen_set_bool(operation, "revalidate", revalidate)
     ) {
+        vips_area_unref((VipsArea *)blob);
         g_object_unref(operation);
         return 1;
     }
+    vips_area_unref((VipsArea *)blob);
     int result = vipsgen_operation_execute(operation, "out", out, NULL);
     return result;
 }
@@ -2614,9 +2638,10 @@ int vipsgen_magickload_buffer(void* buf, size_t len, VipsImage** out) {
 int vipsgen_magickload_buffer_with_options(void* buf, size_t len, VipsImage** out, const char* density, int page, int n, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
     VipsOperation *operation = vips_operation_new("magickload_buffer");
     if (!operation) return 1;
+    VipsBlob *blob = vips_blob_new(NULL, buf, len);
+    if (!blob) { g_object_unref(operation); return 1; }
     if (
-        vips_object_set(VIPS_OBJECT(operation), "buf", buf, NULL) ||
-        vips_object_set(VIPS_OBJECT(operation), "len", len, NULL) ||
+        vips_object_set(VIPS_OBJECT(operation), "buffer", blob, NULL) ||
         vipsgen_set_string(operation, "density", density) ||
         vipsgen_set_int(operation, "page", page) ||
         vipsgen_set_int(operation, "n", n) ||
@@ -2625,9 +2650,11 @@ int vipsgen_magickload_buffer_with_options(void* buf, size_t len, VipsImage** ou
         vipsgen_set_int(operation, "fail_on", fail_on) ||
         vipsgen_set_bool(operation, "revalidate", revalidate)
     ) {
+        vips_area_unref((VipsArea *)blob);
         g_object_unref(operation);
         return 1;
     }
+    vips_area_unref((VipsArea *)blob);
     int result = vipsgen_operation_execute(operation, "out", out, NULL);
     return result;
 }
@@ -2664,9 +2691,10 @@ int vipsgen_heifload_buffer(void* buf, size_t len, VipsImage** out) {
 int vipsgen_heifload_buffer_with_options(void* buf, size_t len, VipsImage** out, int page, int n, gboolean thumbnail, gboolean unlimited, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
     VipsOperation *operation = vips_operation_new("heifload_buffer");
     if (!operation) return 1;
+    VipsBlob *blob = vips_blob_new(NULL, buf, len);
+    if (!blob) { g_object_unref(operation); return 1; }
     if (
-        vips_object_set(VIPS_OBJECT(operation), "buf", buf, NULL) ||
-        vips_object_set(VIPS_OBJECT(operation), "len", len, NULL) ||
+        vips_object_set(VIPS_OBJECT(operation), "buffer", blob, NULL) ||
         vipsgen_set_int(operation, "page", page) ||
         vipsgen_set_int(operation, "n", n) ||
         vipsgen_set_bool(operation, "thumbnail", thumbnail) ||
@@ -2676,9 +2704,11 @@ int vipsgen_heifload_buffer_with_options(void* buf, size_t len, VipsImage** out,
         vipsgen_set_int(operation, "fail_on", fail_on) ||
         vipsgen_set_bool(operation, "revalidate", revalidate)
     ) {
+        vips_area_unref((VipsArea *)blob);
         g_object_unref(operation);
         return 1;
     }
+    vips_area_unref((VipsArea *)blob);
     int result = vipsgen_operation_execute(operation, "out", out, NULL);
     return result;
 }
@@ -2798,11 +2828,12 @@ int vipsgen_pdfload_buffer(void* buf, size_t len, VipsImage** out) {
 int vipsgen_pdfload_buffer_with_options(void* buf, size_t len, VipsImage** out, int page, int n, double dpi, double scale, double* background, int background_n, const char* password, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
     VipsOperation *operation = vips_operation_new("pdfload_buffer");
     if (!operation) return 1;
+    VipsBlob *blob = vips_blob_new(NULL, buf, len);
+    if (!blob) { g_object_unref(operation); return 1; }
     VipsArrayDouble *background_array = NULL;
     if (background != NULL && background_n > 0) { background_array = vips_array_double_new(background, background_n); }
     if (
-        vips_object_set(VIPS_OBJECT(operation), "buf", buf, NULL) ||
-        vips_object_set(VIPS_OBJECT(operation), "len", len, NULL) ||
+        vips_object_set(VIPS_OBJECT(operation), "buffer", blob, NULL) ||
         vipsgen_set_int(operation, "page", page) ||
         vipsgen_set_int(operation, "n", n) ||
         vipsgen_set_double(operation, "dpi", dpi) ||
@@ -2814,10 +2845,12 @@ int vipsgen_pdfload_buffer_with_options(void* buf, size_t len, VipsImage** out, 
         vipsgen_set_int(operation, "fail_on", fail_on) ||
         vipsgen_set_bool(operation, "revalidate", revalidate)
     ) {
+        vips_area_unref((VipsArea *)blob);
         g_object_unref(operation);
         if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
         return 1;
     }
+    vips_area_unref((VipsArea *)blob);
     int result = vipsgen_operation_execute(operation, "out", out, NULL);
     if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
     return result;
