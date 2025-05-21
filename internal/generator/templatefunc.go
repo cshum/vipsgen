@@ -1364,17 +1364,9 @@ func generateCFunctionImplementation(op introspection.Operation) string {
 		// Detect if this is a buffer operation that needs special handling
 		isBufferLoadOperation := strings.Contains(op.Name, "load_buffer")
 		isBufferSaveOperation := strings.Contains(op.Name, "save_buffer")
-		hasBufferArg := false
-
-		for _, arg := range op.Arguments {
-			if arg.Name == "buf" || arg.Name == "buffer" {
-				hasBufferArg = true
-				break
-			}
-		}
 
 		// Special handling for buffer load operations - create a VipsBlob
-		if isBufferLoadOperation && hasBufferArg {
+		if isBufferLoadOperation {
 			result.WriteString("    VipsBlob *blob = vips_blob_new(NULL, buf, len);\n")
 			result.WriteString("    if (!blob) { g_object_unref(operation); return 1; }\n")
 		}
@@ -1518,7 +1510,7 @@ func generateCFunctionImplementation(op introspection.Operation) string {
 			result.WriteString("\n    ) {\n")
 
 			// Additional cleanup for VipsBlob if this is a buffer load operation
-			if isBufferLoadOperation && hasBufferArg {
+			if isBufferLoadOperation {
 				result.WriteString("        vips_area_unref((VipsArea *)blob);\n")
 			}
 
@@ -1538,7 +1530,7 @@ func generateCFunctionImplementation(op introspection.Operation) string {
 		}
 
 		// Unreference VipsBlob for buffer operations after the operation takes its reference
-		if isBufferLoadOperation && hasBufferArg {
+		if isBufferLoadOperation {
 			result.WriteString("    vips_area_unref((VipsArea *)blob);\n")
 		}
 
