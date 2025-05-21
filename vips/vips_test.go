@@ -210,7 +210,7 @@ func TestImageLoadSaveBuffer(t *testing.T) {
 	pngData := createTestPNG(t, 150, 100)
 
 	// Load from buffer
-	img, err := NewImageFromBuffer(pngData, nil)
+	img, err := NewPngloadBuffer(pngData, DefaultPngloadBufferOptions())
 	require.NoError(t, err)
 	defer img.Close()
 
@@ -241,7 +241,7 @@ func TestSource(t *testing.T) {
 	defer source.Close()
 
 	// Load from source
-	imgFromSource, err := NewImageFromSource(source, nil)
+	imgFromSource, err := NewImageFromSource(source, DefaultLoadOptions())
 	require.NoError(t, err)
 	defer imgFromSource.Close()
 
@@ -299,7 +299,7 @@ func TestBasicFormatConversions(t *testing.T) {
 
 	// Create a test gradient image
 	width, height := 100, 80
-	img, err := NewImageFromBuffer(createTestPNG(t, width, height), nil)
+	img, err := NewImageFromBuffer(createTestPNG(t, width, height), DefaultLoadOptions())
 	require.NoError(t, err)
 	defer img.Close()
 
@@ -420,18 +420,6 @@ func TestImageOperations(t *testing.T) {
 
 // TestFormatConversionChain tests a chain of conversions between formats
 func TestFormatConversionChain(t *testing.T) {
-	// Skip the test if JPEG is not supported
-	jpegSupported := false
-	for _, mime := range ImageMimeTypes {
-		if mime == "image/jpeg" {
-			jpegSupported = true
-			break
-		}
-	}
-	if !jpegSupported {
-		t.Skip("JPEG format not supported, skipping test")
-	}
-
 	// Create a simple white image
 	img, err := createWhiteImage(100, 80)
 	require.NoError(t, err)
@@ -439,14 +427,14 @@ func TestFormatConversionChain(t *testing.T) {
 
 	// 1. First save as JPEG with minimal options
 	jpegBuf, err := img.JpegsaveBuffer(&JpegsaveBufferOptions{
-		Q: 90,
+		Q: 80,
 	})
 	require.NoError(t, err)
 	require.NotEmpty(t, jpegBuf)
 	t.Logf("JPEG save produced %d bytes", len(jpegBuf))
 
 	// 2. Load the JPEG
-	jpegImg, err := NewImageFromBuffer(jpegBuf, nil)
+	jpegImg, err := NewJpegloadBuffer(jpegBuf, DefaultJpegloadBufferOptions())
 	require.NoError(t, err)
 	defer jpegImg.Close()
 
