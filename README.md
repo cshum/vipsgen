@@ -77,7 +77,7 @@ func main() {
 		image.Width()+border*2,
 		image.Height()+border*2,
 		&vips.EmbedOptions{
-			Extend:     vips.ExtendBackground,
+			Extend:     vips.ExtendBackground, // extend with colour from the background property
 			Background: []float64{255, 255, 0, 255}, // Yellow border
 		},
 	); err != nil {
