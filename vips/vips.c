@@ -214,9 +214,13 @@ int vipsgen_linear_with_options(VipsImage* in, VipsImage** out, double* a, doubl
         vipsgen_set_bool(operation, "uchar", uchar)
     ) {
         g_object_unref(operation);
+        if (a_array != NULL) { vips_area_unref(VIPS_AREA(a_array)); }
+        if (b_array != NULL) { vips_area_unref(VIPS_AREA(b_array)); }
         return 1;
     }
     int result = vipsgen_operation_execute(operation, "out", out, NULL);
+    if (a_array != NULL) { vips_area_unref(VIPS_AREA(a_array)); }
+    if (b_array != NULL) { vips_area_unref(VIPS_AREA(b_array)); }
     return result;
 }
 
@@ -702,10 +706,12 @@ int vipsgen_arrayjoin_with_options(VipsImage** in, VipsImage** out, int n, int a
         vipsgen_set_int(operation, "vspacing", vspacing)
     ) {
         g_object_unref(operation);
+        if (in_array != NULL) { vips_area_unref(VIPS_AREA(in_array)); }
         if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
         return 1;
     }
     int result = vipsgen_operation_execute(operation, "out", out, NULL);
+    if (in_array != NULL) { vips_area_unref(VIPS_AREA(in_array)); }
     if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
     return result;
 }
@@ -776,9 +782,11 @@ int vipsgen_bandrank_with_options(VipsImage** in, VipsImage** out, int n, int in
         vipsgen_set_int(operation, "index", index)
     ) {
         g_object_unref(operation);
+        if (in_array != NULL) { vips_area_unref(VIPS_AREA(in_array)); }
         return 1;
     }
     int result = vipsgen_operation_execute(operation, "out", out, NULL);
+    if (in_array != NULL) { vips_area_unref(VIPS_AREA(in_array)); }
     return result;
 }
 
@@ -1111,11 +1119,15 @@ int vipsgen_composite_with_options(VipsImage** in, VipsImage** out, int n, int* 
         vipsgen_set_bool(operation, "premultiplied", premultiplied)
     ) {
         g_object_unref(operation);
+        if (in_array != NULL) { vips_area_unref(VIPS_AREA(in_array)); }
+        if (mode_array != NULL) { vips_area_unref(VIPS_AREA(mode_array)); }
         if (x_array != NULL) { vips_area_unref(VIPS_AREA(x_array)); }
         if (y_array != NULL) { vips_area_unref(VIPS_AREA(y_array)); }
         return 1;
     }
     int result = vipsgen_operation_execute(operation, "out", out, NULL);
+    if (in_array != NULL) { vips_area_unref(VIPS_AREA(in_array)); }
+    if (mode_array != NULL) { vips_area_unref(VIPS_AREA(mode_array)); }
     if (x_array != NULL) { vips_area_unref(VIPS_AREA(x_array)); }
     if (y_array != NULL) { vips_area_unref(VIPS_AREA(y_array)); }
     return result;
@@ -5050,9 +5062,11 @@ int vipsgen_draw_rect_with_options(VipsImage* image, double* ink, int n, int lef
         vipsgen_set_bool(operation, "fill", fill)
     ) {
         g_object_unref(operation);
+        if (ink_array != NULL) { vips_area_unref(VIPS_AREA(ink_array)); }
         return 1;
     }
     int result = vipsgen_operation_execute(operation, NULL);
+    if (ink_array != NULL) { vips_area_unref(VIPS_AREA(ink_array)); }
     return result;
 }
 
@@ -5082,9 +5096,11 @@ int vipsgen_draw_circle_with_options(VipsImage* image, double* ink, int n, int c
         vipsgen_set_bool(operation, "fill", fill)
     ) {
         g_object_unref(operation);
+        if (ink_array != NULL) { vips_area_unref(VIPS_AREA(ink_array)); }
         return 1;
     }
     int result = vipsgen_operation_execute(operation, NULL);
+    if (ink_array != NULL) { vips_area_unref(VIPS_AREA(ink_array)); }
     return result;
 }
 
@@ -5106,9 +5122,11 @@ int vipsgen_draw_flood_with_options(VipsImage* image, double* ink, int n, int x,
         vipsgen_set_bool(operation, "equal", equal)
     ) {
         g_object_unref(operation);
+        if (ink_array != NULL) { vips_area_unref(VIPS_AREA(ink_array)); }
         return 1;
     }
     int result = vipsgen_operation_execute(operation, NULL);
+    if (ink_array != NULL) { vips_area_unref(VIPS_AREA(ink_array)); }
     return result;
 }
 
