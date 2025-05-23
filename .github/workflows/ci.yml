@@ -9,7 +9,7 @@ jobs:
     env:
       CGO_CFLAGS_ALLOW: -Xpreprocessor
       VIPS_VERSION: 8.16.1
-      V: 4
+      V: 5
 
     steps:
       - name: Set up Go
@@ -34,6 +34,23 @@ jobs:
           gobject-introspection libgirepository1.0-dev \
           libmagickwand-dev libmatio-dev libnifti2-dev \
           libjxl-dev libzip-dev libarchive-dev
+          
+          # Create missing NIfTI pkg-config file to help libvips meson detect it
+          # Ubuntu's libnifti2-dev doesn't provide the pkg-config file that libvips expects
+          sudo mkdir -p /usr/local/lib/pkgconfig
+          sudo tee /usr/local/lib/pkgconfig/niftiio.pc > /dev/null <<EOF
+          prefix=/usr
+          exec_prefix=\${prefix}
+          libdir=\${prefix}/lib/x86_64-linux-gnu
+          includedir=\${prefix}/include/nifti
+          
+          Name: libniftiio
+          Description: nifti library
+          Version: 3.0.1
+          Requires: 
+          Cflags: -I\${includedir}
+          Libs: -L\${libdir} -lniftiio -lznz
+          EOF
 
       - name: Cache libvips
         uses: actions/cache@v3
