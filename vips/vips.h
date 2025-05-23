@@ -428,6 +428,12 @@ int vipsgen_fitsload_with_options(const char* filename, VipsImage** out, gboolea
 int vipsgen_openexrload(const char* filename, VipsImage** out);
 int vipsgen_openexrload_with_options(const char* filename, VipsImage** out, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
 
+int vipsgen_niftiload(const char* filename, VipsImage** out);
+int vipsgen_niftiload_with_options(const char* filename, VipsImage** out, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
+
+int vipsgen_niftiload_source(VipsSourceCustom* source, VipsImage** out);
+int vipsgen_niftiload_source_with_options(VipsSourceCustom* source, VipsImage** out, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
+
 int vipsgen_heifload(const char* filename, VipsImage** out);
 int vipsgen_heifload_with_options(const char* filename, VipsImage** out, int page, int n, gboolean thumbnail, gboolean unlimited, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
 
@@ -538,6 +544,9 @@ int vipsgen_tiffsave_buffer_with_options(VipsImage* in, void** buf, size_t* len,
 
 int vipsgen_fitssave(VipsImage* in, const char* filename);
 int vipsgen_fitssave_with_options(VipsImage* in, const char* filename, VipsForeignKeep keep, double* background, int background_n, int page_height, const char* profile);
+
+int vipsgen_niftisave(VipsImage* in, const char* filename);
+int vipsgen_niftisave_with_options(VipsImage* in, const char* filename, VipsForeignKeep keep, double* background, int background_n, int page_height, const char* profile);
 
 int vipsgen_heifsave(VipsImage* in, const char* filename);
 int vipsgen_heifsave_with_options(VipsImage* in, const char* filename, int Q, int bitdepth, gboolean lossless, VipsForeignHeifCompression compression, int effort, VipsForeignSubsample subsample_mode, VipsForeignHeifEncoder encoder, VipsForeignKeep keep, double* background, int background_n, int page_height, const char* profile);

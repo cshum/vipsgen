@@ -2536,6 +2536,76 @@ func NewOpenexrload(filename string, options *OpenexrloadOptions) (*Image, error
 	return newImageRef(vipsImage, ImageTypeUnknown, nil), nil
 }
 
+// NiftiloadOptions optional arguments for vips_niftiload
+type NiftiloadOptions struct {
+	// Memory Force open via memory
+	Memory bool
+	// Access Required access pattern for this file
+	Access Access
+	// FailOn Error level to fail on
+	FailOn FailOn
+	// Revalidate Don't use a cached result for this operation
+	Revalidate bool
+}
+
+// DefaultNiftiloadOptions creates default value for vips_niftiload optional arguments
+func DefaultNiftiloadOptions() *NiftiloadOptions {
+	return &NiftiloadOptions{
+	}
+}
+
+// NewNiftiload vips_niftiload load NIfTI volume
+func NewNiftiload(filename string, options *NiftiloadOptions) (*Image, error) {
+	Startup(nil)
+	if options != nil {
+		vipsImage, err := vipsgenNiftiloadWithOptions(filename, options.Memory, options.Access, options.FailOn, options.Revalidate)
+		if err != nil {
+			return nil, err
+		}
+		return newImageRef(vipsImage, ImageTypeUnknown, nil), nil
+	}
+	vipsImage, err := vipsgenNiftiload(filename)
+	if err != nil {
+		return nil, err
+	}
+	return newImageRef(vipsImage, ImageTypeUnknown, nil), nil
+}
+
+// NiftiloadSourceOptions optional arguments for vips_niftiload_source
+type NiftiloadSourceOptions struct {
+	// Memory Force open via memory
+	Memory bool
+	// Access Required access pattern for this file
+	Access Access
+	// FailOn Error level to fail on
+	FailOn FailOn
+	// Revalidate Don't use a cached result for this operation
+	Revalidate bool
+}
+
+// DefaultNiftiloadSourceOptions creates default value for vips_niftiload_source optional arguments
+func DefaultNiftiloadSourceOptions() *NiftiloadSourceOptions {
+	return &NiftiloadSourceOptions{
+	}
+}
+
+// NewNiftiloadSource vips_niftiload_source load NIfTI volumes
+func NewNiftiloadSource(source *Source, options *NiftiloadSourceOptions) (*Image, error) {
+	Startup(nil)
+	if options != nil {
+		vipsImage, err := vipsgenNiftiloadSourceWithOptions(source.src, options.Memory, options.Access, options.FailOn, options.Revalidate)
+		if err != nil {
+			return nil, err
+		}
+		return newImageRef(vipsImage, ImageTypeUnknown, nil), nil
+	}
+	vipsImage, err := vipsgenNiftiloadSource(source.src)
+	if err != nil {
+		return nil, err
+	}
+	return newImageRef(vipsImage, ImageTypeUnknown, nil), nil
+}
+
 // HeifloadOptions optional arguments for vips_heifload
 type HeifloadOptions struct {
 	// Page First page to load
@@ -6169,6 +6239,40 @@ func (r *Image) Fitssave(filename string, options *FitssaveOptions) (error) {
 		return nil
 	}
 	err := vipsgenFitssave(r.image, filename)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// NiftisaveOptions optional arguments for vips_niftisave
+type NiftisaveOptions struct {
+	// Keep Which metadata to retain
+	Keep Keep
+	// Background Background value
+	Background []float64
+	// PageHeight Set page height for multipage save
+	PageHeight int
+	// Profile Filename of ICC profile to embed
+	Profile string
+}
+
+// DefaultNiftisaveOptions creates default value for vips_niftisave optional arguments
+func DefaultNiftisaveOptions() *NiftisaveOptions {
+	return &NiftisaveOptions{
+	}
+}
+
+// Niftisave vips_niftisave save image to nifti file
+func (r *Image) Niftisave(filename string, options *NiftisaveOptions) (error) {
+	if options != nil {
+		err := vipsgenNiftisaveWithOptions(r.image, filename, options.Keep, options.Background, options.PageHeight, options.Profile)
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+	err := vipsgenNiftisave(r.image, filename)
 	if err != nil {
 		return err
 	}

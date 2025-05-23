@@ -2703,6 +2703,46 @@ func vipsgenOpenexrloadWithOptions(filename string, memory bool, access Access, 
 	return out, nil
 }
 
+// vipsgenNiftiload vips_niftiload load NIfTI volume
+func vipsgenNiftiload(filename string) (*C.VipsImage, error) {
+	var out *C.VipsImage
+	cfilename := C.CString(filename)
+	defer freeCString(cfilename)
+	if err := C.vipsgen_niftiload(cfilename, &out); err != 0 {
+		return nil, handleImageError(out)
+	}
+	return out, nil
+}
+
+// vipsgenNiftiloadWithOptions vips_niftiload load NIfTI volume with optional arguments
+func vipsgenNiftiloadWithOptions(filename string, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
+	var out *C.VipsImage
+	cfilename := C.CString(filename)
+	defer freeCString(cfilename)
+	if err := C.vipsgen_niftiload_with_options(cfilename, &out, C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
+		return nil, handleImageError(out)
+	}
+	return out, nil
+}
+
+// vipsgenNiftiloadSource vips_niftiload_source load NIfTI volumes
+func vipsgenNiftiloadSource(source *C.VipsSourceCustom) (*C.VipsImage, error) {
+	var out *C.VipsImage
+	if err := C.vipsgen_niftiload_source(source, &out); err != 0 {
+		return nil, handleImageError(out)
+	}
+	return out, nil
+}
+
+// vipsgenNiftiloadSourceWithOptions vips_niftiload_source load NIfTI volumes with optional arguments
+func vipsgenNiftiloadSourceWithOptions(source *C.VipsSourceCustom, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
+	var out *C.VipsImage
+	if err := C.vipsgen_niftiload_source_with_options(source, &out, C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
+		return nil, handleImageError(out)
+	}
+	return out, nil
+}
+
 // vipsgenHeifload vips_heifload load a HEIF image
 func vipsgenHeifload(filename string) (*C.VipsImage, error) {
 	var out *C.VipsImage
@@ -3718,6 +3758,35 @@ func vipsgenFitssaveWithOptions(in *C.VipsImage, filename string, keep Keep, bac
 	cprofile := C.CString(profile)
 	defer freeCString(cprofile)
 	if err := C.vipsgen_fitssave_with_options(in, cfilename, C.VipsForeignKeep(keep), cbackground, cbackgroundLength, C.int(pageHeight), cprofile); err != 0 {
+		return handleVipsError()
+	}
+	return nil
+}
+
+// vipsgenNiftisave vips_niftisave save image to nifti file
+func vipsgenNiftisave(in *C.VipsImage, filename string) (error) {
+	cfilename := C.CString(filename)
+	defer freeCString(cfilename)
+	if err := C.vipsgen_niftisave(in, cfilename); err != 0 {
+		return handleVipsError()
+	}
+	return nil
+}
+
+// vipsgenNiftisaveWithOptions vips_niftisave save image to nifti file with optional arguments
+func vipsgenNiftisaveWithOptions(in *C.VipsImage, filename string, keep Keep, background []float64, pageHeight int, profile string) (error) {
+	cfilename := C.CString(filename)
+	defer freeCString(cfilename)
+	cbackground, cbackgroundLength, err := convertToDoubleArray(background)
+	if err != nil {
+		return err
+	}
+	if cbackground != nil {
+		defer freeDoubleArray(cbackground)
+	}
+	cprofile := C.CString(profile)
+	defer freeCString(cprofile)
+	if err := C.vipsgen_niftisave_with_options(in, cfilename, C.VipsForeignKeep(keep), cbackground, cbackgroundLength, C.int(pageHeight), cprofile); err != 0 {
 		return handleVipsError()
 	}
 	return nil
