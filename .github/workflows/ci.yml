@@ -33,7 +33,7 @@ jobs:
           libopenjp2-7-dev libcgif-dev \
           gobject-introspection libgirepository1.0-dev \
           libmagickwand-dev libmatio-dev \
-          libjxl-dev libzip-dev
+          libjxl-dev libzip-dev libarchive-dev
 
       - name: Cache libvips
         uses: actions/cache@v3
