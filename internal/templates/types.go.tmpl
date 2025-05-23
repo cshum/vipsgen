@@ -36,13 +36,13 @@ var ImageMimeTypes = map[ImageType]string{
 func vipsDetermineImageType(in *C.VipsImage) ImageType {
 	if in != nil {
 		if vipsLoader, ok := vipsImageGetMetaLoader(in); ok {
-			{{range .ImageTypes}}{{if and (ne .TypeName "unknown") (ne .TypeName "magick")}}if strings.HasPrefix(vipsLoader, "{{.TypeName}}") {
+			{{range .ImageTypes}}{{if and (ne .TypeName "unknown") (ne .TypeName "magick") .HasLoader}}if strings.HasPrefix(vipsLoader, "{{.TypeName}}") {
 				return {{.EnumName}}
 			}
-			{{end}}{{end}}// Special case for Magick loader
-			if strings.HasPrefix(vipsLoader, "magick") {
+			{{end}}{{end}}{{range .ImageTypes}}{{if and (eq .TypeName "magick") .HasLoader}}if strings.HasPrefix(vipsLoader, "magick") {
 				return ImageTypeMagick
 			}
+			{{end}}{{end}}
 		}
 	}
 	return ImageTypeUnknown
