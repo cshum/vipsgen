@@ -10,36 +10,36 @@ import (
 )
 
 // ImageType represents an image type
-type ImageType int
+type ImageType string
 
 // ImageType enum
 const (
-	ImageTypeUnknown ImageType = 0
-	ImageTypeGif ImageType = 1
-	ImageTypeJpeg ImageType = 2
-	ImageTypeMagick ImageType = 3
-	ImageTypePdf ImageType = 4
-	ImageTypePng ImageType = 5
-	ImageTypeSvg ImageType = 6
-	ImageTypeTiff ImageType = 7
-	ImageTypeWebp ImageType = 8
-	ImageTypeHeif ImageType = 9
-	ImageTypeBmp ImageType = 10
-	ImageTypeJp2k ImageType = 11
-	ImageTypeAvif ImageType = 12
-	ImageTypeAnalyze ImageType = 13
-	ImageTypeCsv ImageType = 14
-	ImageTypeDz ImageType = 15
-	ImageTypeFits ImageType = 16
-	ImageTypeJxl ImageType = 17
-	ImageTypeMat ImageType = 18
-	ImageTypeMatrix ImageType = 19
-	ImageTypeOpenexr ImageType = 20
-	ImageTypeOpenslide ImageType = 21
-	ImageTypePpm ImageType = 22
-	ImageTypeRad ImageType = 23
-	ImageTypeRaw ImageType = 24
-	ImageTypeVips ImageType = 25
+	ImageTypeUnknown ImageType = "unknown"
+	ImageTypeGif ImageType = "gif"
+	ImageTypeJpeg ImageType = "jpeg"
+	ImageTypeMagick ImageType = "magick"
+	ImageTypePdf ImageType = "pdf"
+	ImageTypePng ImageType = "png"
+	ImageTypeSvg ImageType = "svg"
+	ImageTypeTiff ImageType = "tiff"
+	ImageTypeWebp ImageType = "webp"
+	ImageTypeHeif ImageType = "heif"
+	ImageTypeBmp ImageType = "bmp"
+	ImageTypeJp2k ImageType = "jp2k"
+	ImageTypeAvif ImageType = "avif"
+	ImageTypeAnalyze ImageType = "analyze"
+	ImageTypeCsv ImageType = "csv"
+	ImageTypeDz ImageType = "dz"
+	ImageTypeFits ImageType = "fits"
+	ImageTypeJxl ImageType = "jxl"
+	ImageTypeMat ImageType = "mat"
+	ImageTypeMatrix ImageType = "matrix"
+	ImageTypeOpenexr ImageType = "openexr"
+	ImageTypeOpenslide ImageType = "openslide"
+	ImageTypePpm ImageType = "ppm"
+	ImageTypeRad ImageType = "rad"
+	ImageTypeRaw ImageType = "raw"
+	ImageTypeVips ImageType = "vips"
 )
 
 
@@ -776,7 +776,7 @@ func vipsDetermineImageType(in *C.VipsImage) ImageType {
 
 // Interpolate represents VipsInterpolate type
 type Interpolate struct {
-    interp *C.VipsInterpolate
+	interp *C.VipsInterpolate
 }
 
 // InterpolateType represents the type of interpolation to use
@@ -784,36 +784,35 @@ type InterpolateType string
 
 // InterpolateType enum - these values match the predefined interpolators in libvips
 const (
-    InterpolateNearest  InterpolateType = "nearest"
-    InterpolateBilinear InterpolateType = "bilinear"
-    InterpolateBicubic  InterpolateType = "bicubic"
-    InterpolateLbb      InterpolateType = "lbb"      // Lanczos3
-    InterpolateNohalo   InterpolateType = "nohalo"
-    InterpolateVsqbs    InterpolateType = "vsqbs"
+	InterpolateNearest  InterpolateType = "nearest"
+	InterpolateBilinear InterpolateType = "bilinear"
+	InterpolateBicubic  InterpolateType = "bicubic"
+	InterpolateLbb      InterpolateType = "lbb"      // Lanczos3
+	InterpolateNohalo   InterpolateType = "nohalo"
+	InterpolateVsqbs    InterpolateType = "vsqbs"
 )
-
 
 // NewInterpolate creates a new Interpolate with the given name
 // Valid names include: "nearest", "bilinear", "bicubic", "lbb", "nohalo", "vsqbs"
 func NewInterpolate(name InterpolateType) *Interpolate {
 	Startup(nil)
-    cName := C.CString(string(name))
-    defer C.free(unsafe.Pointer(cName))
+	cName := C.CString(string(name))
+	defer C.free(unsafe.Pointer(cName))
 
-    interp := C.vips_interpolate_new(cName)
-    if interp == nil {
-        // Default to bilinear if requested interpolator not found
-        cDefault := C.CString("bilinear")
-        defer C.free(unsafe.Pointer(cDefault))
-        interp = C.vips_interpolate_new(cDefault)
-    }
-    return &Interpolate{interp: interp}
+	interp := C.vips_interpolate_new(cName)
+	if interp == nil {
+		// Default to bilinear if requested interpolator not found
+		cDefault := C.CString("bilinear")
+		defer C.free(unsafe.Pointer(cDefault))
+		interp = C.vips_interpolate_new(cDefault)
+	}
+	return &Interpolate{interp: interp}
 }
 
 // Close frees the interpolator resources
 func (i *Interpolate) Close() {
-    if i.interp != nil {
-        C.g_object_unref(C.gpointer(i.interp))
-        i.interp = nil
-    }
+	if i.interp != nil {
+		C.g_object_unref(C.gpointer(i.interp))
+		i.interp = nil
+	}
 }
