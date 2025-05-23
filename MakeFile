@@ -41,7 +41,7 @@ clean:
 generate: build
 	@echo "Generating libvips bindings..."
 	@mkdir -p $(OUTPUT_DIR)
-	$(CGO_FLAGS) $(BUILD_DIR)/$(BINARY_NAME) -out $(OUTPUT_DIR)
+	$(CGO_FLAGS) $(BUILD_DIR)/$(BINARY_NAME) -out $(OUTPUT_DIR) -debug
 	@echo "Bindings generated in $(OUTPUT_DIR)"
 
 # Generate with custom templates
