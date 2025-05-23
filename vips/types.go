@@ -15,23 +15,23 @@ type ImageType int
 // ImageType enum
 const (
 	ImageTypeUnknown ImageType = 0
-	ImageTypeJpeg ImageType = 1
-	ImageTypeGif ImageType = 2
-	ImageTypePdf ImageType = 3
-	ImageTypePng ImageType = 4
-	ImageTypeSvg ImageType = 5
-	ImageTypeWebp ImageType = 6
+	ImageTypeGif ImageType = 1
+	ImageTypeJpeg ImageType = 2
+	ImageTypeMagick ImageType = 3
+	ImageTypePdf ImageType = 4
+	ImageTypePng ImageType = 5
+	ImageTypeSvg ImageType = 6
 	ImageTypeTiff ImageType = 7
-	ImageTypeHeif ImageType = 8
-	ImageTypeBmp ImageType = 9
-	ImageTypeJp2k ImageType = 10
-	ImageTypeAvif ImageType = 11
-	ImageTypeAnalyze ImageType = 12
-	ImageTypeCsv ImageType = 13
-	ImageTypeDz ImageType = 14
-	ImageTypeFits ImageType = 15
-	ImageTypeJxl ImageType = 16
-	ImageTypeMagick ImageType = 17
+	ImageTypeWebp ImageType = 8
+	ImageTypeHeif ImageType = 9
+	ImageTypeBmp ImageType = 10
+	ImageTypeJp2k ImageType = 11
+	ImageTypeAvif ImageType = 12
+	ImageTypeAnalyze ImageType = 13
+	ImageTypeCsv ImageType = 14
+	ImageTypeDz ImageType = 15
+	ImageTypeFits ImageType = 16
+	ImageTypeJxl ImageType = 17
 	ImageTypeMat ImageType = 18
 	ImageTypeMatrix ImageType = 19
 	ImageTypeOpenexr ImageType = 20
@@ -660,44 +660,16 @@ const (
 )
 
 
-// ImageTypes defines the various image types supported by vips
-var ImageTypes = map[ImageType]string{
-	ImageTypeJpeg: "jpeg",
-	ImageTypeGif: "gif",
-	ImageTypePdf: "pdf",
-	ImageTypePng: "png",
-	ImageTypeSvg: "svg",
-	ImageTypeWebp: "webp",
-	ImageTypeTiff: "tiff",
-	ImageTypeHeif: "heif",
-	ImageTypeBmp: "bmp",
-	ImageTypeJp2k: "jp2k",
-	ImageTypeAvif: "avif",
-	ImageTypeAnalyze: "analyze",
-	ImageTypeCsv: "csv",
-	ImageTypeDz: "dz",
-	ImageTypeFits: "fits",
-	ImageTypeJxl: "jxl",
-	ImageTypeMagick: "magick",
-	ImageTypeMat: "mat",
-	ImageTypeMatrix: "matrix",
-	ImageTypeOpenexr: "openexr",
-	ImageTypeOpenslide: "openslide",
-	ImageTypePpm: "ppm",
-	ImageTypeRad: "rad",
-	ImageTypeRaw: "raw",
-	ImageTypeVips: "vips",
-}
-
 // ImageMimeTypes map the various image types to its mime type representation
 var ImageMimeTypes = map[ImageType]string{
-	ImageTypeJpeg: "image/jpeg",
 	ImageTypeGif: "image/gif",
+	ImageTypeJpeg: "image/jpeg",
+	ImageTypeMagick: "image/magick",
 	ImageTypePdf: "application/pdf",
 	ImageTypePng: "image/png",
 	ImageTypeSvg: "image/svg+xml",
-	ImageTypeWebp: "image/webp",
 	ImageTypeTiff: "image/tiff",
+	ImageTypeWebp: "image/webp",
 	ImageTypeHeif: "image/heif",
 	ImageTypeBmp: "image/bmp",
 	ImageTypeJp2k: "image/jp2",
@@ -707,7 +679,6 @@ var ImageMimeTypes = map[ImageType]string{
 	ImageTypeDz: "image/x-deepzoom",
 	ImageTypeFits: "image/fits",
 	ImageTypeJxl: "image/jxl",
-	ImageTypeMagick: "image/magick",
 	ImageTypeMat: "application/x-matlab-data",
 	ImageTypeMatrix: "application/x-matrix",
 	ImageTypeOpenexr: "image/openexr",
@@ -722,11 +693,11 @@ var ImageMimeTypes = map[ImageType]string{
 func vipsDetermineImageType(in *C.VipsImage) ImageType {
 	if in != nil {
 		if vipsLoader, ok := vipsImageGetMetaLoader(in); ok {
-			if strings.HasPrefix(vipsLoader, "jpeg") {
-				return ImageTypeJpeg
-			}
 			if strings.HasPrefix(vipsLoader, "gif") {
 				return ImageTypeGif
+			}
+			if strings.HasPrefix(vipsLoader, "jpeg") {
+				return ImageTypeJpeg
 			}
 			if strings.HasPrefix(vipsLoader, "pdf") {
 				return ImageTypePdf
@@ -737,11 +708,11 @@ func vipsDetermineImageType(in *C.VipsImage) ImageType {
 			if strings.HasPrefix(vipsLoader, "svg") {
 				return ImageTypeSvg
 			}
-			if strings.HasPrefix(vipsLoader, "webp") {
-				return ImageTypeWebp
-			}
 			if strings.HasPrefix(vipsLoader, "tiff") {
 				return ImageTypeTiff
+			}
+			if strings.HasPrefix(vipsLoader, "webp") {
+				return ImageTypeWebp
 			}
 			if strings.HasPrefix(vipsLoader, "heif") {
 				return ImageTypeHeif
