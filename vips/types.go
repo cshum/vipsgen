@@ -10,22 +10,36 @@ import (
 )
 
 // ImageType represents an image type
-type ImageType int
+type ImageType string
 
 // ImageType enum
 const (
-	ImageTypeUnknown ImageType = 0
-	ImageTypeGif ImageType = 1
-	ImageTypeJpeg ImageType = 2
-	ImageTypeMagick ImageType = 3
-	ImageTypePdf ImageType = 4
-	ImageTypePng ImageType = 5
-	ImageTypeSvg ImageType = 6
-	ImageTypeTiff ImageType = 7
-	ImageTypeWebp ImageType = 8
-	ImageTypeHeif ImageType = 9
-	ImageTypeJp2k ImageType = 10
-	ImageTypeAvif ImageType = 11
+	ImageTypeUnknown ImageType = "unknown"
+	ImageTypeGif ImageType = "gif"
+	ImageTypeJpeg ImageType = "jpeg"
+	ImageTypeMagick ImageType = "magick"
+	ImageTypePdf ImageType = "pdf"
+	ImageTypePng ImageType = "png"
+	ImageTypeSvg ImageType = "svg"
+	ImageTypeTiff ImageType = "tiff"
+	ImageTypeWebp ImageType = "webp"
+	ImageTypeHeif ImageType = "heif"
+	ImageTypeBmp ImageType = "bmp"
+	ImageTypeJp2k ImageType = "jp2k"
+	ImageTypeAvif ImageType = "avif"
+	ImageTypeAnalyze ImageType = "analyze"
+	ImageTypeCsv ImageType = "csv"
+	ImageTypeDz ImageType = "dz"
+	ImageTypeFits ImageType = "fits"
+	ImageTypeJxl ImageType = "jxl"
+	ImageTypeMat ImageType = "mat"
+	ImageTypeMatrix ImageType = "matrix"
+	ImageTypeOpenexr ImageType = "openexr"
+	ImageTypeOpenslide ImageType = "openslide"
+	ImageTypePpm ImageType = "ppm"
+	ImageTypeRad ImageType = "rad"
+	ImageTypeRaw ImageType = "raw"
+	ImageTypeVips ImageType = "vips"
 )
 
 
@@ -646,33 +660,33 @@ const (
 )
 
 
-// ImageTypes defines the various image types supported by vips
-var ImageTypes = map[ImageType]string{
-	ImageTypeGif: "gif",
-	ImageTypeJpeg: "jpeg",
-	ImageTypeMagick: "magick",
-	ImageTypePdf: "pdf",
-	ImageTypePng: "png",
-	ImageTypeSvg: "svg",
-	ImageTypeTiff: "tiff",
-	ImageTypeWebp: "webp",
-	ImageTypeHeif: "heif",
-	ImageTypeJp2k: "jp2k",
-	ImageTypeAvif: "avif",
-}
-
 // ImageMimeTypes map the various image types to its mime type representation
 var ImageMimeTypes = map[ImageType]string{
 	ImageTypeGif: "image/gif",
 	ImageTypeJpeg: "image/jpeg",
+	ImageTypeMagick: "image/magick",
 	ImageTypePdf: "application/pdf",
 	ImageTypePng: "image/png",
 	ImageTypeSvg: "image/svg+xml",
 	ImageTypeTiff: "image/tiff",
 	ImageTypeWebp: "image/webp",
 	ImageTypeHeif: "image/heif",
+	ImageTypeBmp: "image/bmp",
 	ImageTypeJp2k: "image/jp2",
 	ImageTypeAvif: "image/avif",
+	ImageTypeAnalyze: "application/x-analyze",
+	ImageTypeCsv: "text/csv",
+	ImageTypeDz: "image/x-deepzoom",
+	ImageTypeFits: "image/fits",
+	ImageTypeJxl: "image/jxl",
+	ImageTypeMat: "application/x-matlab-data",
+	ImageTypeMatrix: "application/x-matrix",
+	ImageTypeOpenexr: "image/openexr",
+	ImageTypeOpenslide: "application/x-openslide",
+	ImageTypePpm: "image/x-portable-pixmap",
+	ImageTypeRad: "image/rad",
+	ImageTypeRaw: "image/raw",
+	ImageTypeVips: "image/vnd.libvips",
 }
 
 // vipsDetermineImageType determine the image type from loader metadata
@@ -706,13 +720,46 @@ func vipsDetermineImageType(in *C.VipsImage) ImageType {
 			if strings.HasPrefix(vipsLoader, "jp2k") {
 				return ImageTypeJp2k
 			}
-			if strings.HasPrefix(vipsLoader, "avif") {
-				return ImageTypeAvif
+			if strings.HasPrefix(vipsLoader, "analyze") {
+				return ImageTypeAnalyze
 			}
-			// Special case for Magick loader
+			if strings.HasPrefix(vipsLoader, "csv") {
+				return ImageTypeCsv
+			}
+			if strings.HasPrefix(vipsLoader, "fits") {
+				return ImageTypeFits
+			}
+			if strings.HasPrefix(vipsLoader, "jxl") {
+				return ImageTypeJxl
+			}
+			if strings.HasPrefix(vipsLoader, "mat") {
+				return ImageTypeMat
+			}
+			if strings.HasPrefix(vipsLoader, "matrix") {
+				return ImageTypeMatrix
+			}
+			if strings.HasPrefix(vipsLoader, "openexr") {
+				return ImageTypeOpenexr
+			}
+			if strings.HasPrefix(vipsLoader, "openslide") {
+				return ImageTypeOpenslide
+			}
+			if strings.HasPrefix(vipsLoader, "ppm") {
+				return ImageTypePpm
+			}
+			if strings.HasPrefix(vipsLoader, "rad") {
+				return ImageTypeRad
+			}
+			if strings.HasPrefix(vipsLoader, "raw") {
+				return ImageTypeRaw
+			}
+			if strings.HasPrefix(vipsLoader, "vips") {
+				return ImageTypeVips
+			}
 			if strings.HasPrefix(vipsLoader, "magick") {
 				return ImageTypeMagick
 			}
+			
 		}
 	}
 	return ImageTypeUnknown
@@ -720,7 +767,7 @@ func vipsDetermineImageType(in *C.VipsImage) ImageType {
 
 // Interpolate represents VipsInterpolate type
 type Interpolate struct {
-    interp *C.VipsInterpolate
+	interp *C.VipsInterpolate
 }
 
 // InterpolateType represents the type of interpolation to use
@@ -728,36 +775,35 @@ type InterpolateType string
 
 // InterpolateType enum - these values match the predefined interpolators in libvips
 const (
-    InterpolateNearest  InterpolateType = "nearest"
-    InterpolateBilinear InterpolateType = "bilinear"
-    InterpolateBicubic  InterpolateType = "bicubic"
-    InterpolateLbb      InterpolateType = "lbb"      // Lanczos3
-    InterpolateNohalo   InterpolateType = "nohalo"
-    InterpolateVsqbs    InterpolateType = "vsqbs"
+	InterpolateNearest  InterpolateType = "nearest"
+	InterpolateBilinear InterpolateType = "bilinear"
+	InterpolateBicubic  InterpolateType = "bicubic"
+	InterpolateLbb      InterpolateType = "lbb"      // Lanczos3
+	InterpolateNohalo   InterpolateType = "nohalo"
+	InterpolateVsqbs    InterpolateType = "vsqbs"
 )
-
 
 // NewInterpolate creates a new Interpolate with the given name
 // Valid names include: "nearest", "bilinear", "bicubic", "lbb", "nohalo", "vsqbs"
 func NewInterpolate(name InterpolateType) *Interpolate {
 	Startup(nil)
-    cName := C.CString(string(name))
-    defer C.free(unsafe.Pointer(cName))
+	cName := C.CString(string(name))
+	defer C.free(unsafe.Pointer(cName))
 
-    interp := C.vips_interpolate_new(cName)
-    if interp == nil {
-        // Default to bilinear if requested interpolator not found
-        cDefault := C.CString("bilinear")
-        defer C.free(unsafe.Pointer(cDefault))
-        interp = C.vips_interpolate_new(cDefault)
-    }
-    return &Interpolate{interp: interp}
+	interp := C.vips_interpolate_new(cName)
+	if interp == nil {
+		// Default to bilinear if requested interpolator not found
+		cDefault := C.CString("bilinear")
+		defer C.free(unsafe.Pointer(cDefault))
+		interp = C.vips_interpolate_new(cDefault)
+	}
+	return &Interpolate{interp: interp}
 }
 
 // Close frees the interpolator resources
 func (i *Interpolate) Close() {
-    if i.interp != nil {
-        C.g_object_unref(C.gpointer(i.interp))
-        i.interp = nil
-    }
+	if i.interp != nil {
+		C.g_object_unref(C.gpointer(i.interp))
+		i.interp = nil
+	}
 }

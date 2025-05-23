@@ -5609,10 +5609,14 @@ func vipsSetPageHeight(in *C.VipsImage, height int) {
 }
 
 func vipsImageGetMetaLoader(in *C.VipsImage) (string, bool) {
-	var out *C.char
-	defer gFreePointer(unsafe.Pointer(out))
-	code := int(C.get_meta_loader(in, &out))
-	return C.GoString(out), code == 0
+    var out *C.char
+    defer gFreePointer(unsafe.Pointer(out))
+    code := int(C.get_meta_loader(in, &out))
+    if code != 0 {
+        C.vips_error_clear()
+        return "", false
+    }
+    return C.GoString(out), true
 }
 
 func vipsImageSetDelay(in *C.VipsImage, delay []int) error {

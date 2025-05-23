@@ -1125,13 +1125,13 @@ func NewCsvload(filename string, options *CsvloadOptions) (*Image, error) {
 		if err != nil {
 			return nil, err
 		}
-		return newImageRef(vipsImage, ImageTypeUnknown, nil), nil
+		return newImageRef(vipsImage, ImageTypeCsv, nil), nil
 	}
 	vipsImage, err := vipsgenCsvload(filename)
 	if err != nil {
 		return nil, err
 	}
-	return newImageRef(vipsImage, ImageTypeUnknown, nil), nil
+	return newImageRef(vipsImage, ImageTypeCsv, nil), nil
 }
 
 // CsvloadSourceOptions optional arguments for vips_csvload_source
@@ -1170,13 +1170,13 @@ func NewCsvloadSource(source *Source, options *CsvloadSourceOptions) (*Image, er
 		if err != nil {
 			return nil, err
 		}
-		return newImageRef(vipsImage, ImageTypeUnknown, nil), nil
+		return newImageRef(vipsImage, ImageTypeCsv, nil), nil
 	}
 	vipsImage, err := vipsgenCsvloadSource(source.src)
 	if err != nil {
 		return nil, err
 	}
-	return newImageRef(vipsImage, ImageTypeUnknown, nil), nil
+	return newImageRef(vipsImage, ImageTypeCsv, nil), nil
 }
 
 // MatrixloadOptions optional arguments for vips_matrixload
@@ -1205,13 +1205,13 @@ func NewMatrixload(filename string, options *MatrixloadOptions) (*Image, error) 
 		if err != nil {
 			return nil, err
 		}
-		return newImageRef(vipsImage, ImageTypeUnknown, nil), nil
+		return newImageRef(vipsImage, ImageTypeMatrix, nil), nil
 	}
 	vipsImage, err := vipsgenMatrixload(filename)
 	if err != nil {
 		return nil, err
 	}
-	return newImageRef(vipsImage, ImageTypeUnknown, nil), nil
+	return newImageRef(vipsImage, ImageTypeMatrix, nil), nil
 }
 
 // MatrixloadSourceOptions optional arguments for vips_matrixload_source
@@ -1240,13 +1240,13 @@ func NewMatrixloadSource(source *Source, options *MatrixloadSourceOptions) (*Ima
 		if err != nil {
 			return nil, err
 		}
-		return newImageRef(vipsImage, ImageTypeUnknown, nil), nil
+		return newImageRef(vipsImage, ImageTypeMatrix, nil), nil
 	}
 	vipsImage, err := vipsgenMatrixloadSource(source.src)
 	if err != nil {
 		return nil, err
 	}
-	return newImageRef(vipsImage, ImageTypeUnknown, nil), nil
+	return newImageRef(vipsImage, ImageTypeMatrix, nil), nil
 }
 
 // RawloadOptions optional arguments for vips_rawload
@@ -1281,13 +1281,13 @@ func NewRawload(filename string, width int, height int, bands int, options *Rawl
 		if err != nil {
 			return nil, err
 		}
-		return newImageRef(vipsImage, ImageTypeUnknown, nil), nil
+		return newImageRef(vipsImage, ImageTypeRaw, nil), nil
 	}
 	vipsImage, err := vipsgenRawload(filename, width, height, bands)
 	if err != nil {
 		return nil, err
 	}
-	return newImageRef(vipsImage, ImageTypeUnknown, nil), nil
+	return newImageRef(vipsImage, ImageTypeRaw, nil), nil
 }
 
 // VipsloadOptions optional arguments for vips_vipsload
@@ -1316,13 +1316,13 @@ func NewVipsload(filename string, options *VipsloadOptions) (*Image, error) {
 		if err != nil {
 			return nil, err
 		}
-		return newImageRef(vipsImage, ImageTypeUnknown, nil), nil
+		return newImageRef(vipsImage, ImageTypeVips, nil), nil
 	}
 	vipsImage, err := vipsgenVipsload(filename)
 	if err != nil {
 		return nil, err
 	}
-	return newImageRef(vipsImage, ImageTypeUnknown, nil), nil
+	return newImageRef(vipsImage, ImageTypeVips, nil), nil
 }
 
 // VipsloadSourceOptions optional arguments for vips_vipsload_source
@@ -1351,13 +1351,13 @@ func NewVipsloadSource(source *Source, options *VipsloadSourceOptions) (*Image, 
 		if err != nil {
 			return nil, err
 		}
-		return newImageRef(vipsImage, ImageTypeUnknown, nil), nil
+		return newImageRef(vipsImage, ImageTypeVips, nil), nil
 	}
 	vipsImage, err := vipsgenVipsloadSource(source.src)
 	if err != nil {
 		return nil, err
 	}
-	return newImageRef(vipsImage, ImageTypeUnknown, nil), nil
+	return newImageRef(vipsImage, ImageTypeVips, nil), nil
 }
 
 // AnalyzeloadOptions optional arguments for vips_analyzeload
@@ -1386,13 +1386,13 @@ func NewAnalyzeload(filename string, options *AnalyzeloadOptions) (*Image, error
 		if err != nil {
 			return nil, err
 		}
-		return newImageRef(vipsImage, ImageTypeUnknown, nil), nil
+		return newImageRef(vipsImage, ImageTypeAnalyze, nil), nil
 	}
 	vipsImage, err := vipsgenAnalyzeload(filename)
 	if err != nil {
 		return nil, err
 	}
-	return newImageRef(vipsImage, ImageTypeUnknown, nil), nil
+	return newImageRef(vipsImage, ImageTypeAnalyze, nil), nil
 }
 
 // PpmloadOptions optional arguments for vips_ppmload
@@ -1421,13 +1421,13 @@ func NewPpmload(filename string, options *PpmloadOptions) (*Image, error) {
 		if err != nil {
 			return nil, err
 		}
-		return newImageRef(vipsImage, ImageTypeUnknown, nil), nil
+		return newImageRef(vipsImage, ImageTypePpm, nil), nil
 	}
 	vipsImage, err := vipsgenPpmload(filename)
 	if err != nil {
 		return nil, err
 	}
-	return newImageRef(vipsImage, ImageTypeUnknown, nil), nil
+	return newImageRef(vipsImage, ImageTypePpm, nil), nil
 }
 
 // PpmloadSourceOptions optional arguments for vips_ppmload_source
@@ -1456,13 +1456,13 @@ func NewPpmloadSource(source *Source, options *PpmloadSourceOptions) (*Image, er
 		if err != nil {
 			return nil, err
 		}
-		return newImageRef(vipsImage, ImageTypeUnknown, nil), nil
+		return newImageRef(vipsImage, ImageTypePpm, nil), nil
 	}
 	vipsImage, err := vipsgenPpmloadSource(source.src)
 	if err != nil {
 		return nil, err
 	}
-	return newImageRef(vipsImage, ImageTypeUnknown, nil), nil
+	return newImageRef(vipsImage, ImageTypePpm, nil), nil
 }
 
 // RadloadOptions optional arguments for vips_radload
@@ -1491,13 +1491,13 @@ func NewRadload(filename string, options *RadloadOptions) (*Image, error) {
 		if err != nil {
 			return nil, err
 		}
-		return newImageRef(vipsImage, ImageTypeUnknown, nil), nil
+		return newImageRef(vipsImage, ImageTypeRad, nil), nil
 	}
 	vipsImage, err := vipsgenRadload(filename)
 	if err != nil {
 		return nil, err
 	}
-	return newImageRef(vipsImage, ImageTypeUnknown, nil), nil
+	return newImageRef(vipsImage, ImageTypeRad, nil), nil
 }
 
 // RadloadBufferOptions optional arguments for vips_radload_buffer
@@ -1526,13 +1526,13 @@ func NewRadloadBuffer(buf []byte, options *RadloadBufferOptions) (*Image, error)
 		if err != nil {
 			return nil, err
 		}
-		return newImageRef(vipsImage, ImageTypeUnknown, buf), nil
+		return newImageRef(vipsImage, ImageTypeRad, buf), nil
 	}
 	vipsImage, err := vipsgenRadloadBuffer(buf)
 	if err != nil {
 		return nil, err
 	}
-	return newImageRef(vipsImage, ImageTypeUnknown, buf), nil
+	return newImageRef(vipsImage, ImageTypeRad, buf), nil
 }
 
 // RadloadSourceOptions optional arguments for vips_radload_source
@@ -1561,13 +1561,13 @@ func NewRadloadSource(source *Source, options *RadloadSourceOptions) (*Image, er
 		if err != nil {
 			return nil, err
 		}
-		return newImageRef(vipsImage, ImageTypeUnknown, nil), nil
+		return newImageRef(vipsImage, ImageTypeRad, nil), nil
 	}
 	vipsImage, err := vipsgenRadloadSource(source.src)
 	if err != nil {
 		return nil, err
 	}
-	return newImageRef(vipsImage, ImageTypeUnknown, nil), nil
+	return newImageRef(vipsImage, ImageTypeRad, nil), nil
 }
 
 // SvgloadOptions optional arguments for vips_svgload
@@ -2067,13 +2067,13 @@ func NewMatload(filename string, options *MatloadOptions) (*Image, error) {
 		if err != nil {
 			return nil, err
 		}
-		return newImageRef(vipsImage, ImageTypeUnknown, nil), nil
+		return newImageRef(vipsImage, ImageTypeMat, nil), nil
 	}
 	vipsImage, err := vipsgenMatload(filename)
 	if err != nil {
 		return nil, err
 	}
-	return newImageRef(vipsImage, ImageTypeUnknown, nil), nil
+	return newImageRef(vipsImage, ImageTypeMat, nil), nil
 }
 
 // JpegloadOptions optional arguments for vips_jpegload
@@ -2492,13 +2492,13 @@ func NewFitsload(filename string, options *FitsloadOptions) (*Image, error) {
 		if err != nil {
 			return nil, err
 		}
-		return newImageRef(vipsImage, ImageTypeUnknown, nil), nil
+		return newImageRef(vipsImage, ImageTypeFits, nil), nil
 	}
 	vipsImage, err := vipsgenFitsload(filename)
 	if err != nil {
 		return nil, err
 	}
-	return newImageRef(vipsImage, ImageTypeUnknown, nil), nil
+	return newImageRef(vipsImage, ImageTypeFits, nil), nil
 }
 
 // OpenexrloadOptions optional arguments for vips_openexrload
@@ -2527,13 +2527,13 @@ func NewOpenexrload(filename string, options *OpenexrloadOptions) (*Image, error
 		if err != nil {
 			return nil, err
 		}
-		return newImageRef(vipsImage, ImageTypeUnknown, nil), nil
+		return newImageRef(vipsImage, ImageTypeOpenexr, nil), nil
 	}
 	vipsImage, err := vipsgenOpenexrload(filename)
 	if err != nil {
 		return nil, err
 	}
-	return newImageRef(vipsImage, ImageTypeUnknown, nil), nil
+	return newImageRef(vipsImage, ImageTypeOpenexr, nil), nil
 }
 
 // NiftiloadOptions optional arguments for vips_niftiload
@@ -2769,13 +2769,13 @@ func NewJxlload(filename string, options *JxlloadOptions) (*Image, error) {
 		if err != nil {
 			return nil, err
 		}
-		return newImageRef(vipsImage, ImageTypeUnknown, nil), nil
+		return newImageRef(vipsImage, ImageTypeJxl, nil), nil
 	}
 	vipsImage, err := vipsgenJxlload(filename)
 	if err != nil {
 		return nil, err
 	}
-	return newImageRef(vipsImage, ImageTypeUnknown, nil), nil
+	return newImageRef(vipsImage, ImageTypeJxl, nil), nil
 }
 
 // JxlloadBufferOptions optional arguments for vips_jxlload_buffer
@@ -2809,13 +2809,13 @@ func NewJxlloadBuffer(buf []byte, options *JxlloadBufferOptions) (*Image, error)
 		if err != nil {
 			return nil, err
 		}
-		return newImageRef(vipsImage, ImageTypeUnknown, buf), nil
+		return newImageRef(vipsImage, ImageTypeJxl, buf), nil
 	}
 	vipsImage, err := vipsgenJxlloadBuffer(buf)
 	if err != nil {
 		return nil, err
 	}
-	return newImageRef(vipsImage, ImageTypeUnknown, buf), nil
+	return newImageRef(vipsImage, ImageTypeJxl, buf), nil
 }
 
 // JxlloadSourceOptions optional arguments for vips_jxlload_source
@@ -2849,13 +2849,13 @@ func NewJxlloadSource(source *Source, options *JxlloadSourceOptions) (*Image, er
 		if err != nil {
 			return nil, err
 		}
-		return newImageRef(vipsImage, ImageTypeUnknown, nil), nil
+		return newImageRef(vipsImage, ImageTypeJxl, nil), nil
 	}
 	vipsImage, err := vipsgenJxlloadSource(source.src)
 	if err != nil {
 		return nil, err
 	}
-	return newImageRef(vipsImage, ImageTypeUnknown, nil), nil
+	return newImageRef(vipsImage, ImageTypeJxl, nil), nil
 }
 
 // PdfloadOptions optional arguments for vips_pdfload
@@ -3044,13 +3044,13 @@ func NewOpenslideload(filename string, options *OpenslideloadOptions) (*Image, e
 		if err != nil {
 			return nil, err
 		}
-		return newImageRef(vipsImage, ImageTypeUnknown, nil), nil
+		return newImageRef(vipsImage, ImageTypeOpenslide, nil), nil
 	}
 	vipsImage, err := vipsgenOpenslideload(filename)
 	if err != nil {
 		return nil, err
 	}
-	return newImageRef(vipsImage, ImageTypeUnknown, nil), nil
+	return newImageRef(vipsImage, ImageTypeOpenslide, nil), nil
 }
 
 // OpenslideloadSourceOptions optional arguments for vips_openslideload_source
@@ -3089,13 +3089,13 @@ func NewOpenslideloadSource(source *Source, options *OpenslideloadSourceOptions)
 		if err != nil {
 			return nil, err
 		}
-		return newImageRef(vipsImage, ImageTypeUnknown, nil), nil
+		return newImageRef(vipsImage, ImageTypeOpenslide, nil), nil
 	}
 	vipsImage, err := vipsgenOpenslideloadSource(source.src)
 	if err != nil {
 		return nil, err
 	}
-	return newImageRef(vipsImage, ImageTypeUnknown, nil), nil
+	return newImageRef(vipsImage, ImageTypeOpenslide, nil), nil
 }
 
 // MagickloadOptions optional arguments for vips_magickload
