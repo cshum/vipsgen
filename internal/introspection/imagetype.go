@@ -14,16 +14,11 @@ import (
 type ImageTypeInfo struct {
 	TypeName  string // Short name (e.g., "gif")
 	EnumName  string // Go enum name (e.g., "ImageTypeGIF")
+	EnumValue string // String value for the enum (e.g., "gif")
 	MimeType  string // MIME type (e.g., "image/gif")
 	Order     int    // Position in the enum
 	HasLoader bool
 	HasSaver  bool
-}
-
-// Base image types that should always be included in the enum
-var baseImageTypes = []string{
-	"jpeg", "gif", "pdf", "png", "svg", "webp",
-	"tiff", "heif", "bmp", "jp2k", "avif",
 }
 
 // Well-known MIME types for image formats
@@ -66,6 +61,12 @@ var knownMimeTypes = map[string]string{
 	"raw":       "image/raw",
 }
 
+// Base image types that should always be included in the enum
+var baseImageTypes = []string{
+	"gif", "jpeg", "magick", "pdf", "png", "svg",
+	"tiff", "webp", "heif", "bmp", "jp2k", "avif",
+}
+
 // Regular expressions to match load/save operations
 var loadRegex = regexp.MustCompile(`^([a-zA-Z0-9_]+?)(?:load|load_buffer|load_source)(?:_(.+))?$`)
 var saveRegex = regexp.MustCompile(`^([a-zA-Z0-9_]+?)(?:save|save_buffer|save_target)(?:_(.+))?$`)
@@ -76,7 +77,7 @@ func (v *Introspection) DiscoverImageTypes() []ImageTypeInfo {
 
 	// Always include unknown type first
 	imageTypes := []ImageTypeInfo{
-		{TypeName: "unknown", EnumName: "ImageTypeUnknown", MimeType: "", Order: 0},
+		{TypeName: "unknown", EnumName: "ImageTypeUnknown", EnumValue: "unknown", MimeType: "", Order: 0},
 	}
 
 	// Initialize discoveredFormats with base types
@@ -85,6 +86,7 @@ func (v *Introspection) DiscoverImageTypes() []ImageTypeInfo {
 		discoveredFormats[typeName] = &ImageTypeInfo{
 			TypeName:  typeName,
 			EnumName:  "ImageType" + strings.Title(typeName),
+			EnumValue: typeName,
 			MimeType:  getMimeType(typeName),
 			HasLoader: false,
 			HasSaver:  false,
@@ -187,6 +189,7 @@ func (v *Introspection) DiscoverImageTypes() []ImageTypeInfo {
 			discoveredFormats[formatName] = &ImageTypeInfo{
 				TypeName:  formatName,
 				EnumName:  "ImageType" + strings.Title(formatName),
+				EnumValue: formatName,
 				MimeType:  getMimeType(formatName),
 				HasLoader: hasLoader,
 				HasSaver:  hasSaver,
@@ -326,6 +329,7 @@ func (v *Introspection) handleSpecialCases(discoveredFormats map[string]*ImageTy
 				discoveredFormats["avif"] = &ImageTypeInfo{
 					TypeName:  "avif",
 					EnumName:  "ImageTypeAvif",
+					EnumValue: "avif",
 					MimeType:  "image/avif",
 					HasLoader: heifFormat.HasLoader,
 					HasSaver:  heifFormat.HasSaver,
