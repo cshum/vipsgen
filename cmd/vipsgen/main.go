@@ -52,7 +52,7 @@ func main() {
 	} else if flag.NArg() > 0 {
 		outputDir = flag.Arg(0)
 	} else {
-		outputDir = "./out"
+		outputDir = "./vips"
 	}
 
 	// Create operation manager for C-based introspection
