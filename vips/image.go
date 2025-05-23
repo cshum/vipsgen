@@ -2536,6 +2536,76 @@ func NewOpenexrload(filename string, options *OpenexrloadOptions) (*Image, error
 	return newImageRef(vipsImage, ImageTypeUnknown, nil), nil
 }
 
+// NiftiloadOptions optional arguments for vips_niftiload
+type NiftiloadOptions struct {
+	// Memory Force open via memory
+	Memory bool
+	// Access Required access pattern for this file
+	Access Access
+	// FailOn Error level to fail on
+	FailOn FailOn
+	// Revalidate Don't use a cached result for this operation
+	Revalidate bool
+}
+
+// DefaultNiftiloadOptions creates default value for vips_niftiload optional arguments
+func DefaultNiftiloadOptions() *NiftiloadOptions {
+	return &NiftiloadOptions{
+	}
+}
+
+// NewNiftiload vips_niftiload load NIfTI volume
+func NewNiftiload(filename string, options *NiftiloadOptions) (*Image, error) {
+	Startup(nil)
+	if options != nil {
+		vipsImage, err := vipsgenNiftiloadWithOptions(filename, options.Memory, options.Access, options.FailOn, options.Revalidate)
+		if err != nil {
+			return nil, err
+		}
+		return newImageRef(vipsImage, ImageTypeUnknown, nil), nil
+	}
+	vipsImage, err := vipsgenNiftiload(filename)
+	if err != nil {
+		return nil, err
+	}
+	return newImageRef(vipsImage, ImageTypeUnknown, nil), nil
+}
+
+// NiftiloadSourceOptions optional arguments for vips_niftiload_source
+type NiftiloadSourceOptions struct {
+	// Memory Force open via memory
+	Memory bool
+	// Access Required access pattern for this file
+	Access Access
+	// FailOn Error level to fail on
+	FailOn FailOn
+	// Revalidate Don't use a cached result for this operation
+	Revalidate bool
+}
+
+// DefaultNiftiloadSourceOptions creates default value for vips_niftiload_source optional arguments
+func DefaultNiftiloadSourceOptions() *NiftiloadSourceOptions {
+	return &NiftiloadSourceOptions{
+	}
+}
+
+// NewNiftiloadSource vips_niftiload_source load NIfTI volumes
+func NewNiftiloadSource(source *Source, options *NiftiloadSourceOptions) (*Image, error) {
+	Startup(nil)
+	if options != nil {
+		vipsImage, err := vipsgenNiftiloadSourceWithOptions(source.src, options.Memory, options.Access, options.FailOn, options.Revalidate)
+		if err != nil {
+			return nil, err
+		}
+		return newImageRef(vipsImage, ImageTypeUnknown, nil), nil
+	}
+	vipsImage, err := vipsgenNiftiloadSource(source.src)
+	if err != nil {
+		return nil, err
+	}
+	return newImageRef(vipsImage, ImageTypeUnknown, nil), nil
+}
+
 // HeifloadOptions optional arguments for vips_heifload
 type HeifloadOptions struct {
 	// Page First page to load
@@ -5489,6 +5559,142 @@ func (r *Image) GifsaveBuffer(options *GifsaveBufferOptions) ([]byte, error) {
 	return buf, nil
 }
 
+// DzsaveOptions optional arguments for vips_dzsave
+type DzsaveOptions struct {
+	// Imagename Image name
+	Imagename string
+	// Layout Directory layout
+	Layout DzLayout
+	// Suffix Filename suffix for tiles
+	Suffix string
+	// Overlap Tile overlap in pixels
+	Overlap int
+	// TileSize Tile size in pixels
+	TileSize int
+	// Centre Center image in tile
+	Centre bool
+	// Depth Pyramid depth
+	Depth DzDepth
+	// Angle Rotate image during save
+	Angle Angle
+	// Container Pyramid container type
+	Container DzContainer
+	// Compression ZIP deflate compression level
+	Compression int
+	// RegionShrink Method to shrink regions
+	RegionShrink RegionShrink
+	// SkipBlanks Skip tiles which are nearly equal to the background
+	SkipBlanks int
+	// Id Resource ID
+	Id string
+	// Q Q factor
+	Q int
+	// Keep Which metadata to retain
+	Keep Keep
+	// Background Background value
+	Background []float64
+	// PageHeight Set page height for multipage save
+	PageHeight int
+	// Profile Filename of ICC profile to embed
+	Profile string
+}
+
+// DefaultDzsaveOptions creates default value for vips_dzsave optional arguments
+func DefaultDzsaveOptions() *DzsaveOptions {
+	return &DzsaveOptions{
+		Suffix: ".jpeg",
+		Overlap: 1,
+		TileSize: 254,
+		SkipBlanks: -1,
+		Id: "https://example.com/iiif",
+		Q: 75,
+	}
+}
+
+// Dzsave vips_dzsave save image to deepzoom file
+func (r *Image) Dzsave(filename string, options *DzsaveOptions) (error) {
+	if options != nil {
+		err := vipsgenDzsaveWithOptions(r.image, filename, options.Imagename, options.Layout, options.Suffix, options.Overlap, options.TileSize, options.Centre, options.Depth, options.Angle, options.Container, options.Compression, options.RegionShrink, options.SkipBlanks, options.Id, options.Q, options.Keep, options.Background, options.PageHeight, options.Profile)
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+	err := vipsgenDzsave(r.image, filename)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// DzsaveBufferOptions optional arguments for vips_dzsave_buffer
+type DzsaveBufferOptions struct {
+	// Imagename Image name
+	Imagename string
+	// Layout Directory layout
+	Layout DzLayout
+	// Suffix Filename suffix for tiles
+	Suffix string
+	// Overlap Tile overlap in pixels
+	Overlap int
+	// TileSize Tile size in pixels
+	TileSize int
+	// Centre Center image in tile
+	Centre bool
+	// Depth Pyramid depth
+	Depth DzDepth
+	// Angle Rotate image during save
+	Angle Angle
+	// Container Pyramid container type
+	Container DzContainer
+	// Compression ZIP deflate compression level
+	Compression int
+	// RegionShrink Method to shrink regions
+	RegionShrink RegionShrink
+	// SkipBlanks Skip tiles which are nearly equal to the background
+	SkipBlanks int
+	// Id Resource ID
+	Id string
+	// Q Q factor
+	Q int
+	// Keep Which metadata to retain
+	Keep Keep
+	// Background Background value
+	Background []float64
+	// PageHeight Set page height for multipage save
+	PageHeight int
+	// Profile Filename of ICC profile to embed
+	Profile string
+}
+
+// DefaultDzsaveBufferOptions creates default value for vips_dzsave_buffer optional arguments
+func DefaultDzsaveBufferOptions() *DzsaveBufferOptions {
+	return &DzsaveBufferOptions{
+		Suffix: ".jpeg",
+		Overlap: 1,
+		TileSize: 254,
+		SkipBlanks: -1,
+		Id: "https://example.com/iiif",
+		Q: 75,
+	}
+}
+
+// DzsaveBuffer vips_dzsave_buffer save image to dz buffer
+func (r *Image) DzsaveBuffer(options *DzsaveBufferOptions) ([]byte, error) {
+	if options != nil {
+		buf, err := vipsgenDzsaveBufferWithOptions(r.image, options.Imagename, options.Layout, options.Suffix, options.Overlap, options.TileSize, options.Centre, options.Depth, options.Angle, options.Container, options.Compression, options.RegionShrink, options.SkipBlanks, options.Id, options.Q, options.Keep, options.Background, options.PageHeight, options.Profile)
+		if err != nil {
+			return nil, err
+		}
+		return buf, nil
+	}
+	buf, err := vipsgenDzsaveBuffer(r.image)
+	if err != nil {
+		return nil, err
+	}
+	return buf, nil
+}
+
 // PngsaveOptions optional arguments for vips_pngsave
 type PngsaveOptions struct {
 	// Compression Compression factor
@@ -6033,6 +6239,40 @@ func (r *Image) Fitssave(filename string, options *FitssaveOptions) (error) {
 		return nil
 	}
 	err := vipsgenFitssave(r.image, filename)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// NiftisaveOptions optional arguments for vips_niftisave
+type NiftisaveOptions struct {
+	// Keep Which metadata to retain
+	Keep Keep
+	// Background Background value
+	Background []float64
+	// PageHeight Set page height for multipage save
+	PageHeight int
+	// Profile Filename of ICC profile to embed
+	Profile string
+}
+
+// DefaultNiftisaveOptions creates default value for vips_niftisave optional arguments
+func DefaultNiftisaveOptions() *NiftisaveOptions {
+	return &NiftisaveOptions{
+	}
+}
+
+// Niftisave vips_niftisave save image to nifti file
+func (r *Image) Niftisave(filename string, options *NiftisaveOptions) (error) {
+	if options != nil {
+		err := vipsgenNiftisaveWithOptions(r.image, filename, options.Keep, options.Background, options.PageHeight, options.Profile)
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+	err := vipsgenNiftisave(r.image, filename)
 	if err != nil {
 		return err
 	}

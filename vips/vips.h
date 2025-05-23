@@ -428,6 +428,12 @@ int vipsgen_fitsload_with_options(const char* filename, VipsImage** out, gboolea
 int vipsgen_openexrload(const char* filename, VipsImage** out);
 int vipsgen_openexrload_with_options(const char* filename, VipsImage** out, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
 
+int vipsgen_niftiload(const char* filename, VipsImage** out);
+int vipsgen_niftiload_with_options(const char* filename, VipsImage** out, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
+
+int vipsgen_niftiload_source(VipsSourceCustom* source, VipsImage** out);
+int vipsgen_niftiload_source_with_options(VipsSourceCustom* source, VipsImage** out, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
+
 int vipsgen_heifload(const char* filename, VipsImage** out);
 int vipsgen_heifload_with_options(const char* filename, VipsImage** out, int page, int n, gboolean thumbnail, gboolean unlimited, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
 
@@ -506,6 +512,12 @@ int vipsgen_gifsave_with_options(VipsImage* in, const char* filename, double dit
 int vipsgen_gifsave_buffer(VipsImage* in, void** buf, size_t* len);
 int vipsgen_gifsave_buffer_with_options(VipsImage* in, void** buf, size_t* len, double dither, int effort, int bitdepth, double interframe_maxerror, gboolean reuse, double interpalette_maxerror, gboolean interlace, VipsForeignKeep keep, double* background, int background_n, int page_height, const char* profile);
 
+int vipsgen_dzsave(VipsImage* in, const char* filename);
+int vipsgen_dzsave_with_options(VipsImage* in, const char* filename, const char* imagename, VipsForeignDzLayout layout, const char* suffix, int overlap, int tile_size, gboolean centre, VipsForeignDzDepth depth, VipsAngle angle, VipsForeignDzContainer container, int compression, VipsRegionShrink region_shrink, int skip_blanks, const char* id, int Q, VipsForeignKeep keep, double* background, int background_n, int page_height, const char* profile);
+
+int vipsgen_dzsave_buffer(VipsImage* in, void** buf, size_t* len);
+int vipsgen_dzsave_buffer_with_options(VipsImage* in, void** buf, size_t* len, const char* imagename, VipsForeignDzLayout layout, const char* suffix, int overlap, int tile_size, gboolean centre, VipsForeignDzDepth depth, VipsAngle angle, VipsForeignDzContainer container, int compression, VipsRegionShrink region_shrink, int skip_blanks, const char* id, int Q, VipsForeignKeep keep, double* background, int background_n, int page_height, const char* profile);
+
 int vipsgen_pngsave(VipsImage* in, const char* filename);
 int vipsgen_pngsave_with_options(VipsImage* in, const char* filename, int compression, gboolean interlace, VipsForeignPngFilter filter, gboolean palette, int Q, double dither, int bitdepth, int effort, VipsForeignKeep keep, double* background, int background_n, int page_height, const char* profile);
 
@@ -532,6 +544,9 @@ int vipsgen_tiffsave_buffer_with_options(VipsImage* in, void** buf, size_t* len,
 
 int vipsgen_fitssave(VipsImage* in, const char* filename);
 int vipsgen_fitssave_with_options(VipsImage* in, const char* filename, VipsForeignKeep keep, double* background, int background_n, int page_height, const char* profile);
+
+int vipsgen_niftisave(VipsImage* in, const char* filename);
+int vipsgen_niftisave_with_options(VipsImage* in, const char* filename, VipsForeignKeep keep, double* background, int background_n, int page_height, const char* profile);
 
 int vipsgen_heifsave(VipsImage* in, const char* filename);
 int vipsgen_heifsave_with_options(VipsImage* in, const char* filename, int Q, int bitdepth, gboolean lossless, VipsForeignHeifCompression compression, int effort, VipsForeignSubsample subsample_mode, VipsForeignHeifEncoder encoder, VipsForeignKeep keep, double* background, int background_n, int page_height, const char* profile);

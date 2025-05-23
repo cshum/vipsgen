@@ -438,6 +438,55 @@ const (
 	SubsampleLast Subsample = C.VIPS_FOREIGN_SUBSAMPLE_LAST
 )
 
+// DzLayout represents VipsForeignDzLayout type
+type DzLayout int
+
+// DzLayout enum
+const (
+	DzLayoutDz DzLayout = C.VIPS_FOREIGN_DZ_LAYOUT_DZ
+	DzLayoutZoomify DzLayout = C.VIPS_FOREIGN_DZ_LAYOUT_ZOOMIFY
+	DzLayoutGoogle DzLayout = C.VIPS_FOREIGN_DZ_LAYOUT_GOOGLE
+	DzLayoutIiif DzLayout = C.VIPS_FOREIGN_DZ_LAYOUT_IIIF
+	DzLayoutIiif3 DzLayout = C.VIPS_FOREIGN_DZ_LAYOUT_IIIF3
+	DzLayoutLast DzLayout = C.VIPS_FOREIGN_DZ_LAYOUT_LAST
+)
+
+// DzDepth represents VipsForeignDzDepth type
+type DzDepth int
+
+// DzDepth enum
+const (
+	DzDepthOnepixel DzDepth = C.VIPS_FOREIGN_DZ_DEPTH_ONEPIXEL
+	DzDepthOnetile DzDepth = C.VIPS_FOREIGN_DZ_DEPTH_ONETILE
+	DzDepthOne DzDepth = C.VIPS_FOREIGN_DZ_DEPTH_ONE
+	DzDepthLast DzDepth = C.VIPS_FOREIGN_DZ_DEPTH_LAST
+)
+
+// DzContainer represents VipsForeignDzContainer type
+type DzContainer int
+
+// DzContainer enum
+const (
+	DzContainerFs DzContainer = C.VIPS_FOREIGN_DZ_CONTAINER_FS
+	DzContainerZip DzContainer = C.VIPS_FOREIGN_DZ_CONTAINER_ZIP
+	DzContainerSzi DzContainer = C.VIPS_FOREIGN_DZ_CONTAINER_SZI
+	DzContainerLast DzContainer = C.VIPS_FOREIGN_DZ_CONTAINER_LAST
+)
+
+// RegionShrink represents VipsRegionShrink type
+type RegionShrink int
+
+// RegionShrink enum
+const (
+	RegionShrinkMean RegionShrink = C.VIPS_REGION_SHRINK_MEAN
+	RegionShrinkMedian RegionShrink = C.VIPS_REGION_SHRINK_MEDIAN
+	RegionShrinkMode RegionShrink = C.VIPS_REGION_SHRINK_MODE
+	RegionShrinkMax RegionShrink = C.VIPS_REGION_SHRINK_MAX
+	RegionShrinkMin RegionShrink = C.VIPS_REGION_SHRINK_MIN
+	RegionShrinkNearest RegionShrink = C.VIPS_REGION_SHRINK_NEAREST
+	RegionShrinkLast RegionShrink = C.VIPS_REGION_SHRINK_LAST
+)
+
 // PngFilter represents VipsForeignPngFilter type
 type PngFilter int
 
@@ -501,31 +550,6 @@ const (
 	TiffResunitCm TiffResunit = C.VIPS_FOREIGN_TIFF_RESUNIT_CM
 	TiffResunitInch TiffResunit = C.VIPS_FOREIGN_TIFF_RESUNIT_INCH
 	TiffResunitLast TiffResunit = C.VIPS_FOREIGN_TIFF_RESUNIT_LAST
-)
-
-// RegionShrink represents VipsRegionShrink type
-type RegionShrink int
-
-// RegionShrink enum
-const (
-	RegionShrinkMean RegionShrink = C.VIPS_REGION_SHRINK_MEAN
-	RegionShrinkMedian RegionShrink = C.VIPS_REGION_SHRINK_MEDIAN
-	RegionShrinkMode RegionShrink = C.VIPS_REGION_SHRINK_MODE
-	RegionShrinkMax RegionShrink = C.VIPS_REGION_SHRINK_MAX
-	RegionShrinkMin RegionShrink = C.VIPS_REGION_SHRINK_MIN
-	RegionShrinkNearest RegionShrink = C.VIPS_REGION_SHRINK_NEAREST
-	RegionShrinkLast RegionShrink = C.VIPS_REGION_SHRINK_LAST
-)
-
-// DzDepth represents VipsForeignDzDepth type
-type DzDepth int
-
-// DzDepth enum
-const (
-	DzDepthOnepixel DzDepth = C.VIPS_FOREIGN_DZ_DEPTH_ONEPIXEL
-	DzDepthOnetile DzDepth = C.VIPS_FOREIGN_DZ_DEPTH_ONETILE
-	DzDepthOne DzDepth = C.VIPS_FOREIGN_DZ_DEPTH_ONE
-	DzDepthLast DzDepth = C.VIPS_FOREIGN_DZ_DEPTH_LAST
 )
 
 // HeifCompression represents VipsForeignHeifCompression type
