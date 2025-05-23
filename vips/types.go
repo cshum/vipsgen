@@ -717,23 +717,14 @@ func vipsDetermineImageType(in *C.VipsImage) ImageType {
 			if strings.HasPrefix(vipsLoader, "heif") {
 				return ImageTypeHeif
 			}
-			if strings.HasPrefix(vipsLoader, "bmp") {
-				return ImageTypeBmp
-			}
 			if strings.HasPrefix(vipsLoader, "jp2k") {
 				return ImageTypeJp2k
-			}
-			if strings.HasPrefix(vipsLoader, "avif") {
-				return ImageTypeAvif
 			}
 			if strings.HasPrefix(vipsLoader, "analyze") {
 				return ImageTypeAnalyze
 			}
 			if strings.HasPrefix(vipsLoader, "csv") {
 				return ImageTypeCsv
-			}
-			if strings.HasPrefix(vipsLoader, "dz") {
-				return ImageTypeDz
 			}
 			if strings.HasPrefix(vipsLoader, "fits") {
 				return ImageTypeFits
@@ -765,10 +756,10 @@ func vipsDetermineImageType(in *C.VipsImage) ImageType {
 			if strings.HasPrefix(vipsLoader, "vips") {
 				return ImageTypeVips
 			}
-			// Special case for Magick loader
 			if strings.HasPrefix(vipsLoader, "magick") {
 				return ImageTypeMagick
 			}
+			
 		}
 	}
 	return ImageTypeUnknown
