@@ -27,11 +27,6 @@ const (
 {{end}})
 {{end}}
 
-// ImageTypes defines the various image types supported by vips
-var ImageTypes = map[ImageType]string{
-{{range .ImageTypes}}{{if ne .TypeName "unknown"}}	{{.EnumName}}: "{{.TypeName}}",
-{{end}}{{end}}}
-
 // ImageMimeTypes map the various image types to its mime type representation
 var ImageMimeTypes = map[ImageType]string{
 {{range .ImageTypes}}{{if and (ne .TypeName "unknown") (ne .MimeType "")}}	{{.EnumName}}: "{{.MimeType}}",
