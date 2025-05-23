@@ -40,6 +40,7 @@ var knownMimeTypes = map[string]string{
 	"j2k":       "image/jp2",
 	"jxl":       "image/jxl",
 	"exr":       "image/x-exr",
+	"openexr":   "image/openexr",
 	"fits":      "image/fits",
 	"ppm":       "image/x-portable-pixmap",
 	"pgm":       "image/x-portable-graymap",
@@ -55,30 +56,62 @@ var knownMimeTypes = map[string]string{
 	"matlab":    "application/x-matlab-data",
 	"csv":       "text/csv",
 	"matrix":    "application/x-matrix",
+	"rad":       "image/rad",
+	"raw":       "image/raw",
 }
 
 // DiscoverImageTypes discovers supported image types by scanning available operations
 func (v *Introspection) DiscoverImageTypes() []ImageTypeInfo {
 	log.Printf("Discovering image types from available operations...")
 
-	// Always include unknown type
+	// Always include unknown type first
 	imageTypes := []ImageTypeInfo{
 		{TypeName: "unknown", EnumName: "ImageTypeUnknown", MimeType: "", Order: 0},
+	}
+
+	// Base image types that should always be included
+	baseTypes := []struct {
+		TypeName string
+		MimeType string
+	}{
+		{"gif", "image/gif"},
+		{"jpeg", "image/jpeg"},
+		{"magick", ""},
+		{"pdf", "application/pdf"},
+		{"png", "image/png"},
+		{"svg", "image/svg+xml"},
+		{"tiff", "image/tiff"},
+		{"webp", "image/webp"},
+		{"heif", "image/heif"},
+		{"bmp", "image/bmp"},
+		{"jp2k", "image/jp2"},
+		{"avif", "image/avif"},
+	}
+
+	// Initialize discoveredFormats with base types
+	discoveredFormats := make(map[string]*ImageTypeInfo)
+	for _, baseType := range baseTypes {
+		discoveredFormats[baseType.TypeName] = &ImageTypeInfo{
+			TypeName:  baseType.TypeName,
+			EnumName:  "ImageType" + strings.Title(baseType.TypeName),
+			MimeType:  baseType.MimeType,
+			HasLoader: false,
+			HasSaver:  false,
+		}
 	}
 
 	// Get all operations
 	var nOps C.int
 	opsPtr := C.get_all_operations(&nOps)
 	if opsPtr == nil || nOps == 0 {
-		log.Printf("Warning: No operations found")
+		log.Printf("Warning: No operations found, using base types only")
+		// Still return base types even if no operations found
+		v.addBaseTypesToResult(discoveredFormats, &imageTypes)
 		return imageTypes
 	}
 	defer C.free_operation_info(opsPtr, nOps)
 
 	opsSlice := (*[1 << 30]C.OperationInfo)(unsafe.Pointer(opsPtr))[:nOps:nOps]
-
-	// Track discovered formats
-	discoveredFormats := make(map[string]*ImageTypeInfo)
 
 	// Regular expressions to match load/save operations
 	loadRegex := regexp.MustCompile(`^([a-zA-Z0-9_]+?)(?:load|load_buffer|load_source)(?:_(.+))?$`)
@@ -106,10 +139,6 @@ func (v *Introspection) DiscoverImageTypes() []ImageTypeInfo {
 					formatOperations[formatName] = make(map[string]bool)
 				}
 				formatOperations[formatName][opName] = true
-
-				if v.isDebug {
-					log.Printf("Found loader: %s -> format: %s", opName, formatName)
-				}
 			}
 		}
 
@@ -121,10 +150,6 @@ func (v *Introspection) DiscoverImageTypes() []ImageTypeInfo {
 					formatOperations[formatName] = make(map[string]bool)
 				}
 				formatOperations[formatName][opName] = true
-
-				if v.isDebug {
-					log.Printf("Found saver: %s -> format: %s", opName, formatName)
-				}
 			}
 		}
 	}
@@ -140,12 +165,11 @@ func (v *Introspection) DiscoverImageTypes() []ImageTypeInfo {
 			formatName + "load_buffer",
 			formatName + "load_source",
 		}
+		var foundLoaders []string
 		for _, variant := range loaderVariants {
 			if operations[variant] {
 				hasLoader = true
-				if v.isDebug {
-					log.Printf("Format %s has loader variant: %s", formatName, variant)
-				}
+				foundLoaders = append(foundLoaders, variant)
 			}
 		}
 
@@ -155,17 +179,24 @@ func (v *Introspection) DiscoverImageTypes() []ImageTypeInfo {
 			formatName + "save_buffer",
 			formatName + "save_target",
 		}
+		var foundSavers []string
 		for _, variant := range saverVariants {
 			if operations[variant] {
 				hasSaver = true
-				if v.isDebug {
-					log.Printf("Format %s has saver variant: %s", formatName, variant)
-				}
+				foundSavers = append(foundSavers, variant)
 			}
 		}
 
-		// Only add formats that have at least one loader or saver
-		if hasLoader || hasSaver {
+		// Update existing format or add new one
+		if existing, exists := discoveredFormats[formatName]; exists {
+			// Update base type with discovered capabilities
+			existing.HasLoader = hasLoader
+			existing.HasSaver = hasSaver
+			if v.isDebug && (hasLoader || hasSaver) {
+				log.Printf("Updated base format %s: loaders=%v, savers=%v", formatName, foundLoaders, foundSavers)
+			}
+		} else if hasLoader || hasSaver {
+			// Add new discovered format not in base types
 			discoveredFormats[formatName] = &ImageTypeInfo{
 				TypeName:  formatName,
 				EnumName:  "ImageType" + strings.Title(formatName),
@@ -173,9 +204,8 @@ func (v *Introspection) DiscoverImageTypes() []ImageTypeInfo {
 				HasLoader: hasLoader,
 				HasSaver:  hasSaver,
 			}
-
 			if v.isDebug {
-				log.Printf("Added format %s: loader=%v, saver=%v", formatName, hasLoader, hasSaver)
+				log.Printf("Added new format %s: loaders=%v, savers=%v", formatName, foundLoaders, foundSavers)
 			}
 		}
 	}
@@ -183,29 +213,8 @@ func (v *Introspection) DiscoverImageTypes() []ImageTypeInfo {
 	// Handle special cases and post-processing
 	v.handleSpecialCases(discoveredFormats)
 
-	// Convert map to sorted slice
-	var sortedFormats []string
-	for formatName := range discoveredFormats {
-		sortedFormats = append(sortedFormats, formatName)
-	}
-	sort.Strings(sortedFormats)
-
-	// Add discovered formats to imageTypes with proper ordering
-	currentOrder := 1
-	for _, formatName := range sortedFormats {
-		format := discoveredFormats[formatName]
-
-		// Only include formats that have at least a loader or saver
-		if format.HasLoader || format.HasSaver {
-			format.Order = currentOrder
-			imageTypes = append(imageTypes, *format)
-			v.discoveredImageTypes[formatName] = *format
-
-			log.Printf("Discovered image type: %s (loader: %v, saver: %v)",
-				formatName, format.HasLoader, format.HasSaver)
-			currentOrder++
-		}
-	}
+	// Add all discovered formats to result
+	v.addBaseTypesToResult(discoveredFormats, &imageTypes)
 
 	if v.isDebug {
 		debugJson(imageTypes, "debug_image_types.json")
@@ -213,6 +222,55 @@ func (v *Introspection) DiscoverImageTypes() []ImageTypeInfo {
 
 	log.Printf("Discovered %d image types total", len(imageTypes))
 	return imageTypes
+}
+
+// addBaseTypesToResult adds all discovered formats to the result with proper ordering
+func (v *Introspection) addBaseTypesToResult(discoveredFormats map[string]*ImageTypeInfo, imageTypes *[]ImageTypeInfo) {
+	// Base types should come first in a specific order
+	baseOrder := []string{"gif", "jpeg", "magick", "pdf", "png", "svg", "tiff", "webp", "heif", "bmp", "jp2k", "avif"}
+
+	// Add base types first
+	currentOrder := 1
+	for _, typeName := range baseOrder {
+		if format, exists := discoveredFormats[typeName]; exists {
+			format.Order = currentOrder
+			*imageTypes = append(*imageTypes, *format)
+			v.discoveredImageTypes[typeName] = *format
+
+			status := "unsupported"
+			if format.HasLoader && format.HasSaver {
+				status = "loader+saver"
+			} else if format.HasLoader {
+				status = "loader only"
+			} else if format.HasSaver {
+				status = "saver only"
+			}
+
+			log.Printf("Base image type: %s (%s)", typeName, status)
+			currentOrder++
+
+			// Remove from map so we don't add it again
+			delete(discoveredFormats, typeName)
+		}
+	}
+
+	// Add any remaining discovered formats (not in base types) in alphabetical order
+	var extraFormats []string
+	for formatName := range discoveredFormats {
+		extraFormats = append(extraFormats, formatName)
+	}
+	sort.Strings(extraFormats)
+
+	for _, formatName := range extraFormats {
+		format := discoveredFormats[formatName]
+		format.Order = currentOrder
+		*imageTypes = append(*imageTypes, *format)
+		v.discoveredImageTypes[formatName] = *format
+
+		log.Printf("Additional image type: %s (loader: %v, saver: %v)",
+			formatName, format.HasLoader, format.HasSaver)
+		currentOrder++
+	}
 }
 
 // normalizeFormatName handles special cases and aliases in format names
@@ -274,28 +332,34 @@ func (v *Introspection) handleSpecialCases(discoveredFormats map[string]*ImageTy
 	// Handle AVIF as a special case of HEIF with AV1 compression
 	if heifFormat, hasHeif := discoveredFormats["heif"]; hasHeif {
 		if v.checkEnumValueExists("VipsForeignHeifCompression", "VIPS_FOREIGN_HEIF_COMPRESSION_AV1") {
-			discoveredFormats["avif"] = &ImageTypeInfo{
-				TypeName:  "avif",
-				EnumName:  "ImageTypeAvif",
-				MimeType:  "image/avif",
-				HasLoader: heifFormat.HasLoader,
-				HasSaver:  heifFormat.HasSaver,
+			if avifFormat, hasAvif := discoveredFormats["avif"]; hasAvif {
+				// Update existing AVIF format with HEIF capabilities
+				avifFormat.HasLoader = heifFormat.HasLoader
+				avifFormat.HasSaver = heifFormat.HasSaver
+				log.Printf("Updated AVIF support based on HEIF with AV1 compression")
+			} else {
+				// Create AVIF format based on HEIF
+				discoveredFormats["avif"] = &ImageTypeInfo{
+					TypeName:  "avif",
+					EnumName:  "ImageTypeAvif",
+					MimeType:  "image/avif",
+					HasLoader: heifFormat.HasLoader,
+					HasSaver:  heifFormat.HasSaver,
+				}
+				log.Printf("Added AVIF support based on HEIF with AV1 compression")
 			}
-			log.Printf("Added AVIF support based on HEIF with AV1 compression")
 		}
 	}
 
 	// Handle legacy GIF support via ImageMagick
-	if !discoveredFormats["gif"].HasSaver {
+	if gifFormat, hasGif := discoveredFormats["gif"]; hasGif && !gifFormat.HasSaver {
 		if v.checkOperationExists("magicksave") || v.checkOperationExists("magicksave_buffer") {
-			if gifFormat, hasGif := discoveredFormats["gif"]; hasGif {
-				gifFormat.HasSaver = true
-				log.Printf("Added legacy GIF save support via ImageMagick")
-			}
+			gifFormat.HasSaver = true
+			log.Printf("Added legacy GIF save support via ImageMagick")
 		}
 	}
 
-	// Verify format support by checking if operations actually exist
+	// Verify format support by double-checking operations exist
 	for formatName, format := range discoveredFormats {
 		if format.HasLoader {
 			loaderExists := v.checkOperationExists(formatName+"load") ||
@@ -304,7 +368,7 @@ func (v *Introspection) handleSpecialCases(discoveredFormats map[string]*ImageTy
 			if !loaderExists {
 				format.HasLoader = false
 				if v.isDebug {
-					log.Printf("Loader for %s not actually available", formatName)
+					log.Printf("Warning: Loader for %s not actually available", formatName)
 				}
 			}
 		}
@@ -316,7 +380,7 @@ func (v *Introspection) handleSpecialCases(discoveredFormats map[string]*ImageTy
 			if !saverExists {
 				format.HasSaver = false
 				if v.isDebug {
-					log.Printf("Saver for %s not actually available", formatName)
+					log.Printf("Warning: Saver for %s not actually available", formatName)
 				}
 			}
 		}
@@ -327,27 +391,28 @@ func (v *Introspection) handleSpecialCases(discoveredFormats map[string]*ImageTy
 func (v *Introspection) DiscoverSupportedSavers() map[string]bool {
 	saverSupport := make(map[string]bool)
 
-	// Get image types that were discovered
+	// Process discovered image types
 	for formatName, imageType := range v.discoveredImageTypes {
 		if imageType.HasSaver {
-			// Set the HasXxxSaver flag
+			// Set the HasXxxSaver flag (e.g., HasJpegSaver)
 			saverKey := "Has" + strings.Title(formatName) + "Saver"
 			saverSupport[saverKey] = true
 
-			// Also set the ImageTypeXxx flag for templates
-			imageTypeKey := imageType.EnumName
-			saverSupport[imageTypeKey] = true
+			// Also set the ImageTypeXxx flag for templates (e.g., ImageTypeJpeg)
+			saverSupport[imageType.EnumName] = true
 		}
 	}
 
-	// Special handling for legacy GIF saver
+	// Special handling for GIF variants
+	if v.checkOperationExists("gifsave_buffer") {
+		saverSupport["HasCgifSaver"] = true
+	}
 	if v.checkOperationExists("magicksave_buffer") {
 		saverSupport["HasLegacyGifSaver"] = true
 	}
 
-	// Check for modern CGIF saver
-	if v.checkOperationExists("gifsave_buffer") {
-		saverSupport["HasCgifSaver"] = true
+	if v.isDebug {
+		log.Printf("Discovered %d saver capabilities", len(saverSupport))
 	}
 
 	return saverSupport

@@ -63,12 +63,6 @@ func main() {
 
 	// Discover supported savers
 	supportedSavers := vipsIntrospection.DiscoverSupportedSavers()
-	log.Printf("Discovered supported savers:\n")
-	for name, supported := range supportedSavers {
-		if supported {
-			log.Printf("  - %s: supported\n", name)
-		}
-	}
 
 	// Convert GIR data to vipsgen.Operation format
 	operations := vipsIntrospection.DiscoverOperations()
