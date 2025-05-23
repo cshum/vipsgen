@@ -10,18 +10,19 @@ import (
 // GetTemplateFuncMap Helper functions for templates
 func GetTemplateFuncMap() template.FuncMap {
 	return template.FuncMap{
-		"generateGoFunctionBody":          generateGoFunctionBody,
-		"generateFunctionCallArgs":        generateFunctionCallArgs,
-		"generateFunctionCall":            generateFunctionCall,
-		"generateImageMethodBody":         generateImageMethodBody,
-		"generateImageMethodParams":       generateImageMethodParams,
-		"generateImageMethodReturnTypes":  generateImageMethodReturnTypes,
-		"generateMethodParams":            generateMethodParams,
-		"generateCreatorMethodBody":       generateCreatorMethodBody,
-		"generateCFunctionDeclaration":    generateCFunctionDeclaration,
-		"generateCFunctionImplementation": generateCFunctionImplementation,
-		"generateOptionalInputsStruct":    generateOptionalInputsStruct,
-		"generateUtilFunctionCallArgs":    generateUtilFunctionCallArgs,
+		"generateGoFunctionBody":             generateGoFunctionBody,
+		"generateFunctionCallArgs":           generateFunctionCallArgs,
+		"generateFunctionCall":               generateFunctionCall,
+		"generateImageMethodBody":            generateImageMethodBody,
+		"generateImageMethodParams":          generateImageMethodParams,
+		"generateImageMethodReturnTypes":     generateImageMethodReturnTypes,
+		"generateMethodParams":               generateMethodParams,
+		"generateCreatorMethodBody":          generateCreatorMethodBody,
+		"generateCFunctionDeclaration":       generateCFunctionDeclaration,
+		"generateCFunctionImplementation":    generateCFunctionImplementation,
+		"generateOptionalInputsStruct":       generateOptionalInputsStruct,
+		"generateUtilFunctionCallArgs":       generateUtilFunctionCallArgs,
+		"generateUtilityFunctionReturnTypes": generateUtilityFunctionReturnTypes,
 	}
 }
 
@@ -1690,4 +1691,29 @@ func generateUtilFunctionCallArgs(op introspection.Operation) string {
 		}
 	}
 	return strings.Join(args, ", ")
+}
+
+// generateUtilityFunctionReturnTypes formats return types for utility functions (non-image operations)
+func generateUtilityFunctionReturnTypes(op introspection.Operation) string {
+	if op.HasBufferOutput {
+		return "[]byte, error"
+	} else if len(op.RequiredOutputs) > 0 {
+		var types []string
+		for _, arg := range op.RequiredOutputs {
+			// Skip returning the length parameter if it's marked as IsOutputN
+			if arg.IsOutputN {
+				continue
+			}
+			// Special handling for vector/array return types
+			if arg.Name == "vector" || arg.Name == "out_array" {
+				types = append(types, "[]float64")
+			} else {
+				types = append(types, arg.GoType)
+			}
+		}
+		types = append(types, "error")
+		return strings.Join(types, ", ")
+	} else {
+		return "error"
+	}
 }
