@@ -20,6 +20,12 @@ type ImageTypeInfo struct {
 	HasSaver  bool
 }
 
+// Base image types that should always be included in the enum
+var baseImageTypes = []string{
+	"jpeg", "gif", "pdf", "png", "svg", "webp",
+	"tiff", "heif", "bmp", "jp2k", "avif",
+}
+
 // Well-known MIME types for image formats
 var knownMimeTypes = map[string]string{
 	"gif":       "image/gif",
@@ -60,11 +66,9 @@ var knownMimeTypes = map[string]string{
 	"raw":       "image/raw",
 }
 
-// Base image types that should always be included in the enum
-var baseImageTypes = []string{
-	"jpeg", "gif", "pdf", "png", "svg", "webp",
-	"tiff", "heif", "bmp", "jp2k", "avif",
-}
+// Regular expressions to match load/save operations
+var loadRegex = regexp.MustCompile(`^([a-zA-Z0-9_]+?)(?:load|load_buffer|load_source)(?:_(.+))?$`)
+var saveRegex = regexp.MustCompile(`^([a-zA-Z0-9_]+?)(?:save|save_buffer|save_target)(?:_(.+))?$`)
 
 // DiscoverImageTypes discovers supported image types by scanning available operations
 func (v *Introspection) DiscoverImageTypes() []ImageTypeInfo {
@@ -99,10 +103,6 @@ func (v *Introspection) DiscoverImageTypes() []ImageTypeInfo {
 	defer C.free_operation_info(opsPtr, nOps)
 
 	opsSlice := (*[1 << 30]C.OperationInfo)(unsafe.Pointer(opsPtr))[:nOps:nOps]
-
-	// Regular expressions to match load/save operations
-	loadRegex := regexp.MustCompile(`^([a-zA-Z0-9_]+?)(?:load|load_buffer|load_source)(?:_(.+))?$`)
-	saveRegex := regexp.MustCompile(`^([a-zA-Z0-9_]+?)(?:save|save_buffer|save_target)(?:_(.+))?$`)
 
 	// First pass: collect all operations by format
 	formatOperations := make(map[string]map[string]bool) // format -> operation -> exists
