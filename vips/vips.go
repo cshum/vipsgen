@@ -3392,6 +3392,76 @@ func vipsgenGifsaveBufferWithOptions(in *C.VipsImage, dither float64, effort int
 	return bufferToBytes(buf, length), nil
 }
 
+// vipsgenDzsave vips_dzsave save image to deepzoom file
+func vipsgenDzsave(in *C.VipsImage, filename string) (error) {
+	cfilename := C.CString(filename)
+	defer freeCString(cfilename)
+	if err := C.vipsgen_dzsave(in, cfilename); err != 0 {
+		return handleVipsError()
+	}
+	return nil
+}
+
+// vipsgenDzsaveWithOptions vips_dzsave save image to deepzoom file with optional arguments
+func vipsgenDzsaveWithOptions(in *C.VipsImage, filename string, imagename string, layout DzLayout, suffix string, overlap int, tileSize int, centre bool, depth DzDepth, angle Angle, container DzContainer, compression int, regionShrink RegionShrink, skipBlanks int, id string, q int, keep Keep, background []float64, pageHeight int, profile string) (error) {
+	cfilename := C.CString(filename)
+	defer freeCString(cfilename)
+	cbackground, cbackgroundLength, err := convertToDoubleArray(background)
+	if err != nil {
+		return err
+	}
+	if cbackground != nil {
+		defer freeDoubleArray(cbackground)
+	}
+	cimagename := C.CString(imagename)
+	defer freeCString(cimagename)
+	csuffix := C.CString(suffix)
+	defer freeCString(csuffix)
+	cid := C.CString(id)
+	defer freeCString(cid)
+	cprofile := C.CString(profile)
+	defer freeCString(cprofile)
+	if err := C.vipsgen_dzsave_with_options(in, cfilename, cimagename, C.VipsForeignDzLayout(layout), csuffix, C.int(overlap), C.int(tileSize), C.int(boolToInt(centre)), C.VipsForeignDzDepth(depth), C.VipsAngle(angle), C.VipsForeignDzContainer(container), C.int(compression), C.VipsRegionShrink(regionShrink), C.int(skipBlanks), cid, C.int(q), C.VipsForeignKeep(keep), cbackground, cbackgroundLength, C.int(pageHeight), cprofile); err != 0 {
+		return handleVipsError()
+	}
+	return nil
+}
+
+// vipsgenDzsaveBuffer vips_dzsave_buffer save image to dz buffer
+func vipsgenDzsaveBuffer(in *C.VipsImage) ([]byte, error) {
+	var buf unsafe.Pointer
+	var length C.size_t
+	if err := C.vipsgen_dzsave_buffer(in, &buf, &length); err != 0 {
+		return nil, handleVipsError()
+	}
+	return bufferToBytes(buf, length), nil
+}
+
+// vipsgenDzsaveBufferWithOptions vips_dzsave_buffer save image to dz buffer with optional arguments
+func vipsgenDzsaveBufferWithOptions(in *C.VipsImage, imagename string, layout DzLayout, suffix string, overlap int, tileSize int, centre bool, depth DzDepth, angle Angle, container DzContainer, compression int, regionShrink RegionShrink, skipBlanks int, id string, q int, keep Keep, background []float64, pageHeight int, profile string) ([]byte, error) {
+	var buf unsafe.Pointer
+	var length C.size_t
+	cbackground, cbackgroundLength, err := convertToDoubleArray(background)
+	if err != nil {
+		return nil, err
+	}
+	if cbackground != nil {
+		defer freeDoubleArray(cbackground)
+	}
+	cimagename := C.CString(imagename)
+	defer freeCString(cimagename)
+	csuffix := C.CString(suffix)
+	defer freeCString(csuffix)
+	cid := C.CString(id)
+	defer freeCString(cid)
+	cprofile := C.CString(profile)
+	defer freeCString(cprofile)
+	if err := C.vipsgen_dzsave_buffer_with_options(in, &buf, &length, cimagename, C.VipsForeignDzLayout(layout), csuffix, C.int(overlap), C.int(tileSize), C.int(boolToInt(centre)), C.VipsForeignDzDepth(depth), C.VipsAngle(angle), C.VipsForeignDzContainer(container), C.int(compression), C.VipsRegionShrink(regionShrink), C.int(skipBlanks), cid, C.int(q), C.VipsForeignKeep(keep), cbackground, cbackgroundLength, C.int(pageHeight), cprofile); err != 0 {
+		return nil, handleVipsError()
+	}
+	return bufferToBytes(buf, length), nil
+}
+
 // vipsgenPngsave vips_pngsave save image to png file
 func vipsgenPngsave(in *C.VipsImage, filename string) (error) {
 	cfilename := C.CString(filename)

@@ -5489,6 +5489,142 @@ func (r *Image) GifsaveBuffer(options *GifsaveBufferOptions) ([]byte, error) {
 	return buf, nil
 }
 
+// DzsaveOptions optional arguments for vips_dzsave
+type DzsaveOptions struct {
+	// Imagename Image name
+	Imagename string
+	// Layout Directory layout
+	Layout DzLayout
+	// Suffix Filename suffix for tiles
+	Suffix string
+	// Overlap Tile overlap in pixels
+	Overlap int
+	// TileSize Tile size in pixels
+	TileSize int
+	// Centre Center image in tile
+	Centre bool
+	// Depth Pyramid depth
+	Depth DzDepth
+	// Angle Rotate image during save
+	Angle Angle
+	// Container Pyramid container type
+	Container DzContainer
+	// Compression ZIP deflate compression level
+	Compression int
+	// RegionShrink Method to shrink regions
+	RegionShrink RegionShrink
+	// SkipBlanks Skip tiles which are nearly equal to the background
+	SkipBlanks int
+	// Id Resource ID
+	Id string
+	// Q Q factor
+	Q int
+	// Keep Which metadata to retain
+	Keep Keep
+	// Background Background value
+	Background []float64
+	// PageHeight Set page height for multipage save
+	PageHeight int
+	// Profile Filename of ICC profile to embed
+	Profile string
+}
+
+// DefaultDzsaveOptions creates default value for vips_dzsave optional arguments
+func DefaultDzsaveOptions() *DzsaveOptions {
+	return &DzsaveOptions{
+		Suffix: ".jpeg",
+		Overlap: 1,
+		TileSize: 254,
+		SkipBlanks: -1,
+		Id: "https://example.com/iiif",
+		Q: 75,
+	}
+}
+
+// Dzsave vips_dzsave save image to deepzoom file
+func (r *Image) Dzsave(filename string, options *DzsaveOptions) (error) {
+	if options != nil {
+		err := vipsgenDzsaveWithOptions(r.image, filename, options.Imagename, options.Layout, options.Suffix, options.Overlap, options.TileSize, options.Centre, options.Depth, options.Angle, options.Container, options.Compression, options.RegionShrink, options.SkipBlanks, options.Id, options.Q, options.Keep, options.Background, options.PageHeight, options.Profile)
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+	err := vipsgenDzsave(r.image, filename)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// DzsaveBufferOptions optional arguments for vips_dzsave_buffer
+type DzsaveBufferOptions struct {
+	// Imagename Image name
+	Imagename string
+	// Layout Directory layout
+	Layout DzLayout
+	// Suffix Filename suffix for tiles
+	Suffix string
+	// Overlap Tile overlap in pixels
+	Overlap int
+	// TileSize Tile size in pixels
+	TileSize int
+	// Centre Center image in tile
+	Centre bool
+	// Depth Pyramid depth
+	Depth DzDepth
+	// Angle Rotate image during save
+	Angle Angle
+	// Container Pyramid container type
+	Container DzContainer
+	// Compression ZIP deflate compression level
+	Compression int
+	// RegionShrink Method to shrink regions
+	RegionShrink RegionShrink
+	// SkipBlanks Skip tiles which are nearly equal to the background
+	SkipBlanks int
+	// Id Resource ID
+	Id string
+	// Q Q factor
+	Q int
+	// Keep Which metadata to retain
+	Keep Keep
+	// Background Background value
+	Background []float64
+	// PageHeight Set page height for multipage save
+	PageHeight int
+	// Profile Filename of ICC profile to embed
+	Profile string
+}
+
+// DefaultDzsaveBufferOptions creates default value for vips_dzsave_buffer optional arguments
+func DefaultDzsaveBufferOptions() *DzsaveBufferOptions {
+	return &DzsaveBufferOptions{
+		Suffix: ".jpeg",
+		Overlap: 1,
+		TileSize: 254,
+		SkipBlanks: -1,
+		Id: "https://example.com/iiif",
+		Q: 75,
+	}
+}
+
+// DzsaveBuffer vips_dzsave_buffer save image to dz buffer
+func (r *Image) DzsaveBuffer(options *DzsaveBufferOptions) ([]byte, error) {
+	if options != nil {
+		buf, err := vipsgenDzsaveBufferWithOptions(r.image, options.Imagename, options.Layout, options.Suffix, options.Overlap, options.TileSize, options.Centre, options.Depth, options.Angle, options.Container, options.Compression, options.RegionShrink, options.SkipBlanks, options.Id, options.Q, options.Keep, options.Background, options.PageHeight, options.Profile)
+		if err != nil {
+			return nil, err
+		}
+		return buf, nil
+	}
+	buf, err := vipsgenDzsaveBuffer(r.image)
+	if err != nil {
+		return nil, err
+	}
+	return buf, nil
+}
+
 // PngsaveOptions optional arguments for vips_pngsave
 type PngsaveOptions struct {
 	// Compression Compression factor

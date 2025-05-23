@@ -3342,6 +3342,85 @@ int vipsgen_gifsave_buffer_with_options(VipsImage* in, void** buf, size_t* len, 
     return result;
 }
 
+int vipsgen_dzsave(VipsImage* in, const char* filename) {
+    return vips_dzsave(in, filename, NULL);
+}
+
+int vipsgen_dzsave_with_options(VipsImage* in, const char* filename, const char* imagename, VipsForeignDzLayout layout, const char* suffix, int overlap, int tile_size, gboolean centre, VipsForeignDzDepth depth, VipsAngle angle, VipsForeignDzContainer container, int compression, VipsRegionShrink region_shrink, int skip_blanks, const char* id, int Q, VipsForeignKeep keep, double* background, int background_n, int page_height, const char* profile) {
+    VipsOperation *operation = vips_operation_new("dzsave");
+    if (!operation) return 1;
+    VipsArrayDouble *background_array = NULL;
+    if (background != NULL && background_n > 0) { background_array = vips_array_double_new(background, background_n); }
+    if (
+        vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
+        vips_object_set(VIPS_OBJECT(operation), "filename", filename, NULL) ||
+        vipsgen_set_string(operation, "imagename", imagename) ||
+        vipsgen_set_int(operation, "layout", layout) ||
+        vipsgen_set_string(operation, "suffix", suffix) ||
+        vipsgen_set_int(operation, "overlap", overlap) ||
+        vipsgen_set_int(operation, "tile_size", tile_size) ||
+        vipsgen_set_bool(operation, "centre", centre) ||
+        vipsgen_set_int(operation, "depth", depth) ||
+        vipsgen_set_int(operation, "angle", angle) ||
+        vipsgen_set_int(operation, "container", container) ||
+        vipsgen_set_int(operation, "compression", compression) ||
+        vipsgen_set_int(operation, "region_shrink", region_shrink) ||
+        vipsgen_set_int(operation, "skip_blanks", skip_blanks) ||
+        vipsgen_set_string(operation, "id", id) ||
+        vipsgen_set_int(operation, "Q", Q) ||
+        vipsgen_set_int(operation, "keep", keep) ||
+        vipsgen_set_array_double(operation, "background", background_array) ||
+        vipsgen_set_int(operation, "page_height", page_height) ||
+        vipsgen_set_string(operation, "profile", profile)
+    ) {
+        g_object_unref(operation);
+        if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
+        return 1;
+    }
+    int result = vipsgen_operation_execute(operation, NULL);
+    if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
+    return result;
+}
+
+int vipsgen_dzsave_buffer(VipsImage* in, void** buf, size_t* len) {
+    return vips_dzsave_buffer(in, buf, len, NULL);
+}
+
+int vipsgen_dzsave_buffer_with_options(VipsImage* in, void** buf, size_t* len, const char* imagename, VipsForeignDzLayout layout, const char* suffix, int overlap, int tile_size, gboolean centre, VipsForeignDzDepth depth, VipsAngle angle, VipsForeignDzContainer container, int compression, VipsRegionShrink region_shrink, int skip_blanks, const char* id, int Q, VipsForeignKeep keep, double* background, int background_n, int page_height, const char* profile) {
+    VipsOperation *operation = vips_operation_new("dzsave_buffer");
+    if (!operation) return 1;
+    VipsArrayDouble *background_array = NULL;
+    if (background != NULL && background_n > 0) { background_array = vips_array_double_new(background, background_n); }
+    if (
+        vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
+        vipsgen_set_string(operation, "imagename", imagename) ||
+        vipsgen_set_int(operation, "layout", layout) ||
+        vipsgen_set_string(operation, "suffix", suffix) ||
+        vipsgen_set_int(operation, "overlap", overlap) ||
+        vipsgen_set_int(operation, "tile_size", tile_size) ||
+        vipsgen_set_bool(operation, "centre", centre) ||
+        vipsgen_set_int(operation, "depth", depth) ||
+        vipsgen_set_int(operation, "angle", angle) ||
+        vipsgen_set_int(operation, "container", container) ||
+        vipsgen_set_int(operation, "compression", compression) ||
+        vipsgen_set_int(operation, "region_shrink", region_shrink) ||
+        vipsgen_set_int(operation, "skip_blanks", skip_blanks) ||
+        vipsgen_set_string(operation, "id", id) ||
+        vipsgen_set_int(operation, "Q", Q) ||
+        vipsgen_set_int(operation, "keep", keep) ||
+        vipsgen_set_array_double(operation, "background", background_array) ||
+        vipsgen_set_int(operation, "page_height", page_height) ||
+        vipsgen_set_string(operation, "profile", profile)
+    ) {
+        g_object_unref(operation);
+        if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
+        return 1;
+    }
+    int result = vipsgen_operation_save_buffer(operation, buf, len);
+    if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
+    return result;
+}
+
 int vipsgen_pngsave(VipsImage* in, const char* filename) {
     return vips_pngsave(in, filename, NULL);
 }
