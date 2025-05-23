@@ -284,16 +284,6 @@ func TestImageTransformations(t *testing.T) {
 
 // TestBasicFormatConversions tests basic conversions between supported formats
 func TestBasicFormatConversions(t *testing.T) {
-	// Log supported image types
-	t.Log("Supported image types:")
-	for imgType, name := range ImageTypes {
-		if mime, ok := ImageMimeTypes[imgType]; ok && mime != "" {
-			t.Logf("  - %s: %s", name, mime)
-		} else {
-			t.Logf("  - %s", name)
-		}
-	}
-
 	// Create a test gradient image
 	width, height := 100, 80
 	img, err := NewImageFromBuffer(createTestPNG(t, width, height), DefaultLoadOptions())
