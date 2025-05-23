@@ -60,6 +60,12 @@ var knownMimeTypes = map[string]string{
 	"raw":       "image/raw",
 }
 
+// Base image types that should always be included in the enum
+var baseImageTypes = []string{
+	"jpeg", "gif", "pdf", "png", "svg", "webp",
+	"tiff", "heif", "bmp", "jp2k", "avif",
+}
+
 // DiscoverImageTypes discovers supported image types by scanning available operations
 func (v *Introspection) DiscoverImageTypes() []ImageTypeInfo {
 	log.Printf("Discovering image types from available operations...")
@@ -69,32 +75,13 @@ func (v *Introspection) DiscoverImageTypes() []ImageTypeInfo {
 		{TypeName: "unknown", EnumName: "ImageTypeUnknown", MimeType: "", Order: 0},
 	}
 
-	// Base image types that should always be included
-	baseTypes := []struct {
-		TypeName string
-		MimeType string
-	}{
-		{"gif", "image/gif"},
-		{"jpeg", "image/jpeg"},
-		{"magick", ""},
-		{"pdf", "application/pdf"},
-		{"png", "image/png"},
-		{"svg", "image/svg+xml"},
-		{"tiff", "image/tiff"},
-		{"webp", "image/webp"},
-		{"heif", "image/heif"},
-		{"bmp", "image/bmp"},
-		{"jp2k", "image/jp2"},
-		{"avif", "image/avif"},
-	}
-
 	// Initialize discoveredFormats with base types
 	discoveredFormats := make(map[string]*ImageTypeInfo)
-	for _, baseType := range baseTypes {
-		discoveredFormats[baseType.TypeName] = &ImageTypeInfo{
-			TypeName:  baseType.TypeName,
-			EnumName:  "ImageType" + strings.Title(baseType.TypeName),
-			MimeType:  baseType.MimeType,
+	for _, typeName := range baseImageTypes {
+		discoveredFormats[typeName] = &ImageTypeInfo{
+			TypeName:  typeName,
+			EnumName:  "ImageType" + strings.Title(typeName),
+			MimeType:  getMimeType(typeName),
 			HasLoader: false,
 			HasSaver:  false,
 		}
@@ -226,12 +213,9 @@ func (v *Introspection) DiscoverImageTypes() []ImageTypeInfo {
 
 // addBaseTypesToResult adds all discovered formats to the result with proper ordering
 func (v *Introspection) addBaseTypesToResult(discoveredFormats map[string]*ImageTypeInfo, imageTypes *[]ImageTypeInfo) {
-	// Base types should come first in a specific order
-	baseOrder := []string{"gif", "jpeg", "magick", "pdf", "png", "svg", "tiff", "webp", "heif", "bmp", "jp2k", "avif"}
-
 	// Add base types first
 	currentOrder := 1
-	for _, typeName := range baseOrder {
+	for _, typeName := range baseImageTypes {
 		if format, exists := discoveredFormats[typeName]; exists {
 			format.Order = currentOrder
 			*imageTypes = append(*imageTypes, *format)
