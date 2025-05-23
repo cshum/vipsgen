@@ -1371,19 +1371,19 @@ func generateCFunctionImplementation(op introspection.Operation) string {
 			result.WriteString("    if (!blob) { g_object_unref(operation); return 1; }\n")
 		}
 
-		// Create VipsArray objects for array inputs
-		for _, opt := range op.RequiredInputs {
-			if strings.HasPrefix(opt.GoType, "[]") {
-				arrayType := getArrayType(opt.GoType)
+		// Create VipsArray objects for array inputs from BOTH required and optional inputs
+		for _, arg := range op.RequiredInputs {
+			if strings.HasPrefix(arg.GoType, "[]") {
+				arrayType := getArrayType(arg.GoType)
 				if arrayType == "double" {
-					result.WriteString(fmt.Sprintf("    VipsArrayDouble *%s_array = NULL;\n", opt.Name))
-					result.WriteString(fmt.Sprintf("    if (%s != NULL && n > 0) { %s_array = vips_array_double_new(%s, n); }\n", opt.Name, opt.Name, opt.Name))
+					result.WriteString(fmt.Sprintf("    VipsArrayDouble *%s_array = NULL;\n", arg.Name))
+					result.WriteString(fmt.Sprintf("    if (%s != NULL && n > 0) { %s_array = vips_array_double_new(%s, n); }\n", arg.Name, arg.Name, arg.Name))
 				} else if arrayType == "int" {
-					result.WriteString(fmt.Sprintf("    VipsArrayInt *%s_array = NULL;\n", opt.Name))
-					result.WriteString(fmt.Sprintf("    if (%s != NULL && n > 0) { %s_array = vips_array_int_new(%s, n); }\n", opt.Name, opt.Name, opt.Name))
+					result.WriteString(fmt.Sprintf("    VipsArrayInt *%s_array = NULL;\n", arg.Name))
+					result.WriteString(fmt.Sprintf("    if (%s != NULL && n > 0) { %s_array = vips_array_int_new(%s, n); }\n", arg.Name, arg.Name, arg.Name))
 				} else if arrayType == "image" {
-					result.WriteString(fmt.Sprintf("    VipsArrayImage *%s_array = NULL;\n", opt.Name))
-					result.WriteString(fmt.Sprintf("    if (%s != NULL && n > 0) { %s_array = vips_array_image_new(%s, n); }\n", opt.Name, opt.Name, opt.Name))
+					result.WriteString(fmt.Sprintf("    VipsArrayImage *%s_array = NULL;\n", arg.Name))
+					result.WriteString(fmt.Sprintf("    if (%s != NULL && n > 0) { %s_array = vips_array_image_new(%s, n); }\n", arg.Name, arg.Name, arg.Name))
 				}
 			}
 		}
@@ -1516,7 +1516,15 @@ func generateCFunctionImplementation(op introspection.Operation) string {
 
 			result.WriteString("        g_object_unref(operation);\n")
 
-			// Free all array resources on error
+			// Free all array resources on error - handle BOTH required AND optional arrays
+			for _, cleanupArg := range op.RequiredInputs {
+				if strings.HasPrefix(cleanupArg.GoType, "[]") {
+					arrayType := getArrayType(cleanupArg.GoType)
+					if arrayType != "unknown" {
+						result.WriteString(fmt.Sprintf("        if (%s_array != NULL) { vips_area_unref(VIPS_AREA(%s_array)); }\n", cleanupArg.Name, cleanupArg.Name))
+					}
+				}
+			}
 			for _, cleanupOpt := range op.OptionalInputs {
 				if strings.HasPrefix(cleanupOpt.GoType, "[]") {
 					arrayType := getArrayType(cleanupOpt.GoType)
@@ -1559,15 +1567,22 @@ func generateCFunctionImplementation(op introspection.Operation) string {
 			result.WriteString(fmt.Sprintf("    int result = vipsgen_operation_execute(operation, %s);\n", strings.Join(outputParams, ", ")))
 		}
 
-		// Clean up array objects
-		hasArrays := false
+		// Clean up array objects - handle BOTH required AND optional arrays
+		// Clean up arrays from required inputs
+		for _, arg := range op.RequiredInputs {
+			if strings.HasPrefix(arg.GoType, "[]") {
+				arrayType := getArrayType(arg.GoType)
+				if arrayType != "unknown" {
+					result.WriteString(fmt.Sprintf("    if (%s_array != NULL) { vips_area_unref(VIPS_AREA(%s_array)); }\n", arg.Name, arg.Name))
+				}
+			}
+		}
+
+		// Clean up arrays from optional inputs
 		for _, opt := range op.OptionalInputs {
 			if strings.HasPrefix(opt.GoType, "[]") {
 				arrayType := getArrayType(opt.GoType)
 				if arrayType != "unknown" {
-					if !hasArrays {
-						hasArrays = true
-					}
 					result.WriteString(fmt.Sprintf("    if (%s_array != NULL) { vips_area_unref(VIPS_AREA(%s_array)); }\n", opt.Name, opt.Name))
 				}
 			}
