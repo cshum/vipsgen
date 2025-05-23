@@ -9,7 +9,7 @@ jobs:
     env:
       CGO_CFLAGS_ALLOW: -Xpreprocessor
       VIPS_VERSION: 8.16.1
-      V: 1
+      V: 2
 
     steps:
       - name: Set up Go
@@ -32,9 +32,8 @@ jobs:
           libtiff5-dev libgsf-1-dev giflib-tools libwebp-dev libheif-dev \
           libopenjp2-7-dev libcgif-dev \
           gobject-introspection libgirepository1.0-dev \
-          libmagickwand-dev \
-          libmatio-dev \
-          libjxl-dev
+          libmagickwand-dev libmatio-dev \
+          libjxl-dev libzip-dev
 
       - name: Cache libvips
         uses: actions/cache@v3
