@@ -40,10 +40,9 @@ vipsgen provides rich options for fine-tuning image operations. Each operation c
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
-	
+
 	"github.com/cshum/vipsgen/vips"
 )
 
@@ -76,25 +75,25 @@ func main() {
 		image.Width()+border*2,
 		image.Height()+border*2,
 		&vips.EmbedOptions{
-			Extend:     vips.ExtendBackground, // extend with colour from the background property
+			Extend:     vips.ExtendBackground,       // extend with colour from the background property
 			Background: []float64{255, 255, 0, 255}, // Yellow border
 		},
 	); err != nil {
 		log.Fatalf("Failed to add border: %v", err)
 	}
 
-	fmt.Printf("Processed image: %dx%d\n", image.Width(), image.Height())
+	log.Printf("Processed image: %dx%d\n", image.Width(), image.Height())
 
 	// Save the result as WebP file with options
 	err = image.Webpsave("resized-gopher.webp", &vips.WebpsaveOptions{
-		Q:              85,    // Quality factor (0-100)
-		Effort:         4,     // Compression effort (0-6)
-		SmartSubsample: true,  // Better chroma subsampling
+		Q:              85,   // Quality factor (0-100)
+		Effort:         4,    // Compression effort (0-6)
+		SmartSubsample: true, // Better chroma subsampling
 	})
 	if err != nil {
 		log.Fatalf("Failed to save image as WebP: %v", err)
 	}
-	fmt.Println("Successfully saved processed images")
+	log.Println("Successfully saved processed images")
 }
 ```
 
