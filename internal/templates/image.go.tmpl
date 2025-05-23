@@ -43,7 +43,7 @@ func (r *Image) {{.GoName}}({{generateImageMethodParams .}}) ({{generateImageMet
 
 {{range .Operations}}{{if and (not .HasThisImageInput) (not .HasImageOutput)}}
 // {{.GoName}} {{.Description}}
-func {{.GoName}}({{generateMethodParams .}}) ([]byte, error) {
+func {{.GoName}}({{generateMethodParams .}}) ({{generateUtilityFunctionReturnTypes .}}) {
 	Startup(nil)
 	return vipsgen{{.GoName}}({{generateUtilFunctionCallArgs .}})
 }
