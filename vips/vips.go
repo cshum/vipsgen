@@ -2703,56 +2703,6 @@ func vipsgenOpenexrloadWithOptions(filename string, memory bool, access Access, 
 	return out, nil
 }
 
-// vipsgenMagickload vips_magickload load file with ImageMagick
-func vipsgenMagickload(filename string) (*C.VipsImage, error) {
-	var out *C.VipsImage
-	cfilename := C.CString(filename)
-	defer freeCString(cfilename)
-	if err := C.vipsgen_magickload(cfilename, &out); err != 0 {
-		return nil, handleImageError(out)
-	}
-	return out, nil
-}
-
-// vipsgenMagickloadWithOptions vips_magickload load file with ImageMagick with optional arguments
-func vipsgenMagickloadWithOptions(filename string, density string, page int, n int, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
-	var out *C.VipsImage
-	cfilename := C.CString(filename)
-	defer freeCString(cfilename)
-	cdensity := C.CString(density)
-	defer freeCString(cdensity)
-	if err := C.vipsgen_magickload_with_options(cfilename, &out, cdensity, C.int(page), C.int(n), C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
-		return nil, handleImageError(out)
-	}
-	return out, nil
-}
-
-// vipsgenMagickloadBuffer vips_magickload_buffer load buffer with ImageMagick
-func vipsgenMagickloadBuffer(buf []byte) (*C.VipsImage, error) {
-	src := buf
-	// Reference src here so it's not garbage collected during image initialization.
-	defer runtime.KeepAlive(src)
-	var out *C.VipsImage
-	if err := C.vipsgen_magickload_buffer(unsafe.Pointer(&src[0]), C.size_t(len(src)), &out); err != 0 {
-		return nil, handleImageError(out)
-	}
-	return out, nil
-}
-
-// vipsgenMagickloadBufferWithOptions vips_magickload_buffer load buffer with ImageMagick with optional arguments
-func vipsgenMagickloadBufferWithOptions(buf []byte, density string, page int, n int, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
-	src := buf
-	// Reference src here so it's not garbage collected during image initialization.
-	defer runtime.KeepAlive(src)
-	var out *C.VipsImage
-	cdensity := C.CString(density)
-	defer freeCString(cdensity)
-	if err := C.vipsgen_magickload_buffer_with_options(unsafe.Pointer(&src[0]), C.size_t(len(src)), &out, cdensity, C.int(page), C.int(n), C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
-		return nil, handleImageError(out)
-	}
-	return out, nil
-}
-
 // vipsgenHeifload vips_heifload load a HEIF image
 func vipsgenHeifload(filename string) (*C.VipsImage, error) {
 	var out *C.VipsImage
@@ -2817,45 +2767,65 @@ func vipsgenHeifloadSourceWithOptions(source *C.VipsSourceCustom, page int, n in
 	return out, nil
 }
 
-// vipsgenOpenslideload vips_openslideload load file with OpenSlide
-func vipsgenOpenslideload(filename string) (*C.VipsImage, error) {
+// vipsgenJxlload vips_jxlload load JPEG-XL image
+func vipsgenJxlload(filename string) (*C.VipsImage, error) {
 	var out *C.VipsImage
 	cfilename := C.CString(filename)
 	defer freeCString(cfilename)
-	if err := C.vipsgen_openslideload(cfilename, &out); err != 0 {
+	if err := C.vipsgen_jxlload(cfilename, &out); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
 }
 
-// vipsgenOpenslideloadWithOptions vips_openslideload load file with OpenSlide with optional arguments
-func vipsgenOpenslideloadWithOptions(filename string, level int, autocrop bool, associated string, attachAssociated bool, rgb bool, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
+// vipsgenJxlloadWithOptions vips_jxlload load JPEG-XL image with optional arguments
+func vipsgenJxlloadWithOptions(filename string, page int, n int, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
 	var out *C.VipsImage
 	cfilename := C.CString(filename)
 	defer freeCString(cfilename)
-	cassociated := C.CString(associated)
-	defer freeCString(cassociated)
-	if err := C.vipsgen_openslideload_with_options(cfilename, &out, C.int(level), C.int(boolToInt(autocrop)), cassociated, C.int(boolToInt(attachAssociated)), C.int(boolToInt(rgb)), C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
+	if err := C.vipsgen_jxlload_with_options(cfilename, &out, C.int(page), C.int(n), C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
 }
 
-// vipsgenOpenslideloadSource vips_openslideload_source load source with OpenSlide
-func vipsgenOpenslideloadSource(source *C.VipsSourceCustom) (*C.VipsImage, error) {
+// vipsgenJxlloadBuffer vips_jxlload_buffer load JPEG-XL image
+func vipsgenJxlloadBuffer(buf []byte) (*C.VipsImage, error) {
+	src := buf
+	// Reference src here so it's not garbage collected during image initialization.
+	defer runtime.KeepAlive(src)
 	var out *C.VipsImage
-	if err := C.vipsgen_openslideload_source(source, &out); err != 0 {
+	if err := C.vipsgen_jxlload_buffer(unsafe.Pointer(&src[0]), C.size_t(len(src)), &out); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
 }
 
-// vipsgenOpenslideloadSourceWithOptions vips_openslideload_source load source with OpenSlide with optional arguments
-func vipsgenOpenslideloadSourceWithOptions(source *C.VipsSourceCustom, level int, autocrop bool, associated string, attachAssociated bool, rgb bool, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
+// vipsgenJxlloadBufferWithOptions vips_jxlload_buffer load JPEG-XL image with optional arguments
+func vipsgenJxlloadBufferWithOptions(buf []byte, page int, n int, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
+	src := buf
+	// Reference src here so it's not garbage collected during image initialization.
+	defer runtime.KeepAlive(src)
 	var out *C.VipsImage
-	cassociated := C.CString(associated)
-	defer freeCString(cassociated)
-	if err := C.vipsgen_openslideload_source_with_options(source, &out, C.int(level), C.int(boolToInt(autocrop)), cassociated, C.int(boolToInt(attachAssociated)), C.int(boolToInt(rgb)), C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
+	if err := C.vipsgen_jxlload_buffer_with_options(unsafe.Pointer(&src[0]), C.size_t(len(src)), &out, C.int(page), C.int(n), C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
+		return nil, handleImageError(out)
+	}
+	return out, nil
+}
+
+// vipsgenJxlloadSource vips_jxlload_source load JPEG-XL image
+func vipsgenJxlloadSource(source *C.VipsSourceCustom) (*C.VipsImage, error) {
+	var out *C.VipsImage
+	if err := C.vipsgen_jxlload_source(source, &out); err != 0 {
+		return nil, handleImageError(out)
+	}
+	return out, nil
+}
+
+// vipsgenJxlloadSourceWithOptions vips_jxlload_source load JPEG-XL image with optional arguments
+func vipsgenJxlloadSourceWithOptions(source *C.VipsSourceCustom, page int, n int, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
+	var out *C.VipsImage
+	if err := C.vipsgen_jxlload_source_with_options(source, &out, C.int(page), C.int(n), C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
@@ -2947,6 +2917,100 @@ func vipsgenPdfloadSourceWithOptions(source *C.VipsSourceCustom, page int, n int
 	cpassword := C.CString(password)
 	defer freeCString(cpassword)
 	if err := C.vipsgen_pdfload_source_with_options(source, &out, C.int(page), C.int(n), C.double(dpi), C.double(scale), cbackground, cbackgroundLength, cpassword, C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
+		return nil, handleImageError(out)
+	}
+	return out, nil
+}
+
+// vipsgenOpenslideload vips_openslideload load file with OpenSlide
+func vipsgenOpenslideload(filename string) (*C.VipsImage, error) {
+	var out *C.VipsImage
+	cfilename := C.CString(filename)
+	defer freeCString(cfilename)
+	if err := C.vipsgen_openslideload(cfilename, &out); err != 0 {
+		return nil, handleImageError(out)
+	}
+	return out, nil
+}
+
+// vipsgenOpenslideloadWithOptions vips_openslideload load file with OpenSlide with optional arguments
+func vipsgenOpenslideloadWithOptions(filename string, level int, autocrop bool, associated string, attachAssociated bool, rgb bool, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
+	var out *C.VipsImage
+	cfilename := C.CString(filename)
+	defer freeCString(cfilename)
+	cassociated := C.CString(associated)
+	defer freeCString(cassociated)
+	if err := C.vipsgen_openslideload_with_options(cfilename, &out, C.int(level), C.int(boolToInt(autocrop)), cassociated, C.int(boolToInt(attachAssociated)), C.int(boolToInt(rgb)), C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
+		return nil, handleImageError(out)
+	}
+	return out, nil
+}
+
+// vipsgenOpenslideloadSource vips_openslideload_source load source with OpenSlide
+func vipsgenOpenslideloadSource(source *C.VipsSourceCustom) (*C.VipsImage, error) {
+	var out *C.VipsImage
+	if err := C.vipsgen_openslideload_source(source, &out); err != 0 {
+		return nil, handleImageError(out)
+	}
+	return out, nil
+}
+
+// vipsgenOpenslideloadSourceWithOptions vips_openslideload_source load source with OpenSlide with optional arguments
+func vipsgenOpenslideloadSourceWithOptions(source *C.VipsSourceCustom, level int, autocrop bool, associated string, attachAssociated bool, rgb bool, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
+	var out *C.VipsImage
+	cassociated := C.CString(associated)
+	defer freeCString(cassociated)
+	if err := C.vipsgen_openslideload_source_with_options(source, &out, C.int(level), C.int(boolToInt(autocrop)), cassociated, C.int(boolToInt(attachAssociated)), C.int(boolToInt(rgb)), C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
+		return nil, handleImageError(out)
+	}
+	return out, nil
+}
+
+// vipsgenMagickload vips_magickload load file with ImageMagick
+func vipsgenMagickload(filename string) (*C.VipsImage, error) {
+	var out *C.VipsImage
+	cfilename := C.CString(filename)
+	defer freeCString(cfilename)
+	if err := C.vipsgen_magickload(cfilename, &out); err != 0 {
+		return nil, handleImageError(out)
+	}
+	return out, nil
+}
+
+// vipsgenMagickloadWithOptions vips_magickload load file with ImageMagick with optional arguments
+func vipsgenMagickloadWithOptions(filename string, density string, page int, n int, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
+	var out *C.VipsImage
+	cfilename := C.CString(filename)
+	defer freeCString(cfilename)
+	cdensity := C.CString(density)
+	defer freeCString(cdensity)
+	if err := C.vipsgen_magickload_with_options(cfilename, &out, cdensity, C.int(page), C.int(n), C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
+		return nil, handleImageError(out)
+	}
+	return out, nil
+}
+
+// vipsgenMagickloadBuffer vips_magickload_buffer load buffer with ImageMagick
+func vipsgenMagickloadBuffer(buf []byte) (*C.VipsImage, error) {
+	src := buf
+	// Reference src here so it's not garbage collected during image initialization.
+	defer runtime.KeepAlive(src)
+	var out *C.VipsImage
+	if err := C.vipsgen_magickload_buffer(unsafe.Pointer(&src[0]), C.size_t(len(src)), &out); err != 0 {
+		return nil, handleImageError(out)
+	}
+	return out, nil
+}
+
+// vipsgenMagickloadBufferWithOptions vips_magickload_buffer load buffer with ImageMagick with optional arguments
+func vipsgenMagickloadBufferWithOptions(buf []byte, density string, page int, n int, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
+	src := buf
+	// Reference src here so it's not garbage collected during image initialization.
+	defer runtime.KeepAlive(src)
+	var out *C.VipsImage
+	cdensity := C.CString(density)
+	defer freeCString(cdensity)
+	if err := C.vipsgen_magickload_buffer_with_options(unsafe.Pointer(&src[0]), C.size_t(len(src)), &out, cdensity, C.int(page), C.int(n), C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
@@ -3589,6 +3653,122 @@ func vipsgenFitssaveWithOptions(in *C.VipsImage, filename string, keep Keep, bac
 	return nil
 }
 
+// vipsgenHeifsave vips_heifsave save image in HEIF format
+func vipsgenHeifsave(in *C.VipsImage, filename string) (error) {
+	cfilename := C.CString(filename)
+	defer freeCString(cfilename)
+	if err := C.vipsgen_heifsave(in, cfilename); err != 0 {
+		return handleVipsError()
+	}
+	return nil
+}
+
+// vipsgenHeifsaveWithOptions vips_heifsave save image in HEIF format with optional arguments
+func vipsgenHeifsaveWithOptions(in *C.VipsImage, filename string, q int, bitdepth int, lossless bool, compression HeifCompression, effort int, subsampleMode Subsample, encoder HeifEncoder, keep Keep, background []float64, pageHeight int, profile string) (error) {
+	cfilename := C.CString(filename)
+	defer freeCString(cfilename)
+	cbackground, cbackgroundLength, err := convertToDoubleArray(background)
+	if err != nil {
+		return err
+	}
+	if cbackground != nil {
+		defer freeDoubleArray(cbackground)
+	}
+	cprofile := C.CString(profile)
+	defer freeCString(cprofile)
+	if err := C.vipsgen_heifsave_with_options(in, cfilename, C.int(q), C.int(bitdepth), C.int(boolToInt(lossless)), C.VipsForeignHeifCompression(compression), C.int(effort), C.VipsForeignSubsample(subsampleMode), C.VipsForeignHeifEncoder(encoder), C.VipsForeignKeep(keep), cbackground, cbackgroundLength, C.int(pageHeight), cprofile); err != 0 {
+		return handleVipsError()
+	}
+	return nil
+}
+
+// vipsgenHeifsaveBuffer vips_heifsave_buffer save image in HEIF format
+func vipsgenHeifsaveBuffer(in *C.VipsImage) ([]byte, error) {
+	var buf unsafe.Pointer
+	var length C.size_t
+	if err := C.vipsgen_heifsave_buffer(in, &buf, &length); err != 0 {
+		return nil, handleVipsError()
+	}
+	return bufferToBytes(buf, length), nil
+}
+
+// vipsgenHeifsaveBufferWithOptions vips_heifsave_buffer save image in HEIF format with optional arguments
+func vipsgenHeifsaveBufferWithOptions(in *C.VipsImage, q int, bitdepth int, lossless bool, compression HeifCompression, effort int, subsampleMode Subsample, encoder HeifEncoder, keep Keep, background []float64, pageHeight int, profile string) ([]byte, error) {
+	var buf unsafe.Pointer
+	var length C.size_t
+	cbackground, cbackgroundLength, err := convertToDoubleArray(background)
+	if err != nil {
+		return nil, err
+	}
+	if cbackground != nil {
+		defer freeDoubleArray(cbackground)
+	}
+	cprofile := C.CString(profile)
+	defer freeCString(cprofile)
+	if err := C.vipsgen_heifsave_buffer_with_options(in, &buf, &length, C.int(q), C.int(bitdepth), C.int(boolToInt(lossless)), C.VipsForeignHeifCompression(compression), C.int(effort), C.VipsForeignSubsample(subsampleMode), C.VipsForeignHeifEncoder(encoder), C.VipsForeignKeep(keep), cbackground, cbackgroundLength, C.int(pageHeight), cprofile); err != 0 {
+		return nil, handleVipsError()
+	}
+	return bufferToBytes(buf, length), nil
+}
+
+// vipsgenJxlsave vips_jxlsave save image in JPEG-XL format
+func vipsgenJxlsave(in *C.VipsImage, filename string) (error) {
+	cfilename := C.CString(filename)
+	defer freeCString(cfilename)
+	if err := C.vipsgen_jxlsave(in, cfilename); err != 0 {
+		return handleVipsError()
+	}
+	return nil
+}
+
+// vipsgenJxlsaveWithOptions vips_jxlsave save image in JPEG-XL format with optional arguments
+func vipsgenJxlsaveWithOptions(in *C.VipsImage, filename string, tier int, distance float64, effort int, lossless bool, q int, keep Keep, background []float64, pageHeight int, profile string) (error) {
+	cfilename := C.CString(filename)
+	defer freeCString(cfilename)
+	cbackground, cbackgroundLength, err := convertToDoubleArray(background)
+	if err != nil {
+		return err
+	}
+	if cbackground != nil {
+		defer freeDoubleArray(cbackground)
+	}
+	cprofile := C.CString(profile)
+	defer freeCString(cprofile)
+	if err := C.vipsgen_jxlsave_with_options(in, cfilename, C.int(tier), C.double(distance), C.int(effort), C.int(boolToInt(lossless)), C.int(q), C.VipsForeignKeep(keep), cbackground, cbackgroundLength, C.int(pageHeight), cprofile); err != 0 {
+		return handleVipsError()
+	}
+	return nil
+}
+
+// vipsgenJxlsaveBuffer vips_jxlsave_buffer save image in JPEG-XL format
+func vipsgenJxlsaveBuffer(in *C.VipsImage) ([]byte, error) {
+	var buf unsafe.Pointer
+	var length C.size_t
+	if err := C.vipsgen_jxlsave_buffer(in, &buf, &length); err != 0 {
+		return nil, handleVipsError()
+	}
+	return bufferToBytes(buf, length), nil
+}
+
+// vipsgenJxlsaveBufferWithOptions vips_jxlsave_buffer save image in JPEG-XL format with optional arguments
+func vipsgenJxlsaveBufferWithOptions(in *C.VipsImage, tier int, distance float64, effort int, lossless bool, q int, keep Keep, background []float64, pageHeight int, profile string) ([]byte, error) {
+	var buf unsafe.Pointer
+	var length C.size_t
+	cbackground, cbackgroundLength, err := convertToDoubleArray(background)
+	if err != nil {
+		return nil, err
+	}
+	if cbackground != nil {
+		defer freeDoubleArray(cbackground)
+	}
+	cprofile := C.CString(profile)
+	defer freeCString(cprofile)
+	if err := C.vipsgen_jxlsave_buffer_with_options(in, &buf, &length, C.int(tier), C.double(distance), C.int(effort), C.int(boolToInt(lossless)), C.int(q), C.VipsForeignKeep(keep), cbackground, cbackgroundLength, C.int(pageHeight), cprofile); err != 0 {
+		return nil, handleVipsError()
+	}
+	return bufferToBytes(buf, length), nil
+}
+
 // vipsgenMagicksave vips_magicksave save file with ImageMagick
 func vipsgenMagicksave(in *C.VipsImage, filename string) (error) {
 	cfilename := C.CString(filename)
@@ -3646,64 +3826,6 @@ func vipsgenMagicksaveBufferWithOptions(in *C.VipsImage, format string, quality 
 	cprofile := C.CString(profile)
 	defer freeCString(cprofile)
 	if err := C.vipsgen_magicksave_buffer_with_options(in, &buf, &length, cformat, C.int(quality), C.int(boolToInt(optimizeGifFrames)), C.int(boolToInt(optimizeGifTransparency)), C.int(bitdepth), C.VipsForeignKeep(keep), cbackground, cbackgroundLength, C.int(pageHeight), cprofile); err != 0 {
-		return nil, handleVipsError()
-	}
-	return bufferToBytes(buf, length), nil
-}
-
-// vipsgenHeifsave vips_heifsave save image in HEIF format
-func vipsgenHeifsave(in *C.VipsImage, filename string) (error) {
-	cfilename := C.CString(filename)
-	defer freeCString(cfilename)
-	if err := C.vipsgen_heifsave(in, cfilename); err != 0 {
-		return handleVipsError()
-	}
-	return nil
-}
-
-// vipsgenHeifsaveWithOptions vips_heifsave save image in HEIF format with optional arguments
-func vipsgenHeifsaveWithOptions(in *C.VipsImage, filename string, q int, bitdepth int, lossless bool, compression HeifCompression, effort int, subsampleMode Subsample, encoder HeifEncoder, keep Keep, background []float64, pageHeight int, profile string) (error) {
-	cfilename := C.CString(filename)
-	defer freeCString(cfilename)
-	cbackground, cbackgroundLength, err := convertToDoubleArray(background)
-	if err != nil {
-		return err
-	}
-	if cbackground != nil {
-		defer freeDoubleArray(cbackground)
-	}
-	cprofile := C.CString(profile)
-	defer freeCString(cprofile)
-	if err := C.vipsgen_heifsave_with_options(in, cfilename, C.int(q), C.int(bitdepth), C.int(boolToInt(lossless)), C.VipsForeignHeifCompression(compression), C.int(effort), C.VipsForeignSubsample(subsampleMode), C.VipsForeignHeifEncoder(encoder), C.VipsForeignKeep(keep), cbackground, cbackgroundLength, C.int(pageHeight), cprofile); err != 0 {
-		return handleVipsError()
-	}
-	return nil
-}
-
-// vipsgenHeifsaveBuffer vips_heifsave_buffer save image in HEIF format
-func vipsgenHeifsaveBuffer(in *C.VipsImage) ([]byte, error) {
-	var buf unsafe.Pointer
-	var length C.size_t
-	if err := C.vipsgen_heifsave_buffer(in, &buf, &length); err != 0 {
-		return nil, handleVipsError()
-	}
-	return bufferToBytes(buf, length), nil
-}
-
-// vipsgenHeifsaveBufferWithOptions vips_heifsave_buffer save image in HEIF format with optional arguments
-func vipsgenHeifsaveBufferWithOptions(in *C.VipsImage, q int, bitdepth int, lossless bool, compression HeifCompression, effort int, subsampleMode Subsample, encoder HeifEncoder, keep Keep, background []float64, pageHeight int, profile string) ([]byte, error) {
-	var buf unsafe.Pointer
-	var length C.size_t
-	cbackground, cbackgroundLength, err := convertToDoubleArray(background)
-	if err != nil {
-		return nil, err
-	}
-	if cbackground != nil {
-		defer freeDoubleArray(cbackground)
-	}
-	cprofile := C.CString(profile)
-	defer freeCString(cprofile)
-	if err := C.vipsgen_heifsave_buffer_with_options(in, &buf, &length, C.int(q), C.int(bitdepth), C.int(boolToInt(lossless)), C.VipsForeignHeifCompression(compression), C.int(effort), C.VipsForeignSubsample(subsampleMode), C.VipsForeignHeifEncoder(encoder), C.VipsForeignKeep(keep), cbackground, cbackgroundLength, C.int(pageHeight), cprofile); err != 0 {
 		return nil, handleVipsError()
 	}
 	return bufferToBytes(buf, length), nil
