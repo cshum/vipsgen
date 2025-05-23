@@ -63,8 +63,8 @@ var knownMimeTypes = map[string]string{
 
 // Base image types that should always be included in the enum
 var baseImageTypes = []string{
-	"gif", "jpeg", "magick", "pdf", "png", "svg",
-	"tiff", "webp", "heif", "bmp", "jp2k", "avif",
+	"jpeg", "gif", "png", "webp", "heif", "svg",
+	"tiff", "jp2k", "avif", "pdf", "bmp", "magick",
 }
 
 // Regular expressions to match load/save operations
