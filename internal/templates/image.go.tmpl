@@ -229,9 +229,59 @@ func (r *Image) Bands() int {
 	return int(r.image.Bands)
 }
 
+// ResX returns the X resolution
+func (r *Image) ResX() float64 {
+	return float64(r.image.Xres)
+}
+
+// ResY returns the Y resolution
+func (r *Image) ResY() float64 {
+	return float64(r.image.Yres)
+}
+
+// OffsetX returns the X offset
+func (r *Image) OffsetX() int {
+	return int(r.image.Xoffset)
+}
+
+// OffsetY returns the Y offset
+func (r *Image) OffsetY() int {
+	return int(r.image.Yoffset)
+}
+
+// BandFormat returns the current band format
+func (r *Image) BandFormat() BandFormat {
+	return BandFormat(int(r.image.BandFmt))
+}
+
+// Coding returns the image coding
+func (r *Image) Coding() Coding {
+	return Coding(int(r.image.Coding))
+}
+
+// Interpretation returns the current interpretation of the color space of the image.
+func (r *Image) Interpretation() Interpretation {
+	return Interpretation(int(r.image.Type))
+}
+
+// IsColorSpaceSupported returns a boolean whether the image's color space is supported by libvips.
+func (r *Image) IsColorSpaceSupported() bool {
+	return vipsIsColorSpaceSupported(r.image)
+}
+
 // HasAlpha returns if the image has an alpha layer.
 func (r *Image) HasAlpha() bool {
 	return vipsHasAlpha(r.image)
+}
+
+// HasICCProfile checks whether the image has an ICC profile embedded.
+func (r *Image) HasICCProfile() bool {
+	return vipsHasICCProfile(r.image)
+}
+
+// HasIPTC returns a boolean whether the image in question has IPTC data associated with it.
+func (r *Image) HasIPTC() bool {
+	return vipsHasIPTC(r.image)
 }
 
 // Orientation returns the orientation number as it appears in the Exif, if present
@@ -239,9 +289,26 @@ func (r *Image) Orientation() int {
 	return vipsGetMetaOrientation(r.image)
 }
 
-// Interpretation returns the current interpretation of the color space of the image.
-func (r *Image) Interpretation() Interpretation {
-	return Interpretation(int(r.image.Type))
+// SetOrientation sets the orientation in the EXIF header of the associated image.
+func (r *Image) SetOrientation(orientation int) error {
+	out, err := vipsgenCopy(r.image)
+	if err != nil {
+		return err
+	}
+	vipsSetMetaOrientation(out, orientation)
+	r.setImage(out)
+	return nil
+}
+
+// RemoveOrientation removes the EXIF orientation information of the image.
+func (r *Image) RemoveOrientation() error {
+	out, err := vipsgenCopy(r.image)
+	if err != nil {
+		return err
+	}
+	vipsRemoveMetaOrientation(out)
+	r.setImage(out)
+	return nil
 }
 
 // Pages returns the number of pages in the Image
@@ -278,9 +345,30 @@ func (r *Image) SetPageDelay(delay []int) error {
 	return vipsImageSetDelay(r.image, delay)
 }
 
-// RemoveICCProfile removes the ICC profile from the image
+// Background get the background of image.
+func (r *Image) Background() ([]float64, error) {
+	out, err := vipsImageGetBackground(r.image)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// GetICCProfile retrieves the ICC profile data (if any) from the image.
+func (r *Image) GetICCProfile() []byte {
+	bytes, _ := vipsGetICCProfile(r.image)
+	return bytes
+}
+
+// RemoveICCProfile removes the ICC Profile information from the image.
+// Typically, browsers and other software assume images without profile to be in the sRGB color space.
 func (r *Image) RemoveICCProfile() error {
-	vipsRemoveICCProfile(r.image)
+	out, err := vipsgenCopy(r.image)
+	if err != nil {
+		return err
+	}
+	vipsRemoveICCProfile(out)
+	r.setImage(out)
 	return nil
 }
 
