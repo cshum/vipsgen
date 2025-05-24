@@ -182,7 +182,7 @@ func (v *Introspection) DiscoverImageTypes() []ImageTypeInfo {
 			existing.HasLoader = hasLoader
 			existing.HasSaver = hasSaver
 			if v.isDebug && (hasLoader || hasSaver) {
-				log.Printf("Updated base format %s: loaders=%v, savers=%v", formatName, foundLoaders, foundSavers)
+				log.Printf("Image type %s: loaders=%v, savers=%v", formatName, foundLoaders, foundSavers)
 			}
 		} else if hasLoader || hasSaver {
 			// Add new discovered format not in base types
@@ -195,7 +195,7 @@ func (v *Introspection) DiscoverImageTypes() []ImageTypeInfo {
 				HasSaver:  hasSaver,
 			}
 			if v.isDebug {
-				log.Printf("Added new format %s: loaders=%v, savers=%v", formatName, foundLoaders, foundSavers)
+				log.Printf("Image type %s: loaders=%v, savers=%v", formatName, foundLoaders, foundSavers)
 			}
 		}
 	}
@@ -223,17 +223,6 @@ func (v *Introspection) addBaseTypesToResult(discoveredFormats map[string]*Image
 			format.Order = currentOrder
 			*imageTypes = append(*imageTypes, *format)
 			v.discoveredImageTypes[typeName] = *format
-
-			status := "unsupported"
-			if format.HasLoader && format.HasSaver {
-				status = "loader+saver"
-			} else if format.HasLoader {
-				status = "loader only"
-			} else if format.HasSaver {
-				status = "saver only"
-			}
-
-			log.Printf("Base image type: %s (%s)", typeName, status)
 			currentOrder++
 
 			// Remove from map so we don't add it again
@@ -253,9 +242,6 @@ func (v *Introspection) addBaseTypesToResult(discoveredFormats map[string]*Image
 		format.Order = currentOrder
 		*imageTypes = append(*imageTypes, *format)
 		v.discoveredImageTypes[formatName] = *format
-
-		log.Printf("Additional image type: %s (loader: %v, saver: %v)",
-			formatName, format.HasLoader, format.HasSaver)
 		currentOrder++
 	}
 }
@@ -373,37 +359,6 @@ func (v *Introspection) handleSpecialCases(discoveredFormats map[string]*ImageTy
 			}
 		}
 	}
-}
-
-// DiscoverSupportedSavers finds which image savers are supported in current libvips build
-func (v *Introspection) DiscoverSupportedSavers() map[string]bool {
-	saverSupport := make(map[string]bool)
-
-	// Process discovered image types
-	for formatName, imageType := range v.discoveredImageTypes {
-		if imageType.HasSaver {
-			// Set the HasXxxSaver flag (e.g., HasJpegSaver)
-			saverKey := "Has" + strings.Title(formatName) + "Saver"
-			saverSupport[saverKey] = true
-
-			// Also set the ImageTypeXxx flag for templates (e.g., ImageTypeJpeg)
-			saverSupport[imageType.EnumName] = true
-		}
-	}
-
-	// Special handling for GIF variants
-	if v.checkOperationExists("gifsave_buffer") {
-		saverSupport["HasCgifSaver"] = true
-	}
-	if v.checkOperationExists("magicksave_buffer") {
-		saverSupport["HasLegacyGifSaver"] = true
-	}
-
-	if v.isDebug {
-		log.Printf("Discovered %d saver capabilities", len(saverSupport))
-	}
-
-	return saverSupport
 }
 
 // determineImageTypeStringFromOperation determines the appropriate ImageType
