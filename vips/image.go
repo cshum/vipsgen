@@ -8890,6 +8890,50 @@ func (r *Image) Orientation() int {
 	return vipsGetMetaOrientation(r.image)
 }
 
+func (r *Image) GetFields() []string {
+	return vipsImageGetFields(r.image)
+}
+
+func (r *Image) SetBlob(name string, data []byte) {
+	vipsImageSetBlob(r.image, name, data)
+}
+
+func (r *Image) GetBlob(name string) []byte {
+	return vipsImageGetBlob(r.image, name)
+}
+
+func (r *Image) SetDouble(name string, f float64) {
+	vipsImageSetDouble(r.image, name, f)
+}
+
+func (r *Image) GetDouble(name string) float64 {
+	return vipsImageGetDouble(r.image, name)
+}
+
+func (r *Image) SetInt(name string, i int) {
+	vipsImageSetInt(r.image, name, i)
+}
+
+func (r *Image) GetInt(name string) int {
+	return vipsImageGetInt(r.image, name)
+}
+
+func (r *Image) SetString(name string, str string) {
+	vipsImageSetString(r.image, name, str)
+}
+
+func (r *Image) GetString(name string) string {
+	return vipsImageGetString(r.image, name)
+}
+
+func (r *Image) GetAsString(name string) string {
+	return vipsImageGetAsString(r.image, name)
+}
+
+func (r *Image) Exif() map[string]string {
+	return vipsImageGetExifData(r.image)
+}
+
 // SetOrientation sets the orientation in the EXIF header of the associated image.
 func (r *Image) SetOrientation(orientation int) error {
 	out, err := vipsgenCopy(r.image)
