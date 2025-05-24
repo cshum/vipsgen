@@ -4,16 +4,22 @@
 [![Go Reference](https://pkg.go.dev/badge/github.com/cshum/vipsgen/vips.svg)](https://pkg.go.dev/github.com/cshum/vipsgen/vips)
 [![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/cshum/vipsgen)](https://github.com/cshum/vipsgen/releases)
 
-vipsgen is a Go binding generator for [libvips](https://github.com/libvips/libvips) - a fast and efficient image processing library.
+vipsgen is a Go binding generator for [libvips](https://www.libvips.org/) - a fast and efficient image processing library.
 
-Existing Go libvips bindings rely on manually written code that is often incomplete, error-prone, and difficult to maintain as libvips evolves. vipsgen aims to solve this problem by generating type-safe, robust, and fully documented Go bindings using GObject introspection.
+Existing Go libvips bindings rely on manually written code that is often incomplete, error-prone, and difficult to maintain as libvips evolves.
+vipsgen solves this by generating type-safe, robust, and fully documented Go bindings using GObject introspection.
 
-vipsgen provides a pre-generated library you can import directly `github.com/cshum/vipsgen/vips`. Also allows code generation via `vipsgen` command that adapts to your specific libvips installation.
+You can use vipsgen in two ways:
 
-- **Coverage**: Comprehensive bindings for around 300 libvips operations
-- **Type-Safe**: Generates proper Go types for libvips C enums and structs
-- **Idiomatic**: Creates clear Go style code that feels natural to use
-- **Streaming**: Includes `VipsSource` bindings with `io.ReadCloser` integration for streaming
+- **Import directly**: Use the pre-generated library `github.com/cshum/vipsgen/vips`
+- **Generate custom bindings**: Run the vipsgen command to create bindings tailored to your specific libvips installation
+
+### Features
+
+- **Comprehensive**: Bindings for around [300 libvips operations](https://www.libvips.org/API/current/func-list.html)
+- **Type-Safe**: Proper Go types for all libvips C enums and structs
+- **Idiomatic**: Clean Go APIs that feel natural to use
+- **Streaming**: Includes `VipsSource` integration with `io.ReadCloser` for [streaming](https://www.libvips.org/2019/11/29/True-streaming-for-libvips.html)
 
 ## Quick Start
 
@@ -136,11 +142,11 @@ Options:
 
 ### How Code Generation Works
 
-The generation process involves multiple layers to overcome CGO limitations and provide a type-safe, idiomatic Go API:
+The generation process involves multiple layers to provide a type-safe, idiomatic Go API:
 
 1. **Introspection Analysis**: vipsgen uses GObject introspection to analyze the libvips API, extracting operation metadata, argument types, and enum definitions.
 
-2. **Multi-Layer Generation**: To create type-safe, idiomatic Go APIs from libvips' dynamic parameter system, vipsgen creates a layered approach that handles both required and optional parameters.
+2. **Multi-Layer Generation**: To create type-safe, idiomatic Go APIs from libvips dynamic parameter system, vipsgen creates a layered approach that handles both required and optional parameters.
 
 3. **Type-Safe Bindings**: The generated code is fully type-safe with proper Go types, structs, and enums based on centralized introspection data.
 
@@ -180,12 +186,12 @@ The generation process involves multiple layers to overcome CGO limitations and 
 
 **1. C Layer (vips.c/vips.h)**
 
-**Problem**: CGO cannot call C variadic functions like `vips_resize(in, &out, scale, "kernel", kernel, ...)`.
+**Problem**: libvips dynamic parameter system with variadic functions like `vips_resize(in, &out, scale, "kernel", kernel, ...)` does not translate well to type-safe, idiomatic Go APIs.
 
 **Solution**: Generate two types of C wrapper functions:
 
 ```c
-// Basic function - required arguments only, calls vips_abc directly
+// Basic function - required arguments only, calls vips_resize directly
 int vipsgen_resize(VipsImage* in, VipsImage** out, double scale) {
     return vips_resize(in, out, scale, NULL);
 }
@@ -210,7 +216,7 @@ int vipsgen_resize_with_options(VipsImage* in, VipsImage** out, double scale,
 }
 ```
 
-This layer handles VipsArray creation/cleanup, VipsOperation lifecycle management, type-specific setters, and memory management.
+This layer handles VipsArray creation/cleanup, VipsOperation lifecycle management, type-specific setters.
 
 **2. Go Binding Layer (vips.go)**
 
@@ -280,7 +286,6 @@ func (r *Image) Resize(scale float64, options *ResizeOptions) error {
         r.setImage(out)
         return nil
     }
-    
     // Use the basic variant for required parameters only
     out, err := vipsgenResize(r.image, scale)
     if err != nil {
@@ -291,7 +296,7 @@ func (r *Image) Resize(scale float64, options *ResizeOptions) error {
 }
 ```
 
-This layer provides idiomatic Go methods, options structs for optional parameters, Go type system integration, and automatic resource management.
+This layer provides idiomatic Go methods, options structs for optional parameters, Go type system integration.
 
 ## Contributing
 
