@@ -5336,9 +5336,6 @@ void clear_image(VipsImage **image) {
 int has_alpha_channel(VipsImage *image) {
   return vips_image_hasalpha(image);
 }
-gboolean remove_icc_profile(VipsImage *in) {
-  return vips_image_remove(in, VIPS_META_ICC_NAME);
-}
 
 int get_meta_orientation(VipsImage *in) {
   int orientation = 0;
@@ -5380,6 +5377,94 @@ const char * get_meta_string(const VipsImage *image, const char *name) {
     return &val[0];
   }
   return "";
+}
+
+int is_colorspace_supported(VipsImage *in) {
+  return vips_colourspace_issupported(in) ? 1 : 0;
+}
+
+unsigned long has_icc_profile(VipsImage *in) {
+  return vips_image_get_typeof(in, VIPS_META_ICC_NAME);
+}
+
+unsigned long get_icc_profile(VipsImage *in, const void **data,
+                              size_t *dataLength) {
+  return image_get_blob(in, VIPS_META_ICC_NAME, data, dataLength);
+}
+
+gboolean remove_icc_profile(VipsImage *in) {
+  return vips_image_remove(in, VIPS_META_ICC_NAME);
+}
+
+unsigned long has_iptc(VipsImage *in) {
+  return vips_image_get_typeof(in, VIPS_META_IPTC_NAME);
+}
+
+char **image_get_fields(VipsImage *in) { return vips_image_get_fields(in); }
+
+void image_set_string(VipsImage *in, const char *name, const char *str) {
+  vips_image_set_string(in, name, str);
+}
+
+unsigned long image_get_string(VipsImage *in, const char *name,
+                               const char **out) {
+  return vips_image_get_string(in, name, out);
+}
+
+unsigned long image_get_as_string(VipsImage *in, const char *name, char **out) {
+  return vips_image_get_as_string(in, name, out);
+}
+
+void remove_field(VipsImage *in, char *field) { vips_image_remove(in, field); }
+
+void remove_meta_orientation(VipsImage *in) {
+  vips_image_remove(in, VIPS_META_ORIENTATION);
+}
+
+void set_meta_orientation(VipsImage *in, int orientation) {
+  vips_image_set_int(in, VIPS_META_ORIENTATION, orientation);
+}
+
+void set_image_n_pages(VipsImage *in, int n_pages) {
+  vips_image_set_int(in, VIPS_META_N_PAGES, n_pages);
+}
+
+int get_background(VipsImage *in, double **out, int *n) {
+  return vips_image_get_array_double(in, "background", out, n);
+}
+
+int get_image_delay(VipsImage *in, int **out) {
+  return vips_image_get_array_int(in, "delay", out, NULL);
+}
+
+void image_set_double(VipsImage *in, const char *name, double i) {
+  vips_image_set_double(in, name, i);
+}
+
+unsigned long image_get_double(VipsImage *in, const char *name, double *out) {
+  return vips_image_get_double(in, name, out);
+}
+
+void image_set_int(VipsImage *in, const char *name, int i) {
+  vips_image_set_int(in, name, i);
+}
+
+unsigned long image_get_int(VipsImage *in, const char *name, int *out) {
+  return vips_image_get_int(in, name, out);
+}
+
+void image_set_blob(VipsImage *in, const char *name, const void *data, size_t dataLength) {
+  vips_image_set_blob_copy(in, name, data, dataLength);
+}
+
+unsigned long image_get_blob(VipsImage *in, const char *name, const void **data, size_t *dataLength) {
+  if (vips_image_get_typeof(in, name) == 0) {
+    return 0;
+  }
+  if (vips_image_get_blob(in, name, data, dataLength)) {
+    return -1;
+  }
+  return 0;
 }
 
 int remove_exif(VipsImage *in, VipsImage **out) {
