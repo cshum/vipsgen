@@ -279,8 +279,9 @@ func (r *Image) SetPageDelay(delay []int) error {
 }
 
 // RemoveICCProfile removes the ICC profile from the image
-func (r *Image) RemoveICCProfile() bool {
-	return vipsRemoveICCProfile(r.image)
+func (r *Image) RemoveICCProfile() error {
+	vipsRemoveICCProfile(r.image)
+	return nil
 }
 
 // RemoveExif removes all metadata from the image (except ICC profile)
