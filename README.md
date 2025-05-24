@@ -140,7 +140,7 @@ The generation process involves multiple layers to overcome CGO limitations and 
 
 1. **Introspection Analysis**: vipsgen uses GObject introspection to analyze the libvips API, extracting operation metadata, argument types, and enum definitions.
 
-2. **Multi-Layer Generation**: Since CGO doesn't support C variadic functions (varargs), vipsgen creates a layered approach to handle libvips operations.
+2. **Multi-Layer Generation**: To create type-safe, idiomatic Go APIs from libvips' dynamic parameter system, vipsgen creates a layered approach that handles both required and optional parameters.
 
 3. **Type-Safe Bindings**: The generated code is fully type-safe with proper Go types, structs, and enums based on centralized introspection data.
 
