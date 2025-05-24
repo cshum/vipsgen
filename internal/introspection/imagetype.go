@@ -375,37 +375,6 @@ func (v *Introspection) handleSpecialCases(discoveredFormats map[string]*ImageTy
 	}
 }
 
-// DiscoverSupportedSavers finds which image savers are supported in current libvips build
-func (v *Introspection) DiscoverSupportedSavers() map[string]bool {
-	saverSupport := make(map[string]bool)
-
-	// Process discovered image types
-	for formatName, imageType := range v.discoveredImageTypes {
-		if imageType.HasSaver {
-			// Set the HasXxxSaver flag (e.g., HasJpegSaver)
-			saverKey := "Has" + strings.Title(formatName) + "Saver"
-			saverSupport[saverKey] = true
-
-			// Also set the ImageTypeXxx flag for templates (e.g., ImageTypeJpeg)
-			saverSupport[imageType.EnumName] = true
-		}
-	}
-
-	// Special handling for GIF variants
-	if v.checkOperationExists("gifsave_buffer") {
-		saverSupport["HasCgifSaver"] = true
-	}
-	if v.checkOperationExists("magicksave_buffer") {
-		saverSupport["HasLegacyGifSaver"] = true
-	}
-
-	if v.isDebug {
-		log.Printf("Discovered %d saver capabilities", len(saverSupport))
-	}
-
-	return saverSupport
-}
-
 // determineImageTypeStringFromOperation determines the appropriate ImageType
 // constant for a given operation name using the discovered image types
 func (v *Introspection) determineImageTypeStringFromOperation(opName string) string {
