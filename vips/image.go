@@ -8956,9 +8956,8 @@ func (r *Image) Background() ([]float64, error) {
 }
 
 // GetICCProfile retrieves the ICC profile data (if any) from the image.
-func (r *Image) GetICCProfile() []byte {
-	bytes, _ := vipsGetICCProfile(r.image)
-	return bytes
+func (r *Image) GetICCProfile() ([]byte, bool) {
+	return vipsGetICCProfile(r.image)
 }
 
 // RemoveICCProfile removes the ICC Profile information from the image.
