@@ -61,9 +61,6 @@ func main() {
 	// Extract image types from operations
 	imageTypes := vipsIntrospection.DiscoverImageTypes()
 
-	// Discover supported savers
-	supportedSavers := vipsIntrospection.DiscoverSupportedSavers()
-
 	// Convert GIR data to vipsgen.Operation format
 	operations := vipsIntrospection.DiscoverOperations()
 	log.Printf("Extracted %d operations from GObject Introspection\n", len(operations))
@@ -73,7 +70,7 @@ func main() {
 	log.Printf("Discovered %d enum types\n", len(enumTypes))
 
 	// Create unified template data
-	templateData := generator.NewTemplateData(operations, enumTypes, imageTypes, supportedSavers)
+	templateData := generator.NewTemplateData(operations, enumTypes, imageTypes)
 
 	// Generate all code using the unified template data approach
 	if err := generator.Generate(loader, templateData, outputDir); err != nil {
