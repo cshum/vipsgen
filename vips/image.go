@@ -9122,6 +9122,7 @@ func (r *Image) EmbedMultiPage(left, top, width, height int, options *EmbedMulti
 	if options == nil {
 		options = DefaultEmbedMultiPageOptions()
 	}
+	
 	if r.Height() == r.PageHeight() {
 		out, err := vipsgenEmbedWithOptions(r.image, left, top, width, height, options.Extend, options.Background)
 		if err != nil {
@@ -9130,6 +9131,7 @@ func (r *Image) EmbedMultiPage(left, top, width, height int, options *EmbedMulti
 		r.setImage(out)
 		return nil
 	}
+	
 	if options.Extend == ExtendBackground {
 		bg := []float64{0, 0, 0, 255}
 		if len(options.Background) > 0 {
@@ -9158,6 +9160,7 @@ func (r *Image) EmbedMultiPage(left, top, width, height int, options *EmbedMulti
 
 // ExtractAreaMultiPage extracts a region from the image, working correctly with multi-page (animated) images
 func (r *Image) ExtractAreaMultiPage(left, top, width, height int) error {
+	
 	if r.Height() == r.PageHeight() {
 		out, err := vipsgenExtractArea(r.image, left, top, width, height)
 		if err != nil {
@@ -9166,6 +9169,7 @@ func (r *Image) ExtractAreaMultiPage(left, top, width, height int) error {
 		r.setImage(out)
 		return nil
 	}
+	
 	out, err := vipsExtractAreaMultiPage(r.image, left, top, width, height)
 	if err != nil {
 		return err
@@ -9174,8 +9178,9 @@ func (r *Image) ExtractAreaMultiPage(left, top, width, height int) error {
 	return nil
 }
 
-// RotateMultiPage rotates an image by the specified angle, working correctly with multi-page (animated) images
-func (r *Image) RotateMultiPage(angle Angle) error {
+// RotMultiPage rotates an image by a multiple of 90 degrees, working correctly with multi-page (animated) images
+func (r *Image) RotMultiPage(angle Angle) error {
+	
 	if r.Height() == r.PageHeight() {
 		out, err := vipsgenRot(r.image, angle)
 		if err != nil {
@@ -9184,7 +9189,8 @@ func (r *Image) RotateMultiPage(angle Angle) error {
 		r.setImage(out)
 		return nil
 	}
-	out, err := vipsRotateMultiPage(r.image, angle)
+	
+	out, err := vipsRotMultiPage(r.image, angle)
 	if err != nil {
 		return err
 	}
