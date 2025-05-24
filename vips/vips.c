@@ -5433,10 +5433,6 @@ int get_background(VipsImage *in, double **out, int *n) {
   return vips_image_get_array_double(in, "background", out, n);
 }
 
-int get_image_delay(VipsImage *in, int **out) {
-  return vips_image_get_array_int(in, "delay", out, NULL);
-}
-
 void image_set_double(VipsImage *in, const char *name, double i) {
   vips_image_set_double(in, name, i);
 }
