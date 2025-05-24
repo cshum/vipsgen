@@ -9026,6 +9026,67 @@ func (r *Image) RemoveExif() error {
 	return nil
 }
 
+// Modulate the colors
+func (r *Image) Modulate(brightness, saturation, hue float64) error {
+	var err error
+	var multiplications []float64
+	var additions []float64
+	colorspace := r.Interpretation()
+	if colorspace == InterpretationRgb {
+		colorspace = InterpretationSrgb
+	}
+	multiplications = []float64{brightness, saturation, 1}
+	additions = []float64{0, 0, hue}
+	if r.HasAlpha() {
+		multiplications = append(multiplications, 1)
+		additions = append(additions, 0)
+	}
+	err = r.Colourspace(InterpretationLch, nil)
+	if err != nil {
+		return err
+	}
+	err = r.Linear(multiplications, additions, nil)
+	if err != nil {
+		return err
+	}
+	err = r.Colourspace(colorspace, nil)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// ModulateHSV modulates the image HSV values based on the supplier parameters.
+func (r *Image) ModulateHSV(brightness, saturation float64, hue int) error {
+	var err error
+	var multiplications []float64
+	var additions []float64
+	colorspace := r.Interpretation()
+	if colorspace == InterpretationRgb {
+		colorspace = InterpretationSrgb
+	}
+	if r.HasAlpha() {
+		multiplications = []float64{1, saturation, brightness, 1}
+		additions = []float64{float64(hue), 0, 0, 0}
+	} else {
+		multiplications = []float64{1, saturation, brightness}
+		additions = []float64{float64(hue), 0, 0}
+	}
+	err = r.Colourspace(InterpretationHsv, nil)
+	if err != nil {
+		return err
+	}
+	err = r.Linear(multiplications, additions, nil)
+	if err != nil {
+		return err
+	}
+	err = r.Colourspace(colorspace, nil)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 // EmbedMultiPageOptions are options for EmbedMultiPage method
 type EmbedMultiPageOptions struct {
 	// Extend determines how the image edges are extended
