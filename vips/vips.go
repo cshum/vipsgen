@@ -5725,7 +5725,7 @@ func vipsExtractAreaMultiPage(in *C.VipsImage, left, top, width, height int) (*C
 	return out, nil
 }
 
-func vipsRotateMultiPage(in *C.VipsImage, angle Angle) (*C.VipsImage, error) {
+func vipsRotMultiPage(in *C.VipsImage, angle Angle) (*C.VipsImage, error) {
 	var out *C.VipsImage
 	if err := C.rotate_image_multi_page(in, &out, C.VipsAngle(angle)); err != 0 {
 		return nil, handleImageError(out)
