@@ -372,7 +372,7 @@ func (r *Image) Pages() int {
 // SetPages sets the number of pages in the Image
 // For animated images this corresponds to the number of frames
 func (r *Image) SetPages(pages int) error {
-	out, err := vipsCopyImage(r.image)
+	out, err := vipsgenCopy(r.image)
 	if err != nil {
 		return err
 	}
