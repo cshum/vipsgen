@@ -99,11 +99,7 @@ func main() {
 
 ## Code Generation
 
-Code generation requires libvips to be built with GObject introspection support. How it works:
-
-1. vipsgen uses GObject introspection to analyze the libvips API.
-2. It then generates Go code and C bindings that wraps the libvips functions and data structures.
-3. The generated code is type-safe and well-documented. 
+Code generation requires libvips to be built with GObject introspection support.
 
 ```bash
 go install github.com/cshum/vipsgen/cmd/vipsgen@latest
@@ -123,7 +119,6 @@ package main
 import (
     "yourproject/vips"
 )
-
 ```
 
 ### Command Line Options
@@ -138,6 +133,169 @@ Options:
 -extract-dir string    Directory to extract templates to (default "./templates")
 -debug                 Enable debug json output
 ```
+
+### How Code Generation Works
+
+The generation process involves multiple layers to overcome CGO limitations and provide a type-safe, idiomatic Go API:
+
+1. **Introspection Analysis**: vipsgen uses GObject introspection to analyze the libvips API, extracting operation metadata, argument types, and enum definitions.
+
+2. **Multi-Layer Generation**: Since CGO doesn't support C variadic functions (varargs), vipsgen creates a layered approach to handle libvips operations.
+
+3. **Type-Safe Bindings**: The generated code is fully type-safe with proper Go types, structs, and enums based on centralized introspection data.
+
+#### Architecture Overview
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    Go Method Layer                          │
+│  • Methods on *Image struct                                 │
+│  • Go enums and structs                                     │  
+│  • Options structs for optional parameters                  │
+│  • Type conversions (Go <-> C)                              │
+└─────────────────────────────────────────────────────────────┘
+                               │
+┌─────────────────────────────────────────────────────────────┐
+│                   Go Binding Layer                          │
+│  • vipsgenAbc() - required parameters only                  │
+│  • vipsgenAbcWithOptions() - with optional parameters       │
+│  • C array handling and memory management                   │
+│  • String conversions and cleanup                           │
+│  • Error handling and resource management                   │
+└─────────────────────────────────────────────────────────────┘
+                               │
+┌─────────────────────────────────────────────────────────────┐
+│                     C Layer                                 │
+│  • vipsgen_abc() - required args only                       │
+│  • vipsgen_abc_with_options() - all parameters              │
+│  • VipsOperation dynamic dispatch                           │
+│  • Proper VipsArray creation and cleanup                    │
+└─────────────────────────────────────────────────────────────┘
+                               │
+┌─────────────────────────────────────────────────────────────┐
+│                    libvips                                  │
+│  • vips_abc() - original variadic functions                 │
+│  • VipsOperation object system                              │
+│  • GObject introspection metadata                           │
+└─────────────────────────────────────────────────────────────┘
+```
+
+#### Layer Details
+
+**1. C Layer (vips.c/vips.h)**
+
+**Problem**: CGO cannot call C variadic functions like `vips_resize(in, &out, scale, "kernel", kernel, ...)`.
+
+**Solution**: Generate two types of C wrapper functions:
+
+```c
+// Basic function - required arguments only, calls vips_abc directly
+int vipsgen_resize(VipsImage* in, VipsImage** out, double scale) {
+    return vips_resize(in, out, scale, NULL);
+}
+
+// With options - uses VipsOperation for optional parameters  
+int vipsgen_resize_with_options(VipsImage* in, VipsImage** out, double scale, 
+                               VipsKernel kernel, double gap, double vscale) {
+    VipsOperation *operation = vips_operation_new("resize");
+    if (!operation) return 1;
+    if (
+        vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
+        vips_object_set(VIPS_OBJECT(operation), "scale", scale, NULL) ||
+        vipsgen_set_int(operation, "kernel", kernel) ||
+        vipsgen_set_double(operation, "gap", gap) ||
+        vipsgen_set_double(operation, "vscale", vscale)
+    ) {
+        g_object_unref(operation);
+        return 1;
+    }
+    int result = vipsgen_operation_execute(operation, "out", out, NULL);
+    return result;
+}
+```
+
+This layer handles VipsArray creation/cleanup, VipsOperation lifecycle management, type-specific setters, and memory management.
+
+**2. Go Binding Layer (vips.go)**
+
+**Problem**: C arrays, string management, and complex type conversions.
+
+**Solution**: Generate Go wrapper functions that handle CGO complexity:
+
+```go
+// vipsgenResize vips_resize resize an image
+func vipsgenResize(in *C.VipsImage, scale float64) (*C.VipsImage, error) {
+    var out *C.VipsImage
+    if err := C.vipsgen_resize(in, &out, C.double(scale)); err != 0 {
+        return nil, handleImageError(out)
+    }
+    return out, nil
+}
+
+// vipsgenResizeWithOptions vips_resize resize an image with optional arguments
+func vipsgenResizeWithOptions(in *C.VipsImage, scale float64, kernel Kernel, 
+                             gap float64, vscale float64) (*C.VipsImage, error) {
+    var out *C.VipsImage
+    if err := C.vipsgen_resize_with_options(in, &out, C.double(scale), 
+                                           C.VipsKernel(kernel), C.double(gap), 
+                                           C.double(vscale)); err != 0 {
+        return nil, handleImageError(out)
+    }
+    return out, nil
+}
+```
+
+This layer handles C array conversion, string conversion with cleanup, memory management, error handling, and type conversion between Go and C.
+
+**3. Go Method Layer (image.go)**
+
+**Problem**: Provide idiomatic Go API with proper encapsulation.
+
+**Solution**: Generate methods on `*Image` struct that encapsulate the two-function approach with options pattern:
+
+```go
+// ResizeOptions optional arguments for vips_resize
+type ResizeOptions struct {
+    // Kernel Resampling kernel
+    Kernel Kernel
+    // Gap Reducing gap
+    Gap float64
+    // Vscale Vertical scale image by this factor
+    Vscale float64
+}
+
+// DefaultResizeOptions creates default value for vips_resize optional arguments
+func DefaultResizeOptions() *ResizeOptions {
+    return &ResizeOptions{
+        Kernel: Kernel(5),
+        Gap: 2,
+    }
+}
+
+// Resize vips_resize resize an image
+func (r *Image) Resize(scale float64, options *ResizeOptions) error {
+    if options != nil {
+        // Use the WithOptions variant when options are provided
+        out, err := vipsgenResizeWithOptions(r.image, scale, 
+                                           options.Kernel, options.Gap, options.Vscale)
+        if err != nil {
+            return err
+        }
+        r.setImage(out)
+        return nil
+    }
+    
+    // Use the basic variant for required parameters only
+    out, err := vipsgenResize(r.image, scale)
+    if err != nil {
+        return err
+    }
+    r.setImage(out)
+    return nil
+}
+```
+
+This layer provides idiomatic Go methods, options structs for optional parameters, Go type system integration, and automatic resource management.
 
 ## Contributing
 
