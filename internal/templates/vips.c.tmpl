@@ -415,7 +415,7 @@ int extract_area_multi_page(VipsImage *in, VipsImage **out, int left, int top, i
   return 0;
 }
 
-int rotate_image_multi_page(VipsImage *in, VipsImage **out, VipsAngle angle) {
+int rot_multi_page(VipsImage *in, VipsImage **out, VipsAngle angle) {
   VipsObject *base = VIPS_OBJECT(vips_image_new());
   int page_height = vips_image_get_page_height(in);
   int in_width = in->Xsize;

@@ -85,7 +85,7 @@ int embed_multi_page_background(VipsImage *in, VipsImage **out, int left, int to
 int extract_area_multi_page(VipsImage *in, VipsImage **out, int left, int top,
                        int width, int height);
 
-int rotate_image_multi_page(VipsImage *in, VipsImage **out, VipsAngle angle);
+int rot_multi_page(VipsImage *in, VipsImage **out, VipsAngle angle);
 
 int label_image(VipsImage *in, VipsImage **out,
           const char *text, const char *font,
