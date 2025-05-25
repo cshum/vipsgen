@@ -181,10 +181,6 @@ int get_meta_loader(const VipsImage *in, const char **out) {
   return vips_image_get_string(in, VIPS_META_LOADER, out);
 }
 
-void set_image_delay(VipsImage *in, const int *array, int n) {
-  return vips_image_set_array_int(in, "delay", array, n);
-}
-
 const char * get_meta_string(const VipsImage *image, const char *name) {
   const char *val;
   if (vips_image_get_typeof(image, name) != 0 && !vips_image_get_string(image, name, &val)) {
@@ -243,8 +239,20 @@ void set_image_n_pages(VipsImage *in, int n_pages) {
   vips_image_set_int(in, VIPS_META_N_PAGES, n_pages);
 }
 
-int get_background(VipsImage *in, double **out, int *n) {
-  return vips_image_get_array_double(in, "background", out, n);
+int image_get_array_int(VipsImage *in, const char *name, int **out, int *n) {
+  return vips_image_get_array_int(in, name, out, n);
+}
+
+int image_get_array_double(VipsImage *in, const char *name, double **out, int *n) {
+  return vips_image_get_array_double(in, name, out, n);
+}
+
+void image_set_array_int(VipsImage *in, const char *name, const int *array, int n) {
+  vips_image_set_array_int(in, name, array, n);
+}
+
+void image_set_array_double(VipsImage *in, const char *name, const double *array, int n) {
+  vips_image_set_array_double(in, name, array, n);
 }
 
 void image_set_double(VipsImage *in, const char *name, double i) {
