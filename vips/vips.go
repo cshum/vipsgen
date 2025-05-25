@@ -5568,37 +5568,12 @@ func vipsImageGetArrayInt(in *C.VipsImage, name string) ([]int, error) {
 	var n C.int
 	cName := C.CString(name)
 	defer freeCString(cName)
-
 	if err := C.image_get_array_int(in, cName, &out, &n); err != 0 {
 		return nil, handleVipsError()
 	}
-
-	if out == nil || n <= 0 {
-		return nil, nil
-	}
-
-	// Convert C array to Go slice
-	data := make([]int, n)
-	for i := 0; i < int(n); i++ {
-		data[i] = int(*(*C.int)(unsafe.Pointer(uintptr(unsafe.Pointer(out)) + uintptr(i)*unsafe.Sizeof(C.int(0)))))
-	}
-
+	result := fromCArrayInt(out, int(n))
 	gFreePointer(unsafe.Pointer(out))
-	return data, nil
-}
-
-func vipsImageSetArrayInt(in *C.VipsImage, name string, data []int) {
-	if len(data) == 0 {
-		return
-	}
-	cName := C.CString(name)
-	defer freeCString(cName)
-	cArray, cLength, err := convertToIntArray(data)
-	if err != nil {
-		return
-	}
-	defer freeIntArray(cArray)
-	C.image_set_array_int(in, cName, cArray, cLength)
+	return result, nil
 }
 
 func vipsImageGetArrayDouble(in *C.VipsImage, name string) ([]float64, error) {
@@ -5612,20 +5587,6 @@ func vipsImageGetArrayDouble(in *C.VipsImage, name string) ([]float64, error) {
 	result := fromCArrayDouble(out, int(n))
 	gFreePointer(unsafe.Pointer(out))
 	return result, nil
-}
-
-func vipsImageSetArrayDouble(in *C.VipsImage, name string, data []float64) {
-	if len(data) == 0 {
-		return
-	}
-	cName := C.CString(name)
-	defer freeCString(cName)
-	cArray, cLength, err := convertToDoubleArray(data)
-	if err != nil {
-		return
-	}
-	defer freeDoubleArray(cArray)
-	C.image_set_array_double(in, cName, cArray, cLength)
 }
 
 // Blob operations
@@ -5714,58 +5675,6 @@ func vipsGetPageHeight(in *C.VipsImage) int {
 
 func vipsSetPageHeight(in *C.VipsImage, height int) {
 	C.vips_image_set_int(in, cachedCString(C.VIPS_META_PAGE_HEIGHT), C.int(height))
-}
-
-func vipsImageGetBackground(in *C.VipsImage) ([]float64, error) {
-	var out *C.double
-	var n C.int
-	if err := C.image_get_array_double(in, cachedCString("background"), &out, &n); err != 0 {
-		return nil, handleVipsError()
-	}
-	result := fromCArrayDouble(out, int(n))
-	gFreePointer(unsafe.Pointer(out))
-	return result, nil
-}
-
-func vipsImageSetBackground(in *C.VipsImage, background []float64) {
-	if len(background) == 0 {
-		return
-	}
-	cArray, cLength, err := convertToDoubleArray(background)
-	if err != nil {
-		return
-	}
-	defer freeDoubleArray(cArray)
-	C.image_set_array_double(in, cachedCString("background"), cArray, cLength)
-}
-
-func vipsImageGetDelay(in *C.VipsImage) ([]int, error) {
-	var out *C.int
-	var n C.int
-	if err := C.image_get_array_int(in, cachedCString("delay"), &out, &n); err != 0 {
-		return nil, handleVipsError()
-	}
-	if out == nil || n <= 0 {
-		return nil, nil
-	}
-	data := make([]int, n)
-	for i := 0; i < int(n); i++ {
-		data[i] = int(*(*C.int)(unsafe.Pointer(uintptr(unsafe.Pointer(out)) + uintptr(i)*unsafe.Sizeof(C.int(0)))))
-	}
-	gFreePointer(unsafe.Pointer(out))
-	return data, nil
-}
-
-func vipsImageSetDelay(in *C.VipsImage, delay []int) {
-	if len(delay) == 0 {
-		return
-	}
-	cArray, cLength, err := convertToIntArray(delay)
-	if err != nil {
-		return
-	}
-	defer freeIntArray(cArray)
-	C.image_set_array_int(in, cachedCString("delay"), cArray, cLength)
 }
 
 // String operations using libvips directly

@@ -9010,31 +9010,9 @@ func (r *Image) Background() ([]float64, error) {
 	return vipsImageGetArrayDouble(r.image, "background")
 }
 
-// SetBackground set the background of image.
-func (r *Image) SetBackground(background []float64) error {
-	out, err := vipsgenCopy(r.image)
-	if err != nil {
-		return err
-	}
-	vipsImageSetArrayDouble(out, "background", background)
-	r.setImage(out)
-	return nil
-}
-
 // PageDelay gets the page delay array for animation
 func (r *Image) PageDelay() ([]int, error) {
 	return vipsImageGetArrayInt(r.image, "delay")
-}
-
-// SetPageDelay set the page delay array for animation
-func (r *Image) SetPageDelay(delay []int) error {
-	out, err := vipsgenCopy(r.image)
-	if err != nil {
-		return err
-	}
-	vipsImageSetArrayInt(out, "delay", delay)
-	r.setImage(out)
-	return nil
 }
 
 // GetICCProfile retrieves the ICC profile data (if any) from the image.

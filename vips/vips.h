@@ -835,8 +835,6 @@ void image_remove_field(VipsImage *in, const char *name);
 // Array getter/setter functions (keep these as they're commonly used)
 int image_get_array_int(VipsImage *in, const char *name, int **out, int *n);
 int image_get_array_double(VipsImage *in, const char *name, double **out, int *n);
-void image_set_array_int(VipsImage *in, const char *name, const int *array, int n);
-void image_set_array_double(VipsImage *in, const char *name, const double *array, int n);
 
 // Blob operations (keep these as they handle memory management)
 void image_set_blob(VipsImage *in, const char *name, const void *data, size_t dataLength);
