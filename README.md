@@ -306,13 +306,6 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 When contributing to vipsgen, **do not commit the generated code** in the `vips/` directory (except `vips/vips_test.go`). The development workflow is designed to keep generated code separate from source code. The repository uses GitHub Actions to automatically handle code generation when PRs are created.
 
-#### For Contributors
-
-1. **Make changes to the generator**: Edit templates, introspection logic, or generation code
-2. **Test locally**: Run `vipsgen -out ./vips` to generate and test your changes
-3. **Commit only source changes**: Add/commit only your changes to the generator, templates, or documentation
-4. **Create pull request**: Submit PR with generator or test changes only
-
 ## License
 
 MIT
