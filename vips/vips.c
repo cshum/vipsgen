@@ -5328,8 +5328,6 @@ int vipsgen_image_new_from_buffer_with_option(const void *buf, size_t len, VipsI
   return 0;
 }
 
-// Basic image utilities
-
 int has_alpha_channel(VipsImage *image) {
   return vips_image_hasalpha(image);
 }
@@ -5342,8 +5340,6 @@ void clear_image(VipsImage **image) {
   // https://developer.gnome.org/gobject/stable/gobject-The-Base-Object-Type.html#g-clear-object
   if (G_IS_OBJECT(*image)) g_clear_object(image);
 }
-
-// Generic metadata operations (replace all specific ones)
 
 char **image_get_fields(VipsImage *in) {
   return vips_image_get_fields(in);
@@ -5365,8 +5361,6 @@ void image_remove_field(VipsImage *in, const char *name) {
   vips_image_remove(in, name);
 }
 
-// Array getter/setter functions (keep these as they're commonly used)
-
 int image_get_array_int(VipsImage *in, const char *name, int **out, int *n) {
   return vips_image_get_array_int(in, name, out, n);
 }
@@ -5374,8 +5368,6 @@ int image_get_array_int(VipsImage *in, const char *name, int **out, int *n) {
 int image_get_array_double(VipsImage *in, const char *name, double **out, int *n) {
   return vips_image_get_array_double(in, name, out, n);
 }
-
-// Blob operations (keep these as they handle memory management)
 
 void image_set_blob(VipsImage *in, const char *name, const void *data, size_t dataLength) {
   vips_image_set_blob_copy(in, name, data, dataLength);
