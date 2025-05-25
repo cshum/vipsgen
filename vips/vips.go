@@ -5,7 +5,6 @@ package vips
 import "C"
 import (
 	"runtime"
-	"strings"
 	"unsafe"
 )
 
@@ -5520,31 +5519,17 @@ func vipsImageFromMemory(buf []byte, width, height, bands int) (*C.VipsImage, er
 	return out, nil
 }
 
+// Basic image utilities
+
 func vipsHasAlpha(in *C.VipsImage) bool {
 	return int(C.has_alpha_channel(in)) > 0
 }
 
-func vipsHasICCProfile(in *C.VipsImage) bool {
-	return int(C.has_icc_profile(in)) != 0
+func vipsIsColorSpaceSupported(in *C.VipsImage) bool {
+	return int(C.is_colorspace_supported(in)) != 0
 }
 
-func vipsGetICCProfile(in *C.VipsImage) ([]byte, bool) {
-	var bufPtr unsafe.Pointer
-	var dataLength C.size_t
-	if int(C.get_icc_profile(in, &bufPtr, &dataLength)) != 0 {
-		return nil, false
-	}
-	buf := C.GoBytes(bufPtr, C.int(dataLength))
-	return buf, true
-}
-
-func vipsRemoveICCProfile(in *C.VipsImage) bool {
-	return fromGboolean(C.remove_icc_profile(in))
-}
-
-func vipsHasIPTC(in *C.VipsImage) bool {
-	return int(C.has_iptc(in)) != 0
-}
+// Generic metadata operations
 
 func vipsImageGetFields(in *C.VipsImage) (fields []string) {
 	const maxFields = 1024
@@ -5560,44 +5545,23 @@ func vipsImageGetFields(in *C.VipsImage) (fields []string) {
 	return
 }
 
-func vipsImageGetExifData(in *C.VipsImage) map[string]string {
-	fields := vipsImageGetFields(in)
-	exifData := map[string]string{}
-	for _, field := range fields {
-		if strings.HasPrefix(field, "exif") {
-			exifData[field] = vipsImageGetString(in, field)
-		}
-	}
-	return exifData
+func vipsGetMetaString(image *C.VipsImage, name string) string {
+	return C.GoString(C.get_meta_string(image, cachedCString(name)))
 }
 
-func vipsGetMetaOrientation(in *C.VipsImage) int {
-	return int(C.get_meta_orientation(in))
+func vipsImageHasField(in *C.VipsImage, name string) bool {
+	cName := C.CString(name)
+	defer freeCString(cName)
+	return int(C.image_has_field(in, cName)) != 0
 }
 
-func vipsRemoveMetaOrientation(in *C.VipsImage) {
-	C.remove_meta_orientation(in)
+func vipsImageRemoveField(in *C.VipsImage, name string) {
+	cName := C.CString(name)
+	defer freeCString(cName)
+	C.image_remove_field(in, cName)
 }
 
-func vipsSetMetaOrientation(in *C.VipsImage, orientation int) {
-	C.set_meta_orientation(in, C.int(orientation))
-}
-
-func vipsGetImageNPages(in *C.VipsImage) int {
-	return int(C.get_image_n_pages(in))
-}
-
-func vipsSetImageNPages(in *C.VipsImage, pages int) {
-	C.set_image_n_pages(in, C.int(pages))
-}
-
-func vipsGetPageHeight(in *C.VipsImage) int {
-	return int(C.get_page_height(in))
-}
-
-func vipsSetPageHeight(in *C.VipsImage, height int) {
-	C.set_page_height(in, C.int(height))
-}
+// Array getter/setter functions
 
 func vipsImageGetArrayInt(in *C.VipsImage, name string) ([]int, error) {
 	var out *C.int
@@ -5605,17 +5569,20 @@ func vipsImageGetArrayInt(in *C.VipsImage, name string) ([]int, error) {
 	cName := C.CString(name)
 	defer freeCString(cName)
 
-	if err := C.vips_image_get_array_int(in, cName, &out, &n); err != 0 {
+	if err := C.image_get_array_int(in, cName, &out, &n); err != 0 {
 		return nil, handleVipsError()
 	}
+
 	if out == nil || n <= 0 {
 		return nil, nil
 	}
+
 	// Convert C array to Go slice
 	data := make([]int, n)
 	for i := 0; i < int(n); i++ {
 		data[i] = int(*(*C.int)(unsafe.Pointer(uintptr(unsafe.Pointer(out)) + uintptr(i)*unsafe.Sizeof(C.int(0)))))
 	}
+
 	gFreePointer(unsafe.Pointer(out))
 	return data, nil
 }
@@ -5631,7 +5598,7 @@ func vipsImageSetArrayInt(in *C.VipsImage, name string, data []int) {
 		return
 	}
 	defer freeIntArray(cArray)
-	C.vips_image_set_array_int(in, cName, cArray, cLength)
+	C.image_set_array_int(in, cName, cArray, cLength)
 }
 
 func vipsImageGetArrayDouble(in *C.VipsImage, name string) ([]float64, error) {
@@ -5639,8 +5606,7 @@ func vipsImageGetArrayDouble(in *C.VipsImage, name string) ([]float64, error) {
 	var n C.int
 	cName := C.CString(name)
 	defer freeCString(cName)
-
-	if err := C.vips_image_get_array_double(in, cName, &out, &n); err != 0 {
+	if err := C.image_get_array_double(in, cName, &out, &n); err != 0 {
 		return nil, handleVipsError()
 	}
 	result := fromCArrayDouble(out, int(n))
@@ -5654,18 +5620,18 @@ func vipsImageSetArrayDouble(in *C.VipsImage, name string, data []float64) {
 	}
 	cName := C.CString(name)
 	defer freeCString(cName)
-	// Convert Go slice to C array using common utility
 	cArray, cLength, err := convertToDoubleArray(data)
 	if err != nil {
 		return
 	}
 	defer freeDoubleArray(cArray)
-	C.vips_image_set_array_double(in, cName, cArray, cLength)
+	C.image_set_array_double(in, cName, cArray, cLength)
 }
 
+// Blob operations
 
 func vipsImageSetBlob(in *C.VipsImage, name string, data []byte) {
-	cData := unsafe.Pointer(&data)
+	cData := unsafe.Pointer(&data[0])
 	cDataLength := C.size_t(len(data))
 	cField := C.CString(name)
 	defer freeCString(cField)
@@ -5684,50 +5650,131 @@ func vipsImageGetBlob(in *C.VipsImage, name string) []byte {
 	return buf
 }
 
-func vipsImageSetDouble(in *C.VipsImage, name string, f float64) {
-	cField := C.CString(name)
-	defer freeCString(cField)
-	cDouble := C.double(f)
-	C.image_set_double(in, cField, cDouble)
+// Convenience functions using the generic operations
+
+func vipsHasICCProfile(in *C.VipsImage) bool {
+	return int(C.image_has_field(in, cachedCString(C.VIPS_META_ICC_NAME))) != 0
 }
 
-func vipsImageGetDouble(in *C.VipsImage, name string) float64 {
-	cField := C.CString(name)
-	defer freeCString(cField)
-	var cDouble C.double
-	if int(C.image_get_double(in, cField, &cDouble)) == 0 {
-		return float64(cDouble)
+func vipsGetICCProfile(in *C.VipsImage) ([]byte, bool) {
+	if !vipsHasICCProfile(in) {
+		return nil, false
+	}
+	var bufPtr unsafe.Pointer
+	var dataLength C.size_t
+	if int(C.image_get_blob(in, cachedCString(C.VIPS_META_ICC_NAME), &bufPtr, &dataLength)) != 0 {
+		return nil, false
+	}
+	buf := C.GoBytes(bufPtr, C.int(dataLength))
+	return buf, buf != nil
+}
+
+func vipsRemoveICCProfile(in *C.VipsImage) bool {
+	if vipsHasICCProfile(in) {
+		C.image_remove_field(in, cachedCString(C.VIPS_META_ICC_NAME))
+		return true
+	}
+	return false
+}
+
+func vipsHasIPTC(in *C.VipsImage) bool {
+	return int(C.image_has_field(in, cachedCString(C.VIPS_META_IPTC_NAME))) != 0
+}
+
+func vipsGetMetaOrientation(in *C.VipsImage) int {
+	if int(C.image_has_field(in, cachedCString(C.VIPS_META_ORIENTATION))) == 0 {
+		return 0
+	}
+	var orientation C.int
+	if C.vips_image_get_int(in, cachedCString(C.VIPS_META_ORIENTATION), &orientation) == 0 {
+		return int(orientation)
 	}
 	return 0
 }
 
-func vipsImageSetInt(in *C.VipsImage, name string, i int) {
-	cField := C.CString(name)
-	defer freeCString(cField)
-	cInt := C.int(i)
-	C.image_set_int(in, cField, cInt)
+func vipsSetMetaOrientation(in *C.VipsImage, orientation int) {
+	C.vips_image_set_int(in, cachedCString(C.VIPS_META_ORIENTATION), C.int(orientation))
 }
 
-func vipsImageGetInt(in *C.VipsImage, name string) int {
-	cField := C.CString(name)
-	defer freeCString(cField)
-	var cInt C.int
-	if int(C.image_get_int(in, cField, &cInt)) == 0 {
-		return int(cInt)
+func vipsRemoveMetaOrientation(in *C.VipsImage) {
+	C.image_remove_field(in, cachedCString(C.VIPS_META_ORIENTATION))
+}
+
+func vipsGetImageNPages(in *C.VipsImage) int {
+	return int(C.vips_image_get_n_pages(in))
+}
+
+func vipsSetImageNPages(in *C.VipsImage, pages int) {
+	C.vips_image_set_int(in, cachedCString(C.VIPS_META_N_PAGES), C.int(pages))
+}
+
+func vipsGetPageHeight(in *C.VipsImage) int {
+	return int(C.vips_image_get_page_height(in))
+}
+
+func vipsSetPageHeight(in *C.VipsImage, height int) {
+	C.vips_image_set_int(in, cachedCString(C.VIPS_META_PAGE_HEIGHT), C.int(height))
+}
+
+func vipsImageGetBackground(in *C.VipsImage) ([]float64, error) {
+	var out *C.double
+	var n C.int
+	if err := C.image_get_array_double(in, cachedCString("background"), &out, &n); err != 0 {
+		return nil, handleVipsError()
 	}
-	return 0
+	result := fromCArrayDouble(out, int(n))
+	gFreePointer(unsafe.Pointer(out))
+	return result, nil
 }
 
-func vipsIsColorSpaceSupported(in *C.VipsImage) bool {
-	return C.is_colorspace_supported(in) == 1
+func vipsImageSetBackground(in *C.VipsImage, background []float64) {
+	if len(background) == 0 {
+		return
+	}
+	cArray, cLength, err := convertToDoubleArray(background)
+	if err != nil {
+		return
+	}
+	defer freeDoubleArray(cArray)
+	C.image_set_array_double(in, cachedCString("background"), cArray, cLength)
 }
 
+func vipsImageGetDelay(in *C.VipsImage) ([]int, error) {
+	var out *C.int
+	var n C.int
+	if err := C.image_get_array_int(in, cachedCString("delay"), &out, &n); err != 0 {
+		return nil, handleVipsError()
+	}
+	if out == nil || n <= 0 {
+		return nil, nil
+	}
+	data := make([]int, n)
+	for i := 0; i < int(n); i++ {
+		data[i] = int(*(*C.int)(unsafe.Pointer(uintptr(unsafe.Pointer(out)) + uintptr(i)*unsafe.Sizeof(C.int(0)))))
+	}
+	gFreePointer(unsafe.Pointer(out))
+	return data, nil
+}
+
+func vipsImageSetDelay(in *C.VipsImage, delay []int) {
+	if len(delay) == 0 {
+		return
+	}
+	cArray, cLength, err := convertToIntArray(delay)
+	if err != nil {
+		return
+	}
+	defer freeIntArray(cArray)
+	C.image_set_array_int(in, cachedCString("delay"), cArray, cLength)
+}
+
+// String operations using libvips directly
 func vipsImageSetString(in *C.VipsImage, name string, str string) {
 	cField := C.CString(name)
 	defer freeCString(cField)
 	cStr := C.CString(str)
 	defer freeCString(cStr)
-	C.image_set_string(in, cField, cStr)
+	C.vips_image_set_string(in, cField, cStr)
 }
 
 func vipsImageGetString(in *C.VipsImage, name string) string {
@@ -5735,7 +5782,7 @@ func vipsImageGetString(in *C.VipsImage, name string) string {
 	defer freeCString(cField)
 	var cFieldValue *C.char
 	defer freeCString(cFieldValue)
-	if int(C.image_get_string(in, cField, &cFieldValue)) == 0 {
+	if int(C.vips_image_get_string(in, cField, &cFieldValue)) == 0 {
 		return C.GoString(cFieldValue)
 	}
 	return ""
@@ -5746,10 +5793,53 @@ func vipsImageGetAsString(in *C.VipsImage, name string) string {
 	defer freeCString(cField)
 	var cFieldValue *C.char
 	defer freeCString(cFieldValue)
-	if int(C.image_get_as_string(in, cField, &cFieldValue)) == 0 {
+	if int(C.vips_image_get_as_string(in, cField, &cFieldValue)) == 0 {
 		return C.GoString(cFieldValue)
 	}
 	return ""
+}
+
+// Scalar operations using libvips directly
+func vipsImageSetDouble(in *C.VipsImage, name string, f float64) {
+	cField := C.CString(name)
+	defer freeCString(cField)
+	cDouble := C.double(f)
+	C.vips_image_set_double(in, cField, cDouble)
+}
+
+func vipsImageGetDouble(in *C.VipsImage, name string) float64 {
+	cField := C.CString(name)
+	defer freeCString(cField)
+	var cDouble C.double
+	if int(C.vips_image_get_double(in, cField, &cDouble)) == 0 {
+		return float64(cDouble)
+	}
+	return 0
+}
+
+func vipsImageSetInt(in *C.VipsImage, name string, i int) {
+	cField := C.CString(name)
+	defer freeCString(cField)
+	cInt := C.int(i)
+	C.vips_image_set_int(in, cField, cInt)
+}
+
+func vipsImageGetInt(in *C.VipsImage, name string) int {
+	cField := C.CString(name)
+	defer freeCString(cField)
+	var cInt C.int
+	if int(C.vips_image_get_int(in, cField, &cInt)) == 0 {
+		return int(cInt)
+	}
+	return 0
+}
+
+func vipsImageGetMetaLoader(in *C.VipsImage) (string, bool) {
+	if !vipsImageHasField(in, C.VIPS_META_LOADER) {
+		return "", false
+	}
+	loader := vipsImageGetString(in, C.VIPS_META_LOADER)
+	return loader, loader != ""
 }
 
 func vipsEmbedMultiPage(in *C.VipsImage, left, top, width, height int, extend Extend) (*C.VipsImage, error) {
@@ -5816,19 +5906,3 @@ func vipsRemoveExif(in *C.VipsImage) (*C.VipsImage, error) {
 	}
 	return out, nil
 }
-
-func vipsImageGetMetaLoader(in *C.VipsImage) (string, bool) {
-    var out *C.char
-    defer gFreePointer(unsafe.Pointer(out))
-    code := int(C.get_meta_loader(in, &out))
-    if code != 0 {
-        C.vips_error_clear()
-        return "", false
-    }
-    return C.GoString(out), true
-}
-
-func vipsGetMetaString(image *C.VipsImage, name string) string {
-	return C.GoString(C.get_meta_string(image, cachedCString(name)))
-}
-
