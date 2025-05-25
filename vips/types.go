@@ -673,7 +673,6 @@ var imageMimeTypes = map[ImageType]string{
 	ImageTypeAvif: "image/avif",
 	ImageTypePdf: "application/pdf",
 	ImageTypeBmp: "image/bmp",
-	ImageTypeMagick: "image/magick",
 	ImageTypeAnalyze: "application/x-analyze",
 	ImageTypeCsv: "text/csv",
 	ImageTypeDz: "image/x-deepzoom",
