@@ -612,9 +612,12 @@ func TestMultiPageOperations(t *testing.T) {
 	t.Logf("Image page height: %d", pageHeight)
 
 	// Try to get/set page height
-	err = img.SetPageHeight(100)
+	err = img.SetPageHeight(50)
 	require.NoError(t, err)
-	assert.Equal(t, 100, img.PageHeight())
+	err = img.SetPages(2)
+	require.NoError(t, err)
+	assert.Equal(t, 50, img.PageHeight())
+	assert.Equal(t, 2, img.Pages())
 }
 
 func TestAllFormatsSupport(t *testing.T) {
