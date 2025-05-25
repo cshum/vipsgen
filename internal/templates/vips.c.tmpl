@@ -142,43 +142,25 @@ int vipsgen_image_new_from_buffer_with_option(const void *buf, size_t len, VipsI
   return 0;
 }
 
-void clear_image(VipsImage **image) {
-  // https://developer.gnome.org/gobject/stable/gobject-The-Base-Object-Type.html#g-clear-object
-  if (G_IS_OBJECT(*image)) g_clear_object(image);
-}
+// Basic image utilities
 
 int has_alpha_channel(VipsImage *image) {
   return vips_image_hasalpha(image);
 }
 
-int get_meta_orientation(VipsImage *in) {
-  int orientation = 0;
-  if (vips_image_get_typeof(in, VIPS_META_ORIENTATION) != 0) {
-    vips_image_get_int(in, VIPS_META_ORIENTATION, &orientation);
-  }
-  return orientation;
+int is_colorspace_supported(VipsImage *in) {
+  return vips_colourspace_issupported(in) ? 1 : 0;
 }
 
-// https://libvips.github.io/libvips/API/current/libvips-header.html#vips-image-get-n-pages
-int get_image_n_pages(VipsImage *in) {
-  int n_pages = 0;
-  n_pages = vips_image_get_n_pages(in);
-  return n_pages;
+void clear_image(VipsImage **image) {
+  // https://developer.gnome.org/gobject/stable/gobject-The-Base-Object-Type.html#g-clear-object
+  if (G_IS_OBJECT(*image)) g_clear_object(image);
 }
 
-// https://www.libvips.org/API/current/libvips-header.html#vips-image-get-page-height
-int get_page_height(VipsImage *in) {
-  int page_height = 0;
-  page_height = vips_image_get_page_height(in);
-  return page_height;
-}
+// Generic metadata operations (replace all specific ones)
 
-void set_page_height(VipsImage *in, int height) {
-  vips_image_set_int(in, VIPS_META_PAGE_HEIGHT, height);
-}
-
-int get_meta_loader(const VipsImage *in, const char **out) {
-  return vips_image_get_string(in, VIPS_META_LOADER, out);
+char **image_get_fields(VipsImage *in) {
+  return vips_image_get_fields(in);
 }
 
 const char * get_meta_string(const VipsImage *image, const char *name) {
@@ -189,55 +171,15 @@ const char * get_meta_string(const VipsImage *image, const char *name) {
   return "";
 }
 
-int is_colorspace_supported(VipsImage *in) {
-  return vips_colourspace_issupported(in) ? 1 : 0;
+int image_has_field(VipsImage *in, const char *name) {
+  return vips_image_get_typeof(in, name) != 0 ? 1 : 0;
 }
 
-unsigned long has_icc_profile(VipsImage *in) {
-  return vips_image_get_typeof(in, VIPS_META_ICC_NAME);
+void image_remove_field(VipsImage *in, const char *name) {
+  vips_image_remove(in, name);
 }
 
-unsigned long get_icc_profile(VipsImage *in, const void **data,
-                              size_t *dataLength) {
-  return image_get_blob(in, VIPS_META_ICC_NAME, data, dataLength);
-}
-
-gboolean remove_icc_profile(VipsImage *in) {
-  return vips_image_remove(in, VIPS_META_ICC_NAME);
-}
-
-unsigned long has_iptc(VipsImage *in) {
-  return vips_image_get_typeof(in, VIPS_META_IPTC_NAME);
-}
-
-char **image_get_fields(VipsImage *in) { return vips_image_get_fields(in); }
-
-void image_set_string(VipsImage *in, const char *name, const char *str) {
-  vips_image_set_string(in, name, str);
-}
-
-unsigned long image_get_string(VipsImage *in, const char *name,
-                               const char **out) {
-  return vips_image_get_string(in, name, out);
-}
-
-unsigned long image_get_as_string(VipsImage *in, const char *name, char **out) {
-  return vips_image_get_as_string(in, name, out);
-}
-
-void remove_field(VipsImage *in, char *field) { vips_image_remove(in, field); }
-
-void remove_meta_orientation(VipsImage *in) {
-  vips_image_remove(in, VIPS_META_ORIENTATION);
-}
-
-void set_meta_orientation(VipsImage *in, int orientation) {
-  vips_image_set_int(in, VIPS_META_ORIENTATION, orientation);
-}
-
-void set_image_n_pages(VipsImage *in, int n_pages) {
-  vips_image_set_int(in, VIPS_META_N_PAGES, n_pages);
-}
+// Array getter/setter functions (keep these as they're commonly used)
 
 int image_get_array_int(VipsImage *in, const char *name, int **out, int *n) {
   return vips_image_get_array_int(in, name, out, n);
@@ -255,21 +197,7 @@ void image_set_array_double(VipsImage *in, const char *name, const double *array
   vips_image_set_array_double(in, name, array, n);
 }
 
-void image_set_double(VipsImage *in, const char *name, double i) {
-  vips_image_set_double(in, name, i);
-}
-
-unsigned long image_get_double(VipsImage *in, const char *name, double *out) {
-  return vips_image_get_double(in, name, out);
-}
-
-void image_set_int(VipsImage *in, const char *name, int i) {
-  vips_image_set_int(in, name, i);
-}
-
-unsigned long image_get_int(VipsImage *in, const char *name, int *out) {
-  return vips_image_get_int(in, name, out);
-}
+// Blob operations (keep these as they handle memory management)
 
 void image_set_blob(VipsImage *in, const char *name, const void *data, size_t dataLength) {
   vips_image_set_blob_copy(in, name, data, dataLength);
