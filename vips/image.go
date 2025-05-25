@@ -8930,6 +8930,14 @@ func (r *Image) GetAsString(name string) string {
 	return vipsImageGetAsString(r.image, name)
 }
 
+func (r *Image) GetArrayDouble(name string) ([]float64, error) {
+	return vipsImageGetArrayDouble(r.image, name)
+}
+
+func (r *Image) GetArrayInt(name string) ([]int, error) {
+	return vipsImageGetArrayInt(r.image, name)
+}
+
 func (r *Image) Exif() map[string]string {
 	fields := vipsImageGetFields(r.image)
 	exifData := map[string]string{}

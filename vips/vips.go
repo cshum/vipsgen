@@ -5519,8 +5519,6 @@ func vipsImageFromMemory(buf []byte, width, height, bands int) (*C.VipsImage, er
 	return out, nil
 }
 
-// Basic image utilities
-
 func vipsHasAlpha(in *C.VipsImage) bool {
 	return int(C.has_alpha_channel(in)) > 0
 }
@@ -5528,8 +5526,6 @@ func vipsHasAlpha(in *C.VipsImage) bool {
 func vipsIsColorSpaceSupported(in *C.VipsImage) bool {
 	return int(C.is_colorspace_supported(in)) != 0
 }
-
-// Generic metadata operations
 
 func vipsImageGetFields(in *C.VipsImage) (fields []string) {
 	const maxFields = 1024
@@ -5561,8 +5557,6 @@ func vipsImageRemoveField(in *C.VipsImage, name string) {
 	C.image_remove_field(in, cName)
 }
 
-// Array getter/setter functions
-
 func vipsImageGetArrayInt(in *C.VipsImage, name string) ([]int, error) {
 	var out *C.int
 	var n C.int
@@ -5589,8 +5583,6 @@ func vipsImageGetArrayDouble(in *C.VipsImage, name string) ([]float64, error) {
 	return result, nil
 }
 
-// Blob operations
-
 func vipsImageSetBlob(in *C.VipsImage, name string, data []byte) {
 	cData := unsafe.Pointer(&data[0])
 	cDataLength := C.size_t(len(data))
@@ -5610,8 +5602,6 @@ func vipsImageGetBlob(in *C.VipsImage, name string) []byte {
 	buf := C.GoBytes(bufPtr, C.int(dataLength))
 	return buf
 }
-
-// Convenience functions using the generic operations
 
 func vipsHasICCProfile(in *C.VipsImage) bool {
 	return int(C.image_has_field(in, cachedCString(C.VIPS_META_ICC_NAME))) != 0
@@ -5677,7 +5667,6 @@ func vipsSetPageHeight(in *C.VipsImage, height int) {
 	C.vips_image_set_int(in, cachedCString(C.VIPS_META_PAGE_HEIGHT), C.int(height))
 }
 
-// String operations using libvips directly
 func vipsImageSetString(in *C.VipsImage, name string, str string) {
 	cField := C.CString(name)
 	defer freeCString(cField)
@@ -5708,7 +5697,6 @@ func vipsImageGetAsString(in *C.VipsImage, name string) string {
 	return ""
 }
 
-// Scalar operations using libvips directly
 func vipsImageSetDouble(in *C.VipsImage, name string, f float64) {
 	cField := C.CString(name)
 	defer freeCString(cField)
