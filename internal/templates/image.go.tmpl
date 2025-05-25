@@ -330,7 +330,14 @@ func (r *Image) GetAsString(name string) string {
 }
 
 func (r *Image) Exif() map[string]string {
-	return vipsImageGetExifData(r.image)
+	fields := vipsImageGetFields(r.image)
+	exifData := map[string]string{}
+	for _, field := range fields {
+		if strings.HasPrefix(field, "exif") {
+			exifData[field] = vipsGetMetaString(r.image, field)
+		}
+	}
+	return exifData
 }
 
 // SetOrientation sets the orientation in the EXIF header of the associated image.
@@ -397,18 +404,14 @@ func (r *Image) SetPageHeight(height int) error {
 	return nil
 }
 
-// SetPageDelay set the page delay array for animation
-func (r *Image) SetPageDelay(delay []int) error {
-	return vipsImageSetDelay(r.image, delay)
-}
-
 // Background get the background of image.
 func (r *Image) Background() ([]float64, error) {
-	out, err := vipsImageGetBackground(r.image)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
+	return vipsImageGetArrayDouble(r.image, "background")
+}
+
+// PageDelay gets the page delay array for animation
+func (r *Image) PageDelay() ([]int, error) {
+	return vipsImageGetArrayInt(r.image, "delay")
 }
 
 // GetICCProfile retrieves the ICC profile data (if any) from the image.

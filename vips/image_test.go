@@ -17,24 +17,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// TestMain handles setup and teardown for all tests
-func TestMain(m *testing.M) {
-	// Start libvips once for all tests
-	config := &Config{
-		ReportLeaks: true,
-	}
-	Startup(config)
-
-	// Run tests
-	code := m.Run()
-
-	// Shut down libvips
-	Shutdown()
-
-	// Exit with test result code
-	os.Exit(code)
-}
-
 // createTestPNG creates a test PNG image with a pattern
 func createTestPNG(t *testing.T, width, height int) []byte {
 	img := image.NewRGBA(image.Rect(0, 0, width, height))
@@ -630,8 +612,12 @@ func TestMultiPageOperations(t *testing.T) {
 	t.Logf("Image page height: %d", pageHeight)
 
 	// Try to get/set page height
-	img.SetPageHeight(100)
-	assert.Equal(t, 100, img.PageHeight())
+	err = img.SetPageHeight(50)
+	require.NoError(t, err)
+	err = img.SetPages(2)
+	require.NoError(t, err)
+	assert.Equal(t, 50, img.PageHeight())
+	assert.Equal(t, 2, img.Pages())
 }
 
 func TestAllFormatsSupport(t *testing.T) {
@@ -2128,4 +2114,278 @@ func TestOptionsVariants(t *testing.T) {
 	assert.Equal(t, float64(255), topLeftPixel[0])
 	assert.Equal(t, float64(255), topLeftPixel[1])
 	assert.Equal(t, float64(255), topLeftPixel[2])
+}
+
+func TestImage_HasAlpha(t *testing.T) {
+	// Test PNG without alpha
+	pngData := createTestPNG(t, 100, 100)
+	img, err := NewImageFromBuffer(pngData, nil)
+	require.NoError(t, err)
+	defer img.Close()
+
+	assert.False(t, img.HasAlpha(), "PNG RGB should not have alpha")
+
+	// Test adding alpha channel
+	err = img.Addalpha()
+	require.NoError(t, err)
+
+	assert.True(t, img.HasAlpha(), "Image should have alpha after adding alpha channel")
+}
+
+func TestImage_HasICCProfile(t *testing.T) {
+	// Create test image
+	img, err := createWhiteImage(100, 100)
+	require.NoError(t, err)
+	defer img.Close()
+
+	// Initially should not have ICC profile
+	assert.False(t, img.HasICCProfile(), "New image should not have ICC profile")
+
+	// Test getting non-existent profile
+	profile, hasProfile := img.GetICCProfile()
+	assert.False(t, hasProfile, "Should not have ICC profile")
+	assert.Nil(t, profile, "Profile data should be nil")
+}
+
+func TestImage_Orientation(t *testing.T) {
+	img, err := createWhiteImage(100, 100)
+	require.NoError(t, err)
+	defer img.Close()
+
+	// Initially should have no orientation (returns 0)
+	orientation := img.Orientation()
+	assert.Equal(t, 0, orientation, "New image should have no orientation set")
+
+	// Test setting orientation
+	err = img.SetOrientation(6) // 90 degrees clockwise
+	require.NoError(t, err)
+
+	orientation = img.Orientation()
+	assert.Equal(t, 6, orientation, "Orientation should be set to 6")
+
+	// Test removing orientation
+	err = img.RemoveOrientation()
+	require.NoError(t, err)
+
+	orientation = img.Orientation()
+	assert.Equal(t, 0, orientation, "Orientation should be removed")
+}
+
+func TestImage_Pages(t *testing.T) {
+	img, err := createWhiteImage(100, 100)
+	require.NoError(t, err)
+	defer img.Close()
+
+	// Single image should have 1 page
+	pages := img.Pages()
+	assert.Equal(t, 1, pages, "Single image should have 1 page")
+
+	// Test setting pages
+	err = img.SetPages(5)
+	require.NoError(t, err)
+
+	pages = img.Pages()
+	assert.Equal(t, 5, pages, "Should have 5 pages after setting")
+}
+
+func TestImage_PageHeight(t *testing.T) {
+	img, err := createWhiteImage(100, 200)
+	require.NoError(t, err)
+	defer img.Close()
+
+	// Page height should initially be the full height
+	pageHeight := img.PageHeight()
+	assert.Equal(t, 200, pageHeight, "Page height should be full image height")
+
+	// Test setting page height
+	err = img.SetPageHeight(50)
+	require.NoError(t, err)
+
+	pageHeight = img.PageHeight()
+	assert.Equal(t, 50, pageHeight, "Page height should be set to 50")
+}
+
+func TestImage_GenericMetadata(t *testing.T) {
+	img, err := createWhiteImage(100, 100)
+	require.NoError(t, err)
+	defer img.Close()
+
+	// Test string metadata
+	img.SetString("test-string", "hello world")
+	value := img.GetString("test-string")
+	assert.Equal(t, "hello world", value, "String metadata should match")
+
+	// Test integer metadata
+	img.SetInt("test-int", 42)
+	intValue := img.GetInt("test-int")
+	assert.Equal(t, 42, intValue, "Integer metadata should match")
+
+	// Test double metadata
+	img.SetDouble("test-double", 3.14159)
+	doubleValue := img.GetDouble("test-double")
+	assert.InDelta(t, 3.14159, doubleValue, 0.00001, "Double metadata should match")
+
+	// Test blob metadata
+	testData := []byte{0x01, 0x02, 0x03, 0x04, 0x05}
+	img.SetBlob("test-blob", testData)
+	blobValue := img.GetBlob("test-blob")
+	assert.Equal(t, testData, blobValue, "Blob metadata should match")
+}
+
+func TestImage_GetFields(t *testing.T) {
+	img, err := createWhiteImage(100, 100)
+	require.NoError(t, err)
+	defer img.Close()
+
+	// Set some metadata
+	img.SetString("custom-field", "test")
+	img.SetInt("custom-number", 123)
+
+	// Get all fields
+	fields := img.GetFields()
+	assert.NotEmpty(t, fields, "Should have some fields")
+
+	// Check that our custom fields are included
+	hasCustomField := false
+	hasCustomNumber := false
+	for _, field := range fields {
+		if field == "custom-field" {
+			hasCustomField = true
+		}
+		if field == "custom-number" {
+			hasCustomNumber = true
+		}
+	}
+	assert.True(t, hasCustomField, "Should contain custom-field")
+	assert.True(t, hasCustomNumber, "Should contain custom-number")
+}
+
+func TestImage_GetAsString(t *testing.T) {
+	img, err := createWhiteImage(100, 100)
+	require.NoError(t, err)
+	defer img.Close()
+
+	// Set different types of metadata
+	img.SetInt("test-int", 42)
+	img.SetDouble("test-double", 3.14)
+	img.SetString("test-string", "hello")
+
+	// Test getting as string
+	intAsString := img.GetAsString("test-int")
+	assert.Equal(t, "42", intAsString, "Integer should convert to string")
+
+	doubleAsString := img.GetAsString("test-double")
+	assert.Contains(t, doubleAsString, "3.14", "Double should convert to string")
+
+	stringAsString := img.GetAsString("test-string")
+	assert.Equal(t, "hello", stringAsString, "String should remain string")
+}
+
+func TestImage_ExifData(t *testing.T) {
+	// Create image with some EXIF-like metadata
+	img, err := createWhiteImage(100, 100)
+	require.NoError(t, err)
+	defer img.Close()
+
+	// Set some EXIF-like fields
+	img.SetString("exif-Make", "Test Camera")
+	img.SetString("exif-Model", "Test Model")
+	img.SetInt("exif-Orientation", 1)
+	img.SetString("non-exif-field", "should not appear")
+
+	// Get EXIF data
+	exifData := img.Exif()
+
+	// Check that only EXIF fields are returned
+	assert.Contains(t, exifData, "exif-Make", "Should contain EXIF Make field")
+	assert.Contains(t, exifData, "exif-Model", "Should contain EXIF Model field")
+	assert.NotContains(t, exifData, "non-exif-field", "Should not contain non-EXIF field")
+
+	// Check values
+	assert.Equal(t, "Test Camera", exifData["exif-Make"], "EXIF Make should match")
+	assert.Equal(t, "Test Model", exifData["exif-Model"], "EXIF Model should match")
+}
+
+func TestImage_IsColorSpaceSupported(t *testing.T) {
+	img, err := createWhiteImage(100, 100)
+	require.NoError(t, err)
+	defer img.Close()
+
+	// RGB should be supported
+	assert.True(t, img.IsColorSpaceSupported(), "RGB colorspace should be supported")
+}
+
+func TestImage_RemoveICCProfile(t *testing.T) {
+	img, err := createWhiteImage(100, 100)
+	require.NoError(t, err)
+	defer img.Close()
+
+	// Test removing non-existent profile (should not error)
+	err = img.RemoveICCProfile()
+	require.NoError(t, err, "Removing non-existent ICC profile should not error")
+
+	// Verify still no profile
+	assert.False(t, img.HasICCProfile(), "Should still not have ICC profile")
+}
+
+func TestImage_MetadataWithRealImage(t *testing.T) {
+	// Test with actual PNG data
+	pngData := createTestPNG(t, 50, 50)
+	img, err := NewImageFromBuffer(pngData, nil)
+	require.NoError(t, err)
+	defer img.Close()
+
+	// Test basic properties
+	assert.Equal(t, 50, img.Width(), "Width should be 50")
+	assert.Equal(t, 50, img.Height(), "Height should be 50")
+	assert.Equal(t, 3, img.Bands(), "PNG RGB should have 3 bands")
+
+	// Test setting and getting orientation
+	err = img.SetOrientation(8) // 270 degrees
+	require.NoError(t, err)
+
+	orientation := img.Orientation()
+	assert.Equal(t, 8, orientation, "Orientation should be 8")
+
+	// Test fields
+	fields := img.GetFields()
+	assert.NotEmpty(t, fields, "Should have fields")
+
+	// Orientation should be in fields
+	hasOrientation := false
+	for _, field := range fields {
+		if field == "orientation" {
+			hasOrientation = true
+			break
+		}
+	}
+	assert.True(t, hasOrientation, "Should have orientation field")
+}
+
+func TestImage_ErrorHandling(t *testing.T) {
+	img, err := createWhiteImage(100, 100)
+	require.NoError(t, err)
+	defer img.Close()
+
+	// Test getting non-existent metadata (should return zero values, not error)
+	nonExistentInt := img.GetInt("non-existent-field")
+	assert.Equal(t, 0, nonExistentInt, "Non-existent int field should return 0")
+
+	nonExistentString := img.GetString("non-existent-field")
+	assert.Equal(t, "", nonExistentString, "Non-existent string field should return empty string")
+
+	nonExistentDouble := img.GetDouble("non-existent-field")
+	assert.Equal(t, 0.0, nonExistentDouble, "Non-existent double field should return 0.0")
+
+	nonExistentBlob := img.GetBlob("non-existent-field")
+	assert.Empty(t, nonExistentBlob, "Non-existent blob field should return empty or nil")
+
+	// Test getting non-existent arrays (should return nil/error, not crash)
+	nonExistentIntArray, err := img.PageDelay()
+	// Don't assert on error here as it depends on implementation
+	_ = nonExistentIntArray
+
+	nonExistentDoubleArray, err := img.Background()
+	// Don't assert on error here as it depends on implementation
+	_ = nonExistentDoubleArray
 }

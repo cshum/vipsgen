@@ -352,6 +352,17 @@ func fromCArrayDouble(out *C.double, n int) []float64 {
 	return data
 }
 
+func fromCArrayInt(out *C.int, n int) []int {
+	if out == nil || n <= 0 {
+		return nil
+	}
+	data := make([]int, n)
+	for i := 0; i < n; i++ {
+		data[i] = int(*(*C.int)(unsafe.Pointer(uintptr(unsafe.Pointer(out)) + uintptr(i)*unsafe.Sizeof(C.int(0)))))
+	}
+	return data
+}
+
 // convertToIntArray converts a Go int slice to a C int array and returns the length
 func convertToIntArray(values []int) (*C.int, C.int, error) {
 	if len(values) == 0 {
