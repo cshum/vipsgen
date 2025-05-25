@@ -256,34 +256,6 @@ func vipsSetPageHeight(in *C.VipsImage, height int) {
 	C.vips_image_set_int(in, cachedCString(C.VIPS_META_PAGE_HEIGHT), C.int(height))
 }
 
-func vipsImageGetBackground(in *C.VipsImage) ([]float64, error) {
-	var out *C.double
-	var n C.int
-	if err := C.image_get_array_double(in, cachedCString("background"), &out, &n); err != 0 {
-		return nil, handleVipsError()
-	}
-	result := fromCArrayDouble(out, int(n))
-	gFreePointer(unsafe.Pointer(out))
-	return result, nil
-}
-
-func vipsImageGetDelay(in *C.VipsImage) ([]int, error) {
-	var out *C.int
-	var n C.int
-	if err := C.image_get_array_int(in, cachedCString("delay"), &out, &n); err != 0 {
-		return nil, handleVipsError()
-	}
-	if out == nil || n <= 0 {
-		return nil, nil
-	}
-	data := make([]int, n)
-	for i := 0; i < int(n); i++ {
-		data[i] = int(*(*C.int)(unsafe.Pointer(uintptr(unsafe.Pointer(out)) + uintptr(i)*unsafe.Sizeof(C.int(0)))))
-	}
-	gFreePointer(unsafe.Pointer(out))
-	return data, nil
-}
-
 // String operations using libvips directly
 func vipsImageSetString(in *C.VipsImage, name string, str string) {
 	cField := C.CString(name)

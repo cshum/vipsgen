@@ -2205,48 +2205,6 @@ func TestImage_PageHeight(t *testing.T) {
 	assert.Equal(t, 50, pageHeight, "Page height should be set to 50")
 }
 
-func TestImage_Background(t *testing.T) {
-	img, err := createWhiteImage(100, 100)
-	require.NoError(t, err)
-	//defer img.Close() TODO fix this
-
-	require.NoError(t, img.Addalpha())
-
-	// Test getting background (may not exist initially)
-	background, err := img.Background()
-	// Don't assert on initial background as it may not be set
-
-	// Test setting background
-	newBackground := []float64{128.0, 64.0, 192.0}
-	err = img.SetBackground(newBackground)
-	require.NoError(t, err)
-
-	// Test getting the set background
-	background, err = img.Background()
-	require.NoError(t, err)
-	assert.Equal(t, newBackground, background, "Background should match what was set")
-}
-
-func TestImage_PageDelay(t *testing.T) {
-	img, err := createWhiteImage(100, 100)
-	require.NoError(t, err)
-	//defer img.Close() TODO fix this
-
-	// Test getting delay (may not exist initially)
-	delay, err := img.PageDelay()
-	// Don't assert on initial delay as it may not be set
-
-	// Test setting page delay
-	newDelay := []int{100, 200, 150, 300}
-	err = img.SetPageDelay(newDelay)
-	require.NoError(t, err)
-
-	// Test getting the set delay
-	delay, err = img.PageDelay()
-	require.NoError(t, err)
-	assert.Equal(t, newDelay, delay, "Page delay should match what was set")
-}
-
 func TestImage_GenericMetadata(t *testing.T) {
 	img, err := createWhiteImage(100, 100)
 	require.NoError(t, err)
