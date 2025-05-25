@@ -2,7 +2,7 @@
 
 package vips
 
-// #include "source.h"
+// #include "connection.h"
 import "C"
 import (
 	"fmt"
