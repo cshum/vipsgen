@@ -849,8 +849,10 @@ void set_image_n_pages(VipsImage *in, int n_pages);
 int get_page_height(VipsImage *in);
 void set_page_height(VipsImage *in, int height);
 int get_meta_loader(const VipsImage *in, const char **out);
-void set_image_delay(VipsImage *in, const int *array, int n);
-int get_background(VipsImage *in, double **out, int *n);
+int vips_image_get_array_int(VipsImage *image, const char *name, int **out, int *n);
+int vips_image_get_array_double(VipsImage *image, const char *name, double **out, int *n);
+void vips_image_set_array_int(VipsImage *image, const char *name, const int *array, int n);
+void vips_image_set_array_double(VipsImage *image, const char *name, const double *array, int n);
 
 void image_set_blob(VipsImage *in, const char *name, const void *data,
                     size_t dataLength);

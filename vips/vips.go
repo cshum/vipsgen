@@ -5547,7 +5547,7 @@ func vipsHasIPTC(in *C.VipsImage) bool {
 }
 
 func vipsImageGetFields(in *C.VipsImage) (fields []string) {
-	const maxFields = 256
+	const maxFields = 1024
 	rawFields := C.image_get_fields(in)
 	defer C.g_strfreev(rawFields)
 	cFields := (*[maxFields]*C.char)(unsafe.Pointer(rawFields))[:maxFields:maxFields]
@@ -5599,16 +5599,70 @@ func vipsSetPageHeight(in *C.VipsImage, height int) {
 	C.set_page_height(in, C.int(height))
 }
 
-func vipsImageGetBackground(in *C.VipsImage) ([]float64, error) {
-	var out *C.double
+func vipsImageGetArrayInt(in *C.VipsImage, name string) ([]int, error) {
+	var out *C.int
 	var n C.int
-	defer gFreePointer(unsafe.Pointer(out))
+	cName := C.CString(name)
+	defer freeCString(cName)
 
-	if err := C.get_background(in, &out, &n); err != 0 {
+	if err := C.vips_image_get_array_int(in, cName, &out, &n); err != 0 {
 		return nil, handleVipsError()
 	}
-	return fromCArrayDouble(out, int(n)), nil
+	if out == nil || n <= 0 {
+		return nil, nil
+	}
+	// Convert C array to Go slice
+	data := make([]int, n)
+	for i := 0; i < int(n); i++ {
+		data[i] = int(*(*C.int)(unsafe.Pointer(uintptr(unsafe.Pointer(out)) + uintptr(i)*unsafe.Sizeof(C.int(0)))))
+	}
+	gFreePointer(unsafe.Pointer(out))
+	return data, nil
 }
+
+func vipsImageSetArrayInt(in *C.VipsImage, name string, data []int) {
+	if len(data) == 0 {
+		return
+	}
+	cName := C.CString(name)
+	defer freeCString(cName)
+	cArray, cLength, err := convertToIntArray(data)
+	if err != nil {
+		return
+	}
+	defer freeIntArray(cArray)
+	C.vips_image_set_array_int(in, cName, cArray, cLength)
+}
+
+func vipsImageGetArrayDouble(in *C.VipsImage, name string) ([]float64, error) {
+	var out *C.double
+	var n C.int
+	cName := C.CString(name)
+	defer freeCString(cName)
+
+	if err := C.vips_image_get_array_double(in, cName, &out, &n); err != 0 {
+		return nil, handleVipsError()
+	}
+	result := fromCArrayDouble(out, int(n))
+	gFreePointer(unsafe.Pointer(out))
+	return result, nil
+}
+
+func vipsImageSetArrayDouble(in *C.VipsImage, name string, data []float64) {
+	if len(data) == 0 {
+		return
+	}
+	cName := C.CString(name)
+	defer freeCString(cName)
+	// Convert Go slice to C array using common utility
+	cArray, cLength, err := convertToDoubleArray(data)
+	if err != nil {
+		return
+	}
+	defer freeDoubleArray(cArray)
+	C.vips_image_set_array_double(in, cName, cArray, cLength)
+}
+
 
 func vipsImageSetBlob(in *C.VipsImage, name string, data []byte) {
 	cData := unsafe.Pointer(&data)
@@ -5772,18 +5826,6 @@ func vipsImageGetMetaLoader(in *C.VipsImage) (string, bool) {
         return "", false
     }
     return C.GoString(out), true
-}
-
-func vipsImageSetDelay(in *C.VipsImage, delay []int) error {
-	cdelay, cn, err := convertToIntArray(delay)
-	if err != nil {
-		return err
-	}
-	if cdelay != nil {
-		defer freeIntArray(cdelay)
-		C.set_image_delay(in, cdelay, cn)
-	}
-	return nil
 }
 
 func vipsGetMetaString(image *C.VipsImage, name string) string {
