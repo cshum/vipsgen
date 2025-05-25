@@ -2,7 +2,6 @@ package vips
 
 import (
 	"bytes"
-	"fmt"
 	"image"
 	"image/color"
 	"image/draw"
@@ -613,7 +612,8 @@ func TestMultiPageOperations(t *testing.T) {
 	t.Logf("Image page height: %d", pageHeight)
 
 	// Try to get/set page height
-	img.SetPageHeight(100)
+	err = img.SetPageHeight(100)
+	require.NoError(t, err)
 	assert.Equal(t, 100, img.PageHeight())
 }
 
@@ -2205,14 +2205,13 @@ func TestImage_PageHeight(t *testing.T) {
 func TestImage_Background(t *testing.T) {
 	img, err := createWhiteImage(100, 100)
 	require.NoError(t, err)
-	defer img.Close()
+	//defer img.Close() TODO fix this
 
 	require.NoError(t, img.Addalpha())
 
 	// Test getting background (may not exist initially)
 	background, err := img.Background()
 	// Don't assert on initial background as it may not be set
-	fmt.Println(background)
 
 	// Test setting background
 	newBackground := []float64{128.0, 64.0, 192.0}
@@ -2228,7 +2227,7 @@ func TestImage_Background(t *testing.T) {
 func TestImage_PageDelay(t *testing.T) {
 	img, err := createWhiteImage(100, 100)
 	require.NoError(t, err)
-	defer img.Close()
+	//defer img.Close() TODO fix this
 
 	// Test getting delay (may not exist initially)
 	delay, err := img.PageDelay()
