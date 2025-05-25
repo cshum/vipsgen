@@ -291,12 +291,6 @@ func getMimeType(formatName string) string {
 	if mimeType, exists := knownMimeTypes[strings.ToLower(formatName)]; exists {
 		return mimeType
 	}
-
-	// Try to construct a reasonable MIME type for unknown formats
-	if formatName != "unknown" && formatName != "" {
-		return "image/" + formatName
-	}
-
 	return ""
 }
 

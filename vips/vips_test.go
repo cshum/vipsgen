@@ -122,6 +122,71 @@ func TestMemoryStats(t *testing.T) {
 	t.Logf("Memory stats: mem=%d, mem_high=%d, files=%d, allocs=%d",
 		stats.Mem, stats.MemHigh, stats.Files, stats.Allocs)
 }
+func TestImageType_MimeType(t *testing.T) {
+	tests := []struct {
+		imageType    ImageType
+		expectedMime string
+		expectedOk   bool
+	}{
+		{
+			imageType:    ImageTypeJpeg,
+			expectedMime: "image/jpeg",
+			expectedOk:   true,
+		},
+		{
+			imageType:    ImageTypeAvif,
+			expectedMime: "image/avif",
+			expectedOk:   true,
+		},
+		{
+			imageType:    ImageTypeVips,
+			expectedMime: "image/vnd.libvips",
+			expectedOk:   true,
+		},
+		{
+			imageType:    ImageTypeCsv,
+			expectedMime: "text/csv",
+			expectedOk:   true,
+		},
+		{
+			imageType:    ImageTypeUnknown,
+			expectedMime: "",
+			expectedOk:   false,
+		},
+		{
+			imageType:    ImageTypeMagick,
+			expectedMime: "",
+			expectedOk:   false,
+		},
+		{
+			imageType:    ImageType("invalid"),
+			expectedMime: "",
+			expectedOk:   false,
+		},
+		{
+			imageType:    ImageType(""),
+			expectedMime: "",
+			expectedOk:   false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(string(tt.imageType), func(t *testing.T) {
+			mime, ok := tt.imageType.MimeType()
+			if ok != tt.expectedOk {
+				t.Errorf("ImageType.MimeType() ok = %v, expected %v", ok, tt.expectedOk)
+			}
+			if mime != tt.expectedMime {
+				t.Errorf("ImageType.MimeType() mime = %q, expected %q", mime, tt.expectedMime)
+			}
+			if tt.expectedOk {
+				t.Logf("✓ %s -> %s", tt.imageType, mime)
+			} else {
+				t.Logf("✗ %s -> (not found)", tt.imageType)
+			}
+		})
+	}
+}
 
 func TestBasicBlackImage(t *testing.T) {
 	// Create a simple test image (100x100 black image)

@@ -660,8 +660,8 @@ const (
 )
 
 
-// ImageMimeTypes map the various image types to its mime type representation
-var ImageMimeTypes = map[ImageType]string{
+// imageMimeTypes map the various image types to its mime type representation
+var imageMimeTypes = map[ImageType]string{
 	ImageTypeJpeg: "image/jpeg",
 	ImageTypeGif: "image/gif",
 	ImageTypePng: "image/png",
@@ -673,7 +673,6 @@ var ImageMimeTypes = map[ImageType]string{
 	ImageTypeAvif: "image/avif",
 	ImageTypePdf: "application/pdf",
 	ImageTypeBmp: "image/bmp",
-	ImageTypeMagick: "image/magick",
 	ImageTypeAnalyze: "application/x-analyze",
 	ImageTypeCsv: "text/csv",
 	ImageTypeDz: "image/x-deepzoom",
@@ -687,6 +686,12 @@ var ImageMimeTypes = map[ImageType]string{
 	ImageTypeRad: "image/rad",
 	ImageTypeRaw: "image/raw",
 	ImageTypeVips: "image/vnd.libvips",
+}
+
+// MimeType returns the MIME type for the image type.
+func (imageType ImageType) MimeType() (mime string, ok bool) {
+	mime, ok = imageMimeTypes[imageType]
+	return
 }
 
 // vipsDetermineImageType determine the image type from loader metadata
