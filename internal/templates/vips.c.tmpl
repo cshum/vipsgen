@@ -189,14 +189,6 @@ int image_get_array_double(VipsImage *in, const char *name, double **out, int *n
   return vips_image_get_array_double(in, name, out, n);
 }
 
-void image_set_array_int(VipsImage *in, const char *name, const int *array, int n) {
-  vips_image_set_array_int(in, name, array, n);
-}
-
-void image_set_array_double(VipsImage *in, const char *name, const double *array, int n) {
-  vips_image_set_array_double(in, name, array, n);
-}
-
 // Blob operations (keep these as they handle memory management)
 
 void image_set_blob(VipsImage *in, const char *name, const void *data, size_t dataLength) {
