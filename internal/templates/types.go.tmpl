@@ -27,10 +27,16 @@ const (
 {{end}})
 {{end}}
 
-// ImageMimeTypes map the various image types to its mime type representation
-var ImageMimeTypes = map[ImageType]string{
+// imageMimeTypes map the various image types to its mime type representation
+var imageMimeTypes = map[ImageType]string{
 {{range .ImageTypes}}{{if and (ne .TypeName "unknown") (ne .MimeType "")}}	{{.EnumName}}: "{{.MimeType}}",
 {{end}}{{end}}}
+
+// MimeType returns the MIME type for the image type.
+func (imageType ImageType) MimeType() (mime string, ok bool) {
+	mime, ok = imageMimeTypes[imageType]
+	return
+}
 
 // vipsDetermineImageType determine the image type from loader metadata
 func vipsDetermineImageType(in *C.VipsImage) ImageType {
