@@ -48,9 +48,9 @@ func (s *Source) Close() {
 		pointer.Unref(s.ptr)
 		s.ptr = nil
 		s.lock.Unlock()
-
 		if s.reader != nil {
 			_ = s.reader.Close()
+			s.reader = nil
 		}
 		log("vipsgen", LogLevelDebug, fmt.Sprintf("closing source %p", s))
 	} else {
