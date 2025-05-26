@@ -5435,6 +5435,11 @@ func vipsgenGlobalbalanceWithOptions(in *C.VipsImage, gamma float64, intOutput b
 }
 
 
+// clearImage frees the VipsImage
+func clearImage(img *C.VipsImage) {
+	C.vipsgen_clear_image(&img)
+}
+
 // vipsImageFromSource vips_image_new_from_source
 func vipsImageFromSource(src *C.VipsSourceCustom, params *LoadOptions) (*C.VipsImage, error) {
 	var out *C.VipsImage
