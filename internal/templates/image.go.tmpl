@@ -199,6 +199,9 @@ func (r *Image) setImage(image *C.VipsImage) {
 
 // Close closes the image and frees the memory
 func (r *Image) Close() {
+	if r == nil {
+		return
+	}
 	r.lock.Lock()
 	if r.image != nil {
 		clearImage(r.image)
