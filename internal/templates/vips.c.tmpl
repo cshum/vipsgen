@@ -147,7 +147,7 @@ void vipsgen_clear_image(VipsImage **image) {
   if (G_IS_OBJECT(*image)) g_clear_object(image);
 }
 
-int remove_exif(VipsImage *in, VipsImage **out) {
+int vipsgen_remove_exif(VipsImage *in, VipsImage **out) {
   static double default_resolution = 72.0 / 25.4;
 
   if (vips_copy(
@@ -172,7 +172,7 @@ int remove_exif(VipsImage *in, VipsImage **out) {
   return 0;
 }
 
-int embed_multi_page(VipsImage *in, VipsImage **out, int left, int top, int width,
+int vipsgen_embed_multi_page(VipsImage *in, VipsImage **out, int left, int top, int width,
                          int height, int extend) {
   VipsObject *base = VIPS_OBJECT(vips_image_new());
   int page_height = vips_image_get_page_height(in);
@@ -207,7 +207,7 @@ int embed_multi_page(VipsImage *in, VipsImage **out, int left, int top, int widt
   return 0;
 }
 
-int embed_multi_page_background(VipsImage *in, VipsImage **out, int left, int top, int width,
+int vipsgen_embed_multi_page_background(VipsImage *in, VipsImage **out, int left, int top, int width,
                                    int height, double r, double g, double b, double a) {
   double background[3] = {r, g, b};
   double backgroundRGBA[4] = {r, g, b, a};
@@ -256,7 +256,7 @@ int embed_multi_page_background(VipsImage *in, VipsImage **out, int left, int to
   return 0;
 }
 
-int extract_area_multi_page(VipsImage *in, VipsImage **out, int left, int top, int width, int height) {
+int vipsgen_extract_area_multi_page(VipsImage *in, VipsImage **out, int left, int top, int width, int height) {
   VipsObject *base = VIPS_OBJECT(vips_image_new());
   int page_height = vips_image_get_page_height(in);
   int n_pages = in->Ysize / page_height;
@@ -285,7 +285,7 @@ int extract_area_multi_page(VipsImage *in, VipsImage **out, int left, int top, i
   return 0;
 }
 
-int rot_multi_page(VipsImage *in, VipsImage **out, VipsAngle angle) {
+int vipsgen_rot_multi_page(VipsImage *in, VipsImage **out, VipsAngle angle) {
   VipsObject *base = VIPS_OBJECT(vips_image_new());
   int page_height = vips_image_get_page_height(in);
   int in_width = in->Xsize;
@@ -320,7 +320,7 @@ int rot_multi_page(VipsImage *in, VipsImage **out, VipsAngle angle) {
   return 0;
 }
 
-int label_image(VipsImage *in, VipsImage **out,
+int vipsgen_label(VipsImage *in, VipsImage **out,
           const char *text, const char *font,
           int x, int y, int size, VipsAlign align,
           double r, double g, double b, float opacity) {
