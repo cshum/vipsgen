@@ -5440,8 +5440,8 @@ func clearImage(img *C.VipsImage) {
 	C.vipsgen_clear_image(&img)
 }
 
-// vipsImageFromSource vips_image_new_from_source
-func vipsImageFromSource(src *C.VipsSourceCustom, params *LoadOptions) (*C.VipsImage, error) {
+// vipsgenImageFromSource vips_image_new_from_source
+func vipsgenImageFromSource(src *C.VipsSourceCustom, params *LoadOptions) (*C.VipsImage, error) {
 	var out *C.VipsImage
 	var code C.int
 	var optionString string
@@ -5463,8 +5463,8 @@ func vipsImageFromSource(src *C.VipsSourceCustom, params *LoadOptions) (*C.VipsI
 	return out, nil
 }
 
-// vipsImageFromBuffer vips_image_new_from_buffer
-func vipsImageFromBuffer(buf []byte, params *LoadOptions) (*C.VipsImage, error) {
+// vipsgenImageFromBuffer vips_image_new_from_buffer
+func vipsgenImageFromBuffer(buf []byte, params *LoadOptions) (*C.VipsImage, error) {
 	src := buf
 	// Reference src here so it's not garbage collected during image initialization.
 	defer runtime.KeepAlive(src)
@@ -5489,8 +5489,8 @@ func vipsImageFromBuffer(buf []byte, params *LoadOptions) (*C.VipsImage, error) 
 	return out, nil
 }
 
-// vipsImageFromFile vips_image_new_from_file
-func vipsImageFromFile(path string, params *LoadOptions) (*C.VipsImage, error) {
+// vipsgenImageFromFile vips_image_new_from_file
+func vipsgenImageFromFile(path string, params *LoadOptions) (*C.VipsImage, error) {
 	// Append options to the filename if needed
 	filenameOption := path
 	if params != nil && params.OptionString() != "" {
@@ -5509,8 +5509,8 @@ func vipsImageFromFile(path string, params *LoadOptions) (*C.VipsImage, error) {
 	return out, nil
 }
 
-// vipsImageFromMemory vips_image_new_memory
-func vipsImageFromMemory(buf []byte, width, height, bands int) (*C.VipsImage, error) {
+// vipsgenImageFromMemory vips_image_new_memory
+func vipsgenImageFromMemory(buf []byte, width, height, bands int) (*C.VipsImage, error) {
 	src := buf
 	// Reference src here so it's not garbage collected during image initialization.
 	defer runtime.KeepAlive(src)
@@ -5744,7 +5744,7 @@ func vipsImageGetMetaLoader(in *C.VipsImage) (string, bool) {
     return "", false
 }
 
-func vipsEmbedMultiPage(in *C.VipsImage, left, top, width, height int, extend Extend) (*C.VipsImage, error) {
+func vipsgenEmbedMultiPage(in *C.VipsImage, left, top, width, height int, extend Extend) (*C.VipsImage, error) {
 	var out *C.VipsImage
 	if err := C.vipsgen_embed_multi_page(in, &out, C.int(left), C.int(top), C.int(width), C.int(height), C.int(extend)); err != 0 {
 		return nil, handleImageError(out)
@@ -5752,7 +5752,7 @@ func vipsEmbedMultiPage(in *C.VipsImage, left, top, width, height int, extend Ex
 	return out, nil
 }
 
-func vipsEmbedMultiPageBackground(in *C.VipsImage, left, top, width, height,
+func vipsgenEmbedMultiPageBackground(in *C.VipsImage, left, top, width, height,
 	backgroundColorR, backgroundColorG, backgroundColorB, backgroundColorA int) (*C.VipsImage, error) {
 	var out *C.VipsImage
 	if err := C.vipsgen_embed_multi_page_background(in, &out, C.int(left), C.int(top), C.int(width),
@@ -5763,7 +5763,7 @@ func vipsEmbedMultiPageBackground(in *C.VipsImage, left, top, width, height,
 	return out, nil
 }
 
-func vipsExtractAreaMultiPage(in *C.VipsImage, left, top, width, height int) (*C.VipsImage, error) {
+func vipsgenExtractAreaMultiPage(in *C.VipsImage, left, top, width, height int) (*C.VipsImage, error) {
 	var out *C.VipsImage
 	if err := C.vipsgen_extract_area_multi_page(in, &out, C.int(left), C.int(top), C.int(width), C.int(height)); err != 0 {
 		return nil, handleImageError(out)
@@ -5771,7 +5771,7 @@ func vipsExtractAreaMultiPage(in *C.VipsImage, left, top, width, height int) (*C
 	return out, nil
 }
 
-func vipsRotMultiPage(in *C.VipsImage, angle Angle) (*C.VipsImage, error) {
+func vipsgenRotMultiPage(in *C.VipsImage, angle Angle) (*C.VipsImage, error) {
 	var out *C.VipsImage
 	if err := C.vipsgen_rot_multi_page(in, &out, C.VipsAngle(angle)); err != 0 {
 		return nil, handleImageError(out)
@@ -5779,7 +5779,7 @@ func vipsRotMultiPage(in *C.VipsImage, angle Angle) (*C.VipsImage, error) {
 	return out, nil
 }
 
-func vipsLabel(
+func vipsgenLabel(
 	in *C.VipsImage,
 	text, font string,
 	x, y, size int, align Align,
@@ -5801,7 +5801,7 @@ func vipsLabel(
 	return out, nil
 }
 
-func vipsRemoveExif(in *C.VipsImage) (*C.VipsImage, error) {
+func vipsgenRemoveExif(in *C.VipsImage) (*C.VipsImage, error) {
 	var out *C.VipsImage
 	if err := C.vipsgen_remove_exif(in, &out); err != 0 {
 		return nil, handleImageError(out)
