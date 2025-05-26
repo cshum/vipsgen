@@ -24,7 +24,6 @@ type Source struct {
 // NewSource creates Source from reader
 func NewSource(reader io.ReadCloser) *Source {
 	Startup(nil)
-
 	s := &Source{reader: reader}
 	seeker, ok := reader.(io.ReadSeeker)
 	if ok {
@@ -40,13 +39,21 @@ func NewSource(reader io.ReadCloser) *Source {
 
 // Close source
 func (s *Source) Close() {
+	if s == nil {
+		return
+	}
 	s.lock.Lock()
 	if s.ptr != nil {
 		C.clear_source(&s.src)
 		pointer.Unref(s.ptr)
 		s.ptr = nil
-		_ = s.reader.Close()
+		s.lock.Unlock()
+
+		if s.reader != nil {
+			_ = s.reader.Close()
+		}
 		log("vipsgen", LogLevelDebug, fmt.Sprintf("closing source %p", s))
+	} else {
+		s.lock.Unlock()
 	}
-	s.lock.Unlock()
 }
