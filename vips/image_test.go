@@ -2399,3 +2399,36 @@ func TestImage_ErrorHandling(t *testing.T) {
 	assert.Error(t, err)
 	assert.Empty(t, nonExistentDoubleArray, "Non-existent array field should return empty or nil")
 }
+
+func TestHasOperation(t *testing.T) {
+	// Test operations that should always exist in any libvips installation
+	assert.True(t, HasOperation("copy"), "copy operation should always exist")
+	assert.True(t, HasOperation("resize"), "resize operation should always exist")
+	assert.True(t, HasOperation("embed"), "embed operation should always exist")
+	assert.True(t, HasOperation("extract_area"), "extract_area operation should always exist")
+
+	// Test common format operations that should exist in most installations
+	assert.True(t, HasOperation("jpegload"), "jpegload should exist in most installations")
+	assert.True(t, HasOperation("jpegsave"), "jpegsave should exist in most installations")
+	assert.True(t, HasOperation("pngload"), "pngload should exist in most installations")
+	assert.True(t, HasOperation("pngsave"), "pngsave should exist in most installations")
+
+	// Test newer format that might not be available
+	jxlExists := HasOperation("jxlload")
+	avifExists := HasOperation("avifload")
+	heifExists := HasOperation("heifload")
+
+	// These are just informational - log what's available
+	t.Logf("JPEG XL support: %v", jxlExists)
+	t.Logf("AVIF support: %v", avifExists)
+	t.Logf("HEIF support: %v", heifExists)
+
+	// Test operations that definitely should not exist
+	assert.False(t, HasOperation("nonexistent_operation"), "nonexistent operation should return false")
+	assert.False(t, HasOperation("fake_operation_xyz"), "fake operation should return false")
+	assert.False(t, HasOperation(""), "empty string should return false")
+
+	// Test with invalid characters that might cause issues
+	assert.False(t, HasOperation("invalid-operation-name!"), "operation with invalid chars should return false")
+	assert.False(t, HasOperation("operation with spaces"), "operation with spaces should return false")
+}
