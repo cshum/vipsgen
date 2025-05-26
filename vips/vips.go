@@ -5633,14 +5633,15 @@ func vipsHasIPTC(in *C.VipsImage) bool {
 }
 
 func vipsGetMetaOrientation(in *C.VipsImage) int {
-	if int(C.vips_image_get_typeof(in, cachedCString(C.VIPS_META_ORIENTATION))) == 0 {
-		return 0
-	}
-	var orientation C.int
-	if C.vips_image_get_int(in, cachedCString(C.VIPS_META_ORIENTATION), &orientation) == 0 {
-		return int(orientation)
-	}
-	return 0
+    orientationFieldName := cachedCString(C.VIPS_META_ORIENTATION)
+    if int(C.vips_image_get_typeof(in, orientationFieldName)) == 0 {
+        return 0
+    }
+    var orientation C.int
+    if C.vips_image_get_int(in, orientationFieldName, &orientation) == 0 {
+        return int(orientation)
+    }
+    return 0
 }
 
 func vipsSetMetaOrientation(in *C.VipsImage, orientation int) {
@@ -5732,11 +5733,15 @@ func vipsImageGetInt(in *C.VipsImage, name string) (int, error) {
 }
 
 func vipsImageGetMetaLoader(in *C.VipsImage) (string, bool) {
-	if !vipsImageHasField(in, C.VIPS_META_LOADER) {
-		return "", false
-	}
-	loader, err := vipsImageGetString(in, C.VIPS_META_LOADER)
-	return loader, err == nil
+    loaderFieldName := cachedCString(C.VIPS_META_LOADER)
+    if int(C.vips_image_get_typeof(in, loaderFieldName)) == 0 {
+        return "", false
+    }
+    var cFieldValue *C.char
+    if int(C.vips_image_get_string(in, loaderFieldName, &cFieldValue)) == 0 {
+        return C.GoString(cFieldValue), true
+    }
+    return "", false
 }
 
 func vipsEmbedMultiPage(in *C.VipsImage, left, top, width, height int, extend Extend) (*C.VipsImage, error) {
