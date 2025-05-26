@@ -5328,59 +5328,9 @@ int vipsgen_image_new_from_buffer_with_option(const void *buf, size_t len, VipsI
   return 0;
 }
 
-int has_alpha_channel(VipsImage *image) {
-  return vips_image_hasalpha(image);
-}
-
-int is_colorspace_supported(VipsImage *in) {
-  return vips_colourspace_issupported(in) ? 1 : 0;
-}
-
-void clear_image(VipsImage **image) {
+void vipsgen_clear_image(VipsImage **image) {
   // https://developer.gnome.org/gobject/stable/gobject-The-Base-Object-Type.html#g-clear-object
   if (G_IS_OBJECT(*image)) g_clear_object(image);
-}
-
-char **image_get_fields(VipsImage *in) {
-  return vips_image_get_fields(in);
-}
-
-const char * get_meta_string(const VipsImage *image, const char *name) {
-  const char *val;
-  if (vips_image_get_typeof(image, name) != 0 && !vips_image_get_string(image, name, &val)) {
-    return &val[0];
-  }
-  return "";
-}
-
-int image_has_field(VipsImage *in, const char *name) {
-  return vips_image_get_typeof(in, name) != 0 ? 1 : 0;
-}
-
-void image_remove_field(VipsImage *in, const char *name) {
-  vips_image_remove(in, name);
-}
-
-int image_get_array_int(VipsImage *in, const char *name, int **out, int *n) {
-  return vips_image_get_array_int(in, name, out, n);
-}
-
-int image_get_array_double(VipsImage *in, const char *name, double **out, int *n) {
-  return vips_image_get_array_double(in, name, out, n);
-}
-
-void image_set_blob(VipsImage *in, const char *name, const void *data, size_t dataLength) {
-  vips_image_set_blob_copy(in, name, data, dataLength);
-}
-
-unsigned long image_get_blob(VipsImage *in, const char *name, const void **data, size_t *dataLength) {
-  if (vips_image_get_typeof(in, name) == 0) {
-    return 0;
-  }
-  if (vips_image_get_blob(in, name, data, dataLength)) {
-    return -1;
-  }
-  return 0;
 }
 
 int remove_exif(VipsImage *in, VipsImage **out) {

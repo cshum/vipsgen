@@ -19,3 +19,7 @@ void set_logging_handler(void) {
 void unset_logging_handler(void) {
   g_log_set_default_handler(null_logging_handler, NULL);
 }
+
+int is_gobject(void* obj) {
+    return G_IS_OBJECT(obj) ? 1 : 0;
+}

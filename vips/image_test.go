@@ -2211,25 +2211,28 @@ func TestImage_GenericMetadata(t *testing.T) {
 	defer img.Close()
 
 	// Test string metadata
+	assert.False(t, img.HasField("test-string"))
 	img.SetString("test-string", "hello world")
-	value := img.GetString("test-string")
+	assert.NoError(t, err)
+	value, err := img.GetString("test-string")
 	assert.Equal(t, "hello world", value, "String metadata should match")
+	assert.True(t, img.HasField("test-string"))
 
 	// Test integer metadata
+	assert.False(t, img.HasField("test-int"))
 	img.SetInt("test-int", 42)
-	intValue := img.GetInt("test-int")
+	assert.NoError(t, err)
+	intValue, err := img.GetInt("test-int")
 	assert.Equal(t, 42, intValue, "Integer metadata should match")
+	assert.True(t, img.HasField("test-int"))
 
 	// Test double metadata
+	assert.False(t, img.HasField("test-double"))
 	img.SetDouble("test-double", 3.14159)
-	doubleValue := img.GetDouble("test-double")
+	assert.NoError(t, err)
+	doubleValue, err := img.GetDouble("test-double")
 	assert.InDelta(t, 3.14159, doubleValue, 0.00001, "Double metadata should match")
-
-	// Test blob metadata
-	testData := []byte{0x01, 0x02, 0x03, 0x04, 0x05}
-	img.SetBlob("test-blob", testData)
-	blobValue := img.GetBlob("test-blob")
-	assert.Equal(t, testData, blobValue, "Blob metadata should match")
+	assert.True(t, img.HasField("test-double"))
 }
 
 func TestImage_GetFields(t *testing.T) {
@@ -2271,13 +2274,16 @@ func TestImage_GetAsString(t *testing.T) {
 	img.SetString("test-string", "hello")
 
 	// Test getting as string
-	intAsString := img.GetAsString("test-int")
+	intAsString, err := img.GetAsString("test-int")
+	assert.NoError(t, err)
 	assert.Equal(t, "42", intAsString, "Integer should convert to string")
 
-	doubleAsString := img.GetAsString("test-double")
+	doubleAsString, err := img.GetAsString("test-double")
+	assert.NoError(t, err)
 	assert.Contains(t, doubleAsString, "3.14", "Double should convert to string")
 
-	stringAsString := img.GetAsString("test-string")
+	stringAsString, err := img.GetAsString("test-string")
+	assert.NoError(t, err)
 	assert.Equal(t, "hello", stringAsString, "String should remain string")
 }
 
@@ -2368,24 +2374,61 @@ func TestImage_ErrorHandling(t *testing.T) {
 	defer img.Close()
 
 	// Test getting non-existent metadata (should return zero values, not error)
-	nonExistentInt := img.GetInt("non-existent-field")
+	nonExistentInt, err := img.GetInt("non-existent-field")
+	assert.Error(t, err)
 	assert.Equal(t, 0, nonExistentInt, "Non-existent int field should return 0")
 
-	nonExistentString := img.GetString("non-existent-field")
+	nonExistentString, err := img.GetString("non-existent-field")
+	assert.Error(t, err)
 	assert.Equal(t, "", nonExistentString, "Non-existent string field should return empty string")
 
-	nonExistentDouble := img.GetDouble("non-existent-field")
+	nonExistentDouble, err := img.GetDouble("non-existent-field")
+	assert.Error(t, err)
 	assert.Equal(t, 0.0, nonExistentDouble, "Non-existent double field should return 0.0")
 
-	nonExistentBlob := img.GetBlob("non-existent-field")
+	nonExistentBlob, err := img.GetBlob("non-existent-field")
+	assert.Error(t, err)
 	assert.Empty(t, nonExistentBlob, "Non-existent blob field should return empty or nil")
 
 	// Test getting non-existent arrays (should return nil/error, not crash)
 	nonExistentIntArray, err := img.PageDelay()
-	// Don't assert on error here as it depends on implementation
-	_ = nonExistentIntArray
+	assert.Error(t, err)
+	assert.Empty(t, nonExistentIntArray, "Non-existent array field should return empty or nil")
 
 	nonExistentDoubleArray, err := img.Background()
-	// Don't assert on error here as it depends on implementation
-	_ = nonExistentDoubleArray
+	assert.Error(t, err)
+	assert.Empty(t, nonExistentDoubleArray, "Non-existent array field should return empty or nil")
+}
+
+func TestHasOperation(t *testing.T) {
+	// Test operations that should always exist in any libvips installation
+	assert.True(t, HasOperation("copy"), "copy operation should always exist")
+	assert.True(t, HasOperation("resize"), "resize operation should always exist")
+	assert.True(t, HasOperation("embed"), "embed operation should always exist")
+	assert.True(t, HasOperation("extract_area"), "extract_area operation should always exist")
+
+	// Test common format operations that should exist in most installations
+	assert.True(t, HasOperation("jpegload"), "jpegload should exist in most installations")
+	assert.True(t, HasOperation("jpegsave"), "jpegsave should exist in most installations")
+	assert.True(t, HasOperation("pngload"), "pngload should exist in most installations")
+	assert.True(t, HasOperation("pngsave"), "pngsave should exist in most installations")
+
+	// Test newer format that might not be available
+	jxlExists := HasOperation("jxlload")
+	avifExists := HasOperation("avifload")
+	heifExists := HasOperation("heifload")
+
+	// These are just informational - log what's available
+	t.Logf("JPEG XL support: %v", jxlExists)
+	t.Logf("AVIF support: %v", avifExists)
+	t.Logf("HEIF support: %v", heifExists)
+
+	// Test operations that definitely should not exist
+	assert.False(t, HasOperation("nonexistent_operation"), "nonexistent operation should return false")
+	assert.False(t, HasOperation("fake_operation_xyz"), "fake operation should return false")
+	assert.False(t, HasOperation(""), "empty string should return false")
+
+	// Test with invalid characters that might cause issues
+	assert.False(t, HasOperation("invalid-operation-name!"), "operation with invalid chars should return false")
+	assert.False(t, HasOperation("operation with spaces"), "operation with spaces should return false")
 }

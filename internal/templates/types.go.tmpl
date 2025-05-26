@@ -91,7 +91,7 @@ func NewInterpolate(name InterpolateType) *Interpolate {
 
 // Close frees the interpolator resources
 func (i *Interpolate) Close() {
-	if i.interp != nil {
+	if i != nil && i.interp != nil {
 		C.g_object_unref(C.gpointer(i.interp))
 		i.interp = nil
 	}

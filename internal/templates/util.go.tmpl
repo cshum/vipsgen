@@ -203,6 +203,20 @@ func ReadVipsMemStats(stats *MemoryStats) {
 	stats.Files = int64(C.vips_tracked_get_files())
 }
 
+// HasOperation checks if a libvips operation exists
+func HasOperation(name string) bool {
+	Startup(nil)
+	cName := C.CString(name)
+	defer freeCString(cName)
+	vop := C.vips_operation_new(cName)
+	if vop == nil {
+		return false
+	}
+	if C.is_gobject(unsafe.Pointer(vop)) != 0 {
+		C.g_object_unref(C.gpointer(vop))
+	}
+	return true
+}
 
 func handleImageError(out *C.VipsImage) error {
 	if out != nil {
@@ -260,11 +274,6 @@ func cachedCString(str string) *C.char {
 	cstr := C.CString(str)
 	cStringsCache.Store(str, cstr)
 	return cstr
-}
-
-// clearImage frees the VipsImage
-func clearImage(img *C.VipsImage) {
-	C.g_object_unref(C.gpointer(img))
 }
 
 // bufferToBytes converts a C buffer to Go bytes and frees the original buffer.

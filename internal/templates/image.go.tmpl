@@ -199,6 +199,9 @@ func (r *Image) setImage(image *C.VipsImage) {
 
 // Close closes the image and frees the memory
 func (r *Image) Close() {
+	if r == nil {
+		return
+	}
 	r.lock.Lock()
 	if r.image != nil {
 		clearImage(r.image)
@@ -289,52 +292,75 @@ func (r *Image) Orientation() int {
 	return vipsGetMetaOrientation(r.image)
 }
 
+// GetFields vips_image_get_fields returns a list of all metadata field names in the image
 func (r *Image) GetFields() []string {
 	return vipsImageGetFields(r.image)
 }
 
-func (r *Image) SetBlob(name string, data []byte) {
-	vipsImageSetBlob(r.image, name, data)
+// HasField vips_image_get_typeof checks if the image has a metadata field with the given name
+func (r *Image) HasField(name string) bool {
+    return vipsImageHasField(r.image, name)
 }
 
-func (r *Image) GetBlob(name string) []byte {
+// GetBlob vips_image_get_blob retrieves binary metadata from the image by field name
+func (r *Image) GetBlob(name string) ([]byte, error) {
 	return vipsImageGetBlob(r.image, name)
 }
 
+// SetDouble vips_image_set_double sets a double-precision floating point metadata value
 func (r *Image) SetDouble(name string, f float64) {
 	vipsImageSetDouble(r.image, name, f)
 }
 
-func (r *Image) GetDouble(name string) float64 {
+// GetDouble vips_image_get_double retrieves a double-precision floating point metadata value
+func (r *Image) GetDouble(name string) (float64, error) {
 	return vipsImageGetDouble(r.image, name)
 }
 
+// SetInt vips_image_set_int sets an integer metadata value
 func (r *Image) SetInt(name string, i int) {
 	vipsImageSetInt(r.image, name, i)
 }
 
-func (r *Image) GetInt(name string) int {
+// GetInt vips_image_get_int retrieves an integer metadata value
+func (r *Image) GetInt(name string) (int, error) {
 	return vipsImageGetInt(r.image, name)
 }
 
+// SetString vips_image_set_string sets a string metadata value
 func (r *Image) SetString(name string, str string) {
 	vipsImageSetString(r.image, name, str)
 }
 
-func (r *Image) GetString(name string) string {
+// GetString vips_image_get_string retrieves a string metadata value
+func (r *Image) GetString(name string) (string, error) {
 	return vipsImageGetString(r.image, name)
 }
 
-func (r *Image) GetAsString(name string) string {
+// GetAsString vips_image_get_as_string retrieves any metadata value converted to string format
+func (r *Image) GetAsString(name string) (string, error) {
 	return vipsImageGetAsString(r.image, name)
 }
 
+// GetArrayDouble vips_image_get_array_double retrieves a double array metadata value
+func (r *Image) GetArrayDouble(name string) ([]float64, error) {
+	return vipsImageGetArrayDouble(r.image, name)
+}
+
+// GetArrayInt vips_image_get_array_int retrieves an integer array metadata value
+func (r *Image) GetArrayInt(name string) ([]int, error) {
+	return vipsImageGetArrayInt(r.image, name)
+}
+
+// Exif extracts all EXIF metadata from the image and returns it as a map of field names to string values
 func (r *Image) Exif() map[string]string {
 	fields := vipsImageGetFields(r.image)
 	exifData := map[string]string{}
 	for _, field := range fields {
 		if strings.HasPrefix(field, "exif") {
-			exifData[field] = vipsGetMetaString(r.image, field)
+			if val, err := vipsImageGetString(r.image, field); err == nil {
+				exifData[field] = val
+			}
 		}
 	}
 	return exifData

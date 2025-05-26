@@ -25,3 +25,9 @@ static void null_logging_handler(const gchar *log_domain,
 
 void set_logging_handler(void);
 void unset_logging_handler(void);
+
+#ifndef G_IS_OBJECT
+#define G_IS_OBJECT(obj) (G_TYPE_CHECK_INSTANCE_TYPE((obj), G_TYPE_OBJECT))
+#endif
+
+int is_gobject(void* obj);
