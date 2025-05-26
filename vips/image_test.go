@@ -2211,22 +2211,28 @@ func TestImage_GenericMetadata(t *testing.T) {
 	defer img.Close()
 
 	// Test string metadata
+	assert.False(t, img.HasField("test-string"))
 	img.SetString("test-string", "hello world")
 	assert.NoError(t, err)
 	value, err := img.GetString("test-string")
 	assert.Equal(t, "hello world", value, "String metadata should match")
+	assert.True(t, img.HasField("test-string"))
 
 	// Test integer metadata
+	assert.False(t, img.HasField("test-int"))
 	img.SetInt("test-int", 42)
 	assert.NoError(t, err)
 	intValue, err := img.GetInt("test-int")
 	assert.Equal(t, 42, intValue, "Integer metadata should match")
+	assert.True(t, img.HasField("test-int"))
 
 	// Test double metadata
+	assert.False(t, img.HasField("test-double"))
 	img.SetDouble("test-double", 3.14159)
 	assert.NoError(t, err)
 	doubleValue, err := img.GetDouble("test-double")
 	assert.InDelta(t, 3.14159, doubleValue, 0.00001, "Double metadata should match")
+	assert.True(t, img.HasField("test-double"))
 }
 
 func TestImage_GetFields(t *testing.T) {

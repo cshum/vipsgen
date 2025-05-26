@@ -294,6 +294,11 @@ func (r *Image) GetFields() []string {
 	return vipsImageGetFields(r.image)
 }
 
+// HasField vips_image_get_typeof checks if the image has a metadata field with the given name
+func (r *Image) HasField(name string) bool {
+    return vipsImageHasField(r.image, name)
+}
+
 // GetBlob vips_image_get_blob retrieves binary metadata from the image by field name
 func (r *Image) GetBlob(name string) ([]byte, error) {
 	return vipsImageGetBlob(r.image, name)
