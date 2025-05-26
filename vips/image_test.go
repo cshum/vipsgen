@@ -2227,13 +2227,6 @@ func TestImage_GenericMetadata(t *testing.T) {
 	assert.NoError(t, err)
 	doubleValue, err := img.GetDouble("test-double")
 	assert.InDelta(t, 3.14159, doubleValue, 0.00001, "Double metadata should match")
-
-	// Test blob metadata TODO fix crash
-	//testData := []byte{0x01, 0x02, 0x03, 0x04, 0x05}
-	//img.SetBlob("test-blob", testData)
-	//assert.NoError(t, err)
-	//blobValue, err := img.GetBlob("test-blob")
-	//assert.Equal(t, testData, blobValue, "Blob metadata should match")
 }
 
 func TestImage_GetFields(t *testing.T) {

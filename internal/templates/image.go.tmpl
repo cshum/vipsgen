@@ -293,10 +293,6 @@ func (r *Image) GetFields() []string {
 	return vipsImageGetFields(r.image)
 }
 
-func (r *Image) SetBlob(name string, data []byte) {
-	vipsImageSetBlob(r.image, name, data)
-}
-
 func (r *Image) GetBlob(name string) ([]byte, error) {
 	return vipsImageGetBlob(r.image, name)
 }
