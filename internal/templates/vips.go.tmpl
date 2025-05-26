@@ -311,11 +311,15 @@ func vipsImageGetInt(in *C.VipsImage, name string) (int, error) {
 }
 
 func vipsImageGetMetaLoader(in *C.VipsImage) (string, bool) {
-	if !vipsImageHasField(in, C.VIPS_META_LOADER) {
-		return "", false
-	}
-	loader, err := vipsImageGetString(in, C.VIPS_META_LOADER)
-	return loader, err == nil
+    loaderFieldName := cachedCString(C.VIPS_META_LOADER)
+    if int(C.vips_image_get_typeof(in, loaderFieldName)) == 0 {
+        return "", false
+    }
+    var cFieldValue *C.char
+    if int(C.vips_image_get_string(in, loaderFieldName, &cFieldValue)) == 0 {
+        return C.GoString(cFieldValue), true
+    }
+    return "", false
 }
 
 func vipsEmbedMultiPage(in *C.VipsImage, left, top, width, height int, extend Extend) (*C.VipsImage, error) {
