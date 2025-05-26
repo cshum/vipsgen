@@ -17,6 +17,16 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func TestMain(m *testing.M) {
+	config := &Config{
+		ReportLeaks: true,
+	}
+	Startup(config)
+	code := m.Run()
+	Shutdown()
+	os.Exit(code)
+}
+
 // createTestPNG creates a test PNG image with a pattern
 func createTestPNG(t *testing.T, width, height int) []byte {
 	img := image.NewRGBA(image.Rect(0, 0, width, height))
