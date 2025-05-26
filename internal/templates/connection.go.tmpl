@@ -50,6 +50,7 @@ func (s *Source) Close() {
 		s.lock.Unlock()
 		if s.reader != nil {
 			_ = s.reader.Close()
+			s.reader = nil
 		}
 		log("vipsgen", LogLevelDebug, fmt.Sprintf("closing source %p", s))
 	} else {
