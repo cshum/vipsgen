@@ -5733,15 +5733,15 @@ func vipsImageGetInt(in *C.VipsImage, name string) (int, error) {
 }
 
 func vipsImageGetMetaLoader(in *C.VipsImage) (string, bool) {
-    loaderFieldName := cachedCString(C.VIPS_META_LOADER)
-    if int(C.vips_image_get_typeof(in, loaderFieldName)) == 0 {
-        return "", false
-    }
-    var cFieldValue *C.char
-    if int(C.vips_image_get_string(in, loaderFieldName, &cFieldValue)) == 0 {
-        return C.GoString(cFieldValue), true
-    }
-    return "", false
+	loaderFieldName := cachedCString(C.VIPS_META_LOADER)
+	if int(C.vips_image_get_typeof(in, loaderFieldName)) == 0 {
+		return "", false
+	}
+	var cFieldValue *C.char
+	if int(C.vips_image_get_string(in, loaderFieldName, &cFieldValue)) == 0 {
+		return C.GoString(cFieldValue), true
+	}
+	return "", false
 }
 
 func vipsgenEmbedMultiPage(in *C.VipsImage, left, top, width, height int, extend Extend) (*C.VipsImage, error) {
