@@ -8890,50 +8890,62 @@ func (r *Image) Orientation() int {
 	return vipsGetMetaOrientation(r.image)
 }
 
+// GetFields vips_image_get_fields returns a list of all metadata field names in the image
 func (r *Image) GetFields() []string {
 	return vipsImageGetFields(r.image)
 }
 
+// GetBlob vips_image_get_blob retrieves binary metadata from the image by field name
 func (r *Image) GetBlob(name string) ([]byte, error) {
 	return vipsImageGetBlob(r.image, name)
 }
 
+// SetDouble vips_image_set_double sets a double-precision floating point metadata value
 func (r *Image) SetDouble(name string, f float64) {
 	vipsImageSetDouble(r.image, name, f)
 }
 
+// GetDouble vips_image_get_double retrieves a double-precision floating point metadata value
 func (r *Image) GetDouble(name string) (float64, error) {
 	return vipsImageGetDouble(r.image, name)
 }
 
+// SetInt vips_image_set_int sets an integer metadata value
 func (r *Image) SetInt(name string, i int) {
 	vipsImageSetInt(r.image, name, i)
 }
 
+// GetInt vips_image_get_int retrieves an integer metadata value
 func (r *Image) GetInt(name string) (int, error) {
 	return vipsImageGetInt(r.image, name)
 }
 
+// SetString vips_image_set_string sets a string metadata value
 func (r *Image) SetString(name string, str string) {
 	vipsImageSetString(r.image, name, str)
 }
 
+// GetString vips_image_get_string retrieves a string metadata value
 func (r *Image) GetString(name string) (string, error) {
 	return vipsImageGetString(r.image, name)
 }
 
+// GetAsString vips_image_get_as_string retrieves any metadata value converted to string format
 func (r *Image) GetAsString(name string) (string, error) {
 	return vipsImageGetAsString(r.image, name)
 }
 
+// GetArrayDouble vips_image_get_array_double retrieves a double array metadata value
 func (r *Image) GetArrayDouble(name string) ([]float64, error) {
 	return vipsImageGetArrayDouble(r.image, name)
 }
 
+// GetArrayInt vips_image_get_array_int retrieves an integer array metadata value
 func (r *Image) GetArrayInt(name string) ([]int, error) {
 	return vipsImageGetArrayInt(r.image, name)
 }
 
+// Exif extracts all EXIF metadata from the image and returns it as a map of field names to string values
 func (r *Image) Exif() map[string]string {
 	fields := vipsImageGetFields(r.image)
 	exifData := map[string]string{}
