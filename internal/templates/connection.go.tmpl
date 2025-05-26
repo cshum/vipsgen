@@ -48,7 +48,6 @@ func (s *Source) Close() {
 		pointer.Unref(s.ptr)
 		s.ptr = nil
 		s.lock.Unlock()
-
 		if s.reader != nil {
 			_ = s.reader.Close()
 		}
