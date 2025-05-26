@@ -5746,7 +5746,7 @@ func vipsImageGetMetaLoader(in *C.VipsImage) (string, bool) {
 
 func vipsEmbedMultiPage(in *C.VipsImage, left, top, width, height int, extend Extend) (*C.VipsImage, error) {
 	var out *C.VipsImage
-	if err := C.embed_multi_page(in, &out, C.int(left), C.int(top), C.int(width), C.int(height), C.int(extend)); err != 0 {
+	if err := C.vipsgen_embed_multi_page(in, &out, C.int(left), C.int(top), C.int(width), C.int(height), C.int(extend)); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
@@ -5755,7 +5755,7 @@ func vipsEmbedMultiPage(in *C.VipsImage, left, top, width, height int, extend Ex
 func vipsEmbedMultiPageBackground(in *C.VipsImage, left, top, width, height,
 	backgroundColorR, backgroundColorG, backgroundColorB, backgroundColorA int) (*C.VipsImage, error) {
 	var out *C.VipsImage
-	if err := C.embed_multi_page_background(in, &out, C.int(left), C.int(top), C.int(width),
+	if err := C.vipsgen_embed_multi_page_background(in, &out, C.int(left), C.int(top), C.int(width),
 		C.int(height), C.double(backgroundColorR),
 		C.double(backgroundColorG), C.double(backgroundColorB), C.double(backgroundColorA)); err != 0 {
 		return nil, handleImageError(out)
@@ -5765,7 +5765,7 @@ func vipsEmbedMultiPageBackground(in *C.VipsImage, left, top, width, height,
 
 func vipsExtractAreaMultiPage(in *C.VipsImage, left, top, width, height int) (*C.VipsImage, error) {
 	var out *C.VipsImage
-	if err := C.extract_area_multi_page(in, &out, C.int(left), C.int(top), C.int(width), C.int(height)); err != 0 {
+	if err := C.vipsgen_extract_area_multi_page(in, &out, C.int(left), C.int(top), C.int(width), C.int(height)); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
@@ -5773,7 +5773,7 @@ func vipsExtractAreaMultiPage(in *C.VipsImage, left, top, width, height int) (*C
 
 func vipsRotMultiPage(in *C.VipsImage, angle Angle) (*C.VipsImage, error) {
 	var out *C.VipsImage
-	if err := C.rot_multi_page(in, &out, C.VipsAngle(angle)); err != 0 {
+	if err := C.vipsgen_rot_multi_page(in, &out, C.VipsAngle(angle)); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
@@ -5791,7 +5791,7 @@ func vipsLabel(
 	cFont := C.CString(font)
 	defer freeCString(cFont)
 
-	err := C.label_image(in, &out, cText, cFont,
+	err := C.vipsgen_label(in, &out, cText, cFont,
 		C.int(x), C.int(y), C.int(size), C.VipsAlign(align),
 		C.double(colorR), C.double(colorG), C.double(colorB), C.float(float32(opacity)))
 	if int(err) != 0 {
@@ -5803,7 +5803,7 @@ func vipsLabel(
 
 func vipsRemoveExif(in *C.VipsImage) (*C.VipsImage, error) {
 	var out *C.VipsImage
-	if err := C.remove_exif(in, &out); err != 0 {
+	if err := C.vipsgen_remove_exif(in, &out); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
