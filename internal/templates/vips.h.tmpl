@@ -25,6 +25,8 @@ int vipsgen_set_interpolate(VipsOperation *operation, const char *name, VipsInte
 {{generateCFunctionDeclaration .}}
 {{end}}
 
+// Custom operations
+
 int vipsgen_image_new_from_source(VipsSourceCustom *source, VipsImage **out);
 int vipsgen_image_new_from_source_with_option(VipsSourceCustom *source, VipsImage **out, const char *option_string);
 int vipsgen_image_new_from_file(const char *name, VipsImage **out);
@@ -33,9 +35,9 @@ int vipsgen_image_new_from_buffer_with_option(const void *buf, size_t len, VipsI
 int vipsgen_image_new_from_memory(const void *buf, size_t len, int width, int height, int bands, VipsImage **out);
 void vipsgen_clear_image(VipsImage **image);
 
-int remove_exif(VipsImage *in, VipsImage **out);
-int embed_multi_page(VipsImage *in, VipsImage **out, int left, int top, int width, int height, int extend);
-int embed_multi_page_background(VipsImage *in, VipsImage **out, int left, int top, int width, int height, double r, double g, double b, double a);
-int extract_area_multi_page(VipsImage *in, VipsImage **out, int left, int top, int width, int height);
-int rot_multi_page(VipsImage *in, VipsImage **out, VipsAngle angle);
-int label_image(VipsImage *in, VipsImage **out, const char *text, const char *font, int x, int y, int size, VipsAlign align, double r, double g, double b, float opacity);
+int vipsgen_remove_exif(VipsImage *in, VipsImage **out);
+int vipsgen_embed_multi_page(VipsImage *in, VipsImage **out, int left, int top, int width, int height, int extend);
+int vipsgen_embed_multi_page_background(VipsImage *in, VipsImage **out, int left, int top, int width, int height, double r, double g, double b, double a);
+int vipsgen_extract_area_multi_page(VipsImage *in, VipsImage **out, int left, int top, int width, int height);
+int vipsgen_rot_multi_page(VipsImage *in, VipsImage **out, VipsAngle angle);
+int vipsgen_label(VipsImage *in, VipsImage **out, const char *text, const char *font, int x, int y, int size, VipsAlign align, double r, double g, double b, float opacity);

@@ -8730,7 +8730,7 @@ func NewImageFromSource(s *Source, options *LoadOptions) (*Image, error) {
 	if options == nil {
 		options = DefaultLoadOptions()
 	}
-	vipsImage, err := vipsImageFromSource(s.src, options)
+	vipsImage, err := vipsgenImageFromSource(s.src, options)
 	if err != nil {
 		return nil, err
 	}
@@ -8743,7 +8743,7 @@ func NewImageFromBuffer(buf []byte, options *LoadOptions) (*Image, error) {
 	if options == nil {
 		options = DefaultLoadOptions()
 	}
-	vipsImage, err := vipsImageFromBuffer(buf, options)
+	vipsImage, err := vipsgenImageFromBuffer(buf, options)
 	if err != nil {
 		return nil, err
 	}
@@ -8756,7 +8756,7 @@ func NewImageFromFile(file string, options *LoadOptions) (*Image, error) {
 	if options == nil {
 		options = DefaultLoadOptions()
 	}
-	vipsImage, err := vipsImageFromFile(file, options)
+	vipsImage, err := vipsgenImageFromFile(file, options)
 	if err != nil {
 		return nil, err
 	}
@@ -8766,7 +8766,7 @@ func NewImageFromFile(file string, options *LoadOptions) (*Image, error) {
 // NewImageFromMemory vips_image_new_from_memory loads a raw RGB/RGBA image buffer and creates a new Image
 func NewImageFromMemory(buf []byte, width, height, bands int) (*Image, error) {
 	Startup(nil)
-	vipsImage, err := vipsImageFromMemory(buf, width, height, bands)
+	vipsImage, err := vipsgenImageFromMemory(buf, width, height, bands)
 	if err != nil {
 		return nil, err
 	}
@@ -9060,7 +9060,7 @@ func (r *Image) RemoveICCProfile() error {
 
 // RemoveExif removes all metadata from the image (except ICC profile)
 func (r *Image) RemoveExif() error {
-	out, err := vipsRemoveExif(r.image)
+	out, err := vipsgenRemoveExif(r.image)
 	if err != nil {
 		return err
 	}
@@ -9168,7 +9168,7 @@ func (r *Image) EmbedMultiPage(left, top, width, height int, options *EmbedMulti
 				bg[i] = options.Background[i]
 			}
 		}
-		out, err := vipsEmbedMultiPageBackground(
+		out, err := vipsgenEmbedMultiPageBackground(
 			r.image,
 			left, top, width, height,
 			int(bg[0]), int(bg[1]), int(bg[2]), int(bg[3]),
@@ -9179,7 +9179,7 @@ func (r *Image) EmbedMultiPage(left, top, width, height int, options *EmbedMulti
 		r.setImage(out)
 		return nil
 	}
-	out, err := vipsEmbedMultiPage(r.image, left, top, width, height, options.Extend)
+	out, err := vipsgenEmbedMultiPage(r.image, left, top, width, height, options.Extend)
 	if err != nil {
 		return err
 	}
@@ -9199,7 +9199,7 @@ func (r *Image) ExtractAreaMultiPage(left, top, width, height int) error {
 		return nil
 	}
 	
-	out, err := vipsExtractAreaMultiPage(r.image, left, top, width, height)
+	out, err := vipsgenExtractAreaMultiPage(r.image, left, top, width, height)
 	if err != nil {
 		return err
 	}
@@ -9219,7 +9219,7 @@ func (r *Image) RotMultiPage(angle Angle) error {
 		return nil
 	}
 	
-	out, err := vipsRotMultiPage(r.image, angle)
+	out, err := vipsgenRotMultiPage(r.image, angle)
 	if err != nil {
 		return err
 	}
@@ -9263,7 +9263,7 @@ func (r *Image) Label(text string, x, y int, options *LabelOptions) error {
 			color[i] = options.Color[i]
 		}
 	}
-	out, err := vipsLabel(r.image, text, options.Font,
+	out, err := vipsgenLabel(r.image, text, options.Font,
 		x, y, options.Size, options.Align,
 		int(color[0]), int(color[1]), int(color[2]),
 		options.Opacity,
