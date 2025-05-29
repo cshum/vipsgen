@@ -1021,9 +1021,6 @@ func generateImageArgumentsComment(op introspection.Operation) string {
 					// Ensure description starts with lowercase and ends with period
 					if len(cleanDesc) > 0 {
 						cleanDesc = strings.ToLower(string(cleanDesc[0])) + cleanDesc[1:]
-						if !strings.HasSuffix(cleanDesc, ".") {
-							cleanDesc += "."
-						}
 					}
 					result.WriteString(fmt.Sprintf("\n// The %s specifies %s", arg.GoName, cleanDesc))
 				}
