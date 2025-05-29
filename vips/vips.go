@@ -2871,97 +2871,6 @@ func vipsgenJxlloadSourceWithOptions(source *C.VipsSourceCustom, page int, n int
 	return out, nil
 }
 
-// vipsgenPdfload vips_pdfload load PDF from file
-func vipsgenPdfload(filename string) (*C.VipsImage, error) {
-	var out *C.VipsImage
-	cfilename := C.CString(filename)
-	defer freeCString(cfilename)
-	if err := C.vipsgen_pdfload(cfilename, &out); err != 0 {
-		return nil, handleImageError(out)
-	}
-	return out, nil
-}
-
-// vipsgenPdfloadWithOptions vips_pdfload load PDF from file with optional arguments
-func vipsgenPdfloadWithOptions(filename string, page int, n int, dpi float64, scale float64, background []float64, password string, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
-	var out *C.VipsImage
-	cfilename := C.CString(filename)
-	defer freeCString(cfilename)
-	cbackground, cbackgroundLength, err := convertToDoubleArray(background)
-	if err != nil {
-		return nil, err
-	}
-	if cbackground != nil {
-		defer freeDoubleArray(cbackground)
-	}
-	cpassword := C.CString(password)
-	defer freeCString(cpassword)
-	if err := C.vipsgen_pdfload_with_options(cfilename, &out, C.int(page), C.int(n), C.double(dpi), C.double(scale), cbackground, cbackgroundLength, cpassword, C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
-		return nil, handleImageError(out)
-	}
-	return out, nil
-}
-
-// vipsgenPdfloadBuffer vips_pdfload_buffer load PDF from buffer
-func vipsgenPdfloadBuffer(buf []byte) (*C.VipsImage, error) {
-	src := buf
-	// Reference src here so it's not garbage collected during image initialization.
-	defer runtime.KeepAlive(src)
-	var out *C.VipsImage
-	if err := C.vipsgen_pdfload_buffer(unsafe.Pointer(&src[0]), C.size_t(len(src)), &out); err != 0 {
-		return nil, handleImageError(out)
-	}
-	return out, nil
-}
-
-// vipsgenPdfloadBufferWithOptions vips_pdfload_buffer load PDF from buffer with optional arguments
-func vipsgenPdfloadBufferWithOptions(buf []byte, page int, n int, dpi float64, scale float64, background []float64, password string, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
-	src := buf
-	// Reference src here so it's not garbage collected during image initialization.
-	defer runtime.KeepAlive(src)
-	var out *C.VipsImage
-	cbackground, cbackgroundLength, err := convertToDoubleArray(background)
-	if err != nil {
-		return nil, err
-	}
-	if cbackground != nil {
-		defer freeDoubleArray(cbackground)
-	}
-	cpassword := C.CString(password)
-	defer freeCString(cpassword)
-	if err := C.vipsgen_pdfload_buffer_with_options(unsafe.Pointer(&src[0]), C.size_t(len(src)), &out, C.int(page), C.int(n), C.double(dpi), C.double(scale), cbackground, cbackgroundLength, cpassword, C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
-		return nil, handleImageError(out)
-	}
-	return out, nil
-}
-
-// vipsgenPdfloadSource vips_pdfload_source load PDF from source
-func vipsgenPdfloadSource(source *C.VipsSourceCustom) (*C.VipsImage, error) {
-	var out *C.VipsImage
-	if err := C.vipsgen_pdfload_source(source, &out); err != 0 {
-		return nil, handleImageError(out)
-	}
-	return out, nil
-}
-
-// vipsgenPdfloadSourceWithOptions vips_pdfload_source load PDF from source with optional arguments
-func vipsgenPdfloadSourceWithOptions(source *C.VipsSourceCustom, page int, n int, dpi float64, scale float64, background []float64, password string, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
-	var out *C.VipsImage
-	cbackground, cbackgroundLength, err := convertToDoubleArray(background)
-	if err != nil {
-		return nil, err
-	}
-	if cbackground != nil {
-		defer freeDoubleArray(cbackground)
-	}
-	cpassword := C.CString(password)
-	defer freeCString(cpassword)
-	if err := C.vipsgen_pdfload_source_with_options(source, &out, C.int(page), C.int(n), C.double(dpi), C.double(scale), cbackground, cbackgroundLength, cpassword, C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
-		return nil, handleImageError(out)
-	}
-	return out, nil
-}
-
 // vipsgenOpenslideload vips_openslideload load file with OpenSlide
 func vipsgenOpenslideload(filename string) (*C.VipsImage, error) {
 	var out *C.VipsImage
@@ -3051,6 +2960,97 @@ func vipsgenMagickloadBufferWithOptions(buf []byte, density string, page int, n 
 	cdensity := C.CString(density)
 	defer freeCString(cdensity)
 	if err := C.vipsgen_magickload_buffer_with_options(unsafe.Pointer(&src[0]), C.size_t(len(src)), &out, cdensity, C.int(page), C.int(n), C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
+		return nil, handleImageError(out)
+	}
+	return out, nil
+}
+
+// vipsgenPdfload vips_pdfload load PDF from file
+func vipsgenPdfload(filename string) (*C.VipsImage, error) {
+	var out *C.VipsImage
+	cfilename := C.CString(filename)
+	defer freeCString(cfilename)
+	if err := C.vipsgen_pdfload(cfilename, &out); err != 0 {
+		return nil, handleImageError(out)
+	}
+	return out, nil
+}
+
+// vipsgenPdfloadWithOptions vips_pdfload load PDF from file with optional arguments
+func vipsgenPdfloadWithOptions(filename string, page int, n int, dpi float64, scale float64, background []float64, password string, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
+	var out *C.VipsImage
+	cfilename := C.CString(filename)
+	defer freeCString(cfilename)
+	cbackground, cbackgroundLength, err := convertToDoubleArray(background)
+	if err != nil {
+		return nil, err
+	}
+	if cbackground != nil {
+		defer freeDoubleArray(cbackground)
+	}
+	cpassword := C.CString(password)
+	defer freeCString(cpassword)
+	if err := C.vipsgen_pdfload_with_options(cfilename, &out, C.int(page), C.int(n), C.double(dpi), C.double(scale), cbackground, cbackgroundLength, cpassword, C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
+		return nil, handleImageError(out)
+	}
+	return out, nil
+}
+
+// vipsgenPdfloadBuffer vips_pdfload_buffer load PDF from buffer
+func vipsgenPdfloadBuffer(buf []byte) (*C.VipsImage, error) {
+	src := buf
+	// Reference src here so it's not garbage collected during image initialization.
+	defer runtime.KeepAlive(src)
+	var out *C.VipsImage
+	if err := C.vipsgen_pdfload_buffer(unsafe.Pointer(&src[0]), C.size_t(len(src)), &out); err != 0 {
+		return nil, handleImageError(out)
+	}
+	return out, nil
+}
+
+// vipsgenPdfloadBufferWithOptions vips_pdfload_buffer load PDF from buffer with optional arguments
+func vipsgenPdfloadBufferWithOptions(buf []byte, page int, n int, dpi float64, scale float64, background []float64, password string, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
+	src := buf
+	// Reference src here so it's not garbage collected during image initialization.
+	defer runtime.KeepAlive(src)
+	var out *C.VipsImage
+	cbackground, cbackgroundLength, err := convertToDoubleArray(background)
+	if err != nil {
+		return nil, err
+	}
+	if cbackground != nil {
+		defer freeDoubleArray(cbackground)
+	}
+	cpassword := C.CString(password)
+	defer freeCString(cpassword)
+	if err := C.vipsgen_pdfload_buffer_with_options(unsafe.Pointer(&src[0]), C.size_t(len(src)), &out, C.int(page), C.int(n), C.double(dpi), C.double(scale), cbackground, cbackgroundLength, cpassword, C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
+		return nil, handleImageError(out)
+	}
+	return out, nil
+}
+
+// vipsgenPdfloadSource vips_pdfload_source load PDF from source
+func vipsgenPdfloadSource(source *C.VipsSourceCustom) (*C.VipsImage, error) {
+	var out *C.VipsImage
+	if err := C.vipsgen_pdfload_source(source, &out); err != 0 {
+		return nil, handleImageError(out)
+	}
+	return out, nil
+}
+
+// vipsgenPdfloadSourceWithOptions vips_pdfload_source load PDF from source with optional arguments
+func vipsgenPdfloadSourceWithOptions(source *C.VipsSourceCustom, page int, n int, dpi float64, scale float64, background []float64, password string, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
+	var out *C.VipsImage
+	cbackground, cbackgroundLength, err := convertToDoubleArray(background)
+	if err != nil {
+		return nil, err
+	}
+	if cbackground != nil {
+		defer freeDoubleArray(cbackground)
+	}
+	cpassword := C.CString(password)
+	defer freeCString(cpassword)
+	if err := C.vipsgen_pdfload_source_with_options(source, &out, C.int(page), C.int(n), C.double(dpi), C.double(scale), cbackground, cbackgroundLength, cpassword, C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
