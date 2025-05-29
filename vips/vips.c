@@ -2834,103 +2834,6 @@ int vipsgen_jxlload_source_with_options(VipsSourceCustom* source, VipsImage** ou
     return result;
 }
 
-int vipsgen_pdfload(const char* filename, VipsImage** out) {
-    return vips_pdfload(filename, out, NULL);
-}
-
-int vipsgen_pdfload_with_options(const char* filename, VipsImage** out, int page, int n, double dpi, double scale, double* background, int background_n, const char* password, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
-    VipsOperation *operation = vips_operation_new("pdfload");
-    if (!operation) return 1;
-    VipsArrayDouble *background_array = NULL;
-    if (background != NULL && background_n > 0) { background_array = vips_array_double_new(background, background_n); }
-    if (
-        vips_object_set(VIPS_OBJECT(operation), "filename", filename, NULL) ||
-        vipsgen_set_int(operation, "page", page) ||
-        vipsgen_set_int(operation, "n", n) ||
-        vipsgen_set_double(operation, "dpi", dpi) ||
-        vipsgen_set_double(operation, "scale", scale) ||
-        vipsgen_set_array_double(operation, "background", background_array) ||
-        vipsgen_set_string(operation, "password", password) ||
-        vipsgen_set_bool(operation, "memory", memory) ||
-        vipsgen_set_int(operation, "access", access) ||
-        vipsgen_set_int(operation, "fail_on", fail_on) ||
-        vipsgen_set_bool(operation, "revalidate", revalidate)
-    ) {
-        g_object_unref(operation);
-        if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
-        return 1;
-    }
-    int result = vipsgen_operation_execute(operation, "out", out, NULL);
-    if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
-    return result;
-}
-
-int vipsgen_pdfload_buffer(void* buf, size_t len, VipsImage** out) {
-    return vips_pdfload_buffer(buf, len, out, NULL);
-}
-
-int vipsgen_pdfload_buffer_with_options(void* buf, size_t len, VipsImage** out, int page, int n, double dpi, double scale, double* background, int background_n, const char* password, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
-    VipsOperation *operation = vips_operation_new("pdfload_buffer");
-    if (!operation) return 1;
-    VipsBlob *blob = vips_blob_new(NULL, buf, len);
-    if (!blob) { g_object_unref(operation); return 1; }
-    VipsArrayDouble *background_array = NULL;
-    if (background != NULL && background_n > 0) { background_array = vips_array_double_new(background, background_n); }
-    if (
-        vips_object_set(VIPS_OBJECT(operation), "buffer", blob, NULL) ||
-        vipsgen_set_int(operation, "page", page) ||
-        vipsgen_set_int(operation, "n", n) ||
-        vipsgen_set_double(operation, "dpi", dpi) ||
-        vipsgen_set_double(operation, "scale", scale) ||
-        vipsgen_set_array_double(operation, "background", background_array) ||
-        vipsgen_set_string(operation, "password", password) ||
-        vipsgen_set_bool(operation, "memory", memory) ||
-        vipsgen_set_int(operation, "access", access) ||
-        vipsgen_set_int(operation, "fail_on", fail_on) ||
-        vipsgen_set_bool(operation, "revalidate", revalidate)
-    ) {
-        vips_area_unref((VipsArea *)blob);
-        g_object_unref(operation);
-        if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
-        return 1;
-    }
-    vips_area_unref((VipsArea *)blob);
-    int result = vipsgen_operation_execute(operation, "out", out, NULL);
-    if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
-    return result;
-}
-
-int vipsgen_pdfload_source(VipsSourceCustom* source, VipsImage** out) {
-    return vips_pdfload_source((VipsSource*) source, out, NULL);
-}
-
-int vipsgen_pdfload_source_with_options(VipsSourceCustom* source, VipsImage** out, int page, int n, double dpi, double scale, double* background, int background_n, const char* password, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
-    VipsOperation *operation = vips_operation_new("pdfload_source");
-    if (!operation) return 1;
-    VipsArrayDouble *background_array = NULL;
-    if (background != NULL && background_n > 0) { background_array = vips_array_double_new(background, background_n); }
-    if (
-        vips_object_set(VIPS_OBJECT(operation), "source", (VipsSource*)source, NULL) ||
-        vipsgen_set_int(operation, "page", page) ||
-        vipsgen_set_int(operation, "n", n) ||
-        vipsgen_set_double(operation, "dpi", dpi) ||
-        vipsgen_set_double(operation, "scale", scale) ||
-        vipsgen_set_array_double(operation, "background", background_array) ||
-        vipsgen_set_string(operation, "password", password) ||
-        vipsgen_set_bool(operation, "memory", memory) ||
-        vipsgen_set_int(operation, "access", access) ||
-        vipsgen_set_int(operation, "fail_on", fail_on) ||
-        vipsgen_set_bool(operation, "revalidate", revalidate)
-    ) {
-        g_object_unref(operation);
-        if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
-        return 1;
-    }
-    int result = vipsgen_operation_execute(operation, "out", out, NULL);
-    if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
-    return result;
-}
-
 int vipsgen_openslideload(const char* filename, VipsImage** out) {
     return vips_openslideload(filename, out, NULL);
 }
@@ -3032,6 +2935,103 @@ int vipsgen_magickload_buffer_with_options(void* buf, size_t len, VipsImage** ou
     }
     vips_area_unref((VipsArea *)blob);
     int result = vipsgen_operation_execute(operation, "out", out, NULL);
+    return result;
+}
+
+int vipsgen_pdfload(const char* filename, VipsImage** out) {
+    return vips_pdfload(filename, out, NULL);
+}
+
+int vipsgen_pdfload_with_options(const char* filename, VipsImage** out, int page, int n, double dpi, double scale, double* background, int background_n, const char* password, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
+    VipsOperation *operation = vips_operation_new("pdfload");
+    if (!operation) return 1;
+    VipsArrayDouble *background_array = NULL;
+    if (background != NULL && background_n > 0) { background_array = vips_array_double_new(background, background_n); }
+    if (
+        vips_object_set(VIPS_OBJECT(operation), "filename", filename, NULL) ||
+        vipsgen_set_int(operation, "page", page) ||
+        vipsgen_set_int(operation, "n", n) ||
+        vipsgen_set_double(operation, "dpi", dpi) ||
+        vipsgen_set_double(operation, "scale", scale) ||
+        vipsgen_set_array_double(operation, "background", background_array) ||
+        vipsgen_set_string(operation, "password", password) ||
+        vipsgen_set_bool(operation, "memory", memory) ||
+        vipsgen_set_int(operation, "access", access) ||
+        vipsgen_set_int(operation, "fail_on", fail_on) ||
+        vipsgen_set_bool(operation, "revalidate", revalidate)
+    ) {
+        g_object_unref(operation);
+        if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
+        return 1;
+    }
+    int result = vipsgen_operation_execute(operation, "out", out, NULL);
+    if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
+    return result;
+}
+
+int vipsgen_pdfload_buffer(void* buf, size_t len, VipsImage** out) {
+    return vips_pdfload_buffer(buf, len, out, NULL);
+}
+
+int vipsgen_pdfload_buffer_with_options(void* buf, size_t len, VipsImage** out, int page, int n, double dpi, double scale, double* background, int background_n, const char* password, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
+    VipsOperation *operation = vips_operation_new("pdfload_buffer");
+    if (!operation) return 1;
+    VipsBlob *blob = vips_blob_new(NULL, buf, len);
+    if (!blob) { g_object_unref(operation); return 1; }
+    VipsArrayDouble *background_array = NULL;
+    if (background != NULL && background_n > 0) { background_array = vips_array_double_new(background, background_n); }
+    if (
+        vips_object_set(VIPS_OBJECT(operation), "buffer", blob, NULL) ||
+        vipsgen_set_int(operation, "page", page) ||
+        vipsgen_set_int(operation, "n", n) ||
+        vipsgen_set_double(operation, "dpi", dpi) ||
+        vipsgen_set_double(operation, "scale", scale) ||
+        vipsgen_set_array_double(operation, "background", background_array) ||
+        vipsgen_set_string(operation, "password", password) ||
+        vipsgen_set_bool(operation, "memory", memory) ||
+        vipsgen_set_int(operation, "access", access) ||
+        vipsgen_set_int(operation, "fail_on", fail_on) ||
+        vipsgen_set_bool(operation, "revalidate", revalidate)
+    ) {
+        vips_area_unref((VipsArea *)blob);
+        g_object_unref(operation);
+        if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
+        return 1;
+    }
+    vips_area_unref((VipsArea *)blob);
+    int result = vipsgen_operation_execute(operation, "out", out, NULL);
+    if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
+    return result;
+}
+
+int vipsgen_pdfload_source(VipsSourceCustom* source, VipsImage** out) {
+    return vips_pdfload_source((VipsSource*) source, out, NULL);
+}
+
+int vipsgen_pdfload_source_with_options(VipsSourceCustom* source, VipsImage** out, int page, int n, double dpi, double scale, double* background, int background_n, const char* password, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
+    VipsOperation *operation = vips_operation_new("pdfload_source");
+    if (!operation) return 1;
+    VipsArrayDouble *background_array = NULL;
+    if (background != NULL && background_n > 0) { background_array = vips_array_double_new(background, background_n); }
+    if (
+        vips_object_set(VIPS_OBJECT(operation), "source", (VipsSource*)source, NULL) ||
+        vipsgen_set_int(operation, "page", page) ||
+        vipsgen_set_int(operation, "n", n) ||
+        vipsgen_set_double(operation, "dpi", dpi) ||
+        vipsgen_set_double(operation, "scale", scale) ||
+        vipsgen_set_array_double(operation, "background", background_array) ||
+        vipsgen_set_string(operation, "password", password) ||
+        vipsgen_set_bool(operation, "memory", memory) ||
+        vipsgen_set_int(operation, "access", access) ||
+        vipsgen_set_int(operation, "fail_on", fail_on) ||
+        vipsgen_set_bool(operation, "revalidate", revalidate)
+    ) {
+        g_object_unref(operation);
+        if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
+        return 1;
+    }
+    int result = vipsgen_operation_execute(operation, "out", out, NULL);
+    if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
     return result;
 }
 
