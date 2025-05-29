@@ -1023,6 +1023,9 @@ func generateImageArgumentsComment(op introspection.Operation) string {
 				if cleanDesc != "" {
 					if len(cleanDesc) > 0 {
 						cleanDesc = strings.ToLower(string(cleanDesc[0])) + cleanDesc[1:]
+						if !strings.HasSuffix(cleanDesc, ".") {
+							cleanDesc += "."
+						}
 					}
 
 					result.WriteString(fmt.Sprintf("\n// The %s specifies %s", arg.GoName, cleanDesc))
