@@ -1011,6 +1011,9 @@ func generateImageArgumentsComment(op introspection.Operation) string {
 	var result strings.Builder
 
 	if len(methodArgs) > 0 {
+		// Add blank comment line for paragraph break only if there are arguments
+		result.WriteString("\n//")
+
 		for _, arg := range methodArgs {
 			if arg.IsInputN {
 				continue
@@ -1018,16 +1021,16 @@ func generateImageArgumentsComment(op introspection.Operation) string {
 			if arg.Description != "" {
 				cleanDesc := strings.TrimSpace(arg.Description)
 				if cleanDesc != "" {
-					// Ensure description starts with lowercase and ends with period
 					if len(cleanDesc) > 0 {
 						cleanDesc = strings.ToLower(string(cleanDesc[0])) + cleanDesc[1:]
 					}
+
 					result.WriteString(fmt.Sprintf("\n// The %s specifies %s", arg.GoName, cleanDesc))
 				}
 			}
 		}
 	}
-	return result.String()
+	return result.String() // Returns empty string if no arguments
 }
 
 // detectMethodArguments analyzes an operation's arguments to determine which should be included in the method signature
