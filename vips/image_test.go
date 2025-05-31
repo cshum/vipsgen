@@ -1241,37 +1241,64 @@ func TestDrawOperations(t *testing.T) {
 
 	// Test drawing operations
 
-	// 1. Draw a red rectangle
+	// 1. Draw a red rectangle (50,50 to 150,150)
 	err = img.DrawRect([]float64{255, 0, 0}, 50, 50, 100, 100, &DrawRectOptions{
 		Fill: true,
 	})
-	if err != nil {
-		t.Logf("DrawRect failed: %v", err)
-	} else {
-		t.Log("DrawRect successful")
-	}
+	require.NoError(t, err)
+	t.Log("DrawRect successful")
 
-	// 2. Draw a blue circle
+	// Verify red rectangle color
+	redPixel, err := img.Getpoint(100, 100, nil) // Center of the red rectangle
+	require.NoError(t, err)
+	assert.InDelta(t, 255.0, redPixel[0], 1.0, "Red channel should be ~255")
+	assert.InDelta(t, 0.0, redPixel[1], 1.0, "Green channel should be ~0")
+	assert.InDelta(t, 0.0, redPixel[2], 1.0, "Blue channel should be ~0")
+	t.Logf("Red rectangle pixel at (100,100): R=%.1f, G=%.1f, B=%.1f", redPixel[0], redPixel[1], redPixel[2])
+
+	// Verify white background is still white
+	whitePixel, err := img.Getpoint(25, 25, nil) // Outside the red rectangle
+	require.NoError(t, err)
+	assert.InDelta(t, 255.0, whitePixel[0], 1.0, "Background red channel should be ~255")
+	assert.InDelta(t, 255.0, whitePixel[1], 1.0, "Background green channel should be ~255")
+	assert.InDelta(t, 255.0, whitePixel[2], 1.0, "Background blue channel should be ~255")
+
+	// 2. Draw a blue circle (center at 200,150, radius 50)
 	err = img.DrawCircle([]float64{0, 0, 255}, 200, 150, 50, &DrawCircleOptions{
 		Fill: true,
 	})
-	if err != nil {
-		t.Logf("DrawCircle failed: %v", err)
-	} else {
-		t.Log("DrawCircle successful")
-	}
+	require.NoError(t, err)
+	t.Log("DrawCircle successful")
 
-	// 3. Draw a green line
+	// Verify blue circle color at center
+	bluePixel, err := img.Getpoint(200, 150, nil) // Center of the blue circle
+	require.NoError(t, err)
+	assert.InDelta(t, 0.0, bluePixel[0], 1.0, "Red channel should be ~0")
+	assert.InDelta(t, 0.0, bluePixel[1], 1.0, "Green channel should be ~0")
+	assert.InDelta(t, 255.0, bluePixel[2], 1.0, "Blue channel should be ~255")
+	t.Logf("Blue circle pixel at (200,150): R=%.1f, G=%.1f, B=%.1f", bluePixel[0], bluePixel[1], bluePixel[2])
+
+	// Verify a point slightly inside the circle edge
+	circleEdgePixel, err := img.Getpoint(225, 150, nil) // 25 pixels right of center (within radius 50)
+	require.NoError(t, err)
+	assert.InDelta(t, 0.0, circleEdgePixel[0], 1.0, "Circle edge red channel should be ~0")
+	assert.InDelta(t, 0.0, circleEdgePixel[1], 1.0, "Circle edge green channel should be ~0")
+	assert.InDelta(t, 255.0, circleEdgePixel[2], 1.0, "Circle edge blue channel should be ~255")
+
+	// 3. Draw a green line from (50,200) to (250,250)
 	err = img.DrawLine([]float64{0, 255, 0}, 50, 200, 250, 250)
-	if err != nil {
-		t.Logf("DrawLine failed: %v", err)
-	} else {
-		t.Log("DrawLine successful")
-	}
+	require.NoError(t, err)
+	t.Log("DrawLine successful")
 
-	// Check if the image still has the expected dimensions
-	assert.Equal(t, width, img.Width())
-	assert.Equal(t, height, img.Height())
+	// Verify green line color at a point along the line
+	// The line goes from (50,200) to (250,250), so midpoint is approximately (150,225)
+	greenPixel, err := img.Getpoint(150, 225, nil)
+	require.NoError(t, err)
+	assert.InDelta(t, 0.0, greenPixel[0], 1.0, "Line red channel should be ~0")
+	assert.InDelta(t, 255.0, greenPixel[1], 1.0, "Line green channel should be ~255")
+	assert.InDelta(t, 0.0, greenPixel[2], 1.0, "Line blue channel should be ~0")
+	t.Logf("Green line pixel at (150,225): R=%.1f, G=%.1f, B=%.1f", greenPixel[0], greenPixel[1], greenPixel[2])
+
 }
 
 // TestSourceOperations tests operations using Source
