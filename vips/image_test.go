@@ -63,8 +63,8 @@ func TestMain(m *testing.M) {
 	os.Exit(code) // Exit with the test result code
 }
 
-// createTestPNGBuffer creates a test PNG image with a pattern
-func createTestPNGBuffer(t *testing.T, width, height int) []byte {
+// createTestPngBuffer creates a test PNG image with a pattern
+func createTestPngBuffer(t *testing.T, width, height int) []byte {
 	img := image.NewRGBA(image.Rect(0, 0, width, height))
 
 	// Create a gradient pattern
@@ -85,8 +85,8 @@ func createTestPNGBuffer(t *testing.T, width, height int) []byte {
 	return buf.Bytes()
 }
 
-// createTestJPEGBuffer creates a test JPEG image with a pattern
-func createTestJPEGBuffer(t *testing.T, width, height int) []byte {
+// createTestJpegBuffer creates a test JPEG image with a pattern
+func createTestJpegBuffer(t *testing.T, width, height int) []byte {
 	img := image.NewRGBA(image.Rect(0, 0, width, height))
 
 	// Create a gradient pattern
@@ -264,7 +264,7 @@ func TestImageLoadSaveFile(t *testing.T) {
 	testFile := filepath.Join(testDir, "test.png")
 
 	// Generate PNG data and write to file
-	pngData := createTestPNGBuffer(t, 200, 150)
+	pngData := createTestPngBuffer(t, 200, 150)
 	err := os.WriteFile(testFile, pngData, 0644)
 	require.NoError(t, err)
 	defer os.Remove(testFile) // Clean up
@@ -297,7 +297,7 @@ func TestImageLoadSaveFile(t *testing.T) {
 
 func TestImageLoadSaveBuffer(t *testing.T) {
 	// Create a test PNG in memory
-	pngData := createTestPNGBuffer(t, 150, 100)
+	pngData := createTestPngBuffer(t, 150, 100)
 
 	// Load from buffer
 	img, err := NewPngloadBuffer(pngData, DefaultPngloadBufferOptions())
@@ -324,7 +324,7 @@ func TestImageLoadSaveBuffer(t *testing.T) {
 
 func TestSource(t *testing.T) {
 	// Create a test PNG in memory
-	pngData := createTestPNGBuffer(t, 50, 50)
+	pngData := createTestPngBuffer(t, 50, 50)
 
 	// Create a source from the buffer
 	source := NewSource(io.NopCloser(bytes.NewReader(pngData)))
@@ -343,7 +343,7 @@ func TestSource(t *testing.T) {
 func TestImageTransformations(t *testing.T) {
 	// Create a test image
 	width, height := 100, 80
-	pngData := createTestPNGBuffer(t, width, height)
+	pngData := createTestPngBuffer(t, width, height)
 
 	// Load the image
 	img, err := NewImageFromBuffer(pngData, nil)
@@ -379,7 +379,7 @@ func TestImageTransformations(t *testing.T) {
 func TestBasicFormatConversions(t *testing.T) {
 	// Create a test gradient image
 	width, height := 100, 80
-	img, err := NewImageFromBuffer(createTestPNGBuffer(t, width, height), DefaultLoadOptions())
+	img, err := NewImageFromBuffer(createTestPngBuffer(t, width, height), DefaultLoadOptions())
 	require.NoError(t, err)
 	defer img.Close()
 
@@ -432,7 +432,7 @@ func TestBasicFormatConversions(t *testing.T) {
 func TestImageOperations(t *testing.T) {
 	// Create a test image to work with
 	width, height := 200, 150
-	img, err := NewImageFromBuffer(createTestPNGBuffer(t, width, height), nil)
+	img, err := NewImageFromBuffer(createTestPngBuffer(t, width, height), nil)
 	require.NoError(t, err)
 	defer img.Close()
 
@@ -541,7 +541,7 @@ func TestOperationComposition(t *testing.T) {
 // TestLabel tests the label functionality
 func TestLabel(t *testing.T) {
 	// Create a test image
-	img, err := NewPngloadBuffer(createPNGTestImageBuffer(t, 100, 100), nil)
+	img, err := NewPngloadBuffer(createTestPngBuffer(t, 100, 100), nil)
 	require.NoError(t, err)
 	defer img.Close()
 	t.Logf("Bands %d", img.Bands())
@@ -573,7 +573,7 @@ func TestICCProfile(t *testing.T) {
 // TestExif tests EXIF operations
 func TestExif(t *testing.T) {
 	// Create a JPEG with some basic structure
-	jpegData := createTestJPEGBuffer(t, 120, 80)
+	jpegData := createTestJpegBuffer(t, 120, 80)
 
 	// Load JPEG
 	img, err := NewJpegloadBuffer(jpegData, nil)
@@ -1344,7 +1344,7 @@ func TestDrawOperations(t *testing.T) {
 func TestSourceOperations(t *testing.T) {
 	// Create a test image
 	width, height := 100, 100
-	data := createPNGTestImageBuffer(t, width, height)
+	data := createTestPngBuffer(t, width, height)
 
 	// Test with a memory source
 	memReader := bytes.NewReader(data)
@@ -1402,32 +1402,6 @@ func createSolidColorImage(t *testing.T, width, height int, c color.RGBA) (*Imag
 	require.NoError(t, err)
 
 	return NewImageFromBuffer(buf.Bytes(), nil)
-}
-
-// createPNGTestImageBuffer creates a test PNG image with a pattern
-func createPNGTestImageBuffer(t *testing.T, width, height int) []byte {
-	img := image.NewRGBA(image.Rect(0, 0, width, height))
-
-	// Create a random pattern
-	r := rand.New(rand.NewSource(42)) // Use fixed seed for reproducibility
-
-	for y := 0; y < height; y++ {
-		for x := 0; x < width; x++ {
-			img.Set(x, y, color.RGBA{
-				R: uint8(r.Intn(256)),
-				G: uint8(r.Intn(256)),
-				B: uint8(r.Intn(256)),
-				A: 255,
-			})
-		}
-	}
-
-	// Encode to PNG
-	var buf bytes.Buffer
-	err := png.Encode(&buf, img)
-	require.NoError(t, err)
-
-	return buf.Bytes()
 }
 
 // TestAdvancedColorOperations tests advanced color operations and transformations
@@ -2040,7 +2014,7 @@ func TestOptionsVariants(t *testing.T) {
 
 func TestImage_HasAlpha(t *testing.T) {
 	// Test PNG without alpha
-	pngData := createTestPNGBuffer(t, 100, 100)
+	pngData := createTestPngBuffer(t, 100, 100)
 	img, err := NewImageFromBuffer(pngData, nil)
 	require.NoError(t, err)
 	defer img.Close()
@@ -2258,7 +2232,7 @@ func TestImage_RemoveICCProfile(t *testing.T) {
 
 func TestImage_MetadataWithRealImage(t *testing.T) {
 	// Test with actual PNG data
-	pngData := createTestPNGBuffer(t, 50, 50)
+	pngData := createTestPngBuffer(t, 50, 50)
 	img, err := NewImageFromBuffer(pngData, nil)
 	require.NoError(t, err)
 	defer img.Close()
