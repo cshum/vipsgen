@@ -1342,13 +1342,10 @@ func createCheckboardImage(t *testing.T, width, height, squareSize int) (*Image,
 			draw.Draw(img, rect, &image.Uniform{c}, image.Point{}, draw.Src)
 		}
 	}
-
 	// Convert to PNG and load into vips
 	var buf bytes.Buffer
 	err := png.Encode(&buf, img)
-	if err != nil {
-		return nil, err
-	}
+	require.NoError(t, err)
 
 	return NewImageFromBuffer(buf.Bytes(), nil)
 }
@@ -1363,9 +1360,7 @@ func createSolidColorImage(t *testing.T, width, height int, c color.RGBA) (*Imag
 	// Convert to PNG and load into vips
 	var buf bytes.Buffer
 	err := png.Encode(&buf, img)
-	if err != nil {
-		return nil, err
-	}
+	require.NoError(t, err)
 
 	return NewImageFromBuffer(buf.Bytes(), nil)
 }
@@ -1420,21 +1415,17 @@ func TestAdvancedColorOperations(t *testing.T) {
 		require.NoError(t, err)
 
 		err = conv.fn(convImg)
-		if err != nil {
-			t.Logf("%s conversion failed: %v", conv.name, err)
-		} else {
-			t.Logf("%s conversion successful", conv.name)
+		require.NoError(t, err)
+		t.Logf("%s conversion successful", conv.name)
 
-			// Try to convert back if possible
-			if idx := conv.name + "->back"; idx[0] == 'S' {
-				err = convImg.HSV2sRGB()
-				t.Logf("Converting back: %v", err == nil)
-			} else if idx[0] == 'H' {
-				err = convImg.SRGB2HSV()
-				t.Logf("Converting back: %v", err == nil)
-			}
+		// Try to convert back if possible
+		if idx := conv.name + "->back"; idx[0] == 'S' {
+			require.NoError(t, convImg.HSV2sRGB())
+			t.Logf("Converting back: %v", err == nil)
+		} else if idx[0] == 'H' {
+			require.NoError(t, convImg.SRGB2HSV())
+			t.Logf("Converting back: %v", err == nil)
 		}
-
 		convImg.Close()
 	}
 }
@@ -1457,9 +1448,7 @@ func createRandomNoiseImage(t *testing.T, width, height int) (*Image, error) {
 	// Convert to PNG and load into vips
 	var buf bytes.Buffer
 	err := png.Encode(&buf, img)
-	if err != nil {
-		return nil, err
-	}
+	require.NoError(t, err)
 
 	return NewImageFromBuffer(buf.Bytes(), nil)
 }
@@ -1480,18 +1469,14 @@ func TestFilterOptions(t *testing.T) {
 		require.NoError(t, err)
 
 		err = blurImg.Gaussblur(sigma, nil)
-		if err != nil {
-			t.Logf("Gaussblur with sigma=%.1f failed: %v", sigma, err)
-		} else {
-			t.Logf("Gaussblur with sigma=%.1f succeeded", sigma)
+		require.NoError(t, err)
+		t.Logf("Gaussblur with sigma=%.1f succeeded", sigma)
 
-			// Check center pixel
-			center, err := blurImg.Getpoint(width/2, height/2, nil)
-			if err == nil {
-				t.Logf("Center pixel with sigma=%.1f: [%.1f, %.1f, %.1f]",
-					sigma, center[0], center[1], center[2])
-			}
-		}
+		// Check center pixel
+		center, err := blurImg.Getpoint(width/2, height/2, nil)
+		require.NoError(t, err)
+		t.Logf("Center pixel with sigma=%.1f: [%.1f, %.1f, %.1f]",
+			sigma, center[0], center[1], center[2])
 
 		blurImg.Close()
 	}
@@ -1515,11 +1500,8 @@ func TestFilterOptions(t *testing.T) {
 	defer sharpenImg.Close()
 
 	err = sharpenImg.Sharpen(nil)
-	if err != nil {
-		t.Logf("Sharpen with nil options failed: %v", err)
-	} else {
-		t.Log("Sharpen with nil options succeeded")
-	}
+	require.NoError(t, err)
+	t.Log("Sharpen with nil options succeeded")
 
 	// 2.2. Custom sharpen parameters
 	customSharpenImg, err := img.Copy(nil)
@@ -1532,11 +1514,8 @@ func TestFilterOptions(t *testing.T) {
 		Y2:    20.0, // Different brightening
 		Y3:    20.0, // Different darkening
 	})
-	if err != nil {
-		t.Logf("Sharpen with custom options failed: %v", err)
-	} else {
-		t.Log("Sharpen with custom options succeeded")
-	}
+	require.NoError(t, err)
+	t.Log("Sharpen with custom options succeeded")
 
 	// 3. Test Canny edge detection with different options
 
@@ -1546,11 +1525,8 @@ func TestFilterOptions(t *testing.T) {
 	defer cannyImg.Close()
 
 	err = cannyImg.Canny(nil)
-	if err != nil {
-		t.Logf("Canny with nil options failed: %v", err)
-	} else {
-		t.Log("Canny with nil options succeeded")
-	}
+	require.NoError(t, err)
+	t.Log("Canny with nil options succeeded")
 
 	// 3.2. Custom Canny parameters
 	customCannyImg, err := img.Copy(nil)
@@ -1561,11 +1537,8 @@ func TestFilterOptions(t *testing.T) {
 		Sigma:     2.0,              // Custom sigma
 		Precision: PrecisionInteger, // Integer precision
 	})
-	if err != nil {
-		t.Logf("Canny with custom options failed: %v", err)
-	} else {
-		t.Log("Canny with custom options succeeded")
-	}
+	require.NoError(t, err)
+	t.Log("Canny with custom options succeeded")
 
 	// 4. Test Sobel edge detection
 	sobelImg, err := img.Copy(nil)
@@ -1573,11 +1546,8 @@ func TestFilterOptions(t *testing.T) {
 	defer sobelImg.Close()
 
 	err = sobelImg.Sobel()
-	if err != nil {
-		t.Logf("Sobel failed: %v", err)
-	} else {
-		t.Log("Sobel succeeded")
-	}
+	require.NoError(t, err)
+	t.Log("Sobel succeeded")
 
 	// 5. Test with a combination of operations
 
@@ -1592,11 +1562,8 @@ func TestFilterOptions(t *testing.T) {
 
 	// Then apply edge detection
 	err = seqImg.Canny(nil)
-	if err != nil {
-		t.Logf("Sequential operations (blur->canny) failed: %v", err)
-	} else {
-		t.Log("Sequential operations (blur->canny) succeeded")
-	}
+	require.NoError(t, err)
+	t.Log("Sequential operations (blur->canny) succeeded")
 }
 
 // TestLoadOptions tests loading operations with different option combinations
@@ -1723,35 +1690,29 @@ func TestLoadOptions(t *testing.T) {
 		255, 0, 0, 0, 255, 0, 0, 0, 255, 255, 255, 255,
 		255, 255, 0, 0, 255, 255, 255, 0, 255, 0, 0, 0,
 	}, 4, 2, 3) // 4x2 RGB image
+	require.NoError(t, err)
+	defer memImg.Close()
+	t.Logf("Loaded from memory: %dx%d", memImg.Width(), memImg.Height())
 
-	if err != nil {
-		t.Logf("Load from memory failed: %v", err)
-	} else {
-		defer memImg.Close()
-		t.Logf("Loaded from memory: %dx%d", memImg.Width(), memImg.Height())
+	// Verify dimensions
+	assert.Equal(t, 4, memImg.Width())
+	assert.Equal(t, 2, memImg.Height())
+	assert.Equal(t, 3, memImg.Bands())
 
-		// Verify dimensions
-		assert.Equal(t, 4, memImg.Width())
-		assert.Equal(t, 2, memImg.Height())
-		assert.Equal(t, 3, memImg.Bands())
+	// Check a few pixels
+	topLeft, err := memImg.Getpoint(0, 0, nil)
+	require.NoError(t, err)
+	t.Logf("Top-left pixel: [%.1f, %.1f, %.1f]", topLeft[0], topLeft[1], topLeft[2])
+	assert.InDelta(t, 255, topLeft[0], 5, "Should be red")
+	assert.InDelta(t, 0, topLeft[1], 5, "Should be red")
+	assert.InDelta(t, 0, topLeft[2], 5, "Should be red")
 
-		// Check a few pixels
-		topLeft, err := memImg.Getpoint(0, 0, nil)
-		if err == nil {
-			t.Logf("Top-left pixel: [%.1f, %.1f, %.1f]", topLeft[0], topLeft[1], topLeft[2])
-			assert.InDelta(t, 255, topLeft[0], 5, "Should be red")
-			assert.InDelta(t, 0, topLeft[1], 5, "Should be red")
-			assert.InDelta(t, 0, topLeft[2], 5, "Should be red")
-		}
-
-		topRight, err := memImg.Getpoint(3, 0, nil)
-		if err == nil {
-			t.Logf("Top-right pixel: [%.1f, %.1f, %.1f]", topRight[0], topRight[1], topRight[2])
-			assert.InDelta(t, 255, topRight[0], 5, "Should be white")
-			assert.InDelta(t, 255, topRight[1], 5, "Should be white")
-			assert.InDelta(t, 255, topRight[2], 5, "Should be white")
-		}
-	}
+	topRight, err := memImg.Getpoint(3, 0, nil)
+	require.NoError(t, err)
+	t.Logf("Top-right pixel: [%.1f, %.1f, %.1f]", topRight[0], topRight[1], topRight[2])
+	assert.InDelta(t, 255, topRight[0], 5, "Should be white")
+	assert.InDelta(t, 255, topRight[1], 5, "Should be white")
+	assert.InDelta(t, 255, topRight[2], 5, "Should be white")
 }
 
 // TestSaveOptions tests save operations with different option combinations
