@@ -5,6 +5,7 @@ import "C"
 import (
 	"fmt"
 	"log"
+	"sort"
 	"strings"
 	"unsafe"
 )
@@ -146,6 +147,10 @@ func (v *Introspection) DiscoverOperations() []Operation {
 		log.Printf("Discovered operation: vips_%s \n", op.Name)
 		operations = append(operations, op)
 	}
+	// Sort operations for deterministic output
+	sort.Slice(operations, func(i, j int) bool {
+		return operations[i].Name < operations[j].Name
+	})
 	log.Printf("Discovered Operations: %d (%d excluded, %d duplicates)\n",
 		len(operations), excludedCount, duplicateCount)
 

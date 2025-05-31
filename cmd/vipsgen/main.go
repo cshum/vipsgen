@@ -58,6 +58,9 @@ func main() {
 	// Create operation manager for C-based introspection
 	vipsIntrospection := introspection.NewIntrospection(*isDebug)
 
+	// Get libvips version from introspection
+	vipsVersion := vipsIntrospection.GetVipsVersion()
+
 	// Extract image types from operations
 	imageTypes := vipsIntrospection.DiscoverImageTypes()
 
@@ -70,7 +73,7 @@ func main() {
 	log.Printf("Discovered %d enum types\n", len(enumTypes))
 
 	// Create unified template data
-	templateData := generator.NewTemplateData(operations, enumTypes, imageTypes)
+	templateData := generator.NewTemplateData(vipsVersion, operations, enumTypes, imageTypes)
 
 	// Generate all code using the unified template data approach
 	if err := generator.Generate(loader, templateData, outputDir); err != nil {

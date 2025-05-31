@@ -6,20 +6,23 @@ import (
 
 // TemplateData holds all data needed by any template
 type TemplateData struct {
-	Operations []introspection.Operation
-	EnumTypes  []introspection.EnumTypeInfo
-	ImageTypes []introspection.ImageTypeInfo
+	VipsVersion string
+	Operations  []introspection.Operation
+	EnumTypes   []introspection.EnumTypeInfo
+	ImageTypes  []introspection.ImageTypeInfo
 }
 
 // NewTemplateData creates a new TemplateData structure with all needed information
 func NewTemplateData(
+	vipsVersion string,
 	operations []introspection.Operation,
 	enumTypes []introspection.EnumTypeInfo,
 	imageTypes []introspection.ImageTypeInfo,
 ) *TemplateData {
 	return &TemplateData{
-		Operations: operations,
-		EnumTypes:  enumTypes,
-		ImageTypes: imageTypes,
+		VipsVersion: vipsVersion,
+		Operations:  operations,
+		EnumTypes:   enumTypes,
+		ImageTypes:  imageTypes,
 	}
 }

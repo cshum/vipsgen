@@ -32,3 +32,8 @@ func NewIntrospection(isDebug bool) *Introspection {
 		isDebug:              isDebug,
 	}
 }
+
+// GetVipsVersion returns the libvips version string
+func (v *Introspection) GetVipsVersion() string {
+	return C.GoString(C.vips_version_string())
+}

@@ -14,6 +14,7 @@ func GetTemplateFuncMap() template.FuncMap {
 		"generateFunctionCallArgs":           generateFunctionCallArgs,
 		"generateFunctionCall":               generateFunctionCall,
 		"generateImageMethodBody":            generateImageMethodBody,
+		"generateImageArgumentsComment":      generateImageArgumentsComment,
 		"generateImageMethodParams":          generateImageMethodParams,
 		"generateImageMethodReturnTypes":     generateImageMethodReturnTypes,
 		"generateMethodParams":               generateMethodParams,
@@ -1002,6 +1003,37 @@ func generateImageMethodBody(op introspection.Operation) string {
 			strings.Join(callArgs, ", "))
 		return body
 	}
+}
+
+// generateImageArgumentsComment generates parameter descriptions following Go doc conventions
+func generateImageArgumentsComment(op introspection.Operation) string {
+	methodArgs := detectMethodArguments(op)
+	var result strings.Builder
+
+	if len(methodArgs) > 0 {
+		// Add blank comment line for paragraph break only if there are arguments
+		result.WriteString("\n//")
+
+		for _, arg := range methodArgs {
+			if arg.IsInputN {
+				continue
+			}
+			if arg.Description != "" {
+				cleanDesc := strings.TrimSpace(arg.Description)
+				if cleanDesc != "" {
+					if len(cleanDesc) > 0 {
+						cleanDesc = strings.ToLower(string(cleanDesc[0])) + cleanDesc[1:]
+						if !strings.HasSuffix(cleanDesc, ".") {
+							cleanDesc += "."
+						}
+					}
+
+					result.WriteString(fmt.Sprintf("\n// The %s specifies %s", arg.GoName, cleanDesc))
+				}
+			}
+		}
+	}
+	return result.String() // Returns empty string if no arguments
 }
 
 // detectMethodArguments analyzes an operation's arguments to determine which should be included in the method signature
