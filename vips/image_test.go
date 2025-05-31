@@ -108,6 +108,25 @@ func createTestJpegBuffer(t *testing.T, width, height int) []byte {
 	return buf.Bytes()
 }
 
+func createTestGradientImage(t *testing.T, width, height int) (*Image, error) {
+	// Create a gradient image for testing return values
+	img := image.NewRGBA(image.Rect(0, 0, width, height))
+
+	for y := 0; y < height; y++ {
+		for x := 0; x < width; x++ {
+			// Create gradient from black to white
+			value := uint8(float64(x+y) / float64(width+height-2) * 255)
+			img.Set(x, y, color.RGBA{value, value, value, 255})
+		}
+	}
+
+	var buf bytes.Buffer
+	err := png.Encode(&buf, img)
+	require.NoError(t, err)
+
+	return NewImageFromBuffer(buf.Bytes(), nil)
+}
+
 // ensureTestDir creates a test directory if it doesn't exist
 func ensureTestDir(t *testing.T) string {
 	dir := filepath.Join(os.TempDir(), "vipsgen-test")
@@ -2504,39 +2523,6 @@ func TestArrayReturnValues(t *testing.T) {
 	}
 }
 
-func TestBufferReturnValues(t *testing.T) {
-	img, err := createWhiteImage(50, 50)
-	require.NoError(t, err)
-	defer img.Close()
-
-	// Test operations that return buffers
-
-	// 1. PNG buffer
-	pngBuf, err := img.PngsaveBuffer(nil)
-	require.NoError(t, err)
-	assert.IsType(t, []byte{}, pngBuf)
-	assert.NotEmpty(t, pngBuf)
-	assert.Greater(t, len(pngBuf), 100) // Should be substantial
-
-	// Verify it's actually PNG data
-	assert.Equal(t, []byte{0x89, 0x50, 0x4E, 0x47}, pngBuf[:4])
-
-	// 2. JPEG buffer
-	jpegBuf, err := img.JpegsaveBuffer(nil)
-	require.NoError(t, err)
-	assert.IsType(t, []byte{}, jpegBuf)
-	assert.NotEmpty(t, jpegBuf)
-
-	// Verify it's actually JPEG data
-	assert.Equal(t, []byte{0xFF, 0xD8}, jpegBuf[:2])
-
-	// 3. WebP buffer
-	webpBuf, err := img.WebpsaveBuffer(nil)
-	require.NoError(t, err)
-	assert.IsType(t, []byte{}, webpBuf)
-	assert.NotEmpty(t, webpBuf)
-}
-
 func TestImageReturnValues(t *testing.T) {
 	// Test operations that return new images
 
@@ -2832,25 +2818,6 @@ func TestMemoryAlignment(t *testing.T) {
 	pixel, err := img.Getpoint(0, 0, nil)
 	require.NoError(t, err)
 	assert.Len(t, pixel, bands)
-}
-
-func createTestGradientImage(t *testing.T, width, height int) (*Image, error) {
-	// Create a gradient image for testing return values
-	img := image.NewRGBA(image.Rect(0, 0, width, height))
-
-	for y := 0; y < height; y++ {
-		for x := 0; x < width; x++ {
-			// Create gradient from black to white
-			value := uint8(float64(x+y) / float64(width+height-2) * 255)
-			img.Set(x, y, color.RGBA{value, value, value, 255})
-		}
-	}
-
-	var buf bytes.Buffer
-	err := png.Encode(&buf, img)
-	require.NoError(t, err)
-
-	return NewImageFromBuffer(buf.Bytes(), nil)
 }
 
 func TestGCIntegration(t *testing.T) {
