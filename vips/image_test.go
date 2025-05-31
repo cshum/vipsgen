@@ -524,22 +524,18 @@ func TestOperationComposition(t *testing.T) {
 
 	// 2. Try to composite images (if supported)
 	err = img1.Composite2(img2, BlendModeOver, &Composite2Options{X: 10, Y: 10})
-	if err != nil {
-		t.Logf("Composite operation failed: %v", err)
-	} else {
-		t.Log("Composite operation succeeded")
-	}
+	require.NoError(t, err)
+
+	img3, err := createBlackImage(100, 100)
+	require.NoError(t, err)
+	defer img3.Close()
 
 	// Try to composite array of images (if supported)
-	images := []*Image{img1, img2}
+	images := []*Image{img1, img2, img3}
 
-	composite, err := NewComposite(images, []BlendMode{BlendModeOver}, &CompositeOptions{X: []int{}, Y: []int{}})
-	if err != nil {
-		t.Logf("Composite2 operation failed: %v", err)
-	} else {
-		t.Log("Composite2 operation succeeded")
-		composite.Close()
-	}
+	composite, err := NewComposite(images, []BlendMode{BlendModeOver, BlendModeAdd}, &CompositeOptions{X: []int{10, 20}, Y: []int{20, 10}})
+	require.NoError(t, err)
+	defer composite.Close()
 }
 
 // TestLabel tests the label functionality

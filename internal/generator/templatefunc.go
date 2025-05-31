@@ -1413,7 +1413,12 @@ func generateCFunctionImplementation(op introspection.Operation) string {
 					result.WriteString(fmt.Sprintf("    if (%s != NULL && n > 0) { %s_array = vips_array_double_new(%s, n); }\n", arg.Name, arg.Name, arg.Name))
 				} else if arrayType == "int" {
 					result.WriteString(fmt.Sprintf("    VipsArrayInt *%s_array = NULL;\n", arg.Name))
-					result.WriteString(fmt.Sprintf("    if (%s != NULL && n > 0) { %s_array = vips_array_int_new(%s, n); }\n", arg.Name, arg.Name, arg.Name))
+					// Special case for composite operation: mode array should be n-1
+					if op.Name == "composite" && arg.Name == "mode" {
+						result.WriteString(fmt.Sprintf("    if (%s != NULL && n > 1) { %s_array = vips_array_int_new(%s, n-1); }\n", arg.Name, arg.Name, arg.Name))
+					} else {
+						result.WriteString(fmt.Sprintf("    if (%s != NULL && n > 0) { %s_array = vips_array_int_new(%s, n); }\n", arg.Name, arg.Name, arg.Name))
+					}
 				} else if arrayType == "image" {
 					result.WriteString(fmt.Sprintf("    VipsArrayImage *%s_array = NULL;\n", arg.Name))
 					result.WriteString(fmt.Sprintf("    if (%s != NULL && n > 0) { %s_array = vips_array_image_new(%s, n); }\n", arg.Name, arg.Name, arg.Name))
