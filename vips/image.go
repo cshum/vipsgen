@@ -547,6 +547,9 @@ func DefaultGifloadBufferOptions() *GifloadBufferOptions {
 // NewGifloadBuffer vips_gifload_buffer load GIF with libnsgif
 func NewGifloadBuffer(buf []byte, options *GifloadBufferOptions) (*Image, error) {
 	Startup(nil)
+	if len(buf) == 0 {
+		return nil, fmt.Errorf("gifload_buffer: buffer is empty")
+	}
 	if options != nil {
 		vipsImage, err := vipsgenGifloadBufferWithOptions(buf, options.N, options.Page, options.Memory, options.Access, options.FailOn, options.Revalidate)
 		if err != nil {
@@ -711,6 +714,9 @@ func DefaultHeifloadBufferOptions() *HeifloadBufferOptions {
 // NewHeifloadBuffer vips_heifload_buffer load a HEIF image
 func NewHeifloadBuffer(buf []byte, options *HeifloadBufferOptions) (*Image, error) {
 	Startup(nil)
+	if len(buf) == 0 {
+		return nil, fmt.Errorf("heifload_buffer: buffer is empty")
+	}
 	if options != nil {
 		vipsImage, err := vipsgenHeifloadBufferWithOptions(buf, options.Page, options.N, options.Thumbnail, options.Unlimited, options.Memory, options.Access, options.FailOn, options.Revalidate)
 		if err != nil {
@@ -868,6 +874,9 @@ func DefaultJp2kloadBufferOptions() *Jp2kloadBufferOptions {
 // NewJp2kloadBuffer vips_jp2kload_buffer load JPEG2000 image
 func NewJp2kloadBuffer(buf []byte, options *Jp2kloadBufferOptions) (*Image, error) {
 	Startup(nil)
+	if len(buf) == 0 {
+		return nil, fmt.Errorf("jp2kload_buffer: buffer is empty")
+	}
 	if options != nil {
 		vipsImage, err := vipsgenJp2kloadBufferWithOptions(buf, options.Page, options.Memory, options.Access, options.FailOn, options.Revalidate)
 		if err != nil {
@@ -993,6 +1002,9 @@ func DefaultJpegloadBufferOptions() *JpegloadBufferOptions {
 // NewJpegloadBuffer vips_jpegload_buffer load jpeg from buffer
 func NewJpegloadBuffer(buf []byte, options *JpegloadBufferOptions) (*Image, error) {
 	Startup(nil)
+	if len(buf) == 0 {
+		return nil, fmt.Errorf("jpegload_buffer: buffer is empty")
+	}
 	if options != nil {
 		vipsImage, err := vipsgenJpegloadBufferWithOptions(buf, options.Shrink, options.Autorotate, options.Unlimited, options.Memory, options.Access, options.FailOn, options.Revalidate)
 		if err != nil {
@@ -1119,6 +1131,9 @@ func DefaultJxlloadBufferOptions() *JxlloadBufferOptions {
 // NewJxlloadBuffer vips_jxlload_buffer load JPEG-XL image
 func NewJxlloadBuffer(buf []byte, options *JxlloadBufferOptions) (*Image, error) {
 	Startup(nil)
+	if len(buf) == 0 {
+		return nil, fmt.Errorf("jxlload_buffer: buffer is empty")
+	}
 	if options != nil {
 		vipsImage, err := vipsgenJxlloadBufferWithOptions(buf, options.Page, options.N, options.Memory, options.Access, options.FailOn, options.Revalidate)
 		if err != nil {
@@ -1281,6 +1296,9 @@ func DefaultMagickloadBufferOptions() *MagickloadBufferOptions {
 // NewMagickloadBuffer vips_magickload_buffer load buffer with ImageMagick
 func NewMagickloadBuffer(buf []byte, options *MagickloadBufferOptions) (*Image, error) {
 	Startup(nil)
+	if len(buf) == 0 {
+		return nil, fmt.Errorf("magickload_buffer: buffer is empty")
+	}
 	if options != nil {
 		vipsImage, err := vipsgenMagickloadBufferWithOptions(buf, options.Density, options.Page, options.N, options.Memory, options.Access, options.FailOn, options.Revalidate)
 		if err != nil {
@@ -2107,6 +2125,9 @@ func DefaultPdfloadBufferOptions() *PdfloadBufferOptions {
 // NewPdfloadBuffer vips_pdfload_buffer load PDF from buffer
 func NewPdfloadBuffer(buf []byte, options *PdfloadBufferOptions) (*Image, error) {
 	Startup(nil)
+	if len(buf) == 0 {
+		return nil, fmt.Errorf("pdfload_buffer: buffer is empty")
+	}
 	if options != nil {
 		vipsImage, err := vipsgenPdfloadBufferWithOptions(buf, options.Page, options.N, options.Dpi, options.Scale, options.Background, options.Password, options.Memory, options.Access, options.FailOn, options.Revalidate)
 		if err != nil {
@@ -2272,6 +2293,9 @@ func DefaultPngloadBufferOptions() *PngloadBufferOptions {
 // NewPngloadBuffer vips_pngload_buffer load png from buffer
 func NewPngloadBuffer(buf []byte, options *PngloadBufferOptions) (*Image, error) {
 	Startup(nil)
+	if len(buf) == 0 {
+		return nil, fmt.Errorf("pngload_buffer: buffer is empty")
+	}
 	if options != nil {
 		vipsImage, err := vipsgenPngloadBufferWithOptions(buf, options.Unlimited, options.Memory, options.Access, options.FailOn, options.Revalidate)
 		if err != nil {
@@ -2457,6 +2481,9 @@ func DefaultRadloadBufferOptions() *RadloadBufferOptions {
 // NewRadloadBuffer vips_radload_buffer load rad from buffer
 func NewRadloadBuffer(buf []byte, options *RadloadBufferOptions) (*Image, error) {
 	Startup(nil)
+	if len(buf) == 0 {
+		return nil, fmt.Errorf("radload_buffer: buffer is empty")
+	}
 	if options != nil {
 		vipsImage, err := vipsgenRadloadBufferWithOptions(buf, options.Memory, options.Access, options.FailOn, options.Revalidate)
 		if err != nil {
@@ -2719,6 +2746,9 @@ func DefaultSvgloadBufferOptions() *SvgloadBufferOptions {
 // NewSvgloadBuffer vips_svgload_buffer load SVG with rsvg
 func NewSvgloadBuffer(buf []byte, options *SvgloadBufferOptions) (*Image, error) {
 	Startup(nil)
+	if len(buf) == 0 {
+		return nil, fmt.Errorf("svgload_buffer: buffer is empty")
+	}
 	if options != nil {
 		vipsImage, err := vipsgenSvgloadBufferWithOptions(buf, options.Dpi, options.Scale, options.Unlimited, options.Memory, options.Access, options.FailOn, options.Revalidate)
 		if err != nil {
@@ -2963,6 +2993,9 @@ func DefaultThumbnailBufferOptions() *ThumbnailBufferOptions {
 // The width specifies size to this width.
 func NewThumbnailBuffer(buf []byte, width int, options *ThumbnailBufferOptions) (*Image, error) {
 	Startup(nil)
+	if len(buf) == 0 {
+		return nil, fmt.Errorf("thumbnail_buffer: buffer is empty")
+	}
 	if options != nil {
 		vipsImage, err := vipsgenThumbnailBufferWithOptions(buf, width, options.OptionString, options.Height, options.Size, options.NoRotate, options.Crop, options.Linear, options.ImportProfile, options.ExportProfile, options.Intent, options.FailOn)
 		if err != nil {
@@ -3107,6 +3140,9 @@ func DefaultTiffloadBufferOptions() *TiffloadBufferOptions {
 // NewTiffloadBuffer vips_tiffload_buffer load tiff from buffer
 func NewTiffloadBuffer(buf []byte, options *TiffloadBufferOptions) (*Image, error) {
 	Startup(nil)
+	if len(buf) == 0 {
+		return nil, fmt.Errorf("tiffload_buffer: buffer is empty")
+	}
 	if options != nil {
 		vipsImage, err := vipsgenTiffloadBufferWithOptions(buf, options.Page, options.Subifd, options.N, options.Autorotate, options.Memory, options.Access, options.FailOn, options.Revalidate)
 		if err != nil {
@@ -3369,6 +3405,9 @@ func DefaultWebploadBufferOptions() *WebploadBufferOptions {
 // NewWebploadBuffer vips_webpload_buffer load webp from buffer
 func NewWebploadBuffer(buf []byte, options *WebploadBufferOptions) (*Image, error) {
 	Startup(nil)
+	if len(buf) == 0 {
+		return nil, fmt.Errorf("webpload_buffer: buffer is empty")
+	}
 	if options != nil {
 		vipsImage, err := vipsgenWebploadBufferWithOptions(buf, options.Page, options.N, options.Scale, options.Memory, options.Access, options.FailOn, options.Revalidate)
 		if err != nil {

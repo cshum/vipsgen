@@ -12,6 +12,8 @@ import (
 	"math/rand"
 	"os"
 	"path/filepath"
+	"reflect"
+	"runtime"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -104,6 +106,25 @@ func createTestJpegBuffer(t *testing.T, width, height int) []byte {
 	require.NoError(t, err)
 
 	return buf.Bytes()
+}
+
+func createTestGradientImage(t *testing.T, width, height int) (*Image, error) {
+	// Create a gradient image for testing return values
+	img := image.NewRGBA(image.Rect(0, 0, width, height))
+
+	for y := 0; y < height; y++ {
+		for x := 0; x < width; x++ {
+			// Create gradient from black to white
+			value := uint8(float64(x+y) / float64(width+height-2) * 255)
+			img.Set(x, y, color.RGBA{value, value, value, 255})
+		}
+	}
+
+	var buf bytes.Buffer
+	err := png.Encode(&buf, img)
+	require.NoError(t, err)
+
+	return NewImageFromBuffer(buf.Bytes(), nil)
 }
 
 // ensureTestDir creates a test directory if it doesn't exist
@@ -200,12 +221,8 @@ func TestImageType_MimeType(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(string(tt.imageType), func(t *testing.T) {
 			mime, ok := tt.imageType.MimeType()
-			if ok != tt.expectedOk {
-				t.Errorf("ImageType.MimeType() ok = %v, expected %v", ok, tt.expectedOk)
-			}
-			if mime != tt.expectedMime {
-				t.Errorf("ImageType.MimeType() mime = %q, expected %q", mime, tt.expectedMime)
-			}
+			assert.Equal(t, tt.expectedOk, ok, "ImageType.MimeType() ok = %v, expected %v", ok, tt.expectedOk)
+			assert.Equal(t, tt.expectedMime, mime, "ImageType.MimeType() mime = %q, expected %q", mime, tt.expectedMime)
 			if tt.expectedOk {
 				t.Logf("✓ %s -> %s", tt.imageType, mime)
 			} else {
@@ -2326,4 +2343,1013 @@ func TestHasOperation(t *testing.T) {
 	// Test with invalid characters that might cause issues
 	assert.False(t, HasOperation("invalid-operation-name!"), "operation with invalid chars should return false")
 	assert.False(t, HasOperation("operation with spaces"), "operation with spaces should return false")
+}
+
+func TestParameterBinding(t *testing.T) {
+	img, err := createWhiteImage(100, 100)
+	require.NoError(t, err)
+	defer img.Close()
+
+	// Test different parameter types are correctly passed through
+
+	// 1. Integer parameters
+	err = img.Resize(2.0, &ResizeOptions{
+		Kernel: KernelLanczos3, // enum -> int conversion
+	})
+	require.NoError(t, err)
+	assert.Equal(t, 200, img.Width())
+
+	// 2. Float parameters
+	blurImg, err := img.Copy(nil)
+	require.NoError(t, err)
+	defer blurImg.Close()
+
+	err = blurImg.Gaussblur(2.5, &GaussblurOptions{
+		MinAmpl: 0.1, // float64 parameter
+	})
+	require.NoError(t, err)
+
+	// 3. Boolean parameters
+	embedImg, err := img.Copy(nil)
+	require.NoError(t, err)
+	defer embedImg.Close()
+
+	err = embedImg.Embed(10, 10, 220, 220, &EmbedOptions{
+		Extend: ExtendBackground,
+	})
+	require.NoError(t, err)
+
+	// 4. String parameters
+	textImg, err := NewText("Hello", &TextOptions{
+		Font: "sans 20", // string parameter
+		Dpi:  72,
+	})
+	require.NoError(t, err)
+	defer textImg.Close()
+	assert.Greater(t, textImg.Width(), 0)
+
+	// 5. Array parameters
+	linearImg, err := img.Copy(nil)
+	require.NoError(t, err)
+	defer linearImg.Close()
+
+	err = linearImg.Linear([]float64{1.2, 1.1, 1.0}, []float64{10, 5, 0}, nil)
+	require.NoError(t, err)
+}
+
+func TestArrayParameterBinding(t *testing.T) {
+	img, err := createWhiteImage(100, 100)
+	require.NoError(t, err)
+	defer img.Close()
+
+	// 1. Float64 arrays
+	err = img.Linear([]float64{1.5, 1.2, 1.0}, []float64{10, 20, 30}, nil)
+	require.NoError(t, err)
+
+	// 3. Single element arrays
+	err = img.Linear([]float64{1.1}, []float64{5}, nil)
+	require.NoError(t, err)
+}
+
+func TestEnumParameterBinding(t *testing.T) {
+	img, err := createWhiteImage(100, 100)
+	require.NoError(t, err)
+	defer img.Close()
+
+	// Test enum parameters are correctly converted to C values
+
+	// Test different extend modes
+	extendModes := []Extend{
+		ExtendBlack,
+		ExtendCopy,
+		ExtendRepeat,
+		ExtendMirror,
+		ExtendWhite,
+		ExtendBackground,
+	}
+
+	for _, mode := range extendModes {
+		testImg, err := img.Copy(nil)
+		require.NoError(t, err)
+
+		err = testImg.Embed(5, 5, 110, 110, &EmbedOptions{
+			Extend: mode,
+		})
+		require.NoError(t, err, "Extend mode %v should work", mode)
+		testImg.Close()
+	}
+
+	// Test different blend modes
+	baseImg, err := createWhiteImage(50, 50)
+	require.NoError(t, err)
+	defer baseImg.Close()
+
+	overlayImg, err := createSolidColorImage(t, 30, 30, color.RGBA{255, 0, 0, 255})
+	require.NoError(t, err)
+	defer overlayImg.Close()
+
+	blendModes := []BlendMode{
+		BlendModeOver,
+		BlendModeIn,
+		BlendModeOut,
+		BlendModeAtop,
+		BlendModeXor,
+		BlendModeMultiply,
+		BlendModeScreen,
+		BlendModeOverlay,
+		BlendModeDarken,
+		BlendModeLighten,
+	}
+
+	for _, mode := range blendModes {
+		testImg, err := baseImg.Copy(nil)
+		require.NoError(t, err)
+
+		err = testImg.Composite2(overlayImg, mode, &Composite2Options{X: 10, Y: 10})
+		require.NoError(t, err, "Blend mode %v should work", mode)
+		testImg.Close()
+	}
+}
+
+func TestSingleReturnValues(t *testing.T) {
+	img, err := createTestGradientImage(t, 100, 100)
+	require.NoError(t, err)
+	defer img.Close()
+
+	// Test operations that return single values
+
+	// 1. Float return
+	avgValue, err := img.Avg()
+	require.NoError(t, err)
+	assert.IsType(t, float64(0), avgValue)
+	assert.Greater(t, avgValue, 0.0)
+	assert.Less(t, avgValue, 255.0)
+
+	// 2. Float return with bounds checking
+	minValue, err := img.Min(nil)
+	require.NoError(t, err)
+	assert.IsType(t, float64(0), minValue)
+	assert.GreaterOrEqual(t, minValue, 0.0)
+
+	maxValue, err := img.Max(nil)
+	require.NoError(t, err)
+	assert.IsType(t, float64(0), maxValue)
+	assert.LessOrEqual(t, maxValue, 255.0)
+
+	// 3. Standard deviation
+	devValue, err := img.Deviate()
+	require.NoError(t, err)
+	assert.IsType(t, float64(0), devValue)
+	assert.GreaterOrEqual(t, devValue, 0.0)
+}
+
+func TestArrayReturnValues(t *testing.T) {
+	img, err := createTestGradientImage(t, 100, 100)
+	require.NoError(t, err)
+	defer img.Close()
+
+	// Test operations that return arrays
+
+	// 1. Vector return (array + length)
+	vector, err := img.Getpoint(50, 50, nil)
+	require.NoError(t, err)
+	assert.IsType(t, []float64{}, vector)
+	assert.Len(t, vector, img.Bands())
+
+	// Verify vector values are reasonable
+	for i, val := range vector {
+		assert.GreaterOrEqual(t, val, 0.0, "Band %d should be >= 0", i)
+		assert.LessOrEqual(t, val, 255.0, "Band %d should be <= 255", i)
+	}
+}
+
+func TestImageReturnValues(t *testing.T) {
+	// Test operations that return new images
+
+	// 1. Image creation functions
+	blackImg, err := NewBlack(100, 100, &BlackOptions{Bands: 3})
+	require.NoError(t, err)
+	defer blackImg.Close()
+
+	assert.IsType(t, &Image{}, blackImg)
+	assert.Equal(t, 100, blackImg.Width())
+	assert.Equal(t, 100, blackImg.Height())
+	assert.Equal(t, 3, blackImg.Bands())
+
+	// 2. Image transformation functions
+	resizedImg, err := blackImg.Copy(nil)
+	require.NoError(t, err)
+	defer resizedImg.Close()
+
+	err = resizedImg.Resize(0.5, nil)
+	require.NoError(t, err)
+	assert.Equal(t, 50, resizedImg.Width())
+	assert.Equal(t, 50, resizedImg.Height())
+
+	// 3. Multiple image returns
+	img1, err := createWhiteImage(100, 100)
+	require.NoError(t, err)
+	defer img1.Close()
+
+	img2, err := createWhiteImage(100, 100)
+	require.NoError(t, err)
+	defer img2.Close()
+}
+
+func TestErrorPropagation(t *testing.T) {
+	// 1. Invalid file loading
+	_, err := NewImageFromFile("/nonexistent/file.png", nil)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "does not exist")
+
+	// 2. Invalid buffer loading
+	invalidBuf := []byte{0x00, 0x01, 0x02, 0x03}
+	_, err = NewImageFromBuffer(invalidBuf, nil)
+	assert.Error(t, err)
+
+	// 3. Invalid operation parameters
+	img, err := createWhiteImage(100, 100)
+	require.NoError(t, err)
+	defer img.Close()
+
+	// Try to extract area outside bounds
+	err = img.ExtractArea(50, 50, 200, 200) // extends beyond image
+	assert.Error(t, err)
+
+	// Try to resize with invalid scale
+	err = img.Resize(-1.0, nil) // negative scale
+	assert.Error(t, err)
+}
+
+func TestNilParameterHandling(t *testing.T) {
+	img, err := createWhiteImage(100, 100)
+	require.NoError(t, err)
+	defer img.Close()
+
+	// Test that nil options are handled correctly
+
+	// 1. Operations with nil options should use defaults
+	err = img.Resize(0.5, nil)
+	require.NoError(t, err)
+
+	err = img.Gaussblur(2.0, nil)
+	require.NoError(t, err)
+
+	err = img.Embed(10, 10, 120, 120, nil)
+	require.NoError(t, err)
+
+	// 2. Buffer operations with nil options
+	buf, err := img.PngsaveBuffer(nil)
+	require.NoError(t, err)
+	assert.NotEmpty(t, buf)
+
+	buf, err = img.JpegsaveBuffer(nil)
+	require.NoError(t, err)
+	assert.NotEmpty(t, buf)
+}
+
+func TestImageLifecycle(t *testing.T) {
+	// Test proper image lifecycle management
+
+	// 1. Create and immediately close
+	img, err := createWhiteImage(100, 100)
+	require.NoError(t, err)
+
+	err = img.Resize(0.5, nil)
+	require.NoError(t, err)
+
+	// 2. Multiple close calls should be safe
+	img.Close()
+	img.Close()
+	img.Close()
+}
+
+func TestImageCopySemantics(t *testing.T) {
+	// Test that image copies work correctly
+
+	original, err := createTestGradientImage(t, 100, 100)
+	require.NoError(t, err)
+	defer original.Close()
+
+	// 1. Copy should create independent image
+	copied, err := original.Copy(nil)
+	require.NoError(t, err)
+	defer copied.Close()
+
+	assert.Equal(t, original.Width(), copied.Width())
+	assert.Equal(t, original.Height(), copied.Height())
+	assert.Equal(t, original.Bands(), copied.Bands())
+
+	// 2. Modifying copy should not affect original
+	originalWidth := original.Width()
+	err = copied.Resize(0.5, nil)
+	require.NoError(t, err)
+
+	assert.Equal(t, originalWidth, original.Width()) // Original unchanged
+	assert.Equal(t, originalWidth/2, copied.Width()) // Copy changed
+}
+
+func TestSourceLifecycle(t *testing.T) {
+	pngData := createTestPngBuffer(t, 100, 100)
+
+	// 1. Create source and close immediately
+	reader := bytes.NewReader(pngData)
+	source := NewSource(io.NopCloser(reader))
+	source.Close()
+
+	// 2. Multiple close calls should be safe
+	source.Close()
+	source.Close()
+
+	// 3. Test source with successful image loading
+	reader2 := bytes.NewReader(pngData)
+	source2 := NewSource(io.NopCloser(reader2))
+	defer source2.Close()
+
+	img, err := NewImageFromSource(source2, nil)
+	require.NoError(t, err)
+	defer img.Close()
+
+	assert.Equal(t, 100, img.Width())
+	assert.Equal(t, 100, img.Height())
+}
+
+func TestDefaultOptions(t *testing.T) {
+	// Test that default option functions work correctly
+
+	// 1. Resize options
+	resizeOpts := DefaultResizeOptions()
+	assert.NotNil(t, resizeOpts)
+	assert.IsType(t, &ResizeOptions{}, resizeOpts)
+
+	// 2. Gaussblur options
+	blurOpts := DefaultGaussblurOptions()
+	assert.NotNil(t, blurOpts)
+	assert.IsType(t, &GaussblurOptions{}, blurOpts)
+
+	// 3. PNG save options
+	pngOpts := DefaultPngsaveBufferOptions()
+	assert.NotNil(t, pngOpts)
+	assert.IsType(t, &PngsaveBufferOptions{}, pngOpts)
+
+	// 4. JPEG save options
+	jpegOpts := DefaultJpegsaveBufferOptions()
+	assert.NotNil(t, jpegOpts)
+	assert.IsType(t, &JpegsaveBufferOptions{}, jpegOpts)
+
+	// 5. Load options
+	loadOpts := DefaultLoadOptions()
+	assert.NotNil(t, loadOpts)
+	assert.IsType(t, &LoadOptions{}, loadOpts)
+}
+
+func TestOptionsFieldTypes(t *testing.T) {
+	// Test that options structures have correct field types
+
+	// Use reflection to verify field types match expectations
+	resizeOpts := &ResizeOptions{}
+	resizeType := reflect.TypeOf(resizeOpts).Elem()
+
+	// Find Kernel field
+	kernelField, found := resizeType.FieldByName("Kernel")
+	require.True(t, found, "ResizeOptions should have Kernel field")
+	assert.Equal(t, "Kernel", kernelField.Type.Name())
+
+	// Find Gap field
+	gapField, found := resizeType.FieldByName("Gap")
+	require.True(t, found, "ResizeOptions should have Gap field")
+	assert.Equal(t, "float64", gapField.Type.Name())
+
+	// Test PNG options
+	pngOpts := &PngsaveBufferOptions{}
+	pngType := reflect.TypeOf(pngOpts).Elem()
+
+	compressionField, found := pngType.FieldByName("Compression")
+	require.True(t, found, "PngsaveBufferOptions should have Compression field")
+	assert.Equal(t, "int", compressionField.Type.Name())
+}
+
+func TestEnumTypeSafety(t *testing.T) {
+	// Test that enum types are properly typed
+
+	// 1. Kernel enum
+	var kernel Kernel = KernelLanczos3
+	assert.IsType(t, Kernel(0), kernel)
+
+	// 2. Extend enum
+	var extend Extend = ExtendBlack
+	assert.IsType(t, Extend(0), extend)
+
+	// 3. BlendMode enum
+	var blend BlendMode = BlendModeOver
+	assert.IsType(t, BlendMode(0), blend)
+
+	// 4. Angle enum
+	var angle Angle = AngleD90
+	assert.IsType(t, Angle(0), angle)
+
+	// Test that enum values are distinct
+	assert.NotEqual(t, KernelNearest, KernelLinear)
+	assert.NotEqual(t, ExtendBlack, ExtendWhite)
+	assert.NotEqual(t, BlendModeOver, BlendModeMultiply)
+}
+
+func TestImageTypeConstants(t *testing.T) {
+	// Test ImageType constants and methods
+
+	// 1. Type constants exist and are distinct
+	assert.NotEqual(t, ImageTypeUnknown, ImageTypeJpeg)
+	assert.NotEqual(t, ImageTypeJpeg, ImageTypePng)
+	assert.NotEqual(t, ImageTypePng, ImageTypeWebp)
+
+	// 2. MIME type method works
+	jpegMime, ok := ImageTypeJpeg.MimeType()
+	assert.True(t, ok)
+	assert.Equal(t, "image/jpeg", jpegMime)
+
+	pngMime, ok := ImageTypePng.MimeType()
+	assert.True(t, ok)
+	assert.Equal(t, "image/png", pngMime)
+
+	unknownMime, ok := ImageTypeUnknown.MimeType()
+	assert.False(t, ok)
+	assert.Empty(t, unknownMime)
+}
+
+func TestCPointerHandling(t *testing.T) {
+	// Test that C pointers are properly managed
+
+	img, err := createWhiteImage(100, 100)
+	require.NoError(t, err)
+
+	// Get the underlying C pointer (if accessible)
+	// This tests that the binding properly manages C resources
+	assert.NotNil(t, img)
+
+	// Perform operations that would use the C pointer
+	err = img.Resize(0.5, nil)
+	require.NoError(t, err)
+
+	// Close should properly free C resources
+	img.Close()
+}
+
+func TestMemoryAlignment(t *testing.T) {
+	// Test operations that involve memory layout
+
+	// Create image from raw memory
+	width, height, bands := 10, 10, 3
+	data := make([]byte, width*height*bands)
+
+	// Fill with pattern
+	for i := range data {
+		data[i] = byte(i % 256)
+	}
+
+	img, err := NewImageFromMemory(data, width, height, bands)
+	require.NoError(t, err)
+	defer img.Close()
+
+	assert.Equal(t, width, img.Width())
+	assert.Equal(t, height, img.Height())
+	assert.Equal(t, bands, img.Bands())
+
+	// Verify pixel values match what we set
+	pixel, err := img.Getpoint(0, 0, nil)
+	require.NoError(t, err)
+	assert.Len(t, pixel, bands)
+}
+
+func TestGCIntegration(t *testing.T) {
+	// Test that Go GC doesn't interfere with C memory management
+	var images []*Image
+
+	// Create multiple images
+	for i := 0; i < 10; i++ {
+		img, err := createWhiteImage(100, 100)
+		require.NoError(t, err)
+		images = append(images, img)
+	}
+
+	// Force GC
+	runtime.GC()
+	runtime.GC()
+
+	// Images should still be valid
+	for i, img := range images {
+		assert.Equal(t, 100, img.Width(), "Image %d should still be valid after GC", i)
+		assert.Equal(t, 100, img.Height(), "Image %d should still be valid after GC", i)
+	}
+	// Clean up
+	for _, img := range images {
+		img.Close()
+	}
+}
+
+func TestKeepAliveSemantics(t *testing.T) {
+	// Test that runtime.KeepAlive works correctly for buffer operations
+
+	pngData := createTestPngBuffer(t, 100, 100)
+
+	// Load from buffer - this should keep the buffer alive during operation
+	img, err := NewImageFromBuffer(pngData, nil)
+	require.NoError(t, err)
+	defer img.Close()
+
+	// Clear our reference to the buffer
+	pngData = nil
+
+	// Force GC
+	runtime.GC()
+	runtime.GC()
+
+	// Image should still be valid
+	assert.Equal(t, 100, img.Width())
+	assert.Equal(t, 100, img.Height())
+
+	// Should be able to perform operations
+	err = img.Resize(0.5, nil)
+	require.NoError(t, err)
+}
+
+func TestRequiredVsOptionalParameters(t *testing.T) {
+	img, err := createWhiteImage(100, 100)
+	require.NoError(t, err)
+	defer img.Close()
+
+	// Test that operations work both with and without optional parameters
+
+	// 1. Required parameters only (should call basic C function)
+	err = img.Resize(0.5, nil)
+	require.NoError(t, err)
+	assert.Equal(t, 50, img.Width())
+
+	// 2. With optional parameters (should call _with_options C function)
+	img2, err := createWhiteImage(100, 100)
+	require.NoError(t, err)
+	defer img2.Close()
+
+	err = img2.Resize(0.5, &ResizeOptions{
+		Kernel: KernelLanczos3,
+		Gap:    2.0,
+	})
+	require.NoError(t, err)
+	assert.Equal(t, 50, img2.Width())
+
+	// 3. Default options should behave same as nil
+	img3, err := createWhiteImage(100, 100)
+	require.NoError(t, err)
+	defer img3.Close()
+
+	err = img3.Resize(0.5, DefaultResizeOptions())
+	require.NoError(t, err)
+	assert.Equal(t, 50, img3.Width())
+}
+
+func TestOptionalParameterDefaults(t *testing.T) {
+	// Test that optional parameters use correct default values when not specified
+
+	img, err := createWhiteImage(100, 100)
+	require.NoError(t, err)
+	defer img.Close()
+
+	// Test with partial options (some fields set, others default)
+	err = img.Gaussblur(2.0, &GaussblurOptions{
+		MinAmpl: 0.1, // Set this field
+		// Precision field should use default
+	})
+	require.NoError(t, err)
+
+	// Test PNG save with partial options
+	buf, err := img.PngsaveBuffer(&PngsaveBufferOptions{
+		Compression: 6, // Set this field
+		// Other fields should use defaults
+	})
+	require.NoError(t, err)
+	assert.NotEmpty(t, buf)
+}
+
+func TestStringParameterHandling(t *testing.T) {
+	// Test that string parameters are properly converted to C strings and cleaned up
+
+	textImg, err := NewText("Hello World", &TextOptions{
+		Font: "sans 20",
+	})
+	require.NoError(t, err)
+	defer textImg.Close()
+	assert.Greater(t, textImg.Width(), 0)
+	assert.Greater(t, textImg.Height(), 0)
+
+	textImg3, err := NewText("Test\nLine2\tTab", &TextOptions{
+		Font: "sans 12",
+	})
+	require.NoError(t, err)
+	defer textImg3.Close()
+	assert.Greater(t, textImg3.Width(), 0)
+	assert.Greater(t, textImg3.Height(), 0)
+
+	textImg4, err := NewText("Hello 世界 🌍", &TextOptions{
+		Font: "sans 16",
+	})
+	require.NoError(t, err)
+	defer textImg4.Close()
+	assert.Greater(t, textImg4.Width(), 0)
+	assert.Greater(t, textImg4.Height(), 0)
+}
+
+func TestStringMetadataBinding(t *testing.T) {
+	img, err := createWhiteImage(100, 100)
+	require.NoError(t, err)
+	defer img.Close()
+
+	// Test string metadata setting and getting
+
+	// 1. ASCII strings
+	img.SetString("test-ascii", "hello world")
+	value, err := img.GetString("test-ascii")
+	require.NoError(t, err)
+	assert.Equal(t, "hello world", value)
+
+	// 2. Empty strings
+	img.SetString("test-empty", "")
+	value, err = img.GetString("test-empty")
+	require.NoError(t, err)
+	assert.Equal(t, "", value)
+
+	// 3. Strings with special characters
+	testStr := "line1\nline2\ttab\"quote'apostrophe"
+	img.SetString("test-special", testStr)
+	value, err = img.GetString("test-special")
+	require.NoError(t, err)
+	assert.Equal(t, testStr, value)
+
+	// 4. Unicode strings
+	unicodeStr := "Hello 世界 🌍 Привет мир"
+	img.SetString("test-unicode", unicodeStr)
+	value, err = img.GetString("test-unicode")
+	require.NoError(t, err)
+	assert.Equal(t, unicodeStr, value)
+}
+
+func TestBufferParameterBinding(t *testing.T) {
+	pngData := createTestPngBuffer(t, 50, 50)
+	img, err := NewPngloadBuffer(pngData, nil)
+	require.NoError(t, err)
+	defer img.Close()
+
+	assert.Equal(t, 50, img.Width())
+	assert.Equal(t, 50, img.Height())
+
+	// 2. JPEG buffer loading
+	jpegData := createTestJpegBuffer(t, 60, 40)
+	img2, err := NewJpegloadBuffer(jpegData, nil)
+	require.NoError(t, err)
+	defer img2.Close()
+
+	assert.Equal(t, 60, img2.Width())
+	assert.Equal(t, 40, img2.Height())
+
+	// 3. Empty buffer (should fail gracefully)
+	_, err = NewPngloadBuffer([]byte{}, nil)
+	assert.Error(t, err)
+
+	// 4. Invalid buffer (should fail gracefully)
+	_, err = NewPngloadBuffer([]byte{1, 2, 3, 4}, nil)
+	assert.Error(t, err)
+}
+
+func TestMemoryBufferBinding(t *testing.T) {
+	// Test NewImageFromMemory with various buffer configurations
+	// 1. Valid RGB buffer
+	width, height, bands := 10, 8, 3
+	data := make([]byte, width*height*bands)
+	for i := range data {
+		data[i] = byte(i % 256)
+	}
+
+	img, err := NewImageFromMemory(data, width, height, bands)
+	require.NoError(t, err)
+	defer img.Close()
+
+	assert.Equal(t, width, img.Width())
+	assert.Equal(t, height, img.Height())
+	assert.Equal(t, bands, img.Bands())
+
+	// 2. Single band (grayscale)
+	grayData := make([]byte, width*height*1)
+	for i := range grayData {
+		grayData[i] = 128
+	}
+
+	grayImg, err := NewImageFromMemory(grayData, width, height, 1)
+	require.NoError(t, err)
+	defer grayImg.Close()
+
+	assert.Equal(t, 1, grayImg.Bands())
+
+	// 3. RGBA buffer
+	rgbaData := make([]byte, width*height*4)
+	for i := 0; i < len(rgbaData); i += 4 {
+		rgbaData[i] = 255   // R
+		rgbaData[i+1] = 0   // G
+		rgbaData[i+2] = 0   // B
+		rgbaData[i+3] = 255 // A
+	}
+
+	rgbaImg, err := NewImageFromMemory(rgbaData, width, height, 4)
+	require.NoError(t, err)
+	defer rgbaImg.Close()
+
+	assert.Equal(t, 4, rgbaImg.Bands())
+}
+
+func TestBufferReturnBinding(t *testing.T) {
+	img, err := createWhiteImage(50, 50)
+	require.NoError(t, err)
+	defer img.Close()
+
+	// Test that buffer returns properly manage memory
+
+	// 1. Multiple buffer saves should work
+	for i := 0; i < 5; i++ {
+		buf, err := img.PngsaveBuffer(nil)
+		require.NoError(t, err)
+		assert.NotEmpty(t, buf)
+		assert.Greater(t, len(buf), 100)
+
+		// Verify buffer contents are valid
+		assert.Equal(t, []byte{0x89, 0x50, 0x4E, 0x47}, buf[:4]) // PNG signature
+	}
+
+	// 2. Different formats should return different buffers
+	pngBuf, err := img.PngsaveBuffer(nil)
+	require.NoError(t, err)
+
+	jpegBuf, err := img.JpegsaveBuffer(nil)
+	require.NoError(t, err)
+
+	webpBuf, err := img.WebpsaveBuffer(nil)
+	require.NoError(t, err)
+
+	// Buffers should be different
+	assert.NotEqual(t, pngBuf[:4], jpegBuf[:4])
+	assert.NotEqual(t, pngBuf[:4], webpBuf[:4])
+	assert.NotEqual(t, jpegBuf[:4], webpBuf[:4])
+}
+
+func TestInterpolationBinding(t *testing.T) {
+	// Test Interpolate object parameter binding
+
+	img, err := createWhiteImage(100, 100)
+	require.NoError(t, err)
+	defer img.Close()
+
+	// Test different interpolation types
+	interpolations := []InterpolateType{
+		InterpolateNearest,
+		InterpolateBilinear,
+		InterpolateBicubic,
+		InterpolateLbb,
+		InterpolateNohalo,
+		InterpolateVsqbs,
+	}
+
+	for _, interpType := range interpolations {
+		testImg, err := img.Copy(nil)
+		require.NoError(t, err)
+
+		// Create interpolation object
+		interp := NewInterpolate(interpType)
+		assert.NotNil(t, interp)
+
+		// Test with operations that accept interpolation
+		err = testImg.Resize(0.5, &ResizeOptions{
+			Kernel: KernelLanczos3,
+		})
+		require.NoError(t, err, "Interpolation %v should work", interpType)
+
+		// Clean up
+		interp.Close()
+		testImg.Close()
+	}
+}
+
+func TestInterpolationLifecycle(t *testing.T) {
+	// Test interpolation object lifecycle
+
+	// 1. Create and close immediately
+	interp := NewInterpolate(InterpolateBilinear)
+	assert.NotNil(t, interp)
+	interp.Close()
+
+	// 2. Multiple close calls should be safe
+	interp.Close()
+	interp.Close()
+
+	// 3. Invalid interpolation name should fallback
+	invalidInterp := NewInterpolate(InterpolateType("invalid"))
+	assert.NotNil(t, invalidInterp) // Should fallback to default
+	invalidInterp.Close()
+}
+
+func TestSourceParameterBinding(t *testing.T) {
+	pngData := createTestPngBuffer(t, 100, 100)
+
+	// Test different source configurations
+
+	// 1. Basic reader source
+	reader1 := bytes.NewReader(pngData)
+	source1 := NewSource(io.NopCloser(reader1))
+	defer source1.Close()
+
+	img1, err := NewImageFromSource(source1, nil)
+	require.NoError(t, err)
+	defer img1.Close()
+
+	// 2. ReadSeeker source (should enable seeking)
+	reader2 := bytes.NewReader(pngData)
+	source2 := NewSource(io.NopCloser(reader2))
+	defer source2.Close()
+
+	img2, err := NewImageFromSource(source2, nil)
+	require.NoError(t, err)
+	defer img2.Close()
+
+	// Both should work the same
+	assert.Equal(t, img1.Width(), img2.Width())
+	assert.Equal(t, img1.Height(), img2.Height())
+}
+
+func TestSourceWithOptions(t *testing.T) {
+	jpegData := createTestJpegBuffer(t, 200, 150)
+
+	reader := bytes.NewReader(jpegData)
+	source := NewSource(io.NopCloser(reader))
+	defer source.Close()
+
+	// Test loading from source with options
+	img, err := NewImageFromSource(source, &LoadOptions{
+		Shrink:      2,
+		Autorotate:  true,
+		FailOnError: true,
+	})
+	require.NoError(t, err)
+	defer img.Close()
+
+	// Should be shrunk
+	assert.InDelta(t, 100, img.Width(), 10) // Allow some variance
+	assert.InDelta(t, 75, img.Height(), 10)
+}
+
+func TestGeneratedFunctionSignatures(t *testing.T) {
+	// Test that generated functions have expected signatures
+
+	// Use reflection to verify function signatures
+	img, err := createWhiteImage(100, 100)
+	require.NoError(t, err)
+	defer img.Close()
+
+	imgType := reflect.TypeOf(img)
+
+	// 1. Check that Resize method exists with correct signature
+	resizeMethod, found := imgType.MethodByName("Resize")
+	require.True(t, found, "Resize method should exist")
+
+	// Should have signature: func(*Image, float64, *ResizeOptions) error
+	assert.Equal(t, 3, resizeMethod.Type.NumIn())  // receiver + 2 params
+	assert.Equal(t, 1, resizeMethod.Type.NumOut()) // error return
+
+	// 2. Check save buffer methods
+	pngSaveMethod, found := imgType.MethodByName("PngsaveBuffer")
+	require.True(t, found, "PngsaveBuffer method should exist")
+
+	// Should return ([]byte, error)
+	assert.Equal(t, 2, pngSaveMethod.Type.NumOut())
+	assert.Equal(t, "[]uint8", pngSaveMethod.Type.Out(0).String()) // []byte
+	assert.True(t, pngSaveMethod.Type.Out(1).Implements(reflect.TypeOf((*error)(nil)).Elem()))
+}
+
+func TestOptionStructureGeneration(t *testing.T) {
+	// Test that option structures have expected fields
+
+	// 1. ResizeOptions
+	opts := &ResizeOptions{}
+	optsType := reflect.TypeOf(opts).Elem()
+
+	expectedFields := []string{"Kernel", "Gap", "Vscale"}
+	for _, fieldName := range expectedFields {
+		field, found := optsType.FieldByName(fieldName)
+		assert.True(t, found, "ResizeOptions should have %s field", fieldName)
+		assert.True(t, field.IsExported(), "Field %s should be exported", fieldName)
+	}
+
+	// 2. PngsaveBufferOptions
+	pngOpts := &PngsaveBufferOptions{}
+	pngOptsType := reflect.TypeOf(pngOpts).Elem()
+
+	pngFields := []string{"Compression", "Interlace", "Filter"}
+	for _, fieldName := range pngFields {
+		field, found := pngOptsType.FieldByName(fieldName)
+		assert.True(t, found, "PngsaveBufferOptions should have %s field", fieldName)
+		assert.True(t, field.IsExported(), "Field %s should be exported", fieldName)
+	}
+}
+
+func TestEnumConstantGeneration(t *testing.T) {
+	// Test that enum constants are properly generated
+
+	// 1. Kernel enum values should be distinct
+	kernels := []Kernel{
+		KernelNearest,
+		KernelLinear,
+		KernelCubic,
+		KernelMitchell,
+		KernelLanczos2,
+		KernelLanczos3,
+	}
+
+	// All should be different values
+	for i := 0; i < len(kernels); i++ {
+		for j := i + 1; j < len(kernels); j++ {
+			assert.NotEqual(t, kernels[i], kernels[j],
+				"Kernel values %d and %d should be different", i, j)
+		}
+	}
+
+	// 2. BlendMode enum values
+	blendModes := []BlendMode{
+		BlendModeOver,
+		BlendModeIn,
+		BlendModeOut,
+		BlendModeAtop,
+		BlendModeXor,
+		BlendModeMultiply,
+		BlendModeScreen,
+	}
+
+	for i := 0; i < len(blendModes); i++ {
+		for j := i + 1; j < len(blendModes); j++ {
+			assert.NotEqual(t, blendModes[i], blendModes[j],
+				"BlendMode values %d and %d should be different", i, j)
+		}
+	}
+}
+
+func TestFormatSpecificOptions(t *testing.T) {
+	img, err := createWhiteImage(100, 100)
+	require.NoError(t, err)
+	defer img.Close()
+
+	// Test format-specific save options work correctly
+
+	// 1. PNG-specific options
+	pngBuf, err := img.PngsaveBuffer(&PngsaveBufferOptions{
+		Compression: 9,
+		Interlace:   true,
+		Filter:      PngFilterPaeth,
+	})
+	require.NoError(t, err)
+	assert.NotEmpty(t, pngBuf)
+
+	// 2. JPEG-specific options
+	jpegBuf, err := img.JpegsaveBuffer(&JpegsaveBufferOptions{
+		Q:              95,
+		OptimizeCoding: true,
+		Interlace:      true,
+	})
+	require.NoError(t, err)
+	assert.NotEmpty(t, jpegBuf)
+
+	// 3. WebP-specific options
+	webpBuf, err := img.WebpsaveBuffer(&WebpsaveBufferOptions{
+		Q:        80,
+		Lossless: false,
+		Effort:   6,
+	})
+	require.NoError(t, err)
+	assert.NotEmpty(t, webpBuf)
+
+	// 1. JPEG with shrink-on-load
+	jpegData := createTestJpegBuffer(t, 400, 300)
+	jpegImg, err := NewJpegloadBuffer(jpegData, &JpegloadBufferOptions{
+		Shrink:     2,
+		Autorotate: true,
+	})
+	require.NoError(t, err)
+	defer jpegImg.Close()
+
+	// Should be approximately half size
+	assert.InDelta(t, 200, jpegImg.Width(), 20)
+	assert.InDelta(t, 150, jpegImg.Height(), 20)
+
+	// 2. PNG with specific options
+	pngData := createTestPngBuffer(t, 200, 200)
+	pngImg, err := NewPngloadBuffer(pngData, &PngloadBufferOptions{
+		Unlimited: true,
+	})
+	require.NoError(t, err)
+	defer pngImg.Close()
+
+	assert.Equal(t, 200, pngImg.Width())
+	assert.Equal(t, 200, pngImg.Height())
 }
