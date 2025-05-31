@@ -1206,6 +1206,16 @@ func generateCreatorMethodBody(op introspection.Operation) string {
 	// Add startup line
 	body = "Startup(nil)\n\t"
 
+	// Add buffer validation for operations with buffer input
+	if op.HasBufferInput {
+		if bufParam := getBufferParameter(op.RequiredInputs); bufParam != nil {
+			body += fmt.Sprintf(`if len(%s) == 0 {
+		return nil, fmt.Errorf("%s: buffer is empty")
+	}
+	`, bufParam.GoName, op.Name)
+		}
+	}
+
 	imageTypeString := op.ImageTypeString
 	if strings.Contains(op.Name, "thumbnail") {
 		imageTypeString = "vipsDetermineImageType(vipsImage)"

@@ -76,3 +76,12 @@ func getArrayType(goType string) string {
 		return "unknown"
 	}
 }
+
+func getBufferParameter(args []introspection.Argument) *introspection.Argument {
+	for _, arg := range args {
+		if arg.IsBuffer && arg.IsInput && arg.GoType == "[]byte" {
+			return &arg
+		}
+	}
+	return nil
+}
