@@ -563,7 +563,7 @@ int vipsgen_composite_with_options(VipsImage** in, VipsImage** out, int n, int* 
     VipsArrayImage *in_array = NULL;
     if (in != NULL && n > 0) { in_array = vips_array_image_new(in, n); }
     VipsArrayInt *mode_array = NULL;
-    if (mode != NULL && n > 0) { mode_array = vips_array_int_new(mode, n); }
+    if (mode != NULL && n > 1) { mode_array = vips_array_int_new(mode, n-1); }
     VipsArrayInt *x_array = NULL;
     if (x != NULL && x_n > 0) { x_array = vips_array_int_new(x, x_n); }
     VipsArrayInt *y_array = NULL;
