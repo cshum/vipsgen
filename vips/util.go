@@ -210,6 +210,7 @@ func HasOperation(name string) bool {
 	defer freeCString(cName)
 	vop := C.vips_operation_new(cName)
 	if vop == nil {
+		C.vips_error_clear()
 		return false
 	}
 	if C.is_gobject(unsafe.Pointer(vop)) != 0 {
