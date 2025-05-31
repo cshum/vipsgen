@@ -349,65 +349,47 @@ func TestBasicFormatConversions(t *testing.T) {
 
 	// Test PNG saving with default options
 	pngBuf, err := img.PngsaveBuffer(nil)
-	if err != nil {
-		t.Logf("PNG save failed: %v", err)
-	} else {
-		t.Logf("PNG save succeeded: %d bytes", len(pngBuf))
-		assert.NotEmpty(t, pngBuf)
-	}
+	require.NoError(t, err)
+	t.Logf("PNG save succeeded: %d bytes", len(pngBuf))
+	assert.NotEmpty(t, pngBuf)
 
 	// Test PNG saving with options
 	pngBuf2, err := img.PngsaveBuffer(&PngsaveBufferOptions{
 		Compression: 6,
 		Filter:      PngFilterAll,
 	})
-	if err != nil {
-		t.Logf("PNG save with options failed: %v", err)
-	} else {
-		t.Logf("PNG save with options succeeded: %d bytes", len(pngBuf2))
-		assert.NotEmpty(t, pngBuf2)
-	}
+	require.NoError(t, err)
+	t.Logf("PNG save with options succeeded: %d bytes", len(pngBuf2))
+	assert.NotEmpty(t, pngBuf2)
 
 	// Test JPEG saving with default options
 	jpegBuf, err := img.JpegsaveBuffer(nil)
-	if err != nil {
-		t.Logf("JPEG save failed: %v", err)
-	} else {
-		t.Logf("JPEG save succeeded: %d bytes", len(jpegBuf))
-		assert.NotEmpty(t, jpegBuf)
-	}
+	require.NoError(t, err)
+	t.Logf("JPEG save succeeded: %d bytes", len(jpegBuf))
+	assert.NotEmpty(t, jpegBuf)
 
 	// Test JPEG saving with basic options
 	jpegBuf2, err := img.JpegsaveBuffer(&JpegsaveBufferOptions{
 		Q: 85,
 	})
-	if err != nil {
-		t.Logf("JPEG save with options failed: %v", err)
-	} else {
-		t.Logf("JPEG save with options succeeded: %d bytes", len(jpegBuf2))
-		assert.NotEmpty(t, jpegBuf2)
-	}
+	require.NoError(t, err)
+	t.Logf("JPEG save with options succeeded: %d bytes", len(jpegBuf2))
+	assert.NotEmpty(t, jpegBuf2)
 
 	// Test WebP saving with default options
 	webpBuf, err := img.WebpsaveBuffer(nil)
-	if err != nil {
-		t.Logf("WebP save failed: %v", err)
-	} else {
-		t.Logf("WebP save succeeded: %d bytes", len(webpBuf))
-		assert.NotEmpty(t, webpBuf)
-	}
+	require.NoError(t, err)
+	t.Logf("WebP save succeeded: %d bytes", len(webpBuf))
+	assert.NotEmpty(t, webpBuf)
 
 	// Test WebP saving with options
 	webpBuf2, err := img.WebpsaveBuffer(&WebpsaveBufferOptions{
 		Q:        80,
 		Lossless: true,
 	})
-	if err != nil {
-		t.Logf("WebP save with options failed: %v", err)
-	} else {
-		t.Logf("WebP save with options succeeded: %d bytes", len(webpBuf2))
-		assert.NotEmpty(t, webpBuf2)
-	}
+	require.NoError(t, err)
+	t.Logf("WebP save with options succeeded: %d bytes", len(webpBuf2))
+	assert.NotEmpty(t, webpBuf2)
 }
 
 // TestImageOperations tests various image operations like blur, sharpen, etc.
@@ -427,39 +409,24 @@ func TestImageOperations(t *testing.T) {
 
 	// 1. Gaussian blur
 	err = img.Gaussblur(5.0, nil)
-	if err != nil {
-		t.Logf("Gaussblur failed: %v", err)
-	} else {
-		t.Log("Gaussblur succeeded")
-	}
+	require.NoError(t, err)
 
 	// 2. Sharpen
 	err = img.Sharpen(nil)
-	if err != nil {
-		t.Logf("Sharpen failed: %v", err)
-	} else {
-		t.Log("Sharpen succeeded")
-	}
+	require.NoError(t, err)
 
 	// 3. Invert colors
 	err = img.Invert()
-	if err != nil {
-		t.Logf("Invert failed: %v", err)
-	} else {
-		t.Log("Invert succeeded")
-	}
+	require.NoError(t, err)
 
 	// 4. Test resize and position with embed
 	err = imgCopy.Embed(10, 10, width+20, height+20, &EmbedOptions{
 		Extend: ExtendBlack,
 	})
-	if err != nil {
-		t.Logf("Embed failed: %v", err)
-	} else {
-		t.Logf("Embed succeeded: new size %dx%d", imgCopy.Width(), imgCopy.Height())
-		assert.Equal(t, width+20, imgCopy.Width())
-		assert.Equal(t, height+20, imgCopy.Height())
-	}
+	require.NoError(t, err)
+	t.Logf("Embed succeeded: new size %dx%d", imgCopy.Width(), imgCopy.Height())
+	assert.Equal(t, width+20, imgCopy.Width())
+	assert.Equal(t, height+20, imgCopy.Height())
 }
 
 // TestFormatConversionChain tests a chain of conversions between formats
@@ -498,9 +465,6 @@ func TestFormatConversionChain(t *testing.T) {
 	require.NoError(t, err)
 	require.NotEmpty(t, jpegBuf2)
 	t.Logf("Second JPEG save produced %d bytes", len(jpegBuf2))
-
-	// Success if we got here
-	t.Log("Successfully completed format conversion chain")
 }
 
 // TestOperationComposition tests composing multiple operations together
@@ -552,11 +516,7 @@ func TestLabel(t *testing.T) {
 		Color:   []float64{255, 0, 0},
 		Opacity: 1.0,
 	})
-	if err != nil {
-		t.Logf("Label operation failed: %v", err)
-	} else {
-		t.Log("Label operation succeeded")
-	}
+	require.NoError(t, err)
 }
 
 // TestICCProfile tests ICC profile operations
@@ -581,9 +541,10 @@ func TestExif(t *testing.T) {
 	require.NoError(t, err)
 	defer img.Close()
 
-	// Get orientation (likely 0 for test image)
+	err = img.SetOrientation(2)
+	require.NoError(t, err)
 	orientation := img.Orientation()
-	t.Logf("Image orientation: %d", orientation)
+	assert.Equal(t, 2, orientation)
 
 	// Try to extract EXIF data
 	exifData := img.Exif()
@@ -591,15 +552,11 @@ func TestExif(t *testing.T) {
 
 	// Test removing EXIF data
 	err = img.RemoveExif()
-	if err != nil {
-		t.Logf("RemoveExif failed: %v", err)
-	} else {
-		t.Log("RemoveExif succeeded")
+	require.NoError(t, err)
 
-		// Check EXIF data is gone
-		exifDataAfter := img.Exif()
-		assert.Empty(t, exifDataAfter, "EXIF data should be empty after removal")
-	}
+	// Check EXIF data is gone
+	exifDataAfter := img.Exif()
+	assert.Empty(t, exifDataAfter, "EXIF data should be empty after removal")
 }
 
 // TestMultiPageOperations tests operations on multi-page images
@@ -611,11 +568,11 @@ func TestMultiPageOperations(t *testing.T) {
 
 	// Get page count
 	pageCount := img.Pages()
-	t.Logf("Image page count: %d", pageCount)
+	assert.Equal(t, 1, pageCount, "Image should have 1 page")
 
 	// Get page height
 	pageHeight := img.PageHeight()
-	t.Logf("Image page height: %d", pageHeight)
+	assert.Equal(t, 100, pageHeight, "Image should have 100 page height")
 
 	// Try to get/set page height
 	err = img.SetPageHeight(50)
@@ -675,12 +632,9 @@ func TestAllFormatsSupport(t *testing.T) {
 	t.Log("Testing all supported save formats:")
 	for _, test := range tests {
 		buf, err := test.saveFunc()
-		if err != nil {
-			t.Logf("  - %s save failed: %v", test.name, err)
-		} else {
-			t.Logf("  - %s save succeeded: %d bytes", test.name, len(buf))
-			assert.NotEmpty(t, buf)
-		}
+		require.NoError(t, err)
+		t.Logf("  - %s save succeeded: %d bytes", test.name, len(buf))
+		assert.NotEmpty(t, buf)
 	}
 }
 
@@ -723,81 +677,62 @@ func TestDrawOperationsWithPixelValidation(t *testing.T) {
 	err = img.DrawRect(redColor, 50, 50, 100, 100, &DrawRectOptions{
 		Fill: true,
 	})
-	if err != nil {
-		t.Logf("DrawRect failed: %v", err)
-	} else {
-		t.Log("DrawRect successful")
+	require.NoError(t, err)
+	t.Log("DrawRect successful")
 
-		// Validate pixel inside the rectangle
-		rectPixel, err := img.Getpoint(75, 75, nil)
-		require.NoError(t, err)
-		assert.InDelta(t, redColor[0], rectPixel[0], 5, "Rectangle should be red (R)")
-		assert.InDelta(t, redColor[1], rectPixel[1], 5, "Rectangle should be red (G)")
-		assert.InDelta(t, redColor[2], rectPixel[2], 5, "Rectangle should be red (B)")
+	// Validate pixel inside the rectangle
+	rectPixel, err := img.Getpoint(75, 75, nil)
+	require.NoError(t, err)
+	assert.InDelta(t, redColor[0], rectPixel[0], 5, "Rectangle should be red (R)")
+	assert.InDelta(t, redColor[1], rectPixel[1], 5, "Rectangle should be red (G)")
+	assert.InDelta(t, redColor[2], rectPixel[2], 5, "Rectangle should be red (B)")
 
-		// Validate pixel outside the rectangle
-		outsidePixel, err := img.Getpoint(25, 25, nil)
-		require.NoError(t, err)
-		assert.InDelta(t, 255, outsidePixel[0], 5, "Outside should still be white")
-	}
+	// Validate pixel outside the rectangle
+	outsidePixel, err := img.Getpoint(25, 25, nil)
+	require.NoError(t, err)
+	assert.InDelta(t, 255, outsidePixel[0], 5, "Outside should still be white")
 
 	// 2. Draw a blue circle (center=200,150, radius=50)
 	blueColor := []float64{0, 0, 255}
 	err = img.DrawCircle(blueColor, 200, 150, 50, &DrawCircleOptions{
 		Fill: true,
 	})
-	if err != nil {
-		t.Logf("DrawCircle failed: %v", err)
-	} else {
-		t.Log("DrawCircle successful")
+	require.NoError(t, err)
+	t.Log("DrawCircle successful")
 
-		// Validate pixel inside the circle
-		circlePixel, err := img.Getpoint(200, 150, nil)
-		require.NoError(t, err)
-		assert.InDelta(t, blueColor[0], circlePixel[0], 5, "Circle center should be blue (R)")
-		assert.InDelta(t, blueColor[1], circlePixel[1], 5, "Circle center should be blue (G)")
-		assert.InDelta(t, blueColor[2], circlePixel[2], 5, "Circle center should be blue (B)")
+	// Validate pixel inside the circle
+	circlePixel, err := img.Getpoint(200, 150, nil)
+	require.NoError(t, err)
+	assert.InDelta(t, blueColor[0], circlePixel[0], 5, "Circle center should be blue (R)")
+	assert.InDelta(t, blueColor[1], circlePixel[1], 5, "Circle center should be blue (G)")
+	assert.InDelta(t, blueColor[2], circlePixel[2], 5, "Circle center should be blue (B)")
 
-		// Validate pixel at the edge of the circle (approximately)
-		edgePixel, err := img.Getpoint(200+45, 150, nil) // slightly inside the circle radius
-		require.NoError(t, err)
-		// Should be blue or close to it
-		assert.InDelta(t, blueColor[2], edgePixel[2], 50, "Circle edge should be close to blue")
-	}
+	// Validate pixel at the edge of the circle (approximately)
+	edgePixel, err := img.Getpoint(200+45, 150, nil) // slightly inside the circle radius
+	require.NoError(t, err)
+	// Should be blue or close to it
+	assert.InDelta(t, blueColor[2], edgePixel[2], 50, "Circle edge should be close to blue")
 
 	// 3. Draw a green line from (50,200) to (250,250)
 	greenColor := []float64{0, 255, 0}
 	err = img.DrawLine(greenColor, 50, 200, 250, 250)
-	if err != nil {
-		t.Logf("DrawLine failed: %v", err)
-	} else {
-		t.Log("DrawLine successful")
+	require.NoError(t, err)
+	t.Log("DrawLine successful")
 
-		// Validate pixel on the line (approximate midpoint)
-		linePixel, err := img.Getpoint(150, 225, nil)
-		require.NoError(t, err)
-		// Line pixels might be approximated, so use a larger delta
-		if linePixel[1] > linePixel[0] && linePixel[1] > linePixel[2] {
-			t.Log("Line pixel has dominant green channel as expected")
-		} else {
-			t.Logf("Line pixel values: [%.1f, %.1f, %.1f] - might be affected by anti-aliasing",
-				linePixel[0], linePixel[1], linePixel[2])
-		}
+	// Validate pixel on the line (approximate midpoint)
+	linePixel, err := img.Getpoint(150, 225, nil)
+	require.NoError(t, err)
+	// Line pixels might be approximated, so use a larger delta
+	if linePixel[1] > linePixel[0] && linePixel[1] > linePixel[2] {
+		t.Log("Line pixel has dominant green channel as expected")
+	} else {
+		t.Logf("Line pixel values: [%.1f, %.1f, %.1f] - might be affected by anti-aliasing",
+			linePixel[0], linePixel[1], linePixel[2])
 	}
 
 	// Check if the image still has the expected dimensions
 	assert.Equal(t, width, img.Width())
 	assert.Equal(t, height, img.Height())
-} // Helper function to check if bands are approximately equal
-func assertBandsEqual(t *testing.T, values []float64) {
-	if len(values) < 2 {
-		return
-	}
-
-	for i := 1; i < len(values); i++ {
-		assert.InDelta(t, values[0], values[i], 5,
-			"Band values should be approximately equal in grayscale image")
-	}
 }
 
 // TestCreatePatternedImage tests creating an image with a checkerboard pattern
