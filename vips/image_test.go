@@ -2,6 +2,7 @@ package vips
 
 import (
 	"bytes"
+	"fmt"
 	"image"
 	"image/color"
 	"image/draw"
@@ -22,9 +23,44 @@ func TestMain(m *testing.M) {
 		ReportLeaks: true,
 	}
 	Startup(config)
+
+	// Get initial memory stats
+	var initialStats MemoryStats
+	ReadVipsMemStats(&initialStats)
+
+	// Run the tests
 	code := m.Run()
+
+	// Get final memory stats
+	var finalStats MemoryStats
+	ReadVipsMemStats(&finalStats)
+
+	// Check for memory leaks
+	memLeaked := finalStats.Mem > initialStats.Mem
+	filesLeaked := finalStats.Files > initialStats.Files
+	allocsLeaked := finalStats.Allocs > initialStats.Allocs
+
+	if memLeaked || filesLeaked || allocsLeaked {
+		fmt.Printf("MEMORY LEAK DETECTED!\n")
+		fmt.Printf("Initial stats - Mem: %d, Files: %d, Allocs: %d\n",
+			initialStats.Mem, initialStats.Files, initialStats.Allocs)
+		fmt.Printf("Final stats   - Mem: %d, Files: %d, Allocs: %d\n",
+			finalStats.Mem, finalStats.Files, finalStats.Allocs)
+		fmt.Printf("Differences   - Mem: %+d, Files: %+d, Allocs: %+d\n",
+			finalStats.Mem-initialStats.Mem,
+			finalStats.Files-initialStats.Files,
+			finalStats.Allocs-initialStats.Allocs)
+
+		Shutdown()
+		os.Exit(1) // Exit with error code
+	}
+
+	fmt.Printf("No memory leaks detected.\n")
+	fmt.Printf("Final stats - Mem: %d, Files: %d, Allocs: %d\n",
+		finalStats.Mem, finalStats.Files, finalStats.Allocs)
+
 	Shutdown()
-	os.Exit(code)
+	os.Exit(code) // Exit with the test result code
 }
 
 // createTestPNG creates a test PNG image with a pattern
@@ -505,9 +541,12 @@ func TestOperationComposition(t *testing.T) {
 // TestLabel tests the label functionality
 func TestLabel(t *testing.T) {
 	// Create a test image
-	img, err := createWhiteImage(300, 200)
+	img, err := NewPngloadBuffer(createPNGTestImageBuf(t, 100, 100), nil)
 	require.NoError(t, err)
 	defer img.Close()
+	t.Logf("Bands %d", img.Bands())
+	err = img.Addalpha()
+	require.NoError(t, err)
 
 	// Add text to the image
 	err = img.Label("Hello, libvips!", 50, 50, &LabelOptions{
@@ -1305,7 +1344,7 @@ func TestDrawOperations(t *testing.T) {
 func TestSourceOperations(t *testing.T) {
 	// Create a test image
 	width, height := 100, 100
-	data := createPNGTestImage(t, width, height)
+	data := createPNGTestImageBuf(t, width, height)
 
 	// Test with a memory source
 	memReader := bytes.NewReader(data)
@@ -1365,8 +1404,8 @@ func createSolidColorImage(t *testing.T, width, height int, c color.RGBA) (*Imag
 	return NewImageFromBuffer(buf.Bytes(), nil)
 }
 
-// createPNGTestImage creates a test PNG image with a pattern
-func createPNGTestImage(t *testing.T, width, height int) []byte {
+// createPNGTestImageBuf creates a test PNG image with a pattern
+func createPNGTestImageBuf(t *testing.T, width, height int) []byte {
 	img := image.NewRGBA(image.Rect(0, 0, width, height))
 
 	// Create a random pattern
