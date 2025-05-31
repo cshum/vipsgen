@@ -798,6 +798,7 @@ func NewInterpolate(name InterpolateType) *Interpolate {
 	interp := C.vips_interpolate_new(cName)
 	if interp == nil {
 		// Default to bilinear if requested interpolator not found
+		C.vips_error_clear()
 		cDefault := C.CString("bilinear")
 		defer C.free(unsafe.Pointer(cDefault))
 		interp = C.vips_interpolate_new(cDefault)
