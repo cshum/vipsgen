@@ -56,6 +56,10 @@ func (v *Introspection) DiscoverEnumTypes() []EnumTypeInfo {
 		}
 	}
 
+	// Sort enums for deterministic output
+	sort.Slice(v.enumTypeNames, func(i, j int) bool {
+		return v.enumTypeNames[i].CName < v.enumTypeNames[j].CName
+	})
 	// Now process all the discovered enum types
 	for _, typeName := range v.enumTypeNames {
 		// Check if the enum type exists first
@@ -78,10 +82,6 @@ func (v *Introspection) DiscoverEnumTypes() []EnumTypeInfo {
 		// Add successfully processed enum
 		enumTypes = append(enumTypes, enumInfo)
 	}
-	// Sort enums for deterministic output
-	sort.Slice(v.enumTypeNames, func(i, j int) bool {
-		return v.enumTypeNames[i].CName < v.enumTypeNames[j].CName
-	})
 
 	if v.isDebug {
 		debugJson(enumTypes, "debug_enums.json")
