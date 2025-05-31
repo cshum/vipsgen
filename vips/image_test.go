@@ -19,10 +19,9 @@ import (
 )
 
 func TestMain(m *testing.M) {
-	config := &Config{
+	Startup(&Config{
 		ReportLeaks: true,
-	}
-	Startup(config)
+	})
 
 	// Get initial memory stats
 	var initialStats MemoryStats
