@@ -99,6 +99,11 @@ int vipsgen_set_source(VipsOperation *operation, const char *name, VipsSource *v
     return 0;
 }
 
+int vipsgen_set_target(VipsOperation *operation, const char *name, VipsTarget *value) {
+    if (value != NULL) { return vips_object_set(VIPS_OBJECT(operation), name, value, NULL); }
+    return 0;
+}
+
 // Generated operations
 {{range .Operations}}
 {{generateCFunctionImplementation .}}

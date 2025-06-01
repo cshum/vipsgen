@@ -406,7 +406,7 @@ func generateFunctionCallArgs(op introspection.Operation, withOptions bool) stri
 				callArgs = append(callArgs, argStr)
 				continue
 			}
-			if arg.IsSource {
+			if arg.IsSource || arg.IsTarget {
 				callArgs = append(callArgs, arg.GoName)
 			} else if arg.GoType == "string" {
 				argStr = "c" + arg.GoName
@@ -1151,6 +1151,8 @@ func generateMethodParams(op introspection.Operation) string {
 			paramType = "[]*Image"
 		} else if arg.IsSource {
 			paramType = "*Source"
+		} else if arg.IsTarget {
+			paramType = "*Target"
 		} else if arg.CType == "void*" && arg.Name == "buf" {
 			paramType = "[]byte"
 			hasBufParam = true
@@ -1186,6 +1188,8 @@ func generateCreatorMethodBody(op introspection.Operation) string {
 			callArgs = append(callArgs, fmt.Sprintf("convertImagesToVipsImages(%s)", arg.GoName))
 		} else if arg.IsSource {
 			callArgs = append(callArgs, fmt.Sprintf("%s.src", arg.GoName))
+		} else if arg.IsTarget {
+			callArgs = append(callArgs, fmt.Sprintf("%s.target", arg.GoName))
 		} else if arg.Name == "len" && arg.CType == "size_t" && hasBufParam {
 			continue
 		} else {
@@ -1355,9 +1359,12 @@ func generateCFunctionImplementation(op introspection.Operation) string {
 			if i > 0 {
 				result.WriteString(", ")
 			}
-			// Add type casting for VipsSourceCustom
 			if arg.IsSource {
+				// Add type casting for VipsSourceCustom
 				result.WriteString("(VipsSource*) " + arg.Name)
+			} else if arg.IsTarget {
+				// Add type casting for VipsTargetCustom
+				result.WriteString("(VipsTarget*) " + arg.Name)
 			} else {
 				result.WriteString(arg.Name)
 			}
@@ -1470,6 +1477,9 @@ func generateCFunctionImplementation(op introspection.Operation) string {
 			} else if arg.IsSource {
 				allParamsList = append(allParamsList,
 					fmt.Sprintf("vips_object_set(VIPS_OBJECT(operation), \"%s\", (VipsSource*)%s, NULL)", arg.Name, arg.Name))
+			} else if arg.IsTarget {
+				allParamsList = append(allParamsList,
+					fmt.Sprintf("vips_object_set(VIPS_OBJECT(operation), \"%s\", (VipsTarget*)%s, NULL)", arg.Name, arg.Name))
 			} else if (arg.Name == "buf" || arg.Name == "buffer") && isBufferLoadOperation {
 				// For buffer load operations, set the VipsBlob as the "buffer" property
 				allParamsList = append(allParamsList,
@@ -1526,6 +1536,10 @@ func generateCFunctionImplementation(op introspection.Operation) string {
 				// Handle source parameters
 				allParamsList = append(allParamsList,
 					fmt.Sprintf("vipsgen_set_source(operation, \"%s\", %s)", opt.Name, opt.Name))
+			} else if opt.IsTarget {
+				// Handle target parameters
+				allParamsList = append(allParamsList,
+					fmt.Sprintf("vipsgen_set_target(operation, \"%s\", %s)", opt.Name, opt.Name))
 			} else if opt.GoType == "int" {
 				allParamsList = append(allParamsList,
 					fmt.Sprintf("vipsgen_set_int(operation, \"%s\", %s)", opt.Name, opt.Name))
