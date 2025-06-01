@@ -57,3 +57,41 @@ func (s *Source) Close() {
 		s.lock.Unlock()
 	}
 }
+
+// Target contains a libvips VipsTargetCustom and manages its lifecycle.
+type Target struct {
+	writer io.WriteCloser
+	target *C.VipsTargetCustom
+	ptr    unsafe.Pointer
+	lock   sync.Mutex
+}
+
+// NewTarget creates Target from writer
+func NewTarget(writer io.WriteCloser) *Target {
+	Startup(nil)
+	t := &Target{writer: writer}
+	t.ptr = pointer.Save(t)
+	t.target = C.create_go_custom_target(t.ptr)
+	return t
+}
+
+// Close target
+func (t *Target) Close() {
+	if t == nil {
+		return
+	}
+	t.lock.Lock()
+	if t.ptr != nil {
+		C.clear_target(&t.target)
+		pointer.Unref(t.ptr)
+		t.ptr = nil
+		t.lock.Unlock()
+		if t.writer != nil {
+			_ = t.writer.Close()
+			t.writer = nil
+		}
+		log("vipsgen", LogLevelDebug, fmt.Sprintf("closing target %p", t))
+	} else {
+		t.lock.Unlock()
+	}
+}

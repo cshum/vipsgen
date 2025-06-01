@@ -12,6 +12,11 @@ static gint64 go_seek(VipsSourceCustom *source_custom, gint64 offset, int whence
   return goSourceSeek(ptr, offset, whence);
 }
 
+static gint64 go_write(VipsTargetCustom *target_custom, void *buffer, gint64 length, void* ptr)
+{
+  return goTargetWrite(ptr, buffer, length);
+}
+
 VipsSourceCustom * create_go_custom_source(void* ptr)
 {
   VipsSourceCustom * source_custom = vips_source_custom_new();
@@ -27,6 +32,17 @@ VipsSourceCustom * create_go_custom_source_with_seek(void* ptr)
   return source_custom;
 }
 
+VipsTargetCustom * create_go_custom_target(void* ptr)
+{
+  VipsTargetCustom * target_custom = vips_target_custom_new();
+  g_signal_connect(target_custom, "write", G_CALLBACK(go_write), ptr);
+  return target_custom;
+}
+
 void clear_source(VipsSourceCustom **source_custom) {
   if (G_IS_OBJECT(*source_custom)) g_clear_object(source_custom);
+}
+
+void clear_target(VipsTargetCustom **target_custom) {
+  if (G_IS_OBJECT(*target_custom)) g_clear_object(target_custom);
 }

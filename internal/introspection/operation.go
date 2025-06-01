@@ -492,6 +492,14 @@ func (v *Introspection) mapGTypeToTypes(gtype C.GType, typeName string, isOutput
 		}
 		return "VipsSourceCustom", "*C.VipsSourceCustom", "VipsSourceCustom*"
 	}
+	// Special case for VipsTarget - map to VipsTargetCustom for proper compatibility
+	if cTypeCheck(gtype, "VipsTarget") {
+		// For VipsTarget, we want to use VipsTargetCustom in the bindings
+		if isOutput {
+			return "VipsTargetCustom", "*C.VipsTargetCustom", "VipsTargetCustom**"
+		}
+		return "VipsTargetCustom", "*C.VipsTargetCustom", "VipsTargetCustom*"
+	}
 	// Special case for VipsImage which has a different pointer pattern
 	if cTypeCheck(gtype, "VipsImage") {
 		if isOutput {
