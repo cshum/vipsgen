@@ -292,13 +292,14 @@ int vipsgen_rot_multi_page(VipsImage *in, VipsImage **out, VipsAngle angle) {
   int n_pages = in->Ysize / page_height;
 
   VipsImage **page = (VipsImage **) vips_object_local_array(base, n_pages);
+  VipsImage **rotated_page = (VipsImage **) vips_object_local_array(base, n_pages);
   VipsImage **copy = (VipsImage **) vips_object_local_array(base, 1);
 
   // split image into cropped frames
   for (int i = 0; i < n_pages; i++) {
     if (
       vips_extract_area(in, &page[i], 0, page_height * i, in_width, page_height, NULL) ||
-      vips_rot(page[i], &page[i], angle, NULL)
+      vips_rot(page[i], &rotated_page[i], angle, NULL)
     ) {
       g_object_unref(base);
       return -1;
@@ -307,7 +308,7 @@ int vipsgen_rot_multi_page(VipsImage *in, VipsImage **out, VipsAngle angle) {
   // reassemble frames and set page height if rotate 90 or 270
   // copy before modifying metadata
   if(
-    vips_arrayjoin(page, &copy[0], n_pages, "across", 1, NULL) ||
+    vips_arrayjoin(rotated_page, &copy[0], n_pages, "across", 1, NULL) ||
     vips_copy(copy[0], out, NULL)
   ) {
     g_object_unref(base);
