@@ -99,6 +99,11 @@ int vipsgen_set_source(VipsOperation *operation, const char *name, VipsSource *v
     return 0;
 }
 
+int vipsgen_set_target(VipsOperation *operation, const char *name, VipsTarget *value) {
+    if (value != NULL) { return vips_object_set(VIPS_OBJECT(operation), name, value, NULL); }
+    return 0;
+}
+
 // Generated operations
 
 int vipsgen_CMC2LCh(VipsImage* in, VipsImage** out) {
@@ -811,6 +816,33 @@ int vipsgen_csvsave_with_options(VipsImage* in, const char* filename, const char
     return result;
 }
 
+int vipsgen_csvsave_target(VipsImage* in, VipsTargetCustom* target) {
+    return vips_csvsave_target(in, (VipsTarget*) target, NULL);
+}
+
+int vipsgen_csvsave_target_with_options(VipsImage* in, VipsTargetCustom* target, const char* separator, VipsForeignKeep keep, double* background, int background_n, int page_height, const char* profile) {
+    VipsOperation *operation = vips_operation_new("csvsave_target");
+    if (!operation) return 1;
+    VipsArrayDouble *background_array = NULL;
+    if (background != NULL && background_n > 0) { background_array = vips_array_double_new(background, background_n); }
+    if (
+        vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
+        vips_object_set(VIPS_OBJECT(operation), "target", (VipsTarget*)target, NULL) ||
+        vipsgen_set_string(operation, "separator", separator) ||
+        vipsgen_set_int(operation, "keep", keep) ||
+        vipsgen_set_array_double(operation, "background", background_array) ||
+        vipsgen_set_int(operation, "page_height", page_height) ||
+        vipsgen_set_string(operation, "profile", profile)
+    ) {
+        g_object_unref(operation);
+        if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
+        return 1;
+    }
+    int result = vipsgen_operation_execute(operation, NULL);
+    if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
+    return result;
+}
+
 int vipsgen_dE00(VipsImage* left, VipsImage* right, VipsImage** out) {
     return vips_dE00(left, right, out, NULL);
 }
@@ -1018,6 +1050,46 @@ int vipsgen_dzsave_buffer_with_options(VipsImage* in, void** buf, size_t* len, c
         return 1;
     }
     int result = vipsgen_operation_save_buffer(operation, buf, len);
+    if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
+    return result;
+}
+
+int vipsgen_dzsave_target(VipsImage* in, VipsTargetCustom* target) {
+    return vips_dzsave_target(in, (VipsTarget*) target, NULL);
+}
+
+int vipsgen_dzsave_target_with_options(VipsImage* in, VipsTargetCustom* target, const char* imagename, VipsForeignDzLayout layout, const char* suffix, int overlap, int tile_size, gboolean centre, VipsForeignDzDepth depth, VipsAngle angle, VipsForeignDzContainer container, int compression, VipsRegionShrink region_shrink, int skip_blanks, const char* id, int Q, VipsForeignKeep keep, double* background, int background_n, int page_height, const char* profile) {
+    VipsOperation *operation = vips_operation_new("dzsave_target");
+    if (!operation) return 1;
+    VipsArrayDouble *background_array = NULL;
+    if (background != NULL && background_n > 0) { background_array = vips_array_double_new(background, background_n); }
+    if (
+        vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
+        vips_object_set(VIPS_OBJECT(operation), "target", (VipsTarget*)target, NULL) ||
+        vipsgen_set_string(operation, "imagename", imagename) ||
+        vipsgen_set_int(operation, "layout", layout) ||
+        vipsgen_set_string(operation, "suffix", suffix) ||
+        vipsgen_set_int(operation, "overlap", overlap) ||
+        vipsgen_set_int(operation, "tile_size", tile_size) ||
+        vipsgen_set_bool(operation, "centre", centre) ||
+        vipsgen_set_int(operation, "depth", depth) ||
+        vipsgen_set_int(operation, "angle", angle) ||
+        vipsgen_set_int(operation, "container", container) ||
+        vipsgen_set_int(operation, "compression", compression) ||
+        vipsgen_set_int(operation, "region_shrink", region_shrink) ||
+        vipsgen_set_int(operation, "skip_blanks", skip_blanks) ||
+        vipsgen_set_string(operation, "id", id) ||
+        vipsgen_set_int(operation, "Q", Q) ||
+        vipsgen_set_int(operation, "keep", keep) ||
+        vipsgen_set_array_double(operation, "background", background_array) ||
+        vipsgen_set_int(operation, "page_height", page_height) ||
+        vipsgen_set_string(operation, "profile", profile)
+    ) {
+        g_object_unref(operation);
+        if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
+        return 1;
+    }
+    int result = vipsgen_operation_execute(operation, NULL);
     if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
     return result;
 }
@@ -1455,6 +1527,39 @@ int vipsgen_gifsave_buffer_with_options(VipsImage* in, void** buf, size_t* len, 
     return result;
 }
 
+int vipsgen_gifsave_target(VipsImage* in, VipsTargetCustom* target) {
+    return vips_gifsave_target(in, (VipsTarget*) target, NULL);
+}
+
+int vipsgen_gifsave_target_with_options(VipsImage* in, VipsTargetCustom* target, double dither, int effort, int bitdepth, double interframe_maxerror, gboolean reuse, double interpalette_maxerror, gboolean interlace, VipsForeignKeep keep, double* background, int background_n, int page_height, const char* profile) {
+    VipsOperation *operation = vips_operation_new("gifsave_target");
+    if (!operation) return 1;
+    VipsArrayDouble *background_array = NULL;
+    if (background != NULL && background_n > 0) { background_array = vips_array_double_new(background, background_n); }
+    if (
+        vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
+        vips_object_set(VIPS_OBJECT(operation), "target", (VipsTarget*)target, NULL) ||
+        vipsgen_set_double(operation, "dither", dither) ||
+        vipsgen_set_int(operation, "effort", effort) ||
+        vipsgen_set_int(operation, "bitdepth", bitdepth) ||
+        vipsgen_set_double(operation, "interframe_maxerror", interframe_maxerror) ||
+        vipsgen_set_bool(operation, "reuse", reuse) ||
+        vipsgen_set_double(operation, "interpalette_maxerror", interpalette_maxerror) ||
+        vipsgen_set_bool(operation, "interlace", interlace) ||
+        vipsgen_set_int(operation, "keep", keep) ||
+        vipsgen_set_array_double(operation, "background", background_array) ||
+        vipsgen_set_int(operation, "page_height", page_height) ||
+        vipsgen_set_string(operation, "profile", profile)
+    ) {
+        g_object_unref(operation);
+        if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
+        return 1;
+    }
+    int result = vipsgen_operation_execute(operation, NULL);
+    if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
+    return result;
+}
+
 int vipsgen_globalbalance(VipsImage* in, VipsImage** out) {
     return vips_globalbalance(in, out, NULL);
 }
@@ -1663,6 +1768,39 @@ int vipsgen_heifsave_buffer_with_options(VipsImage* in, void** buf, size_t* len,
         return 1;
     }
     int result = vipsgen_operation_save_buffer(operation, buf, len);
+    if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
+    return result;
+}
+
+int vipsgen_heifsave_target(VipsImage* in, VipsTargetCustom* target) {
+    return vips_heifsave_target(in, (VipsTarget*) target, NULL);
+}
+
+int vipsgen_heifsave_target_with_options(VipsImage* in, VipsTargetCustom* target, int Q, int bitdepth, gboolean lossless, VipsForeignHeifCompression compression, int effort, VipsForeignSubsample subsample_mode, VipsForeignHeifEncoder encoder, VipsForeignKeep keep, double* background, int background_n, int page_height, const char* profile) {
+    VipsOperation *operation = vips_operation_new("heifsave_target");
+    if (!operation) return 1;
+    VipsArrayDouble *background_array = NULL;
+    if (background != NULL && background_n > 0) { background_array = vips_array_double_new(background, background_n); }
+    if (
+        vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
+        vips_object_set(VIPS_OBJECT(operation), "target", (VipsTarget*)target, NULL) ||
+        vipsgen_set_int(operation, "Q", Q) ||
+        vipsgen_set_int(operation, "bitdepth", bitdepth) ||
+        vipsgen_set_bool(operation, "lossless", lossless) ||
+        vipsgen_set_int(operation, "compression", compression) ||
+        vipsgen_set_int(operation, "effort", effort) ||
+        vipsgen_set_int(operation, "subsample_mode", subsample_mode) ||
+        vipsgen_set_int(operation, "encoder", encoder) ||
+        vipsgen_set_int(operation, "keep", keep) ||
+        vipsgen_set_array_double(operation, "background", background_array) ||
+        vipsgen_set_int(operation, "page_height", page_height) ||
+        vipsgen_set_string(operation, "profile", profile)
+    ) {
+        g_object_unref(operation);
+        if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
+        return 1;
+    }
+    int result = vipsgen_operation_execute(operation, NULL);
     if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
     return result;
 }
@@ -2154,6 +2292,37 @@ int vipsgen_jp2ksave_buffer_with_options(VipsImage* in, void** buf, size_t* len,
     return result;
 }
 
+int vipsgen_jp2ksave_target(VipsImage* in, VipsTargetCustom* target) {
+    return vips_jp2ksave_target(in, (VipsTarget*) target, NULL);
+}
+
+int vipsgen_jp2ksave_target_with_options(VipsImage* in, VipsTargetCustom* target, int tile_width, int tile_height, gboolean lossless, int Q, VipsForeignSubsample subsample_mode, VipsForeignKeep keep, double* background, int background_n, int page_height, const char* profile) {
+    VipsOperation *operation = vips_operation_new("jp2ksave_target");
+    if (!operation) return 1;
+    VipsArrayDouble *background_array = NULL;
+    if (background != NULL && background_n > 0) { background_array = vips_array_double_new(background, background_n); }
+    if (
+        vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
+        vips_object_set(VIPS_OBJECT(operation), "target", (VipsTarget*)target, NULL) ||
+        vipsgen_set_int(operation, "tile_width", tile_width) ||
+        vipsgen_set_int(operation, "tile_height", tile_height) ||
+        vipsgen_set_bool(operation, "lossless", lossless) ||
+        vipsgen_set_int(operation, "Q", Q) ||
+        vipsgen_set_int(operation, "subsample_mode", subsample_mode) ||
+        vipsgen_set_int(operation, "keep", keep) ||
+        vipsgen_set_array_double(operation, "background", background_array) ||
+        vipsgen_set_int(operation, "page_height", page_height) ||
+        vipsgen_set_string(operation, "profile", profile)
+    ) {
+        g_object_unref(operation);
+        if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
+        return 1;
+    }
+    int result = vipsgen_operation_execute(operation, NULL);
+    if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
+    return result;
+}
+
 int vipsgen_jpegload(const char* filename, VipsImage** out) {
     return vips_jpegload(filename, out, NULL);
 }
@@ -2299,6 +2468,41 @@ int vipsgen_jpegsave_buffer_with_options(VipsImage* in, void** buf, size_t* len,
     return result;
 }
 
+int vipsgen_jpegsave_target(VipsImage* in, VipsTargetCustom* target) {
+    return vips_jpegsave_target(in, (VipsTarget*) target, NULL);
+}
+
+int vipsgen_jpegsave_target_with_options(VipsImage* in, VipsTargetCustom* target, int Q, gboolean optimize_coding, gboolean interlace, gboolean trellis_quant, gboolean overshoot_deringing, gboolean optimize_scans, int quant_table, VipsForeignSubsample subsample_mode, int restart_interval, VipsForeignKeep keep, double* background, int background_n, int page_height, const char* profile) {
+    VipsOperation *operation = vips_operation_new("jpegsave_target");
+    if (!operation) return 1;
+    VipsArrayDouble *background_array = NULL;
+    if (background != NULL && background_n > 0) { background_array = vips_array_double_new(background, background_n); }
+    if (
+        vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
+        vips_object_set(VIPS_OBJECT(operation), "target", (VipsTarget*)target, NULL) ||
+        vipsgen_set_int(operation, "Q", Q) ||
+        vipsgen_set_bool(operation, "optimize_coding", optimize_coding) ||
+        vipsgen_set_bool(operation, "interlace", interlace) ||
+        vipsgen_set_bool(operation, "trellis_quant", trellis_quant) ||
+        vipsgen_set_bool(operation, "overshoot_deringing", overshoot_deringing) ||
+        vipsgen_set_bool(operation, "optimize_scans", optimize_scans) ||
+        vipsgen_set_int(operation, "quant_table", quant_table) ||
+        vipsgen_set_int(operation, "subsample_mode", subsample_mode) ||
+        vipsgen_set_int(operation, "restart_interval", restart_interval) ||
+        vipsgen_set_int(operation, "keep", keep) ||
+        vipsgen_set_array_double(operation, "background", background_array) ||
+        vipsgen_set_int(operation, "page_height", page_height) ||
+        vipsgen_set_string(operation, "profile", profile)
+    ) {
+        g_object_unref(operation);
+        if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
+        return 1;
+    }
+    int result = vipsgen_operation_execute(operation, NULL);
+    if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
+    return result;
+}
+
 int vipsgen_jxlload(const char* filename, VipsImage** out) {
     return vips_jxlload(filename, out, NULL);
 }
@@ -2429,6 +2633,37 @@ int vipsgen_jxlsave_buffer_with_options(VipsImage* in, void** buf, size_t* len, 
         return 1;
     }
     int result = vipsgen_operation_save_buffer(operation, buf, len);
+    if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
+    return result;
+}
+
+int vipsgen_jxlsave_target(VipsImage* in, VipsTargetCustom* target) {
+    return vips_jxlsave_target(in, (VipsTarget*) target, NULL);
+}
+
+int vipsgen_jxlsave_target_with_options(VipsImage* in, VipsTargetCustom* target, int tier, double distance, int effort, gboolean lossless, int Q, VipsForeignKeep keep, double* background, int background_n, int page_height, const char* profile) {
+    VipsOperation *operation = vips_operation_new("jxlsave_target");
+    if (!operation) return 1;
+    VipsArrayDouble *background_array = NULL;
+    if (background != NULL && background_n > 0) { background_array = vips_array_double_new(background, background_n); }
+    if (
+        vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
+        vips_object_set(VIPS_OBJECT(operation), "target", (VipsTarget*)target, NULL) ||
+        vipsgen_set_int(operation, "tier", tier) ||
+        vipsgen_set_double(operation, "distance", distance) ||
+        vipsgen_set_int(operation, "effort", effort) ||
+        vipsgen_set_bool(operation, "lossless", lossless) ||
+        vipsgen_set_int(operation, "Q", Q) ||
+        vipsgen_set_int(operation, "keep", keep) ||
+        vipsgen_set_array_double(operation, "background", background_array) ||
+        vipsgen_set_int(operation, "page_height", page_height) ||
+        vipsgen_set_string(operation, "profile", profile)
+    ) {
+        g_object_unref(operation);
+        if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
+        return 1;
+    }
+    int result = vipsgen_operation_execute(operation, NULL);
     if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
     return result;
 }
@@ -3072,6 +3307,32 @@ int vipsgen_matrixsave_with_options(VipsImage* in, const char* filename, VipsFor
     return result;
 }
 
+int vipsgen_matrixsave_target(VipsImage* in, VipsTargetCustom* target) {
+    return vips_matrixsave_target(in, (VipsTarget*) target, NULL);
+}
+
+int vipsgen_matrixsave_target_with_options(VipsImage* in, VipsTargetCustom* target, VipsForeignKeep keep, double* background, int background_n, int page_height, const char* profile) {
+    VipsOperation *operation = vips_operation_new("matrixsave_target");
+    if (!operation) return 1;
+    VipsArrayDouble *background_array = NULL;
+    if (background != NULL && background_n > 0) { background_array = vips_array_double_new(background, background_n); }
+    if (
+        vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
+        vips_object_set(VIPS_OBJECT(operation), "target", (VipsTarget*)target, NULL) ||
+        vipsgen_set_int(operation, "keep", keep) ||
+        vipsgen_set_array_double(operation, "background", background_array) ||
+        vipsgen_set_int(operation, "page_height", page_height) ||
+        vipsgen_set_string(operation, "profile", profile)
+    ) {
+        g_object_unref(operation);
+        if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
+        return 1;
+    }
+    int result = vipsgen_operation_execute(operation, NULL);
+    if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
+    return result;
+}
+
 int vipsgen_max(VipsImage* in, double* out) {
     return vips_max(in, out, NULL);
 }
@@ -3650,6 +3911,40 @@ int vipsgen_pngsave_buffer_with_options(VipsImage* in, void** buf, size_t* len, 
     return result;
 }
 
+int vipsgen_pngsave_target(VipsImage* in, VipsTargetCustom* target) {
+    return vips_pngsave_target(in, (VipsTarget*) target, NULL);
+}
+
+int vipsgen_pngsave_target_with_options(VipsImage* in, VipsTargetCustom* target, int compression, gboolean interlace, VipsForeignPngFilter filter, gboolean palette, int Q, double dither, int bitdepth, int effort, VipsForeignKeep keep, double* background, int background_n, int page_height, const char* profile) {
+    VipsOperation *operation = vips_operation_new("pngsave_target");
+    if (!operation) return 1;
+    VipsArrayDouble *background_array = NULL;
+    if (background != NULL && background_n > 0) { background_array = vips_array_double_new(background, background_n); }
+    if (
+        vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
+        vips_object_set(VIPS_OBJECT(operation), "target", (VipsTarget*)target, NULL) ||
+        vipsgen_set_int(operation, "compression", compression) ||
+        vipsgen_set_bool(operation, "interlace", interlace) ||
+        vipsgen_set_int(operation, "filter", filter) ||
+        vipsgen_set_bool(operation, "palette", palette) ||
+        vipsgen_set_int(operation, "Q", Q) ||
+        vipsgen_set_double(operation, "dither", dither) ||
+        vipsgen_set_int(operation, "bitdepth", bitdepth) ||
+        vipsgen_set_int(operation, "effort", effort) ||
+        vipsgen_set_int(operation, "keep", keep) ||
+        vipsgen_set_array_double(operation, "background", background_array) ||
+        vipsgen_set_int(operation, "page_height", page_height) ||
+        vipsgen_set_string(operation, "profile", profile)
+    ) {
+        g_object_unref(operation);
+        if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
+        return 1;
+    }
+    int result = vipsgen_operation_execute(operation, NULL);
+    if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
+    return result;
+}
+
 int vipsgen_ppmload(const char* filename, VipsImage** out) {
     return vips_ppmload(filename, out, NULL);
 }
@@ -3704,6 +3999,35 @@ int vipsgen_ppmsave_with_options(VipsImage* in, const char* filename, VipsForeig
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "filename", filename, NULL) ||
+        vipsgen_set_int(operation, "format", format) ||
+        vipsgen_set_bool(operation, "ascii", ascii) ||
+        vipsgen_set_int(operation, "bitdepth", bitdepth) ||
+        vipsgen_set_int(operation, "keep", keep) ||
+        vipsgen_set_array_double(operation, "background", background_array) ||
+        vipsgen_set_int(operation, "page_height", page_height) ||
+        vipsgen_set_string(operation, "profile", profile)
+    ) {
+        g_object_unref(operation);
+        if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
+        return 1;
+    }
+    int result = vipsgen_operation_execute(operation, NULL);
+    if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
+    return result;
+}
+
+int vipsgen_ppmsave_target(VipsImage* in, VipsTargetCustom* target) {
+    return vips_ppmsave_target(in, (VipsTarget*) target, NULL);
+}
+
+int vipsgen_ppmsave_target_with_options(VipsImage* in, VipsTargetCustom* target, VipsForeignPpmFormat format, gboolean ascii, int bitdepth, VipsForeignKeep keep, double* background, int background_n, int page_height, const char* profile) {
+    VipsOperation *operation = vips_operation_new("ppmsave_target");
+    if (!operation) return 1;
+    VipsArrayDouble *background_array = NULL;
+    if (background != NULL && background_n > 0) { background_array = vips_array_double_new(background, background_n); }
+    if (
+        vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
+        vips_object_set(VIPS_OBJECT(operation), "target", (VipsTarget*)target, NULL) ||
         vipsgen_set_int(operation, "format", format) ||
         vipsgen_set_bool(operation, "ascii", ascii) ||
         vipsgen_set_int(operation, "bitdepth", bitdepth) ||
@@ -3896,6 +4220,32 @@ int vipsgen_radsave_buffer_with_options(VipsImage* in, void** buf, size_t* len, 
     return result;
 }
 
+int vipsgen_radsave_target(VipsImage* in, VipsTargetCustom* target) {
+    return vips_radsave_target(in, (VipsTarget*) target, NULL);
+}
+
+int vipsgen_radsave_target_with_options(VipsImage* in, VipsTargetCustom* target, VipsForeignKeep keep, double* background, int background_n, int page_height, const char* profile) {
+    VipsOperation *operation = vips_operation_new("radsave_target");
+    if (!operation) return 1;
+    VipsArrayDouble *background_array = NULL;
+    if (background != NULL && background_n > 0) { background_array = vips_array_double_new(background, background_n); }
+    if (
+        vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
+        vips_object_set(VIPS_OBJECT(operation), "target", (VipsTarget*)target, NULL) ||
+        vipsgen_set_int(operation, "keep", keep) ||
+        vipsgen_set_array_double(operation, "background", background_array) ||
+        vipsgen_set_int(operation, "page_height", page_height) ||
+        vipsgen_set_string(operation, "profile", profile)
+    ) {
+        g_object_unref(operation);
+        if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
+        return 1;
+    }
+    int result = vipsgen_operation_execute(operation, NULL);
+    if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
+    return result;
+}
+
 int vipsgen_rank(VipsImage* in, VipsImage** out, int width, int height, int index) {
     return vips_rank(in, out, width, height, index, NULL);
 }
@@ -3974,6 +4324,32 @@ int vipsgen_rawsave_buffer_with_options(VipsImage* in, void** buf, size_t* len, 
         return 1;
     }
     int result = vipsgen_operation_save_buffer(operation, buf, len);
+    if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
+    return result;
+}
+
+int vipsgen_rawsave_target(VipsImage* in, VipsTargetCustom* target) {
+    return vips_rawsave_target(in, (VipsTarget*) target, NULL);
+}
+
+int vipsgen_rawsave_target_with_options(VipsImage* in, VipsTargetCustom* target, VipsForeignKeep keep, double* background, int background_n, int page_height, const char* profile) {
+    VipsOperation *operation = vips_operation_new("rawsave_target");
+    if (!operation) return 1;
+    VipsArrayDouble *background_array = NULL;
+    if (background != NULL && background_n > 0) { background_array = vips_array_double_new(background, background_n); }
+    if (
+        vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
+        vips_object_set(VIPS_OBJECT(operation), "target", (VipsTarget*)target, NULL) ||
+        vipsgen_set_int(operation, "keep", keep) ||
+        vipsgen_set_array_double(operation, "background", background_array) ||
+        vipsgen_set_int(operation, "page_height", page_height) ||
+        vipsgen_set_string(operation, "profile", profile)
+    ) {
+        g_object_unref(operation);
+        if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
+        return 1;
+    }
+    int result = vipsgen_operation_execute(operation, NULL);
     if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
     return result;
 }
@@ -4897,6 +5273,52 @@ int vipsgen_tiffsave_buffer_with_options(VipsImage* in, void** buf, size_t* len,
     return result;
 }
 
+int vipsgen_tiffsave_target(VipsImage* in, VipsTargetCustom* target) {
+    return vips_tiffsave_target(in, (VipsTarget*) target, NULL);
+}
+
+int vipsgen_tiffsave_target_with_options(VipsImage* in, VipsTargetCustom* target, VipsForeignTiffCompression compression, int Q, VipsForeignTiffPredictor predictor, gboolean tile, int tile_width, int tile_height, gboolean pyramid, gboolean miniswhite, int bitdepth, VipsForeignTiffResunit resunit, double xres, double yres, gboolean bigtiff, gboolean properties, VipsRegionShrink region_shrink, int level, gboolean lossless, VipsForeignDzDepth depth, gboolean subifd, gboolean premultiply, VipsForeignKeep keep, double* background, int background_n, int page_height, const char* profile) {
+    VipsOperation *operation = vips_operation_new("tiffsave_target");
+    if (!operation) return 1;
+    VipsArrayDouble *background_array = NULL;
+    if (background != NULL && background_n > 0) { background_array = vips_array_double_new(background, background_n); }
+    if (
+        vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
+        vips_object_set(VIPS_OBJECT(operation), "target", (VipsTarget*)target, NULL) ||
+        vipsgen_set_int(operation, "compression", compression) ||
+        vipsgen_set_int(operation, "Q", Q) ||
+        vipsgen_set_int(operation, "predictor", predictor) ||
+        vipsgen_set_bool(operation, "tile", tile) ||
+        vipsgen_set_int(operation, "tile_width", tile_width) ||
+        vipsgen_set_int(operation, "tile_height", tile_height) ||
+        vipsgen_set_bool(operation, "pyramid", pyramid) ||
+        vipsgen_set_bool(operation, "miniswhite", miniswhite) ||
+        vipsgen_set_int(operation, "bitdepth", bitdepth) ||
+        vipsgen_set_int(operation, "resunit", resunit) ||
+        vipsgen_set_double(operation, "xres", xres) ||
+        vipsgen_set_double(operation, "yres", yres) ||
+        vipsgen_set_bool(operation, "bigtiff", bigtiff) ||
+        vipsgen_set_bool(operation, "properties", properties) ||
+        vipsgen_set_int(operation, "region_shrink", region_shrink) ||
+        vipsgen_set_int(operation, "level", level) ||
+        vipsgen_set_bool(operation, "lossless", lossless) ||
+        vipsgen_set_int(operation, "depth", depth) ||
+        vipsgen_set_bool(operation, "subifd", subifd) ||
+        vipsgen_set_bool(operation, "premultiply", premultiply) ||
+        vipsgen_set_int(operation, "keep", keep) ||
+        vipsgen_set_array_double(operation, "background", background_array) ||
+        vipsgen_set_int(operation, "page_height", page_height) ||
+        vipsgen_set_string(operation, "profile", profile)
+    ) {
+        g_object_unref(operation);
+        if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
+        return 1;
+    }
+    int result = vipsgen_operation_execute(operation, NULL);
+    if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
+    return result;
+}
+
 int vipsgen_tilecache(VipsImage* in, VipsImage** out) {
     return vips_tilecache(in, out, NULL);
 }
@@ -5037,6 +5459,32 @@ int vipsgen_vipssave_with_options(VipsImage* in, const char* filename, VipsForei
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "filename", filename, NULL) ||
+        vipsgen_set_int(operation, "keep", keep) ||
+        vipsgen_set_array_double(operation, "background", background_array) ||
+        vipsgen_set_int(operation, "page_height", page_height) ||
+        vipsgen_set_string(operation, "profile", profile)
+    ) {
+        g_object_unref(operation);
+        if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
+        return 1;
+    }
+    int result = vipsgen_operation_execute(operation, NULL);
+    if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
+    return result;
+}
+
+int vipsgen_vipssave_target(VipsImage* in, VipsTargetCustom* target) {
+    return vips_vipssave_target(in, (VipsTarget*) target, NULL);
+}
+
+int vipsgen_vipssave_target_with_options(VipsImage* in, VipsTargetCustom* target, VipsForeignKeep keep, double* background, int background_n, int page_height, const char* profile) {
+    VipsOperation *operation = vips_operation_new("vipssave_target");
+    if (!operation) return 1;
+    VipsArrayDouble *background_array = NULL;
+    if (background != NULL && background_n > 0) { background_array = vips_array_double_new(background, background_n); }
+    if (
+        vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
+        vips_object_set(VIPS_OBJECT(operation), "target", (VipsTarget*)target, NULL) ||
         vipsgen_set_int(operation, "keep", keep) ||
         vipsgen_set_array_double(operation, "background", background_array) ||
         vipsgen_set_int(operation, "page_height", page_height) ||
@@ -5202,6 +5650,46 @@ int vipsgen_webpsave_buffer_with_options(VipsImage* in, void** buf, size_t* len,
         return 1;
     }
     int result = vipsgen_operation_save_buffer(operation, buf, len);
+    if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
+    return result;
+}
+
+int vipsgen_webpsave_target(VipsImage* in, VipsTargetCustom* target) {
+    return vips_webpsave_target(in, (VipsTarget*) target, NULL);
+}
+
+int vipsgen_webpsave_target_with_options(VipsImage* in, VipsTargetCustom* target, int Q, gboolean lossless, VipsForeignWebpPreset preset, gboolean smart_subsample, gboolean near_lossless, int alpha_q, gboolean min_size, int kmin, int kmax, int effort, int target_size, gboolean mixed, gboolean smart_deblock, int passes, VipsForeignKeep keep, double* background, int background_n, int page_height, const char* profile) {
+    VipsOperation *operation = vips_operation_new("webpsave_target");
+    if (!operation) return 1;
+    VipsArrayDouble *background_array = NULL;
+    if (background != NULL && background_n > 0) { background_array = vips_array_double_new(background, background_n); }
+    if (
+        vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
+        vips_object_set(VIPS_OBJECT(operation), "target", (VipsTarget*)target, NULL) ||
+        vipsgen_set_int(operation, "Q", Q) ||
+        vipsgen_set_bool(operation, "lossless", lossless) ||
+        vipsgen_set_int(operation, "preset", preset) ||
+        vipsgen_set_bool(operation, "smart_subsample", smart_subsample) ||
+        vipsgen_set_bool(operation, "near_lossless", near_lossless) ||
+        vipsgen_set_int(operation, "alpha_q", alpha_q) ||
+        vipsgen_set_bool(operation, "min_size", min_size) ||
+        vipsgen_set_int(operation, "kmin", kmin) ||
+        vipsgen_set_int(operation, "kmax", kmax) ||
+        vipsgen_set_int(operation, "effort", effort) ||
+        vipsgen_set_int(operation, "target_size", target_size) ||
+        vipsgen_set_bool(operation, "mixed", mixed) ||
+        vipsgen_set_bool(operation, "smart_deblock", smart_deblock) ||
+        vipsgen_set_int(operation, "passes", passes) ||
+        vipsgen_set_int(operation, "keep", keep) ||
+        vipsgen_set_array_double(operation, "background", background_array) ||
+        vipsgen_set_int(operation, "page_height", page_height) ||
+        vipsgen_set_string(operation, "profile", profile)
+    ) {
+        g_object_unref(operation);
+        if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
+        return 1;
+    }
+    int result = vipsgen_operation_execute(operation, NULL);
     if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
     return result;
 }

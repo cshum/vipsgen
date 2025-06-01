@@ -4633,6 +4633,45 @@ func (r *Image) Csvsave(filename string, options *CsvsaveOptions) (error) {
 	return nil
 }
 
+// CsvsaveTargetOptions optional arguments for vips_csvsave_target
+type CsvsaveTargetOptions struct {
+	// Separator Separator characters
+	Separator string
+	// Keep Which metadata to retain
+	Keep Keep
+	// Background Background value
+	Background []float64
+	// PageHeight Set page height for multipage save
+	PageHeight int
+	// Profile Filename of ICC profile to embed
+	Profile string
+}
+
+// DefaultCsvsaveTargetOptions creates default value for vips_csvsave_target optional arguments
+func DefaultCsvsaveTargetOptions() *CsvsaveTargetOptions {
+	return &CsvsaveTargetOptions{
+		Separator: "\t",
+	}
+}
+
+// CsvsaveTarget vips_csvsave_target save image to csv
+//
+// The target specifies target to save to.
+func (r *Image) CsvsaveTarget(target *C.VipsTargetCustom, options *CsvsaveTargetOptions) (error) {
+	if options != nil {
+		err := vipsgenCsvsaveTargetWithOptions(r.image, target, options.Separator, options.Keep, options.Background, options.PageHeight, options.Profile)
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+	err := vipsgenCsvsaveTarget(r.image, target)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 
 // DE00 vips_dE00 calculate dE00
 //
@@ -5010,6 +5049,76 @@ func (r *Image) DzsaveBuffer(options *DzsaveBufferOptions) ([]byte, error) {
 		return nil, err
 	}
 	return buf, nil
+}
+
+// DzsaveTargetOptions optional arguments for vips_dzsave_target
+type DzsaveTargetOptions struct {
+	// Imagename Image name
+	Imagename string
+	// Layout Directory layout
+	Layout DzLayout
+	// Suffix Filename suffix for tiles
+	Suffix string
+	// Overlap Tile overlap in pixels
+	Overlap int
+	// TileSize Tile size in pixels
+	TileSize int
+	// Centre Center image in tile
+	Centre bool
+	// Depth Pyramid depth
+	Depth DzDepth
+	// Angle Rotate image during save
+	Angle Angle
+	// Container Pyramid container type
+	Container DzContainer
+	// Compression ZIP deflate compression level
+	Compression int
+	// RegionShrink Method to shrink regions
+	RegionShrink RegionShrink
+	// SkipBlanks Skip tiles which are nearly equal to the background
+	SkipBlanks int
+	// Id Resource ID
+	Id string
+	// Q Q factor
+	Q int
+	// Keep Which metadata to retain
+	Keep Keep
+	// Background Background value
+	Background []float64
+	// PageHeight Set page height for multipage save
+	PageHeight int
+	// Profile Filename of ICC profile to embed
+	Profile string
+}
+
+// DefaultDzsaveTargetOptions creates default value for vips_dzsave_target optional arguments
+func DefaultDzsaveTargetOptions() *DzsaveTargetOptions {
+	return &DzsaveTargetOptions{
+		Suffix: ".jpeg",
+		Overlap: 1,
+		TileSize: 254,
+		SkipBlanks: -1,
+		Id: "https://example.com/iiif",
+		Q: 75,
+	}
+}
+
+// DzsaveTarget vips_dzsave_target save image to deepzoom target
+//
+// The target specifies target to save to.
+func (r *Image) DzsaveTarget(target *C.VipsTargetCustom, options *DzsaveTargetOptions) (error) {
+	if options != nil {
+		err := vipsgenDzsaveTargetWithOptions(r.image, target, options.Imagename, options.Layout, options.Suffix, options.Overlap, options.TileSize, options.Centre, options.Depth, options.Angle, options.Container, options.Compression, options.RegionShrink, options.SkipBlanks, options.Id, options.Q, options.Keep, options.Background, options.PageHeight, options.Profile)
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+	err := vipsgenDzsaveTarget(r.image, target)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // EmbedOptions optional arguments for vips_embed
@@ -5486,6 +5595,60 @@ func (r *Image) GifsaveBuffer(options *GifsaveBufferOptions) ([]byte, error) {
 	return buf, nil
 }
 
+// GifsaveTargetOptions optional arguments for vips_gifsave_target
+type GifsaveTargetOptions struct {
+	// Dither Amount of dithering
+	Dither float64
+	// Effort Quantisation effort
+	Effort int
+	// Bitdepth Number of bits per pixel
+	Bitdepth int
+	// InterframeMaxerror Maximum inter-frame error for transparency
+	InterframeMaxerror float64
+	// Reuse Reuse palette from input
+	Reuse bool
+	// InterpaletteMaxerror Maximum inter-palette error for palette reusage
+	InterpaletteMaxerror float64
+	// Interlace Generate an interlaced (progressive) GIF
+	Interlace bool
+	// Keep Which metadata to retain
+	Keep Keep
+	// Background Background value
+	Background []float64
+	// PageHeight Set page height for multipage save
+	PageHeight int
+	// Profile Filename of ICC profile to embed
+	Profile string
+}
+
+// DefaultGifsaveTargetOptions creates default value for vips_gifsave_target optional arguments
+func DefaultGifsaveTargetOptions() *GifsaveTargetOptions {
+	return &GifsaveTargetOptions{
+		Dither: 1,
+		Effort: 7,
+		Bitdepth: 8,
+		InterpaletteMaxerror: 3,
+	}
+}
+
+// GifsaveTarget vips_gifsave_target save as gif
+//
+// The target specifies target to save to.
+func (r *Image) GifsaveTarget(target *C.VipsTargetCustom, options *GifsaveTargetOptions) (error) {
+	if options != nil {
+		err := vipsgenGifsaveTargetWithOptions(r.image, target, options.Dither, options.Effort, options.Bitdepth, options.InterframeMaxerror, options.Reuse, options.InterpaletteMaxerror, options.Interlace, options.Keep, options.Background, options.PageHeight, options.Profile)
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+	err := vipsgenGifsaveTarget(r.image, target)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 // GlobalbalanceOptions optional arguments for vips_globalbalance
 type GlobalbalanceOptions struct {
 	// Gamma Image gamma
@@ -5674,6 +5837,60 @@ func (r *Image) HeifsaveBuffer(options *HeifsaveBufferOptions) ([]byte, error) {
 		return nil, err
 	}
 	return buf, nil
+}
+
+// HeifsaveTargetOptions optional arguments for vips_heifsave_target
+type HeifsaveTargetOptions struct {
+	// Q Q factor
+	Q int
+	// Bitdepth Number of bits per pixel
+	Bitdepth int
+	// Lossless Enable lossless compression
+	Lossless bool
+	// Compression Compression format
+	Compression HeifCompression
+	// Effort CPU effort
+	Effort int
+	// SubsampleMode Select chroma subsample operation mode
+	SubsampleMode Subsample
+	// Encoder Select encoder to use
+	Encoder HeifEncoder
+	// Keep Which metadata to retain
+	Keep Keep
+	// Background Background value
+	Background []float64
+	// PageHeight Set page height for multipage save
+	PageHeight int
+	// Profile Filename of ICC profile to embed
+	Profile string
+}
+
+// DefaultHeifsaveTargetOptions creates default value for vips_heifsave_target optional arguments
+func DefaultHeifsaveTargetOptions() *HeifsaveTargetOptions {
+	return &HeifsaveTargetOptions{
+		Q: 50,
+		Bitdepth: 12,
+		Compression: HeifCompression(1),
+		Effort: 4,
+	}
+}
+
+// HeifsaveTarget vips_heifsave_target save image in HEIF format
+//
+// The target specifies target to save to.
+func (r *Image) HeifsaveTarget(target *C.VipsTargetCustom, options *HeifsaveTargetOptions) (error) {
+	if options != nil {
+		err := vipsgenHeifsaveTargetWithOptions(r.image, target, options.Q, options.Bitdepth, options.Lossless, options.Compression, options.Effort, options.SubsampleMode, options.Encoder, options.Keep, options.Background, options.PageHeight, options.Profile)
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+	err := vipsgenHeifsaveTarget(r.image, target)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 
@@ -6373,6 +6590,56 @@ func (r *Image) Jp2ksaveBuffer(options *Jp2ksaveBufferOptions) ([]byte, error) {
 	return buf, nil
 }
 
+// Jp2ksaveTargetOptions optional arguments for vips_jp2ksave_target
+type Jp2ksaveTargetOptions struct {
+	// TileWidth Tile width in pixels
+	TileWidth int
+	// TileHeight Tile height in pixels
+	TileHeight int
+	// Lossless Enable lossless compression
+	Lossless bool
+	// Q Q factor
+	Q int
+	// SubsampleMode Select chroma subsample operation mode
+	SubsampleMode Subsample
+	// Keep Which metadata to retain
+	Keep Keep
+	// Background Background value
+	Background []float64
+	// PageHeight Set page height for multipage save
+	PageHeight int
+	// Profile Filename of ICC profile to embed
+	Profile string
+}
+
+// DefaultJp2ksaveTargetOptions creates default value for vips_jp2ksave_target optional arguments
+func DefaultJp2ksaveTargetOptions() *Jp2ksaveTargetOptions {
+	return &Jp2ksaveTargetOptions{
+		TileWidth: 512,
+		TileHeight: 512,
+		Q: 48,
+		SubsampleMode: Subsample(2),
+	}
+}
+
+// Jp2ksaveTarget vips_jp2ksave_target save image in JPEG2000 format
+//
+// The target specifies target to save to.
+func (r *Image) Jp2ksaveTarget(target *C.VipsTargetCustom, options *Jp2ksaveTargetOptions) (error) {
+	if options != nil {
+		err := vipsgenJp2ksaveTargetWithOptions(r.image, target, options.TileWidth, options.TileHeight, options.Lossless, options.Q, options.SubsampleMode, options.Keep, options.Background, options.PageHeight, options.Profile)
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+	err := vipsgenJp2ksaveTarget(r.image, target)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 // JpegsaveOptions optional arguments for vips_jpegsave
 type JpegsaveOptions struct {
 	// Q Q factor
@@ -6481,6 +6748,61 @@ func (r *Image) JpegsaveBuffer(options *JpegsaveBufferOptions) ([]byte, error) {
 	return buf, nil
 }
 
+// JpegsaveTargetOptions optional arguments for vips_jpegsave_target
+type JpegsaveTargetOptions struct {
+	// Q Q factor
+	Q int
+	// OptimizeCoding Compute optimal Huffman coding tables
+	OptimizeCoding bool
+	// Interlace Generate an interlaced (progressive) jpeg
+	Interlace bool
+	// TrellisQuant Apply trellis quantisation to each 8x8 block
+	TrellisQuant bool
+	// OvershootDeringing Apply overshooting to samples with extreme values
+	OvershootDeringing bool
+	// OptimizeScans Split spectrum of DCT coefficients into separate scans
+	OptimizeScans bool
+	// QuantTable Use predefined quantization table with given index
+	QuantTable int
+	// SubsampleMode Select chroma subsample operation mode
+	SubsampleMode Subsample
+	// RestartInterval Add restart markers every specified number of mcu
+	RestartInterval int
+	// Keep Which metadata to retain
+	Keep Keep
+	// Background Background value
+	Background []float64
+	// PageHeight Set page height for multipage save
+	PageHeight int
+	// Profile Filename of ICC profile to embed
+	Profile string
+}
+
+// DefaultJpegsaveTargetOptions creates default value for vips_jpegsave_target optional arguments
+func DefaultJpegsaveTargetOptions() *JpegsaveTargetOptions {
+	return &JpegsaveTargetOptions{
+		Q: 75,
+	}
+}
+
+// JpegsaveTarget vips_jpegsave_target save image to jpeg target
+//
+// The target specifies target to save to.
+func (r *Image) JpegsaveTarget(target *C.VipsTargetCustom, options *JpegsaveTargetOptions) (error) {
+	if options != nil {
+		err := vipsgenJpegsaveTargetWithOptions(r.image, target, options.Q, options.OptimizeCoding, options.Interlace, options.TrellisQuant, options.OvershootDeringing, options.OptimizeScans, options.QuantTable, options.SubsampleMode, options.RestartInterval, options.Keep, options.Background, options.PageHeight, options.Profile)
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+	err := vipsgenJpegsaveTarget(r.image, target)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 // JxlsaveOptions optional arguments for vips_jxlsave
 type JxlsaveOptions struct {
 	// Tier Decode speed tier
@@ -6575,6 +6897,55 @@ func (r *Image) JxlsaveBuffer(options *JxlsaveBufferOptions) ([]byte, error) {
 		return nil, err
 	}
 	return buf, nil
+}
+
+// JxlsaveTargetOptions optional arguments for vips_jxlsave_target
+type JxlsaveTargetOptions struct {
+	// Tier Decode speed tier
+	Tier int
+	// Distance Target butteraugli distance
+	Distance float64
+	// Effort Encoding effort
+	Effort int
+	// Lossless Enable lossless compression
+	Lossless bool
+	// Q Quality factor
+	Q int
+	// Keep Which metadata to retain
+	Keep Keep
+	// Background Background value
+	Background []float64
+	// PageHeight Set page height for multipage save
+	PageHeight int
+	// Profile Filename of ICC profile to embed
+	Profile string
+}
+
+// DefaultJxlsaveTargetOptions creates default value for vips_jxlsave_target optional arguments
+func DefaultJxlsaveTargetOptions() *JxlsaveTargetOptions {
+	return &JxlsaveTargetOptions{
+		Distance: 1,
+		Effort: 7,
+		Q: 75,
+	}
+}
+
+// JxlsaveTarget vips_jxlsave_target save image in JPEG-XL format
+//
+// The target specifies target to save to.
+func (r *Image) JxlsaveTarget(target *C.VipsTargetCustom, options *JxlsaveTargetOptions) (error) {
+	if options != nil {
+		err := vipsgenJxlsaveTargetWithOptions(r.image, target, options.Tier, options.Distance, options.Effort, options.Lossless, options.Q, options.Keep, options.Background, options.PageHeight, options.Profile)
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+	err := vipsgenJxlsaveTarget(r.image, target)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 
@@ -6984,6 +7355,42 @@ func (r *Image) Matrixsave(filename string, options *MatrixsaveOptions) (error) 
 		return nil
 	}
 	err := vipsgenMatrixsave(r.image, filename)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// MatrixsaveTargetOptions optional arguments for vips_matrixsave_target
+type MatrixsaveTargetOptions struct {
+	// Keep Which metadata to retain
+	Keep Keep
+	// Background Background value
+	Background []float64
+	// PageHeight Set page height for multipage save
+	PageHeight int
+	// Profile Filename of ICC profile to embed
+	Profile string
+}
+
+// DefaultMatrixsaveTargetOptions creates default value for vips_matrixsave_target optional arguments
+func DefaultMatrixsaveTargetOptions() *MatrixsaveTargetOptions {
+	return &MatrixsaveTargetOptions{
+	}
+}
+
+// MatrixsaveTarget vips_matrixsave_target save image to matrix
+//
+// The target specifies target to save to.
+func (r *Image) MatrixsaveTarget(target *C.VipsTargetCustom, options *MatrixsaveTargetOptions) (error) {
+	if options != nil {
+		err := vipsgenMatrixsaveTargetWithOptions(r.image, target, options.Keep, options.Background, options.PageHeight, options.Profile)
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+	err := vipsgenMatrixsaveTarget(r.image, target)
 	if err != nil {
 		return err
 	}
@@ -7479,6 +7886,63 @@ func (r *Image) PngsaveBuffer(options *PngsaveBufferOptions) ([]byte, error) {
 	return buf, nil
 }
 
+// PngsaveTargetOptions optional arguments for vips_pngsave_target
+type PngsaveTargetOptions struct {
+	// Compression Compression factor
+	Compression int
+	// Interlace Interlace image
+	Interlace bool
+	// Filter libpng row filter flag(s)
+	Filter PngFilter
+	// Palette Quantise to 8bpp palette
+	Palette bool
+	// Q Quantisation quality
+	Q int
+	// Dither Amount of dithering
+	Dither float64
+	// Bitdepth Write as a 1, 2, 4, 8 or 16 bit image
+	Bitdepth int
+	// Effort Quantisation CPU effort
+	Effort int
+	// Keep Which metadata to retain
+	Keep Keep
+	// Background Background value
+	Background []float64
+	// PageHeight Set page height for multipage save
+	PageHeight int
+	// Profile Filename of ICC profile to embed
+	Profile string
+}
+
+// DefaultPngsaveTargetOptions creates default value for vips_pngsave_target optional arguments
+func DefaultPngsaveTargetOptions() *PngsaveTargetOptions {
+	return &PngsaveTargetOptions{
+		Compression: 6,
+		Q: 100,
+		Dither: 1,
+		Bitdepth: 8,
+		Effort: 7,
+	}
+}
+
+// PngsaveTarget vips_pngsave_target save image to target as PNG
+//
+// The target specifies target to save to.
+func (r *Image) PngsaveTarget(target *C.VipsTargetCustom, options *PngsaveTargetOptions) (error) {
+	if options != nil {
+		err := vipsgenPngsaveTargetWithOptions(r.image, target, options.Compression, options.Interlace, options.Filter, options.Palette, options.Q, options.Dither, options.Bitdepth, options.Effort, options.Keep, options.Background, options.PageHeight, options.Profile)
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+	err := vipsgenPngsaveTarget(r.image, target)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 // PpmsaveOptions optional arguments for vips_ppmsave
 type PpmsaveOptions struct {
 	// Format Format to save in
@@ -7516,6 +7980,49 @@ func (r *Image) Ppmsave(filename string, options *PpmsaveOptions) (error) {
 		return nil
 	}
 	err := vipsgenPpmsave(r.image, filename)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// PpmsaveTargetOptions optional arguments for vips_ppmsave_target
+type PpmsaveTargetOptions struct {
+	// Format Format to save in
+	Format PpmFormat
+	// Ascii Save as ascii
+	Ascii bool
+	// Bitdepth Set to 1 to write as a 1 bit image
+	Bitdepth int
+	// Keep Which metadata to retain
+	Keep Keep
+	// Background Background value
+	Background []float64
+	// PageHeight Set page height for multipage save
+	PageHeight int
+	// Profile Filename of ICC profile to embed
+	Profile string
+}
+
+// DefaultPpmsaveTargetOptions creates default value for vips_ppmsave_target optional arguments
+func DefaultPpmsaveTargetOptions() *PpmsaveTargetOptions {
+	return &PpmsaveTargetOptions{
+		Format: PpmFormat(2),
+	}
+}
+
+// PpmsaveTarget vips_ppmsave_target save to ppm
+//
+// The target specifies target to save to.
+func (r *Image) PpmsaveTarget(target *C.VipsTargetCustom, options *PpmsaveTargetOptions) (error) {
+	if options != nil {
+		err := vipsgenPpmsaveTargetWithOptions(r.image, target, options.Format, options.Ascii, options.Bitdepth, options.Keep, options.Background, options.PageHeight, options.Profile)
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+	err := vipsgenPpmsaveTarget(r.image, target)
 	if err != nil {
 		return err
 	}
@@ -7701,6 +8208,42 @@ func (r *Image) RadsaveBuffer(options *RadsaveBufferOptions) ([]byte, error) {
 	return buf, nil
 }
 
+// RadsaveTargetOptions optional arguments for vips_radsave_target
+type RadsaveTargetOptions struct {
+	// Keep Which metadata to retain
+	Keep Keep
+	// Background Background value
+	Background []float64
+	// PageHeight Set page height for multipage save
+	PageHeight int
+	// Profile Filename of ICC profile to embed
+	Profile string
+}
+
+// DefaultRadsaveTargetOptions creates default value for vips_radsave_target optional arguments
+func DefaultRadsaveTargetOptions() *RadsaveTargetOptions {
+	return &RadsaveTargetOptions{
+	}
+}
+
+// RadsaveTarget vips_radsave_target save image to Radiance target
+//
+// The target specifies target to save to.
+func (r *Image) RadsaveTarget(target *C.VipsTargetCustom, options *RadsaveTargetOptions) (error) {
+	if options != nil {
+		err := vipsgenRadsaveTargetWithOptions(r.image, target, options.Keep, options.Background, options.PageHeight, options.Profile)
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+	err := vipsgenRadsaveTarget(r.image, target)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 
 // Rank vips_rank rank filter
 //
@@ -7784,6 +8327,42 @@ func (r *Image) RawsaveBuffer(options *RawsaveBufferOptions) ([]byte, error) {
 		return nil, err
 	}
 	return buf, nil
+}
+
+// RawsaveTargetOptions optional arguments for vips_rawsave_target
+type RawsaveTargetOptions struct {
+	// Keep Which metadata to retain
+	Keep Keep
+	// Background Background value
+	Background []float64
+	// PageHeight Set page height for multipage save
+	PageHeight int
+	// Profile Filename of ICC profile to embed
+	Profile string
+}
+
+// DefaultRawsaveTargetOptions creates default value for vips_rawsave_target optional arguments
+func DefaultRawsaveTargetOptions() *RawsaveTargetOptions {
+	return &RawsaveTargetOptions{
+	}
+}
+
+// RawsaveTarget vips_rawsave_target write raw image to target
+//
+// The target specifies target to save to.
+func (r *Image) RawsaveTarget(target *C.VipsTargetCustom, options *RawsaveTargetOptions) (error) {
+	if options != nil {
+		err := vipsgenRawsaveTargetWithOptions(r.image, target, options.Keep, options.Background, options.PageHeight, options.Profile)
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+	err := vipsgenRawsaveTarget(r.image, target)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 
@@ -8865,6 +9444,90 @@ func (r *Image) TiffsaveBuffer(options *TiffsaveBufferOptions) ([]byte, error) {
 	return buf, nil
 }
 
+// TiffsaveTargetOptions optional arguments for vips_tiffsave_target
+type TiffsaveTargetOptions struct {
+	// Compression Compression for this file
+	Compression TiffCompression
+	// Q Q factor
+	Q int
+	// Predictor Compression prediction
+	Predictor TiffPredictor
+	// Tile Write a tiled tiff
+	Tile bool
+	// TileWidth Tile width in pixels
+	TileWidth int
+	// TileHeight Tile height in pixels
+	TileHeight int
+	// Pyramid Write a pyramidal tiff
+	Pyramid bool
+	// Miniswhite Use 0 for white in 1-bit images
+	Miniswhite bool
+	// Bitdepth Write as a 1, 2, 4 or 8 bit image
+	Bitdepth int
+	// Resunit Resolution unit
+	Resunit TiffResunit
+	// Xres Horizontal resolution in pixels/mm
+	Xres float64
+	// Yres Vertical resolution in pixels/mm
+	Yres float64
+	// Bigtiff Write a bigtiff image
+	Bigtiff bool
+	// Properties Write a properties document to IMAGEDESCRIPTION
+	Properties bool
+	// RegionShrink Method to shrink regions
+	RegionShrink RegionShrink
+	// Level Deflate (1-9, default 6) or ZSTD (1-22, default 9) compression level
+	Level int
+	// Lossless Enable WEBP lossless mode
+	Lossless bool
+	// Depth Pyramid depth
+	Depth DzDepth
+	// Subifd Save pyr layers as sub-IFDs
+	Subifd bool
+	// Premultiply Save with premultiplied alpha
+	Premultiply bool
+	// Keep Which metadata to retain
+	Keep Keep
+	// Background Background value
+	Background []float64
+	// PageHeight Set page height for multipage save
+	PageHeight int
+	// Profile Filename of ICC profile to embed
+	Profile string
+}
+
+// DefaultTiffsaveTargetOptions creates default value for vips_tiffsave_target optional arguments
+func DefaultTiffsaveTargetOptions() *TiffsaveTargetOptions {
+	return &TiffsaveTargetOptions{
+		Q: 75,
+		Predictor: TiffPredictor(2),
+		TileWidth: 128,
+		TileHeight: 128,
+		Xres: 1,
+		Yres: 1,
+		Level: 6,
+		Depth: DzDepth(1),
+	}
+}
+
+// TiffsaveTarget vips_tiffsave_target save image to tiff target
+//
+// The target specifies target to save to.
+func (r *Image) TiffsaveTarget(target *C.VipsTargetCustom, options *TiffsaveTargetOptions) (error) {
+	if options != nil {
+		err := vipsgenTiffsaveTargetWithOptions(r.image, target, options.Compression, options.Q, options.Predictor, options.Tile, options.TileWidth, options.TileHeight, options.Pyramid, options.Miniswhite, options.Bitdepth, options.Resunit, options.Xres, options.Yres, options.Bigtiff, options.Properties, options.RegionShrink, options.Level, options.Lossless, options.Depth, options.Subifd, options.Premultiply, options.Keep, options.Background, options.PageHeight, options.Profile)
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+	err := vipsgenTiffsaveTarget(r.image, target)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 // TilecacheOptions optional arguments for vips_tilecache
 type TilecacheOptions struct {
 	// TileWidth Tile width in pixels
@@ -9008,6 +9671,42 @@ func (r *Image) Vipssave(filename string, options *VipssaveOptions) (error) {
 	return nil
 }
 
+// VipssaveTargetOptions optional arguments for vips_vipssave_target
+type VipssaveTargetOptions struct {
+	// Keep Which metadata to retain
+	Keep Keep
+	// Background Background value
+	Background []float64
+	// PageHeight Set page height for multipage save
+	PageHeight int
+	// Profile Filename of ICC profile to embed
+	Profile string
+}
+
+// DefaultVipssaveTargetOptions creates default value for vips_vipssave_target optional arguments
+func DefaultVipssaveTargetOptions() *VipssaveTargetOptions {
+	return &VipssaveTargetOptions{
+	}
+}
+
+// VipssaveTarget vips_vipssave_target save image to target in vips format
+//
+// The target specifies target to save to.
+func (r *Image) VipssaveTarget(target *C.VipsTargetCustom, options *VipssaveTargetOptions) (error) {
+	if options != nil {
+		err := vipsgenVipssaveTargetWithOptions(r.image, target, options.Keep, options.Background, options.PageHeight, options.Profile)
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+	err := vipsgenVipssaveTarget(r.image, target)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 // WebpsaveOptions optional arguments for vips_webpsave
 type WebpsaveOptions struct {
 	// Q Q factor
@@ -9144,6 +9843,76 @@ func (r *Image) WebpsaveBuffer(options *WebpsaveBufferOptions) ([]byte, error) {
 		return nil, err
 	}
 	return buf, nil
+}
+
+// WebpsaveTargetOptions optional arguments for vips_webpsave_target
+type WebpsaveTargetOptions struct {
+	// Q Q factor
+	Q int
+	// Lossless Enable lossless compression
+	Lossless bool
+	// Preset Preset for lossy compression
+	Preset WebpPreset
+	// SmartSubsample Enable high quality chroma subsampling
+	SmartSubsample bool
+	// NearLossless Enable preprocessing in lossless mode (uses Q)
+	NearLossless bool
+	// AlphaQ Change alpha plane fidelity for lossy compression
+	AlphaQ int
+	// MinSize Optimise for minimum size
+	MinSize bool
+	// Kmin Minimum number of frames between key frames
+	Kmin int
+	// Kmax Maximum number of frames between key frames
+	Kmax int
+	// Effort Level of CPU effort to reduce file size
+	Effort int
+	// TargetSize Desired target size in bytes
+	TargetSize int
+	// Mixed Allow mixed encoding (might reduce file size)
+	Mixed bool
+	// SmartDeblock Enable auto-adjusting of the deblocking filter
+	SmartDeblock bool
+	// Passes Number of entropy-analysis passes (in [1..10])
+	Passes int
+	// Keep Which metadata to retain
+	Keep Keep
+	// Background Background value
+	Background []float64
+	// PageHeight Set page height for multipage save
+	PageHeight int
+	// Profile Filename of ICC profile to embed
+	Profile string
+}
+
+// DefaultWebpsaveTargetOptions creates default value for vips_webpsave_target optional arguments
+func DefaultWebpsaveTargetOptions() *WebpsaveTargetOptions {
+	return &WebpsaveTargetOptions{
+		Q: 75,
+		AlphaQ: 100,
+		Kmin: 2147483646,
+		Kmax: 2147483647,
+		Effort: 4,
+		Passes: 1,
+	}
+}
+
+// WebpsaveTarget vips_webpsave_target save as WebP
+//
+// The target specifies target to save to.
+func (r *Image) WebpsaveTarget(target *C.VipsTargetCustom, options *WebpsaveTargetOptions) (error) {
+	if options != nil {
+		err := vipsgenWebpsaveTargetWithOptions(r.image, target, options.Q, options.Lossless, options.Preset, options.SmartSubsample, options.NearLossless, options.AlphaQ, options.MinSize, options.Kmin, options.Kmax, options.Effort, options.TargetSize, options.Mixed, options.SmartDeblock, options.Passes, options.Keep, options.Background, options.PageHeight, options.Profile)
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+	err := vipsgenWebpsaveTarget(r.image, target)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // WrapOptions optional arguments for vips_wrap
