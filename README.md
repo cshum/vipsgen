@@ -19,7 +19,7 @@ You can use vipsgen in two ways:
 - **Comprehensive**: Bindings for around [300 libvips operations](https://www.libvips.org/API/current/func-list.html)
 - **Type-Safe**: Proper Go types for all libvips C enums and structs
 - **Idiomatic**: Clean Go APIs that feel natural to use
-- **Streaming**: Includes `VipsSource` integration with `io.ReadCloser` for [streaming](https://www.libvips.org/2019/11/29/True-streaming-for-libvips.html)
+- **Streaming**: `VipsSource` and `VipsTarget` integration with Go `io.Reader` and `io.Writer` for [streaming](https://www.libvips.org/2019/11/29/True-streaming-for-libvips.html)
 
 ## Quick Start
 
