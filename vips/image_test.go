@@ -3353,3 +3353,378 @@ func TestFormatSpecificOptions(t *testing.T) {
 	assert.Equal(t, 200, pngImg.Width())
 	assert.Equal(t, 200, pngImg.Height())
 }
+
+// writeCloser wraps an io.Writer to make it an io.WriteCloser
+type writeCloser struct {
+	io.Writer
+}
+
+func (w *writeCloser) Close() error {
+	// If the underlying writer implements io.Closer, close it
+	if closer, ok := w.Writer.(io.Closer); ok {
+		return closer.Close()
+	}
+	return nil
+}
+
+func TestTarget(t *testing.T) {
+	// Create a test image
+	img, err := createWhiteImage(100, 100)
+	require.NoError(t, err)
+	defer img.Close()
+
+	// Create a buffer target
+	var buf bytes.Buffer
+	target := NewTarget(&writeCloser{&buf})
+	defer target.Close()
+
+	// Save to target using WebpsaveTarget
+	err = img.WebpsaveTarget(target, &WebpsaveTargetOptions{
+		Q:      85,
+		Effort: 4,
+	})
+	require.NoError(t, err)
+
+	// Verify data was written
+	assert.Greater(t, buf.Len(), 0, "Target should have received data")
+
+	// Verify it's valid WebP data (check signature)
+	data := buf.Bytes()
+	assert.GreaterOrEqual(t, len(data), 12, "WebP data should be at least 12 bytes")
+	assert.Equal(t, "RIFF", string(data[0:4]), "Should start with RIFF")
+	assert.Equal(t, "WEBP", string(data[8:12]), "Should contain WEBP signature")
+}
+
+func TestTargetLifecycle(t *testing.T) {
+	// Test target lifecycle management
+
+	// 1. Create target and close immediately
+	var buf bytes.Buffer
+	target := NewTarget(&writeCloser{&buf})
+	target.Close()
+
+	// 2. Multiple close calls should be safe
+	target.Close()
+	target.Close()
+
+	// 3. Test with file target
+	testDir := ensureTestDir(t)
+	testFile := filepath.Join(testDir, "target_test.webp")
+
+	file, err := os.Create(testFile)
+	require.NoError(t, err)
+	defer os.Remove(testFile)
+
+	fileTarget := NewTarget(file) // file implements io.WriteCloser
+	defer fileTarget.Close()
+
+	// Create and save test image
+	img, err := createWhiteImage(50, 50)
+	require.NoError(t, err)
+	defer img.Close()
+
+	err = img.WebpsaveTarget(fileTarget, nil)
+	require.NoError(t, err)
+
+	// Verify file was created and has content
+	fileInfo, err := os.Stat(testFile)
+	require.NoError(t, err)
+	assert.Greater(t, fileInfo.Size(), int64(0), "Target file should have content")
+}
+
+func TestTargetPNGSaveOptions(t *testing.T) {
+	img, err := createWhiteImage(100, 100)
+	require.NoError(t, err)
+	defer img.Close()
+
+	// Test key PNG save options with targets
+	testCases := []struct {
+		name    string
+		options *PngsaveTargetOptions
+	}{
+		{"nil options", nil},
+		{"default options", DefaultPngsaveTargetOptions()},
+		{"high compression", &PngsaveTargetOptions{Compression: 9}},
+		{"low compression", &PngsaveTargetOptions{Compression: 1}},
+		{"interlaced", &PngsaveTargetOptions{Compression: 6, Interlace: true}},
+		{"with filter", &PngsaveTargetOptions{Compression: 6, Filter: PngFilterPaeth}},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			var buf bytes.Buffer
+			target := NewTarget(&writeCloser{&buf})
+			defer target.Close()
+
+			err := img.PngsaveTarget(target, tc.options)
+			require.NoError(t, err, "PngsaveTarget should succeed with %s", tc.name)
+
+			data := buf.Bytes()
+			assert.Greater(t, len(data), 50, "Should produce PNG data with %s", tc.name)
+			assert.Equal(t, []byte{0x89, 0x50, 0x4E, 0x47}, data[0:4], "Should be valid PNG with %s", tc.name)
+
+			t.Logf("%s: produced %d bytes", tc.name, len(data))
+		})
+	}
+}
+
+func TestTargetFormatSelection(t *testing.T) {
+	// Test choosing the right format based on use case
+	img, err := createWhiteImage(100, 100)
+	require.NoError(t, err)
+	defer img.Close()
+
+	// Test format selection for different scenarios
+	testCases := []struct {
+		name     string
+		saveFunc func(*Target) error
+		checkSig func([]byte) bool
+	}{
+		{
+			name: "WebP for modern web",
+			saveFunc: func(target *Target) error {
+				return img.WebpsaveTarget(target, &WebpsaveTargetOptions{Q: 80})
+			},
+			checkSig: func(data []byte) bool {
+				return len(data) >= 12 && string(data[0:4]) == "RIFF" && string(data[8:12]) == "WEBP"
+			},
+		},
+		{
+			name: "JPEG for photos",
+			saveFunc: func(target *Target) error {
+				return img.JpegsaveTarget(target, &JpegsaveTargetOptions{Q: 80})
+			},
+			checkSig: func(data []byte) bool {
+				return len(data) >= 2 && data[0] == 0xFF && data[1] == 0xD8
+			},
+		},
+		{
+			name: "PNG for lossless",
+			saveFunc: func(target *Target) error {
+				return img.PngsaveTarget(target, &PngsaveTargetOptions{Compression: 6})
+			},
+			checkSig: func(data []byte) bool {
+				return len(data) >= 4 && data[0] == 0x89 && data[1] == 0x50 && data[2] == 0x4E && data[3] == 0x47
+			},
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			var buf bytes.Buffer
+			target := NewTarget(&writeCloser{&buf})
+			defer target.Close()
+
+			err := tc.saveFunc(target)
+			require.NoError(t, err, "Save should succeed for %s", tc.name)
+
+			data := buf.Bytes()
+			assert.True(t, tc.checkSig(data), "Should have correct format signature for %s", tc.name)
+			assert.Greater(t, len(data), 50, "Should produce substantial data for %s", tc.name)
+
+			t.Logf("%s: %d bytes", tc.name, len(data))
+		})
+	}
+}
+
+func TestTargetWithMultipleFormats(t *testing.T) {
+	// Test that Target can be used with different save operations
+	img, err := createWhiteImage(100, 100)
+	require.NoError(t, err)
+	defer img.Close()
+
+	// Test WebP save to target
+	var webpBuf bytes.Buffer
+	webpTarget := NewTarget(&writeCloser{&webpBuf})
+	defer webpTarget.Close()
+
+	err = img.WebpsaveTarget(webpTarget, nil)
+	require.NoError(t, err)
+	assert.Greater(t, webpBuf.Len(), 0, "WebP target save should work")
+
+	// Test JPEG save to target
+	var jpegBuf bytes.Buffer
+	jpegTarget := NewTarget(&writeCloser{&jpegBuf})
+	defer jpegTarget.Close()
+
+	err = img.JpegsaveTarget(jpegTarget, &JpegsaveTargetOptions{
+		Q:              80,
+		OptimizeCoding: true,
+	})
+	require.NoError(t, err)
+	assert.Greater(t, jpegBuf.Len(), 0, "JPEG target save should work")
+
+	// Test PNG save to target
+	var pngBuf bytes.Buffer
+	pngTarget := NewTarget(&writeCloser{&pngBuf})
+	defer pngTarget.Close()
+
+	err = img.PngsaveTarget(pngTarget, &PngsaveTargetOptions{
+		Compression: 6,
+		Filter:      PngFilterAll,
+	})
+	require.NoError(t, err)
+	assert.Greater(t, pngBuf.Len(), 0, "PNG target save should work")
+
+	// Verify different formats produce different signatures
+	webpData := webpBuf.Bytes()
+	jpegData := jpegBuf.Bytes()
+	pngData := pngBuf.Bytes()
+
+	assert.Equal(t, "RIFF", string(webpData[0:4]), "WebP should have RIFF signature")
+	assert.Equal(t, []byte{0xFF, 0xD8}, jpegData[0:2], "JPEG should have JPEG signature")
+	assert.Equal(t, []byte{0x89, 0x50, 0x4E, 0x47}, pngData[0:4], "PNG should have PNG signature")
+
+	t.Logf("Multi-format targets: WebP=%d bytes, JPEG=%d bytes, PNG=%d bytes",
+		len(webpData), len(jpegData), len(pngData))
+}
+
+func TestTargetWithFileOutput(t *testing.T) {
+	// Test target with actual file I/O
+	testDir := ensureTestDir(t)
+	testFile := filepath.Join(testDir, "target_output.webp")
+	defer os.Remove(testFile)
+
+	img, err := createWhiteImage(100, 100)
+	require.NoError(t, err)
+	defer img.Close()
+
+	// Create file target
+	file, err := os.Create(testFile)
+	require.NoError(t, err)
+
+	target := NewTarget(file) // file implements io.WriteCloser
+	defer target.Close()
+
+	// Save to file via target
+	err = img.WebpsaveTarget(target, nil)
+	require.NoError(t, err)
+
+	// Close target to ensure file is flushed
+	target.Close()
+
+	// Verify file exists and has content
+	fileInfo, err := os.Stat(testFile)
+	require.NoError(t, err)
+	assert.Greater(t, fileInfo.Size(), int64(100), "File should have content")
+
+	t.Logf("File target save: %d bytes", fileInfo.Size())
+}
+
+func TestTargetMemoryLeaks(t *testing.T) {
+	// Create and use multiple targets
+	for i := 0; i < 10; i++ {
+		img, err := createWhiteImage(50, 50)
+		require.NoError(t, err)
+
+		var buf bytes.Buffer
+		target := NewTarget(&writeCloser{&buf})
+
+		err = img.WebpsaveTarget(target, nil)
+		require.NoError(t, err)
+
+		// Proper cleanup
+		target.Close()
+		img.Close()
+
+		// Force GC
+		if i%3 == 0 {
+			runtime.GC()
+		}
+	}
+
+	// Final GC
+	runtime.GC()
+}
+
+func TestTargetOptionStructures(t *testing.T) {
+	// Test that generated *saveTargetOptions work correctly
+
+	// Test WebP options
+	webpOpts := DefaultWebpsaveTargetOptions()
+	assert.NotNil(t, webpOpts)
+	assert.IsType(t, &WebpsaveTargetOptions{}, webpOpts)
+
+	// Test JPEG options
+	jpegOpts := DefaultJpegsaveTargetOptions()
+	assert.NotNil(t, jpegOpts)
+	assert.IsType(t, &JpegsaveTargetOptions{}, jpegOpts)
+
+	// Test PNG options
+	pngOpts := DefaultPngsaveTargetOptions()
+	assert.NotNil(t, pngOpts)
+	assert.IsType(t, &PngsaveTargetOptions{}, pngOpts)
+
+	// Test with actual saves
+	img, err := createWhiteImage(50, 50)
+	require.NoError(t, err)
+	defer img.Close()
+
+	// Test each format with custom options
+	formats := []struct {
+		name     string
+		saveFunc func(*Target) error
+	}{
+		{
+			name: "WebP",
+			saveFunc: func(target *Target) error {
+				return img.WebpsaveTarget(target, &WebpsaveTargetOptions{Q: 80, Lossless: false})
+			},
+		},
+		{
+			name: "JPEG",
+			saveFunc: func(target *Target) error {
+				return img.JpegsaveTarget(target, &JpegsaveTargetOptions{Q: 85, OptimizeCoding: true})
+			},
+		},
+		{
+			name: "PNG",
+			saveFunc: func(target *Target) error {
+				return img.PngsaveTarget(target, &PngsaveTargetOptions{Compression: 6, Interlace: true})
+			},
+		},
+	}
+
+	for _, format := range formats {
+		t.Run(format.name, func(t *testing.T) {
+			var buf bytes.Buffer
+			target := NewTarget(&writeCloser{&buf})
+			defer target.Close()
+
+			err := format.saveFunc(target)
+			require.NoError(t, err, "%s custom options should work", format.name)
+			assert.Greater(t, buf.Len(), 0, "%s should produce data", format.name)
+		})
+	}
+}
+
+func TestTargetWithSourceRoundTrip(t *testing.T) {
+	// Test Target → Source round trip to verify output compatibility
+	img, err := createWhiteImage(100, 100)
+	require.NoError(t, err)
+	defer img.Close()
+
+	// Save to target
+	var webpBuf bytes.Buffer
+	target := NewTarget(&writeCloser{&webpBuf})
+	defer target.Close()
+
+	err = img.WebpsaveTarget(target, &WebpsaveTargetOptions{Lossless: true})
+	require.NoError(t, err)
+
+	// Load back via source
+	reader := bytes.NewReader(webpBuf.Bytes())
+	source := NewSource(io.NopCloser(reader))
+	defer source.Close()
+
+	loadedImg, err := NewImageFromSource(source, nil)
+	require.NoError(t, err)
+	defer loadedImg.Close()
+
+	// Verify basic properties are preserved
+	assert.Equal(t, img.Width(), loadedImg.Width(), "Width should be preserved")
+	assert.Equal(t, img.Height(), loadedImg.Height(), "Height should be preserved")
+
+	t.Logf("Round trip successful: %dx%d image, %d bytes WebP",
+		loadedImg.Width(), loadedImg.Height(), webpBuf.Len())
+}
