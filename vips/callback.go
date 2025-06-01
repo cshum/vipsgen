@@ -53,3 +53,24 @@ func goSourceSeek(
 	}
 	return -1
 }
+
+//export goTargetWrite
+func goTargetWrite(
+	ptr unsafe.Pointer, buffer unsafe.Pointer, size C.longlong,
+) C.longlong {
+	target, ok := pointer.Restore(ptr).(*Target)
+	if !ok {
+		return -1
+	}
+	sh := &reflect.SliceHeader{
+		Data: uintptr(buffer),
+		Len:  int(size),
+		Cap:  int(size),
+	}
+	buf := *(*[]byte)(unsafe.Pointer(sh))
+	n, err := target.writer.Write(buf)
+	if err != nil {
+		return -1
+	}
+	return C.longlong(n)
+}
