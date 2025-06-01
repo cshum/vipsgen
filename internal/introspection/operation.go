@@ -43,6 +43,7 @@ type Argument struct {
 	IsOutput     bool
 	IsOutputN    bool
 	IsSource     bool
+	IsTarget     bool
 	IsImage      bool
 	IsBuffer     bool
 	IsArray      bool
@@ -129,8 +130,7 @@ func (v *Introspection) DiscoverOperations() []Operation {
 			op.HasOneImageOutput = false
 		}
 
-		if strings.Contains(op.Name, "_target") ||
-			strings.Contains(op.Name, "_mime") ||
+		if strings.Contains(op.Name, "_mime") ||
 			strings.Contains(op.Name, "fitsload_source") {
 			log.Printf("Excluded operation: vips_%s \n", op.Name)
 			excludedCount++
@@ -202,6 +202,7 @@ func (v *Introspection) DiscoverOperationArguments(opName string) ([]Argument, e
 		isBuffer := int(arg.is_buffer) != 0
 		isArray := int(arg.is_array) != 0
 		isSource := cTypeCheck(arg.type_val, "VipsSource")
+		isTarget := cTypeCheck(arg.type_val, "VipsTarget")
 
 		// Create the Go argument structure
 		goArg := Argument{
@@ -215,6 +216,7 @@ func (v *Introspection) DiscoverOperationArguments(opName string) ([]Argument, e
 			IsBuffer:    isBuffer,
 			IsArray:     isArray,
 			IsSource:    isSource,
+			IsTarget:    isTarget,
 			Flags:       int(arg.flags),
 		}
 
@@ -491,6 +493,14 @@ func (v *Introspection) mapGTypeToTypes(gtype C.GType, typeName string, isOutput
 			return "VipsSourceCustom", "*C.VipsSourceCustom", "VipsSourceCustom**"
 		}
 		return "VipsSourceCustom", "*C.VipsSourceCustom", "VipsSourceCustom*"
+	}
+	// Special case for VipsTarget - map to VipsTargetCustom for proper compatibility
+	if cTypeCheck(gtype, "VipsTarget") {
+		// For VipsTarget, we want to use VipsTargetCustom in the bindings
+		if isOutput {
+			return "VipsTargetCustom", "*C.VipsTargetCustom", "VipsTargetCustom**"
+		}
+		return "VipsTargetCustom", "*C.VipsTargetCustom", "VipsTargetCustom*"
 	}
 	// Special case for VipsImage which has a different pointer pattern
 	if cTypeCheck(gtype, "VipsImage") {
