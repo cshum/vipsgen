@@ -4657,15 +4657,15 @@ func DefaultCsvsaveTargetOptions() *CsvsaveTargetOptions {
 // CsvsaveTarget vips_csvsave_target save image to csv
 //
 // The target specifies target to save to.
-func (r *Image) CsvsaveTarget(target *C.VipsTargetCustom, options *CsvsaveTargetOptions) (error) {
+func (r *Image) CsvsaveTarget(target *Target, options *CsvsaveTargetOptions) (error) {
 	if options != nil {
-		err := vipsgenCsvsaveTargetWithOptions(r.image, target, options.Separator, options.Keep, options.Background, options.PageHeight, options.Profile)
+		err := vipsgenCsvsaveTargetWithOptions(r.image, target.target, options.Separator, options.Keep, options.Background, options.PageHeight, options.Profile)
 		if err != nil {
 			return err
 		}
 		return nil
 	}
-	err := vipsgenCsvsaveTarget(r.image, target)
+	err := vipsgenCsvsaveTarget(r.image, target.target)
 	if err != nil {
 		return err
 	}
@@ -5106,15 +5106,15 @@ func DefaultDzsaveTargetOptions() *DzsaveTargetOptions {
 // DzsaveTarget vips_dzsave_target save image to deepzoom target
 //
 // The target specifies target to save to.
-func (r *Image) DzsaveTarget(target *C.VipsTargetCustom, options *DzsaveTargetOptions) (error) {
+func (r *Image) DzsaveTarget(target *Target, options *DzsaveTargetOptions) (error) {
 	if options != nil {
-		err := vipsgenDzsaveTargetWithOptions(r.image, target, options.Imagename, options.Layout, options.Suffix, options.Overlap, options.TileSize, options.Centre, options.Depth, options.Angle, options.Container, options.Compression, options.RegionShrink, options.SkipBlanks, options.Id, options.Q, options.Keep, options.Background, options.PageHeight, options.Profile)
+		err := vipsgenDzsaveTargetWithOptions(r.image, target.target, options.Imagename, options.Layout, options.Suffix, options.Overlap, options.TileSize, options.Centre, options.Depth, options.Angle, options.Container, options.Compression, options.RegionShrink, options.SkipBlanks, options.Id, options.Q, options.Keep, options.Background, options.PageHeight, options.Profile)
 		if err != nil {
 			return err
 		}
 		return nil
 	}
-	err := vipsgenDzsaveTarget(r.image, target)
+	err := vipsgenDzsaveTarget(r.image, target.target)
 	if err != nil {
 		return err
 	}
@@ -5634,15 +5634,15 @@ func DefaultGifsaveTargetOptions() *GifsaveTargetOptions {
 // GifsaveTarget vips_gifsave_target save as gif
 //
 // The target specifies target to save to.
-func (r *Image) GifsaveTarget(target *C.VipsTargetCustom, options *GifsaveTargetOptions) (error) {
+func (r *Image) GifsaveTarget(target *Target, options *GifsaveTargetOptions) (error) {
 	if options != nil {
-		err := vipsgenGifsaveTargetWithOptions(r.image, target, options.Dither, options.Effort, options.Bitdepth, options.InterframeMaxerror, options.Reuse, options.InterpaletteMaxerror, options.Interlace, options.Keep, options.Background, options.PageHeight, options.Profile)
+		err := vipsgenGifsaveTargetWithOptions(r.image, target.target, options.Dither, options.Effort, options.Bitdepth, options.InterframeMaxerror, options.Reuse, options.InterpaletteMaxerror, options.Interlace, options.Keep, options.Background, options.PageHeight, options.Profile)
 		if err != nil {
 			return err
 		}
 		return nil
 	}
-	err := vipsgenGifsaveTarget(r.image, target)
+	err := vipsgenGifsaveTarget(r.image, target.target)
 	if err != nil {
 		return err
 	}
@@ -5878,15 +5878,15 @@ func DefaultHeifsaveTargetOptions() *HeifsaveTargetOptions {
 // HeifsaveTarget vips_heifsave_target save image in HEIF format
 //
 // The target specifies target to save to.
-func (r *Image) HeifsaveTarget(target *C.VipsTargetCustom, options *HeifsaveTargetOptions) (error) {
+func (r *Image) HeifsaveTarget(target *Target, options *HeifsaveTargetOptions) (error) {
 	if options != nil {
-		err := vipsgenHeifsaveTargetWithOptions(r.image, target, options.Q, options.Bitdepth, options.Lossless, options.Compression, options.Effort, options.SubsampleMode, options.Encoder, options.Keep, options.Background, options.PageHeight, options.Profile)
+		err := vipsgenHeifsaveTargetWithOptions(r.image, target.target, options.Q, options.Bitdepth, options.Lossless, options.Compression, options.Effort, options.SubsampleMode, options.Encoder, options.Keep, options.Background, options.PageHeight, options.Profile)
 		if err != nil {
 			return err
 		}
 		return nil
 	}
-	err := vipsgenHeifsaveTarget(r.image, target)
+	err := vipsgenHeifsaveTarget(r.image, target.target)
 	if err != nil {
 		return err
 	}
@@ -6625,15 +6625,15 @@ func DefaultJp2ksaveTargetOptions() *Jp2ksaveTargetOptions {
 // Jp2ksaveTarget vips_jp2ksave_target save image in JPEG2000 format
 //
 // The target specifies target to save to.
-func (r *Image) Jp2ksaveTarget(target *C.VipsTargetCustom, options *Jp2ksaveTargetOptions) (error) {
+func (r *Image) Jp2ksaveTarget(target *Target, options *Jp2ksaveTargetOptions) (error) {
 	if options != nil {
-		err := vipsgenJp2ksaveTargetWithOptions(r.image, target, options.TileWidth, options.TileHeight, options.Lossless, options.Q, options.SubsampleMode, options.Keep, options.Background, options.PageHeight, options.Profile)
+		err := vipsgenJp2ksaveTargetWithOptions(r.image, target.target, options.TileWidth, options.TileHeight, options.Lossless, options.Q, options.SubsampleMode, options.Keep, options.Background, options.PageHeight, options.Profile)
 		if err != nil {
 			return err
 		}
 		return nil
 	}
-	err := vipsgenJp2ksaveTarget(r.image, target)
+	err := vipsgenJp2ksaveTarget(r.image, target.target)
 	if err != nil {
 		return err
 	}
@@ -6788,15 +6788,15 @@ func DefaultJpegsaveTargetOptions() *JpegsaveTargetOptions {
 // JpegsaveTarget vips_jpegsave_target save image to jpeg target
 //
 // The target specifies target to save to.
-func (r *Image) JpegsaveTarget(target *C.VipsTargetCustom, options *JpegsaveTargetOptions) (error) {
+func (r *Image) JpegsaveTarget(target *Target, options *JpegsaveTargetOptions) (error) {
 	if options != nil {
-		err := vipsgenJpegsaveTargetWithOptions(r.image, target, options.Q, options.OptimizeCoding, options.Interlace, options.TrellisQuant, options.OvershootDeringing, options.OptimizeScans, options.QuantTable, options.SubsampleMode, options.RestartInterval, options.Keep, options.Background, options.PageHeight, options.Profile)
+		err := vipsgenJpegsaveTargetWithOptions(r.image, target.target, options.Q, options.OptimizeCoding, options.Interlace, options.TrellisQuant, options.OvershootDeringing, options.OptimizeScans, options.QuantTable, options.SubsampleMode, options.RestartInterval, options.Keep, options.Background, options.PageHeight, options.Profile)
 		if err != nil {
 			return err
 		}
 		return nil
 	}
-	err := vipsgenJpegsaveTarget(r.image, target)
+	err := vipsgenJpegsaveTarget(r.image, target.target)
 	if err != nil {
 		return err
 	}
@@ -6933,15 +6933,15 @@ func DefaultJxlsaveTargetOptions() *JxlsaveTargetOptions {
 // JxlsaveTarget vips_jxlsave_target save image in JPEG-XL format
 //
 // The target specifies target to save to.
-func (r *Image) JxlsaveTarget(target *C.VipsTargetCustom, options *JxlsaveTargetOptions) (error) {
+func (r *Image) JxlsaveTarget(target *Target, options *JxlsaveTargetOptions) (error) {
 	if options != nil {
-		err := vipsgenJxlsaveTargetWithOptions(r.image, target, options.Tier, options.Distance, options.Effort, options.Lossless, options.Q, options.Keep, options.Background, options.PageHeight, options.Profile)
+		err := vipsgenJxlsaveTargetWithOptions(r.image, target.target, options.Tier, options.Distance, options.Effort, options.Lossless, options.Q, options.Keep, options.Background, options.PageHeight, options.Profile)
 		if err != nil {
 			return err
 		}
 		return nil
 	}
-	err := vipsgenJxlsaveTarget(r.image, target)
+	err := vipsgenJxlsaveTarget(r.image, target.target)
 	if err != nil {
 		return err
 	}
@@ -7382,15 +7382,15 @@ func DefaultMatrixsaveTargetOptions() *MatrixsaveTargetOptions {
 // MatrixsaveTarget vips_matrixsave_target save image to matrix
 //
 // The target specifies target to save to.
-func (r *Image) MatrixsaveTarget(target *C.VipsTargetCustom, options *MatrixsaveTargetOptions) (error) {
+func (r *Image) MatrixsaveTarget(target *Target, options *MatrixsaveTargetOptions) (error) {
 	if options != nil {
-		err := vipsgenMatrixsaveTargetWithOptions(r.image, target, options.Keep, options.Background, options.PageHeight, options.Profile)
+		err := vipsgenMatrixsaveTargetWithOptions(r.image, target.target, options.Keep, options.Background, options.PageHeight, options.Profile)
 		if err != nil {
 			return err
 		}
 		return nil
 	}
-	err := vipsgenMatrixsaveTarget(r.image, target)
+	err := vipsgenMatrixsaveTarget(r.image, target.target)
 	if err != nil {
 		return err
 	}
@@ -7928,15 +7928,15 @@ func DefaultPngsaveTargetOptions() *PngsaveTargetOptions {
 // PngsaveTarget vips_pngsave_target save image to target as PNG
 //
 // The target specifies target to save to.
-func (r *Image) PngsaveTarget(target *C.VipsTargetCustom, options *PngsaveTargetOptions) (error) {
+func (r *Image) PngsaveTarget(target *Target, options *PngsaveTargetOptions) (error) {
 	if options != nil {
-		err := vipsgenPngsaveTargetWithOptions(r.image, target, options.Compression, options.Interlace, options.Filter, options.Palette, options.Q, options.Dither, options.Bitdepth, options.Effort, options.Keep, options.Background, options.PageHeight, options.Profile)
+		err := vipsgenPngsaveTargetWithOptions(r.image, target.target, options.Compression, options.Interlace, options.Filter, options.Palette, options.Q, options.Dither, options.Bitdepth, options.Effort, options.Keep, options.Background, options.PageHeight, options.Profile)
 		if err != nil {
 			return err
 		}
 		return nil
 	}
-	err := vipsgenPngsaveTarget(r.image, target)
+	err := vipsgenPngsaveTarget(r.image, target.target)
 	if err != nil {
 		return err
 	}
@@ -8014,15 +8014,15 @@ func DefaultPpmsaveTargetOptions() *PpmsaveTargetOptions {
 // PpmsaveTarget vips_ppmsave_target save to ppm
 //
 // The target specifies target to save to.
-func (r *Image) PpmsaveTarget(target *C.VipsTargetCustom, options *PpmsaveTargetOptions) (error) {
+func (r *Image) PpmsaveTarget(target *Target, options *PpmsaveTargetOptions) (error) {
 	if options != nil {
-		err := vipsgenPpmsaveTargetWithOptions(r.image, target, options.Format, options.Ascii, options.Bitdepth, options.Keep, options.Background, options.PageHeight, options.Profile)
+		err := vipsgenPpmsaveTargetWithOptions(r.image, target.target, options.Format, options.Ascii, options.Bitdepth, options.Keep, options.Background, options.PageHeight, options.Profile)
 		if err != nil {
 			return err
 		}
 		return nil
 	}
-	err := vipsgenPpmsaveTarget(r.image, target)
+	err := vipsgenPpmsaveTarget(r.image, target.target)
 	if err != nil {
 		return err
 	}
@@ -8229,15 +8229,15 @@ func DefaultRadsaveTargetOptions() *RadsaveTargetOptions {
 // RadsaveTarget vips_radsave_target save image to Radiance target
 //
 // The target specifies target to save to.
-func (r *Image) RadsaveTarget(target *C.VipsTargetCustom, options *RadsaveTargetOptions) (error) {
+func (r *Image) RadsaveTarget(target *Target, options *RadsaveTargetOptions) (error) {
 	if options != nil {
-		err := vipsgenRadsaveTargetWithOptions(r.image, target, options.Keep, options.Background, options.PageHeight, options.Profile)
+		err := vipsgenRadsaveTargetWithOptions(r.image, target.target, options.Keep, options.Background, options.PageHeight, options.Profile)
 		if err != nil {
 			return err
 		}
 		return nil
 	}
-	err := vipsgenRadsaveTarget(r.image, target)
+	err := vipsgenRadsaveTarget(r.image, target.target)
 	if err != nil {
 		return err
 	}
@@ -8350,15 +8350,15 @@ func DefaultRawsaveTargetOptions() *RawsaveTargetOptions {
 // RawsaveTarget vips_rawsave_target write raw image to target
 //
 // The target specifies target to save to.
-func (r *Image) RawsaveTarget(target *C.VipsTargetCustom, options *RawsaveTargetOptions) (error) {
+func (r *Image) RawsaveTarget(target *Target, options *RawsaveTargetOptions) (error) {
 	if options != nil {
-		err := vipsgenRawsaveTargetWithOptions(r.image, target, options.Keep, options.Background, options.PageHeight, options.Profile)
+		err := vipsgenRawsaveTargetWithOptions(r.image, target.target, options.Keep, options.Background, options.PageHeight, options.Profile)
 		if err != nil {
 			return err
 		}
 		return nil
 	}
-	err := vipsgenRawsaveTarget(r.image, target)
+	err := vipsgenRawsaveTarget(r.image, target.target)
 	if err != nil {
 		return err
 	}
@@ -9513,15 +9513,15 @@ func DefaultTiffsaveTargetOptions() *TiffsaveTargetOptions {
 // TiffsaveTarget vips_tiffsave_target save image to tiff target
 //
 // The target specifies target to save to.
-func (r *Image) TiffsaveTarget(target *C.VipsTargetCustom, options *TiffsaveTargetOptions) (error) {
+func (r *Image) TiffsaveTarget(target *Target, options *TiffsaveTargetOptions) (error) {
 	if options != nil {
-		err := vipsgenTiffsaveTargetWithOptions(r.image, target, options.Compression, options.Q, options.Predictor, options.Tile, options.TileWidth, options.TileHeight, options.Pyramid, options.Miniswhite, options.Bitdepth, options.Resunit, options.Xres, options.Yres, options.Bigtiff, options.Properties, options.RegionShrink, options.Level, options.Lossless, options.Depth, options.Subifd, options.Premultiply, options.Keep, options.Background, options.PageHeight, options.Profile)
+		err := vipsgenTiffsaveTargetWithOptions(r.image, target.target, options.Compression, options.Q, options.Predictor, options.Tile, options.TileWidth, options.TileHeight, options.Pyramid, options.Miniswhite, options.Bitdepth, options.Resunit, options.Xres, options.Yres, options.Bigtiff, options.Properties, options.RegionShrink, options.Level, options.Lossless, options.Depth, options.Subifd, options.Premultiply, options.Keep, options.Background, options.PageHeight, options.Profile)
 		if err != nil {
 			return err
 		}
 		return nil
 	}
-	err := vipsgenTiffsaveTarget(r.image, target)
+	err := vipsgenTiffsaveTarget(r.image, target.target)
 	if err != nil {
 		return err
 	}
@@ -9692,15 +9692,15 @@ func DefaultVipssaveTargetOptions() *VipssaveTargetOptions {
 // VipssaveTarget vips_vipssave_target save image to target in vips format
 //
 // The target specifies target to save to.
-func (r *Image) VipssaveTarget(target *C.VipsTargetCustom, options *VipssaveTargetOptions) (error) {
+func (r *Image) VipssaveTarget(target *Target, options *VipssaveTargetOptions) (error) {
 	if options != nil {
-		err := vipsgenVipssaveTargetWithOptions(r.image, target, options.Keep, options.Background, options.PageHeight, options.Profile)
+		err := vipsgenVipssaveTargetWithOptions(r.image, target.target, options.Keep, options.Background, options.PageHeight, options.Profile)
 		if err != nil {
 			return err
 		}
 		return nil
 	}
-	err := vipsgenVipssaveTarget(r.image, target)
+	err := vipsgenVipssaveTarget(r.image, target.target)
 	if err != nil {
 		return err
 	}
@@ -9900,15 +9900,15 @@ func DefaultWebpsaveTargetOptions() *WebpsaveTargetOptions {
 // WebpsaveTarget vips_webpsave_target save as WebP
 //
 // The target specifies target to save to.
-func (r *Image) WebpsaveTarget(target *C.VipsTargetCustom, options *WebpsaveTargetOptions) (error) {
+func (r *Image) WebpsaveTarget(target *Target, options *WebpsaveTargetOptions) (error) {
 	if options != nil {
-		err := vipsgenWebpsaveTargetWithOptions(r.image, target, options.Q, options.Lossless, options.Preset, options.SmartSubsample, options.NearLossless, options.AlphaQ, options.MinSize, options.Kmin, options.Kmax, options.Effort, options.TargetSize, options.Mixed, options.SmartDeblock, options.Passes, options.Keep, options.Background, options.PageHeight, options.Profile)
+		err := vipsgenWebpsaveTargetWithOptions(r.image, target.target, options.Q, options.Lossless, options.Preset, options.SmartSubsample, options.NearLossless, options.AlphaQ, options.MinSize, options.Kmin, options.Kmax, options.Effort, options.TargetSize, options.Mixed, options.SmartDeblock, options.Passes, options.Keep, options.Background, options.PageHeight, options.Profile)
 		if err != nil {
 			return err
 		}
 		return nil
 	}
-	err := vipsgenWebpsaveTarget(r.image, target)
+	err := vipsgenWebpsaveTarget(r.image, target.target)
 	if err != nil {
 		return err
 	}
