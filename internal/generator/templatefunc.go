@@ -565,6 +565,8 @@ func generateImageMethodBody(op introspection.Operation) string {
 	for _, arg := range methodArgs {
 		if arg.GoType == "*C.VipsImage" {
 			callArgs = append(callArgs, fmt.Sprintf("%s.image", arg.GoName))
+		} else if arg.IsTarget {
+			callArgs = append(callArgs, fmt.Sprintf("%s.target", arg.GoName))
 		} else if arg.GoType == "[]*C.VipsImage" {
 			callArgs = append(callArgs, fmt.Sprintf("convertImagesToVipsImages(%s)", arg.GoName))
 		} else {
@@ -1089,6 +1091,8 @@ func generateImageMethodParams(op introspection.Operation) string {
 			paramType = "[]*Image"
 		} else if arg.CType == "void*" {
 			paramType = "[]byte"
+		} else if arg.IsTarget {
+			paramType = "*Target"
 		} else {
 			paramType = arg.GoType
 		}
@@ -1151,8 +1155,6 @@ func generateMethodParams(op introspection.Operation) string {
 			paramType = "[]*Image"
 		} else if arg.IsSource {
 			paramType = "*Source"
-		} else if arg.IsTarget {
-			paramType = "*Target"
 		} else if arg.CType == "void*" && arg.Name == "buf" {
 			paramType = "[]byte"
 			hasBufParam = true
@@ -1188,8 +1190,6 @@ func generateCreatorMethodBody(op introspection.Operation) string {
 			callArgs = append(callArgs, fmt.Sprintf("convertImagesToVipsImages(%s)", arg.GoName))
 		} else if arg.IsSource {
 			callArgs = append(callArgs, fmt.Sprintf("%s.src", arg.GoName))
-		} else if arg.IsTarget {
-			callArgs = append(callArgs, fmt.Sprintf("%s.target", arg.GoName))
 		} else if arg.Name == "len" && arg.CType == "size_t" && hasBufParam {
 			continue
 		} else {
