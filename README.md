@@ -4,7 +4,7 @@
 [![Go Reference](https://pkg.go.dev/badge/github.com/cshum/vipsgen/vips.svg)](https://pkg.go.dev/github.com/cshum/vipsgen/vips)
 [![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/cshum/vipsgen)](https://github.com/cshum/vipsgen/releases)
 
-vipsgen is a Go binding generator for [libvips](https://www.libvips.org/) - a fast and efficient image processing library.
+vipsgen is a Go binding generator for [libvips](https://github.com/libvips/libvips) - a fast and efficient image processing library.
 
 Existing Go libvips bindings rely on manually written code that is often incomplete, error-prone, and difficult to maintain as libvips evolves.
 vipsgen solves this by generating type-safe, robust, and fully documented Go bindings using GObject introspection.
