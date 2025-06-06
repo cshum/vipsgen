@@ -79,7 +79,6 @@ jobs:
           --strip \
           --prefix=/usr/local \
           --libdir=lib \
-          -Dgtk_doc=false \
           -Dmagick=enabled \
           -Dopenslide=enabled \
           -Dintrospection=enabled \
