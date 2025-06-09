@@ -4,7 +4,8 @@
 [![CI](https://github.com/cshum/vipsgen/actions/workflows/ci.yml/badge.svg)](https://github.com/cshum/vipsgen/actions/workflows/ci.yml)
 
 vipsgen is a Go binding generator for [libvips](https://github.com/libvips/libvips) - a fast and efficient image processing library.
-It is generally 4-8x [faster](https://github.com/libvips/libvips/wiki/Speed-and-memory-use) than ImageMagick with low memory usage, thanks to its [demand-driven, horizontally threaded](https://github.com/libvips/libvips/wiki/Why-is-libvips-quick) architecture.
+
+libvips is generally 4-8x [faster](https://github.com/libvips/libvips/wiki/Speed-and-memory-use) than ImageMagick with low memory usage, thanks to its [demand-driven, horizontally threaded](https://github.com/libvips/libvips/wiki/Why-is-libvips-quick) architecture.
 
 Existing Go libvips bindings rely on manually written code that is often incomplete, error-prone, and difficult to maintain as libvips evolves.
 vipsgen solves this by generating type-safe, robust, and fully documented Go bindings using GObject introspection.
@@ -12,7 +13,7 @@ vipsgen solves this by generating type-safe, robust, and fully documented Go bin
 You can use vipsgen in two ways:
 
 - **Import directly**: Use the pre-generated library `github.com/cshum/vipsgen/vips` for the default installation of libvips 8.17
-- **Generate custom bindings**: Run the vipsgen command to create bindings tailored to your specific libvips version and installation
+- **Generate custom bindings**: Run the vipsgen command to create bindings for your specific libvips version and installation
 
 ### Features
 
