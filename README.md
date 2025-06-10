@@ -41,7 +41,9 @@ Use the package directly:
 go get -u github.com/cshum/vipsgen/vips
 ```
 
-All operations support optional configuration where applicable. Pass nil to use default settings, or provide an options struct for customization. These bindings maintain direct argument equivalence with the [libvips API](https://www.libvips.org/API/current/). See [examples](https://github.com/cshum/vipsgen/tree/main/examples) for common usage patterns.
+All operations support parameters and optional arguments through structs, maintaining direct equivalence with the [libvips API](https://www.libvips.org/API/current/). 
+Pass `nil` to use default behavior for optional arguments. 
+See [examples](https://github.com/cshum/vipsgen/tree/main/examples) for common usage patterns.
 
 
 ```go
