@@ -250,6 +250,10 @@ func TestBasicBlackImage(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, width/2, img.Width())
 	assert.Equal(t, height/2, img.Height())
+	err = img.Resize(0.5, DefaultResizeOptions())
+	require.NoError(t, err)
+	assert.Equal(t, width/4, img.Width())
+	assert.Equal(t, height/4, img.Height())
 }
 
 func TestBasicWhiteImage(t *testing.T) {
