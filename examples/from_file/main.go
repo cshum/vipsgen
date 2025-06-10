@@ -44,7 +44,8 @@ func main() {
 		log.Fatalf("Failed to load image: %v", err)
 	}
 	defer image.Close()
-	// Crop image with multi-page a.k.a animation support
+	log.Printf("Loaded image: %s %dx%d\n", image.Format(), image.Width(), image.Height())
+	// crop with animation support
 	if err = image.ExtractAreaMultiPage(30, 40, 50, 70); err != nil {
 		log.Fatalf("Failed to crop image: %v", err)
 	}
@@ -52,8 +53,10 @@ func main() {
 	if err = image.Flatten(&vips.FlattenOptions{Background: []float64{0, 255, 255}}); err != nil {
 		log.Fatalf("Failed to flatten image: %v", err)
 	}
+	log.Printf("Processed image: %dx%d\n", image.Width(), image.Height())
 	err = image.Gifsave("dancing-banana-cropped.gif", nil)
 	if err != nil {
 		log.Fatalf("Failed to save image: %v", err)
 	}
+	log.Println("Successfully saved processed images")
 }

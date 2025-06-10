@@ -30,6 +30,8 @@ func main() {
 	}
 	defer image.Close() // always close images to free memory
 
+	log.Printf("Loaded image: %s %dx%d\n", image.Format(), image.Width(), image.Height())
+
 	// Add a yellow border using vips_embed
 	border := 10
 	if err := image.Embed(
