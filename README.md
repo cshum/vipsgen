@@ -41,7 +41,8 @@ Use the package directly:
 go get -u github.com/cshum/vipsgen/vips
 ```
 
-vipsgen provides rich options for fine-tuning image operations. Each operation can accept a nil value for default options, or customize optional arguments with specific option structs:
+All operations support optional configuration where applicable. Pass nil to use default settings, or provide an options struct for customization. These bindings maintain direct argument equivalence with the [libvips API](https://www.libvips.org/API/current/). See [examples](https://github.com/cshum/vipsgen/tree/main/examples) for common usage patterns.
+
 
 ```go
 package main
