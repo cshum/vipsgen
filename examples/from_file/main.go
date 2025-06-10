@@ -9,6 +9,7 @@ import (
 	"os"
 )
 
+// downloadFile helper function to download file from url
 func downloadFile(url string, filepath string) error {
 	out, err := os.Create(filepath)
 	if err != nil {
@@ -35,19 +36,24 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to fetch image: %v", err)
 	}
-	image, err := vips.NewImageFromFile("dancing-banana.gif", &vips.LoadOptions{N: -1})
+	// Create vips Image from file
+	image, err := vips.NewImageFromFile("dancing-banana.gif", &vips.LoadOptions{
+		N: -1, // enable animations for gif
+	})
 	if err != nil {
-		panic(err)
+		log.Fatalf("Failed to load image: %v", err)
 	}
 	defer image.Close()
+	// Crop image with multi-page a.k.a animation support
 	if err = image.ExtractAreaMultiPage(30, 40, 50, 70); err != nil {
-		panic(err)
+		log.Fatalf("Failed to crop image: %v", err)
 	}
+	// Flatten image with cyan background
 	if err = image.Flatten(&vips.FlattenOptions{Background: []float64{0, 255, 255}}); err != nil {
-		panic(err)
+		log.Fatalf("Failed to flatten image: %v", err)
 	}
 	err = image.Gifsave("dancing-banana-cropped.gif", nil)
 	if err != nil {
-		panic(err)
+		log.Fatalf("Failed to save image: %v", err)
 	}
 }
