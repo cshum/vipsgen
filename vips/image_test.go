@@ -3728,3 +3728,66 @@ func TestTargetWithSourceRoundTrip(t *testing.T) {
 	t.Logf("Round trip successful: %dx%d image, %d bytes WebP",
 		loadedImg.Width(), loadedImg.Height(), webpBuf.Len())
 }
+
+func TestNewThumbnailBuffer_Options(t *testing.T) {
+	// Create a test image
+	width, height := 400, 300
+	pngData := createTestPngBuffer(t, width, height)
+
+	testCases := []struct {
+		name     string
+		options  *ThumbnailBufferOptions
+		validate func(*testing.T, *Image)
+	}{
+		{
+			name:    "nil options",
+			options: nil,
+			validate: func(t *testing.T, img *Image) {
+				assert.Equal(t, 200, img.Width())
+				assert.Equal(t, 150, img.Height())
+			},
+		},
+		{
+			name: "with specific height",
+			options: &ThumbnailBufferOptions{
+				Height: 100,
+			},
+			validate: func(t *testing.T, img *Image) {
+				assert.InDelta(t, 133, img.Width(), 2)
+				assert.Equal(t, 100, img.Height())
+			},
+		},
+		{
+			name: "with size constraint",
+			options: &ThumbnailBufferOptions{
+				Size: SizeBoth,
+			},
+			validate: func(t *testing.T, img *Image) {
+				// Both dimensions should be <= 200
+				assert.LessOrEqual(t, img.Width(), 200)
+				assert.LessOrEqual(t, img.Height(), 200)
+			},
+		},
+		{
+			name: "with fail on error",
+			options: &ThumbnailBufferOptions{
+				FailOn: FailOnError,
+			},
+			validate: func(t *testing.T, img *Image) {
+				assert.Equal(t, 200, img.Width())
+				assert.InDelta(t, 150, img.Height(), 2)
+			},
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			thumbnail, err := NewThumbnailBuffer(pngData, 200, tc.options)
+			require.NoError(t, err)
+			defer thumbnail.Close()
+
+			tc.validate(t, thumbnail)
+			t.Logf("Thumbnail with %s: %dx%d", tc.name, thumbnail.Width(), thumbnail.Height())
+		})
+	}
+}
