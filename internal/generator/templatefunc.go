@@ -2,9 +2,10 @@ package generator
 
 import (
 	"fmt"
-	"github.com/cshum/vipsgen/internal/introspection"
 	"strings"
 	"text/template"
+
+	"github.com/cshum/vipsgen/internal/introspection"
 )
 
 // GetTemplateFuncMap Helper functions for templates
@@ -1412,7 +1413,7 @@ func generateCFunctionImplementation(op introspection.Operation) string {
 		result.WriteString("    if (!operation) return 1;\n")
 
 		// Detect if this is a buffer operation that needs special handling
-		isBufferLoadOperation := strings.Contains(op.Name, "load_buffer")
+		isBufferLoadOperation := strings.Contains(op.Name, "load_buffer") || op.Name == "thumbnail_buffer"
 		isBufferSaveOperation := strings.Contains(op.Name, "save_buffer")
 
 		// Special handling for buffer load operations - create a VipsBlob

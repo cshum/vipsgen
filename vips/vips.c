@@ -5071,9 +5071,10 @@ int vipsgen_thumbnail_buffer(void* buf, size_t len, VipsImage** out, int width) 
 int vipsgen_thumbnail_buffer_with_options(void* buf, size_t len, VipsImage** out, int width, const char* option_string, int height, VipsSize size, gboolean no_rotate, VipsInteresting crop, gboolean linear, const char* input_profile, const char* output_profile, VipsIntent intent, VipsFailOn fail_on) {
     VipsOperation *operation = vips_operation_new("thumbnail_buffer");
     if (!operation) return 1;
+    VipsBlob *blob = vips_blob_new(NULL, buf, len);
+    if (!blob) { g_object_unref(operation); return 1; }
     if (
-        vips_object_set(VIPS_OBJECT(operation), "buf", buf, NULL) ||
-        vips_object_set(VIPS_OBJECT(operation), "len", len, NULL) ||
+        vips_object_set(VIPS_OBJECT(operation), "buffer", blob, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "width", width, NULL) ||
         vipsgen_set_string(operation, "option_string", option_string) ||
         vipsgen_set_int(operation, "height", height) ||
@@ -5086,9 +5087,11 @@ int vipsgen_thumbnail_buffer_with_options(void* buf, size_t len, VipsImage** out
         vipsgen_set_int(operation, "intent", intent) ||
         vipsgen_set_int(operation, "fail_on", fail_on)
     ) {
+        vips_area_unref((VipsArea *)blob);
         g_object_unref(operation);
         return 1;
     }
+    vips_area_unref((VipsArea *)blob);
     int result = vipsgen_operation_execute(operation, "out", out, NULL);
     return result;
 }
