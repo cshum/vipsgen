@@ -3729,65 +3729,156 @@ func TestTargetWithSourceRoundTrip(t *testing.T) {
 		loadedImg.Width(), loadedImg.Height(), webpBuf.Len())
 }
 
-func TestNewThumbnailBuffer_Options(t *testing.T) {
+func TestNewThumbnail_Options(t *testing.T) {
 	// Create a test image
 	width, height := 400, 300
 	pngData := createTestPngBuffer(t, width, height)
 
+	// Create test file for file-based thumbnail
+	testDir := ensureTestDir(t)
+	testFile := filepath.Join(testDir, "test_thumb.png")
+	err := os.WriteFile(testFile, pngData, 0644)
+	require.NoError(t, err)
+	defer os.Remove(testFile)
+
 	testCases := []struct {
-		name     string
-		options  *ThumbnailBufferOptions
-		validate func(*testing.T, *Image)
+		name          string
+		bufferOptions *ThumbnailBufferOptions
+		fileOptions   *ThumbnailOptions
+		sourceOptions *ThumbnailSourceOptions
+		validate      func(*testing.T, *Image, string)
 	}{
 		{
-			name:    "nil options",
-			options: nil,
-			validate: func(t *testing.T, img *Image) {
-				assert.Equal(t, 200, img.Width())
-				assert.Equal(t, 150, img.Height())
+			name:          "nil options",
+			bufferOptions: nil,
+			fileOptions:   nil,
+			sourceOptions: nil,
+			validate: func(t *testing.T, img *Image, method string) {
+				assert.Equal(t, 200, img.Width(), "%s: width should be 200", method)
+				assert.Equal(t, 150, img.Height(), "%s: height should be 150", method)
 			},
 		},
 		{
 			name: "with specific height",
-			options: &ThumbnailBufferOptions{
+			bufferOptions: &ThumbnailBufferOptions{
 				Height: 100,
 			},
-			validate: func(t *testing.T, img *Image) {
-				assert.InDelta(t, 133, img.Width(), 2)
-				assert.Equal(t, 100, img.Height())
+			fileOptions: &ThumbnailOptions{
+				Height: 100,
+			},
+			sourceOptions: &ThumbnailSourceOptions{
+				Height: 100,
+			},
+			validate: func(t *testing.T, img *Image, method string) {
+				assert.InDelta(t, 133, img.Width(), 2, "%s: width should be ~133", method)
+				assert.Equal(t, 100, img.Height(), "%s: height should be 100", method)
 			},
 		},
 		{
 			name: "with size constraint",
-			options: &ThumbnailBufferOptions{
+			bufferOptions: &ThumbnailBufferOptions{
 				Size: SizeBoth,
 			},
-			validate: func(t *testing.T, img *Image) {
+			fileOptions: &ThumbnailOptions{
+				Size: SizeBoth,
+			},
+			sourceOptions: &ThumbnailSourceOptions{
+				Size: SizeBoth,
+			},
+			validate: func(t *testing.T, img *Image, method string) {
 				// Both dimensions should be <= 200
-				assert.LessOrEqual(t, img.Width(), 200)
-				assert.LessOrEqual(t, img.Height(), 200)
+				assert.LessOrEqual(t, img.Width(), 200, "%s: width should be <= 200", method)
+				assert.LessOrEqual(t, img.Height(), 200, "%s: height should be <= 200", method)
 			},
 		},
 		{
 			name: "with fail on error",
-			options: &ThumbnailBufferOptions{
+			bufferOptions: &ThumbnailBufferOptions{
 				FailOn: FailOnError,
 			},
-			validate: func(t *testing.T, img *Image) {
-				assert.Equal(t, 200, img.Width())
-				assert.InDelta(t, 150, img.Height(), 2)
+			fileOptions: &ThumbnailOptions{
+				FailOn: FailOnError,
+			},
+			sourceOptions: &ThumbnailSourceOptions{
+				FailOn: FailOnError,
+			},
+			validate: func(t *testing.T, img *Image, method string) {
+				assert.Equal(t, 200, img.Width(), "%s: width should be 200", method)
+				assert.InDelta(t, 150, img.Height(), 2, "%s: height should be ~150", method)
+			},
+		},
+		{
+			name: "with linear interpolation",
+			bufferOptions: &ThumbnailBufferOptions{
+				Linear: true,
+			},
+			fileOptions: &ThumbnailOptions{
+				Linear: true,
+			},
+			sourceOptions: &ThumbnailSourceOptions{
+				Linear: true,
+			},
+			validate: func(t *testing.T, img *Image, method string) {
+				assert.Equal(t, 200, img.Width(), "%s: width should be 200", method)
+				assert.InDelta(t, 150, img.Height(), 2, "%s: height should be ~150", method)
+			},
+		},
+		{
+			name: "with crop center",
+			bufferOptions: &ThumbnailBufferOptions{
+				Height: 200,
+				Crop:   InterestingCentre,
+			},
+			fileOptions: &ThumbnailOptions{
+				Height: 200,
+				Crop:   InterestingCentre,
+			},
+			sourceOptions: &ThumbnailSourceOptions{
+				Height: 200,
+				Crop:   InterestingCentre,
+			},
+			validate: func(t *testing.T, img *Image, method string) {
+				assert.Equal(t, 200, img.Width(), "%s: width should be 200", method)
+				assert.Equal(t, 200, img.Height(), "%s: height should be 200 (cropped)", method)
 			},
 		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			thumbnail, err := NewThumbnailBuffer(pngData, 200, tc.options)
-			require.NoError(t, err)
-			defer thumbnail.Close()
+			// Test 1: NewThumbnailBuffer
+			t.Run("buffer", func(t *testing.T) {
+				thumbnail, err := NewThumbnailBuffer(pngData, 200, tc.bufferOptions)
+				require.NoError(t, err)
+				defer thumbnail.Close()
 
-			tc.validate(t, thumbnail)
-			t.Logf("Thumbnail with %s: %dx%d", tc.name, thumbnail.Width(), thumbnail.Height())
+				tc.validate(t, thumbnail, "buffer")
+				t.Logf("Buffer thumbnail with %s: %dx%d", tc.name, thumbnail.Width(), thumbnail.Height())
+			})
+
+			// Test 2: NewThumbnail (file)
+			t.Run("file", func(t *testing.T) {
+				thumbnail, err := NewThumbnail(testFile, 200, tc.fileOptions)
+				require.NoError(t, err)
+				defer thumbnail.Close()
+
+				tc.validate(t, thumbnail, "file")
+				t.Logf("File thumbnail with %s: %dx%d", tc.name, thumbnail.Width(), thumbnail.Height())
+			})
+
+			// Test 3: NewThumbnailSource
+			t.Run("source", func(t *testing.T) {
+				reader := bytes.NewReader(pngData)
+				source := NewSource(io.NopCloser(reader))
+				defer source.Close()
+
+				thumbnail, err := NewThumbnailSource(source, 200, tc.sourceOptions)
+				require.NoError(t, err)
+				defer thumbnail.Close()
+
+				tc.validate(t, thumbnail, "source")
+				t.Logf("Source thumbnail with %s: %dx%d", tc.name, thumbnail.Width(), thumbnail.Height())
+			})
 		})
 	}
 }
