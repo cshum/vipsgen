@@ -6008,6 +6008,18 @@ func vipsImageRemoveField(in *C.VipsImage, name string) {
 	C.vips_image_remove(in, cName)
 }
 
+func vipsImageSetArrayInt(in *C.VipsImage, name string, values []int) error {
+	cName := C.CString(name)
+	defer freeCString(cName)
+	cArray, length, err := convertToIntArray(values)
+	if err != nil {
+		return err
+	}
+	defer freeIntArray(cArray)
+	C.vips_image_set_array_int(in, cName, cArray, length)
+	return nil
+}
+
 func vipsImageGetArrayInt(in *C.VipsImage, name string) ([]int, error) {
 	var out *C.int
 	var n C.int
