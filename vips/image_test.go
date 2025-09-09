@@ -3886,7 +3886,8 @@ func TestNewThumbnail_Options(t *testing.T) {
 func TestImage_SetArrayInt(t *testing.T) {
 	img, err := createWhiteImage(100, 100)
 	require.NoError(t, err)
-	// defer img.Close() this needs to be uncommented
+	// this needs to be uncommented
+	// defer img.Close()
 
 	testArray := []int{1, 2, 3, 4, 5}
 	err = img.SetArrayInt("test-array", testArray)
