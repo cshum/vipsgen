@@ -3882,3 +3882,33 @@ func TestNewThumbnail_Options(t *testing.T) {
 		})
 	}
 }
+
+func TestImage_SetArrayInt(t *testing.T) {
+	img, err := createWhiteImage(100, 100)
+	require.NoError(t, err)
+	// defer img.Close() this needs to be uncommented
+
+	testArray := []int{1, 2, 3, 4, 5}
+	err = img.SetArrayInt("test-array", testArray)
+	require.NoError(t, err)
+
+	retrievedArray, err := img.GetArrayInt("test-array")
+	require.NoError(t, err)
+	assert.Equal(t, testArray, retrievedArray, "Retrieved array should match the set array")
+
+	singleArray := []int{42}
+	err = img.SetArrayInt("single-array", singleArray)
+	require.NoError(t, err)
+
+	retrievedSingle, err := img.GetArrayInt("single-array")
+	require.NoError(t, err)
+	assert.Equal(t, singleArray, retrievedSingle, "Retrieved single element array should match")
+
+	negativeArray := []int{-1, -2, 0, 1, 2}
+	err = img.SetArrayInt("negative-array", negativeArray)
+	require.NoError(t, err)
+
+	retrievedNegative, err := img.GetArrayInt("negative-array")
+	require.NoError(t, err)
+	assert.Equal(t, negativeArray, retrievedNegative, "Retrieved negative array should match")
+}

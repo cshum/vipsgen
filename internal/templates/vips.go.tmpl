@@ -140,20 +140,12 @@ func vipsImageRemoveField(in *C.VipsImage, name string) {
 func vipsImageSetArrayInt(in *C.VipsImage, name string, values []int) error {
 	cName := C.CString(name)
 	defer freeCString(cName)
-
 	cArray, length, err := convertToIntArray(values)
 	if err != nil {
 		return err
 	}
-	// Note: Do not free cArray here - vips_image_set_array_int takes ownership
-
-	ret := C.vips_image_set_array_int(in, cName, cArray, length)
-	if ret != 0 {
-		// Only free on error since vips didn't take ownership
-		freeIntArray(cArray)
-		return handleVipsError()
-	}
-
+	defer freeIntArray(cArray)
+	C.vips_image_set_array_int(in, cName, cArray, length)
 	return nil
 }
 
