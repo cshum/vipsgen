@@ -2,10 +2,11 @@ package main
 
 import (
 	"flag"
+	"log"
+
 	"github.com/cshum/vipsgen/internal/generator"
 	"github.com/cshum/vipsgen/internal/introspection"
 	"github.com/cshum/vipsgen/internal/templates"
-	"log"
 )
 
 func main() {
