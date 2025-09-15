@@ -10366,6 +10366,11 @@ func (r *Image) GetArrayDouble(name string) ([]float64, error) {
 	return vipsImageGetArrayDouble(r.image, name)
 }
 
+// SetArrayInt vips_image_set_array_int sets an integer array metadata value
+func (r *Image) SetArrayInt(name string, values []int) error {
+	return vipsImageSetArrayInt(r.image, name, values)
+}
+
 // GetArrayInt vips_image_get_array_int retrieves an integer array metadata value
 func (r *Image) GetArrayInt(name string) ([]int, error) {
 	return vipsImageGetArrayInt(r.image, name)
