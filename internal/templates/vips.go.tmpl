@@ -163,6 +163,18 @@ func vipsImageGetArrayInt(in *C.VipsImage, name string) ([]int, error) {
 	return result, nil
 }
 
+func vipsImageSetArrayDouble(in *C.VipsImage, name string, values []float64) error {
+	cName := C.CString(name)
+	defer freeCString(cName)
+	cArray, length, err := convertToDoubleArray(values)
+	if err != nil {
+		return err
+	}
+	defer freeDoubleArray(cArray)
+	C.vips_image_set_array_double(in, cName, cArray, length)
+	return nil
+}
+
 func vipsImageGetArrayDouble(in *C.VipsImage, name string) ([]float64, error) {
 	var out *C.double
 	var n C.int
