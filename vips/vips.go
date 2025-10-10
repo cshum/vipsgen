@@ -6029,8 +6029,21 @@ func vipsImageGetArrayInt(in *C.VipsImage, name string) ([]int, error) {
 		return nil, handleVipsError()
 	}
 	result := fromCArrayInt(out, int(n))
-	gFreePointer(unsafe.Pointer(out))
+	// Do not free 'out' - it points to libvips-managed memory that will be
+	// automatically freed when the VipsImage is unreferenced
 	return result, nil
+}
+
+func vipsImageSetArrayDouble(in *C.VipsImage, name string, values []float64) error {
+	cName := C.CString(name)
+	defer freeCString(cName)
+	cArray, length, err := convertToDoubleArray(values)
+	if err != nil {
+		return err
+	}
+	defer freeDoubleArray(cArray)
+	C.vips_image_set_array_double(in, cName, cArray, length)
+	return nil
 }
 
 func vipsImageGetArrayDouble(in *C.VipsImage, name string) ([]float64, error) {
@@ -6042,7 +6055,8 @@ func vipsImageGetArrayDouble(in *C.VipsImage, name string) ([]float64, error) {
 		return nil, handleVipsError()
 	}
 	result := fromCArrayDouble(out, int(n))
-	gFreePointer(unsafe.Pointer(out))
+	// Do not free 'out' - it points to libvips-managed memory that will be
+	// automatically freed when the VipsImage is unreferenced
 	return result, nil
 }
 
