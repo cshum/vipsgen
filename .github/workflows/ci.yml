@@ -131,7 +131,7 @@ jobs:
 
       - name: Commit generated files
         if: github.event_name == 'pull_request'
-        uses: stefanzweifel/git-auto-commit-action@v4
+        uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "build: update generated vips package"
           file_pattern: "vips"
