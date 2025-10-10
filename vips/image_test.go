@@ -3887,7 +3887,7 @@ func TestImage_SetArrayInt(t *testing.T) {
 	img, err := createWhiteImage(100, 100)
 	require.NoError(t, err)
 	// this needs to be uncommented
-	// defer img.Close()
+	defer img.Close()
 
 	testArray := []int{1, 2, 3, 4, 5}
 	err = img.SetArrayInt("test-array", testArray)
