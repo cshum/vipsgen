@@ -3882,3 +3882,63 @@ func TestNewThumbnail_Options(t *testing.T) {
 		})
 	}
 }
+
+func TestImage_SetArrayInt(t *testing.T) {
+	img, err := createWhiteImage(100, 100)
+	require.NoError(t, err)
+	defer img.Close()
+
+	testArray := []int{1, 2, 3, 4, 5}
+	err = img.SetArrayInt("test-array", testArray)
+	require.NoError(t, err)
+
+	retrievedArray, err := img.GetArrayInt("test-array")
+	require.NoError(t, err)
+	assert.Equal(t, testArray, retrievedArray, "Retrieved array should match the set array")
+
+	singleArray := []int{42}
+	err = img.SetArrayInt("single-array", singleArray)
+	require.NoError(t, err)
+
+	retrievedSingle, err := img.GetArrayInt("single-array")
+	require.NoError(t, err)
+	assert.Equal(t, singleArray, retrievedSingle, "Retrieved single element array should match")
+
+	negativeArray := []int{-1, -2, 0, 1, 2}
+	err = img.SetArrayInt("negative-array", negativeArray)
+	require.NoError(t, err)
+
+	retrievedNegative, err := img.GetArrayInt("negative-array")
+	require.NoError(t, err)
+	assert.Equal(t, negativeArray, retrievedNegative, "Retrieved negative array should match")
+}
+
+func TestImage_SetArrayDouble(t *testing.T) {
+	img, err := createWhiteImage(100, 100)
+	require.NoError(t, err)
+	defer img.Close()
+
+	testArray := []float64{1.1, 2.2, 3.3, 4.4, 5.5}
+	err = img.SetArrayDouble("test-array", testArray)
+	require.NoError(t, err)
+
+	retrievedArray, err := img.GetArrayDouble("test-array")
+	require.NoError(t, err)
+	assert.Equal(t, testArray, retrievedArray, "Retrieved array should match the set array")
+
+	singleArray := []float64{42.1}
+	err = img.SetArrayDouble("single-array", singleArray)
+	require.NoError(t, err)
+
+	retrievedSingle, err := img.GetArrayDouble("single-array")
+	require.NoError(t, err)
+	assert.Equal(t, singleArray, retrievedSingle, "Retrieved single element array should match")
+
+	negativeArray := []float64{-1.1, -2.1, 0, 1.1, 2.2}
+	err = img.SetArrayDouble("negative-array", negativeArray)
+	require.NoError(t, err)
+
+	retrievedNegative, err := img.GetArrayDouble("negative-array")
+	require.NoError(t, err)
+	assert.Equal(t, negativeArray, retrievedNegative, "Retrieved negative array should match")
+}
