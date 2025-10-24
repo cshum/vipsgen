@@ -25,7 +25,25 @@ func GetTemplateFuncMap() template.FuncMap {
 		"generateOptionalInputsStruct":       generateOptionalInputsStruct,
 		"generateUtilFunctionCallArgs":       generateUtilFunctionCallArgs,
 		"generateUtilityFunctionReturnTypes": generateUtilityFunctionReturnTypes,
+		"getSupportedOptionalOutputs":        getSupportedOptionalOutputs,
+		"hasWithOptionsVariant":              hasWithOptionsVariant,
 	}
+}
+
+// getSupportedOptionalOutputs returns optional outputs that are supported for capture
+func getSupportedOptionalOutputs(op introspection.Operation) []introspection.Argument {
+	var supported []introspection.Argument
+	for _, arg := range op.OptionalOutputs {
+		if arg.GoType == "int" || arg.GoType == "float64" || arg.GoType == "bool" {
+			supported = append(supported, arg)
+		}
+	}
+	return supported
+}
+
+// hasWithOptionsVariant determines if an operation should have a _with_options variant
+func hasWithOptionsVariant(op introspection.Operation) bool {
+	return len(op.OptionalInputs) > 0 || len(getSupportedOptionalOutputs(op)) > 0
 }
 
 // generateGoFunctionBody generates the shared body for Go wrapper functions
@@ -155,6 +173,16 @@ func generateGoArgList(op introspection.Operation, withOptions bool) string {
 			params = append(params, fmt.Sprintf("%s %s", arg.GoName, arg.GoType))
 		}
 	}
+
+	// Add supported optional output parameters for withOptions variant
+	if withOptions {
+		supportedOptionalOutputs := getSupportedOptionalOutputs(op)
+		for _, opt := range supportedOptionalOutputs {
+			// Add as pointer parameters
+			params = append(params, fmt.Sprintf("%s *%s", opt.GoName, opt.GoType))
+		}
+	}
+
 	return strings.Join(params, ", ")
 }
 
@@ -342,6 +370,22 @@ func generateVarDeclarations(op introspection.Operation, withOptions bool) strin
 		if stringConv := formatStringConversions(op.OptionalInputs); stringConv != "" {
 			decls = append(decls, stringConv)
 		}
+
+		// Add variable declarations for supported optional outputs
+		supportedOptionalOutputs := getSupportedOptionalOutputs(op)
+		for _, opt := range supportedOptionalOutputs {
+			// Add C type conversion with nil checks for optional output parameters
+			if opt.GoType == "float64" {
+				decls = append(decls, fmt.Sprintf("var c%s *C.double\n\tif %s != nil {\n\t\tc%s = (*C.double)(unsafe.Pointer(%s))\n\t}",
+					opt.GoName, opt.GoName, opt.GoName, opt.GoName))
+			} else if opt.GoType == "int" {
+				decls = append(decls, fmt.Sprintf("var c%s *C.int\n\tif %s != nil {\n\t\tc%s = (*C.int)(unsafe.Pointer(%s))\n\t}",
+					opt.GoName, opt.GoName, opt.GoName, opt.GoName))
+			} else if opt.GoType == "bool" {
+				decls = append(decls, fmt.Sprintf("var c%s *C.int\n\tif %s != nil {\n\t\tc%s = (*C.int)(unsafe.Pointer(%s))\n\t}",
+					opt.GoName, opt.GoName, opt.GoName, opt.GoName))
+			}
+		}
 	}
 
 	return strings.Join(decls, "\n	")
@@ -493,6 +537,20 @@ func generateFunctionCallArgs(op introspection.Operation, withOptions bool) stri
 		}
 	}
 
+	// Add supported optional output parameters for withOptions variant
+	if withOptions {
+		supportedOptionalOutputs := getSupportedOptionalOutputs(op)
+		for _, opt := range supportedOptionalOutputs {
+			var argStr string
+			if opt.GoType == "float64" || opt.GoType == "int" || opt.GoType == "bool" {
+				argStr = "c" + opt.GoName
+			} else {
+				argStr = "&" + opt.GoName
+			}
+			callArgs = append(callArgs, argStr)
+		}
+	}
+
 	return strings.Join(callArgs, ", ")
 }
 
@@ -580,7 +638,8 @@ func generateImageMethodBody(op introspection.Operation) string {
 		var body string
 
 		// Handle options if present
-		if len(op.OptionalInputs) > 0 {
+		supportedOptionalOutputs := getSupportedOptionalOutputs(op)
+		if len(op.OptionalInputs) > 0 || len(supportedOptionalOutputs) > 0 {
 			// Create options arguments
 			var optionsCallArgs = make([]string, len(callArgs))
 			copy(optionsCallArgs, callArgs)
@@ -595,6 +654,11 @@ func generateImageMethodBody(op introspection.Operation) string {
 					optStr = fmt.Sprintf("options.%s", strings.Title(opt.GoName))
 				}
 				optionsCallArgs = append(optionsCallArgs, optStr)
+			}
+
+			// Add optional output addresses to the call arguments
+			for _, opt := range supportedOptionalOutputs {
+				optionsCallArgs = append(optionsCallArgs, fmt.Sprintf("&options.%s", strings.Title(opt.GoName)))
 			}
 
 			body = fmt.Sprintf(`if options != nil {
@@ -706,7 +770,8 @@ func generateImageMethodBody(op introspection.Operation) string {
 			var body string
 
 			// Handle options if present
-			if len(op.OptionalInputs) > 0 {
+			supportedOptionalOutputs := getSupportedOptionalOutputs(op)
+			if len(op.OptionalInputs) > 0 || len(supportedOptionalOutputs) > 0 {
 				// Create options arguments
 				var optionsCallArgs = make([]string, len(callArgs))
 				copy(optionsCallArgs, callArgs)
@@ -721,6 +786,11 @@ func generateImageMethodBody(op introspection.Operation) string {
 						optStr = fmt.Sprintf("options.%s", strings.Title(opt.GoName))
 					}
 					optionsCallArgs = append(optionsCallArgs, optStr)
+				}
+
+				// Add optional output addresses to the call arguments
+				for _, opt := range supportedOptionalOutputs {
+					optionsCallArgs = append(optionsCallArgs, fmt.Sprintf("&options.%s", strings.Title(opt.GoName)))
 				}
 
 				// With options for float return
@@ -970,7 +1040,8 @@ func generateImageMethodBody(op introspection.Operation) string {
 		var body string
 
 		// Handle options if present
-		if len(op.OptionalInputs) > 0 {
+		supportedOptionalOutputs := getSupportedOptionalOutputs(op)
+		if len(op.OptionalInputs) > 0 || len(supportedOptionalOutputs) > 0 {
 			// Create options arguments
 			var optionsCallArgs = make([]string, len(callArgs))
 			copy(optionsCallArgs, callArgs)
@@ -985,6 +1056,11 @@ func generateImageMethodBody(op introspection.Operation) string {
 					optStr = fmt.Sprintf("options.%s", strings.Title(opt.GoName))
 				}
 				optionsCallArgs = append(optionsCallArgs, optStr)
+			}
+
+			// Add optional output addresses to the call arguments
+			for _, opt := range supportedOptionalOutputs {
+				optionsCallArgs = append(optionsCallArgs, fmt.Sprintf("&options.%s", strings.Title(opt.GoName)))
 			}
 
 			body = fmt.Sprintf(`if options != nil {
@@ -1100,7 +1176,8 @@ func generateImageMethodParams(op introspection.Operation) string {
 
 		params = append(params, fmt.Sprintf("%s %s", arg.GoName, paramType))
 	}
-	if len(op.OptionalInputs) > 0 {
+	supportedOptionalOutputs := getSupportedOptionalOutputs(op)
+	if len(op.OptionalInputs) > 0 || len(supportedOptionalOutputs) > 0 {
 		params = append(params, fmt.Sprintf("options *%sOptions", op.GoName))
 	}
 	return strings.Join(params, ", ")
@@ -1227,7 +1304,8 @@ func generateCreatorMethodBody(op introspection.Operation) string {
 	}
 
 	// Handle options if present
-	if len(op.OptionalInputs) > 0 {
+	supportedOptionalOutputs := getSupportedOptionalOutputs(op)
+	if len(op.OptionalInputs) > 0 || len(supportedOptionalOutputs) > 0 {
 		// Create options arguments
 		var optionsCallArgs = make([]string, len(callArgs))
 		copy(optionsCallArgs, callArgs)
@@ -1242,6 +1320,11 @@ func generateCreatorMethodBody(op introspection.Operation) string {
 				optStr = fmt.Sprintf("options.%s", strings.Title(opt.GoName))
 			}
 			optionsCallArgs = append(optionsCallArgs, optStr)
+		}
+
+		// Add optional output addresses to the call arguments
+		for _, opt := range supportedOptionalOutputs {
+			optionsCallArgs = append(optionsCallArgs, fmt.Sprintf("&options.%s", strings.Title(opt.GoName)))
 		}
 
 		// Add options handling block
@@ -1304,7 +1387,8 @@ func generateCFunctionDeclaration(op introspection.Operation) string {
 	}
 
 	// with_options function declaration if needed
-	if len(op.OptionalInputs) > 0 {
+	supportedOptionalOutputs := getSupportedOptionalOutputs(op)
+	if len(op.OptionalInputs) > 0 || len(supportedOptionalOutputs) > 0 {
 		result.WriteString("\n")
 
 		// Generate function declaration with array length parameters
@@ -1320,7 +1404,7 @@ func generateCFunctionDeclaration(op introspection.Operation) string {
 			}
 		}
 
-		// Add optional arguments and array length parameters
+		// Add optional input arguments and array length parameters
 		for i, opt := range op.OptionalInputs {
 			if i > 0 || len(op.Arguments) > 0 {
 				result.WriteString(", ")
@@ -1337,6 +1421,15 @@ func generateCFunctionDeclaration(op introspection.Operation) string {
 				}
 			}
 		}
+
+		// Add supported optional output arguments
+		for i, opt := range supportedOptionalOutputs {
+			if i > 0 || len(op.Arguments) > 0 || len(op.OptionalInputs) > 0 {
+				result.WriteString(", ")
+			}
+			result.WriteString(fmt.Sprintf("%s %s", opt.CType, opt.Name))
+		}
+
 		result.WriteString(");")
 	}
 	return result.String()
@@ -1374,7 +1467,8 @@ func generateCFunctionImplementation(op introspection.Operation) string {
 	}
 
 	// Generate the with_options variant
-	if len(op.OptionalInputs) > 0 {
+	supportedOptionalOutputs := getSupportedOptionalOutputs(op)
+	if len(op.OptionalInputs) > 0 || len(supportedOptionalOutputs) > 0 {
 		result.WriteString("\n\n")
 		// Generate function signature with array length parameters for array arguments
 		result.WriteString(fmt.Sprintf("int vipsgen_%s_with_options(", op.Name))
@@ -1389,7 +1483,7 @@ func generateCFunctionImplementation(op introspection.Operation) string {
 			}
 		}
 
-		// Add optional arguments and array length parameters
+		// Add optional input arguments and array length parameters
 		for i, opt := range op.OptionalInputs {
 			if i > 0 || len(op.Arguments) > 0 {
 				result.WriteString(", ")
@@ -1406,6 +1500,15 @@ func generateCFunctionImplementation(op introspection.Operation) string {
 				}
 			}
 		}
+
+		// Add supported optional output arguments
+		for i, opt := range supportedOptionalOutputs {
+			if i > 0 || len(op.Arguments) > 0 || len(op.OptionalInputs) > 0 {
+				result.WriteString(", ")
+			}
+			result.WriteString(fmt.Sprintf("%s %s", opt.CType, opt.Name))
+		}
+
 		result.WriteString(") {\n")
 
 		// Create operation using vips_operation_new
@@ -1625,6 +1728,12 @@ func generateCFunctionImplementation(op introspection.Operation) string {
 					}
 				}
 			}
+
+			// Add supported optional output parameters
+			for _, opt := range supportedOptionalOutputs {
+				outputParams = append(outputParams, fmt.Sprintf("\"%s\", %s", opt.Name, opt.Name))
+			}
+
 			// Add NULL terminator
 			outputParams = append(outputParams, "NULL")
 			result.WriteString(fmt.Sprintf("    int result = vipsgen_operation_execute(operation, %s);\n", strings.Join(outputParams, ", ")))
@@ -1659,7 +1768,8 @@ func generateCFunctionImplementation(op introspection.Operation) string {
 
 // generateOptionalInputsStruct generates a parameter struct for an operation
 func generateOptionalInputsStruct(op introspection.Operation) string {
-	if len(op.OptionalInputs) == 0 {
+	supportedOptionalOutputs := getSupportedOptionalOutputs(op)
+	if len(op.OptionalInputs) == 0 && len(supportedOptionalOutputs) == 0 {
 		return ""
 	}
 	var result strings.Builder
@@ -1670,7 +1780,7 @@ func generateOptionalInputsStruct(op introspection.Operation) string {
 	result.WriteString(fmt.Sprintf("// %s optional arguments for vips_%s\n", structName, op.Name))
 	result.WriteString(fmt.Sprintf("type %s struct {\n", structName))
 
-	// Add all optional parameters to the struct
+	// Add all optional input parameters to the struct
 	for _, opt := range op.OptionalInputs {
 		fieldName := strings.Title(opt.GoName)
 		var fieldType string
@@ -1694,6 +1804,23 @@ func generateOptionalInputsStruct(op introspection.Operation) string {
 		}
 		result.WriteString(fmt.Sprintf("\t%s %s\n", fieldName, fieldType))
 	}
+
+	// Add supported optional output parameters to the struct
+	if len(supportedOptionalOutputs) > 0 {
+		if len(op.OptionalInputs) > 0 {
+			result.WriteString("\n\t// Optional outputs\n")
+		}
+		for _, opt := range supportedOptionalOutputs {
+			fieldName := strings.Title(opt.GoName)
+			fieldType := opt.GoType
+			// Add comment with description if available
+			if opt.Description != "" {
+				result.WriteString(fmt.Sprintf("\t// %s %s\n", fieldName, opt.Description))
+			}
+			result.WriteString(fmt.Sprintf("\t%s %s\n", fieldName, fieldType))
+		}
+	}
+
 	result.WriteString("}\n\n")
 
 	// Create a constructor with default values
@@ -1732,6 +1859,7 @@ func generateOptionalInputsStruct(op introspection.Operation) string {
 			}
 		}
 	}
+	// Optional outputs don't have default values, they are populated after the operation
 	result.WriteString("\t}\n}\n")
 
 	return result.String()
