@@ -420,7 +420,7 @@ func vipsgenBandjoin(in []*C.VipsImage) (*C.VipsImage, error) {
 func vipsgenBandjoinConst(in *C.VipsImage, c []float64) (*C.VipsImage, error) {
 	var out *C.VipsImage
 	if c == nil {
-		c = []float64{0.0, 0.0, 0.0}
+		c = []float64{}
 	}
 	cc, _, err := convertToDoubleArray(c)
 	if err != nil {
@@ -531,7 +531,7 @@ func vipsgenBoolean(left *C.VipsImage, right *C.VipsImage, boolean OperationBool
 func vipsgenBooleanConst(in *C.VipsImage, boolean OperationBoolean, c []float64) (*C.VipsImage, error) {
 	var out *C.VipsImage
 	if c == nil {
-		c = []float64{0.0, 0.0, 0.0}
+		c = []float64{}
 	}
 	cc, _, err := convertToDoubleArray(c)
 	if err != nil {
@@ -1073,7 +1073,7 @@ func vipsgenDivide(left *C.VipsImage, right *C.VipsImage) (*C.VipsImage, error) 
 // vipsgenDrawCircle vips_draw_circle draw a circle on an image
 func vipsgenDrawCircle(image *C.VipsImage, ink []float64, cx int, cy int, radius int) (error) {
 	if ink == nil {
-		ink = []float64{0.0, 0.0, 0.0}
+		ink = []float64{}
 	}
 	cink, _, err := convertToDoubleArray(ink)
 	if err != nil {
@@ -1091,7 +1091,7 @@ func vipsgenDrawCircle(image *C.VipsImage, ink []float64, cx int, cy int, radius
 // vipsgenDrawCircleWithOptions vips_draw_circle draw a circle on an image with optional arguments
 func vipsgenDrawCircleWithOptions(image *C.VipsImage, ink []float64, cx int, cy int, radius int, fill bool) (error) {
 	if ink == nil {
-		ink = []float64{0.0, 0.0, 0.0}
+		ink = []float64{}
 	}
 	cink, _, err := convertToDoubleArray(ink)
 	if err != nil {
@@ -1109,7 +1109,7 @@ func vipsgenDrawCircleWithOptions(image *C.VipsImage, ink []float64, cx int, cy 
 // vipsgenDrawFlood vips_draw_flood flood-fill an area
 func vipsgenDrawFlood(image *C.VipsImage, ink []float64, x int, y int) (error) {
 	if ink == nil {
-		ink = []float64{0.0, 0.0, 0.0}
+		ink = []float64{}
 	}
 	cink, _, err := convertToDoubleArray(ink)
 	if err != nil {
@@ -1127,7 +1127,7 @@ func vipsgenDrawFlood(image *C.VipsImage, ink []float64, x int, y int) (error) {
 // vipsgenDrawFloodWithOptions vips_draw_flood flood-fill an area with optional arguments
 func vipsgenDrawFloodWithOptions(image *C.VipsImage, ink []float64, x int, y int, test *C.VipsImage, equal bool, left *int, top *int, width *int, height *int) (error) {
 	if ink == nil {
-		ink = []float64{0.0, 0.0, 0.0}
+		ink = []float64{}
 	}
 	cink, _, err := convertToDoubleArray(ink)
 	if err != nil {
@@ -1179,7 +1179,7 @@ func vipsgenDrawImageWithOptions(image *C.VipsImage, sub *C.VipsImage, x int, y 
 // vipsgenDrawLine vips_draw_line draw a line on an image
 func vipsgenDrawLine(image *C.VipsImage, ink []float64, x1 int, y1 int, x2 int, y2 int) (error) {
 	if ink == nil {
-		ink = []float64{0.0, 0.0, 0.0}
+		ink = []float64{}
 	}
 	cink, _, err := convertToDoubleArray(ink)
 	if err != nil {
@@ -1197,7 +1197,7 @@ func vipsgenDrawLine(image *C.VipsImage, ink []float64, x1 int, y1 int, x2 int, 
 // vipsgenDrawMask vips_draw_mask draw a mask on an image
 func vipsgenDrawMask(image *C.VipsImage, ink []float64, mask *C.VipsImage, x int, y int) (error) {
 	if ink == nil {
-		ink = []float64{0.0, 0.0, 0.0}
+		ink = []float64{}
 	}
 	cink, _, err := convertToDoubleArray(ink)
 	if err != nil {
@@ -1215,7 +1215,7 @@ func vipsgenDrawMask(image *C.VipsImage, ink []float64, mask *C.VipsImage, x int
 // vipsgenDrawRect vips_draw_rect paint a rectangle on an image
 func vipsgenDrawRect(image *C.VipsImage, ink []float64, left int, top int, width int, height int) (error) {
 	if ink == nil {
-		ink = []float64{0.0, 0.0, 0.0}
+		ink = []float64{}
 	}
 	cink, _, err := convertToDoubleArray(ink)
 	if err != nil {
@@ -1233,7 +1233,7 @@ func vipsgenDrawRect(image *C.VipsImage, ink []float64, left int, top int, width
 // vipsgenDrawRectWithOptions vips_draw_rect paint a rectangle on an image with optional arguments
 func vipsgenDrawRectWithOptions(image *C.VipsImage, ink []float64, left int, top int, width int, height int, fill bool) (error) {
 	if ink == nil {
-		ink = []float64{0.0, 0.0, 0.0}
+		ink = []float64{}
 	}
 	cink, _, err := convertToDoubleArray(ink)
 	if err != nil {
@@ -2925,7 +2925,7 @@ func vipsgenLabelregionsWithOptions(in *C.VipsImage, segments *int) (*C.VipsImag
 func vipsgenLinear(in *C.VipsImage, a []float64, b []float64) (*C.VipsImage, error) {
 	var out *C.VipsImage
 	if a == nil {
-		a = []float64{0.0, 0.0, 0.0}
+		a = []float64{}
 	}
 	ca, _, err := convertToDoubleArray(a)
 	if err != nil {
@@ -2935,7 +2935,7 @@ func vipsgenLinear(in *C.VipsImage, a []float64, b []float64) (*C.VipsImage, err
 		defer freeDoubleArray(ca)
 	}
 	if b == nil {
-		b = []float64{0.0, 0.0, 0.0}
+		b = []float64{}
 	}
 	cb, _, err := convertToDoubleArray(b)
 	if err != nil {
@@ -2954,7 +2954,7 @@ func vipsgenLinear(in *C.VipsImage, a []float64, b []float64) (*C.VipsImage, err
 func vipsgenLinearWithOptions(in *C.VipsImage, a []float64, b []float64, uchar bool) (*C.VipsImage, error) {
 	var out *C.VipsImage
 	if a == nil {
-		a = []float64{0.0, 0.0, 0.0}
+		a = []float64{}
 	}
 	ca, _, err := convertToDoubleArray(a)
 	if err != nil {
@@ -2964,7 +2964,7 @@ func vipsgenLinearWithOptions(in *C.VipsImage, a []float64, b []float64, uchar b
 		defer freeDoubleArray(ca)
 	}
 	if b == nil {
-		b = []float64{0.0, 0.0, 0.0}
+		b = []float64{}
 	}
 	cb, _, err := convertToDoubleArray(b)
 	if err != nil {
@@ -3390,7 +3390,7 @@ func vipsgenMath2(left *C.VipsImage, right *C.VipsImage, math2 OperationMath2) (
 func vipsgenMath2Const(in *C.VipsImage, math2 OperationMath2, c []float64) (*C.VipsImage, error) {
 	var out *C.VipsImage
 	if c == nil {
-		c = []float64{0.0, 0.0, 0.0}
+		c = []float64{}
 	}
 	cc, _, err := convertToDoubleArray(c)
 	if err != nil {
@@ -4726,7 +4726,7 @@ func vipsgenRelational(left *C.VipsImage, right *C.VipsImage, relational Operati
 func vipsgenRelationalConst(in *C.VipsImage, relational OperationRelational, c []float64) (*C.VipsImage, error) {
 	var out *C.VipsImage
 	if c == nil {
-		c = []float64{0.0, 0.0, 0.0}
+		c = []float64{}
 	}
 	cc, _, err := convertToDoubleArray(c)
 	if err != nil {
@@ -4754,7 +4754,7 @@ func vipsgenRemainder(left *C.VipsImage, right *C.VipsImage) (*C.VipsImage, erro
 func vipsgenRemainderConst(in *C.VipsImage, c []float64) (*C.VipsImage, error) {
 	var out *C.VipsImage
 	if c == nil {
-		c = []float64{0.0, 0.0, 0.0}
+		c = []float64{}
 	}
 	cc, _, err := convertToDoubleArray(c)
 	if err != nil {
