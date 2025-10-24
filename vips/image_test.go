@@ -3970,8 +3970,6 @@ func TestOptionalOutputStructGeneration(t *testing.T) {
 	assert.Equal(t, 0.0, options.Scale1, "Initial Scale1 should be 0.0")
 	assert.Equal(t, 0.0, options.Angle1, "Initial Angle1 should be 0.0")
 
-	t.Log("✓ Mosaic optional output struct validation passed")
-
 	// Test smartcrop optional outputs
 	smartcropOptions := DefaultSmartcropOptions()
 	require.NotNil(t, smartcropOptions, "SmartcropOptions should not be nil")
@@ -3984,8 +3982,6 @@ func TestOptionalOutputStructGeneration(t *testing.T) {
 	assert.Equal(t, 0, smartcropOptions.AttentionX, "Initial AttentionX should be 0")
 	assert.Equal(t, 0, smartcropOptions.AttentionY, "Initial AttentionY should be 0")
 
-	t.Log("✓ Smartcrop optional output struct validation passed")
-
 	// Test min/max optional outputs
 	minOptions := DefaultMinOptions()
 	require.NotNil(t, minOptions, "MinOptions should not be nil")
@@ -3996,8 +3992,6 @@ func TestOptionalOutputStructGeneration(t *testing.T) {
 	require.NotNil(t, maxOptions, "MaxOptions should not be nil")
 	assert.IsType(t, 0, maxOptions.X, "Max X should be int type")
 	assert.IsType(t, 0, maxOptions.Y, "Max Y should be int type")
-
-	t.Log("✓ Min/Max optional output struct validation passed")
 }
 
 // TestSmartcropOptionalOutputs tests smartcrop's attention coordinates
@@ -4181,58 +4175,4 @@ func TestOptionalOutputsWithNilOptions(t *testing.T) {
 	// Test draw flood with nil options
 	err = img1.DrawFlood([]float64{0, 255, 0}, 25, 25, nil)
 	require.NoError(t, err, "DrawFlood should work with nil options")
-}
-
-// TestOptionalOutputCodeGeneration tests that the code generation for optional outputs is correct
-func TestOptionalOutputCodeGeneration(t *testing.T) {
-	// This test verifies that the gint conversion fix is properly implemented
-	// by testing the struct generation and type safety
-
-	// Test that mosaic options struct has correct field types
-	options := DefaultMosaicOptions()
-	require.NotNil(t, options)
-
-	// Verify that dx0/dy0 are int types (not uint32 or other types)
-	assert.IsType(t, int(0), options.Dx0, "Dx0 should be int type for signed values")
-	assert.IsType(t, int(0), options.Dy0, "Dy0 should be int type for signed values")
-
-	// Test that we can assign negative values (this would fail if they were uint)
-	options.Dx0 = -100
-	options.Dy0 = -50
-	assert.Equal(t, -100, options.Dx0, "Should be able to store negative dx0")
-	assert.Equal(t, -50, options.Dy0, "Should be able to store negative dy0")
-
-	t.Log("✓ Mosaic optional output types support signed integers")
-
-	// Test other optional output types for consistency
-	smartcropOpts := DefaultSmartcropOptions()
-	require.NotNil(t, smartcropOpts)
-
-	// AttentionX/Y should also be int types
-	assert.IsType(t, int(0), smartcropOpts.AttentionX, "AttentionX should be int type")
-	assert.IsType(t, int(0), smartcropOpts.AttentionY, "AttentionY should be int type")
-
-	t.Log("✓ Smartcrop optional output types are correct")
-
-	// Test min/max position outputs
-	minOpts := DefaultMinOptions()
-	maxOpts := DefaultMaxOptions()
-	require.NotNil(t, minOpts)
-	require.NotNil(t, maxOpts)
-
-	assert.IsType(t, int(0), minOpts.X, "Min X should be int type")
-	assert.IsType(t, int(0), minOpts.Y, "Min Y should be int type")
-	assert.IsType(t, int(0), maxOpts.X, "Max X should be int type")
-	assert.IsType(t, int(0), maxOpts.Y, "Max Y should be int type")
-
-	t.Log("✓ Min/Max optional output types are correct")
-
-	// Test draw flood area outputs
-	floodOpts := DefaultDrawFloodOptions()
-	require.NotNil(t, floodOpts)
-
-	assert.IsType(t, int(0), floodOpts.Left, "Flood Left should be int type")
-	assert.IsType(t, int(0), floodOpts.Top, "Flood Top should be int type")
-	assert.IsType(t, int(0), floodOpts.Width, "Flood Width should be int type")
-	assert.IsType(t, int(0), floodOpts.Height, "Flood Height should be int type")
 }
