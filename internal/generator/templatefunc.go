@@ -647,7 +647,8 @@ func generateImageMethodBody(op introspection.Operation) string {
 			for _, opt := range op.OptionalInputs {
 				var optStr string
 				if opt.GoType == "*C.VipsImage" {
-					optStr = fmt.Sprintf("options.%s.image", strings.Title(opt.GoName))
+					// Handle nil image pointers safely by checking if the field is nil
+					optStr = fmt.Sprintf("getImagePointer(options.%s)", strings.Title(opt.GoName))
 				} else if opt.GoType == "[]*C.VipsImage" {
 					optStr = fmt.Sprintf("convertImagesToVipsImages(options.%s)", strings.Title(opt.GoName))
 				} else {
@@ -694,7 +695,8 @@ func generateImageMethodBody(op introspection.Operation) string {
 			for _, opt := range op.OptionalInputs {
 				var optStr string
 				if opt.GoType == "*C.VipsImage" {
-					optStr = fmt.Sprintf("options.%s.image", strings.Title(opt.GoName))
+					// Handle nil image pointers safely by checking if the field is nil
+					optStr = fmt.Sprintf("getImagePointer(options.%s)", strings.Title(opt.GoName))
 				} else if opt.GoType == "[]*C.VipsImage" {
 					optStr = fmt.Sprintf("convertImagesToVipsImages(options.%s)", strings.Title(opt.GoName))
 				} else {
@@ -1049,7 +1051,7 @@ func generateImageMethodBody(op introspection.Operation) string {
 			for _, opt := range op.OptionalInputs {
 				var optStr string
 				if opt.GoType == "*C.VipsImage" {
-					optStr = fmt.Sprintf("options.%s.image", strings.Title(opt.GoName))
+					optStr = fmt.Sprintf("getImagePointer(options.%s)", strings.Title(opt.GoName))
 				} else if opt.GoType == "[]*C.VipsImage" {
 					optStr = fmt.Sprintf("convertImagesToVipsImages(options.%s)", strings.Title(opt.GoName))
 				} else {
