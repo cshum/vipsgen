@@ -136,28 +136,6 @@ func generateErrorReturnForUtilityCall(op introspection.Operation) string {
 	}
 }
 
-// Helper function to generate error return for nil array validation
-func generateErrorReturnForNilArray(op introspection.Operation) string {
-	// For nil array validation, we want to return an error with a descriptive message
-	if op.HasOneImageOutput {
-		return "return nil, fmt.Errorf(\"array parameter cannot be nil\")"
-	} else if op.HasBufferOutput {
-		return "return nil, fmt.Errorf(\"array parameter cannot be nil\")"
-	} else if len(op.RequiredOutputs) > 0 {
-		var values []string
-		for _, arg := range op.RequiredOutputs {
-			if arg.Name == "vector" || arg.Name == "out_array" {
-				values = append(values, "nil")
-			} else {
-				values = append(values, formatDefaultValue(arg.GoType))
-			}
-		}
-		return "return " + strings.Join(values, ", ") + ", fmt.Errorf(\"array parameter cannot be nil\")"
-	} else {
-		return "return fmt.Errorf(\"array parameter cannot be nil\")"
-	}
-}
-
 // Helper function to generate safe default values for array types
 func generateSafeDefaultForArray(goType string) string {
 	switch goType {
