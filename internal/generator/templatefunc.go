@@ -44,7 +44,7 @@ func generateGoFunctionBody(op introspection.Operation, withOptions bool) string
 	// Function arguments
 	result.WriteString(generateGoArgList(op, withOptions))
 	result.WriteString(") (")
-	result.WriteString(generateReturnTypes(op))
+	result.WriteString(generateReturnTypes(op, withOptions))
 	result.WriteString(") {\n\t")
 
 	// Variable declarations
@@ -61,24 +61,35 @@ func generateGoFunctionBody(op introspection.Operation, withOptions bool) string
 	result.WriteString("); err != 0 {\n\t\t")
 
 	// Error handling
-	result.WriteString(generateErrorReturn(op.HasOneImageOutput, op.HasBufferOutput, op.RequiredOutputs))
+	result.WriteString(generateErrorReturn(op.HasOneImageOutput, op.HasBufferOutput, op.RequiredOutputs, withOptions))
 	result.WriteString("\n\t}\n\t")
 
 	// Return values
-	result.WriteString(generateReturnValues(op))
+	result.WriteString(generateReturnValues(op, withOptions))
 	result.WriteString("\n}")
 
 	return result.String()
 }
 
 // generateErrorReturn formats the error return statement for a function
-func generateErrorReturn(HasOneImageOutput, hasBufferOutput bool, outputs []introspection.Argument) string {
+func generateErrorReturn(HasOneImageOutput, hasBufferOutput bool, outputs []introspection.Argument, withOptions bool) string {
+	var returnValues []string
+
 	if HasOneImageOutput {
-		return "return nil, handleImageError(out)"
+		returnValues = append(returnValues, "nil")
+
+		// Add default values for optional outputs in with_options variant
+		if withOptions {
+			// We need to get the operation to know what optional outputs exist
+			// For now, we'll handle this in the template where we have access to the operation
+			// This is a placeholder that will be updated by the template
+		}
+
+		returnValues = append(returnValues, "handleImageError(out)")
+		return "return " + strings.Join(returnValues, ", ")
 	} else if hasBufferOutput {
 		return "return nil, handleVipsError()"
 	} else if len(outputs) > 0 {
-		var returnValues []string
 		for _, arg := range outputs {
 			// Skip returning the length parameter if it's marked as IsOutputN
 			if arg.IsOutputN {
@@ -90,7 +101,14 @@ func generateErrorReturn(HasOneImageOutput, hasBufferOutput bool, outputs []intr
 				returnValues = append(returnValues, formatDefaultValue(arg.GoType))
 			}
 		}
-		return "return " + strings.Join(returnValues, ", ") + ", handleVipsError()"
+
+		// Add default values for optional outputs in with_options variant
+		if withOptions {
+			// This will be handled in the template where we have access to the operation
+		}
+
+		returnValues = append(returnValues, "handleVipsError()")
+		return "return " + strings.Join(returnValues, ", ")
 	} else {
 		return "return handleVipsError()"
 	}
@@ -155,12 +173,33 @@ func generateGoArgList(op introspection.Operation, withOptions bool) string {
 			params = append(params, fmt.Sprintf("%s %s", arg.GoName, arg.GoType))
 		}
 	}
+
+	// Add optional output pointers for with_options variant
+	if withOptions && len(op.OptionalOutputs) > 0 {
+		for _, opt := range op.OptionalOutputs {
+			if isSupportedOptionalOutputType(opt.GoType) {
+				var pointerType string
+				switch opt.GoType {
+				case "int":
+					pointerType = "*int"
+				case "float64":
+					pointerType = "*float64"
+				case "bool":
+					pointerType = "*bool"
+				case "string":
+					pointerType = "*string"
+				}
+				params = append(params, fmt.Sprintf("%s %s", opt.GoName, pointerType))
+			}
+		}
+	}
+
 	return strings.Join(params, ", ")
 }
 
 // generateReturnTypes formats the return types for a Go function
 // e.g., "*C.VipsImage, error" or "int, float64, error"
-func generateReturnTypes(op introspection.Operation) string {
+func generateReturnTypes(op introspection.Operation, withOptions bool) string {
 	if op.HasOneImageOutput {
 		return "*C.VipsImage, error"
 	} else if op.HasBufferOutput {
@@ -237,6 +276,25 @@ func generateVarDeclarations(op introspection.Operation, withOptions bool) strin
 				} else if arg.GoType == "bool" {
 					decls = append(decls, fmt.Sprintf("c%s := (*C.int)(unsafe.Pointer(&%s))",
 						arg.GoName, arg.GoName))
+				}
+			}
+		}
+	}
+
+	// Add optional output variable declarations for with_options variant
+	if withOptions && len(op.OptionalOutputs) > 0 {
+		for _, opt := range op.OptionalOutputs {
+			if isSupportedOptionalOutputType(opt.GoType) {
+				switch opt.GoType {
+				case "int":
+					decls = append(decls, fmt.Sprintf("var c%s C.int", opt.GoName))
+				case "float64":
+					decls = append(decls, fmt.Sprintf("var c%s C.double", opt.GoName))
+				case "bool":
+					decls = append(decls, fmt.Sprintf("var c%s C.int", opt.GoName))
+				case "string":
+					decls = append(decls, fmt.Sprintf("var c%s *C.char", opt.GoName))
+					decls = append(decls, fmt.Sprintf("defer func() { if c%s != nil { C.free(unsafe.Pointer(c%s)) } }()", opt.GoName, opt.GoName))
 				}
 			}
 		}
@@ -493,17 +551,81 @@ func generateFunctionCallArgs(op introspection.Operation, withOptions bool) stri
 		}
 	}
 
+	// Add optional output arguments for with_options variant
+	if withOptions && len(op.OptionalOutputs) > 0 {
+		for _, opt := range op.OptionalOutputs {
+			if isSupportedOptionalOutputType(opt.GoType) {
+				callArgs = append(callArgs, "&c"+opt.GoName)
+			}
+		}
+	}
+
 	return strings.Join(callArgs, ", ")
 }
 
 // generateReturnValues formats the return values for the Go function
-func generateReturnValues(op introspection.Operation) string {
+func generateReturnValues(op introspection.Operation, withOptions bool) string {
 	// Special handling for VipsBlob
 	for _, arg := range op.RequiredOutputs {
 		if arg.CType == "VipsBlob**" && arg.IsOutput {
 			return fmt.Sprintf("return vipsBlobToBytes(%s), nil", arg.GoName)
 		}
 	}
+
+	// For with_options variant, we populate the pointers and just return the main outputs
+	if withOptions && len(op.OptionalOutputs) > 0 {
+		var populateCode []string
+		for _, opt := range op.OptionalOutputs {
+			if isSupportedOptionalOutputType(opt.GoType) {
+				switch opt.GoType {
+				case "int":
+					populateCode = append(populateCode, fmt.Sprintf("if %s != nil { *%s = int(c%s) }", opt.GoName, opt.GoName, opt.GoName))
+				case "float64":
+					populateCode = append(populateCode, fmt.Sprintf("if %s != nil { *%s = float64(c%s) }", opt.GoName, opt.GoName, opt.GoName))
+				case "bool":
+					populateCode = append(populateCode, fmt.Sprintf("if %s != nil { *%s = c%s != 0 }", opt.GoName, opt.GoName, opt.GoName))
+				case "string":
+					populateCode = append(populateCode, fmt.Sprintf("if %s != nil { *%s = C.GoString(c%s) }", opt.GoName, opt.GoName, opt.GoName))
+				}
+			}
+		}
+
+		if len(populateCode) > 0 {
+			populateStr := strings.Join(populateCode, "\n\t")
+			if op.HasOneImageOutput {
+				return fmt.Sprintf("%s\n\treturn out, nil", populateStr)
+			} else if op.HasBufferOutput {
+				return fmt.Sprintf("%s\n\treturn bufferToBytes(buf, length), nil", populateStr)
+			} else if len(op.RequiredOutputs) > 0 {
+				var values []string
+				for _, arg := range op.RequiredOutputs {
+					// Skip returning the length parameter if it's marked as IsOutputN
+					if arg.IsOutputN {
+						continue
+					}
+					// Special handling for vector outputs like getpoint
+					if arg.Name == "vector" || arg.Name == "out_array" {
+						// Get the n parameter which should be the second output
+						nParam := "n"
+						for _, outArg := range op.RequiredOutputs {
+							if outArg.Name == "n" {
+								nParam = outArg.GoName
+								break
+							}
+						}
+						// Convert the C array to a Go slice
+						values = append(values, fmt.Sprintf("(*[1024]float64)(unsafe.Pointer(out))[:%s:%s]", nParam, nParam))
+					} else {
+						values = append(values, arg.GoName)
+					}
+				}
+				return fmt.Sprintf("%s\n\treturn %s, nil", populateStr, strings.Join(values, ", "))
+			} else {
+				return fmt.Sprintf("%s\n\treturn nil", populateStr)
+			}
+		}
+	}
+
 	if op.HasOneImageOutput {
 		return "return out, nil"
 	} else if op.HasBufferOutput {
@@ -580,7 +702,7 @@ func generateImageMethodBody(op introspection.Operation) string {
 		var body string
 
 		// Handle options if present
-		if len(op.OptionalInputs) > 0 {
+		if len(op.OptionalInputs) > 0 || len(op.OptionalOutputs) > 0 {
 			// Create options arguments
 			var optionsCallArgs = make([]string, len(callArgs))
 			copy(optionsCallArgs, callArgs)
@@ -595,6 +717,13 @@ func generateImageMethodBody(op introspection.Operation) string {
 					optStr = fmt.Sprintf("options.%s", strings.Title(opt.GoName))
 				}
 				optionsCallArgs = append(optionsCallArgs, optStr)
+			}
+
+			// Add optional output pointer arguments for with_options variant
+			for _, opt := range op.OptionalOutputs {
+				if isSupportedOptionalOutputType(opt.GoType) {
+					optionsCallArgs = append(optionsCallArgs, fmt.Sprintf("&options.%s", strings.Title(opt.GoName)))
+				}
 			}
 
 			body = fmt.Sprintf(`if options != nil {
@@ -1304,7 +1433,7 @@ func generateCFunctionDeclaration(op introspection.Operation) string {
 	}
 
 	// with_options function declaration if needed
-	if len(op.OptionalInputs) > 0 {
+	if len(op.OptionalInputs) > 0 || len(op.OptionalOutputs) > 0 {
 		result.WriteString("\n")
 
 		// Generate function declaration with array length parameters
@@ -1320,7 +1449,7 @@ func generateCFunctionDeclaration(op introspection.Operation) string {
 			}
 		}
 
-		// Add optional arguments and array length parameters
+		// Add optional input arguments and array length parameters
 		for i, opt := range op.OptionalInputs {
 			if i > 0 || len(op.Arguments) > 0 {
 				result.WriteString(", ")
@@ -1335,6 +1464,30 @@ func generateCFunctionDeclaration(op introspection.Operation) string {
 					opt.GoType == "[]*C.VipsImage" || opt.GoType == "[]*Image" {
 					result.WriteString(fmt.Sprintf(", int %s_n", opt.Name))
 				}
+			}
+		}
+
+		// Add supported optional output arguments
+		for _, opt := range op.OptionalOutputs {
+			if isSupportedOptionalOutputType(opt.GoType) {
+				if len(op.Arguments) > 0 || len(op.OptionalInputs) > 0 {
+					result.WriteString(", ")
+				}
+				// Convert Go type to C pointer type for output
+				var cType string
+				switch opt.GoType {
+				case "int":
+					cType = "int*"
+				case "float64":
+					cType = "double*"
+				case "bool":
+					cType = "int*"
+				case "string":
+					cType = "char**"
+				default:
+					cType = "void*"
+				}
+				result.WriteString(fmt.Sprintf("%s %s", cType, opt.Name))
 			}
 		}
 		result.WriteString(");")
@@ -1374,7 +1527,7 @@ func generateCFunctionImplementation(op introspection.Operation) string {
 	}
 
 	// Generate the with_options variant
-	if len(op.OptionalInputs) > 0 {
+	if len(op.OptionalInputs) > 0 || len(op.OptionalOutputs) > 0 {
 		result.WriteString("\n\n")
 		// Generate function signature with array length parameters for array arguments
 		result.WriteString(fmt.Sprintf("int vipsgen_%s_with_options(", op.Name))
@@ -1389,7 +1542,7 @@ func generateCFunctionImplementation(op introspection.Operation) string {
 			}
 		}
 
-		// Add optional arguments and array length parameters
+		// Add optional input arguments and array length parameters
 		for i, opt := range op.OptionalInputs {
 			if i > 0 || len(op.Arguments) > 0 {
 				result.WriteString(", ")
@@ -1404,6 +1557,30 @@ func generateCFunctionImplementation(op introspection.Operation) string {
 					opt.GoType == "[]*C.VipsImage" || opt.GoType == "[]*Image" {
 					result.WriteString(fmt.Sprintf(", int %s_n", opt.Name))
 				}
+			}
+		}
+
+		// Add supported optional output arguments
+		for _, opt := range op.OptionalOutputs {
+			if isSupportedOptionalOutputType(opt.GoType) {
+				if len(op.Arguments) > 0 || len(op.OptionalInputs) > 0 {
+					result.WriteString(", ")
+				}
+				// Convert Go type to C pointer type for output
+				var cType string
+				switch opt.GoType {
+				case "int":
+					cType = "int*"
+				case "float64":
+					cType = "double*"
+				case "bool":
+					cType = "int*"
+				case "string":
+					cType = "char**"
+				default:
+					cType = "void*"
+				}
+				result.WriteString(fmt.Sprintf("%s %s", cType, opt.Name))
 			}
 		}
 		result.WriteString(") {\n")
@@ -1630,6 +1807,47 @@ func generateCFunctionImplementation(op introspection.Operation) string {
 			result.WriteString(fmt.Sprintf("    int result = vipsgen_operation_execute(operation, %s);\n", strings.Join(outputParams, ", ")))
 		}
 
+		// Extract optional outputs after successful operation execution
+		if len(op.OptionalOutputs) > 0 {
+			result.WriteString("    // Extract optional outputs if operation succeeded\n")
+			result.WriteString("    if (result == 0) {\n")
+			for _, opt := range op.OptionalOutputs {
+				if isSupportedOptionalOutputType(opt.GoType) {
+					switch opt.GoType {
+					case "int":
+						result.WriteString(fmt.Sprintf("        if (%s != NULL) {\n", opt.Name))
+						result.WriteString(fmt.Sprintf("            int temp_%s;\n", opt.Name))
+						result.WriteString(fmt.Sprintf("            if (g_object_get(VIPS_OBJECT(operation), \"%s\", &temp_%s, NULL) == 0) {\n", opt.Name, opt.Name))
+						result.WriteString(fmt.Sprintf("                *%s = temp_%s;\n", opt.Name, opt.Name))
+						result.WriteString("            }\n")
+						result.WriteString("        }\n")
+					case "float64":
+						result.WriteString(fmt.Sprintf("        if (%s != NULL) {\n", opt.Name))
+						result.WriteString(fmt.Sprintf("            double temp_%s;\n", opt.Name))
+						result.WriteString(fmt.Sprintf("            if (g_object_get(VIPS_OBJECT(operation), \"%s\", &temp_%s, NULL) == 0) {\n", opt.Name, opt.Name))
+						result.WriteString(fmt.Sprintf("                *%s = temp_%s;\n", opt.Name, opt.Name))
+						result.WriteString("            }\n")
+						result.WriteString("        }\n")
+					case "bool":
+						result.WriteString(fmt.Sprintf("        if (%s != NULL) {\n", opt.Name))
+						result.WriteString(fmt.Sprintf("            gboolean temp_%s;\n", opt.Name))
+						result.WriteString(fmt.Sprintf("            if (g_object_get(VIPS_OBJECT(operation), \"%s\", &temp_%s, NULL) == 0) {\n", opt.Name, opt.Name))
+						result.WriteString(fmt.Sprintf("                *%s = temp_%s ? 1 : 0;\n", opt.Name, opt.Name))
+						result.WriteString("            }\n")
+						result.WriteString("        }\n")
+					case "string":
+						result.WriteString(fmt.Sprintf("        if (%s != NULL) {\n", opt.Name))
+						result.WriteString(fmt.Sprintf("            char *temp_%s;\n", opt.Name))
+						result.WriteString(fmt.Sprintf("            if (g_object_get(VIPS_OBJECT(operation), \"%s\", &temp_%s, NULL) == 0) {\n", opt.Name, opt.Name))
+						result.WriteString(fmt.Sprintf("                *%s = g_strdup(temp_%s);\n", opt.Name, opt.Name))
+						result.WriteString("            }\n")
+						result.WriteString("        }\n")
+					}
+				}
+			}
+			result.WriteString("    }\n")
+		}
+
 		// Clean up array objects - handle BOTH required AND optional arrays
 		// Clean up arrays from required inputs
 		for _, arg := range op.RequiredInputs {
@@ -1659,7 +1877,7 @@ func generateCFunctionImplementation(op introspection.Operation) string {
 
 // generateOptionalInputsStruct generates a parameter struct for an operation
 func generateOptionalInputsStruct(op introspection.Operation) string {
-	if len(op.OptionalInputs) == 0 {
+	if len(op.OptionalInputs) == 0 && len(op.OptionalOutputs) == 0 {
 		return ""
 	}
 	var result strings.Builder
@@ -1670,7 +1888,7 @@ func generateOptionalInputsStruct(op introspection.Operation) string {
 	result.WriteString(fmt.Sprintf("// %s optional arguments for vips_%s\n", structName, op.Name))
 	result.WriteString(fmt.Sprintf("type %s struct {\n", structName))
 
-	// Add all optional parameters to the struct
+	// Add all optional input parameters to the struct
 	for _, opt := range op.OptionalInputs {
 		fieldName := strings.Title(opt.GoName)
 		var fieldType string
@@ -1694,6 +1912,35 @@ func generateOptionalInputsStruct(op introspection.Operation) string {
 		}
 		result.WriteString(fmt.Sprintf("\t%s %s\n", fieldName, fieldType))
 	}
+
+	// Add supported optional output parameters to the struct
+	for _, opt := range op.OptionalOutputs {
+		// Only include supported output types
+		if isSupportedOptionalOutputType(opt.GoType) {
+			fieldName := strings.Title(opt.GoName)
+			var fieldType string
+			// Convert parameter types for struct
+			if opt.GoType == "int" {
+				fieldType = "int"
+			} else if opt.GoType == "float64" {
+				fieldType = "float64"
+			} else if opt.GoType == "bool" {
+				fieldType = "bool"
+			} else if opt.GoType == "string" {
+				fieldType = "string"
+			} else {
+				fieldType = opt.GoType
+			}
+			// Add comment with description if available
+			if opt.Description != "" {
+				result.WriteString(fmt.Sprintf("\t// %s %s (output)\n", fieldName, opt.Description))
+			} else {
+				result.WriteString(fmt.Sprintf("\t// %s (output)\n", fieldName))
+			}
+			result.WriteString(fmt.Sprintf("\t%s %s\n", fieldName, fieldType))
+		}
+	}
+
 	result.WriteString("}\n\n")
 
 	// Create a constructor with default values
@@ -1701,7 +1948,7 @@ func generateOptionalInputsStruct(op introspection.Operation) string {
 		structName, op.Name))
 	result.WriteString(fmt.Sprintf("func Default%s() *%s {\n", structName, structName))
 	result.WriteString(fmt.Sprintf("\treturn &%s{\n", structName))
-	// Add default values for each parameter
+	// Add default values for each input parameter
 	for _, opt := range op.OptionalInputs {
 		fieldName := strings.Title(opt.GoName)
 
@@ -1732,9 +1979,20 @@ func generateOptionalInputsStruct(op introspection.Operation) string {
 			}
 		}
 	}
+	// Note: Optional outputs don't have default values, they are populated by the operation
 	result.WriteString("\t}\n}\n")
 
 	return result.String()
+}
+
+// isSupportedOptionalOutputType checks if an optional output type is supported
+func isSupportedOptionalOutputType(goType string) bool {
+	switch goType {
+	case "int", "float64", "bool", "string":
+		return true
+	default:
+		return false
+	}
 }
 
 // generateUtilFunctionCallArgs formats function call arguments without the 'this' pointer
