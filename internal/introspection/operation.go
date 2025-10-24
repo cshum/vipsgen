@@ -565,7 +565,7 @@ func (v *Introspection) mapGTypeToTypes(gtype C.GType, typeName string, isOutput
 		cType    string
 	}{
 		"gboolean":   {"gboolean", "bool", "gboolean"},
-		"gint":       {"gint", "int", "int"},
+		"gint":       {"gint", "int", "gint"},
 		"guint":      {"guint", "int", "unsigned int"},
 		"gint64":     {"gint64", "int64", "gint64"},
 		"guint64":    {"guint64", "uint64", "guint64"},
