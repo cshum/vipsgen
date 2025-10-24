@@ -464,3 +464,11 @@ func vipsBlobToBytes(blob *C.VipsBlob) []byte {
 	C.vips_area_unref((*C.VipsArea)(unsafe.Pointer(blob)))
 	return data
 }
+
+// getImagePointer safely extracts the C.VipsImage pointer from an Image, returning nil if the Image is nil
+func getImagePointer(img *Image) *C.VipsImage {
+	if img == nil {
+		return nil
+	}
+	return img.image
+}

@@ -79,6 +79,7 @@ int vipsgen_arrayjoin(VipsImage** in, VipsImage** out, int n);
 int vipsgen_arrayjoin_with_options(VipsImage** in, VipsImage** out, int n, int across, int shim, double* background, int background_n, VipsAlign halign, VipsAlign valign, int hspacing, int vspacing);
 
 int vipsgen_autorot(VipsImage* in, VipsImage** out);
+int vipsgen_autorot_with_options(VipsImage* in, VipsImage** out, gboolean* flip);
 
 int vipsgen_avg(VipsImage* in, double* out);
 
@@ -188,7 +189,7 @@ int vipsgen_draw_circle(VipsImage* image, double* ink, int n, int cx, int cy, in
 int vipsgen_draw_circle_with_options(VipsImage* image, double* ink, int n, int cx, int cy, int radius, gboolean fill);
 
 int vipsgen_draw_flood(VipsImage* image, double* ink, int n, int x, int y);
-int vipsgen_draw_flood_with_options(VipsImage* image, double* ink, int n, int x, int y, VipsImage* test, gboolean equal);
+int vipsgen_draw_flood_with_options(VipsImage* image, double* ink, int n, int x, int y, VipsImage* test, gboolean equal, int* left, int* top, int* width, int* height);
 
 int vipsgen_draw_image(VipsImage* image, VipsImage* sub, int x, int y);
 int vipsgen_draw_image_with_options(VipsImage* image, VipsImage* sub, int x, int y, VipsCombineMode mode);
@@ -429,6 +430,7 @@ int vipsgen_jxlsave_target(VipsImage* in, VipsTargetCustom* target);
 int vipsgen_jxlsave_target_with_options(VipsImage* in, VipsTargetCustom* target, int tier, double distance, int effort, gboolean lossless, int Q, VipsForeignKeep keep, double* background, int background_n, int page_height, const char* profile);
 
 int vipsgen_labelregions(VipsImage* in, VipsImage** mask);
+int vipsgen_labelregions_with_options(VipsImage* in, VipsImage** mask, int* segments);
 
 int vipsgen_linear(VipsImage* in, VipsImage** out, double* a, double* b, int n);
 int vipsgen_linear_with_options(VipsImage* in, VipsImage** out, double* a, double* b, int n, gboolean uchar);
@@ -519,7 +521,7 @@ int vipsgen_matrixsave_target(VipsImage* in, VipsTargetCustom* target);
 int vipsgen_matrixsave_target_with_options(VipsImage* in, VipsTargetCustom* target, VipsForeignKeep keep, double* background, int background_n, int page_height, const char* profile);
 
 int vipsgen_max(VipsImage* in, double* out);
-int vipsgen_max_with_options(VipsImage* in, double* out, int size);
+int vipsgen_max_with_options(VipsImage* in, double* out, int size, int* x, int* y);
 
 int vipsgen_maxpair(VipsImage* left, VipsImage* right, VipsImage** out);
 
@@ -530,14 +532,14 @@ int vipsgen_merge(VipsImage* ref, VipsImage* sec, VipsImage** out, VipsDirection
 int vipsgen_merge_with_options(VipsImage* ref, VipsImage* sec, VipsImage** out, VipsDirection direction, int dx, int dy, int mblend);
 
 int vipsgen_min(VipsImage* in, double* out);
-int vipsgen_min_with_options(VipsImage* in, double* out, int size);
+int vipsgen_min_with_options(VipsImage* in, double* out, int size, int* x, int* y);
 
 int vipsgen_minpair(VipsImage* left, VipsImage* right, VipsImage** out);
 
 int vipsgen_morph(VipsImage* in, VipsImage** out, VipsImage* mask, VipsOperationMorphology morph);
 
 int vipsgen_mosaic(VipsImage* ref, VipsImage* sec, VipsImage** out, VipsDirection direction, int xref, int yref, int xsec, int ysec);
-int vipsgen_mosaic_with_options(VipsImage* ref, VipsImage* sec, VipsImage** out, VipsDirection direction, int xref, int yref, int xsec, int ysec, int hwindow, int harea, int mblend, int bandno);
+int vipsgen_mosaic_with_options(VipsImage* ref, VipsImage* sec, VipsImage** out, VipsDirection direction, int xref, int yref, int xsec, int ysec, int hwindow, int harea, int mblend, int bandno, int* dx0, int* dy0, double* scale1, double* angle1, double* dy1, double* dx1);
 
 int vipsgen_mosaic1(VipsImage* ref, VipsImage* sec, VipsImage** out, VipsDirection direction, int xr1, int yr1, int xs1, int ys1, int xr2, int yr2, int xs2, int ys2);
 int vipsgen_mosaic1_with_options(VipsImage* ref, VipsImage* sec, VipsImage** out, VipsDirection direction, int xr1, int yr1, int xs1, int ys1, int xr2, int yr2, int xs2, int ys2, int hwindow, int harea, gboolean search, VipsInterpolate* interpolate, int mblend);
@@ -742,7 +744,7 @@ int vipsgen_sines(VipsImage** out, int width, int height);
 int vipsgen_sines_with_options(VipsImage** out, int width, int height, gboolean uchar, double hfreq, double vfreq);
 
 int vipsgen_smartcrop(VipsImage* input, VipsImage** out, int width, int height);
-int vipsgen_smartcrop_with_options(VipsImage* input, VipsImage** out, int width, int height, VipsInteresting interesting, gboolean premultiplied);
+int vipsgen_smartcrop_with_options(VipsImage* input, VipsImage** out, int width, int height, VipsInteresting interesting, gboolean premultiplied, int* attention_x, int* attention_y);
 
 int vipsgen_sobel(VipsImage* in, VipsImage** out);
 
@@ -777,7 +779,7 @@ int vipsgen_system(const char* cmd_format);
 int vipsgen_system_with_options(const char* cmd_format, VipsImage** in, int in_n, const char* out_format, const char* in_format);
 
 int vipsgen_text(VipsImage** out, const char* text);
-int vipsgen_text_with_options(VipsImage** out, const char* text, const char* font, int width, int height, VipsAlign align, gboolean justify, int dpi, int spacing, const char* fontfile, gboolean rgba, VipsTextWrap wrap);
+int vipsgen_text_with_options(VipsImage** out, const char* text, const char* font, int width, int height, VipsAlign align, gboolean justify, int dpi, int spacing, const char* fontfile, gboolean rgba, VipsTextWrap wrap, int* autofit_dpi);
 
 int vipsgen_thumbnail(const char* filename, VipsImage** out, int width);
 int vipsgen_thumbnail_with_options(const char* filename, VipsImage** out, int width, int height, VipsSize size, gboolean no_rotate, VipsInteresting crop, gboolean linear, const char* input_profile, const char* output_profile, VipsIntent intent, VipsFailOn fail_on);

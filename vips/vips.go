@@ -296,6 +296,9 @@ func vipsgenAnalyzeloadWithOptions(filename string, memory bool, access Access, 
 // vipsgenArrayjoin vips_arrayjoin join an array of images
 func vipsgenArrayjoin(in []*C.VipsImage) (*C.VipsImage, error) {
 	var out *C.VipsImage
+	if in == nil {
+		in = []*C.VipsImage{}
+	}
 	cin, _, err := convertToImageArray(in)
 	if err != nil {
 		return nil, err
@@ -312,6 +315,9 @@ func vipsgenArrayjoin(in []*C.VipsImage) (*C.VipsImage, error) {
 // vipsgenArrayjoinWithOptions vips_arrayjoin join an array of images with optional arguments
 func vipsgenArrayjoinWithOptions(in []*C.VipsImage, across int, shim int, background []float64, halign Align, valign Align, hspacing int, vspacing int) (*C.VipsImage, error) {
 	var out *C.VipsImage
+	if in == nil {
+		in = []*C.VipsImage{}
+	}
 	cin, _, err := convertToImageArray(in)
 	if err != nil {
 		return nil, err
@@ -336,6 +342,19 @@ func vipsgenArrayjoinWithOptions(in []*C.VipsImage, across int, shim int, backgr
 func vipsgenAutorot(in *C.VipsImage) (*C.VipsImage, error) {
 	var out *C.VipsImage
 	if err := C.vipsgen_autorot(in, &out); err != 0 {
+		return nil, handleImageError(out)
+	}
+	return out, nil
+}
+
+// vipsgenAutorotWithOptions vips_autorot autorotate image by exif tag with optional arguments
+func vipsgenAutorotWithOptions(in *C.VipsImage, flip *bool) (*C.VipsImage, error) {
+	var out *C.VipsImage
+	var cflip *C.int
+	if flip != nil {
+		cflip = (*C.int)(unsafe.Pointer(flip))
+	}
+	if err := C.vipsgen_autorot_with_options(in, &out, cflip); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
@@ -381,6 +400,9 @@ func vipsgenBandfoldWithOptions(in *C.VipsImage, factor int) (*C.VipsImage, erro
 // vipsgenBandjoin vips_bandjoin bandwise join a set of images
 func vipsgenBandjoin(in []*C.VipsImage) (*C.VipsImage, error) {
 	var out *C.VipsImage
+	if in == nil {
+		in = []*C.VipsImage{}
+	}
 	cin, _, err := convertToImageArray(in)
 	if err != nil {
 		return nil, err
@@ -397,6 +419,9 @@ func vipsgenBandjoin(in []*C.VipsImage) (*C.VipsImage, error) {
 // vipsgenBandjoinConst vips_bandjoin_const append a constant band to an image
 func vipsgenBandjoinConst(in *C.VipsImage, c []float64) (*C.VipsImage, error) {
 	var out *C.VipsImage
+	if c == nil {
+		c = []float64{0.0, 0.0, 0.0}
+	}
 	cc, _, err := convertToDoubleArray(c)
 	if err != nil {
 		return nil, err
@@ -422,6 +447,9 @@ func vipsgenBandmean(in *C.VipsImage) (*C.VipsImage, error) {
 // vipsgenBandrank vips_bandrank band-wise rank of a set of images
 func vipsgenBandrank(in []*C.VipsImage) (*C.VipsImage, error) {
 	var out *C.VipsImage
+	if in == nil {
+		in = []*C.VipsImage{}
+	}
 	cin, _, err := convertToImageArray(in)
 	if err != nil {
 		return nil, err
@@ -438,6 +466,9 @@ func vipsgenBandrank(in []*C.VipsImage) (*C.VipsImage, error) {
 // vipsgenBandrankWithOptions vips_bandrank band-wise rank of a set of images with optional arguments
 func vipsgenBandrankWithOptions(in []*C.VipsImage, index int) (*C.VipsImage, error) {
 	var out *C.VipsImage
+	if in == nil {
+		in = []*C.VipsImage{}
+	}
 	cin, _, err := convertToImageArray(in)
 	if err != nil {
 		return nil, err
@@ -499,6 +530,9 @@ func vipsgenBoolean(left *C.VipsImage, right *C.VipsImage, boolean OperationBool
 // vipsgenBooleanConst vips_boolean_const boolean operations against a constant
 func vipsgenBooleanConst(in *C.VipsImage, boolean OperationBoolean, c []float64) (*C.VipsImage, error) {
 	var out *C.VipsImage
+	if c == nil {
+		c = []float64{0.0, 0.0, 0.0}
+	}
 	cc, _, err := convertToDoubleArray(c)
 	if err != nil {
 		return nil, err
@@ -551,6 +585,9 @@ func vipsgenCannyWithOptions(in *C.VipsImage, sigma float64, precision Precision
 // vipsgenCase vips_case use pixel values to pick cases from an array of images
 func vipsgenCase(index *C.VipsImage, cases []*C.VipsImage) (*C.VipsImage, error) {
 	var out *C.VipsImage
+	if cases == nil {
+		cases = []*C.VipsImage{}
+	}
 	ccases, _, err := convertToImageArray(cases)
 	if err != nil {
 		return nil, err
@@ -675,12 +712,18 @@ func vipsgenComplexget(in *C.VipsImage, get OperationComplexget) (*C.VipsImage, 
 // vipsgenComposite vips_composite blend an array of images with an array of blend modes
 func vipsgenComposite(in []*C.VipsImage, mode []BlendMode) (*C.VipsImage, error) {
 	var out *C.VipsImage
+	if in == nil {
+		in = []*C.VipsImage{}
+	}
 	cin, _, err := convertToImageArray(in)
 	if err != nil {
 		return nil, err
 	}
 	if cin != nil {
 		defer freeImageArray(cin)
+	}
+	if mode == nil {
+		mode = []BlendMode{}
 	}
 	cmode, _, err := convertToBlendModeArray(mode)
 	if err != nil {
@@ -698,12 +741,18 @@ func vipsgenComposite(in []*C.VipsImage, mode []BlendMode) (*C.VipsImage, error)
 // vipsgenCompositeWithOptions vips_composite blend an array of images with an array of blend modes with optional arguments
 func vipsgenCompositeWithOptions(in []*C.VipsImage, mode []BlendMode, x []int, y []int, compositingSpace Interpretation, premultiplied bool) (*C.VipsImage, error) {
 	var out *C.VipsImage
+	if in == nil {
+		in = []*C.VipsImage{}
+	}
 	cin, _, err := convertToImageArray(in)
 	if err != nil {
 		return nil, err
 	}
 	if cin != nil {
 		defer freeImageArray(cin)
+	}
+	if mode == nil {
+		mode = []BlendMode{}
 	}
 	cmode, _, err := convertToBlendModeArray(mode)
 	if err != nil {
@@ -1023,6 +1072,9 @@ func vipsgenDivide(left *C.VipsImage, right *C.VipsImage) (*C.VipsImage, error) 
 
 // vipsgenDrawCircle vips_draw_circle draw a circle on an image
 func vipsgenDrawCircle(image *C.VipsImage, ink []float64, cx int, cy int, radius int) (error) {
+	if ink == nil {
+		ink = []float64{0.0, 0.0, 0.0}
+	}
 	cink, _, err := convertToDoubleArray(ink)
 	if err != nil {
 		return err
@@ -1038,6 +1090,9 @@ func vipsgenDrawCircle(image *C.VipsImage, ink []float64, cx int, cy int, radius
 
 // vipsgenDrawCircleWithOptions vips_draw_circle draw a circle on an image with optional arguments
 func vipsgenDrawCircleWithOptions(image *C.VipsImage, ink []float64, cx int, cy int, radius int, fill bool) (error) {
+	if ink == nil {
+		ink = []float64{0.0, 0.0, 0.0}
+	}
 	cink, _, err := convertToDoubleArray(ink)
 	if err != nil {
 		return err
@@ -1053,6 +1108,9 @@ func vipsgenDrawCircleWithOptions(image *C.VipsImage, ink []float64, cx int, cy 
 
 // vipsgenDrawFlood vips_draw_flood flood-fill an area
 func vipsgenDrawFlood(image *C.VipsImage, ink []float64, x int, y int) (error) {
+	if ink == nil {
+		ink = []float64{0.0, 0.0, 0.0}
+	}
 	cink, _, err := convertToDoubleArray(ink)
 	if err != nil {
 		return err
@@ -1067,7 +1125,10 @@ func vipsgenDrawFlood(image *C.VipsImage, ink []float64, x int, y int) (error) {
 }
 
 // vipsgenDrawFloodWithOptions vips_draw_flood flood-fill an area with optional arguments
-func vipsgenDrawFloodWithOptions(image *C.VipsImage, ink []float64, x int, y int, test *C.VipsImage, equal bool) (error) {
+func vipsgenDrawFloodWithOptions(image *C.VipsImage, ink []float64, x int, y int, test *C.VipsImage, equal bool, left *int, top *int, width *int, height *int) (error) {
+	if ink == nil {
+		ink = []float64{0.0, 0.0, 0.0}
+	}
 	cink, _, err := convertToDoubleArray(ink)
 	if err != nil {
 		return err
@@ -1075,7 +1136,23 @@ func vipsgenDrawFloodWithOptions(image *C.VipsImage, ink []float64, x int, y int
 	if cink != nil {
 		defer freeDoubleArray(cink)
 	}
-	if err := C.vipsgen_draw_flood_with_options(image, cink, C.int(len(ink)), C.int(x), C.int(y), test, C.int(boolToInt(equal))); err != 0 {
+	var cleft *C.int
+	if left != nil {
+		cleft = (*C.int)(unsafe.Pointer(left))
+	}
+	var ctop *C.int
+	if top != nil {
+		ctop = (*C.int)(unsafe.Pointer(top))
+	}
+	var cwidth *C.int
+	if width != nil {
+		cwidth = (*C.int)(unsafe.Pointer(width))
+	}
+	var cheight *C.int
+	if height != nil {
+		cheight = (*C.int)(unsafe.Pointer(height))
+	}
+	if err := C.vipsgen_draw_flood_with_options(image, cink, C.int(len(ink)), C.int(x), C.int(y), test, C.int(boolToInt(equal)), cleft, ctop, cwidth, cheight); err != 0 {
 		return handleVipsError()
 	}
 	return nil
@@ -1101,6 +1178,9 @@ func vipsgenDrawImageWithOptions(image *C.VipsImage, sub *C.VipsImage, x int, y 
 
 // vipsgenDrawLine vips_draw_line draw a line on an image
 func vipsgenDrawLine(image *C.VipsImage, ink []float64, x1 int, y1 int, x2 int, y2 int) (error) {
+	if ink == nil {
+		ink = []float64{0.0, 0.0, 0.0}
+	}
 	cink, _, err := convertToDoubleArray(ink)
 	if err != nil {
 		return err
@@ -1116,6 +1196,9 @@ func vipsgenDrawLine(image *C.VipsImage, ink []float64, x1 int, y1 int, x2 int, 
 
 // vipsgenDrawMask vips_draw_mask draw a mask on an image
 func vipsgenDrawMask(image *C.VipsImage, ink []float64, mask *C.VipsImage, x int, y int) (error) {
+	if ink == nil {
+		ink = []float64{0.0, 0.0, 0.0}
+	}
 	cink, _, err := convertToDoubleArray(ink)
 	if err != nil {
 		return err
@@ -1131,6 +1214,9 @@ func vipsgenDrawMask(image *C.VipsImage, ink []float64, mask *C.VipsImage, x int
 
 // vipsgenDrawRect vips_draw_rect paint a rectangle on an image
 func vipsgenDrawRect(image *C.VipsImage, ink []float64, left int, top int, width int, height int) (error) {
+	if ink == nil {
+		ink = []float64{0.0, 0.0, 0.0}
+	}
 	cink, _, err := convertToDoubleArray(ink)
 	if err != nil {
 		return err
@@ -1146,6 +1232,9 @@ func vipsgenDrawRect(image *C.VipsImage, ink []float64, left int, top int, width
 
 // vipsgenDrawRectWithOptions vips_draw_rect paint a rectangle on an image with optional arguments
 func vipsgenDrawRectWithOptions(image *C.VipsImage, ink []float64, left int, top int, width int, height int, fill bool) (error) {
+	if ink == nil {
+		ink = []float64{0.0, 0.0, 0.0}
+	}
 	cink, _, err := convertToDoubleArray(ink)
 	if err != nil {
 		return err
@@ -2819,15 +2908,34 @@ func vipsgenLabelregions(in *C.VipsImage) (*C.VipsImage, error) {
 	return out, nil
 }
 
+// vipsgenLabelregionsWithOptions vips_labelregions label regions in an image with optional arguments
+func vipsgenLabelregionsWithOptions(in *C.VipsImage, segments *int) (*C.VipsImage, error) {
+	var out *C.VipsImage
+	var csegments *C.int
+	if segments != nil {
+		csegments = (*C.int)(unsafe.Pointer(segments))
+	}
+	if err := C.vipsgen_labelregions_with_options(in, &out, csegments); err != 0 {
+		return nil, handleImageError(out)
+	}
+	return out, nil
+}
+
 // vipsgenLinear vips_linear calculate (a * in + b)
 func vipsgenLinear(in *C.VipsImage, a []float64, b []float64) (*C.VipsImage, error) {
 	var out *C.VipsImage
+	if a == nil {
+		a = []float64{0.0, 0.0, 0.0}
+	}
 	ca, _, err := convertToDoubleArray(a)
 	if err != nil {
 		return nil, err
 	}
 	if ca != nil {
 		defer freeDoubleArray(ca)
+	}
+	if b == nil {
+		b = []float64{0.0, 0.0, 0.0}
 	}
 	cb, _, err := convertToDoubleArray(b)
 	if err != nil {
@@ -2845,12 +2953,18 @@ func vipsgenLinear(in *C.VipsImage, a []float64, b []float64) (*C.VipsImage, err
 // vipsgenLinearWithOptions vips_linear calculate (a * in + b) with optional arguments
 func vipsgenLinearWithOptions(in *C.VipsImage, a []float64, b []float64, uchar bool) (*C.VipsImage, error) {
 	var out *C.VipsImage
+	if a == nil {
+		a = []float64{0.0, 0.0, 0.0}
+	}
 	ca, _, err := convertToDoubleArray(a)
 	if err != nil {
 		return nil, err
 	}
 	if ca != nil {
 		defer freeDoubleArray(ca)
+	}
+	if b == nil {
+		b = []float64{0.0, 0.0, 0.0}
 	}
 	cb, _, err := convertToDoubleArray(b)
 	if err != nil {
@@ -3275,6 +3389,9 @@ func vipsgenMath2(left *C.VipsImage, right *C.VipsImage, math2 OperationMath2) (
 // vipsgenMath2Const vips_math2_const binary math operations with a constant
 func vipsgenMath2Const(in *C.VipsImage, math2 OperationMath2, c []float64) (*C.VipsImage, error) {
 	var out *C.VipsImage
+	if c == nil {
+		c = []float64{0.0, 0.0, 0.0}
+	}
 	cc, _, err := convertToDoubleArray(c)
 	if err != nil {
 		return nil, err
@@ -3460,10 +3577,18 @@ func vipsgenMax(in *C.VipsImage) (float64, error) {
 }
 
 // vipsgenMaxWithOptions vips_max find image maximum with optional arguments
-func vipsgenMaxWithOptions(in *C.VipsImage, size int) (float64, error) {
+func vipsgenMaxWithOptions(in *C.VipsImage, size int, x *int, y *int) (float64, error) {
 	var out float64
 	cout := (*C.double)(unsafe.Pointer(&out))
-	if err := C.vipsgen_max_with_options(in, cout, C.int(size)); err != 0 {
+	var cx *C.int
+	if x != nil {
+		cx = (*C.int)(unsafe.Pointer(x))
+	}
+	var cy *C.int
+	if y != nil {
+		cy = (*C.int)(unsafe.Pointer(y))
+	}
+	if err := C.vipsgen_max_with_options(in, cout, C.int(size), cx, cy); err != 0 {
 		return 0, handleVipsError()
 	}
 	return out, nil
@@ -3525,10 +3650,18 @@ func vipsgenMin(in *C.VipsImage) (float64, error) {
 }
 
 // vipsgenMinWithOptions vips_min find image minimum with optional arguments
-func vipsgenMinWithOptions(in *C.VipsImage, size int) (float64, error) {
+func vipsgenMinWithOptions(in *C.VipsImage, size int, x *int, y *int) (float64, error) {
 	var out float64
 	cout := (*C.double)(unsafe.Pointer(&out))
-	if err := C.vipsgen_min_with_options(in, cout, C.int(size)); err != 0 {
+	var cx *C.int
+	if x != nil {
+		cx = (*C.int)(unsafe.Pointer(x))
+	}
+	var cy *C.int
+	if y != nil {
+		cy = (*C.int)(unsafe.Pointer(y))
+	}
+	if err := C.vipsgen_min_with_options(in, cout, C.int(size), cx, cy); err != 0 {
 		return 0, handleVipsError()
 	}
 	return out, nil
@@ -3562,9 +3695,33 @@ func vipsgenMosaic(ref *C.VipsImage, sec *C.VipsImage, direction Direction, xref
 }
 
 // vipsgenMosaicWithOptions vips_mosaic mosaic two images with optional arguments
-func vipsgenMosaicWithOptions(ref *C.VipsImage, sec *C.VipsImage, direction Direction, xref int, yref int, xsec int, ysec int, hwindow int, harea int, mblend int, bandno int) (*C.VipsImage, error) {
+func vipsgenMosaicWithOptions(ref *C.VipsImage, sec *C.VipsImage, direction Direction, xref int, yref int, xsec int, ysec int, hwindow int, harea int, mblend int, bandno int, dx0 *int, dy0 *int, scale1 *float64, angle1 *float64, dy1 *float64, dx1 *float64) (*C.VipsImage, error) {
 	var out *C.VipsImage
-	if err := C.vipsgen_mosaic_with_options(ref, sec, &out, C.VipsDirection(direction), C.int(xref), C.int(yref), C.int(xsec), C.int(ysec), C.int(hwindow), C.int(harea), C.int(mblend), C.int(bandno)); err != 0 {
+	var cdx0 *C.int
+	if dx0 != nil {
+		cdx0 = (*C.int)(unsafe.Pointer(dx0))
+	}
+	var cdy0 *C.int
+	if dy0 != nil {
+		cdy0 = (*C.int)(unsafe.Pointer(dy0))
+	}
+	var cscale1 *C.double
+	if scale1 != nil {
+		cscale1 = (*C.double)(unsafe.Pointer(scale1))
+	}
+	var cangle1 *C.double
+	if angle1 != nil {
+		cangle1 = (*C.double)(unsafe.Pointer(angle1))
+	}
+	var cdy1 *C.double
+	if dy1 != nil {
+		cdy1 = (*C.double)(unsafe.Pointer(dy1))
+	}
+	var cdx1 *C.double
+	if dx1 != nil {
+		cdx1 = (*C.double)(unsafe.Pointer(dx1))
+	}
+	if err := C.vipsgen_mosaic_with_options(ref, sec, &out, C.VipsDirection(direction), C.int(xref), C.int(yref), C.int(xsec), C.int(ysec), C.int(hwindow), C.int(harea), C.int(mblend), C.int(bandno), cdx0, cdy0, cscale1, cangle1, cdy1, cdx1); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
@@ -4568,6 +4725,9 @@ func vipsgenRelational(left *C.VipsImage, right *C.VipsImage, relational Operati
 // vipsgenRelationalConst vips_relational_const relational operations against a constant
 func vipsgenRelationalConst(in *C.VipsImage, relational OperationRelational, c []float64) (*C.VipsImage, error) {
 	var out *C.VipsImage
+	if c == nil {
+		c = []float64{0.0, 0.0, 0.0}
+	}
 	cc, _, err := convertToDoubleArray(c)
 	if err != nil {
 		return nil, err
@@ -4593,6 +4753,9 @@ func vipsgenRemainder(left *C.VipsImage, right *C.VipsImage) (*C.VipsImage, erro
 // vipsgenRemainderConst vips_remainder_const remainder after integer division of an image and a constant
 func vipsgenRemainderConst(in *C.VipsImage, c []float64) (*C.VipsImage, error) {
 	var out *C.VipsImage
+	if c == nil {
+		c = []float64{0.0, 0.0, 0.0}
+	}
 	cc, _, err := convertToDoubleArray(c)
 	if err != nil {
 		return nil, err
@@ -4988,9 +5151,17 @@ func vipsgenSmartcrop(input *C.VipsImage, width int, height int) (*C.VipsImage, 
 }
 
 // vipsgenSmartcropWithOptions vips_smartcrop extract an area from an image with optional arguments
-func vipsgenSmartcropWithOptions(input *C.VipsImage, width int, height int, interesting Interesting, premultiplied bool) (*C.VipsImage, error) {
+func vipsgenSmartcropWithOptions(input *C.VipsImage, width int, height int, interesting Interesting, premultiplied bool, attentionX *int, attentionY *int) (*C.VipsImage, error) {
 	var out *C.VipsImage
-	if err := C.vipsgen_smartcrop_with_options(input, &out, C.int(width), C.int(height), C.VipsInteresting(interesting), C.int(boolToInt(premultiplied))); err != 0 {
+	var cattentionX *C.int
+	if attentionX != nil {
+		cattentionX = (*C.int)(unsafe.Pointer(attentionX))
+	}
+	var cattentionY *C.int
+	if attentionY != nil {
+		cattentionY = (*C.int)(unsafe.Pointer(attentionY))
+	}
+	if err := C.vipsgen_smartcrop_with_options(input, &out, C.int(width), C.int(height), C.VipsInteresting(interesting), C.int(boolToInt(premultiplied)), cattentionX, cattentionY); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
@@ -5080,6 +5251,9 @@ func vipsgenSubtract(left *C.VipsImage, right *C.VipsImage) (*C.VipsImage, error
 // vipsgenSum vips_sum sum an array of images
 func vipsgenSum(in []*C.VipsImage) (*C.VipsImage, error) {
 	var out *C.VipsImage
+	if in == nil {
+		in = []*C.VipsImage{}
+	}
 	cin, _, err := convertToImageArray(in)
 	if err != nil {
 		return nil, err
@@ -5166,6 +5340,9 @@ func vipsgenSvgloadSourceWithOptions(source *C.VipsSourceCustom, dpi float64, sc
 // vipsgenSwitch vips_switch find the index of the first non-zero pixel in tests
 func vipsgenSwitch(tests []*C.VipsImage) (*C.VipsImage, error) {
 	var out *C.VipsImage
+	if tests == nil {
+		tests = []*C.VipsImage{}
+	}
 	ctests, _, err := convertToImageArray(tests)
 	if err != nil {
 		return nil, err
@@ -5224,7 +5401,7 @@ func vipsgenText(text string) (*C.VipsImage, error) {
 }
 
 // vipsgenTextWithOptions vips_text make a text image with optional arguments
-func vipsgenTextWithOptions(text string, font string, width int, height int, align Align, justify bool, dpi int, spacing int, fontfile string, rgba bool, wrap TextWrap) (*C.VipsImage, error) {
+func vipsgenTextWithOptions(text string, font string, width int, height int, align Align, justify bool, dpi int, spacing int, fontfile string, rgba bool, wrap TextWrap, autofitDpi *int) (*C.VipsImage, error) {
 	var out *C.VipsImage
 	ctext := C.CString(text)
 	defer freeCString(ctext)
@@ -5232,7 +5409,11 @@ func vipsgenTextWithOptions(text string, font string, width int, height int, ali
 	defer freeCString(cfont)
 	cfontfile := C.CString(fontfile)
 	defer freeCString(cfontfile)
-	if err := C.vipsgen_text_with_options(&out, ctext, cfont, C.int(width), C.int(height), C.VipsAlign(align), C.int(boolToInt(justify)), C.int(dpi), C.int(spacing), cfontfile, C.int(boolToInt(rgba)), C.VipsTextWrap(wrap)); err != 0 {
+	var cautofitDpi *C.int
+	if autofitDpi != nil {
+		cautofitDpi = (*C.int)(unsafe.Pointer(autofitDpi))
+	}
+	if err := C.vipsgen_text_with_options(&out, ctext, cfont, C.int(width), C.int(height), C.VipsAlign(align), C.int(boolToInt(justify)), C.int(dpi), C.int(spacing), cfontfile, C.int(boolToInt(rgba)), C.VipsTextWrap(wrap), cautofitDpi); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
