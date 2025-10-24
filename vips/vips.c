@@ -325,6 +325,19 @@ int vipsgen_autorot(VipsImage* in, VipsImage** out) {
     return vips_autorot(in, out, NULL);
 }
 
+int vipsgen_autorot_with_options(VipsImage* in, VipsImage** out, gboolean* flip) {
+    VipsOperation *operation = vips_operation_new("autorot");
+    if (!operation) return 1;
+    if (
+        vips_object_set(VIPS_OBJECT(operation), "in", in, NULL)
+    ) {
+        g_object_unref(operation);
+        return 1;
+    }
+    int result = vipsgen_operation_execute(operation, "out", out, "flip", flip, NULL);
+    return result;
+}
+
 int vipsgen_avg(VipsImage* in, double* out) {
     return vips_avg(in, out, NULL);
 }
@@ -893,7 +906,7 @@ int vipsgen_draw_flood(VipsImage* image, double* ink, int n, int x, int y) {
     return vips_draw_flood(image, ink, n, x, y, NULL);
 }
 
-int vipsgen_draw_flood_with_options(VipsImage* image, double* ink, int n, int x, int y, VipsImage* test, gboolean equal) {
+int vipsgen_draw_flood_with_options(VipsImage* image, double* ink, int n, int x, int y, VipsImage* test, gboolean equal, int* left, int* top, int* width, int* height) {
     VipsOperation *operation = vips_operation_new("draw_flood");
     if (!operation) return 1;
     VipsArrayDouble *ink_array = NULL;
@@ -910,7 +923,7 @@ int vipsgen_draw_flood_with_options(VipsImage* image, double* ink, int n, int x,
         if (ink_array != NULL) { vips_area_unref(VIPS_AREA(ink_array)); }
         return 1;
     }
-    int result = vipsgen_operation_execute(operation, NULL);
+    int result = vipsgen_operation_execute(operation, "left", left, "top", top, "width", width, "height", height, NULL);
     if (ink_array != NULL) { vips_area_unref(VIPS_AREA(ink_array)); }
     return result;
 }
@@ -2678,6 +2691,19 @@ int vipsgen_labelregions(VipsImage* in, VipsImage** mask) {
     return vips_labelregions(in, mask, NULL);
 }
 
+int vipsgen_labelregions_with_options(VipsImage* in, VipsImage** mask, int* segments) {
+    VipsOperation *operation = vips_operation_new("labelregions");
+    if (!operation) return 1;
+    if (
+        vips_object_set(VIPS_OBJECT(operation), "in", in, NULL)
+    ) {
+        g_object_unref(operation);
+        return 1;
+    }
+    int result = vipsgen_operation_execute(operation, "mask", mask, "segments", segments, NULL);
+    return result;
+}
+
 int vipsgen_linear(VipsImage* in, VipsImage** out, double* a, double* b, int n) {
     return vips_linear(in, out, a, b, n, NULL);
 }
@@ -3347,7 +3373,7 @@ int vipsgen_max(VipsImage* in, double* out) {
     return vips_max(in, out, NULL);
 }
 
-int vipsgen_max_with_options(VipsImage* in, double* out, int size) {
+int vipsgen_max_with_options(VipsImage* in, double* out, int size, int* x, int* y) {
     VipsOperation *operation = vips_operation_new("max");
     if (!operation) return 1;
     if (
@@ -3357,7 +3383,7 @@ int vipsgen_max_with_options(VipsImage* in, double* out, int size) {
         g_object_unref(operation);
         return 1;
     }
-    int result = vipsgen_operation_execute(operation, "out", out, NULL);
+    int result = vipsgen_operation_execute(operation, "out", out, "x", x, "y", y, NULL);
     return result;
 }
 
@@ -3414,7 +3440,7 @@ int vipsgen_min(VipsImage* in, double* out) {
     return vips_min(in, out, NULL);
 }
 
-int vipsgen_min_with_options(VipsImage* in, double* out, int size) {
+int vipsgen_min_with_options(VipsImage* in, double* out, int size, int* x, int* y) {
     VipsOperation *operation = vips_operation_new("min");
     if (!operation) return 1;
     if (
@@ -3424,7 +3450,7 @@ int vipsgen_min_with_options(VipsImage* in, double* out, int size) {
         g_object_unref(operation);
         return 1;
     }
-    int result = vipsgen_operation_execute(operation, "out", out, NULL);
+    int result = vipsgen_operation_execute(operation, "out", out, "x", x, "y", y, NULL);
     return result;
 }
 
@@ -3440,7 +3466,7 @@ int vipsgen_mosaic(VipsImage* ref, VipsImage* sec, VipsImage** out, VipsDirectio
     return vips_mosaic(ref, sec, out, direction, xref, yref, xsec, ysec, NULL);
 }
 
-int vipsgen_mosaic_with_options(VipsImage* ref, VipsImage* sec, VipsImage** out, VipsDirection direction, int xref, int yref, int xsec, int ysec, int hwindow, int harea, int mblend, int bandno) {
+int vipsgen_mosaic_with_options(VipsImage* ref, VipsImage* sec, VipsImage** out, VipsDirection direction, int xref, int yref, int xsec, int ysec, int hwindow, int harea, int mblend, int bandno, int* dx0, int* dy0, double* scale1, double* angle1, double* dy1, double* dx1) {
     VipsOperation *operation = vips_operation_new("mosaic");
     if (!operation) return 1;
     if (
@@ -3459,7 +3485,7 @@ int vipsgen_mosaic_with_options(VipsImage* ref, VipsImage* sec, VipsImage** out,
         g_object_unref(operation);
         return 1;
     }
-    int result = vipsgen_operation_execute(operation, "out", out, NULL);
+    int result = vipsgen_operation_execute(operation, "out", out, "dx0", dx0, "dy0", dy0, "scale1", scale1, "angle1", angle1, "dy1", dy1, "dx1", dx1, NULL);
     return result;
 }
 
@@ -4816,7 +4842,7 @@ int vipsgen_smartcrop(VipsImage* input, VipsImage** out, int width, int height) 
     return vips_smartcrop(input, out, width, height, NULL);
 }
 
-int vipsgen_smartcrop_with_options(VipsImage* input, VipsImage** out, int width, int height, VipsInteresting interesting, gboolean premultiplied) {
+int vipsgen_smartcrop_with_options(VipsImage* input, VipsImage** out, int width, int height, VipsInteresting interesting, gboolean premultiplied, int* attention_x, int* attention_y) {
     VipsOperation *operation = vips_operation_new("smartcrop");
     if (!operation) return 1;
     if (
@@ -4829,7 +4855,7 @@ int vipsgen_smartcrop_with_options(VipsImage* input, VipsImage** out, int width,
         g_object_unref(operation);
         return 1;
     }
-    int result = vipsgen_operation_execute(operation, "out", out, NULL);
+    int result = vipsgen_operation_execute(operation, "out", out, "attention_x", attention_x, "attention_y", attention_y, NULL);
     return result;
 }
 
@@ -5014,7 +5040,7 @@ int vipsgen_text(VipsImage** out, const char* text) {
     return vips_text(out, text, NULL);
 }
 
-int vipsgen_text_with_options(VipsImage** out, const char* text, const char* font, int width, int height, VipsAlign align, gboolean justify, int dpi, int spacing, const char* fontfile, gboolean rgba, VipsTextWrap wrap) {
+int vipsgen_text_with_options(VipsImage** out, const char* text, const char* font, int width, int height, VipsAlign align, gboolean justify, int dpi, int spacing, const char* fontfile, gboolean rgba, VipsTextWrap wrap, int* autofit_dpi) {
     VipsOperation *operation = vips_operation_new("text");
     if (!operation) return 1;
     if (
@@ -5033,7 +5059,7 @@ int vipsgen_text_with_options(VipsImage** out, const char* text, const char* fon
         g_object_unref(operation);
         return 1;
     }
-    int result = vipsgen_operation_execute(operation, "out", out, NULL);
+    int result = vipsgen_operation_execute(operation, "out", out, "autofit_dpi", autofit_dpi, NULL);
     return result;
 }
 

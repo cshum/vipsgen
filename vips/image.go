@@ -2936,6 +2936,8 @@ type TextOptions struct {
 	Rgba bool
 	// Wrap Wrap lines on word or character boundaries
 	Wrap TextWrap
+	// AutofitDpi Output, DPI selected by autofit
+	AutofitDpi int
 }
 
 // DefaultTextOptions creates default value for vips_text optional arguments
@@ -2951,7 +2953,7 @@ func DefaultTextOptions() *TextOptions {
 func NewText(text string, options *TextOptions) (*Image, error) {
 	Startup(nil)
 	if options != nil {
-		vipsImage, err := vipsgenTextWithOptions(text, options.Font, options.Width, options.Height, options.Align, options.Justify, options.Dpi, options.Spacing, options.Fontfile, options.Rgba, options.Wrap)
+		vipsImage, err := vipsgenTextWithOptions(text, options.Font, options.Width, options.Height, options.Align, options.Justify, options.Dpi, options.Spacing, options.Fontfile, options.Rgba, options.Wrap, &options.AutofitDpi)
 		if err != nil {
 			return nil, err
 		}
@@ -3973,9 +3975,28 @@ func (r *Image) Affine(a float64, b float64, c float64, d float64, options *Affi
 	return nil
 }
 
+// AutorotOptions optional arguments for vips_autorot
+type AutorotOptions struct {
+	// Flip Output, Whether the image was flipped or not
+	Flip bool
+}
+
+// DefaultAutorotOptions creates default value for vips_autorot optional arguments
+func DefaultAutorotOptions() *AutorotOptions {
+	return &AutorotOptions{
+	}
+}
 
 // Autorot vips_autorot autorotate image by exif tag
-func (r *Image) Autorot() (error) {
+func (r *Image) Autorot(options *AutorotOptions) (error) {
+	if options != nil {
+		out, err := vipsgenAutorotWithOptions(r.image, &options.Flip)
+		if err != nil {
+			return err
+		}
+		r.setImage(out)
+		return nil
+	}
 	out, err := vipsgenAutorot(r.image)
 	if err != nil {
 		return err
@@ -4838,6 +4859,14 @@ type DrawFloodOptions struct {
 	Test *Image
 	// Equal DrawFlood while equal to edge
 	Equal bool
+	// Left Output, Left edge of modified area
+	Left int
+	// Top Output, Top edge of modified area
+	Top int
+	// Width Output, Width of modified area
+	Width int
+	// Height Output, Height of modified area
+	Height int
 }
 
 // DefaultDrawFloodOptions creates default value for vips_draw_flood optional arguments
@@ -4853,7 +4882,7 @@ func DefaultDrawFloodOptions() *DrawFloodOptions {
 // The y specifies drawFlood start point.
 func (r *Image) DrawFlood(ink []float64, x int, y int, options *DrawFloodOptions) (error) {
 	if options != nil {
-		err := vipsgenDrawFloodWithOptions(r.image, ink, x, y, options.Test.image, options.Equal)
+		err := vipsgenDrawFloodWithOptions(r.image, ink, x, y, getImagePointer(options.Test), options.Equal, &options.Left, &options.Top, &options.Width, &options.Height)
 		if err != nil {
 			return err
 		}
@@ -7019,9 +7048,28 @@ func (r *Image) JxlsaveTarget(target *Target, options *JxlsaveTargetOptions) (er
 	return nil
 }
 
+// LabelregionsOptions optional arguments for vips_labelregions
+type LabelregionsOptions struct {
+	// Segments Output, Number of discrete contiguous regions
+	Segments int
+}
+
+// DefaultLabelregionsOptions creates default value for vips_labelregions optional arguments
+func DefaultLabelregionsOptions() *LabelregionsOptions {
+	return &LabelregionsOptions{
+	}
+}
 
 // Labelregions vips_labelregions label regions in an image
-func (r *Image) Labelregions() (error) {
+func (r *Image) Labelregions(options *LabelregionsOptions) (error) {
+	if options != nil {
+		out, err := vipsgenLabelregionsWithOptions(r.image, &options.Segments)
+		if err != nil {
+			return err
+		}
+		r.setImage(out)
+		return nil
+	}
 	out, err := vipsgenLabelregions(r.image)
 	if err != nil {
 		return err
@@ -7485,6 +7533,10 @@ func (r *Image) MatrixsaveTarget(target *Target, options *MatrixsaveTargetOption
 type MaxOptions struct {
 	// Size Number of maximum values to find
 	Size int
+	// X Output, Horizontal position of maximum
+	X int
+	// Y Output, Vertical position of maximum
+	Y int
 }
 
 // DefaultMaxOptions creates default value for vips_max optional arguments
@@ -7497,7 +7549,7 @@ func DefaultMaxOptions() *MaxOptions {
 // Max vips_max find image maximum
 func (r *Image) Max(options *MaxOptions) (float64, error) {
 	if options != nil {
-		out, err := vipsgenMaxWithOptions(r.image, options.Size)
+		out, err := vipsgenMaxWithOptions(r.image, options.Size, &options.X, &options.Y)
 		if err != nil {
 			return 0, err
 		}
@@ -7604,6 +7656,10 @@ func (r *Image) Merge(sec *Image, direction Direction, dx int, dy int, options *
 type MinOptions struct {
 	// Size Number of minimum values to find
 	Size int
+	// X Output, Horizontal position of minimum
+	X int
+	// Y Output, Vertical position of minimum
+	Y int
 }
 
 // DefaultMinOptions creates default value for vips_min optional arguments
@@ -7616,7 +7672,7 @@ func DefaultMinOptions() *MinOptions {
 // Min vips_min find image minimum
 func (r *Image) Min(options *MinOptions) (float64, error) {
 	if options != nil {
-		out, err := vipsgenMinWithOptions(r.image, options.Size)
+		out, err := vipsgenMinWithOptions(r.image, options.Size, &options.X, &options.Y)
 		if err != nil {
 			return 0, err
 		}
@@ -7666,6 +7722,18 @@ type MosaicOptions struct {
 	Mblend int
 	// Bandno Band to search for features on
 	Bandno int
+	// Dx0 Output, Detected integer offset
+	Dx0 int
+	// Dy0 Output, Detected integer offset
+	Dy0 int
+	// Scale1 Output, Detected scale
+	Scale1 float64
+	// Angle1 Output, Detected rotation
+	Angle1 float64
+	// Dy1 Output, Detected first-order displacement
+	Dy1 float64
+	// Dx1 Output, Detected first-order displacement
+	Dx1 float64
 }
 
 // DefaultMosaicOptions creates default value for vips_mosaic optional arguments
@@ -7687,7 +7755,7 @@ func DefaultMosaicOptions() *MosaicOptions {
 // The ysec specifies position of secondary tie-point.
 func (r *Image) Mosaic(sec *Image, direction Direction, xref int, yref int, xsec int, ysec int, options *MosaicOptions) (error) {
 	if options != nil {
-		out, err := vipsgenMosaicWithOptions(r.image, sec.image, direction, xref, yref, xsec, ysec, options.Hwindow, options.Harea, options.Mblend, options.Bandno)
+		out, err := vipsgenMosaicWithOptions(r.image, sec.image, direction, xref, yref, xsec, ysec, options.Hwindow, options.Harea, options.Mblend, options.Bandno, &options.Dx0, &options.Dy0, &options.Scale1, &options.Angle1, &options.Dy1, &options.Dx1)
 		if err != nil {
 			return err
 		}
@@ -9162,6 +9230,10 @@ type SmartcropOptions struct {
 	Interesting Interesting
 	// Premultiplied Input image already has premultiplied alpha
 	Premultiplied bool
+	// AttentionX Output, Horizontal position of attention centre
+	AttentionX int
+	// AttentionY Output, Vertical position of attention centre
+	AttentionY int
 }
 
 // DefaultSmartcropOptions creates default value for vips_smartcrop optional arguments
@@ -9177,7 +9249,7 @@ func DefaultSmartcropOptions() *SmartcropOptions {
 // The height specifies height of extract area.
 func (r *Image) Smartcrop(width int, height int, options *SmartcropOptions) (error) {
 	if options != nil {
-		out, err := vipsgenSmartcropWithOptions(r.image, width, height, options.Interesting, options.Premultiplied)
+		out, err := vipsgenSmartcropWithOptions(r.image, width, height, options.Interesting, options.Premultiplied, &options.AttentionX, &options.AttentionY)
 		if err != nil {
 			return err
 		}
