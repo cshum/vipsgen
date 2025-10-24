@@ -48,59 +48,92 @@ func loadImageFromURL(url string) (*vips.Image, error) {
 func demonstrateMosaic() {
 	fmt.Println("\n=== MOSAIC OPERATION WITH OPTIONAL OUTPUTS ===")
 
-	// Load two images for mosaic operation
-	fmt.Println("Loading images for mosaic...")
-	img1, err := loadImageFromURL("https://raw.githubusercontent.com/cshum/imagor/master/testdata/gopher.png")
+	// Load real images that are more likely to have detectable features
+	fmt.Println("Loading real images for mosaic demonstration...")
+
+	// Load the same image twice and create overlapping versions
+	baseImg, err := loadImageFromURL("https://raw.githubusercontent.com/cshum/imagor/master/testdata/demo1.jpg")
 	if err != nil {
-		log.Printf("Failed to load first image: %v", err)
+		log.Printf("Failed to load base image: %v", err)
+		return
+	}
+	defer baseImg.Close()
+
+	// Resize to a larger size for more features
+	err = baseImg.Resize(1.5, nil)
+	if err != nil {
+		log.Printf("Failed to resize base image: %v", err)
+		return
+	}
+
+	fmt.Printf("Base image: %dx%d\n", baseImg.Width(), baseImg.Height())
+
+	// Create first image by extracting left portion with some overlap
+	err = baseImg.ExtractArea(0, 0, baseImg.Width()*2/3, baseImg.Height())
+	if err != nil {
+		log.Printf("Failed to extract first image: %v", err)
+		return
+	}
+	img1, err := baseImg.Copy(nil)
+	if err != nil {
+		log.Printf("Failed to copy first image: %v", err)
 		return
 	}
 	defer img1.Close()
 
-	img2, err := loadImageFromURL("https://raw.githubusercontent.com/cshum/imagor/master/testdata/demo1.jpg")
+	// Create second image by extracting right portion with overlap
+	overlapStart := baseImg.Width() / 3
+	err = baseImg.ExtractArea(overlapStart, 0, baseImg.Width()-overlapStart, baseImg.Height())
 	if err != nil {
-		log.Printf("Failed to load second image: %v", err)
+		log.Printf("Failed to extract second image: %v", err)
+		return
+	}
+	img2, err := baseImg.Copy(nil)
+	if err != nil {
+		log.Printf("Failed to copy second image: %v", err)
 		return
 	}
 	defer img2.Close()
 
-	fmt.Printf("Image 1: %dx%d\n", img1.Width(), img1.Height())
-	fmt.Printf("Image 2: %dx%d\n", img2.Width(), img2.Height())
-
-	// Resize images to similar sizes for better mosaic results
-	err = img1.Resize(0.3, nil)
-	if err != nil {
-		log.Printf("Failed to resize image 1: %v", err)
-		return
-	}
-
-	err = img2.Resize(1.0, nil)
-	if err != nil {
-		log.Printf("Failed to resize image 2: %v", err)
-		return
-	}
-
-	fmt.Printf("After resize - Image 1: %dx%d, Image 2: %dx%d\n",
+	fmt.Printf("Created overlapping images - Image 1: %dx%d, Image 2: %dx%d\n",
 		img1.Width(), img1.Height(), img2.Width(), img2.Height())
+
+	// Calculate overlap region
+	overlapWidth := img1.Width() - overlapStart
+	fmt.Printf("Overlap width: %d pixels (%.1f%%)\n", overlapWidth, float64(overlapWidth)/float64(img1.Width())*100)
 
 	// Create mosaic options to capture transformation parameters
 	options := vips.DefaultMosaicOptions()
 
-	// Perform mosaic operation with better overlap parameters
-	// Parameters: sec, direction, xref, yref, xsec, ysec
-	xref := img1.Width() / 2
+	// Use appropriate search windows
+	options.Hwindow = 5
+	options.Harea = 15
+	options.Mblend = 10
+
+	// Set tie points in the overlap region
+	// Reference point in the overlap area of first image
+	xref := img1.Width() - overlapWidth/2
 	yref := img1.Height() / 2
-	xsec := img2.Width() / 2
+
+	// Corresponding point in second image (should be near the left edge)
+	xsec := overlapWidth / 2
 	ysec := img2.Height() / 2
+
+	fmt.Printf("Attempting mosaic with tie points: ref(%d,%d) -> sec(%d,%d)\n", xref, yref, xsec, ysec)
+	fmt.Printf("Using search parameters: hwindow=%d, harea=%d, mblend=%d\n",
+		options.Hwindow, options.Harea, options.Mblend)
 
 	err = img1.Mosaic(img2, vips.DirectionHorizontal, xref, yref, xsec, ysec, options)
 	if err != nil {
 		log.Printf("Mosaic operation failed: %v", err)
+		fmt.Println("Note: Even with real images, mosaic requires very specific conditions.")
+		fmt.Println("The optional output structure is demonstrated:")
+		fmt.Printf("  MosaicOptions fields available: Dx0, Dy0, Scale1, Angle1, Dx1, Dy1\n")
 		return
 	}
 
 	// Display the detected transformation parameters
-	fmt.Println("\nDetected Mosaic Transformation Parameters:")
+	fmt.Println("\nMOSAIC SUCCESS! Detected Transformation Parameters:")
 	fmt.Printf("  Integer Offset: dx0=%d, dy0=%d\n", options.Dx0, options.Dy0)
 	fmt.Printf("  Detected Scale: %.3f\n", options.Scale1)
 	fmt.Printf("  Detected Rotation: %.3f degrees\n", options.Angle1)
@@ -113,7 +146,7 @@ func demonstrateMosaic() {
 		return
 	}
 
-	fmt.Println("✓ Mosaic result saved as 'mosaic_result.jpg'")
+	fmt.Println("Mosaic result saved as 'mosaic_result.jpg'")
 }
 
 func demonstrateSmartcrop() {
@@ -164,7 +197,7 @@ func demonstrateSmartcrop() {
 		return
 	}
 
-	fmt.Println("✓ Smartcrop result saved as 'smartcrop_result.jpg'")
+	fmt.Println("Smartcrop result saved as 'smartcrop_result.jpg'")
 }
 
 func demonstrateMaxMinPositions() {
@@ -249,7 +282,7 @@ func demonstrateDrawFloodArea() {
 		return
 	}
 
-	fmt.Println("✓ Flood fill result saved as 'flood_fill_result.jpg'")
+	fmt.Println("Flood fill result saved as 'flood_fill_result.jpg'")
 }
 
 func main() {

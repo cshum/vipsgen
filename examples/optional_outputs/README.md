@@ -9,6 +9,8 @@ This example demonstrates how to capture optional output parameters from various
 **Operation**: `vips_smartcrop`  
 **Optional Outputs**: `AttentionX`, `AttentionY`
 
+The coordinates where the algorithm detected the most interesting content for cropping.
+
 ```go
 options := vips.DefaultSmartcropOptions()
 err := img.Smartcrop(width, height, options)
@@ -17,12 +19,12 @@ err := img.Smartcrop(width, height, options)
 fmt.Printf("Attention Center: x=%d, y=%d\n", options.AttentionX, options.AttentionY)
 ```
 
-**What it shows**: The coordinates where the algorithm detected the most interesting content for cropping.
-
 ### Mosaic with Transformation Parameters
 
 **Operation**: `vips_mosaic`  
 **Optional Outputs**: `Dx0`, `Dy0`, `Scale1`, `Angle1`, `Dx1`, `Dy1`
+
+The detected transformation parameters when combining two images.
 
 ```go
 options := vips.DefaultMosaicOptions()
@@ -34,12 +36,12 @@ fmt.Printf("Detected Scale: %.3f\n", options.Scale1)
 fmt.Printf("Detected Rotation: %.3f degrees\n", options.Angle1)
 ```
 
-**What it shows**: The detected transformation parameters when combining two images.
-
 ### Max/Min with Position Coordinates
 
 **Operations**: `vips_max`, `vips_min`  
 **Optional Outputs**: `X`, `Y`
+
+The coordinates where the maximum or minimum pixel values are located.
 
 ```go
 maxOptions := vips.DefaultMaxOptions()
@@ -50,12 +52,12 @@ fmt.Printf("Maximum value: %.2f at position x=%d, y=%d\n",
     maxValue, maxOptions.X, maxOptions.Y)
 ```
 
-**What it shows**: The coordinates where the maximum or minimum pixel values are located.
-
 ### Draw Flood with Affected Area
 
 **Operation**: `vips_draw_flood`  
 **Optional Outputs**: `Left`, `Top`, `Width`, `Height`
+
+The bounding box of the area affected by the flood fill operation.
 
 ```go
 options := vips.DefaultDrawFloodOptions()
@@ -65,5 +67,3 @@ err := img.DrawFlood(color, x, y, options)
 fmt.Printf("Affected area: left=%d, top=%d, width=%d, height=%d\n",
     options.Left, options.Top, options.Width, options.Height)
 ```
-
-**What it shows**: The bounding box of the area affected by the flood fill operation.
