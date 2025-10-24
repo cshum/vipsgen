@@ -292,16 +292,8 @@ func generateVarDeclarations(op introspection.Operation, withOptions bool) strin
 					decls = append(decls, fmt.Sprintf("c%s := (*C.double)(unsafe.Pointer(&%s))",
 						arg.GoName, arg.GoName))
 				} else if arg.GoType == "int" {
-					// Use C.gint for libvips gint types to preserve signed values
-					if arg.Type == "gint" {
-						// Add int32 intermediate variable for proper signed conversion
-						decls = append(decls, fmt.Sprintf("var %sInt32 int32", arg.GoName))
-						decls = append(decls, fmt.Sprintf("c%s := (*C.gint)(unsafe.Pointer(&%sInt32))",
-							arg.GoName, arg.GoName))
-					} else {
-						decls = append(decls, fmt.Sprintf("c%s := (*C.int)(unsafe.Pointer(&%s))",
-							arg.GoName, arg.GoName))
-					}
+					decls = append(decls, fmt.Sprintf("c%s := (*C.int)(unsafe.Pointer(&%s))",
+						arg.GoName, arg.GoName))
 				} else if arg.GoType == "bool" {
 					decls = append(decls, fmt.Sprintf("c%s := (*C.int)(unsafe.Pointer(&%s))",
 						arg.GoName, arg.GoName))
@@ -699,10 +691,6 @@ func generateReturnValues(op introspection.Operation) string {
 				// Convert the C array to a Go slice
 				values = append(values, fmt.Sprintf("(*[1024]float64)(unsafe.Pointer(out))[:%s:%s]", nParam, nParam))
 			} else {
-				// Add conversion for gint types
-				if arg.GoType == "int" && arg.Type == "gint" {
-					conversionLines = append(conversionLines, fmt.Sprintf("%s = int(%sInt32)", arg.GoName, arg.GoName))
-				}
 				values = append(values, arg.GoName)
 			}
 		}
