@@ -293,7 +293,7 @@ int vipsgen_arrayjoin(VipsImage** in, VipsImage** out, int n) {
     return vips_arrayjoin(in, out, n, NULL);
 }
 
-int vipsgen_arrayjoin_with_options(VipsImage** in, VipsImage** out, int n, int across, int shim, double* background, int background_n, VipsAlign halign, VipsAlign valign, int hspacing, int vspacing) {
+int vipsgen_arrayjoin_with_options(VipsImage** in, VipsImage** out, int n, gint across, gint shim, double* background, int background_n, VipsAlign halign, VipsAlign valign, gint hspacing, gint vspacing) {
     VipsOperation *operation = vips_operation_new("arrayjoin");
     if (!operation) return 1;
     VipsArrayImage *in_array = NULL;
@@ -350,7 +350,7 @@ int vipsgen_bandfold(VipsImage* in, VipsImage** out) {
     return vips_bandfold(in, out, NULL);
 }
 
-int vipsgen_bandfold_with_options(VipsImage* in, VipsImage** out, int factor) {
+int vipsgen_bandfold_with_options(VipsImage* in, VipsImage** out, gint factor) {
     VipsOperation *operation = vips_operation_new("bandfold");
     if (!operation) return 1;
     if (
@@ -380,7 +380,7 @@ int vipsgen_bandrank(VipsImage** in, VipsImage** out, int n) {
     return vips_bandrank(in, out, n, NULL);
 }
 
-int vipsgen_bandrank_with_options(VipsImage** in, VipsImage** out, int n, int index) {
+int vipsgen_bandrank_with_options(VipsImage** in, VipsImage** out, int n, gint index) {
     VipsOperation *operation = vips_operation_new("bandrank");
     if (!operation) return 1;
     VipsArrayImage *in_array = NULL;
@@ -402,7 +402,7 @@ int vipsgen_bandunfold(VipsImage* in, VipsImage** out) {
     return vips_bandunfold(in, out, NULL);
 }
 
-int vipsgen_bandunfold_with_options(VipsImage* in, VipsImage** out, int factor) {
+int vipsgen_bandunfold_with_options(VipsImage* in, VipsImage** out, gint factor) {
     VipsOperation *operation = vips_operation_new("bandunfold");
     if (!operation) return 1;
     if (
@@ -416,11 +416,11 @@ int vipsgen_bandunfold_with_options(VipsImage* in, VipsImage** out, int factor) 
     return result;
 }
 
-int vipsgen_black(VipsImage** out, int width, int height) {
+int vipsgen_black(VipsImage** out, gint width, gint height) {
     return vips_black(out, width, height, NULL);
 }
 
-int vipsgen_black_with_options(VipsImage** out, int width, int height, int bands) {
+int vipsgen_black_with_options(VipsImage** out, gint width, gint height, gint bands) {
     VipsOperation *operation = vips_operation_new("black");
     if (!operation) return 1;
     if (
@@ -535,7 +535,7 @@ int vipsgen_compass(VipsImage* in, VipsImage** out, VipsImage* mask) {
     return vips_compass(in, out, mask, NULL);
 }
 
-int vipsgen_compass_with_options(VipsImage* in, VipsImage** out, VipsImage* mask, int times, VipsAngle45 angle, VipsCombine combine, VipsPrecision precision, int layers, int cluster) {
+int vipsgen_compass_with_options(VipsImage* in, VipsImage** out, VipsImage* mask, gint times, VipsAngle45 angle, VipsCombine combine, VipsPrecision precision, gint layers, gint cluster) {
     VipsOperation *operation = vips_operation_new("compass");
     if (!operation) return 1;
     if (
@@ -613,7 +613,7 @@ int vipsgen_composite2(VipsImage* base, VipsImage* overlay, VipsImage** out, Vip
     return vips_composite2(base, overlay, out, mode, NULL);
 }
 
-int vipsgen_composite2_with_options(VipsImage* base, VipsImage* overlay, VipsImage** out, VipsBlendMode mode, int x, int y, VipsInterpretation compositing_space, gboolean premultiplied) {
+int vipsgen_composite2_with_options(VipsImage* base, VipsImage* overlay, VipsImage** out, VipsBlendMode mode, gint x, gint y, VipsInterpretation compositing_space, gboolean premultiplied) {
     VipsOperation *operation = vips_operation_new("composite2");
     if (!operation) return 1;
     if (
@@ -636,7 +636,7 @@ int vipsgen_conv(VipsImage* in, VipsImage** out, VipsImage* mask) {
     return vips_conv(in, out, mask, NULL);
 }
 
-int vipsgen_conv_with_options(VipsImage* in, VipsImage** out, VipsImage* mask, VipsPrecision precision, int layers, int cluster) {
+int vipsgen_conv_with_options(VipsImage* in, VipsImage** out, VipsImage* mask, VipsPrecision precision, gint layers, gint cluster) {
     VipsOperation *operation = vips_operation_new("conv");
     if (!operation) return 1;
     if (
@@ -657,7 +657,7 @@ int vipsgen_conva(VipsImage* in, VipsImage** out, VipsImage* mask) {
     return vips_conva(in, out, mask, NULL);
 }
 
-int vipsgen_conva_with_options(VipsImage* in, VipsImage** out, VipsImage* mask, int layers, int cluster) {
+int vipsgen_conva_with_options(VipsImage* in, VipsImage** out, VipsImage* mask, gint layers, gint cluster) {
     VipsOperation *operation = vips_operation_new("conva");
     if (!operation) return 1;
     if (
@@ -677,7 +677,7 @@ int vipsgen_convasep(VipsImage* in, VipsImage** out, VipsImage* mask) {
     return vips_convasep(in, out, mask, NULL);
 }
 
-int vipsgen_convasep_with_options(VipsImage* in, VipsImage** out, VipsImage* mask, int layers) {
+int vipsgen_convasep_with_options(VipsImage* in, VipsImage** out, VipsImage* mask, gint layers) {
     VipsOperation *operation = vips_operation_new("convasep");
     if (!operation) return 1;
     if (
@@ -704,7 +704,7 @@ int vipsgen_convsep(VipsImage* in, VipsImage** out, VipsImage* mask) {
     return vips_convsep(in, out, mask, NULL);
 }
 
-int vipsgen_convsep_with_options(VipsImage* in, VipsImage** out, VipsImage* mask, VipsPrecision precision, int layers, int cluster) {
+int vipsgen_convsep_with_options(VipsImage* in, VipsImage** out, VipsImage* mask, VipsPrecision precision, gint layers, gint cluster) {
     VipsOperation *operation = vips_operation_new("convsep");
     if (!operation) return 1;
     if (
@@ -725,7 +725,7 @@ int vipsgen_copy(VipsImage* in, VipsImage** out) {
     return vips_copy(in, out, NULL);
 }
 
-int vipsgen_copy_with_options(VipsImage* in, VipsImage** out, int width, int height, int bands, VipsBandFormat format, VipsCoding coding, VipsInterpretation interpretation, double xres, double yres, int xoffset, int yoffset) {
+int vipsgen_copy_with_options(VipsImage* in, VipsImage** out, gint width, gint height, gint bands, VipsBandFormat format, VipsCoding coding, VipsInterpretation interpretation, double xres, double yres, gint xoffset, gint yoffset) {
     VipsOperation *operation = vips_operation_new("copy");
     if (!operation) return 1;
     if (
@@ -756,7 +756,7 @@ int vipsgen_csvload(const char* filename, VipsImage** out) {
     return vips_csvload(filename, out, NULL);
 }
 
-int vipsgen_csvload_with_options(const char* filename, VipsImage** out, int skip, int lines, const char* whitespace, const char* separator, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
+int vipsgen_csvload_with_options(const char* filename, VipsImage** out, gint skip, gint lines, const char* whitespace, const char* separator, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
     VipsOperation *operation = vips_operation_new("csvload");
     if (!operation) return 1;
     if (
@@ -781,7 +781,7 @@ int vipsgen_csvload_source(VipsSourceCustom* source, VipsImage** out) {
     return vips_csvload_source((VipsSource*) source, out, NULL);
 }
 
-int vipsgen_csvload_source_with_options(VipsSourceCustom* source, VipsImage** out, int skip, int lines, const char* whitespace, const char* separator, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
+int vipsgen_csvload_source_with_options(VipsSourceCustom* source, VipsImage** out, gint skip, gint lines, const char* whitespace, const char* separator, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
     VipsOperation *operation = vips_operation_new("csvload_source");
     if (!operation) return 1;
     if (
@@ -806,7 +806,7 @@ int vipsgen_csvsave(VipsImage* in, const char* filename) {
     return vips_csvsave(in, filename, NULL);
 }
 
-int vipsgen_csvsave_with_options(VipsImage* in, const char* filename, const char* separator, VipsForeignKeep keep, double* background, int background_n, int page_height, const char* profile) {
+int vipsgen_csvsave_with_options(VipsImage* in, const char* filename, const char* separator, VipsForeignKeep keep, double* background, int background_n, gint page_height, const char* profile) {
     VipsOperation *operation = vips_operation_new("csvsave");
     if (!operation) return 1;
     VipsArrayDouble *background_array = NULL;
@@ -833,7 +833,7 @@ int vipsgen_csvsave_target(VipsImage* in, VipsTargetCustom* target) {
     return vips_csvsave_target(in, (VipsTarget*) target, NULL);
 }
 
-int vipsgen_csvsave_target_with_options(VipsImage* in, VipsTargetCustom* target, const char* separator, VipsForeignKeep keep, double* background, int background_n, int page_height, const char* profile) {
+int vipsgen_csvsave_target_with_options(VipsImage* in, VipsTargetCustom* target, const char* separator, VipsForeignKeep keep, double* background, int background_n, gint page_height, const char* profile) {
     VipsOperation *operation = vips_operation_new("csvsave_target");
     if (!operation) return 1;
     VipsArrayDouble *background_array = NULL;
@@ -876,11 +876,11 @@ int vipsgen_divide(VipsImage* left, VipsImage* right, VipsImage** out) {
     return vips_divide(left, right, out, NULL);
 }
 
-int vipsgen_draw_circle(VipsImage* image, double* ink, int n, int cx, int cy, int radius) {
+int vipsgen_draw_circle(VipsImage* image, double* ink, int n, gint cx, gint cy, gint radius) {
     return vips_draw_circle(image, ink, n, cx, cy, radius, NULL);
 }
 
-int vipsgen_draw_circle_with_options(VipsImage* image, double* ink, int n, int cx, int cy, int radius, gboolean fill) {
+int vipsgen_draw_circle_with_options(VipsImage* image, double* ink, int n, gint cx, gint cy, gint radius, gboolean fill) {
     VipsOperation *operation = vips_operation_new("draw_circle");
     if (!operation) return 1;
     VipsArrayDouble *ink_array = NULL;
@@ -902,11 +902,11 @@ int vipsgen_draw_circle_with_options(VipsImage* image, double* ink, int n, int c
     return result;
 }
 
-int vipsgen_draw_flood(VipsImage* image, double* ink, int n, int x, int y) {
+int vipsgen_draw_flood(VipsImage* image, double* ink, int n, gint x, gint y) {
     return vips_draw_flood(image, ink, n, x, y, NULL);
 }
 
-int vipsgen_draw_flood_with_options(VipsImage* image, double* ink, int n, int x, int y, VipsImage* test, gboolean equal, int* left, int* top, int* width, int* height) {
+int vipsgen_draw_flood_with_options(VipsImage* image, double* ink, int n, gint x, gint y, VipsImage* test, gboolean equal, gint* left, gint* top, gint* width, gint* height) {
     VipsOperation *operation = vips_operation_new("draw_flood");
     if (!operation) return 1;
     VipsArrayDouble *ink_array = NULL;
@@ -928,11 +928,11 @@ int vipsgen_draw_flood_with_options(VipsImage* image, double* ink, int n, int x,
     return result;
 }
 
-int vipsgen_draw_image(VipsImage* image, VipsImage* sub, int x, int y) {
+int vipsgen_draw_image(VipsImage* image, VipsImage* sub, gint x, gint y) {
     return vips_draw_image(image, sub, x, y, NULL);
 }
 
-int vipsgen_draw_image_with_options(VipsImage* image, VipsImage* sub, int x, int y, VipsCombineMode mode) {
+int vipsgen_draw_image_with_options(VipsImage* image, VipsImage* sub, gint x, gint y, VipsCombineMode mode) {
     VipsOperation *operation = vips_operation_new("draw_image");
     if (!operation) return 1;
     if (
@@ -949,19 +949,19 @@ int vipsgen_draw_image_with_options(VipsImage* image, VipsImage* sub, int x, int
     return result;
 }
 
-int vipsgen_draw_line(VipsImage* image, double* ink, int n, int x1, int y1, int x2, int y2) {
+int vipsgen_draw_line(VipsImage* image, double* ink, int n, gint x1, gint y1, gint x2, gint y2) {
     return vips_draw_line(image, ink, n, x1, y1, x2, y2, NULL);
 }
 
-int vipsgen_draw_mask(VipsImage* image, double* ink, int n, VipsImage* mask, int x, int y) {
+int vipsgen_draw_mask(VipsImage* image, double* ink, int n, VipsImage* mask, gint x, gint y) {
     return vips_draw_mask(image, ink, n, mask, x, y, NULL);
 }
 
-int vipsgen_draw_rect(VipsImage* image, double* ink, int n, int left, int top, int width, int height) {
+int vipsgen_draw_rect(VipsImage* image, double* ink, int n, gint left, gint top, gint width, gint height) {
     return vips_draw_rect(image, ink, n, left, top, width, height, NULL);
 }
 
-int vipsgen_draw_rect_with_options(VipsImage* image, double* ink, int n, int left, int top, int width, int height, gboolean fill) {
+int vipsgen_draw_rect_with_options(VipsImage* image, double* ink, int n, gint left, gint top, gint width, gint height, gboolean fill) {
     VipsOperation *operation = vips_operation_new("draw_rect");
     if (!operation) return 1;
     VipsArrayDouble *ink_array = NULL;
@@ -984,7 +984,7 @@ int vipsgen_draw_rect_with_options(VipsImage* image, double* ink, int n, int lef
     return result;
 }
 
-int vipsgen_draw_smudge(VipsImage* image, int left, int top, int width, int height) {
+int vipsgen_draw_smudge(VipsImage* image, gint left, gint top, gint width, gint height) {
     return vips_draw_smudge(image, left, top, width, height, NULL);
 }
 
@@ -992,7 +992,7 @@ int vipsgen_dzsave(VipsImage* in, const char* filename) {
     return vips_dzsave(in, filename, NULL);
 }
 
-int vipsgen_dzsave_with_options(VipsImage* in, const char* filename, const char* imagename, VipsForeignDzLayout layout, const char* suffix, int overlap, int tile_size, gboolean centre, VipsForeignDzDepth depth, VipsAngle angle, VipsForeignDzContainer container, int compression, VipsRegionShrink region_shrink, int skip_blanks, const char* id, int Q, VipsForeignKeep keep, double* background, int background_n, int page_height, const char* profile) {
+int vipsgen_dzsave_with_options(VipsImage* in, const char* filename, const char* imagename, VipsForeignDzLayout layout, const char* suffix, gint overlap, gint tile_size, gboolean centre, VipsForeignDzDepth depth, VipsAngle angle, VipsForeignDzContainer container, gint compression, VipsRegionShrink region_shrink, gint skip_blanks, const char* id, gint Q, VipsForeignKeep keep, double* background, int background_n, gint page_height, const char* profile) {
     VipsOperation *operation = vips_operation_new("dzsave");
     if (!operation) return 1;
     VipsArrayDouble *background_array = NULL;
@@ -1032,7 +1032,7 @@ int vipsgen_dzsave_buffer(VipsImage* in, void** buf, size_t* len) {
     return vips_dzsave_buffer(in, buf, len, NULL);
 }
 
-int vipsgen_dzsave_buffer_with_options(VipsImage* in, void** buf, size_t* len, const char* imagename, VipsForeignDzLayout layout, const char* suffix, int overlap, int tile_size, gboolean centre, VipsForeignDzDepth depth, VipsAngle angle, VipsForeignDzContainer container, int compression, VipsRegionShrink region_shrink, int skip_blanks, const char* id, int Q, VipsForeignKeep keep, double* background, int background_n, int page_height, const char* profile) {
+int vipsgen_dzsave_buffer_with_options(VipsImage* in, void** buf, size_t* len, const char* imagename, VipsForeignDzLayout layout, const char* suffix, gint overlap, gint tile_size, gboolean centre, VipsForeignDzDepth depth, VipsAngle angle, VipsForeignDzContainer container, gint compression, VipsRegionShrink region_shrink, gint skip_blanks, const char* id, gint Q, VipsForeignKeep keep, double* background, int background_n, gint page_height, const char* profile) {
     VipsOperation *operation = vips_operation_new("dzsave_buffer");
     if (!operation) return 1;
     VipsArrayDouble *background_array = NULL;
@@ -1071,7 +1071,7 @@ int vipsgen_dzsave_target(VipsImage* in, VipsTargetCustom* target) {
     return vips_dzsave_target(in, (VipsTarget*) target, NULL);
 }
 
-int vipsgen_dzsave_target_with_options(VipsImage* in, VipsTargetCustom* target, const char* imagename, VipsForeignDzLayout layout, const char* suffix, int overlap, int tile_size, gboolean centre, VipsForeignDzDepth depth, VipsAngle angle, VipsForeignDzContainer container, int compression, VipsRegionShrink region_shrink, int skip_blanks, const char* id, int Q, VipsForeignKeep keep, double* background, int background_n, int page_height, const char* profile) {
+int vipsgen_dzsave_target_with_options(VipsImage* in, VipsTargetCustom* target, const char* imagename, VipsForeignDzLayout layout, const char* suffix, gint overlap, gint tile_size, gboolean centre, VipsForeignDzDepth depth, VipsAngle angle, VipsForeignDzContainer container, gint compression, VipsRegionShrink region_shrink, gint skip_blanks, const char* id, gint Q, VipsForeignKeep keep, double* background, int background_n, gint page_height, const char* profile) {
     VipsOperation *operation = vips_operation_new("dzsave_target");
     if (!operation) return 1;
     VipsArrayDouble *background_array = NULL;
@@ -1107,11 +1107,11 @@ int vipsgen_dzsave_target_with_options(VipsImage* in, VipsTargetCustom* target, 
     return result;
 }
 
-int vipsgen_embed(VipsImage* in, VipsImage** out, int x, int y, int width, int height) {
+int vipsgen_embed(VipsImage* in, VipsImage** out, gint x, gint y, gint width, gint height) {
     return vips_embed(in, out, x, y, width, height, NULL);
 }
 
-int vipsgen_embed_with_options(VipsImage* in, VipsImage** out, int x, int y, int width, int height, VipsExtend extend, double* background, int background_n) {
+int vipsgen_embed_with_options(VipsImage* in, VipsImage** out, gint x, gint y, gint width, gint height, VipsExtend extend, double* background, int background_n) {
     VipsOperation *operation = vips_operation_new("embed");
     if (!operation) return 1;
     VipsArrayDouble *background_array = NULL;
@@ -1134,15 +1134,15 @@ int vipsgen_embed_with_options(VipsImage* in, VipsImage** out, int x, int y, int
     return result;
 }
 
-int vipsgen_extract_area(VipsImage* input, VipsImage** out, int left, int top, int width, int height) {
+int vipsgen_extract_area(VipsImage* input, VipsImage** out, gint left, gint top, gint width, gint height) {
     return vips_extract_area(input, out, left, top, width, height, NULL);
 }
 
-int vipsgen_extract_band(VipsImage* in, VipsImage** out, int band) {
+int vipsgen_extract_band(VipsImage* in, VipsImage** out, gint band) {
     return vips_extract_band(in, out, band, NULL);
 }
 
-int vipsgen_extract_band_with_options(VipsImage* in, VipsImage** out, int band, int n) {
+int vipsgen_extract_band_with_options(VipsImage* in, VipsImage** out, gint band, gint n) {
     VipsOperation *operation = vips_operation_new("extract_band");
     if (!operation) return 1;
     if (
@@ -1157,11 +1157,11 @@ int vipsgen_extract_band_with_options(VipsImage* in, VipsImage** out, int band, 
     return result;
 }
 
-int vipsgen_eye(VipsImage** out, int width, int height) {
+int vipsgen_eye(VipsImage** out, gint width, gint height) {
     return vips_eye(out, width, height, NULL);
 }
 
-int vipsgen_eye_with_options(VipsImage** out, int width, int height, gboolean uchar, double factor) {
+int vipsgen_eye_with_options(VipsImage** out, gint width, gint height, gboolean uchar, double factor) {
     VipsOperation *operation = vips_operation_new("eye");
     if (!operation) return 1;
     if (
@@ -1189,11 +1189,11 @@ int vipsgen_fill_nearest(VipsImage* in, VipsImage** out) {
     return vips_fill_nearest(in, out, NULL);
 }
 
-int vipsgen_find_trim(VipsImage* in, int* left, int* top, int* width, int* height) {
+int vipsgen_find_trim(VipsImage* in, gint* left, gint* top, gint* width, gint* height) {
     return vips_find_trim(in, left, top, width, height, NULL);
 }
 
-int vipsgen_find_trim_with_options(VipsImage* in, int* left, int* top, int* width, int* height, double threshold, double* background, int background_n, gboolean line_art) {
+int vipsgen_find_trim_with_options(VipsImage* in, gint* left, gint* top, gint* width, gint* height, double threshold, double* background, int background_n, gboolean line_art) {
     VipsOperation *operation = vips_operation_new("find_trim");
     if (!operation) return 1;
     VipsArrayDouble *background_array = NULL;
@@ -1238,7 +1238,7 @@ int vipsgen_fitssave(VipsImage* in, const char* filename) {
     return vips_fitssave(in, filename, NULL);
 }
 
-int vipsgen_fitssave_with_options(VipsImage* in, const char* filename, VipsForeignKeep keep, double* background, int background_n, int page_height, const char* profile) {
+int vipsgen_fitssave_with_options(VipsImage* in, const char* filename, VipsForeignKeep keep, double* background, int background_n, gint page_height, const char* profile) {
     VipsOperation *operation = vips_operation_new("fitssave");
     if (!operation) return 1;
     VipsArrayDouble *background_array = NULL;
@@ -1291,7 +1291,7 @@ int vipsgen_float2rad(VipsImage* in, VipsImage** out) {
     return vips_float2rad(in, out, NULL);
 }
 
-int vipsgen_fractsurf(VipsImage** out, int width, int height, double fractal_dimension) {
+int vipsgen_fractsurf(VipsImage** out, gint width, gint height, double fractal_dimension) {
     return vips_fractsurf(out, width, height, fractal_dimension, NULL);
 }
 
@@ -1361,11 +1361,11 @@ int vipsgen_gaussmat_with_options(VipsImage** out, double sigma, double min_ampl
     return result;
 }
 
-int vipsgen_gaussnoise(VipsImage** out, int width, int height) {
+int vipsgen_gaussnoise(VipsImage** out, gint width, gint height) {
     return vips_gaussnoise(out, width, height, NULL);
 }
 
-int vipsgen_gaussnoise_with_options(VipsImage** out, int width, int height, double sigma, double mean, int seed) {
+int vipsgen_gaussnoise_with_options(VipsImage** out, gint width, gint height, double sigma, double mean, gint seed) {
     VipsOperation *operation = vips_operation_new("gaussnoise");
     if (!operation) return 1;
     if (
@@ -1382,11 +1382,11 @@ int vipsgen_gaussnoise_with_options(VipsImage** out, int width, int height, doub
     return result;
 }
 
-int vipsgen_getpoint(VipsImage* in, double** out_array, int* n, int x, int y) {
+int vipsgen_getpoint(VipsImage* in, double** out_array, int* n, gint x, gint y) {
     return vips_getpoint(in, out_array, n, x, y, NULL);
 }
 
-int vipsgen_getpoint_with_options(VipsImage* in, double** out_array, int* n, int x, int y, gboolean unpack_complex) {
+int vipsgen_getpoint_with_options(VipsImage* in, double** out_array, int* n, gint x, gint y, gboolean unpack_complex) {
     VipsOperation *operation = vips_operation_new("getpoint");
     if (!operation) return 1;
     if (
@@ -1406,7 +1406,7 @@ int vipsgen_gifload(const char* filename, VipsImage** out) {
     return vips_gifload(filename, out, NULL);
 }
 
-int vipsgen_gifload_with_options(const char* filename, VipsImage** out, int n, int page, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
+int vipsgen_gifload_with_options(const char* filename, VipsImage** out, gint n, gint page, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
     VipsOperation *operation = vips_operation_new("gifload");
     if (!operation) return 1;
     if (
@@ -1429,7 +1429,7 @@ int vipsgen_gifload_buffer(void* buf, size_t len, VipsImage** out) {
     return vips_gifload_buffer(buf, len, out, NULL);
 }
 
-int vipsgen_gifload_buffer_with_options(void* buf, size_t len, VipsImage** out, int n, int page, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
+int vipsgen_gifload_buffer_with_options(void* buf, size_t len, VipsImage** out, gint n, gint page, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
     VipsOperation *operation = vips_operation_new("gifload_buffer");
     if (!operation) return 1;
     VipsBlob *blob = vips_blob_new(NULL, buf, len);
@@ -1456,7 +1456,7 @@ int vipsgen_gifload_source(VipsSourceCustom* source, VipsImage** out) {
     return vips_gifload_source((VipsSource*) source, out, NULL);
 }
 
-int vipsgen_gifload_source_with_options(VipsSourceCustom* source, VipsImage** out, int n, int page, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
+int vipsgen_gifload_source_with_options(VipsSourceCustom* source, VipsImage** out, gint n, gint page, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
     VipsOperation *operation = vips_operation_new("gifload_source");
     if (!operation) return 1;
     if (
@@ -1479,7 +1479,7 @@ int vipsgen_gifsave(VipsImage* in, const char* filename) {
     return vips_gifsave(in, filename, NULL);
 }
 
-int vipsgen_gifsave_with_options(VipsImage* in, const char* filename, double dither, int effort, int bitdepth, double interframe_maxerror, gboolean reuse, double interpalette_maxerror, gboolean interlace, gboolean keep_duplicate_frames, VipsForeignKeep keep, double* background, int background_n, int page_height, const char* profile) {
+int vipsgen_gifsave_with_options(VipsImage* in, const char* filename, double dither, gint effort, gint bitdepth, double interframe_maxerror, gboolean reuse, double interpalette_maxerror, gboolean interlace, gboolean keep_duplicate_frames, VipsForeignKeep keep, double* background, int background_n, gint page_height, const char* profile) {
     VipsOperation *operation = vips_operation_new("gifsave");
     if (!operation) return 1;
     VipsArrayDouble *background_array = NULL;
@@ -1513,7 +1513,7 @@ int vipsgen_gifsave_buffer(VipsImage* in, void** buf, size_t* len) {
     return vips_gifsave_buffer(in, buf, len, NULL);
 }
 
-int vipsgen_gifsave_buffer_with_options(VipsImage* in, void** buf, size_t* len, double dither, int effort, int bitdepth, double interframe_maxerror, gboolean reuse, double interpalette_maxerror, gboolean interlace, gboolean keep_duplicate_frames, VipsForeignKeep keep, double* background, int background_n, int page_height, const char* profile) {
+int vipsgen_gifsave_buffer_with_options(VipsImage* in, void** buf, size_t* len, double dither, gint effort, gint bitdepth, double interframe_maxerror, gboolean reuse, double interpalette_maxerror, gboolean interlace, gboolean keep_duplicate_frames, VipsForeignKeep keep, double* background, int background_n, gint page_height, const char* profile) {
     VipsOperation *operation = vips_operation_new("gifsave_buffer");
     if (!operation) return 1;
     VipsArrayDouble *background_array = NULL;
@@ -1546,7 +1546,7 @@ int vipsgen_gifsave_target(VipsImage* in, VipsTargetCustom* target) {
     return vips_gifsave_target(in, (VipsTarget*) target, NULL);
 }
 
-int vipsgen_gifsave_target_with_options(VipsImage* in, VipsTargetCustom* target, double dither, int effort, int bitdepth, double interframe_maxerror, gboolean reuse, double interpalette_maxerror, gboolean interlace, gboolean keep_duplicate_frames, VipsForeignKeep keep, double* background, int background_n, int page_height, const char* profile) {
+int vipsgen_gifsave_target_with_options(VipsImage* in, VipsTargetCustom* target, double dither, gint effort, gint bitdepth, double interframe_maxerror, gboolean reuse, double interpalette_maxerror, gboolean interlace, gboolean keep_duplicate_frames, VipsForeignKeep keep, double* background, int background_n, gint page_height, const char* profile) {
     VipsOperation *operation = vips_operation_new("gifsave_target");
     if (!operation) return 1;
     VipsArrayDouble *background_array = NULL;
@@ -1595,11 +1595,11 @@ int vipsgen_globalbalance_with_options(VipsImage* in, VipsImage** out, double ga
     return result;
 }
 
-int vipsgen_gravity(VipsImage* in, VipsImage** out, VipsCompassDirection direction, int width, int height) {
+int vipsgen_gravity(VipsImage* in, VipsImage** out, VipsCompassDirection direction, gint width, gint height) {
     return vips_gravity(in, out, direction, width, height, NULL);
 }
 
-int vipsgen_gravity_with_options(VipsImage* in, VipsImage** out, VipsCompassDirection direction, int width, int height, VipsExtend extend, double* background, int background_n) {
+int vipsgen_gravity_with_options(VipsImage* in, VipsImage** out, VipsCompassDirection direction, gint width, gint height, VipsExtend extend, double* background, int background_n) {
     VipsOperation *operation = vips_operation_new("gravity");
     if (!operation) return 1;
     VipsArrayDouble *background_array = NULL;
@@ -1621,11 +1621,11 @@ int vipsgen_gravity_with_options(VipsImage* in, VipsImage** out, VipsCompassDire
     return result;
 }
 
-int vipsgen_grey(VipsImage** out, int width, int height) {
+int vipsgen_grey(VipsImage** out, gint width, gint height) {
     return vips_grey(out, width, height, NULL);
 }
 
-int vipsgen_grey_with_options(VipsImage** out, int width, int height, gboolean uchar) {
+int vipsgen_grey_with_options(VipsImage** out, gint width, gint height, gboolean uchar) {
     VipsOperation *operation = vips_operation_new("grey");
     if (!operation) return 1;
     if (
@@ -1640,7 +1640,7 @@ int vipsgen_grey_with_options(VipsImage** out, int width, int height, gboolean u
     return result;
 }
 
-int vipsgen_grid(VipsImage* in, VipsImage** out, int tile_height, int across, int down) {
+int vipsgen_grid(VipsImage* in, VipsImage** out, gint tile_height, gint across, gint down) {
     return vips_grid(in, out, tile_height, across, down, NULL);
 }
 
@@ -1648,7 +1648,7 @@ int vipsgen_heifload(const char* filename, VipsImage** out) {
     return vips_heifload(filename, out, NULL);
 }
 
-int vipsgen_heifload_with_options(const char* filename, VipsImage** out, int page, int n, gboolean thumbnail, gboolean unlimited, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
+int vipsgen_heifload_with_options(const char* filename, VipsImage** out, gint page, gint n, gboolean thumbnail, gboolean unlimited, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
     VipsOperation *operation = vips_operation_new("heifload");
     if (!operation) return 1;
     if (
@@ -1673,7 +1673,7 @@ int vipsgen_heifload_buffer(void* buf, size_t len, VipsImage** out) {
     return vips_heifload_buffer(buf, len, out, NULL);
 }
 
-int vipsgen_heifload_buffer_with_options(void* buf, size_t len, VipsImage** out, int page, int n, gboolean thumbnail, gboolean unlimited, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
+int vipsgen_heifload_buffer_with_options(void* buf, size_t len, VipsImage** out, gint page, gint n, gboolean thumbnail, gboolean unlimited, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
     VipsOperation *operation = vips_operation_new("heifload_buffer");
     if (!operation) return 1;
     VipsBlob *blob = vips_blob_new(NULL, buf, len);
@@ -1702,7 +1702,7 @@ int vipsgen_heifload_source(VipsSourceCustom* source, VipsImage** out) {
     return vips_heifload_source((VipsSource*) source, out, NULL);
 }
 
-int vipsgen_heifload_source_with_options(VipsSourceCustom* source, VipsImage** out, int page, int n, gboolean thumbnail, gboolean unlimited, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
+int vipsgen_heifload_source_with_options(VipsSourceCustom* source, VipsImage** out, gint page, gint n, gboolean thumbnail, gboolean unlimited, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
     VipsOperation *operation = vips_operation_new("heifload_source");
     if (!operation) return 1;
     if (
@@ -1727,7 +1727,7 @@ int vipsgen_heifsave(VipsImage* in, const char* filename) {
     return vips_heifsave(in, filename, NULL);
 }
 
-int vipsgen_heifsave_with_options(VipsImage* in, const char* filename, int Q, int bitdepth, gboolean lossless, VipsForeignHeifCompression compression, int effort, VipsForeignSubsample subsample_mode, VipsForeignHeifEncoder encoder, VipsForeignKeep keep, double* background, int background_n, int page_height, const char* profile) {
+int vipsgen_heifsave_with_options(VipsImage* in, const char* filename, gint Q, gint bitdepth, gboolean lossless, VipsForeignHeifCompression compression, gint effort, VipsForeignSubsample subsample_mode, VipsForeignHeifEncoder encoder, VipsForeignKeep keep, double* background, int background_n, gint page_height, const char* profile) {
     VipsOperation *operation = vips_operation_new("heifsave");
     if (!operation) return 1;
     VipsArrayDouble *background_array = NULL;
@@ -1760,7 +1760,7 @@ int vipsgen_heifsave_buffer(VipsImage* in, void** buf, size_t* len) {
     return vips_heifsave_buffer(in, buf, len, NULL);
 }
 
-int vipsgen_heifsave_buffer_with_options(VipsImage* in, void** buf, size_t* len, int Q, int bitdepth, gboolean lossless, VipsForeignHeifCompression compression, int effort, VipsForeignSubsample subsample_mode, VipsForeignHeifEncoder encoder, VipsForeignKeep keep, double* background, int background_n, int page_height, const char* profile) {
+int vipsgen_heifsave_buffer_with_options(VipsImage* in, void** buf, size_t* len, gint Q, gint bitdepth, gboolean lossless, VipsForeignHeifCompression compression, gint effort, VipsForeignSubsample subsample_mode, VipsForeignHeifEncoder encoder, VipsForeignKeep keep, double* background, int background_n, gint page_height, const char* profile) {
     VipsOperation *operation = vips_operation_new("heifsave_buffer");
     if (!operation) return 1;
     VipsArrayDouble *background_array = NULL;
@@ -1792,7 +1792,7 @@ int vipsgen_heifsave_target(VipsImage* in, VipsTargetCustom* target) {
     return vips_heifsave_target(in, (VipsTarget*) target, NULL);
 }
 
-int vipsgen_heifsave_target_with_options(VipsImage* in, VipsTargetCustom* target, int Q, int bitdepth, gboolean lossless, VipsForeignHeifCompression compression, int effort, VipsForeignSubsample subsample_mode, VipsForeignHeifEncoder encoder, VipsForeignKeep keep, double* background, int background_n, int page_height, const char* profile) {
+int vipsgen_heifsave_target_with_options(VipsImage* in, VipsTargetCustom* target, gint Q, gint bitdepth, gboolean lossless, VipsForeignHeifCompression compression, gint effort, VipsForeignSubsample subsample_mode, VipsForeignHeifEncoder encoder, VipsForeignKeep keep, double* background, int background_n, gint page_height, const char* profile) {
     VipsOperation *operation = vips_operation_new("heifsave_target");
     if (!operation) return 1;
     VipsArrayDouble *background_array = NULL;
@@ -1833,7 +1833,7 @@ int vipsgen_hist_equal(VipsImage* in, VipsImage** out) {
     return vips_hist_equal(in, out, NULL);
 }
 
-int vipsgen_hist_equal_with_options(VipsImage* in, VipsImage** out, int band) {
+int vipsgen_hist_equal_with_options(VipsImage* in, VipsImage** out, gint band) {
     VipsOperation *operation = vips_operation_new("hist_equal");
     if (!operation) return 1;
     if (
@@ -1851,7 +1851,7 @@ int vipsgen_hist_find(VipsImage* in, VipsImage** out) {
     return vips_hist_find(in, out, NULL);
 }
 
-int vipsgen_hist_find_with_options(VipsImage* in, VipsImage** out, int band) {
+int vipsgen_hist_find_with_options(VipsImage* in, VipsImage** out, gint band) {
     VipsOperation *operation = vips_operation_new("hist_find");
     if (!operation) return 1;
     if (
@@ -1888,7 +1888,7 @@ int vipsgen_hist_find_ndim(VipsImage* in, VipsImage** out) {
     return vips_hist_find_ndim(in, out, NULL);
 }
 
-int vipsgen_hist_find_ndim_with_options(VipsImage* in, VipsImage** out, int bins) {
+int vipsgen_hist_find_ndim_with_options(VipsImage* in, VipsImage** out, gint bins) {
     VipsOperation *operation = vips_operation_new("hist_find_ndim");
     if (!operation) return 1;
     if (
@@ -1906,11 +1906,11 @@ int vipsgen_hist_ismonotonic(VipsImage* in, gboolean* monotonic) {
     return vips_hist_ismonotonic(in, monotonic, NULL);
 }
 
-int vipsgen_hist_local(VipsImage* in, VipsImage** out, int width, int height) {
+int vipsgen_hist_local(VipsImage* in, VipsImage** out, gint width, gint height) {
     return vips_hist_local(in, out, width, height, NULL);
 }
 
-int vipsgen_hist_local_with_options(VipsImage* in, VipsImage** out, int width, int height, int max_slope) {
+int vipsgen_hist_local_with_options(VipsImage* in, VipsImage** out, gint width, gint height, gint max_slope) {
     VipsOperation *operation = vips_operation_new("hist_local");
     if (!operation) return 1;
     if (
@@ -1942,7 +1942,7 @@ int vipsgen_hough_circle(VipsImage* in, VipsImage** out) {
     return vips_hough_circle(in, out, NULL);
 }
 
-int vipsgen_hough_circle_with_options(VipsImage* in, VipsImage** out, int scale, int min_radius, int max_radius) {
+int vipsgen_hough_circle_with_options(VipsImage* in, VipsImage** out, gint scale, gint min_radius, gint max_radius) {
     VipsOperation *operation = vips_operation_new("hough_circle");
     if (!operation) return 1;
     if (
@@ -1962,7 +1962,7 @@ int vipsgen_hough_line(VipsImage* in, VipsImage** out) {
     return vips_hough_line(in, out, NULL);
 }
 
-int vipsgen_hough_line_with_options(VipsImage* in, VipsImage** out, int width, int height) {
+int vipsgen_hough_line_with_options(VipsImage* in, VipsImage** out, gint width, gint height) {
     VipsOperation *operation = vips_operation_new("hough_line");
     if (!operation) return 1;
     if (
@@ -1981,7 +1981,7 @@ int vipsgen_icc_export(VipsImage* in, VipsImage** out) {
     return vips_icc_export(in, out, NULL);
 }
 
-int vipsgen_icc_export_with_options(VipsImage* in, VipsImage** out, VipsPCS pcs, VipsIntent intent, gboolean black_point_compensation, const char* output_profile, int depth) {
+int vipsgen_icc_export_with_options(VipsImage* in, VipsImage** out, VipsPCS pcs, VipsIntent intent, gboolean black_point_compensation, const char* output_profile, gint depth) {
     VipsOperation *operation = vips_operation_new("icc_export");
     if (!operation) return 1;
     if (
@@ -2025,7 +2025,7 @@ int vipsgen_icc_transform(VipsImage* in, VipsImage** out, const char* output_pro
     return vips_icc_transform(in, out, output_profile, NULL);
 }
 
-int vipsgen_icc_transform_with_options(VipsImage* in, VipsImage** out, const char* output_profile, VipsPCS pcs, VipsIntent intent, gboolean black_point_compensation, gboolean embedded, const char* input_profile, int depth) {
+int vipsgen_icc_transform_with_options(VipsImage* in, VipsImage** out, const char* output_profile, VipsPCS pcs, VipsIntent intent, gboolean black_point_compensation, gboolean embedded, const char* input_profile, gint depth) {
     VipsOperation *operation = vips_operation_new("icc_transform");
     if (!operation) return 1;
     if (
@@ -2049,7 +2049,7 @@ int vipsgen_identity(VipsImage** out) {
     return vips_identity(out, NULL);
 }
 
-int vipsgen_identity_with_options(VipsImage** out, int bands, gboolean ushort, int size) {
+int vipsgen_identity_with_options(VipsImage** out, gint bands, gboolean ushort, gint size) {
     VipsOperation *operation = vips_operation_new("identity");
     if (!operation) return 1;
     if (
@@ -2084,11 +2084,11 @@ int vipsgen_ifthenelse_with_options(VipsImage* cond, VipsImage* in1, VipsImage* 
     return result;
 }
 
-int vipsgen_insert(VipsImage* main, VipsImage* sub, VipsImage** out, int x, int y) {
+int vipsgen_insert(VipsImage* main, VipsImage* sub, VipsImage** out, gint x, gint y) {
     return vips_insert(main, sub, out, x, y, NULL);
 }
 
-int vipsgen_insert_with_options(VipsImage* main, VipsImage* sub, VipsImage** out, int x, int y, gboolean expand, double* background, int background_n) {
+int vipsgen_insert_with_options(VipsImage* main, VipsImage* sub, VipsImage** out, gint x, gint y, gboolean expand, double* background, int background_n) {
     VipsOperation *operation = vips_operation_new("insert");
     if (!operation) return 1;
     VipsArrayDouble *background_array = NULL;
@@ -2118,7 +2118,7 @@ int vipsgen_invertlut(VipsImage* in, VipsImage** out) {
     return vips_invertlut(in, out, NULL);
 }
 
-int vipsgen_invertlut_with_options(VipsImage* in, VipsImage** out, int size) {
+int vipsgen_invertlut_with_options(VipsImage* in, VipsImage** out, gint size) {
     VipsOperation *operation = vips_operation_new("invertlut");
     if (!operation) return 1;
     if (
@@ -2154,7 +2154,7 @@ int vipsgen_join(VipsImage* in1, VipsImage* in2, VipsImage** out, VipsDirection 
     return vips_join(in1, in2, out, direction, NULL);
 }
 
-int vipsgen_join_with_options(VipsImage* in1, VipsImage* in2, VipsImage** out, VipsDirection direction, gboolean expand, int shim, double* background, int background_n, VipsAlign align) {
+int vipsgen_join_with_options(VipsImage* in1, VipsImage* in2, VipsImage** out, VipsDirection direction, gboolean expand, gint shim, double* background, int background_n, VipsAlign align) {
     VipsOperation *operation = vips_operation_new("join");
     if (!operation) return 1;
     VipsArrayDouble *background_array = NULL;
@@ -2181,7 +2181,7 @@ int vipsgen_jp2kload(const char* filename, VipsImage** out) {
     return vips_jp2kload(filename, out, NULL);
 }
 
-int vipsgen_jp2kload_with_options(const char* filename, VipsImage** out, int page, gboolean oneshot, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
+int vipsgen_jp2kload_with_options(const char* filename, VipsImage** out, gint page, gboolean oneshot, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
     VipsOperation *operation = vips_operation_new("jp2kload");
     if (!operation) return 1;
     if (
@@ -2204,7 +2204,7 @@ int vipsgen_jp2kload_buffer(void* buf, size_t len, VipsImage** out) {
     return vips_jp2kload_buffer(buf, len, out, NULL);
 }
 
-int vipsgen_jp2kload_buffer_with_options(void* buf, size_t len, VipsImage** out, int page, gboolean oneshot, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
+int vipsgen_jp2kload_buffer_with_options(void* buf, size_t len, VipsImage** out, gint page, gboolean oneshot, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
     VipsOperation *operation = vips_operation_new("jp2kload_buffer");
     if (!operation) return 1;
     VipsBlob *blob = vips_blob_new(NULL, buf, len);
@@ -2231,7 +2231,7 @@ int vipsgen_jp2kload_source(VipsSourceCustom* source, VipsImage** out) {
     return vips_jp2kload_source((VipsSource*) source, out, NULL);
 }
 
-int vipsgen_jp2kload_source_with_options(VipsSourceCustom* source, VipsImage** out, int page, gboolean oneshot, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
+int vipsgen_jp2kload_source_with_options(VipsSourceCustom* source, VipsImage** out, gint page, gboolean oneshot, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
     VipsOperation *operation = vips_operation_new("jp2kload_source");
     if (!operation) return 1;
     if (
@@ -2254,7 +2254,7 @@ int vipsgen_jp2ksave(VipsImage* in, const char* filename) {
     return vips_jp2ksave(in, filename, NULL);
 }
 
-int vipsgen_jp2ksave_with_options(VipsImage* in, const char* filename, int tile_width, int tile_height, gboolean lossless, int Q, VipsForeignSubsample subsample_mode, VipsForeignKeep keep, double* background, int background_n, int page_height, const char* profile) {
+int vipsgen_jp2ksave_with_options(VipsImage* in, const char* filename, gint tile_width, gint tile_height, gboolean lossless, gint Q, VipsForeignSubsample subsample_mode, VipsForeignKeep keep, double* background, int background_n, gint page_height, const char* profile) {
     VipsOperation *operation = vips_operation_new("jp2ksave");
     if (!operation) return 1;
     VipsArrayDouble *background_array = NULL;
@@ -2285,7 +2285,7 @@ int vipsgen_jp2ksave_buffer(VipsImage* in, void** buf, size_t* len) {
     return vips_jp2ksave_buffer(in, buf, len, NULL);
 }
 
-int vipsgen_jp2ksave_buffer_with_options(VipsImage* in, void** buf, size_t* len, int tile_width, int tile_height, gboolean lossless, int Q, VipsForeignSubsample subsample_mode, VipsForeignKeep keep, double* background, int background_n, int page_height, const char* profile) {
+int vipsgen_jp2ksave_buffer_with_options(VipsImage* in, void** buf, size_t* len, gint tile_width, gint tile_height, gboolean lossless, gint Q, VipsForeignSubsample subsample_mode, VipsForeignKeep keep, double* background, int background_n, gint page_height, const char* profile) {
     VipsOperation *operation = vips_operation_new("jp2ksave_buffer");
     if (!operation) return 1;
     VipsArrayDouble *background_array = NULL;
@@ -2315,7 +2315,7 @@ int vipsgen_jp2ksave_target(VipsImage* in, VipsTargetCustom* target) {
     return vips_jp2ksave_target(in, (VipsTarget*) target, NULL);
 }
 
-int vipsgen_jp2ksave_target_with_options(VipsImage* in, VipsTargetCustom* target, int tile_width, int tile_height, gboolean lossless, int Q, VipsForeignSubsample subsample_mode, VipsForeignKeep keep, double* background, int background_n, int page_height, const char* profile) {
+int vipsgen_jp2ksave_target_with_options(VipsImage* in, VipsTargetCustom* target, gint tile_width, gint tile_height, gboolean lossless, gint Q, VipsForeignSubsample subsample_mode, VipsForeignKeep keep, double* background, int background_n, gint page_height, const char* profile) {
     VipsOperation *operation = vips_operation_new("jp2ksave_target");
     if (!operation) return 1;
     VipsArrayDouble *background_array = NULL;
@@ -2346,7 +2346,7 @@ int vipsgen_jpegload(const char* filename, VipsImage** out) {
     return vips_jpegload(filename, out, NULL);
 }
 
-int vipsgen_jpegload_with_options(const char* filename, VipsImage** out, int shrink, gboolean autorotate, gboolean unlimited, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
+int vipsgen_jpegload_with_options(const char* filename, VipsImage** out, gint shrink, gboolean autorotate, gboolean unlimited, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
     VipsOperation *operation = vips_operation_new("jpegload");
     if (!operation) return 1;
     if (
@@ -2370,7 +2370,7 @@ int vipsgen_jpegload_buffer(void* buf, size_t len, VipsImage** out) {
     return vips_jpegload_buffer(buf, len, out, NULL);
 }
 
-int vipsgen_jpegload_buffer_with_options(void* buf, size_t len, VipsImage** out, int shrink, gboolean autorotate, gboolean unlimited, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
+int vipsgen_jpegload_buffer_with_options(void* buf, size_t len, VipsImage** out, gint shrink, gboolean autorotate, gboolean unlimited, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
     VipsOperation *operation = vips_operation_new("jpegload_buffer");
     if (!operation) return 1;
     VipsBlob *blob = vips_blob_new(NULL, buf, len);
@@ -2398,7 +2398,7 @@ int vipsgen_jpegload_source(VipsSourceCustom* source, VipsImage** out) {
     return vips_jpegload_source((VipsSource*) source, out, NULL);
 }
 
-int vipsgen_jpegload_source_with_options(VipsSourceCustom* source, VipsImage** out, int shrink, gboolean autorotate, gboolean unlimited, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
+int vipsgen_jpegload_source_with_options(VipsSourceCustom* source, VipsImage** out, gint shrink, gboolean autorotate, gboolean unlimited, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
     VipsOperation *operation = vips_operation_new("jpegload_source");
     if (!operation) return 1;
     if (
@@ -2422,7 +2422,7 @@ int vipsgen_jpegsave(VipsImage* in, const char* filename) {
     return vips_jpegsave(in, filename, NULL);
 }
 
-int vipsgen_jpegsave_with_options(VipsImage* in, const char* filename, int Q, gboolean optimize_coding, gboolean interlace, gboolean trellis_quant, gboolean overshoot_deringing, gboolean optimize_scans, int quant_table, VipsForeignSubsample subsample_mode, int restart_interval, VipsForeignKeep keep, double* background, int background_n, int page_height, const char* profile) {
+int vipsgen_jpegsave_with_options(VipsImage* in, const char* filename, gint Q, gboolean optimize_coding, gboolean interlace, gboolean trellis_quant, gboolean overshoot_deringing, gboolean optimize_scans, gint quant_table, VipsForeignSubsample subsample_mode, gint restart_interval, VipsForeignKeep keep, double* background, int background_n, gint page_height, const char* profile) {
     VipsOperation *operation = vips_operation_new("jpegsave");
     if (!operation) return 1;
     VipsArrayDouble *background_array = NULL;
@@ -2457,7 +2457,7 @@ int vipsgen_jpegsave_buffer(VipsImage* in, void** buf, size_t* len) {
     return vips_jpegsave_buffer(in, buf, len, NULL);
 }
 
-int vipsgen_jpegsave_buffer_with_options(VipsImage* in, void** buf, size_t* len, int Q, gboolean optimize_coding, gboolean interlace, gboolean trellis_quant, gboolean overshoot_deringing, gboolean optimize_scans, int quant_table, VipsForeignSubsample subsample_mode, int restart_interval, VipsForeignKeep keep, double* background, int background_n, int page_height, const char* profile) {
+int vipsgen_jpegsave_buffer_with_options(VipsImage* in, void** buf, size_t* len, gint Q, gboolean optimize_coding, gboolean interlace, gboolean trellis_quant, gboolean overshoot_deringing, gboolean optimize_scans, gint quant_table, VipsForeignSubsample subsample_mode, gint restart_interval, VipsForeignKeep keep, double* background, int background_n, gint page_height, const char* profile) {
     VipsOperation *operation = vips_operation_new("jpegsave_buffer");
     if (!operation) return 1;
     VipsArrayDouble *background_array = NULL;
@@ -2491,7 +2491,7 @@ int vipsgen_jpegsave_target(VipsImage* in, VipsTargetCustom* target) {
     return vips_jpegsave_target(in, (VipsTarget*) target, NULL);
 }
 
-int vipsgen_jpegsave_target_with_options(VipsImage* in, VipsTargetCustom* target, int Q, gboolean optimize_coding, gboolean interlace, gboolean trellis_quant, gboolean overshoot_deringing, gboolean optimize_scans, int quant_table, VipsForeignSubsample subsample_mode, int restart_interval, VipsForeignKeep keep, double* background, int background_n, int page_height, const char* profile) {
+int vipsgen_jpegsave_target_with_options(VipsImage* in, VipsTargetCustom* target, gint Q, gboolean optimize_coding, gboolean interlace, gboolean trellis_quant, gboolean overshoot_deringing, gboolean optimize_scans, gint quant_table, VipsForeignSubsample subsample_mode, gint restart_interval, VipsForeignKeep keep, double* background, int background_n, gint page_height, const char* profile) {
     VipsOperation *operation = vips_operation_new("jpegsave_target");
     if (!operation) return 1;
     VipsArrayDouble *background_array = NULL;
@@ -2526,7 +2526,7 @@ int vipsgen_jxlload(const char* filename, VipsImage** out) {
     return vips_jxlload(filename, out, NULL);
 }
 
-int vipsgen_jxlload_with_options(const char* filename, VipsImage** out, int page, int n, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
+int vipsgen_jxlload_with_options(const char* filename, VipsImage** out, gint page, gint n, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
     VipsOperation *operation = vips_operation_new("jxlload");
     if (!operation) return 1;
     if (
@@ -2549,7 +2549,7 @@ int vipsgen_jxlload_buffer(void* buf, size_t len, VipsImage** out) {
     return vips_jxlload_buffer(buf, len, out, NULL);
 }
 
-int vipsgen_jxlload_buffer_with_options(void* buf, size_t len, VipsImage** out, int page, int n, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
+int vipsgen_jxlload_buffer_with_options(void* buf, size_t len, VipsImage** out, gint page, gint n, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
     VipsOperation *operation = vips_operation_new("jxlload_buffer");
     if (!operation) return 1;
     VipsBlob *blob = vips_blob_new(NULL, buf, len);
@@ -2576,7 +2576,7 @@ int vipsgen_jxlload_source(VipsSourceCustom* source, VipsImage** out) {
     return vips_jxlload_source((VipsSource*) source, out, NULL);
 }
 
-int vipsgen_jxlload_source_with_options(VipsSourceCustom* source, VipsImage** out, int page, int n, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
+int vipsgen_jxlload_source_with_options(VipsSourceCustom* source, VipsImage** out, gint page, gint n, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
     VipsOperation *operation = vips_operation_new("jxlload_source");
     if (!operation) return 1;
     if (
@@ -2599,7 +2599,7 @@ int vipsgen_jxlsave(VipsImage* in, const char* filename) {
     return vips_jxlsave(in, filename, NULL);
 }
 
-int vipsgen_jxlsave_with_options(VipsImage* in, const char* filename, int tier, double distance, int effort, gboolean lossless, int Q, VipsForeignKeep keep, double* background, int background_n, int page_height, const char* profile) {
+int vipsgen_jxlsave_with_options(VipsImage* in, const char* filename, gint tier, double distance, gint effort, gboolean lossless, gint Q, VipsForeignKeep keep, double* background, int background_n, gint page_height, const char* profile) {
     VipsOperation *operation = vips_operation_new("jxlsave");
     if (!operation) return 1;
     VipsArrayDouble *background_array = NULL;
@@ -2630,7 +2630,7 @@ int vipsgen_jxlsave_buffer(VipsImage* in, void** buf, size_t* len) {
     return vips_jxlsave_buffer(in, buf, len, NULL);
 }
 
-int vipsgen_jxlsave_buffer_with_options(VipsImage* in, void** buf, size_t* len, int tier, double distance, int effort, gboolean lossless, int Q, VipsForeignKeep keep, double* background, int background_n, int page_height, const char* profile) {
+int vipsgen_jxlsave_buffer_with_options(VipsImage* in, void** buf, size_t* len, gint tier, double distance, gint effort, gboolean lossless, gint Q, VipsForeignKeep keep, double* background, int background_n, gint page_height, const char* profile) {
     VipsOperation *operation = vips_operation_new("jxlsave_buffer");
     if (!operation) return 1;
     VipsArrayDouble *background_array = NULL;
@@ -2660,7 +2660,7 @@ int vipsgen_jxlsave_target(VipsImage* in, VipsTargetCustom* target) {
     return vips_jxlsave_target(in, (VipsTarget*) target, NULL);
 }
 
-int vipsgen_jxlsave_target_with_options(VipsImage* in, VipsTargetCustom* target, int tier, double distance, int effort, gboolean lossless, int Q, VipsForeignKeep keep, double* background, int background_n, int page_height, const char* profile) {
+int vipsgen_jxlsave_target_with_options(VipsImage* in, VipsTargetCustom* target, gint tier, double distance, gint effort, gboolean lossless, gint Q, VipsForeignKeep keep, double* background, int background_n, gint page_height, const char* profile) {
     VipsOperation *operation = vips_operation_new("jxlsave_target");
     if (!operation) return 1;
     VipsArrayDouble *background_array = NULL;
@@ -2691,7 +2691,7 @@ int vipsgen_labelregions(VipsImage* in, VipsImage** mask) {
     return vips_labelregions(in, mask, NULL);
 }
 
-int vipsgen_labelregions_with_options(VipsImage* in, VipsImage** mask, int* segments) {
+int vipsgen_labelregions_with_options(VipsImage* in, VipsImage** mask, gint* segments) {
     VipsOperation *operation = vips_operation_new("labelregions");
     if (!operation) return 1;
     if (
@@ -2736,7 +2736,7 @@ int vipsgen_linecache(VipsImage* in, VipsImage** out) {
     return vips_linecache(in, out, NULL);
 }
 
-int vipsgen_linecache_with_options(VipsImage* in, VipsImage** out, int tile_height, VipsAccess access, gboolean threaded, gboolean persistent) {
+int vipsgen_linecache_with_options(VipsImage* in, VipsImage** out, gint tile_height, VipsAccess access, gboolean threaded, gboolean persistent) {
     VipsOperation *operation = vips_operation_new("linecache");
     if (!operation) return 1;
     if (
@@ -2777,7 +2777,7 @@ int vipsgen_magickload(const char* filename, VipsImage** out) {
     return vips_magickload(filename, out, NULL);
 }
 
-int vipsgen_magickload_with_options(const char* filename, VipsImage** out, const char* density, int page, int n, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
+int vipsgen_magickload_with_options(const char* filename, VipsImage** out, const char* density, gint page, gint n, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
     VipsOperation *operation = vips_operation_new("magickload");
     if (!operation) return 1;
     if (
@@ -2801,7 +2801,7 @@ int vipsgen_magickload_buffer(void* buf, size_t len, VipsImage** out) {
     return vips_magickload_buffer(buf, len, out, NULL);
 }
 
-int vipsgen_magickload_buffer_with_options(void* buf, size_t len, VipsImage** out, const char* density, int page, int n, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
+int vipsgen_magickload_buffer_with_options(void* buf, size_t len, VipsImage** out, const char* density, gint page, gint n, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
     VipsOperation *operation = vips_operation_new("magickload_buffer");
     if (!operation) return 1;
     VipsBlob *blob = vips_blob_new(NULL, buf, len);
@@ -2829,7 +2829,7 @@ int vipsgen_magicksave(VipsImage* in, const char* filename) {
     return vips_magicksave(in, filename, NULL);
 }
 
-int vipsgen_magicksave_with_options(VipsImage* in, const char* filename, const char* format, int quality, gboolean optimize_gif_frames, gboolean optimize_gif_transparency, int bitdepth, VipsForeignKeep keep, double* background, int background_n, int page_height, const char* profile) {
+int vipsgen_magicksave_with_options(VipsImage* in, const char* filename, const char* format, gint quality, gboolean optimize_gif_frames, gboolean optimize_gif_transparency, gint bitdepth, VipsForeignKeep keep, double* background, int background_n, gint page_height, const char* profile) {
     VipsOperation *operation = vips_operation_new("magicksave");
     if (!operation) return 1;
     VipsArrayDouble *background_array = NULL;
@@ -2860,7 +2860,7 @@ int vipsgen_magicksave_buffer(VipsImage* in, void** buf, size_t* len) {
     return vips_magicksave_buffer(in, buf, len, NULL);
 }
 
-int vipsgen_magicksave_buffer_with_options(VipsImage* in, void** buf, size_t* len, const char* format, int quality, gboolean optimize_gif_frames, gboolean optimize_gif_transparency, int bitdepth, VipsForeignKeep keep, double* background, int background_n, int page_height, const char* profile) {
+int vipsgen_magicksave_buffer_with_options(VipsImage* in, void** buf, size_t* len, const char* format, gint quality, gboolean optimize_gif_frames, gboolean optimize_gif_transparency, gint bitdepth, VipsForeignKeep keep, double* background, int background_n, gint page_height, const char* profile) {
     VipsOperation *operation = vips_operation_new("magicksave_buffer");
     if (!operation) return 1;
     VipsArrayDouble *background_array = NULL;
@@ -2916,7 +2916,7 @@ int vipsgen_maplut(VipsImage* in, VipsImage** out, VipsImage* lut) {
     return vips_maplut(in, out, lut, NULL);
 }
 
-int vipsgen_maplut_with_options(VipsImage* in, VipsImage** out, VipsImage* lut, int band) {
+int vipsgen_maplut_with_options(VipsImage* in, VipsImage** out, VipsImage* lut, gint band) {
     VipsOperation *operation = vips_operation_new("maplut");
     if (!operation) return 1;
     if (
@@ -2931,11 +2931,11 @@ int vipsgen_maplut_with_options(VipsImage* in, VipsImage** out, VipsImage* lut, 
     return result;
 }
 
-int vipsgen_mask_butterworth(VipsImage** out, int width, int height, double order, double frequency_cutoff, double amplitude_cutoff) {
+int vipsgen_mask_butterworth(VipsImage** out, gint width, gint height, double order, double frequency_cutoff, double amplitude_cutoff) {
     return vips_mask_butterworth(out, width, height, order, frequency_cutoff, amplitude_cutoff, NULL);
 }
 
-int vipsgen_mask_butterworth_with_options(VipsImage** out, int width, int height, double order, double frequency_cutoff, double amplitude_cutoff, gboolean uchar, gboolean nodc, gboolean reject, gboolean optical) {
+int vipsgen_mask_butterworth_with_options(VipsImage** out, gint width, gint height, double order, double frequency_cutoff, double amplitude_cutoff, gboolean uchar, gboolean nodc, gboolean reject, gboolean optical) {
     VipsOperation *operation = vips_operation_new("mask_butterworth");
     if (!operation) return 1;
     if (
@@ -2956,11 +2956,11 @@ int vipsgen_mask_butterworth_with_options(VipsImage** out, int width, int height
     return result;
 }
 
-int vipsgen_mask_butterworth_band(VipsImage** out, int width, int height, double order, double frequency_cutoff_x, double frequency_cutoff_y, double radius, double amplitude_cutoff) {
+int vipsgen_mask_butterworth_band(VipsImage** out, gint width, gint height, double order, double frequency_cutoff_x, double frequency_cutoff_y, double radius, double amplitude_cutoff) {
     return vips_mask_butterworth_band(out, width, height, order, frequency_cutoff_x, frequency_cutoff_y, radius, amplitude_cutoff, NULL);
 }
 
-int vipsgen_mask_butterworth_band_with_options(VipsImage** out, int width, int height, double order, double frequency_cutoff_x, double frequency_cutoff_y, double radius, double amplitude_cutoff, gboolean uchar, gboolean nodc, gboolean reject, gboolean optical) {
+int vipsgen_mask_butterworth_band_with_options(VipsImage** out, gint width, gint height, double order, double frequency_cutoff_x, double frequency_cutoff_y, double radius, double amplitude_cutoff, gboolean uchar, gboolean nodc, gboolean reject, gboolean optical) {
     VipsOperation *operation = vips_operation_new("mask_butterworth_band");
     if (!operation) return 1;
     if (
@@ -2983,11 +2983,11 @@ int vipsgen_mask_butterworth_band_with_options(VipsImage** out, int width, int h
     return result;
 }
 
-int vipsgen_mask_butterworth_ring(VipsImage** out, int width, int height, double order, double frequency_cutoff, double amplitude_cutoff, double ringwidth) {
+int vipsgen_mask_butterworth_ring(VipsImage** out, gint width, gint height, double order, double frequency_cutoff, double amplitude_cutoff, double ringwidth) {
     return vips_mask_butterworth_ring(out, width, height, order, frequency_cutoff, amplitude_cutoff, ringwidth, NULL);
 }
 
-int vipsgen_mask_butterworth_ring_with_options(VipsImage** out, int width, int height, double order, double frequency_cutoff, double amplitude_cutoff, double ringwidth, gboolean uchar, gboolean nodc, gboolean reject, gboolean optical) {
+int vipsgen_mask_butterworth_ring_with_options(VipsImage** out, gint width, gint height, double order, double frequency_cutoff, double amplitude_cutoff, double ringwidth, gboolean uchar, gboolean nodc, gboolean reject, gboolean optical) {
     VipsOperation *operation = vips_operation_new("mask_butterworth_ring");
     if (!operation) return 1;
     if (
@@ -3009,11 +3009,11 @@ int vipsgen_mask_butterworth_ring_with_options(VipsImage** out, int width, int h
     return result;
 }
 
-int vipsgen_mask_fractal(VipsImage** out, int width, int height, double fractal_dimension) {
+int vipsgen_mask_fractal(VipsImage** out, gint width, gint height, double fractal_dimension) {
     return vips_mask_fractal(out, width, height, fractal_dimension, NULL);
 }
 
-int vipsgen_mask_fractal_with_options(VipsImage** out, int width, int height, double fractal_dimension, gboolean uchar, gboolean nodc, gboolean reject, gboolean optical) {
+int vipsgen_mask_fractal_with_options(VipsImage** out, gint width, gint height, double fractal_dimension, gboolean uchar, gboolean nodc, gboolean reject, gboolean optical) {
     VipsOperation *operation = vips_operation_new("mask_fractal");
     if (!operation) return 1;
     if (
@@ -3032,11 +3032,11 @@ int vipsgen_mask_fractal_with_options(VipsImage** out, int width, int height, do
     return result;
 }
 
-int vipsgen_mask_gaussian(VipsImage** out, int width, int height, double frequency_cutoff, double amplitude_cutoff) {
+int vipsgen_mask_gaussian(VipsImage** out, gint width, gint height, double frequency_cutoff, double amplitude_cutoff) {
     return vips_mask_gaussian(out, width, height, frequency_cutoff, amplitude_cutoff, NULL);
 }
 
-int vipsgen_mask_gaussian_with_options(VipsImage** out, int width, int height, double frequency_cutoff, double amplitude_cutoff, gboolean uchar, gboolean nodc, gboolean reject, gboolean optical) {
+int vipsgen_mask_gaussian_with_options(VipsImage** out, gint width, gint height, double frequency_cutoff, double amplitude_cutoff, gboolean uchar, gboolean nodc, gboolean reject, gboolean optical) {
     VipsOperation *operation = vips_operation_new("mask_gaussian");
     if (!operation) return 1;
     if (
@@ -3056,11 +3056,11 @@ int vipsgen_mask_gaussian_with_options(VipsImage** out, int width, int height, d
     return result;
 }
 
-int vipsgen_mask_gaussian_band(VipsImage** out, int width, int height, double frequency_cutoff_x, double frequency_cutoff_y, double radius, double amplitude_cutoff) {
+int vipsgen_mask_gaussian_band(VipsImage** out, gint width, gint height, double frequency_cutoff_x, double frequency_cutoff_y, double radius, double amplitude_cutoff) {
     return vips_mask_gaussian_band(out, width, height, frequency_cutoff_x, frequency_cutoff_y, radius, amplitude_cutoff, NULL);
 }
 
-int vipsgen_mask_gaussian_band_with_options(VipsImage** out, int width, int height, double frequency_cutoff_x, double frequency_cutoff_y, double radius, double amplitude_cutoff, gboolean uchar, gboolean nodc, gboolean reject, gboolean optical) {
+int vipsgen_mask_gaussian_band_with_options(VipsImage** out, gint width, gint height, double frequency_cutoff_x, double frequency_cutoff_y, double radius, double amplitude_cutoff, gboolean uchar, gboolean nodc, gboolean reject, gboolean optical) {
     VipsOperation *operation = vips_operation_new("mask_gaussian_band");
     if (!operation) return 1;
     if (
@@ -3082,11 +3082,11 @@ int vipsgen_mask_gaussian_band_with_options(VipsImage** out, int width, int heig
     return result;
 }
 
-int vipsgen_mask_gaussian_ring(VipsImage** out, int width, int height, double frequency_cutoff, double amplitude_cutoff, double ringwidth) {
+int vipsgen_mask_gaussian_ring(VipsImage** out, gint width, gint height, double frequency_cutoff, double amplitude_cutoff, double ringwidth) {
     return vips_mask_gaussian_ring(out, width, height, frequency_cutoff, amplitude_cutoff, ringwidth, NULL);
 }
 
-int vipsgen_mask_gaussian_ring_with_options(VipsImage** out, int width, int height, double frequency_cutoff, double amplitude_cutoff, double ringwidth, gboolean uchar, gboolean nodc, gboolean reject, gboolean optical) {
+int vipsgen_mask_gaussian_ring_with_options(VipsImage** out, gint width, gint height, double frequency_cutoff, double amplitude_cutoff, double ringwidth, gboolean uchar, gboolean nodc, gboolean reject, gboolean optical) {
     VipsOperation *operation = vips_operation_new("mask_gaussian_ring");
     if (!operation) return 1;
     if (
@@ -3107,11 +3107,11 @@ int vipsgen_mask_gaussian_ring_with_options(VipsImage** out, int width, int heig
     return result;
 }
 
-int vipsgen_mask_ideal(VipsImage** out, int width, int height, double frequency_cutoff) {
+int vipsgen_mask_ideal(VipsImage** out, gint width, gint height, double frequency_cutoff) {
     return vips_mask_ideal(out, width, height, frequency_cutoff, NULL);
 }
 
-int vipsgen_mask_ideal_with_options(VipsImage** out, int width, int height, double frequency_cutoff, gboolean uchar, gboolean nodc, gboolean reject, gboolean optical) {
+int vipsgen_mask_ideal_with_options(VipsImage** out, gint width, gint height, double frequency_cutoff, gboolean uchar, gboolean nodc, gboolean reject, gboolean optical) {
     VipsOperation *operation = vips_operation_new("mask_ideal");
     if (!operation) return 1;
     if (
@@ -3130,11 +3130,11 @@ int vipsgen_mask_ideal_with_options(VipsImage** out, int width, int height, doub
     return result;
 }
 
-int vipsgen_mask_ideal_band(VipsImage** out, int width, int height, double frequency_cutoff_x, double frequency_cutoff_y, double radius) {
+int vipsgen_mask_ideal_band(VipsImage** out, gint width, gint height, double frequency_cutoff_x, double frequency_cutoff_y, double radius) {
     return vips_mask_ideal_band(out, width, height, frequency_cutoff_x, frequency_cutoff_y, radius, NULL);
 }
 
-int vipsgen_mask_ideal_band_with_options(VipsImage** out, int width, int height, double frequency_cutoff_x, double frequency_cutoff_y, double radius, gboolean uchar, gboolean nodc, gboolean reject, gboolean optical) {
+int vipsgen_mask_ideal_band_with_options(VipsImage** out, gint width, gint height, double frequency_cutoff_x, double frequency_cutoff_y, double radius, gboolean uchar, gboolean nodc, gboolean reject, gboolean optical) {
     VipsOperation *operation = vips_operation_new("mask_ideal_band");
     if (!operation) return 1;
     if (
@@ -3155,11 +3155,11 @@ int vipsgen_mask_ideal_band_with_options(VipsImage** out, int width, int height,
     return result;
 }
 
-int vipsgen_mask_ideal_ring(VipsImage** out, int width, int height, double frequency_cutoff, double ringwidth) {
+int vipsgen_mask_ideal_ring(VipsImage** out, gint width, gint height, double frequency_cutoff, double ringwidth) {
     return vips_mask_ideal_ring(out, width, height, frequency_cutoff, ringwidth, NULL);
 }
 
-int vipsgen_mask_ideal_ring_with_options(VipsImage** out, int width, int height, double frequency_cutoff, double ringwidth, gboolean uchar, gboolean nodc, gboolean reject, gboolean optical) {
+int vipsgen_mask_ideal_ring_with_options(VipsImage** out, gint width, gint height, double frequency_cutoff, double ringwidth, gboolean uchar, gboolean nodc, gboolean reject, gboolean optical) {
     VipsOperation *operation = vips_operation_new("mask_ideal_ring");
     if (!operation) return 1;
     if (
@@ -3179,11 +3179,11 @@ int vipsgen_mask_ideal_ring_with_options(VipsImage** out, int width, int height,
     return result;
 }
 
-int vipsgen_match(VipsImage* ref, VipsImage* sec, VipsImage** out, int xr1, int yr1, int xs1, int ys1, int xr2, int yr2, int xs2, int ys2) {
+int vipsgen_match(VipsImage* ref, VipsImage* sec, VipsImage** out, gint xr1, gint yr1, gint xs1, gint ys1, gint xr2, gint yr2, gint xs2, gint ys2) {
     return vips_match(ref, sec, out, xr1, yr1, xs1, ys1, xr2, yr2, xs2, ys2, NULL);
 }
 
-int vipsgen_match_with_options(VipsImage* ref, VipsImage* sec, VipsImage** out, int xr1, int yr1, int xs1, int ys1, int xr2, int yr2, int xs2, int ys2, int hwindow, int harea, gboolean search, VipsInterpolate* interpolate) {
+int vipsgen_match_with_options(VipsImage* ref, VipsImage* sec, VipsImage** out, gint xr1, gint yr1, gint xs1, gint ys1, gint xr2, gint yr2, gint xs2, gint ys2, gint hwindow, gint harea, gboolean search, VipsInterpolate* interpolate) {
     VipsOperation *operation = vips_operation_new("match");
     if (!operation) return 1;
     if (
@@ -3296,7 +3296,7 @@ int vipsgen_matrixprint(VipsImage* in) {
     return vips_matrixprint(in, NULL);
 }
 
-int vipsgen_matrixprint_with_options(VipsImage* in, VipsForeignKeep keep, double* background, int background_n, int page_height, const char* profile) {
+int vipsgen_matrixprint_with_options(VipsImage* in, VipsForeignKeep keep, double* background, int background_n, gint page_height, const char* profile) {
     VipsOperation *operation = vips_operation_new("matrixprint");
     if (!operation) return 1;
     VipsArrayDouble *background_array = NULL;
@@ -3321,7 +3321,7 @@ int vipsgen_matrixsave(VipsImage* in, const char* filename) {
     return vips_matrixsave(in, filename, NULL);
 }
 
-int vipsgen_matrixsave_with_options(VipsImage* in, const char* filename, VipsForeignKeep keep, double* background, int background_n, int page_height, const char* profile) {
+int vipsgen_matrixsave_with_options(VipsImage* in, const char* filename, VipsForeignKeep keep, double* background, int background_n, gint page_height, const char* profile) {
     VipsOperation *operation = vips_operation_new("matrixsave");
     if (!operation) return 1;
     VipsArrayDouble *background_array = NULL;
@@ -3347,7 +3347,7 @@ int vipsgen_matrixsave_target(VipsImage* in, VipsTargetCustom* target) {
     return vips_matrixsave_target(in, (VipsTarget*) target, NULL);
 }
 
-int vipsgen_matrixsave_target_with_options(VipsImage* in, VipsTargetCustom* target, VipsForeignKeep keep, double* background, int background_n, int page_height, const char* profile) {
+int vipsgen_matrixsave_target_with_options(VipsImage* in, VipsTargetCustom* target, VipsForeignKeep keep, double* background, int background_n, gint page_height, const char* profile) {
     VipsOperation *operation = vips_operation_new("matrixsave_target");
     if (!operation) return 1;
     VipsArrayDouble *background_array = NULL;
@@ -3373,7 +3373,7 @@ int vipsgen_max(VipsImage* in, double* out) {
     return vips_max(in, out, NULL);
 }
 
-int vipsgen_max_with_options(VipsImage* in, double* out, int size, int* x, int* y) {
+int vipsgen_max_with_options(VipsImage* in, double* out, gint size, gint* x, gint* y) {
     VipsOperation *operation = vips_operation_new("max");
     if (!operation) return 1;
     if (
@@ -3391,11 +3391,11 @@ int vipsgen_maxpair(VipsImage* left, VipsImage* right, VipsImage** out) {
     return vips_maxpair(left, right, out, NULL);
 }
 
-int vipsgen_measure(VipsImage* in, VipsImage** out, int h, int v) {
+int vipsgen_measure(VipsImage* in, VipsImage** out, gint h, gint v) {
     return vips_measure(in, out, h, v, NULL);
 }
 
-int vipsgen_measure_with_options(VipsImage* in, VipsImage** out, int h, int v, int left, int top, int width, int height) {
+int vipsgen_measure_with_options(VipsImage* in, VipsImage** out, gint h, gint v, gint left, gint top, gint width, gint height) {
     VipsOperation *operation = vips_operation_new("measure");
     if (!operation) return 1;
     if (
@@ -3414,11 +3414,11 @@ int vipsgen_measure_with_options(VipsImage* in, VipsImage** out, int h, int v, i
     return result;
 }
 
-int vipsgen_merge(VipsImage* ref, VipsImage* sec, VipsImage** out, VipsDirection direction, int dx, int dy) {
+int vipsgen_merge(VipsImage* ref, VipsImage* sec, VipsImage** out, VipsDirection direction, gint dx, gint dy) {
     return vips_merge(ref, sec, out, direction, dx, dy, NULL);
 }
 
-int vipsgen_merge_with_options(VipsImage* ref, VipsImage* sec, VipsImage** out, VipsDirection direction, int dx, int dy, int mblend) {
+int vipsgen_merge_with_options(VipsImage* ref, VipsImage* sec, VipsImage** out, VipsDirection direction, gint dx, gint dy, gint mblend) {
     VipsOperation *operation = vips_operation_new("merge");
     if (!operation) return 1;
     if (
@@ -3440,7 +3440,7 @@ int vipsgen_min(VipsImage* in, double* out) {
     return vips_min(in, out, NULL);
 }
 
-int vipsgen_min_with_options(VipsImage* in, double* out, int size, int* x, int* y) {
+int vipsgen_min_with_options(VipsImage* in, double* out, gint size, gint* x, gint* y) {
     VipsOperation *operation = vips_operation_new("min");
     if (!operation) return 1;
     if (
@@ -3462,11 +3462,11 @@ int vipsgen_morph(VipsImage* in, VipsImage** out, VipsImage* mask, VipsOperation
     return vips_morph(in, out, mask, morph, NULL);
 }
 
-int vipsgen_mosaic(VipsImage* ref, VipsImage* sec, VipsImage** out, VipsDirection direction, int xref, int yref, int xsec, int ysec) {
+int vipsgen_mosaic(VipsImage* ref, VipsImage* sec, VipsImage** out, VipsDirection direction, gint xref, gint yref, gint xsec, gint ysec) {
     return vips_mosaic(ref, sec, out, direction, xref, yref, xsec, ysec, NULL);
 }
 
-int vipsgen_mosaic_with_options(VipsImage* ref, VipsImage* sec, VipsImage** out, VipsDirection direction, int xref, int yref, int xsec, int ysec, int hwindow, int harea, int mblend, int bandno, int* dx0, int* dy0, double* scale1, double* angle1, double* dy1, double* dx1) {
+int vipsgen_mosaic_with_options(VipsImage* ref, VipsImage* sec, VipsImage** out, VipsDirection direction, gint xref, gint yref, gint xsec, gint ysec, gint hwindow, gint harea, gint mblend, gint bandno, gint* dx0, gint* dy0, double* scale1, double* angle1, double* dy1, double* dx1) {
     VipsOperation *operation = vips_operation_new("mosaic");
     if (!operation) return 1;
     if (
@@ -3489,11 +3489,11 @@ int vipsgen_mosaic_with_options(VipsImage* ref, VipsImage* sec, VipsImage** out,
     return result;
 }
 
-int vipsgen_mosaic1(VipsImage* ref, VipsImage* sec, VipsImage** out, VipsDirection direction, int xr1, int yr1, int xs1, int ys1, int xr2, int yr2, int xs2, int ys2) {
+int vipsgen_mosaic1(VipsImage* ref, VipsImage* sec, VipsImage** out, VipsDirection direction, gint xr1, gint yr1, gint xs1, gint ys1, gint xr2, gint yr2, gint xs2, gint ys2) {
     return vips_mosaic1(ref, sec, out, direction, xr1, yr1, xs1, ys1, xr2, yr2, xs2, ys2, NULL);
 }
 
-int vipsgen_mosaic1_with_options(VipsImage* ref, VipsImage* sec, VipsImage** out, VipsDirection direction, int xr1, int yr1, int xs1, int ys1, int xr2, int yr2, int xs2, int ys2, int hwindow, int harea, gboolean search, VipsInterpolate* interpolate, int mblend) {
+int vipsgen_mosaic1_with_options(VipsImage* ref, VipsImage* sec, VipsImage** out, VipsDirection direction, gint xr1, gint yr1, gint xs1, gint ys1, gint xr2, gint yr2, gint xs2, gint ys2, gint hwindow, gint harea, gboolean search, VipsInterpolate* interpolate, gint mblend) {
     VipsOperation *operation = vips_operation_new("mosaic1");
     if (!operation) return 1;
     if (
@@ -3525,7 +3525,7 @@ int vipsgen_msb(VipsImage* in, VipsImage** out) {
     return vips_msb(in, out, NULL);
 }
 
-int vipsgen_msb_with_options(VipsImage* in, VipsImage** out, int band) {
+int vipsgen_msb_with_options(VipsImage* in, VipsImage** out, gint band) {
     VipsOperation *operation = vips_operation_new("msb");
     if (!operation) return 1;
     if (
@@ -3589,7 +3589,7 @@ int vipsgen_niftisave(VipsImage* in, const char* filename) {
     return vips_niftisave(in, filename, NULL);
 }
 
-int vipsgen_niftisave_with_options(VipsImage* in, const char* filename, VipsForeignKeep keep, double* background, int background_n, int page_height, const char* profile) {
+int vipsgen_niftisave_with_options(VipsImage* in, const char* filename, VipsForeignKeep keep, double* background, int background_n, gint page_height, const char* profile) {
     VipsOperation *operation = vips_operation_new("niftisave");
     if (!operation) return 1;
     VipsArrayDouble *background_array = NULL;
@@ -3636,7 +3636,7 @@ int vipsgen_openslideload(const char* filename, VipsImage** out) {
     return vips_openslideload(filename, out, NULL);
 }
 
-int vipsgen_openslideload_with_options(const char* filename, VipsImage** out, int level, gboolean autocrop, const char* associated, gboolean attach_associated, gboolean rgb, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
+int vipsgen_openslideload_with_options(const char* filename, VipsImage** out, gint level, gboolean autocrop, const char* associated, gboolean attach_associated, gboolean rgb, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
     VipsOperation *operation = vips_operation_new("openslideload");
     if (!operation) return 1;
     if (
@@ -3662,7 +3662,7 @@ int vipsgen_openslideload_source(VipsSourceCustom* source, VipsImage** out) {
     return vips_openslideload_source((VipsSource*) source, out, NULL);
 }
 
-int vipsgen_openslideload_source_with_options(VipsSourceCustom* source, VipsImage** out, int level, gboolean autocrop, const char* associated, gboolean attach_associated, gboolean rgb, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
+int vipsgen_openslideload_source_with_options(VipsSourceCustom* source, VipsImage** out, gint level, gboolean autocrop, const char* associated, gboolean attach_associated, gboolean rgb, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
     VipsOperation *operation = vips_operation_new("openslideload_source");
     if (!operation) return 1;
     if (
@@ -3688,7 +3688,7 @@ int vipsgen_pdfload(const char* filename, VipsImage** out) {
     return vips_pdfload(filename, out, NULL);
 }
 
-int vipsgen_pdfload_with_options(const char* filename, VipsImage** out, int page, int n, double dpi, double scale, double* background, int background_n, const char* password, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
+int vipsgen_pdfload_with_options(const char* filename, VipsImage** out, gint page, gint n, double dpi, double scale, double* background, int background_n, const char* password, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
     VipsOperation *operation = vips_operation_new("pdfload");
     if (!operation) return 1;
     VipsArrayDouble *background_array = NULL;
@@ -3719,7 +3719,7 @@ int vipsgen_pdfload_buffer(void* buf, size_t len, VipsImage** out) {
     return vips_pdfload_buffer(buf, len, out, NULL);
 }
 
-int vipsgen_pdfload_buffer_with_options(void* buf, size_t len, VipsImage** out, int page, int n, double dpi, double scale, double* background, int background_n, const char* password, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
+int vipsgen_pdfload_buffer_with_options(void* buf, size_t len, VipsImage** out, gint page, gint n, double dpi, double scale, double* background, int background_n, const char* password, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
     VipsOperation *operation = vips_operation_new("pdfload_buffer");
     if (!operation) return 1;
     VipsBlob *blob = vips_blob_new(NULL, buf, len);
@@ -3754,7 +3754,7 @@ int vipsgen_pdfload_source(VipsSourceCustom* source, VipsImage** out) {
     return vips_pdfload_source((VipsSource*) source, out, NULL);
 }
 
-int vipsgen_pdfload_source_with_options(VipsSourceCustom* source, VipsImage** out, int page, int n, double dpi, double scale, double* background, int background_n, const char* password, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
+int vipsgen_pdfload_source_with_options(VipsSourceCustom* source, VipsImage** out, gint page, gint n, double dpi, double scale, double* background, int background_n, const char* password, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
     VipsOperation *operation = vips_operation_new("pdfload_source");
     if (!operation) return 1;
     VipsArrayDouble *background_array = NULL;
@@ -3781,15 +3781,15 @@ int vipsgen_pdfload_source_with_options(VipsSourceCustom* source, VipsImage** ou
     return result;
 }
 
-int vipsgen_percent(VipsImage* in, double percent, int* threshold) {
+int vipsgen_percent(VipsImage* in, double percent, gint* threshold) {
     return vips_percent(in, percent, threshold, NULL);
 }
 
-int vipsgen_perlin(VipsImage** out, int width, int height) {
+int vipsgen_perlin(VipsImage** out, gint width, gint height) {
     return vips_perlin(out, width, height, NULL);
 }
 
-int vipsgen_perlin_with_options(VipsImage** out, int width, int height, int cell_size, gboolean uchar, int seed) {
+int vipsgen_perlin_with_options(VipsImage** out, gint width, gint height, gint cell_size, gboolean uchar, gint seed) {
     VipsOperation *operation = vips_operation_new("perlin");
     if (!operation) return 1;
     if (
@@ -3884,7 +3884,7 @@ int vipsgen_pngsave(VipsImage* in, const char* filename) {
     return vips_pngsave(in, filename, NULL);
 }
 
-int vipsgen_pngsave_with_options(VipsImage* in, const char* filename, int compression, gboolean interlace, VipsForeignPngFilter filter, gboolean palette, int Q, double dither, int bitdepth, int effort, VipsForeignKeep keep, double* background, int background_n, int page_height, const char* profile) {
+int vipsgen_pngsave_with_options(VipsImage* in, const char* filename, gint compression, gboolean interlace, VipsForeignPngFilter filter, gboolean palette, gint Q, double dither, gint bitdepth, gint effort, VipsForeignKeep keep, double* background, int background_n, gint page_height, const char* profile) {
     VipsOperation *operation = vips_operation_new("pngsave");
     if (!operation) return 1;
     VipsArrayDouble *background_array = NULL;
@@ -3918,7 +3918,7 @@ int vipsgen_pngsave_buffer(VipsImage* in, void** buf, size_t* len) {
     return vips_pngsave_buffer(in, buf, len, NULL);
 }
 
-int vipsgen_pngsave_buffer_with_options(VipsImage* in, void** buf, size_t* len, int compression, gboolean interlace, VipsForeignPngFilter filter, gboolean palette, int Q, double dither, int bitdepth, int effort, VipsForeignKeep keep, double* background, int background_n, int page_height, const char* profile) {
+int vipsgen_pngsave_buffer_with_options(VipsImage* in, void** buf, size_t* len, gint compression, gboolean interlace, VipsForeignPngFilter filter, gboolean palette, gint Q, double dither, gint bitdepth, gint effort, VipsForeignKeep keep, double* background, int background_n, gint page_height, const char* profile) {
     VipsOperation *operation = vips_operation_new("pngsave_buffer");
     if (!operation) return 1;
     VipsArrayDouble *background_array = NULL;
@@ -3951,7 +3951,7 @@ int vipsgen_pngsave_target(VipsImage* in, VipsTargetCustom* target) {
     return vips_pngsave_target(in, (VipsTarget*) target, NULL);
 }
 
-int vipsgen_pngsave_target_with_options(VipsImage* in, VipsTargetCustom* target, int compression, gboolean interlace, VipsForeignPngFilter filter, gboolean palette, int Q, double dither, int bitdepth, int effort, VipsForeignKeep keep, double* background, int background_n, int page_height, const char* profile) {
+int vipsgen_pngsave_target_with_options(VipsImage* in, VipsTargetCustom* target, gint compression, gboolean interlace, VipsForeignPngFilter filter, gboolean palette, gint Q, double dither, gint bitdepth, gint effort, VipsForeignKeep keep, double* background, int background_n, gint page_height, const char* profile) {
     VipsOperation *operation = vips_operation_new("pngsave_target");
     if (!operation) return 1;
     VipsArrayDouble *background_array = NULL;
@@ -4052,7 +4052,7 @@ int vipsgen_ppmsave(VipsImage* in, const char* filename) {
     return vips_ppmsave(in, filename, NULL);
 }
 
-int vipsgen_ppmsave_with_options(VipsImage* in, const char* filename, VipsForeignPpmFormat format, gboolean ascii, int bitdepth, VipsForeignKeep keep, double* background, int background_n, int page_height, const char* profile) {
+int vipsgen_ppmsave_with_options(VipsImage* in, const char* filename, VipsForeignPpmFormat format, gboolean ascii, gint bitdepth, VipsForeignKeep keep, double* background, int background_n, gint page_height, const char* profile) {
     VipsOperation *operation = vips_operation_new("ppmsave");
     if (!operation) return 1;
     VipsArrayDouble *background_array = NULL;
@@ -4081,7 +4081,7 @@ int vipsgen_ppmsave_target(VipsImage* in, VipsTargetCustom* target) {
     return vips_ppmsave_target(in, (VipsTarget*) target, NULL);
 }
 
-int vipsgen_ppmsave_target_with_options(VipsImage* in, VipsTargetCustom* target, VipsForeignPpmFormat format, gboolean ascii, int bitdepth, VipsForeignKeep keep, double* background, int background_n, int page_height, const char* profile) {
+int vipsgen_ppmsave_target_with_options(VipsImage* in, VipsTargetCustom* target, VipsForeignPpmFormat format, gboolean ascii, gint bitdepth, VipsForeignKeep keep, double* background, int background_n, gint page_height, const char* profile) {
     VipsOperation *operation = vips_operation_new("ppmsave_target");
     if (!operation) return 1;
     VipsArrayDouble *background_array = NULL;
@@ -4234,7 +4234,7 @@ int vipsgen_radsave(VipsImage* in, const char* filename) {
     return vips_radsave(in, filename, NULL);
 }
 
-int vipsgen_radsave_with_options(VipsImage* in, const char* filename, VipsForeignKeep keep, double* background, int background_n, int page_height, const char* profile) {
+int vipsgen_radsave_with_options(VipsImage* in, const char* filename, VipsForeignKeep keep, double* background, int background_n, gint page_height, const char* profile) {
     VipsOperation *operation = vips_operation_new("radsave");
     if (!operation) return 1;
     VipsArrayDouble *background_array = NULL;
@@ -4260,7 +4260,7 @@ int vipsgen_radsave_buffer(VipsImage* in, void** buf, size_t* len) {
     return vips_radsave_buffer(in, buf, len, NULL);
 }
 
-int vipsgen_radsave_buffer_with_options(VipsImage* in, void** buf, size_t* len, VipsForeignKeep keep, double* background, int background_n, int page_height, const char* profile) {
+int vipsgen_radsave_buffer_with_options(VipsImage* in, void** buf, size_t* len, VipsForeignKeep keep, double* background, int background_n, gint page_height, const char* profile) {
     VipsOperation *operation = vips_operation_new("radsave_buffer");
     if (!operation) return 1;
     VipsArrayDouble *background_array = NULL;
@@ -4285,7 +4285,7 @@ int vipsgen_radsave_target(VipsImage* in, VipsTargetCustom* target) {
     return vips_radsave_target(in, (VipsTarget*) target, NULL);
 }
 
-int vipsgen_radsave_target_with_options(VipsImage* in, VipsTargetCustom* target, VipsForeignKeep keep, double* background, int background_n, int page_height, const char* profile) {
+int vipsgen_radsave_target_with_options(VipsImage* in, VipsTargetCustom* target, VipsForeignKeep keep, double* background, int background_n, gint page_height, const char* profile) {
     VipsOperation *operation = vips_operation_new("radsave_target");
     if (!operation) return 1;
     VipsArrayDouble *background_array = NULL;
@@ -4307,15 +4307,15 @@ int vipsgen_radsave_target_with_options(VipsImage* in, VipsTargetCustom* target,
     return result;
 }
 
-int vipsgen_rank(VipsImage* in, VipsImage** out, int width, int height, int index) {
+int vipsgen_rank(VipsImage* in, VipsImage** out, gint width, gint height, gint index) {
     return vips_rank(in, out, width, height, index, NULL);
 }
 
-int vipsgen_rawload(const char* filename, VipsImage** out, int width, int height, int bands) {
+int vipsgen_rawload(const char* filename, VipsImage** out, gint width, gint height, gint bands) {
     return vips_rawload(filename, out, width, height, bands, NULL);
 }
 
-int vipsgen_rawload_with_options(const char* filename, VipsImage** out, int width, int height, int bands, guint64 offset, VipsBandFormat format, VipsInterpretation interpretation, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
+int vipsgen_rawload_with_options(const char* filename, VipsImage** out, gint width, gint height, gint bands, guint64 offset, VipsBandFormat format, VipsInterpretation interpretation, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
     VipsOperation *operation = vips_operation_new("rawload");
     if (!operation) return 1;
     if (
@@ -4342,7 +4342,7 @@ int vipsgen_rawsave(VipsImage* in, const char* filename) {
     return vips_rawsave(in, filename, NULL);
 }
 
-int vipsgen_rawsave_with_options(VipsImage* in, const char* filename, VipsForeignKeep keep, double* background, int background_n, int page_height, const char* profile) {
+int vipsgen_rawsave_with_options(VipsImage* in, const char* filename, VipsForeignKeep keep, double* background, int background_n, gint page_height, const char* profile) {
     VipsOperation *operation = vips_operation_new("rawsave");
     if (!operation) return 1;
     VipsArrayDouble *background_array = NULL;
@@ -4368,7 +4368,7 @@ int vipsgen_rawsave_buffer(VipsImage* in, void** buf, size_t* len) {
     return vips_rawsave_buffer(in, buf, len, NULL);
 }
 
-int vipsgen_rawsave_buffer_with_options(VipsImage* in, void** buf, size_t* len, VipsForeignKeep keep, double* background, int background_n, int page_height, const char* profile) {
+int vipsgen_rawsave_buffer_with_options(VipsImage* in, void** buf, size_t* len, VipsForeignKeep keep, double* background, int background_n, gint page_height, const char* profile) {
     VipsOperation *operation = vips_operation_new("rawsave_buffer");
     if (!operation) return 1;
     VipsArrayDouble *background_array = NULL;
@@ -4393,7 +4393,7 @@ int vipsgen_rawsave_target(VipsImage* in, VipsTargetCustom* target) {
     return vips_rawsave_target(in, (VipsTarget*) target, NULL);
 }
 
-int vipsgen_rawsave_target_with_options(VipsImage* in, VipsTargetCustom* target, VipsForeignKeep keep, double* background, int background_n, int page_height, const char* profile) {
+int vipsgen_rawsave_target_with_options(VipsImage* in, VipsTargetCustom* target, VipsForeignKeep keep, double* background, int background_n, gint page_height, const char* profile) {
     VipsOperation *operation = vips_operation_new("rawsave_target");
     if (!operation) return 1;
     VipsArrayDouble *background_array = NULL;
@@ -4500,7 +4500,7 @@ int vipsgen_remosaic(VipsImage* in, VipsImage** out, const char* old_str, const 
     return vips_remosaic(in, out, old_str, new_str, NULL);
 }
 
-int vipsgen_replicate(VipsImage* in, VipsImage** out, int across, int down) {
+int vipsgen_replicate(VipsImage* in, VipsImage** out, gint across, gint down) {
     return vips_replicate(in, out, across, down, NULL);
 }
 
@@ -4591,7 +4591,7 @@ int vipsgen_scRGB2BW(VipsImage* in, VipsImage** out) {
     return vips_scRGB2BW(in, out, NULL);
 }
 
-int vipsgen_scRGB2BW_with_options(VipsImage* in, VipsImage** out, int depth) {
+int vipsgen_scRGB2BW_with_options(VipsImage* in, VipsImage** out, gint depth) {
     VipsOperation *operation = vips_operation_new("scRGB2BW");
     if (!operation) return 1;
     if (
@@ -4613,7 +4613,7 @@ int vipsgen_scRGB2sRGB(VipsImage* in, VipsImage** out) {
     return vips_scRGB2sRGB(in, out, NULL);
 }
 
-int vipsgen_scRGB2sRGB_with_options(VipsImage* in, VipsImage** out, int depth) {
+int vipsgen_scRGB2sRGB_with_options(VipsImage* in, VipsImage** out, gint depth) {
     VipsOperation *operation = vips_operation_new("scRGB2sRGB");
     if (!operation) return 1;
     if (
@@ -4650,11 +4650,11 @@ int vipsgen_scharr(VipsImage* in, VipsImage** out) {
     return vips_scharr(in, out, NULL);
 }
 
-int vipsgen_sdf(VipsImage** out, int width, int height, VipsSdfShape shape) {
+int vipsgen_sdf(VipsImage** out, gint width, gint height, VipsSdfShape shape) {
     return vips_sdf(out, width, height, shape, NULL);
 }
 
-int vipsgen_sdf_with_options(VipsImage** out, int width, int height, VipsSdfShape shape, double r, double* a, int a_n, double* b, int b_n, double* corners, int corners_n) {
+int vipsgen_sdf_with_options(VipsImage** out, gint width, gint height, VipsSdfShape shape, double r, double* a, int a_n, double* b, int b_n, double* corners, int corners_n) {
     VipsOperation *operation = vips_operation_new("sdf");
     if (!operation) return 1;
     VipsArrayDouble *a_array = NULL;
@@ -4689,7 +4689,7 @@ int vipsgen_sequential(VipsImage* in, VipsImage** out) {
     return vips_sequential(in, out, NULL);
 }
 
-int vipsgen_sequential_with_options(VipsImage* in, VipsImage** out, int tile_height) {
+int vipsgen_sequential_with_options(VipsImage* in, VipsImage** out, gint tile_height) {
     VipsOperation *operation = vips_operation_new("sequential");
     if (!operation) return 1;
     if (
@@ -4746,11 +4746,11 @@ int vipsgen_shrink_with_options(VipsImage* in, VipsImage** out, double hshrink, 
     return result;
 }
 
-int vipsgen_shrinkh(VipsImage* in, VipsImage** out, int hshrink) {
+int vipsgen_shrinkh(VipsImage* in, VipsImage** out, gint hshrink) {
     return vips_shrinkh(in, out, hshrink, NULL);
 }
 
-int vipsgen_shrinkh_with_options(VipsImage* in, VipsImage** out, int hshrink, gboolean ceil) {
+int vipsgen_shrinkh_with_options(VipsImage* in, VipsImage** out, gint hshrink, gboolean ceil) {
     VipsOperation *operation = vips_operation_new("shrinkh");
     if (!operation) return 1;
     if (
@@ -4765,11 +4765,11 @@ int vipsgen_shrinkh_with_options(VipsImage* in, VipsImage** out, int hshrink, gb
     return result;
 }
 
-int vipsgen_shrinkv(VipsImage* in, VipsImage** out, int vshrink) {
+int vipsgen_shrinkv(VipsImage* in, VipsImage** out, gint vshrink) {
     return vips_shrinkv(in, out, vshrink, NULL);
 }
 
-int vipsgen_shrinkv_with_options(VipsImage* in, VipsImage** out, int vshrink, gboolean ceil) {
+int vipsgen_shrinkv_with_options(VipsImage* in, VipsImage** out, gint vshrink, gboolean ceil) {
     VipsOperation *operation = vips_operation_new("shrinkv");
     if (!operation) return 1;
     if (
@@ -4817,11 +4817,11 @@ int vipsgen_similarity_with_options(VipsImage* in, VipsImage** out, double scale
     return result;
 }
 
-int vipsgen_sines(VipsImage** out, int width, int height) {
+int vipsgen_sines(VipsImage** out, gint width, gint height) {
     return vips_sines(out, width, height, NULL);
 }
 
-int vipsgen_sines_with_options(VipsImage** out, int width, int height, gboolean uchar, double hfreq, double vfreq) {
+int vipsgen_sines_with_options(VipsImage** out, gint width, gint height, gboolean uchar, double hfreq, double vfreq) {
     VipsOperation *operation = vips_operation_new("sines");
     if (!operation) return 1;
     if (
@@ -4838,11 +4838,11 @@ int vipsgen_sines_with_options(VipsImage** out, int width, int height, gboolean 
     return result;
 }
 
-int vipsgen_smartcrop(VipsImage* input, VipsImage** out, int width, int height) {
+int vipsgen_smartcrop(VipsImage* input, VipsImage** out, gint width, gint height) {
     return vips_smartcrop(input, out, width, height, NULL);
 }
 
-int vipsgen_smartcrop_with_options(VipsImage* input, VipsImage** out, int width, int height, VipsInteresting interesting, gboolean premultiplied, int* attention_x, int* attention_y) {
+int vipsgen_smartcrop_with_options(VipsImage* input, VipsImage** out, gint width, gint height, VipsInteresting interesting, gboolean premultiplied, gint* attention_x, gint* attention_y) {
     VipsOperation *operation = vips_operation_new("smartcrop");
     if (!operation) return 1;
     if (
@@ -4875,11 +4875,11 @@ int vipsgen_stats(VipsImage* in, VipsImage** out) {
     return vips_stats(in, out, NULL);
 }
 
-int vipsgen_stdif(VipsImage* in, VipsImage** out, int width, int height) {
+int vipsgen_stdif(VipsImage* in, VipsImage** out, gint width, gint height) {
     return vips_stdif(in, out, width, height, NULL);
 }
 
-int vipsgen_stdif_with_options(VipsImage* in, VipsImage** out, int width, int height, double s0, double b, double m0, double a) {
+int vipsgen_stdif_with_options(VipsImage* in, VipsImage** out, gint width, gint height, double s0, double b, double m0, double a) {
     VipsOperation *operation = vips_operation_new("stdif");
     if (!operation) return 1;
     if (
@@ -4898,11 +4898,11 @@ int vipsgen_stdif_with_options(VipsImage* in, VipsImage** out, int width, int he
     return result;
 }
 
-int vipsgen_subsample(VipsImage* input, VipsImage** out, int xfac, int yfac) {
+int vipsgen_subsample(VipsImage* input, VipsImage** out, gint xfac, gint yfac) {
     return vips_subsample(input, out, xfac, yfac, NULL);
 }
 
-int vipsgen_subsample_with_options(VipsImage* input, VipsImage** out, int xfac, int yfac, gboolean point) {
+int vipsgen_subsample_with_options(VipsImage* input, VipsImage** out, gint xfac, gint yfac, gboolean point) {
     VipsOperation *operation = vips_operation_new("subsample");
     if (!operation) return 1;
     if (
@@ -5040,7 +5040,7 @@ int vipsgen_text(VipsImage** out, const char* text) {
     return vips_text(out, text, NULL);
 }
 
-int vipsgen_text_with_options(VipsImage** out, const char* text, const char* font, int width, int height, VipsAlign align, gboolean justify, int dpi, int spacing, const char* fontfile, gboolean rgba, VipsTextWrap wrap, int* autofit_dpi) {
+int vipsgen_text_with_options(VipsImage** out, const char* text, const char* font, gint width, gint height, VipsAlign align, gboolean justify, gint dpi, gint spacing, const char* fontfile, gboolean rgba, VipsTextWrap wrap, gint* autofit_dpi) {
     VipsOperation *operation = vips_operation_new("text");
     if (!operation) return 1;
     if (
@@ -5063,11 +5063,11 @@ int vipsgen_text_with_options(VipsImage** out, const char* text, const char* fon
     return result;
 }
 
-int vipsgen_thumbnail(const char* filename, VipsImage** out, int width) {
+int vipsgen_thumbnail(const char* filename, VipsImage** out, gint width) {
     return vips_thumbnail(filename, out, width, NULL);
 }
 
-int vipsgen_thumbnail_with_options(const char* filename, VipsImage** out, int width, int height, VipsSize size, gboolean no_rotate, VipsInteresting crop, gboolean linear, const char* input_profile, const char* output_profile, VipsIntent intent, VipsFailOn fail_on) {
+int vipsgen_thumbnail_with_options(const char* filename, VipsImage** out, gint width, gint height, VipsSize size, gboolean no_rotate, VipsInteresting crop, gboolean linear, const char* input_profile, const char* output_profile, VipsIntent intent, VipsFailOn fail_on) {
     VipsOperation *operation = vips_operation_new("thumbnail");
     if (!operation) return 1;
     if (
@@ -5090,11 +5090,11 @@ int vipsgen_thumbnail_with_options(const char* filename, VipsImage** out, int wi
     return result;
 }
 
-int vipsgen_thumbnail_buffer(void* buf, size_t len, VipsImage** out, int width) {
+int vipsgen_thumbnail_buffer(void* buf, size_t len, VipsImage** out, gint width) {
     return vips_thumbnail_buffer(buf, len, out, width, NULL);
 }
 
-int vipsgen_thumbnail_buffer_with_options(void* buf, size_t len, VipsImage** out, int width, const char* option_string, int height, VipsSize size, gboolean no_rotate, VipsInteresting crop, gboolean linear, const char* input_profile, const char* output_profile, VipsIntent intent, VipsFailOn fail_on) {
+int vipsgen_thumbnail_buffer_with_options(void* buf, size_t len, VipsImage** out, gint width, const char* option_string, gint height, VipsSize size, gboolean no_rotate, VipsInteresting crop, gboolean linear, const char* input_profile, const char* output_profile, VipsIntent intent, VipsFailOn fail_on) {
     VipsOperation *operation = vips_operation_new("thumbnail_buffer");
     if (!operation) return 1;
     VipsBlob *blob = vips_blob_new(NULL, buf, len);
@@ -5122,11 +5122,11 @@ int vipsgen_thumbnail_buffer_with_options(void* buf, size_t len, VipsImage** out
     return result;
 }
 
-int vipsgen_thumbnail_image(VipsImage* in, VipsImage** out, int width) {
+int vipsgen_thumbnail_image(VipsImage* in, VipsImage** out, gint width) {
     return vips_thumbnail_image(in, out, width, NULL);
 }
 
-int vipsgen_thumbnail_image_with_options(VipsImage* in, VipsImage** out, int width, int height, VipsSize size, gboolean no_rotate, VipsInteresting crop, gboolean linear, const char* input_profile, const char* output_profile, VipsIntent intent, VipsFailOn fail_on) {
+int vipsgen_thumbnail_image_with_options(VipsImage* in, VipsImage** out, gint width, gint height, VipsSize size, gboolean no_rotate, VipsInteresting crop, gboolean linear, const char* input_profile, const char* output_profile, VipsIntent intent, VipsFailOn fail_on) {
     VipsOperation *operation = vips_operation_new("thumbnail_image");
     if (!operation) return 1;
     if (
@@ -5149,11 +5149,11 @@ int vipsgen_thumbnail_image_with_options(VipsImage* in, VipsImage** out, int wid
     return result;
 }
 
-int vipsgen_thumbnail_source(VipsSourceCustom* source, VipsImage** out, int width) {
+int vipsgen_thumbnail_source(VipsSourceCustom* source, VipsImage** out, gint width) {
     return vips_thumbnail_source((VipsSource*) source, out, width, NULL);
 }
 
-int vipsgen_thumbnail_source_with_options(VipsSourceCustom* source, VipsImage** out, int width, const char* option_string, int height, VipsSize size, gboolean no_rotate, VipsInteresting crop, gboolean linear, const char* input_profile, const char* output_profile, VipsIntent intent, VipsFailOn fail_on) {
+int vipsgen_thumbnail_source_with_options(VipsSourceCustom* source, VipsImage** out, gint width, const char* option_string, gint height, VipsSize size, gboolean no_rotate, VipsInteresting crop, gboolean linear, const char* input_profile, const char* output_profile, VipsIntent intent, VipsFailOn fail_on) {
     VipsOperation *operation = vips_operation_new("thumbnail_source");
     if (!operation) return 1;
     if (
@@ -5181,7 +5181,7 @@ int vipsgen_tiffload(const char* filename, VipsImage** out) {
     return vips_tiffload(filename, out, NULL);
 }
 
-int vipsgen_tiffload_with_options(const char* filename, VipsImage** out, int page, int n, gboolean autorotate, int subifd, gboolean unlimited, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
+int vipsgen_tiffload_with_options(const char* filename, VipsImage** out, gint page, gint n, gboolean autorotate, gint subifd, gboolean unlimited, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
     VipsOperation *operation = vips_operation_new("tiffload");
     if (!operation) return 1;
     if (
@@ -5207,7 +5207,7 @@ int vipsgen_tiffload_buffer(void* buf, size_t len, VipsImage** out) {
     return vips_tiffload_buffer(buf, len, out, NULL);
 }
 
-int vipsgen_tiffload_buffer_with_options(void* buf, size_t len, VipsImage** out, int page, int n, gboolean autorotate, int subifd, gboolean unlimited, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
+int vipsgen_tiffload_buffer_with_options(void* buf, size_t len, VipsImage** out, gint page, gint n, gboolean autorotate, gint subifd, gboolean unlimited, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
     VipsOperation *operation = vips_operation_new("tiffload_buffer");
     if (!operation) return 1;
     VipsBlob *blob = vips_blob_new(NULL, buf, len);
@@ -5237,7 +5237,7 @@ int vipsgen_tiffload_source(VipsSourceCustom* source, VipsImage** out) {
     return vips_tiffload_source((VipsSource*) source, out, NULL);
 }
 
-int vipsgen_tiffload_source_with_options(VipsSourceCustom* source, VipsImage** out, int page, int n, gboolean autorotate, int subifd, gboolean unlimited, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
+int vipsgen_tiffload_source_with_options(VipsSourceCustom* source, VipsImage** out, gint page, gint n, gboolean autorotate, gint subifd, gboolean unlimited, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
     VipsOperation *operation = vips_operation_new("tiffload_source");
     if (!operation) return 1;
     if (
@@ -5263,7 +5263,7 @@ int vipsgen_tiffsave(VipsImage* in, const char* filename) {
     return vips_tiffsave(in, filename, NULL);
 }
 
-int vipsgen_tiffsave_with_options(VipsImage* in, const char* filename, VipsForeignTiffCompression compression, int Q, VipsForeignTiffPredictor predictor, gboolean tile, int tile_width, int tile_height, gboolean pyramid, gboolean miniswhite, int bitdepth, VipsForeignTiffResunit resunit, double xres, double yres, gboolean bigtiff, gboolean properties, VipsRegionShrink region_shrink, int level, gboolean lossless, VipsForeignDzDepth depth, gboolean subifd, gboolean premultiply, VipsForeignKeep keep, double* background, int background_n, int page_height, const char* profile) {
+int vipsgen_tiffsave_with_options(VipsImage* in, const char* filename, VipsForeignTiffCompression compression, gint Q, VipsForeignTiffPredictor predictor, gboolean tile, gint tile_width, gint tile_height, gboolean pyramid, gboolean miniswhite, gint bitdepth, VipsForeignTiffResunit resunit, double xres, double yres, gboolean bigtiff, gboolean properties, VipsRegionShrink region_shrink, gint level, gboolean lossless, VipsForeignDzDepth depth, gboolean subifd, gboolean premultiply, VipsForeignKeep keep, double* background, int background_n, gint page_height, const char* profile) {
     VipsOperation *operation = vips_operation_new("tiffsave");
     if (!operation) return 1;
     VipsArrayDouble *background_array = NULL;
@@ -5309,7 +5309,7 @@ int vipsgen_tiffsave_buffer(VipsImage* in, void** buf, size_t* len) {
     return vips_tiffsave_buffer(in, buf, len, NULL);
 }
 
-int vipsgen_tiffsave_buffer_with_options(VipsImage* in, void** buf, size_t* len, VipsForeignTiffCompression compression, int Q, VipsForeignTiffPredictor predictor, gboolean tile, int tile_width, int tile_height, gboolean pyramid, gboolean miniswhite, int bitdepth, VipsForeignTiffResunit resunit, double xres, double yres, gboolean bigtiff, gboolean properties, VipsRegionShrink region_shrink, int level, gboolean lossless, VipsForeignDzDepth depth, gboolean subifd, gboolean premultiply, VipsForeignKeep keep, double* background, int background_n, int page_height, const char* profile) {
+int vipsgen_tiffsave_buffer_with_options(VipsImage* in, void** buf, size_t* len, VipsForeignTiffCompression compression, gint Q, VipsForeignTiffPredictor predictor, gboolean tile, gint tile_width, gint tile_height, gboolean pyramid, gboolean miniswhite, gint bitdepth, VipsForeignTiffResunit resunit, double xres, double yres, gboolean bigtiff, gboolean properties, VipsRegionShrink region_shrink, gint level, gboolean lossless, VipsForeignDzDepth depth, gboolean subifd, gboolean premultiply, VipsForeignKeep keep, double* background, int background_n, gint page_height, const char* profile) {
     VipsOperation *operation = vips_operation_new("tiffsave_buffer");
     if (!operation) return 1;
     VipsArrayDouble *background_array = NULL;
@@ -5354,7 +5354,7 @@ int vipsgen_tiffsave_target(VipsImage* in, VipsTargetCustom* target) {
     return vips_tiffsave_target(in, (VipsTarget*) target, NULL);
 }
 
-int vipsgen_tiffsave_target_with_options(VipsImage* in, VipsTargetCustom* target, VipsForeignTiffCompression compression, int Q, VipsForeignTiffPredictor predictor, gboolean tile, int tile_width, int tile_height, gboolean pyramid, gboolean miniswhite, int bitdepth, VipsForeignTiffResunit resunit, double xres, double yres, gboolean bigtiff, gboolean properties, VipsRegionShrink region_shrink, int level, gboolean lossless, VipsForeignDzDepth depth, gboolean subifd, gboolean premultiply, VipsForeignKeep keep, double* background, int background_n, int page_height, const char* profile) {
+int vipsgen_tiffsave_target_with_options(VipsImage* in, VipsTargetCustom* target, VipsForeignTiffCompression compression, gint Q, VipsForeignTiffPredictor predictor, gboolean tile, gint tile_width, gint tile_height, gboolean pyramid, gboolean miniswhite, gint bitdepth, VipsForeignTiffResunit resunit, double xres, double yres, gboolean bigtiff, gboolean properties, VipsRegionShrink region_shrink, gint level, gboolean lossless, VipsForeignDzDepth depth, gboolean subifd, gboolean premultiply, VipsForeignKeep keep, double* background, int background_n, gint page_height, const char* profile) {
     VipsOperation *operation = vips_operation_new("tiffsave_target");
     if (!operation) return 1;
     VipsArrayDouble *background_array = NULL;
@@ -5400,7 +5400,7 @@ int vipsgen_tilecache(VipsImage* in, VipsImage** out) {
     return vips_tilecache(in, out, NULL);
 }
 
-int vipsgen_tilecache_with_options(VipsImage* in, VipsImage** out, int tile_width, int tile_height, int max_tiles, VipsAccess access, gboolean threaded, gboolean persistent) {
+int vipsgen_tilecache_with_options(VipsImage* in, VipsImage** out, gint tile_width, gint tile_height, gint max_tiles, VipsAccess access, gboolean threaded, gboolean persistent) {
     VipsOperation *operation = vips_operation_new("tilecache");
     if (!operation) return 1;
     if (
@@ -5423,7 +5423,7 @@ int vipsgen_tonelut(VipsImage** out) {
     return vips_tonelut(out, NULL);
 }
 
-int vipsgen_tonelut_with_options(VipsImage** out, int in_max, int out_max, double Lb, double Lw, double Ps, double Pm, double Ph, double S, double M, double H) {
+int vipsgen_tonelut_with_options(VipsImage** out, gint in_max, gint out_max, double Lb, double Lw, double Ps, double Pm, double Ph, double S, double M, double H) {
     VipsOperation *operation = vips_operation_new("tonelut");
     if (!operation) return 1;
     if (
@@ -5449,7 +5449,7 @@ int vipsgen_transpose3d(VipsImage* in, VipsImage** out) {
     return vips_transpose3d(in, out, NULL);
 }
 
-int vipsgen_transpose3d_with_options(VipsImage* in, VipsImage** out, int page_height) {
+int vipsgen_transpose3d_with_options(VipsImage* in, VipsImage** out, gint page_height) {
     VipsOperation *operation = vips_operation_new("transpose3d");
     if (!operation) return 1;
     if (
@@ -5467,7 +5467,7 @@ int vipsgen_unpremultiply(VipsImage* in, VipsImage** out) {
     return vips_unpremultiply(in, out, NULL);
 }
 
-int vipsgen_unpremultiply_with_options(VipsImage* in, VipsImage** out, double max_alpha, int alpha_band) {
+int vipsgen_unpremultiply_with_options(VipsImage* in, VipsImage** out, double max_alpha, gint alpha_band) {
     VipsOperation *operation = vips_operation_new("unpremultiply");
     if (!operation) return 1;
     if (
@@ -5528,7 +5528,7 @@ int vipsgen_vipssave(VipsImage* in, const char* filename) {
     return vips_vipssave(in, filename, NULL);
 }
 
-int vipsgen_vipssave_with_options(VipsImage* in, const char* filename, VipsForeignKeep keep, double* background, int background_n, int page_height, const char* profile) {
+int vipsgen_vipssave_with_options(VipsImage* in, const char* filename, VipsForeignKeep keep, double* background, int background_n, gint page_height, const char* profile) {
     VipsOperation *operation = vips_operation_new("vipssave");
     if (!operation) return 1;
     VipsArrayDouble *background_array = NULL;
@@ -5554,7 +5554,7 @@ int vipsgen_vipssave_target(VipsImage* in, VipsTargetCustom* target) {
     return vips_vipssave_target(in, (VipsTarget*) target, NULL);
 }
 
-int vipsgen_vipssave_target_with_options(VipsImage* in, VipsTargetCustom* target, VipsForeignKeep keep, double* background, int background_n, int page_height, const char* profile) {
+int vipsgen_vipssave_target_with_options(VipsImage* in, VipsTargetCustom* target, VipsForeignKeep keep, double* background, int background_n, gint page_height, const char* profile) {
     VipsOperation *operation = vips_operation_new("vipssave_target");
     if (!operation) return 1;
     VipsArrayDouble *background_array = NULL;
@@ -5580,7 +5580,7 @@ int vipsgen_webpload(const char* filename, VipsImage** out) {
     return vips_webpload(filename, out, NULL);
 }
 
-int vipsgen_webpload_with_options(const char* filename, VipsImage** out, int page, int n, double scale, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
+int vipsgen_webpload_with_options(const char* filename, VipsImage** out, gint page, gint n, double scale, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
     VipsOperation *operation = vips_operation_new("webpload");
     if (!operation) return 1;
     if (
@@ -5604,7 +5604,7 @@ int vipsgen_webpload_buffer(void* buf, size_t len, VipsImage** out) {
     return vips_webpload_buffer(buf, len, out, NULL);
 }
 
-int vipsgen_webpload_buffer_with_options(void* buf, size_t len, VipsImage** out, int page, int n, double scale, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
+int vipsgen_webpload_buffer_with_options(void* buf, size_t len, VipsImage** out, gint page, gint n, double scale, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
     VipsOperation *operation = vips_operation_new("webpload_buffer");
     if (!operation) return 1;
     VipsBlob *blob = vips_blob_new(NULL, buf, len);
@@ -5632,7 +5632,7 @@ int vipsgen_webpload_source(VipsSourceCustom* source, VipsImage** out) {
     return vips_webpload_source((VipsSource*) source, out, NULL);
 }
 
-int vipsgen_webpload_source_with_options(VipsSourceCustom* source, VipsImage** out, int page, int n, double scale, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
+int vipsgen_webpload_source_with_options(VipsSourceCustom* source, VipsImage** out, gint page, gint n, double scale, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
     VipsOperation *operation = vips_operation_new("webpload_source");
     if (!operation) return 1;
     if (
@@ -5656,7 +5656,7 @@ int vipsgen_webpsave(VipsImage* in, const char* filename) {
     return vips_webpsave(in, filename, NULL);
 }
 
-int vipsgen_webpsave_with_options(VipsImage* in, const char* filename, int Q, gboolean lossless, VipsForeignWebpPreset preset, gboolean smart_subsample, gboolean near_lossless, int alpha_q, gboolean min_size, int kmin, int kmax, int effort, int target_size, gboolean mixed, gboolean smart_deblock, int passes, VipsForeignKeep keep, double* background, int background_n, int page_height, const char* profile) {
+int vipsgen_webpsave_with_options(VipsImage* in, const char* filename, gint Q, gboolean lossless, VipsForeignWebpPreset preset, gboolean smart_subsample, gboolean near_lossless, gint alpha_q, gboolean min_size, gint kmin, gint kmax, gint effort, gint target_size, gboolean mixed, gboolean smart_deblock, gint passes, VipsForeignKeep keep, double* background, int background_n, gint page_height, const char* profile) {
     VipsOperation *operation = vips_operation_new("webpsave");
     if (!operation) return 1;
     VipsArrayDouble *background_array = NULL;
@@ -5696,7 +5696,7 @@ int vipsgen_webpsave_buffer(VipsImage* in, void** buf, size_t* len) {
     return vips_webpsave_buffer(in, buf, len, NULL);
 }
 
-int vipsgen_webpsave_buffer_with_options(VipsImage* in, void** buf, size_t* len, int Q, gboolean lossless, VipsForeignWebpPreset preset, gboolean smart_subsample, gboolean near_lossless, int alpha_q, gboolean min_size, int kmin, int kmax, int effort, int target_size, gboolean mixed, gboolean smart_deblock, int passes, VipsForeignKeep keep, double* background, int background_n, int page_height, const char* profile) {
+int vipsgen_webpsave_buffer_with_options(VipsImage* in, void** buf, size_t* len, gint Q, gboolean lossless, VipsForeignWebpPreset preset, gboolean smart_subsample, gboolean near_lossless, gint alpha_q, gboolean min_size, gint kmin, gint kmax, gint effort, gint target_size, gboolean mixed, gboolean smart_deblock, gint passes, VipsForeignKeep keep, double* background, int background_n, gint page_height, const char* profile) {
     VipsOperation *operation = vips_operation_new("webpsave_buffer");
     if (!operation) return 1;
     VipsArrayDouble *background_array = NULL;
@@ -5735,7 +5735,7 @@ int vipsgen_webpsave_target(VipsImage* in, VipsTargetCustom* target) {
     return vips_webpsave_target(in, (VipsTarget*) target, NULL);
 }
 
-int vipsgen_webpsave_target_with_options(VipsImage* in, VipsTargetCustom* target, int Q, gboolean lossless, VipsForeignWebpPreset preset, gboolean smart_subsample, gboolean near_lossless, int alpha_q, gboolean min_size, int kmin, int kmax, int effort, int target_size, gboolean mixed, gboolean smart_deblock, int passes, VipsForeignKeep keep, double* background, int background_n, int page_height, const char* profile) {
+int vipsgen_webpsave_target_with_options(VipsImage* in, VipsTargetCustom* target, gint Q, gboolean lossless, VipsForeignWebpPreset preset, gboolean smart_subsample, gboolean near_lossless, gint alpha_q, gboolean min_size, gint kmin, gint kmax, gint effort, gint target_size, gboolean mixed, gboolean smart_deblock, gint passes, VipsForeignKeep keep, double* background, int background_n, gint page_height, const char* profile) {
     VipsOperation *operation = vips_operation_new("webpsave_target");
     if (!operation) return 1;
     VipsArrayDouble *background_array = NULL;
@@ -5771,11 +5771,11 @@ int vipsgen_webpsave_target_with_options(VipsImage* in, VipsTargetCustom* target
     return result;
 }
 
-int vipsgen_worley(VipsImage** out, int width, int height) {
+int vipsgen_worley(VipsImage** out, gint width, gint height) {
     return vips_worley(out, width, height, NULL);
 }
 
-int vipsgen_worley_with_options(VipsImage** out, int width, int height, int cell_size, int seed) {
+int vipsgen_worley_with_options(VipsImage** out, gint width, gint height, gint cell_size, gint seed) {
     VipsOperation *operation = vips_operation_new("worley");
     if (!operation) return 1;
     if (
@@ -5795,7 +5795,7 @@ int vipsgen_wrap(VipsImage* in, VipsImage** out) {
     return vips_wrap(in, out, NULL);
 }
 
-int vipsgen_wrap_with_options(VipsImage* in, VipsImage** out, int x, int y) {
+int vipsgen_wrap_with_options(VipsImage* in, VipsImage** out, gint x, gint y) {
     VipsOperation *operation = vips_operation_new("wrap");
     if (!operation) return 1;
     if (
@@ -5810,11 +5810,11 @@ int vipsgen_wrap_with_options(VipsImage* in, VipsImage** out, int x, int y) {
     return result;
 }
 
-int vipsgen_xyz(VipsImage** out, int width, int height) {
+int vipsgen_xyz(VipsImage** out, gint width, gint height) {
     return vips_xyz(out, width, height, NULL);
 }
 
-int vipsgen_xyz_with_options(VipsImage** out, int width, int height, int csize, int dsize, int esize) {
+int vipsgen_xyz_with_options(VipsImage** out, gint width, gint height, gint csize, gint dsize, gint esize) {
     VipsOperation *operation = vips_operation_new("xyz");
     if (!operation) return 1;
     if (
@@ -5831,11 +5831,11 @@ int vipsgen_xyz_with_options(VipsImage** out, int width, int height, int csize, 
     return result;
 }
 
-int vipsgen_zone(VipsImage** out, int width, int height) {
+int vipsgen_zone(VipsImage** out, gint width, gint height) {
     return vips_zone(out, width, height, NULL);
 }
 
-int vipsgen_zone_with_options(VipsImage** out, int width, int height, gboolean uchar) {
+int vipsgen_zone_with_options(VipsImage** out, gint width, gint height, gboolean uchar) {
     VipsOperation *operation = vips_operation_new("zone");
     if (!operation) return 1;
     if (
@@ -5850,7 +5850,7 @@ int vipsgen_zone_with_options(VipsImage** out, int width, int height, gboolean u
     return result;
 }
 
-int vipsgen_zoom(VipsImage* input, VipsImage** out, int xfac, int yfac) {
+int vipsgen_zoom(VipsImage* input, VipsImage** out, gint xfac, gint yfac) {
     return vips_zoom(input, out, xfac, yfac, NULL);
 }
 

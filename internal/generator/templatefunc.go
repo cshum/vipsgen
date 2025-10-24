@@ -82,6 +82,16 @@ func generateGoFunctionBody(op introspection.Operation, withOptions bool) string
 	result.WriteString(generateErrorReturn(op.HasOneImageOutput, op.HasBufferOutput, op.RequiredOutputs))
 	result.WriteString("\n\t}\n\t")
 
+	// Add conversion logic for optional outputs in withOptions functions before return
+	if withOptions {
+		supportedOptionalOutputs := getSupportedOptionalOutputs(op)
+		for _, opt := range supportedOptionalOutputs {
+			if opt.GoType == "int" && opt.Type == "gint" {
+				result.WriteString(fmt.Sprintf("if %s != nil {\n\t\t*%s = int(%sInt32)\n\t}\n\t", opt.GoName, opt.GoName, opt.GoName))
+			}
+		}
+	}
+
 	// Return values
 	result.WriteString(generateReturnValues(op))
 	result.WriteString("\n}")
@@ -464,8 +474,16 @@ func generateVarDeclarations(op introspection.Operation, withOptions bool) strin
 				decls = append(decls, fmt.Sprintf("var c%s *C.double\n\tif %s != nil {\n\t\tc%s = (*C.double)(unsafe.Pointer(%s))\n\t}",
 					opt.GoName, opt.GoName, opt.GoName, opt.GoName))
 			} else if opt.GoType == "int" {
-				decls = append(decls, fmt.Sprintf("var c%s *C.int\n\tif %s != nil {\n\t\tc%s = (*C.int)(unsafe.Pointer(%s))\n\t}",
-					opt.GoName, opt.GoName, opt.GoName, opt.GoName))
+				// Use C.gint for libvips gint types to preserve signed values
+				if opt.Type == "gint" {
+					// Add int32 intermediate variable for proper signed conversion
+					decls = append(decls, fmt.Sprintf("var %sInt32 int32", opt.GoName))
+					decls = append(decls, fmt.Sprintf("var c%s *C.gint\n\tif %s != nil {\n\t\tc%s = (*C.gint)(unsafe.Pointer(&%sInt32))\n\t}",
+						opt.GoName, opt.GoName, opt.GoName, opt.GoName))
+				} else {
+					decls = append(decls, fmt.Sprintf("var c%s *C.int\n\tif %s != nil {\n\t\tc%s = (*C.int)(unsafe.Pointer(%s))\n\t}",
+						opt.GoName, opt.GoName, opt.GoName, opt.GoName))
+				}
 			} else if opt.GoType == "bool" {
 				decls = append(decls, fmt.Sprintf("var c%s *C.int\n\tif %s != nil {\n\t\tc%s = (*C.int)(unsafe.Pointer(%s))\n\t}",
 					opt.GoName, opt.GoName, opt.GoName, opt.GoName))
@@ -652,6 +670,7 @@ func generateReturnValues(op introspection.Operation) string {
 	} else if op.HasBufferOutput {
 		return "return bufferToBytes(buf, length), nil"
 	} else if len(op.RequiredOutputs) > 0 {
+		var conversionLines []string
 		var values []string
 
 		for _, arg := range op.RequiredOutputs {
@@ -676,7 +695,15 @@ func generateReturnValues(op introspection.Operation) string {
 			}
 		}
 
-		return "return " + strings.Join(values, ", ") + ", nil"
+		// Build the return statement with conversions
+		var result strings.Builder
+		if len(conversionLines) > 0 {
+			for _, line := range conversionLines {
+				result.WriteString(line + "\n\t")
+			}
+		}
+		result.WriteString("return " + strings.Join(values, ", ") + ", nil")
+		return result.String()
 	} else {
 		return "return nil"
 	}
