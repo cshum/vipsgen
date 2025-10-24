@@ -140,17 +140,21 @@ func generateErrorReturnForUtilityCall(op introspection.Operation) string {
 func generateSafeDefaultForArray(goType string) string {
 	switch goType {
 	case "[]float64":
-		return "[]float64{0.0, 0.0, 0.0}" // Default to black for RGB operations
+		return "[]float64{}"
 	case "[]float32":
-		return "[]float32{0.0, 0.0, 0.0}" // Default to black for RGB operations
+		return "[]float32{}"
 	case "[]int":
-		return "[]int{0, 0, 0}" // Default to black for RGB operations
+		return "[]int{}"
 	case "[]BlendMode":
-		return "[]BlendMode{}" // Empty slice for blend modes
+		return "[]BlendMode{}"
 	case "[]*Image", "[]*C.VipsImage":
-		return "[]*C.VipsImage{}" // Empty slice for image arrays
+		return "[]*C.VipsImage{}"
 	default:
-		return "[]float64{0.0, 0.0, 0.0}" // Fallback to safe default
+		// For unknown array types, try to extract the element type
+		if strings.HasPrefix(goType, "[]") {
+			return goType + "{}"
+		}
+		return "[]float64{}" // Fallback
 	}
 }
 
