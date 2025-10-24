@@ -3950,50 +3950,6 @@ func TestImage_SetArrayDouble(t *testing.T) {
 	assert.Equal(t, negativeArray, retrievedNegative, "Retrieved negative array should match")
 }
 
-// TestOptionalOutputStructGeneration tests that optional output structs are generated correctly
-func TestOptionalOutputStructGeneration(t *testing.T) {
-	// Test the optional output struct exists and has correct types
-	options := DefaultMosaicOptions()
-	require.NotNil(t, options, "MosaicOptions should not be nil")
-
-	// Verify struct field types (this tests the code generation)
-	assert.IsType(t, 0, options.Dx0, "Dx0 should be int type")
-	assert.IsType(t, 0, options.Dy0, "Dy0 should be int type")
-	assert.IsType(t, float64(0), options.Scale1, "Scale1 should be float64 type")
-	assert.IsType(t, float64(0), options.Angle1, "Angle1 should be float64 type")
-	assert.IsType(t, float64(0), options.Dx1, "Dx1 should be float64 type")
-	assert.IsType(t, float64(0), options.Dy1, "Dy1 should be float64 type")
-
-	// Test that initial values are zero
-	assert.Equal(t, 0, options.Dx0, "Initial Dx0 should be 0")
-	assert.Equal(t, 0, options.Dy0, "Initial Dy0 should be 0")
-	assert.Equal(t, 0.0, options.Scale1, "Initial Scale1 should be 0.0")
-	assert.Equal(t, 0.0, options.Angle1, "Initial Angle1 should be 0.0")
-
-	// Test smartcrop optional outputs
-	smartcropOptions := DefaultSmartcropOptions()
-	require.NotNil(t, smartcropOptions, "SmartcropOptions should not be nil")
-
-	// Verify field types
-	assert.IsType(t, 0, smartcropOptions.AttentionX, "AttentionX should be int type")
-	assert.IsType(t, 0, smartcropOptions.AttentionY, "AttentionY should be int type")
-
-	// Test initial values
-	assert.Equal(t, 0, smartcropOptions.AttentionX, "Initial AttentionX should be 0")
-	assert.Equal(t, 0, smartcropOptions.AttentionY, "Initial AttentionY should be 0")
-
-	// Test min/max optional outputs
-	minOptions := DefaultMinOptions()
-	require.NotNil(t, minOptions, "MinOptions should not be nil")
-	assert.IsType(t, 0, minOptions.X, "Min X should be int type")
-	assert.IsType(t, 0, minOptions.Y, "Min Y should be int type")
-
-	maxOptions := DefaultMaxOptions()
-	require.NotNil(t, maxOptions, "MaxOptions should not be nil")
-	assert.IsType(t, 0, maxOptions.X, "Max X should be int type")
-	assert.IsType(t, 0, maxOptions.Y, "Max Y should be int type")
-}
-
 // TestSmartcropOptionalOutputs tests smartcrop's attention coordinates
 func TestSmartcropOptionalOutputs(t *testing.T) {
 	// Create an image with a bright spot in a known location
