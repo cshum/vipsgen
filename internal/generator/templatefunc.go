@@ -136,6 +136,46 @@ func generateErrorReturnForUtilityCall(op introspection.Operation) string {
 	}
 }
 
+// Helper function to generate error return for nil array validation
+func generateErrorReturnForNilArray(op introspection.Operation) string {
+	// For nil array validation, we want to return an error with a descriptive message
+	if op.HasOneImageOutput {
+		return "return nil, fmt.Errorf(\"array parameter cannot be nil\")"
+	} else if op.HasBufferOutput {
+		return "return nil, fmt.Errorf(\"array parameter cannot be nil\")"
+	} else if len(op.RequiredOutputs) > 0 {
+		var values []string
+		for _, arg := range op.RequiredOutputs {
+			if arg.Name == "vector" || arg.Name == "out_array" {
+				values = append(values, "nil")
+			} else {
+				values = append(values, formatDefaultValue(arg.GoType))
+			}
+		}
+		return "return " + strings.Join(values, ", ") + ", fmt.Errorf(\"array parameter cannot be nil\")"
+	} else {
+		return "return fmt.Errorf(\"array parameter cannot be nil\")"
+	}
+}
+
+// Helper function to generate safe default values for array types
+func generateSafeDefaultForArray(goType string) string {
+	switch goType {
+	case "[]float64":
+		return "[]float64{0.0, 0.0, 0.0}" // Default to black for RGB operations
+	case "[]float32":
+		return "[]float32{0.0, 0.0, 0.0}" // Default to black for RGB operations
+	case "[]int":
+		return "[]int{0, 0, 0}" // Default to black for RGB operations
+	case "[]BlendMode":
+		return "[]BlendMode{}" // Empty slice for blend modes
+	case "[]*Image", "[]*C.VipsImage":
+		return "[]*C.VipsImage{}" // Empty slice for image arrays
+	default:
+		return "[]float64{0.0, 0.0, 0.0}" // Fallback to safe default
+	}
+}
+
 // generateGoArgList formats a list of function arguments for a Go function
 // e.g., "in *C.VipsImage, c []float64, n int"
 func generateGoArgList(op introspection.Operation, withOptions bool) string {
@@ -296,15 +336,31 @@ func generateVarDeclarations(op introspection.Operation, withOptions bool) strin
 					lengthVar = "_" // Use underscore for unused length
 				}
 
-				decls = append(decls, fmt.Sprintf(
-					"c%s, %s, err := convertToDoubleArray(%s)\n"+
-						"	if err != nil {\n"+
-						"		%s\n"+
-						"	}\n"+
-						"	if c%s != nil {\n"+
-						"		defer freeDoubleArray(c%s)\n"+
-						"	}",
-					arg.GoName, lengthVar, arg.GoName, errorReturn, arg.GoName, arg.GoName))
+				// Convert nil arrays to safe defaults for required parameters
+				if arg.IsRequired {
+					decls = append(decls, fmt.Sprintf(
+						"if %s == nil {\n"+
+							"		%s = %s\n"+
+							"	}\n"+
+							"	c%s, %s, err := convertToDoubleArray(%s)\n"+
+							"	if err != nil {\n"+
+							"		%s\n"+
+							"	}\n"+
+							"	if c%s != nil {\n"+
+							"		defer freeDoubleArray(c%s)\n"+
+							"	}",
+						arg.GoName, arg.GoName, generateSafeDefaultForArray(arg.GoType), arg.GoName, lengthVar, arg.GoName, errorReturn, arg.GoName, arg.GoName))
+				} else {
+					decls = append(decls, fmt.Sprintf(
+						"c%s, %s, err := convertToDoubleArray(%s)\n"+
+							"	if err != nil {\n"+
+							"		%s\n"+
+							"	}\n"+
+							"	if c%s != nil {\n"+
+							"		defer freeDoubleArray(c%s)\n"+
+							"	}",
+						arg.GoName, lengthVar, arg.GoName, errorReturn, arg.GoName, arg.GoName))
+				}
 			} else if arg.GoType == "[]int" {
 				// For required array parameters in non-options function, we don't need the length
 				lengthVar := fmt.Sprintf("c%sLength", arg.GoName)
@@ -312,15 +368,31 @@ func generateVarDeclarations(op introspection.Operation, withOptions bool) strin
 					lengthVar = "_" // Use underscore for unused length
 				}
 
-				decls = append(decls, fmt.Sprintf(
-					"c%s, %s, err := convertToIntArray(%s)\n"+
-						"	if err != nil {\n"+
-						"		%s\n"+
-						"	}\n"+
-						"	if c%s != nil {\n"+
-						"		defer freeIntArray(c%s)\n"+
-						"	}",
-					arg.GoName, lengthVar, arg.GoName, errorReturn, arg.GoName, arg.GoName))
+				// Convert nil arrays to safe defaults for required parameters
+				if arg.IsRequired {
+					decls = append(decls, fmt.Sprintf(
+						"if %s == nil {\n"+
+							"		%s = %s\n"+
+							"	}\n"+
+							"	c%s, %s, err := convertToIntArray(%s)\n"+
+							"	if err != nil {\n"+
+							"		%s\n"+
+							"	}\n"+
+							"	if c%s != nil {\n"+
+							"		defer freeIntArray(c%s)\n"+
+							"	}",
+						arg.GoName, arg.GoName, generateSafeDefaultForArray(arg.GoType), arg.GoName, lengthVar, arg.GoName, errorReturn, arg.GoName, arg.GoName))
+				} else {
+					decls = append(decls, fmt.Sprintf(
+						"c%s, %s, err := convertToIntArray(%s)\n"+
+							"	if err != nil {\n"+
+							"		%s\n"+
+							"	}\n"+
+							"	if c%s != nil {\n"+
+							"		defer freeIntArray(c%s)\n"+
+							"	}",
+						arg.GoName, lengthVar, arg.GoName, errorReturn, arg.GoName, arg.GoName))
+				}
 			} else if arg.GoType == "[]BlendMode" {
 				// For required array parameters in non-options function, we don't need the length
 				lengthVar := fmt.Sprintf("c%sLength", arg.GoName)
@@ -328,15 +400,31 @@ func generateVarDeclarations(op introspection.Operation, withOptions bool) strin
 					lengthVar = "_" // Use underscore for unused length
 				}
 
-				decls = append(decls, fmt.Sprintf(
-					"c%s, %s, err := convertToBlendModeArray(%s)\n"+
-						"	if err != nil {\n"+
-						"		%s\n"+
-						"	}\n"+
-						"	if c%s != nil {\n"+
-						"		defer freeIntArray(c%s)\n"+
-						"	}",
-					arg.GoName, lengthVar, arg.GoName, errorReturn, arg.GoName, arg.GoName))
+				// Convert nil arrays to safe defaults for required parameters
+				if arg.IsRequired {
+					decls = append(decls, fmt.Sprintf(
+						"if %s == nil {\n"+
+							"		%s = %s\n"+
+							"	}\n"+
+							"	c%s, %s, err := convertToBlendModeArray(%s)\n"+
+							"	if err != nil {\n"+
+							"		%s\n"+
+							"	}\n"+
+							"	if c%s != nil {\n"+
+							"		defer freeIntArray(c%s)\n"+
+							"	}",
+						arg.GoName, arg.GoName, generateSafeDefaultForArray(arg.GoType), arg.GoName, lengthVar, arg.GoName, errorReturn, arg.GoName, arg.GoName))
+				} else {
+					decls = append(decls, fmt.Sprintf(
+						"c%s, %s, err := convertToBlendModeArray(%s)\n"+
+							"	if err != nil {\n"+
+							"		%s\n"+
+							"	}\n"+
+							"	if c%s != nil {\n"+
+							"		defer freeIntArray(c%s)\n"+
+							"	}",
+						arg.GoName, lengthVar, arg.GoName, errorReturn, arg.GoName, arg.GoName))
+				}
 			} else if arg.GoType == "[]*Image" || arg.GoType == "[]*C.VipsImage" {
 				// For required array parameters in non-options function, we don't need the length
 				lengthVar := fmt.Sprintf("c%sLength", arg.GoName)
@@ -344,16 +432,31 @@ func generateVarDeclarations(op introspection.Operation, withOptions bool) strin
 					lengthVar = "_" // Use underscore for unused length
 				}
 
-				// Use utility function for image arrays
-				decls = append(decls, fmt.Sprintf(
-					"c%s, %s, err := convertToImageArray(%s)\n"+
-						"	if err != nil {\n"+
-						"		%s\n"+
-						"	}\n"+
-						"	if c%s != nil {\n"+
-						"		defer freeImageArray(c%s)\n"+
-						"	}",
-					arg.GoName, lengthVar, arg.GoName, errorReturn, arg.GoName, arg.GoName))
+				// Convert nil arrays to safe defaults for required parameters
+				if arg.IsRequired {
+					decls = append(decls, fmt.Sprintf(
+						"if %s == nil {\n"+
+							"		%s = %s\n"+
+							"	}\n"+
+							"	c%s, %s, err := convertToImageArray(%s)\n"+
+							"	if err != nil {\n"+
+							"		%s\n"+
+							"	}\n"+
+							"	if c%s != nil {\n"+
+							"		defer freeImageArray(c%s)\n"+
+							"	}",
+						arg.GoName, arg.GoName, generateSafeDefaultForArray(arg.GoType), arg.GoName, lengthVar, arg.GoName, errorReturn, arg.GoName, arg.GoName))
+				} else {
+					decls = append(decls, fmt.Sprintf(
+						"c%s, %s, err := convertToImageArray(%s)\n"+
+							"	if err != nil {\n"+
+							"		%s\n"+
+							"	}\n"+
+							"	if c%s != nil {\n"+
+							"		defer freeImageArray(c%s)\n"+
+							"	}",
+						arg.GoName, lengthVar, arg.GoName, errorReturn, arg.GoName, arg.GoName))
+				}
 			} else {
 				// Legacy handling for other array types
 				decls = append(decls, fmt.Sprintf(
