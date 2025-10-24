@@ -1912,15 +1912,14 @@ func generateOptionalInputsStruct(op introspection.Operation) string {
 
 	// Add supported optional output parameters to the struct
 	if len(supportedOptionalOutputs) > 0 {
-		if len(op.OptionalInputs) > 0 {
-			result.WriteString("\n\t// Optional outputs\n")
-		}
 		for _, opt := range supportedOptionalOutputs {
 			fieldName := strings.Title(opt.GoName)
 			fieldType := opt.GoType
-			// Add comment with description if available
+			// Add comment with description if available, prefixed with "Output, "
 			if opt.Description != "" {
-				result.WriteString(fmt.Sprintf("\t// %s %s\n", fieldName, opt.Description))
+				result.WriteString(fmt.Sprintf("\t// %s Output, %s\n", fieldName, opt.Description))
+			} else {
+				result.WriteString(fmt.Sprintf("\t// %s Output\n", fieldName))
 			}
 			result.WriteString(fmt.Sprintf("\t%s %s\n", fieldName, fieldType))
 		}
