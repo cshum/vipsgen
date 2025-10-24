@@ -3953,42 +3953,38 @@ func TestImage_SetArrayDouble(t *testing.T) {
 // TestOptionalOutputStructGeneration tests that optional output structs are generated correctly
 func TestOptionalOutputStructGeneration(t *testing.T) {
 	// Test the optional output struct exists and has correct types
-	if HasOperation("mosaic") {
-		options := DefaultMosaicOptions()
-		require.NotNil(t, options, "MosaicOptions should not be nil")
+	options := DefaultMosaicOptions()
+	require.NotNil(t, options, "MosaicOptions should not be nil")
 
-		// Verify struct field types (this tests the code generation)
-		assert.IsType(t, 0, options.Dx0, "Dx0 should be int type")
-		assert.IsType(t, 0, options.Dy0, "Dy0 should be int type")
-		assert.IsType(t, float64(0), options.Scale1, "Scale1 should be float64 type")
-		assert.IsType(t, float64(0), options.Angle1, "Angle1 should be float64 type")
-		assert.IsType(t, float64(0), options.Dx1, "Dx1 should be float64 type")
-		assert.IsType(t, float64(0), options.Dy1, "Dy1 should be float64 type")
+	// Verify struct field types (this tests the code generation)
+	assert.IsType(t, 0, options.Dx0, "Dx0 should be int type")
+	assert.IsType(t, 0, options.Dy0, "Dy0 should be int type")
+	assert.IsType(t, float64(0), options.Scale1, "Scale1 should be float64 type")
+	assert.IsType(t, float64(0), options.Angle1, "Angle1 should be float64 type")
+	assert.IsType(t, float64(0), options.Dx1, "Dx1 should be float64 type")
+	assert.IsType(t, float64(0), options.Dy1, "Dy1 should be float64 type")
 
-		// Test that initial values are zero
-		assert.Equal(t, 0, options.Dx0, "Initial Dx0 should be 0")
-		assert.Equal(t, 0, options.Dy0, "Initial Dy0 should be 0")
-		assert.Equal(t, 0.0, options.Scale1, "Initial Scale1 should be 0.0")
-		assert.Equal(t, 0.0, options.Angle1, "Initial Angle1 should be 0.0")
+	// Test that initial values are zero
+	assert.Equal(t, 0, options.Dx0, "Initial Dx0 should be 0")
+	assert.Equal(t, 0, options.Dy0, "Initial Dy0 should be 0")
+	assert.Equal(t, 0.0, options.Scale1, "Initial Scale1 should be 0.0")
+	assert.Equal(t, 0.0, options.Angle1, "Initial Angle1 should be 0.0")
 
-		t.Log("✓ Mosaic optional output struct validation passed")
-	}
+	t.Log("✓ Mosaic optional output struct validation passed")
 
 	// Test smartcrop optional outputs
-	if HasOperation("smartcrop") {
-		smartcropOptions := DefaultSmartcropOptions()
-		require.NotNil(t, smartcropOptions, "SmartcropOptions should not be nil")
+	smartcropOptions := DefaultSmartcropOptions()
+	require.NotNil(t, smartcropOptions, "SmartcropOptions should not be nil")
 
-		// Verify field types
-		assert.IsType(t, 0, smartcropOptions.AttentionX, "AttentionX should be int type")
-		assert.IsType(t, 0, smartcropOptions.AttentionY, "AttentionY should be int type")
+	// Verify field types
+	assert.IsType(t, 0, smartcropOptions.AttentionX, "AttentionX should be int type")
+	assert.IsType(t, 0, smartcropOptions.AttentionY, "AttentionY should be int type")
 
-		// Test initial values
-		assert.Equal(t, 0, smartcropOptions.AttentionX, "Initial AttentionX should be 0")
-		assert.Equal(t, 0, smartcropOptions.AttentionY, "Initial AttentionY should be 0")
+	// Test initial values
+	assert.Equal(t, 0, smartcropOptions.AttentionX, "Initial AttentionX should be 0")
+	assert.Equal(t, 0, smartcropOptions.AttentionY, "Initial AttentionY should be 0")
 
-		t.Log("✓ Smartcrop optional output struct validation passed")
-	}
+	t.Log("✓ Smartcrop optional output struct validation passed")
 
 	// Test min/max optional outputs
 	minOptions := DefaultMinOptions()
@@ -4239,8 +4235,4 @@ func TestOptionalOutputCodeGeneration(t *testing.T) {
 	assert.IsType(t, int(0), floodOpts.Top, "Flood Top should be int type")
 	assert.IsType(t, int(0), floodOpts.Width, "Flood Width should be int type")
 	assert.IsType(t, int(0), floodOpts.Height, "Flood Height should be int type")
-
-	t.Log("✓ DrawFlood optional output types are correct")
-
-	t.Log("✓ All optional output code generation tests passed")
 }
