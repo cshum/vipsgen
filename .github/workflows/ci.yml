@@ -8,14 +8,20 @@ on:
 
 jobs:
   generate:
-    name: CI
+    name: Generate bindings for libvips ${{ matrix.vips_version }}
     runs-on: ubuntu-24.04
-    permissions:
-      contents: write
-      pull-requests: write
+    strategy:
+      matrix:
+        include:
+          - vips_version: "8.16.1"
+            output_dir: "./vips816"
+          - vips_version: "8.17.3"
+            output_dir: "./vips817"
+          - vips_version: "8.18.0"
+            output_dir: "./vips"
     env:
       CGO_CFLAGS_ALLOW: -Xpreprocessor
-      VIPS_VERSION: 8.18.0
+      VIPS_VERSION: ${{ matrix.vips_version }}
       V: 5
 
     steps:
@@ -62,19 +68,19 @@ jobs:
       - name: Cache libvips
         uses: actions/cache@v3
         with:
-          path: vips-${{ env.VIPS_VERSION }}
-          key: ${{ runner.os }}-24.04-vips-introspection-${{ env.V }}-${{ env.VIPS_VERSION }}
+          path: vips-${{ matrix.vips_version }}
+          key: ${{ runner.os }}-24.04-vips-introspection-${{ env.V }}-${{ matrix.vips_version }}
           restore-keys: |
             ${{ runner.os }}-24.04-vips-introspection-${{ env.V }}-
 
       - name: Build libvips from source
         run: |
-          if [ ! -d "vips-${{ env.VIPS_VERSION }}" ]
+          if [ ! -d "vips-${{ matrix.vips_version }}" ]
           then
-            wget https://github.com/libvips/libvips/releases/download/v${{ env.VIPS_VERSION }}/vips-${{ env.VIPS_VERSION }}.tar.xz
-            tar xf vips-${{ env.VIPS_VERSION }}.tar.xz
+            wget https://github.com/libvips/libvips/releases/download/v${{ matrix.vips_version }}/vips-${{ matrix.vips_version }}.tar.xz
+            tar xf vips-${{ matrix.vips_version }}.tar.xz
           fi
-          cd vips-${{ env.VIPS_VERSION }}
+          cd vips-${{ matrix.vips_version }}
           
           # Detect all available features
           PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/usr/lib/pkgconfig meson setup _build \
@@ -122,16 +128,54 @@ jobs:
 
       - name: Generate vips package
         run: |
-          mkdir -p vips
-          ./bin/vipsgen -out ./vips
+          mkdir -p ${{ matrix.output_dir }}
+          ./bin/vipsgen -out ${{ matrix.output_dir }}
 
       - name: Run tests
         run: |
-          $(CGO_CFLAGS_ALLOW="-Xpreprocessor") go test -v ./vips/...
+          $(CGO_CFLAGS_ALLOW="-Xpreprocessor") go test -v ${{ matrix.output_dir }}/...
+
+      - name: Upload generated bindings
+        uses: actions/upload-artifact@v3
+        with:
+          name: bindings-${{ matrix.vips_version }}
+          path: ${{ matrix.output_dir }}
+          retention-days: 1
+
+  commit:
+    name: Commit all generated bindings
+    needs: generate
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+      pull-requests: write
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+
+      - name: Download vips816 bindings
+        uses: actions/download-artifact@v3
+        with:
+          name: bindings-8.16.1
+          path: vips816
+
+      - name: Download vips817 bindings
+        uses: actions/download-artifact@v3
+        with:
+          name: bindings-8.17.3
+          path: vips817
+
+      - name: Download vips bindings
+        uses: actions/download-artifact@v3
+        with:
+          name: bindings-8.18.0
+          path: vips
 
       - name: Commit generated files
-        if: github.event_name == 'pull_request'
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "build: update generated vips package"
-          file_pattern: "vips"
+          commit_message: "build: update generated vips packages for all versions"
+          file_pattern: "vips*"

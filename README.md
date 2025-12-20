@@ -12,8 +12,55 @@ vipsgen solves this by generating type-safe, robust, and fully documented Go bin
 
 You can use vipsgen in two ways:
 
-- **Import directly**: Use the pre-generated library `github.com/cshum/vipsgen/vips` for the default installation of libvips 8.17
+- **Import directly**: Use the pre-generated library for your libvips version (see [Version Compatibility](#version-compatibility) below)
 - **Generate custom bindings**: Run the vipsgen command to create bindings for your specific libvips version and installation
+
+## Version Compatibility
+
+vipsgen provides pre-generated bindings for multiple libvips versions. All packages use the same `vips` package name and API - only the import path differs.
+
+| Import Path | libvips Version | Use When |
+|-------------|----------------|----------|
+| `github.com/cshum/vipsgen/vips` | 8.18.0 | Latest version (recommended) |
+| `github.com/cshum/vipsgen/vips817` | 8.17.3 | You have libvips 8.17.x installed |
+| `github.com/cshum/vipsgen/vips816` | 8.16.1 | You have libvips 8.16.x installed |
+
+**Important:** Only import ONE of these packages in your project. Choose based on your installed libvips version.
+
+### Usage Example
+
+```go
+// For libvips 8.18.x (latest - recommended)
+import "github.com/cshum/vipsgen/vips"
+
+// For libvips 8.17.x
+import "github.com/cshum/vipsgen/vips817"
+
+// For libvips 8.16.x
+import "github.com/cshum/vipsgen/vips816"
+
+func main() {
+    // API is identical across all versions
+    img, err := vips.NewImageFromFile("input.jpg", nil)
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer img.Close()
+    
+    err = img.Resize(0.5, nil)
+    // ...
+}
+```
+
+### Checking Your libvips Version
+
+To check which version of libvips you have installed:
+
+```bash
+vips --version
+```
+
+Then import the corresponding package from the table above.
 
 ### Features
 
