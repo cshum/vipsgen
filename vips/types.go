@@ -29,6 +29,7 @@ const (
 	ImageTypeMagick ImageType = "magick"
 	ImageTypeAnalyze ImageType = "analyze"
 	ImageTypeCsv ImageType = "csv"
+	ImageTypeDcraw ImageType = "dcraw"
 	ImageTypeDz ImageType = "dz"
 	ImageTypeFits ImageType = "fits"
 	ImageTypeJxl ImageType = "jxl"
@@ -705,6 +706,9 @@ func vipsDetermineImageType(in *C.VipsImage) ImageType {
 			}
 			if strings.HasPrefix(vipsLoader, "csv") {
 				return ImageTypeCsv
+			}
+			if strings.HasPrefix(vipsLoader, "dcraw") {
+				return ImageTypeDcraw
 			}
 			if strings.HasPrefix(vipsLoader, "fits") {
 				return ImageTypeFits

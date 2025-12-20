@@ -322,6 +322,127 @@ func NewCsvloadSource(source *Source, options *CsvloadSourceOptions) (*Image, er
 	return newImageRef(vipsImage, ImageTypeCsv, nil), nil
 }
 
+// DcrawloadOptions optional arguments for vips_dcrawload
+type DcrawloadOptions struct {
+	// Bitdepth Number of bits per pixel
+	Bitdepth int
+	// Memory Force open via memory
+	Memory bool
+	// Access Required access pattern for this file
+	Access Access
+	// FailOn Error level to fail on
+	FailOn FailOn
+	// Revalidate Don't use a cached result for this operation
+	Revalidate bool
+}
+
+// DefaultDcrawloadOptions creates default value for vips_dcrawload optional arguments
+func DefaultDcrawloadOptions() *DcrawloadOptions {
+	return &DcrawloadOptions{
+		Bitdepth: 8,
+	}
+}
+
+// NewDcrawload vips_dcrawload load RAW camera files
+//
+// The filename specifies filename to load from.
+func NewDcrawload(filename string, options *DcrawloadOptions) (*Image, error) {
+	Startup(nil)
+	if options != nil {
+		vipsImage, err := vipsgenDcrawloadWithOptions(filename, options.Bitdepth, options.Memory, options.Access, options.FailOn, options.Revalidate)
+		if err != nil {
+			return nil, err
+		}
+		return newImageRef(vipsImage, ImageTypeDcraw, nil), nil
+	}
+	vipsImage, err := vipsgenDcrawload(filename)
+	if err != nil {
+		return nil, err
+	}
+	return newImageRef(vipsImage, ImageTypeDcraw, nil), nil
+}
+
+// DcrawloadBufferOptions optional arguments for vips_dcrawload_buffer
+type DcrawloadBufferOptions struct {
+	// Bitdepth Number of bits per pixel
+	Bitdepth int
+	// Memory Force open via memory
+	Memory bool
+	// Access Required access pattern for this file
+	Access Access
+	// FailOn Error level to fail on
+	FailOn FailOn
+	// Revalidate Don't use a cached result for this operation
+	Revalidate bool
+}
+
+// DefaultDcrawloadBufferOptions creates default value for vips_dcrawload_buffer optional arguments
+func DefaultDcrawloadBufferOptions() *DcrawloadBufferOptions {
+	return &DcrawloadBufferOptions{
+		Bitdepth: 8,
+	}
+}
+
+// NewDcrawloadBuffer vips_dcrawload_buffer load RAW camera files
+func NewDcrawloadBuffer(buf []byte, options *DcrawloadBufferOptions) (*Image, error) {
+	Startup(nil)
+	if len(buf) == 0 {
+		return nil, fmt.Errorf("dcrawload_buffer: buffer is empty")
+	}
+	if options != nil {
+		vipsImage, err := vipsgenDcrawloadBufferWithOptions(buf, options.Bitdepth, options.Memory, options.Access, options.FailOn, options.Revalidate)
+		if err != nil {
+			return nil, err
+		}
+		return newImageRef(vipsImage, ImageTypeDcraw, buf), nil
+	}
+	vipsImage, err := vipsgenDcrawloadBuffer(buf)
+	if err != nil {
+		return nil, err
+	}
+	return newImageRef(vipsImage, ImageTypeDcraw, buf), nil
+}
+
+// DcrawloadSourceOptions optional arguments for vips_dcrawload_source
+type DcrawloadSourceOptions struct {
+	// Bitdepth Number of bits per pixel
+	Bitdepth int
+	// Memory Force open via memory
+	Memory bool
+	// Access Required access pattern for this file
+	Access Access
+	// FailOn Error level to fail on
+	FailOn FailOn
+	// Revalidate Don't use a cached result for this operation
+	Revalidate bool
+}
+
+// DefaultDcrawloadSourceOptions creates default value for vips_dcrawload_source optional arguments
+func DefaultDcrawloadSourceOptions() *DcrawloadSourceOptions {
+	return &DcrawloadSourceOptions{
+		Bitdepth: 8,
+	}
+}
+
+// NewDcrawloadSource vips_dcrawload_source load RAW camera files
+//
+// The source specifies source to load from.
+func NewDcrawloadSource(source *Source, options *DcrawloadSourceOptions) (*Image, error) {
+	Startup(nil)
+	if options != nil {
+		vipsImage, err := vipsgenDcrawloadSourceWithOptions(source.src, options.Bitdepth, options.Memory, options.Access, options.FailOn, options.Revalidate)
+		if err != nil {
+			return nil, err
+		}
+		return newImageRef(vipsImage, ImageTypeDcraw, nil), nil
+	}
+	vipsImage, err := vipsgenDcrawloadSource(source.src)
+	if err != nil {
+		return nil, err
+	}
+	return newImageRef(vipsImage, ImageTypeDcraw, nil), nil
+}
+
 // EyeOptions optional arguments for vips_eye
 type EyeOptions struct {
 	// Uchar Output an unsigned char image

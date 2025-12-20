@@ -189,6 +189,15 @@ int vipsgen_dE76(VipsImage* left, VipsImage* right, VipsImage** out);
 
 int vipsgen_dECMC(VipsImage* left, VipsImage* right, VipsImage** out);
 
+int vipsgen_dcrawload(const char* filename, VipsImage** out);
+int vipsgen_dcrawload_with_options(const char* filename, VipsImage** out, gint bitdepth, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
+
+int vipsgen_dcrawload_buffer(void* buf, size_t len, VipsImage** out);
+int vipsgen_dcrawload_buffer_with_options(void* buf, size_t len, VipsImage** out, gint bitdepth, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
+
+int vipsgen_dcrawload_source(VipsSourceCustom* source, VipsImage** out);
+int vipsgen_dcrawload_source_with_options(VipsSourceCustom* source, VipsImage** out, gint bitdepth, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
+
 int vipsgen_deviate(VipsImage* in, double* out);
 
 int vipsgen_divide(VipsImage* left, VipsImage* right, VipsImage** out);

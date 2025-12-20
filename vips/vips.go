@@ -1087,6 +1087,70 @@ func vipsgenDECMC(left *C.VipsImage, right *C.VipsImage) (*C.VipsImage, error) {
 	return out, nil
 }
 
+// vipsgenDcrawload vips_dcrawload load RAW camera files
+func vipsgenDcrawload(filename string) (*C.VipsImage, error) {
+	var out *C.VipsImage
+	cfilename := C.CString(filename)
+	defer freeCString(cfilename)
+	if err := C.vipsgen_dcrawload(cfilename, &out); err != 0 {
+		return nil, handleImageError(out)
+	}
+	return out, nil
+}
+
+// vipsgenDcrawloadWithOptions vips_dcrawload load RAW camera files with optional arguments
+func vipsgenDcrawloadWithOptions(filename string, bitdepth int, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
+	var out *C.VipsImage
+	cfilename := C.CString(filename)
+	defer freeCString(cfilename)
+	if err := C.vipsgen_dcrawload_with_options(cfilename, &out, C.gint(bitdepth), C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
+		return nil, handleImageError(out)
+	}
+	return out, nil
+}
+
+// vipsgenDcrawloadBuffer vips_dcrawload_buffer load RAW camera files
+func vipsgenDcrawloadBuffer(buf []byte) (*C.VipsImage, error) {
+	src := buf
+	// Reference src here so it's not garbage collected during image initialization.
+	defer runtime.KeepAlive(src)
+	var out *C.VipsImage
+	if err := C.vipsgen_dcrawload_buffer(unsafe.Pointer(&src[0]), C.size_t(len(src)), &out); err != 0 {
+		return nil, handleImageError(out)
+	}
+	return out, nil
+}
+
+// vipsgenDcrawloadBufferWithOptions vips_dcrawload_buffer load RAW camera files with optional arguments
+func vipsgenDcrawloadBufferWithOptions(buf []byte, bitdepth int, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
+	src := buf
+	// Reference src here so it's not garbage collected during image initialization.
+	defer runtime.KeepAlive(src)
+	var out *C.VipsImage
+	if err := C.vipsgen_dcrawload_buffer_with_options(unsafe.Pointer(&src[0]), C.size_t(len(src)), &out, C.gint(bitdepth), C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
+		return nil, handleImageError(out)
+	}
+	return out, nil
+}
+
+// vipsgenDcrawloadSource vips_dcrawload_source load RAW camera files
+func vipsgenDcrawloadSource(source *C.VipsSourceCustom) (*C.VipsImage, error) {
+	var out *C.VipsImage
+	if err := C.vipsgen_dcrawload_source(source, &out); err != 0 {
+		return nil, handleImageError(out)
+	}
+	return out, nil
+}
+
+// vipsgenDcrawloadSourceWithOptions vips_dcrawload_source load RAW camera files with optional arguments
+func vipsgenDcrawloadSourceWithOptions(source *C.VipsSourceCustom, bitdepth int, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
+	var out *C.VipsImage
+	if err := C.vipsgen_dcrawload_source_with_options(source, &out, C.gint(bitdepth), C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
+		return nil, handleImageError(out)
+	}
+	return out, nil
+}
+
 // vipsgenDeviate vips_deviate find image standard deviation
 func vipsgenDeviate(in *C.VipsImage) (float64, error) {
 	var out float64
