@@ -1,3 +1,3 @@
 # Exclude generated vips C files from language detection
-vips/*.c linguist-generated=true
-vips/*.h linguist-generated=true
+vips*/*.c linguist-generated=true
+vips*/*.h linguist-generated=true
