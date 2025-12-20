@@ -22,7 +22,7 @@ jobs:
     env:
       CGO_CFLAGS_ALLOW: -Xpreprocessor
       VIPS_VERSION: ${{ matrix.vips_version }}
-      V: 5
+      V: 6
 
     steps:
       - name: Set up Go
@@ -46,7 +46,8 @@ jobs:
           libopenjp2-7-dev libcgif-dev \
           gobject-introspection libgirepository1.0-dev \
           libmagickwand-dev libmatio-dev libnifti2-dev \
-          libjxl-dev libzip-dev libarchive-dev
+          libjxl-dev libzip-dev libarchive-dev \
+          libraw-dev
           
           # Create missing NIfTI pkg-config file to help libvips meson detect it
           # Ubuntu's libnifti2-dev doesn't provide the pkg-config file that libvips expects
