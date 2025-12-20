@@ -12,7 +12,7 @@ vipsgen solves this by generating type-safe, robust, and fully documented Go bin
 
 You can use vipsgen in two ways:
 
-- **Import directly**: Use the pre-generated library `github.com/cshum/vipsgen/vips` for the default installation of libvips 8.18 or supported version (see [version compatibility](#version-compatibility))
+- **Import directly**: Use the pre-generated library `github.com/cshum/vipsgen/vips` for the latest default installation of libvips, or see [pre-generated packages](#pre-generated-packages)
 - **Generate custom bindings**: Run the vipsgen command to create bindings for your specific libvips version and installation
 
 ### Features
@@ -107,9 +107,9 @@ func main() {
 }
 ```
 
-## Version Compatibility
+## Pre-generated Packages
 
-vipsgen provides pre-generated bindings for multiple libvips versions. All packages use the same `vips` package name and API - only the import path differs.
+vipsgen provides pre-generated bindings for the following libvips versions. All packages use the same `vips` package name and API - only the import path differs.
 
 | Import Path | libvips Version | Use When |
 |-------------|----------------|----------|
@@ -117,13 +117,9 @@ vipsgen provides pre-generated bindings for multiple libvips versions. All packa
 | `github.com/cshum/vipsgen/vips817` | 8.17.3 | You have libvips 8.17.x installed |
 | `github.com/cshum/vipsgen/vips816` | 8.16.1 | You have libvips 8.16.x installed |
 
-To check which version of libvips you have installed:
+**Important:** Only import ONE of these packages in your project. Choose based on your installed libvips version.
 
-```bash
-vips --version
-```
-
-Usage example:
+Check your libvips version with `vips --version`, then use the corresponding import:
 
 ```go
 // For libvips 8.18.x (latest - recommended)
