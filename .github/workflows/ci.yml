@@ -136,7 +136,7 @@ jobs:
           $(CGO_CFLAGS_ALLOW="-Xpreprocessor") go test -v ${{ matrix.output_dir }}/...
 
       - name: Upload generated bindings
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: bindings-${{ matrix.vips_version }}
           path: ${{ matrix.output_dir }}
@@ -157,19 +157,19 @@ jobs:
           ref: ${{ github.head_ref }}
 
       - name: Download vips816 bindings
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: bindings-8.16.1
           path: vips816
 
       - name: Download vips817 bindings
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: bindings-8.17.3
           path: vips817
 
       - name: Download vips bindings
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: bindings-8.18.0
           path: vips
