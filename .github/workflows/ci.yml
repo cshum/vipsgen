@@ -8,7 +8,7 @@ on:
 
 jobs:
   generate:
-    name: Generate bindings for libvips ${{ matrix.vips_version }}
+    name: Generate code for libvips ${{ matrix.vips_version }}
     runs-on: ubuntu-24.04
     strategy:
       matrix:
