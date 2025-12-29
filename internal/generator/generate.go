@@ -33,6 +33,12 @@ func Generate(
 		// For example: "vips.go.tmpl" -> "vips.go"
 		outputFile := filepath.Join(outputDir, strings.TrimSuffix(filepath.Base(templateFile), ".tmpl"))
 
+		// Skip test templates if IncludeTest is false
+		if !templateData.IncludeTest && strings.HasSuffix(filepath.Base(templateFile), "_test.go.tmpl") {
+			log.Printf("Skipping test template: %s (use --include-test to generate)\n", filepath.Base(templateFile))
+			continue
+		}
+
 		// Generate file from template
 		if err := templateLoader.GenerateFile(templateFile, outputFile, templateData); err != nil {
 			return fmt.Errorf("failed to generate %s: %v", outputFile, err)

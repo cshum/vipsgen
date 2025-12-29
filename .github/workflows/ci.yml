@@ -130,7 +130,7 @@ jobs:
       - name: Generate vips package
         run: |
           mkdir -p ${{ matrix.output_dir }}
-          ./bin/vipsgen -out ${{ matrix.output_dir }}
+          ./bin/vipsgen -out ${{ matrix.output_dir }} --include-test
 
       - name: Run tests
         run: |

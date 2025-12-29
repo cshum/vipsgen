@@ -10,6 +10,7 @@ type TemplateData struct {
 	Operations  []introspection.Operation
 	EnumTypes   []introspection.EnumTypeInfo
 	ImageTypes  []introspection.ImageTypeInfo
+	IncludeTest bool
 }
 
 // NewTemplateData creates a new TemplateData structure with all needed information
@@ -18,11 +19,13 @@ func NewTemplateData(
 	operations []introspection.Operation,
 	enumTypes []introspection.EnumTypeInfo,
 	imageTypes []introspection.ImageTypeInfo,
+	includeTest bool,
 ) *TemplateData {
 	return &TemplateData{
 		VipsVersion: vipsVersion,
 		Operations:  operations,
 		EnumTypes:   enumTypes,
 		ImageTypes:  imageTypes,
+		IncludeTest: includeTest,
 	}
 }

@@ -15,6 +15,7 @@ func main() {
 	outputDirFlag := flag.String("out", "./vips", "Output directory")
 	templateDirFlag := flag.String("templates", "", "Template directory (uses embedded templates if not specified)")
 	isDebug := flag.Bool("debug", false, "Enable debug json output")
+	includeTest := flag.Bool("include-test", false, "Include test files in generated output")
 
 	flag.Parse()
 
@@ -74,7 +75,7 @@ func main() {
 	log.Printf("Discovered %d enum types\n", len(enumTypes))
 
 	// Create unified template data
-	templateData := generator.NewTemplateData(vipsVersion, operations, enumTypes, imageTypes)
+	templateData := generator.NewTemplateData(vipsVersion, operations, enumTypes, imageTypes, *includeTest)
 
 	// Generate all code using the unified template data approach
 	if err := generator.Generate(loader, templateData, outputDir); err != nil {
