@@ -5,6 +5,13 @@ on:
     branches:
       - main
   pull_request:
+  workflow_dispatch:
+    inputs:
+      commit_message:
+        description: 'Commit message (optional)'
+        required: false
+        default: 'build: update generated vips packages'
+        type: string
 
 jobs:
   generate:
@@ -138,7 +145,7 @@ jobs:
 
       - name: Upload generated bindings
         uses: actions/upload-artifact@v4
-        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+        if: (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository) || github.event_name == 'workflow_dispatch'
         with:
           name: bindings-${{ matrix.vips_version }}
           path: ${{ matrix.output_dir }}
@@ -179,3 +186,44 @@ jobs:
         with:
           commit_message: "build: update generated vips packages"
           file_pattern: "vips*"
+
+  commit-manual:
+    name: Create PR with generated bindings
+    needs: generate
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+      pull-requests: write
+    if: github.event_name == 'workflow_dispatch'
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Download vips816 bindings
+        uses: actions/download-artifact@v4
+        with:
+          name: bindings-8.16.1
+          path: vips816
+
+      - name: Download vips817 bindings
+        uses: actions/download-artifact@v4
+        with:
+          name: bindings-8.17.3
+          path: vips817
+
+      - name: Download vips bindings
+        uses: actions/download-artifact@v4
+        with:
+          name: bindings-8.18.0
+          path: vips
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          commit-message: ${{ inputs.commit_message }}
+          title: ${{ inputs.commit_message }}
+          body: "Auto-generated bindings from manual workflow dispatch"
+          branch: generated-files-${{ github.run_number }}
+          delete-branch: true
