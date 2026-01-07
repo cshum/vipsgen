@@ -19,7 +19,7 @@ func goLoggingHandler(domain *C.char, level C.int, message *C.char) {
 func goSourceRead(
 	ptr unsafe.Pointer, buffer unsafe.Pointer, size C.longlong,
 ) C.longlong {
-	src, ok := pointer.Restore(ptr).(*Source)
+	source, ok := pointer.Restore(ptr).(*Source)
 	if !ok {
 		return -1
 	}
@@ -29,7 +29,7 @@ func goSourceRead(
 		Cap:  int(size),
 	}
 	buf := *(*[]byte)(unsafe.Pointer(sh))
-	n, err := src.reader.Read(buf)
+	n, err := source.reader.Read(buf)
 	if err == io.EOF {
 		return C.longlong(n)
 	} else if err != nil {
@@ -42,11 +42,11 @@ func goSourceRead(
 func goSourceSeek(
 	ptr unsafe.Pointer, offset C.longlong, whence int,
 ) C.longlong {
-	src, ok := pointer.Restore(ptr).(*Source)
-	if ok && src.seeker != nil {
+	source, ok := pointer.Restore(ptr).(*Source)
+	if ok && source.seeker != nil {
 		switch whence {
 		case io.SeekStart, io.SeekCurrent, io.SeekEnd:
-			if n, err := src.seeker.Seek(int64(offset), whence); err == nil {
+			if n, err := source.seeker.Seek(int64(offset), whence); err == nil {
 				return C.longlong(n)
 			}
 		}
@@ -73,4 +73,20 @@ func goTargetWrite(
 		return -1
 	}
 	return C.longlong(n)
+}
+
+//export goTargetSeek
+func goTargetSeek(
+	ptr unsafe.Pointer, offset C.longlong, whence int,
+) C.longlong {
+	target, ok := pointer.Restore(ptr).(*Target)
+	if ok && target.seeker != nil {
+		switch whence {
+		case io.SeekStart, io.SeekCurrent, io.SeekEnd:
+			if n, err := target.seeker.Seek(int64(offset), whence); err == nil {
+				return C.longlong(n)
+			}
+		}
+	}
+	return -1
 }

@@ -25,13 +25,12 @@ type Source struct {
 func NewSource(reader io.ReadCloser) *Source {
 	Startup(nil)
 	s := &Source{reader: reader}
+	s.ptr = pointer.Save(s)
 	seeker, ok := reader.(io.ReadSeeker)
 	if ok {
 		s.seeker = seeker
-		s.ptr = pointer.Save(s)
 		s.src = C.create_go_custom_source_with_seek(s.ptr)
 	} else {
-		s.ptr = pointer.Save(s)
 		s.src = C.create_go_custom_source(s.ptr)
 	}
 	return s
@@ -61,6 +60,7 @@ func (s *Source) Close() {
 // Target contains a libvips VipsTargetCustom and manages its lifecycle.
 type Target struct {
 	writer io.WriteCloser
+	seeker io.Seeker
 	target *C.VipsTargetCustom
 	ptr    unsafe.Pointer
 	lock   sync.Mutex
@@ -71,7 +71,13 @@ func NewTarget(writer io.WriteCloser) *Target {
 	Startup(nil)
 	t := &Target{writer: writer}
 	t.ptr = pointer.Save(t)
-	t.target = C.create_go_custom_target(t.ptr)
+	seeker, ok := writer.(io.ReadSeeker)
+	if ok {
+		t.seeker = seeker
+		t.target = C.create_go_custom_target_with_seek(t.ptr)
+	} else {
+		t.target = C.create_go_custom_target(t.ptr)
+	}
 	return t
 }
 
