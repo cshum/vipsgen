@@ -345,7 +345,11 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ### Development Workflow
 
-When contributing to vipsgen, **do not commit the generated code** in the `vips*` directory. The development workflow is designed to keep generated code separate from source code. The repository uses GitHub Actions to automatically handle code generation when PRs are created.
+Do not commit generated code in `vips*/` directories. Generated bindings are created automatically by CI.
+
+**For contributors:** Submit PRs with source code changes only. Maintainers will regenerate bindings after merge.
+
+**For maintainers:** After merging a fork PR, manually run the CI workflow from the Actions tab to regenerate bindings.
 
 ## Special Thanks to `govips`
 
