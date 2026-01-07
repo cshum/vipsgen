@@ -138,6 +138,7 @@ jobs:
 
       - name: Upload generated bindings
         uses: actions/upload-artifact@v4
+        if: github.event_name != 'pull_request'
         with:
           name: bindings-${{ matrix.vips_version }}
           path: ${{ matrix.output_dir }}
@@ -150,7 +151,7 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
-    if: github.event_name == 'pull_request'
+    if: github.event_name != 'pull_request'
     steps:
       - name: Check out code
         uses: actions/checkout@v4
