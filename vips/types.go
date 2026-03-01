@@ -291,7 +291,7 @@ type Keep int
 
 // Keep enum
 const (
-	KeepNone Keep = C.VIPS_FOREIGN_KEEP_NONE
+	KeepNone Keep = -1
 	KeepExif Keep = C.VIPS_FOREIGN_KEEP_EXIF
 	KeepXmp Keep = C.VIPS_FOREIGN_KEEP_XMP
 	KeepIptc Keep = C.VIPS_FOREIGN_KEEP_IPTC
@@ -300,9 +300,6 @@ const (
 	KeepGainmap Keep = C.VIPS_FOREIGN_KEEP_GAINMAP
 	KeepAll Keep = C.VIPS_FOREIGN_KEEP_ALL
 )
-// KeepUnset is the sentinel value meaning "caller did not set keep; use libvips default".
-// Use KeepNone to explicitly strip all metadata.
-const KeepUnset Keep = -1
 
 // PdfPageBox represents VipsForeignPdfPageBox type
 type PdfPageBox int

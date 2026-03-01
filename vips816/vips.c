@@ -49,11 +49,14 @@ int vipsgen_set_int(VipsOperation *operation, const char *name, int value) {
     return 0;
 }
 
-// vipsgen_set_keep passes keep=0 (VIPS_FOREIGN_KEEP_NONE) unconditionally to libvips.
-// Sentinel value -1 means "caller did not set keep; use libvips default".
+// vipsgen_set_keep passes the keep flag to libvips.
+// Go Keep(0) is the zero value meaning "not set" — skip and let libvips use its default.
+// Go KeepNone (-1) maps to C VIPS_FOREIGN_KEEP_NONE (0), explicitly stripping all metadata.
+// All other positive values are bitmask flags and are passed through unchanged.
 int vipsgen_set_keep(VipsOperation *operation, int value) {
-    if (value >= 0) { return vips_object_set(VIPS_OBJECT(operation), "keep", value, NULL); }
-    return 0;
+    if (value == 0) { return 0; }
+    if (value < 0) { value = VIPS_FOREIGN_KEEP_NONE; }
+    return vips_object_set(VIPS_OBJECT(operation), "keep", value, NULL);
 }
 
 int vipsgen_set_bool(VipsOperation *operation, const char *name, gboolean value) {

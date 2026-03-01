@@ -1950,13 +1950,6 @@ func generateOptionalInputsStruct(op introspection.Operation) string {
 	for _, opt := range op.OptionalInputs {
 		fieldName := strings.Title(opt.GoName)
 
-		// keep uses a sentinel -1 (KeepUnset) so that keep=0 (KeepNone) can be
-		// passed through to libvips explicitly, distinguishing it from "not set".
-		if opt.Name == "keep" && opt.EnumType == "Keep" {
-			result.WriteString(fmt.Sprintf("\t\t%s: KeepUnset,\n", fieldName))
-			continue
-		}
-
 		// Only include non-zero defaults
 		if opt.DefaultValue != nil {
 			switch v := opt.DefaultValue.(type) {

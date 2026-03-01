@@ -23,12 +23,9 @@ type {{.GoName}} int
 
 // {{.GoName}} enum
 const (
-{{$typeName := .GoName}}{{range .Values}}	{{.GoName}} {{$typeName}} = C.{{.CName}}
+{{$typeName := .GoName}}{{range .Values}}	{{.GoName}} {{$typeName}} = {{if .GoValue}}{{.GoValue}}{{else}}C.{{.CName}}{{end}}
 {{end}})
-{{if eq .GoName "Keep"}}// KeepUnset is the sentinel value meaning "caller did not set keep; use libvips default".
-// Use KeepNone to explicitly strip all metadata.
-const KeepUnset Keep = -1
-{{end}}{{end}}
+{{end}}
 
 // imageMimeTypes map the various image types to its mime type representation
 var imageMimeTypes = map[ImageType]string{
