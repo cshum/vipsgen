@@ -49,6 +49,13 @@ int vipsgen_set_int(VipsOperation *operation, const char *name, int value) {
     return 0;
 }
 
+// vipsgen_set_keep passes keep=0 (VIPS_FOREIGN_KEEP_NONE) unconditionally to libvips.
+// Sentinel value -1 means "caller did not set keep; use libvips default".
+int vipsgen_set_keep(VipsOperation *operation, int value) {
+    if (value >= 0) { return vips_object_set(VIPS_OBJECT(operation), "keep", value, NULL); }
+    return 0;
+}
+
 int vipsgen_set_bool(VipsOperation *operation, const char *name, gboolean value) {
     if (value) { return vips_object_set(VIPS_OBJECT(operation), name, value, NULL); }
     return 0;
@@ -815,7 +822,7 @@ int vipsgen_csvsave_with_options(VipsImage* in, const char* filename, const char
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "filename", filename, NULL) ||
         vipsgen_set_string(operation, "separator", separator) ||
-        vipsgen_set_int(operation, "keep", keep) ||
+        vipsgen_set_keep(operation, keep) ||
         vipsgen_set_array_double(operation, "background", background_array) ||
         vipsgen_set_int(operation, "page_height", page_height) ||
         vipsgen_set_string(operation, "profile", profile)
@@ -842,7 +849,7 @@ int vipsgen_csvsave_target_with_options(VipsImage* in, VipsTargetCustom* target,
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "target", (VipsTarget*)target, NULL) ||
         vipsgen_set_string(operation, "separator", separator) ||
-        vipsgen_set_int(operation, "keep", keep) ||
+        vipsgen_set_keep(operation, keep) ||
         vipsgen_set_array_double(operation, "background", background_array) ||
         vipsgen_set_int(operation, "page_height", page_height) ||
         vipsgen_set_string(operation, "profile", profile)
@@ -1014,7 +1021,7 @@ int vipsgen_dzsave_with_options(VipsImage* in, const char* filename, const char*
         vipsgen_set_int(operation, "skip_blanks", skip_blanks) ||
         vipsgen_set_string(operation, "id", id) ||
         vipsgen_set_int(operation, "Q", Q) ||
-        vipsgen_set_int(operation, "keep", keep) ||
+        vipsgen_set_keep(operation, keep) ||
         vipsgen_set_array_double(operation, "background", background_array) ||
         vipsgen_set_int(operation, "page_height", page_height) ||
         vipsgen_set_string(operation, "profile", profile)
@@ -1053,7 +1060,7 @@ int vipsgen_dzsave_buffer_with_options(VipsImage* in, void** buf, size_t* len, c
         vipsgen_set_int(operation, "skip_blanks", skip_blanks) ||
         vipsgen_set_string(operation, "id", id) ||
         vipsgen_set_int(operation, "Q", Q) ||
-        vipsgen_set_int(operation, "keep", keep) ||
+        vipsgen_set_keep(operation, keep) ||
         vipsgen_set_array_double(operation, "background", background_array) ||
         vipsgen_set_int(operation, "page_height", page_height) ||
         vipsgen_set_string(operation, "profile", profile)
@@ -1093,7 +1100,7 @@ int vipsgen_dzsave_target_with_options(VipsImage* in, VipsTargetCustom* target, 
         vipsgen_set_int(operation, "skip_blanks", skip_blanks) ||
         vipsgen_set_string(operation, "id", id) ||
         vipsgen_set_int(operation, "Q", Q) ||
-        vipsgen_set_int(operation, "keep", keep) ||
+        vipsgen_set_keep(operation, keep) ||
         vipsgen_set_array_double(operation, "background", background_array) ||
         vipsgen_set_int(operation, "page_height", page_height) ||
         vipsgen_set_string(operation, "profile", profile)
@@ -1246,7 +1253,7 @@ int vipsgen_fitssave_with_options(VipsImage* in, const char* filename, VipsForei
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "filename", filename, NULL) ||
-        vipsgen_set_int(operation, "keep", keep) ||
+        vipsgen_set_keep(operation, keep) ||
         vipsgen_set_array_double(operation, "background", background_array) ||
         vipsgen_set_int(operation, "page_height", page_height) ||
         vipsgen_set_string(operation, "profile", profile)
@@ -1495,7 +1502,7 @@ int vipsgen_gifsave_with_options(VipsImage* in, const char* filename, double dit
         vipsgen_set_double(operation, "interpalette_maxerror", interpalette_maxerror) ||
         vipsgen_set_bool(operation, "interlace", interlace) ||
         vipsgen_set_bool(operation, "keep_duplicate_frames", keep_duplicate_frames) ||
-        vipsgen_set_int(operation, "keep", keep) ||
+        vipsgen_set_keep(operation, keep) ||
         vipsgen_set_array_double(operation, "background", background_array) ||
         vipsgen_set_int(operation, "page_height", page_height) ||
         vipsgen_set_string(operation, "profile", profile)
@@ -1528,7 +1535,7 @@ int vipsgen_gifsave_buffer_with_options(VipsImage* in, void** buf, size_t* len, 
         vipsgen_set_double(operation, "interpalette_maxerror", interpalette_maxerror) ||
         vipsgen_set_bool(operation, "interlace", interlace) ||
         vipsgen_set_bool(operation, "keep_duplicate_frames", keep_duplicate_frames) ||
-        vipsgen_set_int(operation, "keep", keep) ||
+        vipsgen_set_keep(operation, keep) ||
         vipsgen_set_array_double(operation, "background", background_array) ||
         vipsgen_set_int(operation, "page_height", page_height) ||
         vipsgen_set_string(operation, "profile", profile)
@@ -1562,7 +1569,7 @@ int vipsgen_gifsave_target_with_options(VipsImage* in, VipsTargetCustom* target,
         vipsgen_set_double(operation, "interpalette_maxerror", interpalette_maxerror) ||
         vipsgen_set_bool(operation, "interlace", interlace) ||
         vipsgen_set_bool(operation, "keep_duplicate_frames", keep_duplicate_frames) ||
-        vipsgen_set_int(operation, "keep", keep) ||
+        vipsgen_set_keep(operation, keep) ||
         vipsgen_set_array_double(operation, "background", background_array) ||
         vipsgen_set_int(operation, "page_height", page_height) ||
         vipsgen_set_string(operation, "profile", profile)
@@ -1742,7 +1749,7 @@ int vipsgen_heifsave_with_options(VipsImage* in, const char* filename, gint Q, g
         vipsgen_set_int(operation, "effort", effort) ||
         vipsgen_set_int(operation, "subsample_mode", subsample_mode) ||
         vipsgen_set_int(operation, "encoder", encoder) ||
-        vipsgen_set_int(operation, "keep", keep) ||
+        vipsgen_set_keep(operation, keep) ||
         vipsgen_set_array_double(operation, "background", background_array) ||
         vipsgen_set_int(operation, "page_height", page_height) ||
         vipsgen_set_string(operation, "profile", profile)
@@ -1774,7 +1781,7 @@ int vipsgen_heifsave_buffer_with_options(VipsImage* in, void** buf, size_t* len,
         vipsgen_set_int(operation, "effort", effort) ||
         vipsgen_set_int(operation, "subsample_mode", subsample_mode) ||
         vipsgen_set_int(operation, "encoder", encoder) ||
-        vipsgen_set_int(operation, "keep", keep) ||
+        vipsgen_set_keep(operation, keep) ||
         vipsgen_set_array_double(operation, "background", background_array) ||
         vipsgen_set_int(operation, "page_height", page_height) ||
         vipsgen_set_string(operation, "profile", profile)
@@ -1807,7 +1814,7 @@ int vipsgen_heifsave_target_with_options(VipsImage* in, VipsTargetCustom* target
         vipsgen_set_int(operation, "effort", effort) ||
         vipsgen_set_int(operation, "subsample_mode", subsample_mode) ||
         vipsgen_set_int(operation, "encoder", encoder) ||
-        vipsgen_set_int(operation, "keep", keep) ||
+        vipsgen_set_keep(operation, keep) ||
         vipsgen_set_array_double(operation, "background", background_array) ||
         vipsgen_set_int(operation, "page_height", page_height) ||
         vipsgen_set_string(operation, "profile", profile)
@@ -2267,7 +2274,7 @@ int vipsgen_jp2ksave_with_options(VipsImage* in, const char* filename, gint tile
         vipsgen_set_bool(operation, "lossless", lossless) ||
         vipsgen_set_int(operation, "Q", Q) ||
         vipsgen_set_int(operation, "subsample_mode", subsample_mode) ||
-        vipsgen_set_int(operation, "keep", keep) ||
+        vipsgen_set_keep(operation, keep) ||
         vipsgen_set_array_double(operation, "background", background_array) ||
         vipsgen_set_int(operation, "page_height", page_height) ||
         vipsgen_set_string(operation, "profile", profile)
@@ -2297,7 +2304,7 @@ int vipsgen_jp2ksave_buffer_with_options(VipsImage* in, void** buf, size_t* len,
         vipsgen_set_bool(operation, "lossless", lossless) ||
         vipsgen_set_int(operation, "Q", Q) ||
         vipsgen_set_int(operation, "subsample_mode", subsample_mode) ||
-        vipsgen_set_int(operation, "keep", keep) ||
+        vipsgen_set_keep(operation, keep) ||
         vipsgen_set_array_double(operation, "background", background_array) ||
         vipsgen_set_int(operation, "page_height", page_height) ||
         vipsgen_set_string(operation, "profile", profile)
@@ -2328,7 +2335,7 @@ int vipsgen_jp2ksave_target_with_options(VipsImage* in, VipsTargetCustom* target
         vipsgen_set_bool(operation, "lossless", lossless) ||
         vipsgen_set_int(operation, "Q", Q) ||
         vipsgen_set_int(operation, "subsample_mode", subsample_mode) ||
-        vipsgen_set_int(operation, "keep", keep) ||
+        vipsgen_set_keep(operation, keep) ||
         vipsgen_set_array_double(operation, "background", background_array) ||
         vipsgen_set_int(operation, "page_height", page_height) ||
         vipsgen_set_string(operation, "profile", profile)
@@ -2439,7 +2446,7 @@ int vipsgen_jpegsave_with_options(VipsImage* in, const char* filename, gint Q, g
         vipsgen_set_int(operation, "quant_table", quant_table) ||
         vipsgen_set_int(operation, "subsample_mode", subsample_mode) ||
         vipsgen_set_int(operation, "restart_interval", restart_interval) ||
-        vipsgen_set_int(operation, "keep", keep) ||
+        vipsgen_set_keep(operation, keep) ||
         vipsgen_set_array_double(operation, "background", background_array) ||
         vipsgen_set_int(operation, "page_height", page_height) ||
         vipsgen_set_string(operation, "profile", profile)
@@ -2473,7 +2480,7 @@ int vipsgen_jpegsave_buffer_with_options(VipsImage* in, void** buf, size_t* len,
         vipsgen_set_int(operation, "quant_table", quant_table) ||
         vipsgen_set_int(operation, "subsample_mode", subsample_mode) ||
         vipsgen_set_int(operation, "restart_interval", restart_interval) ||
-        vipsgen_set_int(operation, "keep", keep) ||
+        vipsgen_set_keep(operation, keep) ||
         vipsgen_set_array_double(operation, "background", background_array) ||
         vipsgen_set_int(operation, "page_height", page_height) ||
         vipsgen_set_string(operation, "profile", profile)
@@ -2508,7 +2515,7 @@ int vipsgen_jpegsave_target_with_options(VipsImage* in, VipsTargetCustom* target
         vipsgen_set_int(operation, "quant_table", quant_table) ||
         vipsgen_set_int(operation, "subsample_mode", subsample_mode) ||
         vipsgen_set_int(operation, "restart_interval", restart_interval) ||
-        vipsgen_set_int(operation, "keep", keep) ||
+        vipsgen_set_keep(operation, keep) ||
         vipsgen_set_array_double(operation, "background", background_array) ||
         vipsgen_set_int(operation, "page_height", page_height) ||
         vipsgen_set_string(operation, "profile", profile)
@@ -2612,7 +2619,7 @@ int vipsgen_jxlsave_with_options(VipsImage* in, const char* filename, gint tier,
         vipsgen_set_int(operation, "effort", effort) ||
         vipsgen_set_bool(operation, "lossless", lossless) ||
         vipsgen_set_int(operation, "Q", Q) ||
-        vipsgen_set_int(operation, "keep", keep) ||
+        vipsgen_set_keep(operation, keep) ||
         vipsgen_set_array_double(operation, "background", background_array) ||
         vipsgen_set_int(operation, "page_height", page_height) ||
         vipsgen_set_string(operation, "profile", profile)
@@ -2642,7 +2649,7 @@ int vipsgen_jxlsave_buffer_with_options(VipsImage* in, void** buf, size_t* len, 
         vipsgen_set_int(operation, "effort", effort) ||
         vipsgen_set_bool(operation, "lossless", lossless) ||
         vipsgen_set_int(operation, "Q", Q) ||
-        vipsgen_set_int(operation, "keep", keep) ||
+        vipsgen_set_keep(operation, keep) ||
         vipsgen_set_array_double(operation, "background", background_array) ||
         vipsgen_set_int(operation, "page_height", page_height) ||
         vipsgen_set_string(operation, "profile", profile)
@@ -2673,7 +2680,7 @@ int vipsgen_jxlsave_target_with_options(VipsImage* in, VipsTargetCustom* target,
         vipsgen_set_int(operation, "effort", effort) ||
         vipsgen_set_bool(operation, "lossless", lossless) ||
         vipsgen_set_int(operation, "Q", Q) ||
-        vipsgen_set_int(operation, "keep", keep) ||
+        vipsgen_set_keep(operation, keep) ||
         vipsgen_set_array_double(operation, "background", background_array) ||
         vipsgen_set_int(operation, "page_height", page_height) ||
         vipsgen_set_string(operation, "profile", profile)
@@ -2842,7 +2849,7 @@ int vipsgen_magicksave_with_options(VipsImage* in, const char* filename, const c
         vipsgen_set_bool(operation, "optimize_gif_frames", optimize_gif_frames) ||
         vipsgen_set_bool(operation, "optimize_gif_transparency", optimize_gif_transparency) ||
         vipsgen_set_int(operation, "bitdepth", bitdepth) ||
-        vipsgen_set_int(operation, "keep", keep) ||
+        vipsgen_set_keep(operation, keep) ||
         vipsgen_set_array_double(operation, "background", background_array) ||
         vipsgen_set_int(operation, "page_height", page_height) ||
         vipsgen_set_string(operation, "profile", profile)
@@ -2872,7 +2879,7 @@ int vipsgen_magicksave_buffer_with_options(VipsImage* in, void** buf, size_t* le
         vipsgen_set_bool(operation, "optimize_gif_frames", optimize_gif_frames) ||
         vipsgen_set_bool(operation, "optimize_gif_transparency", optimize_gif_transparency) ||
         vipsgen_set_int(operation, "bitdepth", bitdepth) ||
-        vipsgen_set_int(operation, "keep", keep) ||
+        vipsgen_set_keep(operation, keep) ||
         vipsgen_set_array_double(operation, "background", background_array) ||
         vipsgen_set_int(operation, "page_height", page_height) ||
         vipsgen_set_string(operation, "profile", profile)
@@ -3303,7 +3310,7 @@ int vipsgen_matrixprint_with_options(VipsImage* in, VipsForeignKeep keep, double
     if (background != NULL && background_n > 0) { background_array = vips_array_double_new(background, background_n); }
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
-        vipsgen_set_int(operation, "keep", keep) ||
+        vipsgen_set_keep(operation, keep) ||
         vipsgen_set_array_double(operation, "background", background_array) ||
         vipsgen_set_int(operation, "page_height", page_height) ||
         vipsgen_set_string(operation, "profile", profile)
@@ -3329,7 +3336,7 @@ int vipsgen_matrixsave_with_options(VipsImage* in, const char* filename, VipsFor
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "filename", filename, NULL) ||
-        vipsgen_set_int(operation, "keep", keep) ||
+        vipsgen_set_keep(operation, keep) ||
         vipsgen_set_array_double(operation, "background", background_array) ||
         vipsgen_set_int(operation, "page_height", page_height) ||
         vipsgen_set_string(operation, "profile", profile)
@@ -3355,7 +3362,7 @@ int vipsgen_matrixsave_target_with_options(VipsImage* in, VipsTargetCustom* targ
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "target", (VipsTarget*)target, NULL) ||
-        vipsgen_set_int(operation, "keep", keep) ||
+        vipsgen_set_keep(operation, keep) ||
         vipsgen_set_array_double(operation, "background", background_array) ||
         vipsgen_set_int(operation, "page_height", page_height) ||
         vipsgen_set_string(operation, "profile", profile)
@@ -3597,7 +3604,7 @@ int vipsgen_niftisave_with_options(VipsImage* in, const char* filename, VipsFore
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "filename", filename, NULL) ||
-        vipsgen_set_int(operation, "keep", keep) ||
+        vipsgen_set_keep(operation, keep) ||
         vipsgen_set_array_double(operation, "background", background_array) ||
         vipsgen_set_int(operation, "page_height", page_height) ||
         vipsgen_set_string(operation, "profile", profile)
@@ -3900,7 +3907,7 @@ int vipsgen_pngsave_with_options(VipsImage* in, const char* filename, gint compr
         vipsgen_set_double(operation, "dither", dither) ||
         vipsgen_set_int(operation, "bitdepth", bitdepth) ||
         vipsgen_set_int(operation, "effort", effort) ||
-        vipsgen_set_int(operation, "keep", keep) ||
+        vipsgen_set_keep(operation, keep) ||
         vipsgen_set_array_double(operation, "background", background_array) ||
         vipsgen_set_int(operation, "page_height", page_height) ||
         vipsgen_set_string(operation, "profile", profile)
@@ -3933,7 +3940,7 @@ int vipsgen_pngsave_buffer_with_options(VipsImage* in, void** buf, size_t* len, 
         vipsgen_set_double(operation, "dither", dither) ||
         vipsgen_set_int(operation, "bitdepth", bitdepth) ||
         vipsgen_set_int(operation, "effort", effort) ||
-        vipsgen_set_int(operation, "keep", keep) ||
+        vipsgen_set_keep(operation, keep) ||
         vipsgen_set_array_double(operation, "background", background_array) ||
         vipsgen_set_int(operation, "page_height", page_height) ||
         vipsgen_set_string(operation, "profile", profile)
@@ -3967,7 +3974,7 @@ int vipsgen_pngsave_target_with_options(VipsImage* in, VipsTargetCustom* target,
         vipsgen_set_double(operation, "dither", dither) ||
         vipsgen_set_int(operation, "bitdepth", bitdepth) ||
         vipsgen_set_int(operation, "effort", effort) ||
-        vipsgen_set_int(operation, "keep", keep) ||
+        vipsgen_set_keep(operation, keep) ||
         vipsgen_set_array_double(operation, "background", background_array) ||
         vipsgen_set_int(operation, "page_height", page_height) ||
         vipsgen_set_string(operation, "profile", profile)
@@ -4063,7 +4070,7 @@ int vipsgen_ppmsave_with_options(VipsImage* in, const char* filename, VipsForeig
         vipsgen_set_int(operation, "format", format) ||
         vipsgen_set_bool(operation, "ascii", ascii) ||
         vipsgen_set_int(operation, "bitdepth", bitdepth) ||
-        vipsgen_set_int(operation, "keep", keep) ||
+        vipsgen_set_keep(operation, keep) ||
         vipsgen_set_array_double(operation, "background", background_array) ||
         vipsgen_set_int(operation, "page_height", page_height) ||
         vipsgen_set_string(operation, "profile", profile)
@@ -4092,7 +4099,7 @@ int vipsgen_ppmsave_target_with_options(VipsImage* in, VipsTargetCustom* target,
         vipsgen_set_int(operation, "format", format) ||
         vipsgen_set_bool(operation, "ascii", ascii) ||
         vipsgen_set_int(operation, "bitdepth", bitdepth) ||
-        vipsgen_set_int(operation, "keep", keep) ||
+        vipsgen_set_keep(operation, keep) ||
         vipsgen_set_array_double(operation, "background", background_array) ||
         vipsgen_set_int(operation, "page_height", page_height) ||
         vipsgen_set_string(operation, "profile", profile)
@@ -4242,7 +4249,7 @@ int vipsgen_radsave_with_options(VipsImage* in, const char* filename, VipsForeig
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "filename", filename, NULL) ||
-        vipsgen_set_int(operation, "keep", keep) ||
+        vipsgen_set_keep(operation, keep) ||
         vipsgen_set_array_double(operation, "background", background_array) ||
         vipsgen_set_int(operation, "page_height", page_height) ||
         vipsgen_set_string(operation, "profile", profile)
@@ -4267,7 +4274,7 @@ int vipsgen_radsave_buffer_with_options(VipsImage* in, void** buf, size_t* len, 
     if (background != NULL && background_n > 0) { background_array = vips_array_double_new(background, background_n); }
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
-        vipsgen_set_int(operation, "keep", keep) ||
+        vipsgen_set_keep(operation, keep) ||
         vipsgen_set_array_double(operation, "background", background_array) ||
         vipsgen_set_int(operation, "page_height", page_height) ||
         vipsgen_set_string(operation, "profile", profile)
@@ -4293,7 +4300,7 @@ int vipsgen_radsave_target_with_options(VipsImage* in, VipsTargetCustom* target,
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "target", (VipsTarget*)target, NULL) ||
-        vipsgen_set_int(operation, "keep", keep) ||
+        vipsgen_set_keep(operation, keep) ||
         vipsgen_set_array_double(operation, "background", background_array) ||
         vipsgen_set_int(operation, "page_height", page_height) ||
         vipsgen_set_string(operation, "profile", profile)
@@ -4350,7 +4357,7 @@ int vipsgen_rawsave_with_options(VipsImage* in, const char* filename, VipsForeig
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "filename", filename, NULL) ||
-        vipsgen_set_int(operation, "keep", keep) ||
+        vipsgen_set_keep(operation, keep) ||
         vipsgen_set_array_double(operation, "background", background_array) ||
         vipsgen_set_int(operation, "page_height", page_height) ||
         vipsgen_set_string(operation, "profile", profile)
@@ -4375,7 +4382,7 @@ int vipsgen_rawsave_buffer_with_options(VipsImage* in, void** buf, size_t* len, 
     if (background != NULL && background_n > 0) { background_array = vips_array_double_new(background, background_n); }
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
-        vipsgen_set_int(operation, "keep", keep) ||
+        vipsgen_set_keep(operation, keep) ||
         vipsgen_set_array_double(operation, "background", background_array) ||
         vipsgen_set_int(operation, "page_height", page_height) ||
         vipsgen_set_string(operation, "profile", profile)
@@ -4401,7 +4408,7 @@ int vipsgen_rawsave_target_with_options(VipsImage* in, VipsTargetCustom* target,
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "target", (VipsTarget*)target, NULL) ||
-        vipsgen_set_int(operation, "keep", keep) ||
+        vipsgen_set_keep(operation, keep) ||
         vipsgen_set_array_double(operation, "background", background_array) ||
         vipsgen_set_int(operation, "page_height", page_height) ||
         vipsgen_set_string(operation, "profile", profile)
@@ -5291,7 +5298,7 @@ int vipsgen_tiffsave_with_options(VipsImage* in, const char* filename, VipsForei
         vipsgen_set_int(operation, "depth", depth) ||
         vipsgen_set_bool(operation, "subifd", subifd) ||
         vipsgen_set_bool(operation, "premultiply", premultiply) ||
-        vipsgen_set_int(operation, "keep", keep) ||
+        vipsgen_set_keep(operation, keep) ||
         vipsgen_set_array_double(operation, "background", background_array) ||
         vipsgen_set_int(operation, "page_height", page_height) ||
         vipsgen_set_string(operation, "profile", profile)
@@ -5336,7 +5343,7 @@ int vipsgen_tiffsave_buffer_with_options(VipsImage* in, void** buf, size_t* len,
         vipsgen_set_int(operation, "depth", depth) ||
         vipsgen_set_bool(operation, "subifd", subifd) ||
         vipsgen_set_bool(operation, "premultiply", premultiply) ||
-        vipsgen_set_int(operation, "keep", keep) ||
+        vipsgen_set_keep(operation, keep) ||
         vipsgen_set_array_double(operation, "background", background_array) ||
         vipsgen_set_int(operation, "page_height", page_height) ||
         vipsgen_set_string(operation, "profile", profile)
@@ -5382,7 +5389,7 @@ int vipsgen_tiffsave_target_with_options(VipsImage* in, VipsTargetCustom* target
         vipsgen_set_int(operation, "depth", depth) ||
         vipsgen_set_bool(operation, "subifd", subifd) ||
         vipsgen_set_bool(operation, "premultiply", premultiply) ||
-        vipsgen_set_int(operation, "keep", keep) ||
+        vipsgen_set_keep(operation, keep) ||
         vipsgen_set_array_double(operation, "background", background_array) ||
         vipsgen_set_int(operation, "page_height", page_height) ||
         vipsgen_set_string(operation, "profile", profile)
@@ -5536,7 +5543,7 @@ int vipsgen_vipssave_with_options(VipsImage* in, const char* filename, VipsForei
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "filename", filename, NULL) ||
-        vipsgen_set_int(operation, "keep", keep) ||
+        vipsgen_set_keep(operation, keep) ||
         vipsgen_set_array_double(operation, "background", background_array) ||
         vipsgen_set_int(operation, "page_height", page_height) ||
         vipsgen_set_string(operation, "profile", profile)
@@ -5562,7 +5569,7 @@ int vipsgen_vipssave_target_with_options(VipsImage* in, VipsTargetCustom* target
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "target", (VipsTarget*)target, NULL) ||
-        vipsgen_set_int(operation, "keep", keep) ||
+        vipsgen_set_keep(operation, keep) ||
         vipsgen_set_array_double(operation, "background", background_array) ||
         vipsgen_set_int(operation, "page_height", page_height) ||
         vipsgen_set_string(operation, "profile", profile)
@@ -5678,7 +5685,7 @@ int vipsgen_webpsave_with_options(VipsImage* in, const char* filename, gint Q, g
         vipsgen_set_bool(operation, "mixed", mixed) ||
         vipsgen_set_bool(operation, "smart_deblock", smart_deblock) ||
         vipsgen_set_int(operation, "passes", passes) ||
-        vipsgen_set_int(operation, "keep", keep) ||
+        vipsgen_set_keep(operation, keep) ||
         vipsgen_set_array_double(operation, "background", background_array) ||
         vipsgen_set_int(operation, "page_height", page_height) ||
         vipsgen_set_string(operation, "profile", profile)
@@ -5717,7 +5724,7 @@ int vipsgen_webpsave_buffer_with_options(VipsImage* in, void** buf, size_t* len,
         vipsgen_set_bool(operation, "mixed", mixed) ||
         vipsgen_set_bool(operation, "smart_deblock", smart_deblock) ||
         vipsgen_set_int(operation, "passes", passes) ||
-        vipsgen_set_int(operation, "keep", keep) ||
+        vipsgen_set_keep(operation, keep) ||
         vipsgen_set_array_double(operation, "background", background_array) ||
         vipsgen_set_int(operation, "page_height", page_height) ||
         vipsgen_set_string(operation, "profile", profile)
@@ -5757,7 +5764,7 @@ int vipsgen_webpsave_target_with_options(VipsImage* in, VipsTargetCustom* target
         vipsgen_set_bool(operation, "mixed", mixed) ||
         vipsgen_set_bool(operation, "smart_deblock", smart_deblock) ||
         vipsgen_set_int(operation, "passes", passes) ||
-        vipsgen_set_int(operation, "keep", keep) ||
+        vipsgen_set_keep(operation, keep) ||
         vipsgen_set_array_double(operation, "background", background_array) ||
         vipsgen_set_int(operation, "page_height", page_height) ||
         vipsgen_set_string(operation, "profile", profile)

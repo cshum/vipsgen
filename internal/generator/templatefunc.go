@@ -1741,8 +1741,13 @@ func generateCFunctionImplementation(op introspection.Operation) string {
 				allParamsList = append(allParamsList,
 					fmt.Sprintf("vipsgen_set_string(operation, \"%s\", %s)", opt.Name, opt.Name))
 			} else if opt.IsEnum {
-				allParamsList = append(allParamsList,
-					fmt.Sprintf("vipsgen_set_int(operation, \"%s\", %s)", opt.Name, opt.Name))
+				if opt.Name == "keep" && opt.EnumType == "Keep" {
+					allParamsList = append(allParamsList,
+						fmt.Sprintf("vipsgen_set_keep(operation, %s)", opt.Name))
+				} else {
+					allParamsList = append(allParamsList,
+						fmt.Sprintf("vipsgen_set_int(operation, \"%s\", %s)", opt.Name, opt.Name))
+				}
 			} else if opt.GoType == "*C.VipsImage" {
 				allParamsList = append(allParamsList,
 					fmt.Sprintf("vipsgen_set_image(operation, \"%s\", %s)", opt.Name, opt.Name))
@@ -1944,6 +1949,13 @@ func generateOptionalInputsStruct(op introspection.Operation) string {
 	// Add default values for each parameter
 	for _, opt := range op.OptionalInputs {
 		fieldName := strings.Title(opt.GoName)
+
+		// keep uses a sentinel -1 (KeepUnset) so that keep=0 (KeepNone) can be
+		// passed through to libvips explicitly, distinguishing it from "not set".
+		if opt.Name == "keep" && opt.EnumType == "Keep" {
+			result.WriteString(fmt.Sprintf("\t\t%s: KeepUnset,\n", fieldName))
+			continue
+		}
 
 		// Only include non-zero defaults
 		if opt.DefaultValue != nil {

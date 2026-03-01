@@ -316,6 +316,9 @@ const (
 	KeepOther Keep = C.VIPS_FOREIGN_KEEP_OTHER
 	KeepAll Keep = C.VIPS_FOREIGN_KEEP_ALL
 )
+// KeepUnset is the sentinel value meaning "caller did not set keep; use libvips default".
+// Use KeepNone to explicitly strip all metadata.
+const KeepUnset Keep = -1
 
 // PngFilter represents VipsForeignPngFilter type
 type PngFilter int

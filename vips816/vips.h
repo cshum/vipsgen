@@ -11,6 +11,7 @@ int vipsgen_operation_save_buffer(VipsOperation *operation, void** buf, size_t* 
 int vipsgen_set_source(VipsOperation *operation, const char *name, VipsSource *value);
 int vipsgen_set_target(VipsOperation *operation, const char *name, VipsTarget *value);
 int vipsgen_set_int(VipsOperation *operation, const char *name, int value);
+int vipsgen_set_keep(VipsOperation *operation, int value);
 int vipsgen_set_bool(VipsOperation *operation, const char *name, gboolean value);
 int vipsgen_set_double(VipsOperation *operation, const char *name, double value);
 int vipsgen_set_guint64(VipsOperation *operation, const char *name, guint64 value);
