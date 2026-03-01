@@ -4918,7 +4918,6 @@ type CsvsaveOptions struct {
 func DefaultCsvsaveOptions() *CsvsaveOptions {
 	return &CsvsaveOptions{
 		Separator: "\t",
-		Keep: KeepUnset,
 	}
 }
 
@@ -4958,7 +4957,6 @@ type CsvsaveTargetOptions struct {
 func DefaultCsvsaveTargetOptions() *CsvsaveTargetOptions {
 	return &CsvsaveTargetOptions{
 		Separator: "\t",
-		Keep: KeepUnset,
 	}
 }
 
@@ -5278,7 +5276,6 @@ func DefaultDzsaveOptions() *DzsaveOptions {
 		SkipBlanks: -1,
 		Id: "https://example.com/iiif",
 		Q: 75,
-		Keep: KeepUnset,
 	}
 }
 
@@ -5349,7 +5346,6 @@ func DefaultDzsaveBufferOptions() *DzsaveBufferOptions {
 		SkipBlanks: -1,
 		Id: "https://example.com/iiif",
 		Q: 75,
-		Keep: KeepUnset,
 	}
 }
 
@@ -5418,7 +5414,6 @@ func DefaultDzsaveTargetOptions() *DzsaveTargetOptions {
 		SkipBlanks: -1,
 		Id: "https://example.com/iiif",
 		Q: 75,
-		Keep: KeepUnset,
 	}
 }
 
@@ -5609,7 +5604,6 @@ type FitssaveOptions struct {
 // DefaultFitssaveOptions creates default value for vips_fitssave optional arguments
 func DefaultFitssaveOptions() *FitssaveOptions {
 	return &FitssaveOptions{
-		Keep: KeepUnset,
 	}
 }
 
@@ -5844,7 +5838,6 @@ func DefaultGifsaveOptions() *GifsaveOptions {
 		Effort: 7,
 		Bitdepth: 8,
 		InterpaletteMaxerror: 3,
-		Keep: KeepUnset,
 	}
 }
 
@@ -5901,7 +5894,6 @@ func DefaultGifsaveBufferOptions() *GifsaveBufferOptions {
 		Effort: 7,
 		Bitdepth: 8,
 		InterpaletteMaxerror: 3,
-		Keep: KeepUnset,
 	}
 }
 
@@ -5956,7 +5948,6 @@ func DefaultGifsaveTargetOptions() *GifsaveTargetOptions {
 		Effort: 7,
 		Bitdepth: 8,
 		InterpaletteMaxerror: 3,
-		Keep: KeepUnset,
 	}
 }
 
@@ -6097,7 +6088,6 @@ func DefaultHeifsaveOptions() *HeifsaveOptions {
 		Bitdepth: 12,
 		Compression: HeifCompression(1),
 		Effort: 4,
-		Keep: KeepUnset,
 	}
 }
 
@@ -6154,7 +6144,6 @@ func DefaultHeifsaveBufferOptions() *HeifsaveBufferOptions {
 		Bitdepth: 12,
 		Compression: HeifCompression(1),
 		Effort: 4,
-		Keep: KeepUnset,
 	}
 }
 
@@ -6209,7 +6198,6 @@ func DefaultHeifsaveTargetOptions() *HeifsaveTargetOptions {
 		Bitdepth: 12,
 		Compression: HeifCompression(1),
 		Effort: 4,
-		Keep: KeepUnset,
 	}
 }
 
@@ -6859,7 +6847,6 @@ func DefaultJp2ksaveOptions() *Jp2ksaveOptions {
 		TileHeight: 512,
 		Q: 48,
 		SubsampleMode: Subsample(2),
-		Keep: KeepUnset,
 	}
 }
 
@@ -6910,7 +6897,6 @@ func DefaultJp2ksaveBufferOptions() *Jp2ksaveBufferOptions {
 		TileHeight: 512,
 		Q: 48,
 		SubsampleMode: Subsample(2),
-		Keep: KeepUnset,
 	}
 }
 
@@ -6959,7 +6945,6 @@ func DefaultJp2ksaveTargetOptions() *Jp2ksaveTargetOptions {
 		TileHeight: 512,
 		Q: 48,
 		SubsampleMode: Subsample(2),
-		Keep: KeepUnset,
 	}
 }
 
@@ -7015,7 +7000,6 @@ type JpegsaveOptions struct {
 func DefaultJpegsaveOptions() *JpegsaveOptions {
 	return &JpegsaveOptions{
 		Q: 75,
-		Keep: KeepUnset,
 	}
 }
 
@@ -7071,7 +7055,6 @@ type JpegsaveBufferOptions struct {
 func DefaultJpegsaveBufferOptions() *JpegsaveBufferOptions {
 	return &JpegsaveBufferOptions{
 		Q: 75,
-		Keep: KeepUnset,
 	}
 }
 
@@ -7125,7 +7108,6 @@ type JpegsaveTargetOptions struct {
 func DefaultJpegsaveTargetOptions() *JpegsaveTargetOptions {
 	return &JpegsaveTargetOptions{
 		Q: 75,
-		Keep: KeepUnset,
 	}
 }
 
@@ -7178,7 +7160,6 @@ func DefaultJxlsaveOptions() *JxlsaveOptions {
 		Effort: 7,
 		Q: 75,
 		Bitdepth: 8,
-		Keep: KeepUnset,
 	}
 }
 
@@ -7231,7 +7212,6 @@ func DefaultJxlsaveBufferOptions() *JxlsaveBufferOptions {
 		Effort: 7,
 		Q: 75,
 		Bitdepth: 8,
-		Keep: KeepUnset,
 	}
 }
 
@@ -7282,7 +7262,6 @@ func DefaultJxlsaveTargetOptions() *JxlsaveTargetOptions {
 		Effort: 7,
 		Q: 75,
 		Bitdepth: 8,
-		Keep: KeepUnset,
 	}
 }
 
@@ -7429,7 +7408,6 @@ type MagicksaveOptions struct {
 // DefaultMagicksaveOptions creates default value for vips_magicksave optional arguments
 func DefaultMagicksaveOptions() *MagicksaveOptions {
 	return &MagicksaveOptions{
-		Keep: KeepUnset,
 	}
 }
 
@@ -7476,7 +7454,6 @@ type MagicksaveBufferOptions struct {
 // DefaultMagicksaveBufferOptions creates default value for vips_magicksave_buffer optional arguments
 func DefaultMagicksaveBufferOptions() *MagicksaveBufferOptions {
 	return &MagicksaveBufferOptions{
-		Keep: KeepUnset,
 	}
 }
 
@@ -7696,7 +7673,6 @@ type MatrixprintOptions struct {
 // DefaultMatrixprintOptions creates default value for vips_matrixprint optional arguments
 func DefaultMatrixprintOptions() *MatrixprintOptions {
 	return &MatrixprintOptions{
-		Keep: KeepUnset,
 	}
 }
 
@@ -7731,7 +7707,6 @@ type MatrixsaveOptions struct {
 // DefaultMatrixsaveOptions creates default value for vips_matrixsave optional arguments
 func DefaultMatrixsaveOptions() *MatrixsaveOptions {
 	return &MatrixsaveOptions{
-		Keep: KeepUnset,
 	}
 }
 
@@ -7768,7 +7743,6 @@ type MatrixsaveTargetOptions struct {
 // DefaultMatrixsaveTargetOptions creates default value for vips_matrixsave_target optional arguments
 func DefaultMatrixsaveTargetOptions() *MatrixsaveTargetOptions {
 	return &MatrixsaveTargetOptions{
-		Keep: KeepUnset,
 	}
 }
 
@@ -8142,7 +8116,6 @@ type NiftisaveOptions struct {
 // DefaultNiftisaveOptions creates default value for vips_niftisave optional arguments
 func DefaultNiftisaveOptions() *NiftisaveOptions {
 	return &NiftisaveOptions{
-		Keep: KeepUnset,
 	}
 }
 
@@ -8225,7 +8198,6 @@ func DefaultPngsaveOptions() *PngsaveOptions {
 		Dither: 1,
 		Bitdepth: 8,
 		Effort: 7,
-		Keep: KeepUnset,
 	}
 }
 
@@ -8283,7 +8255,6 @@ func DefaultPngsaveBufferOptions() *PngsaveBufferOptions {
 		Dither: 1,
 		Bitdepth: 8,
 		Effort: 7,
-		Keep: KeepUnset,
 	}
 }
 
@@ -8339,7 +8310,6 @@ func DefaultPngsaveTargetOptions() *PngsaveTargetOptions {
 		Dither: 1,
 		Bitdepth: 8,
 		Effort: 7,
-		Keep: KeepUnset,
 	}
 }
 
@@ -8383,7 +8353,6 @@ type PpmsaveOptions struct {
 func DefaultPpmsaveOptions() *PpmsaveOptions {
 	return &PpmsaveOptions{
 		Format: PpmFormat(2),
-		Keep: KeepUnset,
 	}
 }
 
@@ -8427,7 +8396,6 @@ type PpmsaveTargetOptions struct {
 func DefaultPpmsaveTargetOptions() *PpmsaveTargetOptions {
 	return &PpmsaveTargetOptions{
 		Format: PpmFormat(2),
-		Keep: KeepUnset,
 	}
 }
 
@@ -8573,7 +8541,6 @@ type RadsaveOptions struct {
 // DefaultRadsaveOptions creates default value for vips_radsave optional arguments
 func DefaultRadsaveOptions() *RadsaveOptions {
 	return &RadsaveOptions{
-		Keep: KeepUnset,
 	}
 }
 
@@ -8610,7 +8577,6 @@ type RadsaveBufferOptions struct {
 // DefaultRadsaveBufferOptions creates default value for vips_radsave_buffer optional arguments
 func DefaultRadsaveBufferOptions() *RadsaveBufferOptions {
 	return &RadsaveBufferOptions{
-		Keep: KeepUnset,
 	}
 }
 
@@ -8645,7 +8611,6 @@ type RadsaveTargetOptions struct {
 // DefaultRadsaveTargetOptions creates default value for vips_radsave_target optional arguments
 func DefaultRadsaveTargetOptions() *RadsaveTargetOptions {
 	return &RadsaveTargetOptions{
-		Keep: KeepUnset,
 	}
 }
 
@@ -8697,7 +8662,6 @@ type RawsaveOptions struct {
 // DefaultRawsaveOptions creates default value for vips_rawsave optional arguments
 func DefaultRawsaveOptions() *RawsaveOptions {
 	return &RawsaveOptions{
-		Keep: KeepUnset,
 	}
 }
 
@@ -8734,7 +8698,6 @@ type RawsaveBufferOptions struct {
 // DefaultRawsaveBufferOptions creates default value for vips_rawsave_buffer optional arguments
 func DefaultRawsaveBufferOptions() *RawsaveBufferOptions {
 	return &RawsaveBufferOptions{
-		Keep: KeepUnset,
 	}
 }
 
@@ -8769,7 +8732,6 @@ type RawsaveTargetOptions struct {
 // DefaultRawsaveTargetOptions creates default value for vips_rawsave_target optional arguments
 func DefaultRawsaveTargetOptions() *RawsaveTargetOptions {
 	return &RawsaveTargetOptions{
-		Keep: KeepUnset,
 	}
 }
 
@@ -9784,7 +9746,6 @@ func DefaultTiffsaveOptions() *TiffsaveOptions {
 		Xres: 1,
 		Yres: 1,
 		Depth: DzDepth(1),
-		Keep: KeepUnset,
 	}
 }
 
@@ -9868,7 +9829,6 @@ func DefaultTiffsaveBufferOptions() *TiffsaveBufferOptions {
 		Xres: 1,
 		Yres: 1,
 		Depth: DzDepth(1),
-		Keep: KeepUnset,
 	}
 }
 
@@ -9950,7 +9910,6 @@ func DefaultTiffsaveTargetOptions() *TiffsaveTargetOptions {
 		Xres: 1,
 		Yres: 1,
 		Depth: DzDepth(1),
-		Keep: KeepUnset,
 	}
 }
 
@@ -10105,7 +10064,6 @@ type VipssaveOptions struct {
 // DefaultVipssaveOptions creates default value for vips_vipssave optional arguments
 func DefaultVipssaveOptions() *VipssaveOptions {
 	return &VipssaveOptions{
-		Keep: KeepUnset,
 	}
 }
 
@@ -10142,7 +10100,6 @@ type VipssaveTargetOptions struct {
 // DefaultVipssaveTargetOptions creates default value for vips_vipssave_target optional arguments
 func DefaultVipssaveTargetOptions() *VipssaveTargetOptions {
 	return &VipssaveTargetOptions{
-		Keep: KeepUnset,
 	}
 }
 
@@ -10215,7 +10172,6 @@ func DefaultWebpsaveOptions() *WebpsaveOptions {
 		Kmax: 2147483647,
 		Effort: 4,
 		Passes: 1,
-		Keep: KeepUnset,
 	}
 }
 
@@ -10288,7 +10244,6 @@ func DefaultWebpsaveBufferOptions() *WebpsaveBufferOptions {
 		Kmax: 2147483647,
 		Effort: 4,
 		Passes: 1,
-		Keep: KeepUnset,
 	}
 }
 
@@ -10359,7 +10314,6 @@ func DefaultWebpsaveTargetOptions() *WebpsaveTargetOptions {
 		Kmax: 2147483647,
 		Effort: 4,
 		Passes: 1,
-		Keep: KeepUnset,
 	}
 }
 
