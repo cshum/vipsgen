@@ -55,7 +55,7 @@ int vipsgen_set_int(VipsOperation *operation, const char *name, int value) {
 // All other positive values are bitmask flags and are passed through unchanged.
 int vipsgen_set_keep(VipsOperation *operation, int value) {
     if (value == 0) { return 0; }
-    if (value < 0) { value = 0; }
+    if (value < 0) { value = VIPS_FOREIGN_KEEP_NONE; }
     return vips_object_set(VIPS_OBJECT(operation), "keep", value, NULL);
 }
 
