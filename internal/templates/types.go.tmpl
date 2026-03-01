@@ -23,12 +23,9 @@ type {{.GoName}} int
 
 // {{.GoName}} enum
 const (
-{{$typeName := .GoName}}{{range .Values}}{{if or (ne $typeName "Keep") (ne .GoName "KeepNone")}}	{{.GoName}} {{$typeName}} = C.{{.CName}}
-{{end}}{{end}})
-{{if eq .GoName "Keep"}}// KeepNone explicitly strips all metadata when saving.
-// The zero value of Keep (0) means "not set" — libvips will use its own default (keep all).
-const KeepNone Keep = -1
-{{end}}{{end}}
+{{$typeName := .GoName}}{{range .Values}}	{{.GoName}} {{$typeName}} = {{if .GoValue}}{{.GoValue}}{{else}}C.{{.CName}}{{end}}
+{{end}})
+{{end}}
 
 // imageMimeTypes map the various image types to its mime type representation
 var imageMimeTypes = map[ImageType]string{

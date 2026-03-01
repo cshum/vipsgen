@@ -24,6 +24,7 @@ type EnumValueInfo struct {
 	GoName      string // Go name
 	Value       int    // Numeric value
 	Description string
+	GoValue     string // Override Go constant value (e.g. "-1"); empty means use C.CName
 }
 
 type enumTypeName struct {
