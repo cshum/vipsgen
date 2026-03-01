@@ -316,6 +316,9 @@ const (
 	KeepOther Keep = C.VIPS_FOREIGN_KEEP_OTHER
 	KeepAll Keep = C.VIPS_FOREIGN_KEEP_ALL
 )
+// KeepUnset is the sentinel value meaning "caller did not set keep; use libvips default".
+// Use KeepNone to explicitly strip all metadata.
+const KeepUnset Keep = -1
 
 // PngFilter represents VipsForeignPngFilter type
 type PngFilter int
@@ -662,9 +665,6 @@ const (
 	TextWrapLast TextWrap = C.VIPS_TEXT_WRAP_LAST
 )
 
-// KeepUnset is the sentinel value meaning "caller did not set keep; use libvips default".
-// Use KeepNone to explicitly strip all metadata.
-const KeepUnset Keep = -1
 
 // imageMimeTypes map the various image types to its mime type representation
 var imageMimeTypes = map[ImageType]string{
