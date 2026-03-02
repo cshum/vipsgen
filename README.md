@@ -351,14 +351,6 @@ Do not commit generated code in `vips*/` directories. Generated bindings are cre
 
 **For maintainers:** After merging a fork PR, manually run the CI workflow from the Actions tab to regenerate bindings.
 
-## Special Thanks to `govips`
-
-We extend our heartfelt gratitude to the [govips](https://github.com/davidbyttow/govips) project and its maintainers for pioneering Go bindings for libvips. govips demonstrated the potential of bringing libvips's powerful image processing capabilities to the Go ecosystem.
-
-vipsgen draws significant inspiration from govips. Their early contributions to the Go + libvips ecosystem paved the way for projects like vipsgen to exist.
-
-While vipsgen takes a different approach, it builds upon the foundation and lessons learned from govips. We're honored that the govips team has recommended vipsgen as the path forward for the Go community.
-
 ## License
 
 MIT
