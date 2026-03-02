@@ -186,6 +186,8 @@ int vipsgen_remove_exif(VipsImage *in, VipsImage **out) {
     if (strcmp(name, VIPS_META_ORIENTATION) == 0) continue;
     if (strcmp(name, VIPS_META_N_PAGES) == 0) continue;
     if (strcmp(name, VIPS_META_PAGE_HEIGHT) == 0) continue;
+    if (strcmp(name, "delay") == 0) continue;
+    if (strcmp(name, "loop") == 0) continue;
     if (strcmp(name, "palette-bit-depth") == 0) continue;
     vips_image_remove(*out, name);
   }

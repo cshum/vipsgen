@@ -4136,6 +4136,39 @@ func TestOptionalOutputsWithNilOptions(t *testing.T) {
 	require.NoError(t, err, "DrawFlood should work with nil options")
 }
 
+func TestImage_Loop(t *testing.T) {
+	buf := createTestPngBuffer(t, 10, 10)
+	img, err := NewImageFromBuffer(buf, nil)
+	require.NoError(t, err)
+	defer img.Close()
+
+	// Default: no loop metadata set, should return 0
+	assert.Equal(t, 0, img.Loop())
+
+	// Set and retrieve a non-zero loop count
+	img.SetLoop(3)
+	assert.Equal(t, 3, img.Loop())
+
+	// Set to 0 (infinite looping)
+	img.SetLoop(0)
+	assert.Equal(t, 0, img.Loop())
+}
+
+func TestImage_RemoveExif_RetainsLoop(t *testing.T) {
+	buf := createTestPngBuffer(t, 10, 10)
+	img, err := NewImageFromBuffer(buf, nil)
+	require.NoError(t, err)
+	defer img.Close()
+
+	img.SetLoop(5)
+	require.Equal(t, 5, img.Loop())
+
+	err = img.RemoveExif()
+	require.NoError(t, err)
+
+	assert.Equal(t, 5, img.Loop(), "loop metadata should be preserved after RemoveExif")
+}
+
 func TestWriteToMemory_RoundTrip(t *testing.T) {
 	// Create a known 2x2 RGBA image via NewImageFromMemory
 	// Pixels: red, green, blue, white (each 4 bytes RGBA)
