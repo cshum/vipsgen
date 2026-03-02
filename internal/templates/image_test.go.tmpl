@@ -4137,8 +4137,6 @@ func TestOptionalOutputsWithNilOptions(t *testing.T) {
 }
 
 func TestWriteToMemory_RoundTrip(t *testing.T) {
-	require.NoError(t, Startup(nil))
-
 	// Create a known 2x2 RGBA image via NewImageFromMemory
 	// Pixels: red, green, blue, white (each 4 bytes RGBA)
 	input := []byte{
@@ -4160,8 +4158,6 @@ func TestWriteToMemory_RoundTrip(t *testing.T) {
 }
 
 func TestWriteToMemory_SizeMatchesDimensions(t *testing.T) {
-	require.NoError(t, Startup(nil))
-
 	width, height, bands := 10, 8, 3
 	data := make([]byte, width*height*bands)
 	for i := range data {
