@@ -43,3 +43,4 @@ int vipsgen_embed_multi_page_background(VipsImage *in, VipsImage **out, int left
 int vipsgen_extract_area_multi_page(VipsImage *in, VipsImage **out, int left, int top, int width, int height);
 int vipsgen_rot_multi_page(VipsImage *in, VipsImage **out, VipsAngle angle);
 int vipsgen_label(VipsImage *in, VipsImage **out, const char *text, const char *font, int x, int y, int size, VipsAlign align, double r, double g, double b, float opacity);
+int vipsgen_image_write_to_memory(VipsImage *in, void **buf, size_t *len);

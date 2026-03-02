@@ -4135,3 +4135,48 @@ func TestOptionalOutputsWithNilOptions(t *testing.T) {
 	err = img1.DrawFlood([]float64{0, 255, 0}, 25, 25, nil)
 	require.NoError(t, err, "DrawFlood should work with nil options")
 }
+
+func TestWriteToMemory_RoundTrip(t *testing.T) {
+	require.NoError(t, Startup(nil))
+
+	// Create a known 2x2 RGBA image via NewImageFromMemory
+	// Pixels: red, green, blue, white (each 4 bytes RGBA)
+	input := []byte{
+		255, 0, 0, 255, // red
+		0, 255, 0, 255, // green
+		0, 0, 255, 255, // blue
+		255, 255, 255, 255, // white
+	}
+	img, err := NewImageFromMemory(input, 2, 2, 4)
+	require.NoError(t, err)
+	defer img.Close()
+
+	// Round-trip back to raw bytes
+	got, err := img.WriteToMemory()
+	require.NoError(t, err)
+
+	assert.Equal(t, len(input), len(got), "buffer length should match width*height*bands")
+	assert.Equal(t, input, got, "pixel data should survive the round-trip")
+}
+
+func TestWriteToMemory_SizeMatchesDimensions(t *testing.T) {
+	require.NoError(t, Startup(nil))
+
+	width, height, bands := 10, 8, 3
+	data := make([]byte, width*height*bands)
+	for i := range data {
+		data[i] = byte(i % 256)
+	}
+
+	img, err := NewImageFromMemory(data, width, height, bands)
+	require.NoError(t, err)
+	defer img.Close()
+
+	buf, err := img.WriteToMemory()
+	require.NoError(t, err)
+
+	assert.Equal(t, width*height*bands, len(buf))
+	assert.Equal(t, width, img.Width())
+	assert.Equal(t, height, img.Height())
+	assert.Equal(t, bands, img.Bands())
+}
