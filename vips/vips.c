@@ -6024,6 +6024,12 @@ int vipsgen_image_new_from_memory(const void *buf, size_t len, int width, int he
   return 0;
 }
 
+int vipsgen_image_write_to_memory(VipsImage *in, void **buf, size_t *len) {
+  *buf = vips_image_write_to_memory(in, len);
+  if (!*buf) return 1;
+  return 0;
+}
+
 int vipsgen_image_new_from_buffer_with_option(const void *buf, size_t len, VipsImage **out, const char *option_string) {
   *out = vips_image_new_from_buffer(buf, len, option_string, NULL);
   if (!*out) return 1;
