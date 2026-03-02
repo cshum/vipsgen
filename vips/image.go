@@ -10799,6 +10799,18 @@ func (r *Image) PageDelay() ([]int, error) {
 	return vipsImageGetArrayInt(r.image, "delay")
 }
 
+// Loop returns the loop count for animated images.
+// A value of 0 means infinite looping.
+func (r *Image) Loop() int {
+	return vipsGetImageLoop(r.image)
+}
+
+// SetLoop sets the loop count for animated images.
+// A value of 0 means infinite looping.
+func (r *Image) SetLoop(loop int) {
+	vipsSetImageLoop(r.image, loop)
+}
+
 // GetICCProfile retrieves the ICC profile data (if any) from the image.
 func (r *Image) GetICCProfile() ([]byte, bool) {
 	return vipsGetICCProfile(r.image)

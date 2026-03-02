@@ -6392,6 +6392,22 @@ func vipsSetPageHeight(in *C.VipsImage, height int) {
 	C.vips_image_set_int(in, cachedCString(C.VIPS_META_PAGE_HEIGHT), C.int(height))
 }
 
+func vipsGetImageLoop(in *C.VipsImage) int {
+	loopFieldName := cachedCString("loop")
+	if int(C.vips_image_get_typeof(in, loopFieldName)) == 0 {
+		return 0
+	}
+	var loop C.int
+	if C.vips_image_get_int(in, loopFieldName, &loop) == 0 {
+		return int(loop)
+	}
+	return 0
+}
+
+func vipsSetImageLoop(in *C.VipsImage, loop int) {
+	C.vips_image_set_int(in, cachedCString("loop"), C.int(loop))
+}
+
 func vipsImageSetString(in *C.VipsImage, name string, str string) {
 	cField := C.CString(name)
 	defer freeCString(cField)
