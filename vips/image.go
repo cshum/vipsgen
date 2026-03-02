@@ -10515,6 +10515,12 @@ func NewImageFromMemory(buf []byte, width, height, bands int) (*Image, error) {
 	return newImageRef(vipsImage, ImageTypeUnknown, buf), nil
 }
 
+// WriteToMemory vips_image_write_to_memory writes the image to a raw pixel byte slice.
+// Use Width(), Height(), Bands(), and BandFormat() to interpret the returned buffer.
+func (r *Image) WriteToMemory() ([]byte, error) {
+	return vipsgenImageWriteToMemory(r.image)
+}
+
 
 func newImageRef(vipsImage *C.VipsImage, format ImageType, buf []byte) *Image {
 	imageRef := &Image{

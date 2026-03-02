@@ -6211,6 +6211,17 @@ func vipsgenImageFromMemory(buf []byte, width, height, bands int) (*C.VipsImage,
 	return out, nil
 }
 
+// vipsgenImageWriteToMemory vips_image_write_to_memory
+func vipsgenImageWriteToMemory(in *C.VipsImage) ([]byte, error) {
+	var buf unsafe.Pointer
+	var bufSize C.size_t
+	if C.vipsgen_image_write_to_memory(in, &buf, &bufSize) != 0 {
+		return nil, handleVipsError()
+	}
+	defer C.free(buf)
+	return C.GoBytes(buf, C.int(bufSize)), nil
+}
+
 func vipsHasAlpha(in *C.VipsImage) bool {
 	return int(C.vips_image_hasalpha(in)) > 0
 }
