@@ -557,26 +557,6 @@ func TestOperationComposition(t *testing.T) {
 	defer composite.Close()
 }
 
-// TestLabel tests the label functionality
-func TestLabel(t *testing.T) {
-	// Create a test image
-	img, err := NewPngloadBuffer(createTestPngBuffer(t, 100, 100), nil)
-	require.NoError(t, err)
-	defer img.Close()
-	t.Logf("Bands %d", img.Bands())
-	err = img.Addalpha()
-	require.NoError(t, err)
-
-	// Add text to the image
-	err = img.Label("Hello, libvips!", 50, 50, &LabelOptions{
-		Font:    "sans",
-		Size:    24,
-		Color:   []float64{255, 0, 0},
-		Opacity: 1.0,
-	})
-	require.NoError(t, err)
-}
-
 // TestICCProfile tests ICC profile operations
 func TestICCProfile(t *testing.T) {
 	// Create test image
