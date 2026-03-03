@@ -144,6 +144,39 @@ func main() {
 }
 ```
 
+## Working with Animated Images
+
+libvips represents multi-frame images (animated GIF, WebP) as a single vertically stacked image where each frame occupies one page of height `PageHeight`. vipsgen exposes the page metadata and provides dedicated helpers for operations that must process each frame individually.
+
+### Metadata
+
+```go
+img.Pages()                 // number of frames
+img.PageHeight()            // height of a single frame in pixels
+delays, _ := img.PageDelay() // per-frame delay in milliseconds
+img.Loop()                  // loop count (0 = infinite)
+```
+
+### Multi-page Helpers
+
+Some operations — rotate, crop, embed — cannot be expressed as a single libvips pipeline call across a stacked image. vipsgen ships hand-written C helpers that loop over frames internally, so there is no per-frame CGo overhead from Go:
+
+```go
+// Rotate all frames
+err = img.RotMultiPage(vips.AngleD90)
+
+// Crop all frames to the same region
+err = img.ExtractAreaMultiPage(left, top, width, height)
+
+// Embed (pad/extend) all frames to a new canvas
+err = img.EmbedMultiPage(left, top, newWidth, newHeight, &vips.EmbedMultiPageOptions{
+    Extend:     vips.ExtendBackground,
+    Background: []float64{0, 0, 0, 0},
+})
+```
+
+These methods automatically fall through to the equivalent single-frame operation when the image has only one page.
+
 ## Code Generation
 
 Code generation requires libvips to be built with GObject introspection support.
