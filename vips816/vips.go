@@ -6467,28 +6467,6 @@ func vipsgenRotMultiPage(in *C.VipsImage, angle Angle) (*C.VipsImage, error) {
 	return out, nil
 }
 
-func vipsgenLabel(
-	in *C.VipsImage,
-	text, font string,
-	x, y, size int, align Align,
-	colorR, colorG, colorB int, opacity float64,
-) (*C.VipsImage, error) {
-	var out *C.VipsImage
-	cText := C.CString(text)
-	defer freeCString(cText)
-	cFont := C.CString(font)
-	defer freeCString(cFont)
-
-	err := C.vipsgen_label(in, &out, cText, cFont,
-		C.int(x), C.int(y), C.int(size), C.VipsAlign(align),
-		C.double(colorR), C.double(colorG), C.double(colorB), C.float(float32(opacity)))
-	if int(err) != 0 {
-		return nil, handleImageError(out)
-	}
-
-	return out, nil
-}
-
 func vipsgenRemoveExif(in *C.VipsImage) (*C.VipsImage, error) {
 	var out *C.VipsImage
 	if err := C.vipsgen_remove_exif(in, &out); err != 0 {

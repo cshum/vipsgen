@@ -10,17 +10,16 @@ libvips is generally 4-8x [faster](https://github.com/libvips/libvips/wiki/Speed
 Existing Go libvips bindings rely on manually written code that is often incomplete, error-prone, and difficult to maintain as libvips evolves.
 vipsgen solves this by generating type-safe, robust, and fully documented Go bindings using GObject introspection.
 
+- **Comprehensive**: Bindings for around [300 libvips operations](https://www.libvips.org/API/current/function-list.html)
+- **Type-Safe**: Proper Go types for all libvips C enums and structs
+- **Idiomatic**: Clean Go APIs that feel natural to use
+- **Streaming**: `VipsSource` and `VipsTarget` integration with Go `io.Reader` and `io.Writer` for [streaming](https://www.libvips.org/2019/11/29/True-streaming-for-libvips.html)
+
 You can use vipsgen in two ways:
 
 - **Import directly**: Use the pre-generated library `github.com/cshum/vipsgen/vips` for the latest default installation of libvips, or see [pre-generated packages](#pre-generated-packages)
 - **Generate custom bindings**: Run the vipsgen command to create bindings for your specific libvips version and installation
 
-### Features
-
-- **Comprehensive**: Bindings for around [300 libvips operations](https://www.libvips.org/API/current/function-list.html)
-- **Type-Safe**: Proper Go types for all libvips C enums and structs
-- **Idiomatic**: Clean Go APIs that feel natural to use
-- **Streaming**: `VipsSource` and `VipsTarget` integration with Go `io.Reader` and `io.Writer` for [streaming](https://www.libvips.org/2019/11/29/True-streaming-for-libvips.html)
 
 ## Quick Start
 
@@ -143,6 +142,39 @@ func main() {
     // ...
 }
 ```
+
+## Working with Animated Images
+
+libvips represents multi-frame images (animated GIF, WebP) as a single vertically stacked image where each frame occupies one page of height `PageHeight`. vipsgen exposes the page metadata and provides dedicated helpers for operations that must process each frame individually.
+
+### Metadata
+
+```go
+img.Pages()                 // number of frames
+img.PageHeight()            // height of a single frame in pixels
+delays, _ := img.PageDelay() // per-frame delay in milliseconds
+img.Loop()                  // loop count (0 = infinite)
+```
+
+### Multi-page Helpers
+
+Some operations — rotate, crop, embed — cannot be expressed as a single libvips pipeline call across a stacked image. vipsgen ships hand-written C helpers that loop over frames internally, so there is no per-frame CGo overhead from Go:
+
+```go
+// Rotate all frames
+err = img.RotMultiPage(vips.AngleD90)
+
+// Crop all frames to the same region
+err = img.ExtractAreaMultiPage(left, top, width, height)
+
+// Embed (pad/extend) all frames to a new canvas
+err = img.EmbedMultiPage(left, top, newWidth, newHeight, &vips.EmbedMultiPageOptions{
+    Extend:     vips.ExtendBackground,
+    Background: []float64{0, 0, 0, 0},
+})
+```
+
+These methods automatically fall through to the equivalent single-frame operation when the image has only one page.
 
 ## Code Generation
 
