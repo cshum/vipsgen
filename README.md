@@ -171,14 +171,19 @@ import (
 ### Command Line Options
 
 ```
-Usage: vipsgen [options]
-
-Options:
--out string            Output directory (default "./out")
--templates string      Template directory (uses embedded templates if not specified)
--extract               Extract embedded templates and exit
--extract-dir string    Directory to extract templates to (default "./templates")
--debug                 Enable debug json output
+Usage of vipsgen:
+  -debug
+        Enable debug json output
+  -extract
+        Extract embedded templates to a directory
+  -extract-dir string
+        Directory to extract templates to (default "./templates")
+  -include-test
+        Include test files in generated output
+  -out string
+        Output directory (default "./vips")
+  -templates string
+        Template directory (uses embedded templates if not specified)
 ```
 
 ### How Code Generation Works
