@@ -1807,25 +1807,29 @@ func vipsgenGaussnoiseWithOptions(width int, height int, sigma float64, mean flo
 // vipsgenGetpoint vips_getpoint read a point from an image
 func vipsgenGetpoint(in *C.VipsImage, x int, y int) ([]float64, error) {
 	var out *C.double
-	defer gFreePointer(unsafe.Pointer(out))
 	var n int
 	cn := (*C.int)(unsafe.Pointer(&n))
 	if err := C.vipsgen_getpoint(in, &out, cn, C.gint(x), C.gint(y)); err != 0 {
 		return nil, handleVipsError()
 	}
-	return (*[1024]float64)(unsafe.Pointer(out))[:n:n], nil
+	result := make([]float64, n)
+	copy(result, (*[1024]float64)(unsafe.Pointer(out))[:n:n])
+	gFreePointer(unsafe.Pointer(out))
+	return result, nil
 }
 
 // vipsgenGetpointWithOptions vips_getpoint read a point from an image with optional arguments
 func vipsgenGetpointWithOptions(in *C.VipsImage, x int, y int, unpackComplex bool) ([]float64, error) {
 	var out *C.double
-	defer gFreePointer(unsafe.Pointer(out))
 	var n int
 	cn := (*C.int)(unsafe.Pointer(&n))
 	if err := C.vipsgen_getpoint_with_options(in, &out, cn, C.gint(x), C.gint(y), C.int(boolToInt(unpackComplex))); err != 0 {
 		return nil, handleVipsError()
 	}
-	return (*[1024]float64)(unsafe.Pointer(out))[:n:n], nil
+	result := make([]float64, n)
+	copy(result, (*[1024]float64)(unsafe.Pointer(out))[:n:n])
+	gFreePointer(unsafe.Pointer(out))
+	return result, nil
 }
 
 // vipsgenGifload vips_gifload load GIF with libnsgif
@@ -6555,7 +6559,8 @@ func vipsImageGetString(in *C.VipsImage, name string) (string, error) {
 	cField := C.CString(name)
 	defer freeCString(cField)
 	var cFieldValue *C.char
-	defer freeCString(cFieldValue)
+	// Do not free cFieldValue - vips_image_get_string returns a pointer to
+	// libvips-managed memory that is freed when the VipsImage is unreferenced
 	if int(C.vips_image_get_string(in, cField, &cFieldValue)) == 0 {
 		return C.GoString(cFieldValue), nil
 	}
@@ -6566,7 +6571,10 @@ func vipsImageGetAsString(in *C.VipsImage, name string) (string, error) {
 	cField := C.CString(name)
 	defer freeCString(cField)
 	var cFieldValue *C.char
-	defer freeCString(cFieldValue)
+	// Wrap in closure so cFieldValue is captured by reference and evaluated
+	// when the deferred function executes (after the C call populates it),
+	// not at defer registration time when it is still nil.
+	defer func() { freeCString(cFieldValue) }()
 	if int(C.vips_image_get_as_string(in, cField, &cFieldValue)) == 0 {
 		return C.GoString(cFieldValue), nil
 	}
