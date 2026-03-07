@@ -283,7 +283,6 @@ func generateVarDeclarations(op introspection.Operation, withOptions bool) strin
 			// Special handling for vector/array outputs
 			if arg.Name == "vector" || arg.Name == "out_array" {
 				decls = append(decls, "var out *C.double")
-				decls = append(decls, "defer gFreePointer(unsafe.Pointer(out))")
 			} else {
 				decls = append(decls, fmt.Sprintf("var %s %s", arg.GoName, arg.GoType))
 
@@ -688,8 +687,16 @@ func generateReturnValues(op introspection.Operation) string {
 						break
 					}
 				}
-				// Convert the C array to a Go slice
-				values = append(values, fmt.Sprintf("(*[1024]float64)(unsafe.Pointer(out))[:%s:%s]", nParam, nParam))
+				// Copy from C memory into a Go-owned slice, then free the C allocation.
+				// This avoids returning a slice backed by C memory and ensures the
+				// deferred g_free captures the populated pointer (not nil).
+				conversionLines = append(conversionLines,
+					fmt.Sprintf("result := make([]float64, %s)", nParam))
+				conversionLines = append(conversionLines,
+					fmt.Sprintf("copy(result, (*[1024]float64)(unsafe.Pointer(out))[:%s:%s])", nParam, nParam))
+				conversionLines = append(conversionLines,
+					"gFreePointer(unsafe.Pointer(out))")
+				values = append(values, "result")
 			} else {
 				values = append(values, arg.GoName)
 			}
