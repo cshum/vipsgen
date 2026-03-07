@@ -312,7 +312,8 @@ func vipsImageGetString(in *C.VipsImage, name string) (string, error) {
 	cField := C.CString(name)
 	defer freeCString(cField)
 	var cFieldValue *C.char
-	defer freeCString(cFieldValue)
+	// Do not free cFieldValue - vips_image_get_string returns a pointer to
+	// libvips-managed memory that is freed when the VipsImage is unreferenced
 	if int(C.vips_image_get_string(in, cField, &cFieldValue)) == 0 {
 		return C.GoString(cFieldValue), nil
 	}
@@ -323,7 +324,10 @@ func vipsImageGetAsString(in *C.VipsImage, name string) (string, error) {
 	cField := C.CString(name)
 	defer freeCString(cField)
 	var cFieldValue *C.char
-	defer freeCString(cFieldValue)
+	// Wrap in closure so cFieldValue is captured by reference and evaluated
+	// when the deferred function executes (after the C call populates it),
+	// not at defer registration time when it is still nil.
+	defer func() { freeCString(cFieldValue) }()
 	if int(C.vips_image_get_as_string(in, cField, &cFieldValue)) == 0 {
 		return C.GoString(cFieldValue), nil
 	}
