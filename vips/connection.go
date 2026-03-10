@@ -26,7 +26,7 @@ func NewSource(reader io.ReadCloser) *Source {
 	Startup(nil)
 	s := &Source{reader: reader}
 	s.ptr = pointer.Save(s)
-	seeker, ok := reader.(io.ReadSeeker)
+	seeker, ok := reader.(io.Seeker)
 	if ok {
 		s.seeker = seeker
 		s.src = C.create_go_custom_source_with_seek(s.ptr)
@@ -71,7 +71,7 @@ func NewTarget(writer io.WriteCloser) *Target {
 	Startup(nil)
 	t := &Target{writer: writer}
 	t.ptr = pointer.Save(t)
-	seeker, ok := writer.(io.ReadSeeker)
+	seeker, ok := writer.(io.Seeker)
 	if ok {
 		t.seeker = seeker
 		t.target = C.create_go_custom_target_with_seek(t.ptr)
