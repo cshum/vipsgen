@@ -143,6 +143,29 @@ func main() {
 }
 ```
 
+## Image Loaders
+
+**Generic loaders** — [`NewImageFromFile`](https://pkg.go.dev/github.com/cshum/vipsgen/vips#NewImageFromFile), [`NewImageFromBuffer`](https://pkg.go.dev/github.com/cshum/vipsgen/vips#NewImageFromBuffer), [`NewImageFromSource`](https://pkg.go.dev/github.com/cshum/vipsgen/vips#NewImageFromSource) — automatically detect the image format and accept `LoadOptions`, a generic options struct covering common options across formats. Since not every format supports every option, use the **format-specific loaders** — [`NewGifload`](https://pkg.go.dev/github.com/cshum/vipsgen/vips#NewGifload), [`NewJpegloadBuffer`](https://pkg.go.dev/github.com/cshum/vipsgen/vips#NewJpegloadBuffer), [`NewPngloadSource`](https://pkg.go.dev/github.com/cshum/vipsgen/vips#NewPngloadSource), etc. — for precise, type-safe control. A few common examples:
+
+**Animated GIF** — `N: -1` loads all frames ([full example](https://github.com/cshum/vipsgen/tree/main/examples/from_file)):
+
+```go
+image, err := vips.NewGifload("animation.gif", &vips.GifloadOptions{
+    N: -1, // -1 = load all frames
+})
+```
+
+**JPEG auto-rotation** — rotate by EXIF orientation on load:
+
+```go
+source := vips.NewSource(reader)
+defer source.Close()
+
+image, err := vips.NewJpegloadSource(source, &vips.JpegloadSourceOptions{
+    Autorotate: true,
+})
+```
+
 ## Working with Animated Images
 
 libvips represents multi-frame images (animated GIF, WebP) as a single vertically stacked image where each frame occupies one page of height `PageHeight`. vipsgen exposes the page metadata and provides dedicated helpers for operations that must process each frame individually.
