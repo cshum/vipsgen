@@ -37,13 +37,8 @@ func newVipsFromRawRGBA(pix []byte, w, h int) (*vips.Image, error) {
 	if err != nil {
 		return nil, err
 	}
-	copied, err := img.Copy(&vips.CopyOptions{Interpretation: vips.InterpretationSrgb})
-	if err != nil {
-		img.Close()
-		return nil, err
-	}
-	img.Close()
-	return copied, nil
+	defer img.Close()
+	return img.Copy(&vips.CopyOptions{Interpretation: vips.InterpretationSrgb})
 }
 
 // vipsToGoImage converts a *vips.Image back to *image.NRGBA via WriteToMemory.
