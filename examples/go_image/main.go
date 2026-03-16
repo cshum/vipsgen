@@ -12,19 +12,38 @@ import (
 
 // goImageToVips converts any image.Image to a *vips.Image via NewImageFromMemory.
 // It normalizes to NRGBA (4-band, 8-bit) before handing off to libvips.
+// The sRGB interpretation is explicitly restored after NewImageFromMemory, which
+// always assigns VIPS_INTERPRETATION_MULTIBAND
 func goImageToVips(src image.Image) (*vips.Image, error) {
 	bounds := src.Bounds()
 	w, h := bounds.Dx(), bounds.Dy()
 
 	// Fast path: already *image.NRGBA with zero origin and contiguous stride
 	if n, ok := src.(*image.NRGBA); ok && bounds.Min.X == 0 && bounds.Min.Y == 0 && n.Stride == w*4 {
-		return vips.NewImageFromMemory(n.Pix, w, h, 4)
+		return newVipsFromRawRGBA(n.Pix, w, h)
 	}
 
 	// Slow path: normalize any image.Image to NRGBA via draw.Draw
 	nrgba := image.NewNRGBA(image.Rect(0, 0, w, h))
 	draw.Draw(nrgba, nrgba.Bounds(), src, bounds.Min, draw.Src)
-	return vips.NewImageFromMemory(nrgba.Pix, w, h, 4)
+	return newVipsFromRawRGBA(nrgba.Pix, w, h)
+}
+
+// newVipsFromRawRGBA wraps NewImageFromMemory and restores the sRGB interpretation.
+// NewImageFromMemory assigns VIPS_INTERPRETATION_MULTIBAND by default; this
+// metadata-only Copy corrects that without converting any pixel data.
+func newVipsFromRawRGBA(pix []byte, w, h int) (*vips.Image, error) {
+	img, err := vips.NewImageFromMemory(pix, w, h, 4)
+	if err != nil {
+		return nil, err
+	}
+	copied, err := img.Copy(&vips.CopyOptions{Interpretation: vips.InterpretationSrgb})
+	if err != nil {
+		img.Close()
+		return nil, err
+	}
+	img.Close()
+	return copied, nil
 }
 
 // vipsToGoImage converts a *vips.Image back to *image.NRGBA via WriteToMemory.
