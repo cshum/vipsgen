@@ -386,12 +386,16 @@ func vipsgenAutorot(in *C.VipsImage) (*C.VipsImage, error) {
 // vipsgenAutorotWithOptions vips_autorot autorotate image by exif tag with optional arguments
 func vipsgenAutorotWithOptions(in *C.VipsImage, flip *bool) (*C.VipsImage, error) {
 	var out *C.VipsImage
-	var cflip *C.int
+	var cflipValue C.gboolean
+	var cflip *C.gboolean
 	if flip != nil {
-		cflip = (*C.int)(unsafe.Pointer(flip))
+		cflip = &cflipValue
 	}
 	if err := C.vipsgen_autorot_with_options(in, &out, cflip); err != 0 {
 		return nil, handleImageError(out)
+	}
+	if flip != nil {
+		*flip = cflipValue != 0
 	}
 	return out, nil
 }
@@ -399,10 +403,11 @@ func vipsgenAutorotWithOptions(in *C.VipsImage, flip *bool) (*C.VipsImage, error
 // vipsgenAvg vips_avg find image average
 func vipsgenAvg(in *C.VipsImage) (float64, error) {
 	var out float64
-	cout := (*C.double)(unsafe.Pointer(&out))
+	cout := new(C.double)
 	if err := C.vipsgen_avg(in, cout); err != 0 {
 		return 0, handleVipsError()
 	}
+	out = float64(*cout)
 	return out, nil
 }
 
@@ -946,10 +951,11 @@ func vipsgenCopyWithOptions(in *C.VipsImage, width int, height int, bands int, f
 // vipsgenCountlines vips_countlines count lines in an image
 func vipsgenCountlines(in *C.VipsImage, direction Direction) (float64, error) {
 	var nolines float64
-	cnolines := (*C.double)(unsafe.Pointer(&nolines))
+	cnolines := new(C.double)
 	if err := C.vipsgen_countlines(in, cnolines, C.VipsDirection(direction)); err != 0 {
 		return 0, handleVipsError()
 	}
+	nolines = float64(*cnolines)
 	return nolines, nil
 }
 
@@ -1154,10 +1160,11 @@ func vipsgenDcrawloadSourceWithOptions(source *C.VipsSourceCustom, bitdepth int,
 // vipsgenDeviate vips_deviate find image standard deviation
 func vipsgenDeviate(in *C.VipsImage) (float64, error) {
 	var out float64
-	cout := (*C.double)(unsafe.Pointer(&out))
+	cout := new(C.double)
 	if err := C.vipsgen_deviate(in, cout); err != 0 {
 		return 0, handleVipsError()
 	}
+	out = float64(*cout)
 	return out, nil
 }
 
@@ -1236,40 +1243,40 @@ func vipsgenDrawFloodWithOptions(image *C.VipsImage, ink []float64, x int, y int
 	if cink != nil {
 		defer freeDoubleArray(cink)
 	}
-	var leftInt32 int32
+	var cleftValue C.gint
 	var cleft *C.gint
 	if left != nil {
-		cleft = (*C.gint)(unsafe.Pointer(&leftInt32))
+		cleft = &cleftValue
 	}
-	var topInt32 int32
+	var ctopValue C.gint
 	var ctop *C.gint
 	if top != nil {
-		ctop = (*C.gint)(unsafe.Pointer(&topInt32))
+		ctop = &ctopValue
 	}
-	var widthInt32 int32
+	var cwidthValue C.gint
 	var cwidth *C.gint
 	if width != nil {
-		cwidth = (*C.gint)(unsafe.Pointer(&widthInt32))
+		cwidth = &cwidthValue
 	}
-	var heightInt32 int32
+	var cheightValue C.gint
 	var cheight *C.gint
 	if height != nil {
-		cheight = (*C.gint)(unsafe.Pointer(&heightInt32))
+		cheight = &cheightValue
 	}
 	if err := C.vipsgen_draw_flood_with_options(image, cink, C.int(len(ink)), C.gint(x), C.gint(y), test, C.int(boolToInt(equal)), cleft, ctop, cwidth, cheight); err != 0 {
 		return handleVipsError()
 	}
 	if left != nil {
-		*left = int(leftInt32)
+		*left = int(cleftValue)
 	}
 	if top != nil {
-		*top = int(topInt32)
+		*top = int(ctopValue)
 	}
 	if width != nil {
-		*width = int(widthInt32)
+		*width = int(cwidthValue)
 	}
 	if height != nil {
-		*height = int(heightInt32)
+		*height = int(cheightValue)
 	}
 	return nil
 }
@@ -1575,29 +1582,33 @@ func vipsgenFillNearest(in *C.VipsImage) (*C.VipsImage, error) {
 // vipsgenFindTrim vips_find_trim search an image for non-edge areas
 func vipsgenFindTrim(in *C.VipsImage) (int, int, int, int, error) {
 	var left int
-	cleft := (*C.int)(unsafe.Pointer(&left))
+	cleft := new(C.gint)
 	var top int
-	ctop := (*C.int)(unsafe.Pointer(&top))
+	ctop := new(C.gint)
 	var width int
-	cwidth := (*C.int)(unsafe.Pointer(&width))
+	cwidth := new(C.gint)
 	var height int
-	cheight := (*C.int)(unsafe.Pointer(&height))
+	cheight := new(C.gint)
 	if err := C.vipsgen_find_trim(in, cleft, ctop, cwidth, cheight); err != 0 {
 		return 0, 0, 0, 0, handleVipsError()
 	}
+	left = int(*cleft)
+	top = int(*ctop)
+	width = int(*cwidth)
+	height = int(*cheight)
 	return left, top, width, height, nil
 }
 
 // vipsgenFindTrimWithOptions vips_find_trim search an image for non-edge areas with optional arguments
 func vipsgenFindTrimWithOptions(in *C.VipsImage, threshold float64, background []float64, lineArt bool) (int, int, int, int, error) {
 	var left int
-	cleft := (*C.int)(unsafe.Pointer(&left))
+	cleft := new(C.gint)
 	var top int
-	ctop := (*C.int)(unsafe.Pointer(&top))
+	ctop := new(C.gint)
 	var width int
-	cwidth := (*C.int)(unsafe.Pointer(&width))
+	cwidth := new(C.gint)
 	var height int
-	cheight := (*C.int)(unsafe.Pointer(&height))
+	cheight := new(C.gint)
 	cbackground, cbackgroundLength, err := convertToDoubleArray(background)
 	if err != nil {
 		return 0, 0, 0, 0, err
@@ -1608,6 +1619,10 @@ func vipsgenFindTrimWithOptions(in *C.VipsImage, threshold float64, background [
 	if err := C.vipsgen_find_trim_with_options(in, cleft, ctop, cwidth, cheight, C.double(threshold), cbackground, cbackgroundLength, C.int(boolToInt(lineArt))); err != 0 {
 		return 0, 0, 0, 0, handleVipsError()
 	}
+	left = int(*cleft)
+	top = int(*ctop)
+	width = int(*cwidth)
+	height = int(*cheight)
 	return left, top, width, height, nil
 }
 
@@ -1808,10 +1823,11 @@ func vipsgenGaussnoiseWithOptions(width int, height int, sigma float64, mean flo
 func vipsgenGetpoint(in *C.VipsImage, x int, y int) ([]float64, error) {
 	var out *C.double
 	var n int
-	cn := (*C.int)(unsafe.Pointer(&n))
+	cn := new(C.int)
 	if err := C.vipsgen_getpoint(in, &out, cn, C.gint(x), C.gint(y)); err != 0 {
 		return nil, handleVipsError()
 	}
+	n = int(*cn)
 	result := make([]float64, n)
 	copy(result, (*[1024]float64)(unsafe.Pointer(out))[:n:n])
 	gFreePointer(unsafe.Pointer(out))
@@ -1822,10 +1838,11 @@ func vipsgenGetpoint(in *C.VipsImage, x int, y int) ([]float64, error) {
 func vipsgenGetpointWithOptions(in *C.VipsImage, x int, y int, unpackComplex bool) ([]float64, error) {
 	var out *C.double
 	var n int
-	cn := (*C.int)(unsafe.Pointer(&n))
+	cn := new(C.int)
 	if err := C.vipsgen_getpoint_with_options(in, &out, cn, C.gint(x), C.gint(y), C.int(boolToInt(unpackComplex))); err != 0 {
 		return nil, handleVipsError()
 	}
+	n = int(*cn)
 	result := make([]float64, n)
 	copy(result, (*[1024]float64)(unsafe.Pointer(out))[:n:n])
 	gFreePointer(unsafe.Pointer(out))
@@ -2216,10 +2233,11 @@ func vipsgenHistCum(in *C.VipsImage) (*C.VipsImage, error) {
 // vipsgenHistEntropy vips_hist_entropy estimate image entropy
 func vipsgenHistEntropy(in *C.VipsImage) (float64, error) {
 	var out float64
-	cout := (*C.double)(unsafe.Pointer(&out))
+	cout := new(C.double)
 	if err := C.vipsgen_hist_entropy(in, cout); err != 0 {
 		return 0, handleVipsError()
 	}
+	out = float64(*cout)
 	return out, nil
 }
 
@@ -2298,10 +2316,11 @@ func vipsgenHistFindNdimWithOptions(in *C.VipsImage, bins int) (*C.VipsImage, er
 // vipsgenHistIsmonotonic vips_hist_ismonotonic test for monotonicity
 func vipsgenHistIsmonotonic(in *C.VipsImage) (bool, error) {
 	var monotonic bool
-	cmonotonic := (*C.int)(unsafe.Pointer(&monotonic))
+	cmonotonic := new(C.gboolean)
 	if err := C.vipsgen_hist_ismonotonic(in, cmonotonic); err != 0 {
 		return false, handleVipsError()
 	}
+	monotonic = *cmonotonic != 0
 	return monotonic, nil
 }
 
@@ -3037,16 +3056,16 @@ func vipsgenLabelregions(in *C.VipsImage) (*C.VipsImage, error) {
 // vipsgenLabelregionsWithOptions vips_labelregions label regions in an image with optional arguments
 func vipsgenLabelregionsWithOptions(in *C.VipsImage, segments *int) (*C.VipsImage, error) {
 	var out *C.VipsImage
-	var segmentsInt32 int32
+	var csegmentsValue C.gint
 	var csegments *C.gint
 	if segments != nil {
-		csegments = (*C.gint)(unsafe.Pointer(&segmentsInt32))
+		csegments = &csegmentsValue
 	}
 	if err := C.vipsgen_labelregions_with_options(in, &out, csegments); err != 0 {
 		return nil, handleImageError(out)
 	}
 	if segments != nil {
-		*segments = int(segmentsInt32)
+		*segments = int(csegmentsValue)
 	}
 	return out, nil
 }
@@ -3719,35 +3738,37 @@ func vipsgenMatrixsaveTargetWithOptions(in *C.VipsImage, target *C.VipsTargetCus
 // vipsgenMax vips_max find image maximum
 func vipsgenMax(in *C.VipsImage) (float64, error) {
 	var out float64
-	cout := (*C.double)(unsafe.Pointer(&out))
+	cout := new(C.double)
 	if err := C.vipsgen_max(in, cout); err != 0 {
 		return 0, handleVipsError()
 	}
+	out = float64(*cout)
 	return out, nil
 }
 
 // vipsgenMaxWithOptions vips_max find image maximum with optional arguments
 func vipsgenMaxWithOptions(in *C.VipsImage, size int, x *int, y *int) (float64, error) {
 	var out float64
-	cout := (*C.double)(unsafe.Pointer(&out))
-	var xInt32 int32
+	cout := new(C.double)
+	var cxValue C.gint
 	var cx *C.gint
 	if x != nil {
-		cx = (*C.gint)(unsafe.Pointer(&xInt32))
+		cx = &cxValue
 	}
-	var yInt32 int32
+	var cyValue C.gint
 	var cy *C.gint
 	if y != nil {
-		cy = (*C.gint)(unsafe.Pointer(&yInt32))
+		cy = &cyValue
 	}
 	if err := C.vipsgen_max_with_options(in, cout, C.gint(size), cx, cy); err != 0 {
 		return 0, handleVipsError()
 	}
+	out = float64(*cout)
 	if x != nil {
-		*x = int(xInt32)
+		*x = int(cxValue)
 	}
 	if y != nil {
-		*y = int(yInt32)
+		*y = int(cyValue)
 	}
 	return out, nil
 }
@@ -3800,35 +3821,37 @@ func vipsgenMergeWithOptions(ref *C.VipsImage, sec *C.VipsImage, direction Direc
 // vipsgenMin vips_min find image minimum
 func vipsgenMin(in *C.VipsImage) (float64, error) {
 	var out float64
-	cout := (*C.double)(unsafe.Pointer(&out))
+	cout := new(C.double)
 	if err := C.vipsgen_min(in, cout); err != 0 {
 		return 0, handleVipsError()
 	}
+	out = float64(*cout)
 	return out, nil
 }
 
 // vipsgenMinWithOptions vips_min find image minimum with optional arguments
 func vipsgenMinWithOptions(in *C.VipsImage, size int, x *int, y *int) (float64, error) {
 	var out float64
-	cout := (*C.double)(unsafe.Pointer(&out))
-	var xInt32 int32
+	cout := new(C.double)
+	var cxValue C.gint
 	var cx *C.gint
 	if x != nil {
-		cx = (*C.gint)(unsafe.Pointer(&xInt32))
+		cx = &cxValue
 	}
-	var yInt32 int32
+	var cyValue C.gint
 	var cy *C.gint
 	if y != nil {
-		cy = (*C.gint)(unsafe.Pointer(&yInt32))
+		cy = &cyValue
 	}
 	if err := C.vipsgen_min_with_options(in, cout, C.gint(size), cx, cy); err != 0 {
 		return 0, handleVipsError()
 	}
+	out = float64(*cout)
 	if x != nil {
-		*x = int(xInt32)
+		*x = int(cxValue)
 	}
 	if y != nil {
-		*y = int(yInt32)
+		*y = int(cyValue)
 	}
 	return out, nil
 }
@@ -3863,40 +3886,56 @@ func vipsgenMosaic(ref *C.VipsImage, sec *C.VipsImage, direction Direction, xref
 // vipsgenMosaicWithOptions vips_mosaic mosaic two images with optional arguments
 func vipsgenMosaicWithOptions(ref *C.VipsImage, sec *C.VipsImage, direction Direction, xref int, yref int, xsec int, ysec int, hwindow int, harea int, mblend int, bandno int, dx0 *int, dy0 *int, scale1 *float64, angle1 *float64, dy1 *float64, dx1 *float64) (*C.VipsImage, error) {
 	var out *C.VipsImage
-	var dx0Int32 int32
+	var cdx0Value C.gint
 	var cdx0 *C.gint
 	if dx0 != nil {
-		cdx0 = (*C.gint)(unsafe.Pointer(&dx0Int32))
+		cdx0 = &cdx0Value
 	}
-	var dy0Int32 int32
+	var cdy0Value C.gint
 	var cdy0 *C.gint
 	if dy0 != nil {
-		cdy0 = (*C.gint)(unsafe.Pointer(&dy0Int32))
+		cdy0 = &cdy0Value
 	}
+	var cscale1Value C.double
 	var cscale1 *C.double
 	if scale1 != nil {
-		cscale1 = (*C.double)(unsafe.Pointer(scale1))
+		cscale1 = &cscale1Value
 	}
+	var cangle1Value C.double
 	var cangle1 *C.double
 	if angle1 != nil {
-		cangle1 = (*C.double)(unsafe.Pointer(angle1))
+		cangle1 = &cangle1Value
 	}
+	var cdy1Value C.double
 	var cdy1 *C.double
 	if dy1 != nil {
-		cdy1 = (*C.double)(unsafe.Pointer(dy1))
+		cdy1 = &cdy1Value
 	}
+	var cdx1Value C.double
 	var cdx1 *C.double
 	if dx1 != nil {
-		cdx1 = (*C.double)(unsafe.Pointer(dx1))
+		cdx1 = &cdx1Value
 	}
 	if err := C.vipsgen_mosaic_with_options(ref, sec, &out, C.VipsDirection(direction), C.gint(xref), C.gint(yref), C.gint(xsec), C.gint(ysec), C.gint(hwindow), C.gint(harea), C.gint(mblend), C.gint(bandno), cdx0, cdy0, cscale1, cangle1, cdy1, cdx1); err != 0 {
 		return nil, handleImageError(out)
 	}
 	if dx0 != nil {
-		*dx0 = int(dx0Int32)
+		*dx0 = int(cdx0Value)
 	}
 	if dy0 != nil {
-		*dy0 = int(dy0Int32)
+		*dy0 = int(cdy0Value)
+	}
+	if scale1 != nil {
+		*scale1 = float64(cscale1Value)
+	}
+	if angle1 != nil {
+		*angle1 = float64(cangle1Value)
+	}
+	if dy1 != nil {
+		*dy1 = float64(cdy1Value)
+	}
+	if dx1 != nil {
+		*dx1 = float64(cdx1Value)
 	}
 	return out, nil
 }
@@ -4175,10 +4214,11 @@ func vipsgenPdfloadSourceWithOptions(source *C.VipsSourceCustom, page int, n int
 // vipsgenPercent vips_percent find threshold for percent of pixels
 func vipsgenPercent(in *C.VipsImage, percent float64) (int, error) {
 	var threshold int
-	cthreshold := (*C.int)(unsafe.Pointer(&threshold))
+	cthreshold := new(C.gint)
 	if err := C.vipsgen_percent(in, C.double(percent), cthreshold); err != 0 {
 		return 0, handleVipsError()
 	}
+	threshold = int(*cthreshold)
 	return threshold, nil
 }
 
@@ -5327,24 +5367,24 @@ func vipsgenSmartcrop(input *C.VipsImage, width int, height int) (*C.VipsImage, 
 // vipsgenSmartcropWithOptions vips_smartcrop extract an area from an image with optional arguments
 func vipsgenSmartcropWithOptions(input *C.VipsImage, width int, height int, interesting Interesting, premultiplied bool, attentionX *int, attentionY *int) (*C.VipsImage, error) {
 	var out *C.VipsImage
-	var attentionXInt32 int32
+	var cattentionXValue C.gint
 	var cattentionX *C.gint
 	if attentionX != nil {
-		cattentionX = (*C.gint)(unsafe.Pointer(&attentionXInt32))
+		cattentionX = &cattentionXValue
 	}
-	var attentionYInt32 int32
+	var cattentionYValue C.gint
 	var cattentionY *C.gint
 	if attentionY != nil {
-		cattentionY = (*C.gint)(unsafe.Pointer(&attentionYInt32))
+		cattentionY = &cattentionYValue
 	}
 	if err := C.vipsgen_smartcrop_with_options(input, &out, C.gint(width), C.gint(height), C.VipsInteresting(interesting), C.int(boolToInt(premultiplied)), cattentionX, cattentionY); err != 0 {
 		return nil, handleImageError(out)
 	}
 	if attentionX != nil {
-		*attentionX = int(attentionXInt32)
+		*attentionX = int(cattentionXValue)
 	}
 	if attentionY != nil {
-		*attentionY = int(attentionYInt32)
+		*attentionY = int(cattentionYValue)
 	}
 	return out, nil
 }
@@ -5591,16 +5631,16 @@ func vipsgenTextWithOptions(text string, font string, width int, height int, ali
 	defer freeCString(cfont)
 	cfontfile := C.CString(fontfile)
 	defer freeCString(cfontfile)
-	var autofitDpiInt32 int32
+	var cautofitDpiValue C.gint
 	var cautofitDpi *C.gint
 	if autofitDpi != nil {
-		cautofitDpi = (*C.gint)(unsafe.Pointer(&autofitDpiInt32))
+		cautofitDpi = &cautofitDpiValue
 	}
 	if err := C.vipsgen_text_with_options(&out, ctext, cfont, C.gint(width), C.gint(height), C.VipsAlign(align), C.int(boolToInt(justify)), C.gint(dpi), C.gint(spacing), cfontfile, C.int(boolToInt(rgba)), C.VipsTextWrap(wrap), cautofitDpi); err != 0 {
 		return nil, handleImageError(out)
 	}
 	if autofitDpi != nil {
-		*autofitDpi = int(autofitDpiInt32)
+		*autofitDpi = int(cautofitDpiValue)
 	}
 	return out, nil
 }
