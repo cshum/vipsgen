@@ -139,6 +139,39 @@ int vipsgen_image_new_from_file(const char *name, VipsImage **out) {
   return 0;
 }
 
+int vipsgen_image_new_from_file_with_option(const char *name, VipsImage **out, const char *option_string) {
+  // Use vips_foreign_find_load on the raw filename (no options appended) to avoid
+  // the libvips string parser mishandling filenames that start with ',' or other
+  // tokenizer-special characters. Then set options via GObject properties directly.
+  const char *loader = vips_foreign_find_load(name);
+  if (!loader) return 1;
+
+  VipsOperation *operation = vips_operation_new(loader);
+  if (!operation) return 1;
+
+  if (vips_object_set(VIPS_OBJECT(operation), "filename", name, NULL)) {
+    g_object_unref(operation);
+    return 1;
+  }
+
+  if (option_string && strlen(option_string) > 0) {
+    if (vips_object_set_from_string(VIPS_OBJECT(operation), option_string)) {
+      g_object_unref(operation);
+      return 1;
+    }
+  }
+
+  if (vips_cache_operation_buildp(&operation)) {
+    vips_object_unref_outputs(VIPS_OBJECT(operation));
+    g_object_unref(operation);
+    return 1;
+  }
+  g_object_get(VIPS_OBJECT(operation), "out", out, NULL);
+  vips_object_unref_outputs(VIPS_OBJECT(operation));
+  g_object_unref(operation);
+  return 0;
+}
+
 int vipsgen_image_new_from_buffer(const void *buf, size_t len, VipsImage **out) {
   *out = vips_image_new_from_buffer(buf, len, "", NULL);
   if (!*out) return 1;
