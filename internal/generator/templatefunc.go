@@ -46,6 +46,86 @@ func hasWithOptionsVariant(op introspection.Operation) bool {
 	return len(op.OptionalInputs) > 0 || len(getSupportedOptionalOutputs(op)) > 0
 }
 
+// getOutputScalarCType returns the cgo scalar type used for temporary output storage.
+func getOutputScalarCType(arg introspection.Argument) string {
+	cType := strings.TrimSpace(strings.TrimSuffix(arg.CType, "*"))
+
+	switch {
+	case strings.Contains(cType, "gboolean"):
+		return "C.gboolean"
+	case strings.Contains(cType, "unsigned int"), strings.Contains(cType, "guint"):
+		return "C.uint"
+	case strings.Contains(cType, "gint"):
+		return "C.gint"
+	case cType == "int":
+		return "C.int"
+	case cType == "double":
+		return "C.double"
+	case cType == "float":
+		return "C.float"
+	}
+
+	// Fallback to Go type when ctype metadata is not specific enough.
+	switch arg.GoType {
+	case "bool":
+		return "C.gboolean"
+	case "int":
+		return "C.int"
+	case "float64":
+		return "C.double"
+	case "float32":
+		return "C.float"
+	default:
+		return ""
+	}
+}
+
+func generateScalarConversionLine(goType, targetExpr, sourceExpr string) string {
+	switch goType {
+	case "float64":
+		return fmt.Sprintf("%s = float64(%s)", targetExpr, sourceExpr)
+	case "int":
+		return fmt.Sprintf("%s = int(%s)", targetExpr, sourceExpr)
+	case "bool":
+		return fmt.Sprintf("%s = %s != 0", targetExpr, sourceExpr)
+	default:
+		return ""
+	}
+}
+
+func generatePostCallScalarConversions(op introspection.Operation, withOptions bool) string {
+	var conversions []string
+
+	if !op.HasOneImageOutput && !op.HasBufferOutput {
+		for _, arg := range op.RequiredOutputs {
+			if arg.Name == "vector" || arg.Name == "out_array" {
+				continue
+			}
+			if getOutputScalarCType(arg) == "" {
+				continue
+			}
+			if line := generateScalarConversionLine(arg.GoType, arg.GoName, "*c"+arg.GoName); line != "" {
+				conversions = append(conversions, line)
+			}
+		}
+	}
+
+	if withOptions {
+		for _, opt := range getSupportedOptionalOutputs(op) {
+			if getOutputScalarCType(opt) == "" {
+				continue
+			}
+			line := generateScalarConversionLine(opt.GoType, "*"+opt.GoName, "c"+opt.GoName+"Value")
+			if line == "" {
+				continue
+			}
+			conversions = append(conversions, fmt.Sprintf("if %s != nil {\n\t\t%s\n\t}", opt.GoName, line))
+		}
+	}
+
+	return strings.Join(conversions, "\n\t")
+}
+
 // generateGoFunctionBody generates the shared body for Go wrapper functions
 func generateGoFunctionBody(op introspection.Operation, withOptions bool) string {
 	var result strings.Builder
@@ -82,14 +162,10 @@ func generateGoFunctionBody(op introspection.Operation, withOptions bool) string
 	result.WriteString(generateErrorReturn(op.HasOneImageOutput, op.HasBufferOutput, op.RequiredOutputs))
 	result.WriteString("\n\t}\n\t")
 
-	// Add conversion logic for optional outputs in withOptions functions before return
-	if withOptions {
-		supportedOptionalOutputs := getSupportedOptionalOutputs(op)
-		for _, opt := range supportedOptionalOutputs {
-			if opt.GoType == "int" && opt.Type == "gint" {
-				result.WriteString(fmt.Sprintf("if %s != nil {\n\t\t*%s = int(%sInt32)\n\t}\n\t", opt.GoName, opt.GoName, opt.GoName))
-			}
-		}
+	// Convert temporary C scalar outputs back into Go values.
+	if conversions := generatePostCallScalarConversions(op, withOptions); conversions != "" {
+		result.WriteString(conversions)
+		result.WriteString("\n\t")
 	}
 
 	// Return values
@@ -286,16 +362,9 @@ func generateVarDeclarations(op introspection.Operation, withOptions bool) strin
 			} else {
 				decls = append(decls, fmt.Sprintf("var %s %s", arg.GoName, arg.GoType))
 
-				// Add C type conversion if needed (for non-VipsImage outputs)
-				if arg.GoType == "float64" {
-					decls = append(decls, fmt.Sprintf("c%s := (*C.double)(unsafe.Pointer(&%s))",
-						arg.GoName, arg.GoName))
-				} else if arg.GoType == "int" {
-					decls = append(decls, fmt.Sprintf("c%s := (*C.int)(unsafe.Pointer(&%s))",
-						arg.GoName, arg.GoName))
-				} else if arg.GoType == "bool" {
-					decls = append(decls, fmt.Sprintf("c%s := (*C.int)(unsafe.Pointer(&%s))",
-						arg.GoName, arg.GoName))
+				// Use typed C temporaries for scalar outputs to avoid unsafe layout casts.
+				if cType := getOutputScalarCType(arg); cType != "" {
+					decls = append(decls, fmt.Sprintf("c%s := new(%s)", arg.GoName, cType))
 				}
 			}
 		}
@@ -468,24 +537,10 @@ func generateVarDeclarations(op introspection.Operation, withOptions bool) strin
 		// Add variable declarations for supported optional outputs
 		supportedOptionalOutputs := getSupportedOptionalOutputs(op)
 		for _, opt := range supportedOptionalOutputs {
-			// Add C type conversion with nil checks for optional output parameters
-			if opt.GoType == "float64" {
-				decls = append(decls, fmt.Sprintf("var c%s *C.double\n\tif %s != nil {\n\t\tc%s = (*C.double)(unsafe.Pointer(%s))\n\t}",
-					opt.GoName, opt.GoName, opt.GoName, opt.GoName))
-			} else if opt.GoType == "int" {
-				// Use C.gint for libvips gint types to preserve signed values
-				if opt.Type == "gint" {
-					// Add int32 intermediate variable for proper signed conversion
-					decls = append(decls, fmt.Sprintf("var %sInt32 int32", opt.GoName))
-					decls = append(decls, fmt.Sprintf("var c%s *C.gint\n\tif %s != nil {\n\t\tc%s = (*C.gint)(unsafe.Pointer(&%sInt32))\n\t}",
-						opt.GoName, opt.GoName, opt.GoName, opt.GoName))
-				} else {
-					decls = append(decls, fmt.Sprintf("var c%s *C.int\n\tif %s != nil {\n\t\tc%s = (*C.int)(unsafe.Pointer(%s))\n\t}",
-						opt.GoName, opt.GoName, opt.GoName, opt.GoName))
-				}
-			} else if opt.GoType == "bool" {
-				decls = append(decls, fmt.Sprintf("var c%s *C.int\n\tif %s != nil {\n\t\tc%s = (*C.int)(unsafe.Pointer(%s))\n\t}",
-					opt.GoName, opt.GoName, opt.GoName, opt.GoName))
+			// Use typed C temporaries for optional scalar outputs and preserve nil semantics.
+			if cType := getOutputScalarCType(opt); cType != "" {
+				decls = append(decls, fmt.Sprintf("var c%sValue %s\n\tvar c%s *%s\n\tif %s != nil {\n\t\tc%s = &c%sValue\n\t}",
+					opt.GoName, cType, opt.GoName, cType, opt.GoName, opt.GoName, opt.GoName))
 			}
 		}
 	}
