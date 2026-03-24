@@ -6130,17 +6130,24 @@ func vipsgenImageFromBuffer(buf []byte, params *LoadOptions) (*C.VipsImage, erro
 
 // vipsgenImageFromFile vips_image_new_from_file
 func vipsgenImageFromFile(path string, params *LoadOptions) (*C.VipsImage, error) {
-	// Append options to the filename if needed
-	filenameOption := path
-	if params != nil && params.OptionString() != "" {
-		filenameOption += "[" + params.OptionString() + "]"
-	}
-
-	cPath := C.CString(filenameOption)
+	cPath := C.CString(path)
 	defer freeCString(cPath)
 
 	var out *C.VipsImage
-	code := C.vipsgen_image_new_from_file(cPath, &out)
+	var code C.int
+
+	optionString := ""
+	if params != nil {
+		optionString = params.OptionString()
+	}
+
+	if optionString == "" {
+		code = C.vipsgen_image_new_from_file(cPath, &out)
+	} else {
+		cOptionString := C.CString(optionString)
+		defer freeCString(cOptionString)
+		code = C.vipsgen_image_new_from_file_with_option(cPath, &out, cOptionString)
+	}
 
 	if code != 0 {
 		return nil, handleImageError(out)

@@ -4189,3 +4189,77 @@ func TestWriteToMemory_SizeMatchesDimensions(t *testing.T) {
 	assert.Equal(t, height, img.Height())
 	assert.Equal(t, bands, img.Bands())
 }
+
+// TestImageFromFileWithSpecialCharsInName verifies that NewImageFromFile correctly
+// handles filenames containing characters that are special to the libvips filename
+// string parser (commas, brackets, backslashes, apostrophes).
+//
+// libvips uses a "filename[option=value,...]" string format internally. The parser
+// (vips__filename_split8 / vips__find_rightmost_brackets) only splits on a properly
+// matched bracket pair at the END of the string, so most special characters in the
+// middle of a filename are fine. However, filenames that START with a comma or
+// apostrophe confuse the tokenizer and prevent the bracket pair from being detected,
+// which means any appended "[options]" suffix would be silently ignored.
+//
+// The fix: pass the raw filename directly to libvips without any escaping, and use
+// a separate C function (vipsgen_image_new_from_file_with_option) that sets load
+// options via GObject properties rather than appending them to the filename string.
+func TestImageFromFileWithSpecialCharsInName(t *testing.T) {
+	testDir := ensureTestDir(t)
+
+	// Create a small PNG to use as test data
+	pngData := createTestPngBuffer(t, 10, 10)
+
+	testCases := []struct {
+		name     string
+		filename string
+	}{
+		{
+			name:     "comma and apostrophe at start",
+			filename: ",'special.png",
+		},
+		{
+			name:     "brackets in middle",
+			filename: "image[1].png",
+		},
+		{
+			name:     "comma in middle",
+			filename: "image,comma.png",
+		},
+		{
+			name:     "backslash in name",
+			filename: "image\\backslash.png",
+		},
+		{
+			name:     "brackets at start",
+			filename: "[bracket]image.png",
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			filePath := filepath.Join(testDir, tc.filename)
+
+			// Write the PNG data to the file with the special name
+			err := os.WriteFile(filePath, pngData, 0644)
+			require.NoError(t, err, "should be able to create file with special name")
+			defer os.Remove(filePath)
+
+			// Test loading without options
+			img, err := NewImageFromFile(filePath, nil)
+			require.NoError(t, err, "NewImageFromFile should load file with special chars: %s", tc.filename)
+			defer img.Close()
+
+			assert.Equal(t, 10, img.Width(), "width should be 10")
+			assert.Equal(t, 10, img.Height(), "height should be 10")
+
+			// Test loading with options (exercises the with_option C function path)
+			img2, err := NewImageFromFile(filePath, &LoadOptions{FailOnError: true})
+			require.NoError(t, err, "NewImageFromFile with options should load file with special chars: %s", tc.filename)
+			defer img2.Close()
+
+			assert.Equal(t, 10, img2.Width(), "width should be 10 (with options)")
+			assert.Equal(t, 10, img2.Height(), "height should be 10 (with options)")
+		})
+	}
+}
