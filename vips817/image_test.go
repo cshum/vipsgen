@@ -4193,17 +4193,6 @@ func TestWriteToMemory_SizeMatchesDimensions(t *testing.T) {
 // TestImageFromFileWithSpecialCharsInName verifies that NewImageFromFile correctly
 // handles filenames containing characters that are special to the libvips filename
 // string parser (commas, brackets, backslashes, apostrophes).
-//
-// libvips uses a "filename[option=value,...]" string format internally. The parser
-// (vips__filename_split8 / vips__find_rightmost_brackets) only splits on a properly
-// matched bracket pair at the END of the string, so most special characters in the
-// middle of a filename are fine. However, filenames that START with a comma or
-// apostrophe confuse the tokenizer and prevent the bracket pair from being detected,
-// which means any appended "[options]" suffix would be silently ignored.
-//
-// The fix: pass the raw filename directly to libvips without any escaping, and use
-// a separate C function (vipsgen_image_new_from_file_with_option) that sets load
-// options via GObject properties rather than appending them to the filename string.
 func TestImageFromFileWithSpecialCharsInName(t *testing.T) {
 	testDir := ensureTestDir(t)
 
