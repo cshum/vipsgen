@@ -24,7 +24,7 @@ jobs:
             output_dir: "./vips816"
           - vips_version: "8.17.3"
             output_dir: "./vips817"
-          - vips_version: "8.18.0"
+          - vips_version: "8.18.2"
             output_dir: "./vips"
     env:
       CGO_CFLAGS_ALLOW: -Xpreprocessor
@@ -178,7 +178,7 @@ jobs:
       - name: Download vips bindings
         uses: actions/download-artifact@v4
         with:
-          name: bindings-8.18.0
+          name: bindings-8.18.2
           path: vips
 
       - name: Commit generated files
@@ -216,7 +216,7 @@ jobs:
       - name: Download vips bindings
         uses: actions/download-artifact@v4
         with:
-          name: bindings-8.18.0
+          name: bindings-8.18.2
           path: vips
 
       - name: Create Pull Request
