@@ -112,7 +112,7 @@ vipsgen provides pre-generated bindings for the following libvips versions. All 
 
 | Import Path | libvips Version | Use When |
 |-------------|----------------|----------|
-| `github.com/cshum/vipsgen/vips` | 8.18.0 | Latest version (recommended) |
+| `github.com/cshum/vipsgen/vips` | 8.18.2 | Latest version (recommended) |
 | `github.com/cshum/vipsgen/vips817` | 8.17.3 | You have libvips 8.17.x installed |
 | `github.com/cshum/vipsgen/vips816` | 8.16.1 | You have libvips 8.16.x installed |
 
