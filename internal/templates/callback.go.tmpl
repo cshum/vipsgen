@@ -15,12 +15,23 @@ func goLoggingHandler(domain *C.char, level C.int, message *C.char) {
 	log(C.GoString(domain), LogLevel(level), C.GoString(message))
 }
 
+// Source/Target callbacks acquire the matching Source/Target lock before
+// touching reader/writer/seeker fields, returning -1 (read/write error)
+// when a concurrent Close has already nil'd the field. Source.Close /
+// Target.Close hold the same lock through their s.reader = nil /
+// t.writer = nil writes, so libvips never observes torn state.
+
 //export goSourceRead
 func goSourceRead(
 	ptr unsafe.Pointer, buffer unsafe.Pointer, size C.longlong,
 ) C.longlong {
 	source, ok := pointer.Restore(ptr).(*Source)
 	if !ok {
+		return -1
+	}
+	source.lock.Lock()
+	defer source.lock.Unlock()
+	if source.reader == nil {
 		return -1
 	}
 	sh := &reflect.SliceHeader{
@@ -43,12 +54,18 @@ func goSourceSeek(
 	ptr unsafe.Pointer, offset C.longlong, whence int,
 ) C.longlong {
 	source, ok := pointer.Restore(ptr).(*Source)
-	if ok && source.seeker != nil {
-		switch whence {
-		case io.SeekStart, io.SeekCurrent, io.SeekEnd:
-			if n, err := source.seeker.Seek(int64(offset), whence); err == nil {
-				return C.longlong(n)
-			}
+	if !ok {
+		return -1
+	}
+	source.lock.Lock()
+	defer source.lock.Unlock()
+	if source.seeker == nil {
+		return -1
+	}
+	switch whence {
+	case io.SeekStart, io.SeekCurrent, io.SeekEnd:
+		if n, err := source.seeker.Seek(int64(offset), whence); err == nil {
+			return C.longlong(n)
 		}
 	}
 	return -1
@@ -60,6 +77,11 @@ func goTargetWrite(
 ) C.longlong {
 	target, ok := pointer.Restore(ptr).(*Target)
 	if !ok {
+		return -1
+	}
+	target.lock.Lock()
+	defer target.lock.Unlock()
+	if target.writer == nil {
 		return -1
 	}
 	sh := &reflect.SliceHeader{
@@ -80,12 +102,18 @@ func goTargetSeek(
 	ptr unsafe.Pointer, offset C.longlong, whence int,
 ) C.longlong {
 	target, ok := pointer.Restore(ptr).(*Target)
-	if ok && target.seeker != nil {
-		switch whence {
-		case io.SeekStart, io.SeekCurrent, io.SeekEnd:
-			if n, err := target.seeker.Seek(int64(offset), whence); err == nil {
-				return C.longlong(n)
-			}
+	if !ok {
+		return -1
+	}
+	target.lock.Lock()
+	defer target.lock.Unlock()
+	if target.seeker == nil {
+		return -1
+	}
+	switch whence {
+	case io.SeekStart, io.SeekCurrent, io.SeekEnd:
+		if n, err := target.seeker.Seek(int64(offset), whence); err == nil {
+			return C.longlong(n)
 		}
 	}
 	return -1

@@ -37,24 +37,30 @@ func NewSource(reader io.ReadCloser) *Source {
 }
 
 // Close source
+//
+// Holds s.lock through the entire teardown (including the s.reader = nil
+// write) so it cannot race with goSourceRead, which also takes s.lock
+// before reading s.reader. C.clear_source -> g_clear_object only fires
+// GLib dispose/finalize handlers, never the registered "read" signal,
+// so calling it under the Go lock cannot deadlock against an in-flight
+// goSourceRead callback.
 func (s *Source) Close() {
 	if s == nil {
 		return
 	}
 	s.lock.Lock()
-	if s.ptr != nil {
-		C.clear_source(&s.src)
-		pointer.Unref(s.ptr)
-		s.ptr = nil
-		s.lock.Unlock()
-		if s.reader != nil {
-			_ = s.reader.Close()
-			s.reader = nil
-		}
-		log("vipsgen", LogLevelDebug, fmt.Sprintf("closing source %p", s))
-	} else {
-		s.lock.Unlock()
+	defer s.lock.Unlock()
+	if s.ptr == nil {
+		return
 	}
+	C.clear_source(&s.src)
+	pointer.Unref(s.ptr)
+	s.ptr = nil
+	if s.reader != nil {
+		_ = s.reader.Close()
+		s.reader = nil
+	}
+	log("vipsgen", LogLevelDebug, fmt.Sprintf("closing source %p", s))
 }
 
 // Target contains a libvips VipsTargetCustom and manages its lifecycle.
@@ -82,22 +88,25 @@ func NewTarget(writer io.WriteCloser) *Target {
 }
 
 // Close target
+//
+// Symmetric fix to Source.Close: holds t.lock through t.writer = nil so
+// it cannot race with goTargetWrite, which also takes t.lock before
+// reading t.writer.
 func (t *Target) Close() {
 	if t == nil {
 		return
 	}
 	t.lock.Lock()
-	if t.ptr != nil {
-		C.clear_target(&t.target)
-		pointer.Unref(t.ptr)
-		t.ptr = nil
-		t.lock.Unlock()
-		if t.writer != nil {
-			_ = t.writer.Close()
-			t.writer = nil
-		}
-		log("vipsgen", LogLevelDebug, fmt.Sprintf("closing target %p", t))
-	} else {
-		t.lock.Unlock()
+	defer t.lock.Unlock()
+	if t.ptr == nil {
+		return
 	}
+	C.clear_target(&t.target)
+	pointer.Unref(t.ptr)
+	t.ptr = nil
+	if t.writer != nil {
+		_ = t.writer.Close()
+		t.writer = nil
+	}
+	log("vipsgen", LogLevelDebug, fmt.Sprintf("closing target %p", t))
 }
