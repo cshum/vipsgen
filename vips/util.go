@@ -32,6 +32,14 @@ var (
 	isShutdown bool
 )
 
+// errorBufferMu serialises access to the libvips PROCESS-GLOBAL error
+// buffer (vips_error_buffer / vips_error_clear). libvips' error buffer
+// is a static VipsBuf in iofuncs/error.c shared by every thread; without
+// this mutex two failing ops in flight at once can have one goroutine
+// read+clear the buffer while another goroutine's failure is racing to
+// append to it, producing empty error strings on the loser side.
+var errorBufferMu sync.Mutex
+
 type Config struct {
 	ConcurrencyLevel int
 	MaxCacheFiles    int
@@ -210,7 +218,9 @@ func HasOperation(name string) bool {
 	defer freeCString(cName)
 	vop := C.vips_operation_new(cName)
 	if vop == nil {
+		errorBufferMu.Lock()
 		C.vips_error_clear()
+		errorBufferMu.Unlock()
 		return false
 	}
 	if C.is_gobject(unsafe.Pointer(vop)) != 0 {
