@@ -292,6 +292,28 @@ func generateRequiredOutputDeclaration(arg introspection.Argument) string {
 	return fmt.Sprintf("var %s %s", arg.GoName, arg.GoType)
 }
 
+func arrayNeedsLengthParam(arg introspection.Argument) bool {
+	return !arg.IsRequired && (arg.GoType == "[]float64" || arg.GoType == "[]float32" ||
+		arg.GoType == "[]int" || arg.GoType == "[]BlendMode" ||
+		arg.GoType == "[]*C.VipsImage" || arg.GoType == "[]*Image")
+}
+
+func generateArrayInputCallArgs(arg introspection.Argument, withOptions bool) []string {
+	arrayVarName := "c" + arg.GoName
+	argStr := arrayVarName
+
+	if !withOptions && arg.GoType == "[]*C.VipsImage" {
+		argStr = "(**C.VipsImage)(" + arrayVarName + ")"
+	}
+
+	callArgs := []string{argStr}
+	if arrayNeedsLengthParam(arg) {
+		callArgs = append(callArgs, "c"+arg.GoName+"Length")
+	}
+
+	return callArgs
+}
+
 // generateGoArgList formats a list of function arguments for a Go function
 // e.g., "in *C.VipsImage, c []float64, n int"
 func generateGoArgList(op introspection.Operation, withOptions bool) string {
@@ -475,9 +497,6 @@ func generateFunctionCallArgs(op introspection.Operation, withOptions bool) stri
 	}
 	var callArgs []string
 
-	processedArrays := make(map[string]bool)
-	arrayLengths := make(map[string]string)
-
 	for _, arg := range args {
 		var argStr string
 
@@ -523,38 +542,7 @@ func generateFunctionCallArgs(op introspection.Operation, withOptions bool) stri
 				argStr = "C.size_t(len(src))"
 				callArgs = append(callArgs, argStr)
 			} else if strings.HasPrefix(arg.GoType, "[]") {
-				arrayLengths[arg.Name] = fmt.Sprintf("len(%s)", arg.GoName)
-
-				needsLengthParam := false
-				if !arg.IsRequired && (arg.GoType == "[]float64" || arg.GoType == "[]float32" ||
-					arg.GoType == "[]int" || arg.GoType == "[]BlendMode" ||
-					arg.GoType == "[]*C.VipsImage" || arg.GoType == "[]*Image") {
-					needsLengthParam = true
-				}
-
-				processedArrays[arg.Name] = true
-
-				arrayVarName := "c" + arg.GoName
-
-				if withOptions {
-					argStr = arrayVarName
-				} else {
-					if arg.GoType == "[]*C.VipsImage" {
-						argStr = "(**C.VipsImage)(" + arrayVarName + ")"
-					} else if arg.GoType == "[]int" || arg.GoType == "[]BlendMode" {
-						argStr = arrayVarName
-					} else if arg.GoType == "[]float64" || arg.GoType == "[]float32" {
-						argStr = arrayVarName
-					} else {
-						argStr = arrayVarName
-					}
-				}
-				callArgs = append(callArgs, argStr)
-
-				if needsLengthParam {
-					lengthArg := "c" + arg.GoName + "Length"
-					callArgs = append(callArgs, lengthArg)
-				}
+				callArgs = append(callArgs, generateArrayInputCallArgs(arg, withOptions)...)
 			} else if arg.IsEnum {
 				argStr = "C." + arg.Type + "(" + arg.GoName + ")"
 				callArgs = append(callArgs, argStr)
@@ -570,9 +558,6 @@ func generateFunctionCallArgs(op introspection.Operation, withOptions bool) stri
 			}
 		}
 	}
-
-	_ = processedArrays
-	_ = arrayLengths
 
 	if withOptions {
 		supportedOptionalOutputs := getSupportedOptionalOutputs(op)
