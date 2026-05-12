@@ -87,6 +87,21 @@ func generatePostCallScalarConversions(op introspection.Operation, withOptions b
 	return strings.Join(conversions, "\n\t")
 }
 
+func generateOutputErrorReturn(outputs []introspection.Argument, errorExpr string) string {
+	var returnValues []string
+	for _, arg := range outputs {
+		if arg.IsOutputN {
+			continue
+		}
+		if arg.Name == "vector" || arg.Name == "out_array" {
+			returnValues = append(returnValues, "nil")
+		} else {
+			returnValues = append(returnValues, formatDefaultValue(arg.GoType))
+		}
+	}
+	return "return " + strings.Join(returnValues, ", ") + ", " + errorExpr
+}
+
 // generateGoFunctionBody generates the shared body for Go wrapper functions
 func generateGoFunctionBody(op introspection.Operation, withOptions bool) string {
 	var result strings.Builder
@@ -143,19 +158,7 @@ func generateErrorReturn(HasOneImageOutput, hasBufferOutput bool, outputs []intr
 	} else if hasBufferOutput {
 		return "return nil, handleVipsError()"
 	} else if len(outputs) > 0 {
-		var returnValues []string
-		for _, arg := range outputs {
-			// Skip returning the length parameter if it's marked as IsOutputN
-			if arg.IsOutputN {
-				continue
-			}
-			if arg.Name == "vector" || arg.Name == "out_array" {
-				returnValues = append(returnValues, "nil")
-			} else {
-				returnValues = append(returnValues, formatDefaultValue(arg.GoType))
-			}
-		}
-		return "return " + strings.Join(returnValues, ", ") + ", handleVipsError()"
+		return generateOutputErrorReturn(outputs, "handleVipsError()")
 	} else {
 		return "return handleVipsError()"
 	}
@@ -169,15 +172,7 @@ func generateErrorReturnForUtilityCall(op introspection.Operation) string {
 	} else if op.HasBufferOutput {
 		return "return nil, err"
 	} else if len(op.RequiredOutputs) > 0 {
-		var values []string
-		for _, arg := range op.RequiredOutputs {
-			if arg.Name == "vector" || arg.Name == "out_array" {
-				values = append(values, "nil")
-			} else {
-				values = append(values, formatDefaultValue(arg.GoType))
-			}
-		}
-		return "return " + strings.Join(values, ", ") + ", err"
+		return generateOutputErrorReturn(op.RequiredOutputs, "err")
 	} else {
 		return "return err"
 	}
@@ -252,6 +247,30 @@ func generateTypedArrayConversionDeclaration(arg introspection.Argument, errorRe
 		arg.GoName,
 		freeFunc,
 		arg.GoName,
+	)
+}
+
+func generateOptionalOutputCallArg(opt introspection.Argument) string {
+	if getOutputScalarCType(opt) != "" {
+		return "c" + opt.GoName
+	}
+	return "&" + opt.GoName
+}
+
+func generateOptionalOutputDeclaration(opt introspection.Argument) string {
+	cType := getOutputScalarCType(opt)
+	if cType == "" {
+		return ""
+	}
+
+	return fmt.Sprintf("var c%sValue %s\n\tvar c%s *%s\n\tif %s != nil {\n\t\tc%s = &c%sValue\n\t}",
+		opt.GoName,
+		cType,
+		opt.GoName,
+		cType,
+		opt.GoName,
+		opt.GoName,
+		opt.GoName,
 	)
 }
 
@@ -411,9 +430,8 @@ func generateVarDeclarations(op introspection.Operation, withOptions bool) strin
 
 		supportedOptionalOutputs := getSupportedOptionalOutputs(op)
 		for _, opt := range supportedOptionalOutputs {
-			if cType := getOutputScalarCType(opt); cType != "" {
-				decls = append(decls, fmt.Sprintf("var c%sValue %s\n\tvar c%s *%s\n\tif %s != nil {\n\t\tc%s = &c%sValue\n\t}",
-					opt.GoName, cType, opt.GoName, cType, opt.GoName, opt.GoName, opt.GoName))
+			if decl := generateOptionalOutputDeclaration(opt); decl != "" {
+				decls = append(decls, decl)
 			}
 		}
 	}
@@ -547,13 +565,7 @@ func generateFunctionCallArgs(op introspection.Operation, withOptions bool) stri
 	if withOptions {
 		supportedOptionalOutputs := getSupportedOptionalOutputs(op)
 		for _, opt := range supportedOptionalOutputs {
-			var argStr string
-			if opt.GoType == "float64" || opt.GoType == "int" || opt.GoType == "bool" {
-				argStr = "c" + opt.GoName
-			} else {
-				argStr = "&" + opt.GoName
-			}
-			callArgs = append(callArgs, argStr)
+			callArgs = append(callArgs, generateOptionalOutputCallArg(opt))
 		}
 	}
 
