@@ -82,10 +82,6 @@ func (t *templateLoader) ListFiles() ([]string, error) {
 
 		// Only include .tmpl files
 		if strings.HasSuffix(d.Name(), ".tmpl") {
-			// Convert path to be relative to tmplRoot
-			if err != nil {
-				return fmt.Errorf("failed to get relative path: %v", err)
-			}
 			templateFiles = append(templateFiles, path)
 		}
 
@@ -107,16 +103,9 @@ func (t *templateLoader) GenerateFile(templateName, outputFile string, data inte
 		return err
 	}
 
-	// Create output directory if it doesn't exist
-	outputDir := filepath.Dir(outputFile)
-	if err := os.MkdirAll(outputDir, 0755); err != nil {
-		return fmt.Errorf("failed to create output directory: %v", err)
-	}
-
-	// Create output file
-	file, err := os.Create(outputFile)
+	file, err := prepareOutputFile(outputFile)
 	if err != nil {
-		return fmt.Errorf("failed to create output file: %v", err)
+		return err
 	}
 	defer file.Close()
 
@@ -126,6 +115,20 @@ func (t *templateLoader) GenerateFile(templateName, outputFile string, data inte
 	}
 
 	return nil
+}
+
+func prepareOutputFile(outputFile string) (*os.File, error) {
+	outputDir := filepath.Dir(outputFile)
+	if err := os.MkdirAll(outputDir, 0755); err != nil {
+		return nil, fmt.Errorf("failed to create output directory: %v", err)
+	}
+
+	file, err := os.Create(outputFile)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create output file: %v", err)
+	}
+
+	return file, nil
 }
 
 // ExtractEmbeddedFS extracts an embedded filesystem to a directory
