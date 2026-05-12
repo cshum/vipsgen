@@ -93,6 +93,32 @@ func generateImageOutputConversions(outputs []introspection.Argument, resultVars
 	return conversionCode.String()
 }
 
+func generateImageMethodCallLine(resultVars []string, funcName string, callArgs []string) string {
+	return fmt.Sprintf("%s, err := %s(%s)", strings.Join(resultVars, ", "), funcName, strings.Join(callArgs, ", "))
+}
+
+func generateImageMethodSuccessLine(resultVars []string) string {
+	return "return " + strings.Join(resultVars, ", ") + ", nil"
+}
+
+func generateOptionsMultiOutputBody(resultVars []string, funcName string, callArgs []string, errorLine, conversionCode, successLine string) string {
+	return fmt.Sprintf(`if options != nil {
+		%s, err := %s(%s)
+		if err != nil {
+			%s
+		}%s
+		%s
+	}
+	`,
+		strings.Join(resultVars, ", "),
+		funcName,
+		strings.Join(callArgs, ", "),
+		errorLine,
+		conversionCode,
+		successLine,
+	)
+}
+
 // generateImageMethodBody formats the body of an image method using improved argument detection
 func generateImageMethodBody(op introspection.Operation) string {
 	methodArgs := detectMethodArguments(op)
@@ -233,33 +259,16 @@ func generateImageMethodBody(op introspection.Operation) string {
 
 				optionsErrorLine := errorLine
 				optionsConversionCode := generateImageOutputConversions(op.RequiredOutputs, optionsResultVars, "\t\t")
+				optionsSuccessLine := generateImageMethodSuccessLine(optionsResultVars)
 
-				optionsSuccessLine := "return " + strings.Join(optionsResultVars, ", ") + ", nil"
-
-				body = fmt.Sprintf(`if options != nil {
-		%s, err := %s(%s)
-		if err != nil {
-			%s
-		}%s
-		%s
-	}
-	`,
-					strings.Join(resultVars, ", "),
-					goFuncNameWithOptions,
-					strings.Join(optionsCallArgs, ", "),
-					optionsErrorLine,
-					optionsConversionCode,
-					optionsSuccessLine)
+				body = generateOptionsMultiOutputBody(resultVars, goFuncNameWithOptions, optionsCallArgs, optionsErrorLine, optionsConversionCode, optionsSuccessLine)
 			}
 
-			callLine := fmt.Sprintf("%s, err := %s(%s)",
-				strings.Join(resultVars, ", "),
-				goFuncName,
-				strings.Join(callArgs, ", "))
+			callLine := generateImageMethodCallLine(resultVars, goFuncName, callArgs)
 
 			conversionCode := generateImageOutputConversions(op.RequiredOutputs, resultVars, "\t")
 
-			successLine := "return " + strings.Join(resultVars, ", ") + ", nil"
+			successLine := generateImageMethodSuccessLine(resultVars)
 
 			body += callLine + `
 	if err != nil {
@@ -282,28 +291,12 @@ func generateImageMethodBody(op introspection.Operation) string {
 
 			if len(op.OptionalInputs) > 0 {
 				optionsCallArgs := buildImageOptionsCallArgs(callArgs, op.OptionalInputs, nil, imageOptionArgImageField)
-
-				body = fmt.Sprintf(`if options != nil {
-		%s, err := %s(%s)
-		if err != nil {
-			%s
-		}
-		return %s, nil
-	}
-	`,
-					strings.Join(resultVars, ", "),
-					goFuncNameWithOptions,
-					strings.Join(optionsCallArgs, ", "),
-					errorLine,
-					strings.Join(resultVars, ", "))
+				body = generateOptionsMultiOutputBody(resultVars, goFuncNameWithOptions, optionsCallArgs, errorLine, "", generateImageMethodSuccessLine(resultVars))
 			}
 
-			callLine := fmt.Sprintf("%s, err := %s(%s)",
-				strings.Join(resultVars, ", "),
-				goFuncName,
-				strings.Join(callArgs, ", "))
+			callLine := generateImageMethodCallLine(resultVars, goFuncName, callArgs)
 
-			successLine := "return " + strings.Join(resultVars, ", ") + ", nil"
+			successLine := generateImageMethodSuccessLine(resultVars)
 
 			body += callLine + `
 	if err != nil {
