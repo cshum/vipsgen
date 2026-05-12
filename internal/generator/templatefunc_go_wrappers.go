@@ -54,12 +54,16 @@ func generateScalarConversionLine(goType, targetExpr, sourceExpr string) string 
 	}
 }
 
+func isVectorOutputArg(arg introspection.Argument) bool {
+	return arg.Name == "vector" || arg.Name == "out_array"
+}
+
 func generatePostCallScalarConversions(op introspection.Operation, withOptions bool) string {
 	var conversions []string
 
 	if !op.HasOneImageOutput && !op.HasBufferOutput {
 		for _, arg := range op.RequiredOutputs {
-			if arg.Name == "vector" || arg.Name == "out_array" {
+			if isVectorOutputArg(arg) {
 				continue
 			}
 			if getOutputScalarCType(arg) == "" {
@@ -93,7 +97,7 @@ func generateOutputErrorReturn(outputs []introspection.Argument, errorExpr strin
 		if arg.IsOutputN {
 			continue
 		}
-		if arg.Name == "vector" || arg.Name == "out_array" {
+		if isVectorOutputArg(arg) {
 			returnValues = append(returnValues, "nil")
 		} else {
 			returnValues = append(returnValues, formatDefaultValue(arg.GoType))
@@ -257,6 +261,13 @@ func generateOptionalOutputCallArg(opt introspection.Argument) string {
 	return "&" + opt.GoName
 }
 
+func generateRequiredOutputCallArg(arg introspection.Argument) string {
+	if getOutputScalarCType(arg) != "" {
+		return "c" + arg.GoName
+	}
+	return "&" + arg.GoName
+}
+
 func generateOptionalOutputDeclaration(opt introspection.Argument) string {
 	cType := getOutputScalarCType(opt)
 	if cType == "" {
@@ -272,6 +283,13 @@ func generateOptionalOutputDeclaration(opt introspection.Argument) string {
 		opt.GoName,
 		opt.GoName,
 	)
+}
+
+func generateRequiredOutputDeclaration(arg introspection.Argument) string {
+	if isVectorOutputArg(arg) {
+		return "var out *C.double"
+	}
+	return fmt.Sprintf("var %s %s", arg.GoName, arg.GoType)
 }
 
 // generateGoArgList formats a list of function arguments for a Go function
@@ -332,7 +350,7 @@ func generateReturnTypes(op introspection.Operation) string {
 			if arg.IsOutputN {
 				continue
 			}
-			if arg.Name == "vector" || arg.Name == "out_array" {
+			if isVectorOutputArg(arg) {
 				types = append(types, "[]float64")
 			} else {
 				types = append(types, arg.GoType)
@@ -376,10 +394,8 @@ func generateVarDeclarations(op introspection.Operation, withOptions bool) strin
 				decls = append(decls, fmt.Sprintf("var %s *C.VipsBlob", arg.GoName))
 				continue
 			}
-			if arg.Name == "vector" || arg.Name == "out_array" {
-				decls = append(decls, "var out *C.double")
-			} else {
-				decls = append(decls, fmt.Sprintf("var %s %s", arg.GoName, arg.GoName))
+			decls = append(decls, generateRequiredOutputDeclaration(arg))
+			if !isVectorOutputArg(arg) {
 				if cType := getOutputScalarCType(arg); cType != "" {
 					decls = append(decls, fmt.Sprintf("c%s := new(%s)", arg.GoName, cType))
 				}
@@ -472,16 +488,12 @@ func generateFunctionCallArgs(op introspection.Operation, withOptions bool) stri
 				} else {
 					argStr = "c" + arg.GoName
 				}
-			} else if arg.Name == "vector" || arg.Name == "out_array" {
+			} else if isVectorOutputArg(arg) {
 				argStr = "&out"
 			} else if arg.CType == "size_t*" && arg.Name == "len" {
 				argStr = "&length"
 			} else {
-				if arg.GoType == "float64" || arg.GoType == "int" || arg.GoType == "bool" {
-					argStr = "c" + arg.GoName
-				} else {
-					argStr = "&" + arg.GoName
-				}
+				argStr = generateRequiredOutputCallArg(arg)
 			}
 			callArgs = append(callArgs, argStr)
 		} else {
@@ -591,7 +603,7 @@ func generateReturnValues(op introspection.Operation) string {
 			if arg.IsOutputN {
 				continue
 			}
-			if arg.Name == "vector" || arg.Name == "out_array" {
+			if isVectorOutputArg(arg) {
 				nParam := "n"
 				for _, outArg := range op.RequiredOutputs {
 					if outArg.Name == "n" {

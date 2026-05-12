@@ -132,6 +132,27 @@ func TestGenerateCreatorMethodBodyBufferInputSnapshot(t *testing.T) {
 	}
 }
 
+func TestGenerateGoFunctionBodySingleScalarOutputSnapshot(t *testing.T) {
+	op := introspection.Operation{
+		Name:   "avg",
+		GoName: "Avg",
+		Arguments: []introspection.Argument{
+			{Name: "in", GoName: "in", GoType: "*C.VipsImage", CType: "VipsImage*", IsInput: true, IsImage: true},
+			{Name: "out", GoName: "out", GoType: "float64", CType: "double*", IsOutput: true},
+		},
+		RequiredOutputs: []introspection.Argument{
+			{Name: "out", GoName: "out", GoType: "float64", CType: "double*", IsOutput: true},
+		},
+	}
+
+	got := generateGoFunctionBody(op, false)
+	want := "// vipsgenAvg \nfunc vipsgenAvg(in *C.VipsImage) (float64, error) {\n\tvar out float64\n\tcout := new(C.double)\n\tif err := C.vipsgen_avg(in, cout); err != 0 {\n\t\treturn 0, handleVipsError()\n\t}\n\tout = float64(*cout)\n\treturn out, nil\n}"
+
+	if got != want {
+		t.Fatalf("unexpected go wrapper body\n got: %q\nwant: %q", got, want)
+	}
+}
+
 func TestGenerateCFunctionDeclarationBufferLoadWithOptionsSnapshot(t *testing.T) {
 	op := introspection.Operation{
 		Name: "jpegload_buffer",
