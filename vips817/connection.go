@@ -2,14 +2,14 @@
 
 package vips
 
+// #include <stdint.h>
 // #include "connection.h"
 import "C"
 import (
 	"fmt"
-	"github.com/cshum/vipsgen/pointer"
 	"io"
+	"runtime/cgo"
 	"sync"
-	"unsafe"
 )
 
 // Source contains a libvips VipsSourceCustom and manages its lifecycle.
@@ -17,7 +17,7 @@ type Source struct {
 	reader io.ReadCloser
 	seeker io.Seeker
 	src    *C.VipsSourceCustom
-	ptr    unsafe.Pointer
+	handle cgo.Handle
 	lock   sync.Mutex
 }
 
@@ -25,13 +25,13 @@ type Source struct {
 func NewSource(reader io.ReadCloser) *Source {
 	Startup(nil)
 	s := &Source{reader: reader}
-	s.ptr = pointer.Save(s)
+	s.handle = cgo.NewHandle(s)
 	seeker, ok := reader.(io.Seeker)
 	if ok {
 		s.seeker = seeker
-		s.src = C.create_go_custom_source_with_seek(s.ptr)
+		s.src = C.create_go_custom_source_with_seek(C.uintptr_t(s.handle))
 	} else {
-		s.src = C.create_go_custom_source(s.ptr)
+		s.src = C.create_go_custom_source(C.uintptr_t(s.handle))
 	}
 	return s
 }
@@ -42,10 +42,10 @@ func (s *Source) Close() {
 		return
 	}
 	s.lock.Lock()
-	if s.ptr != nil {
+	if s.handle != 0 {
 		C.clear_source(&s.src)
-		pointer.Unref(s.ptr)
-		s.ptr = nil
+		s.handle.Delete()
+		s.handle = 0
 		s.lock.Unlock()
 		if s.reader != nil {
 			_ = s.reader.Close()
@@ -62,7 +62,7 @@ type Target struct {
 	writer io.WriteCloser
 	seeker io.Seeker
 	target *C.VipsTargetCustom
-	ptr    unsafe.Pointer
+	handle cgo.Handle
 	lock   sync.Mutex
 }
 
@@ -70,13 +70,13 @@ type Target struct {
 func NewTarget(writer io.WriteCloser) *Target {
 	Startup(nil)
 	t := &Target{writer: writer}
-	t.ptr = pointer.Save(t)
+	t.handle = cgo.NewHandle(t)
 	seeker, ok := writer.(io.Seeker)
 	if ok {
 		t.seeker = seeker
-		t.target = C.create_go_custom_target_with_seek(t.ptr)
+		t.target = C.create_go_custom_target_with_seek(C.uintptr_t(t.handle))
 	} else {
-		t.target = C.create_go_custom_target(t.ptr)
+		t.target = C.create_go_custom_target(C.uintptr_t(t.handle))
 	}
 	return t
 }
@@ -87,10 +87,10 @@ func (t *Target) Close() {
 		return
 	}
 	t.lock.Lock()
-	if t.ptr != nil {
+	if t.handle != 0 {
 		C.clear_target(&t.target)
-		pointer.Unref(t.ptr)
-		t.ptr = nil
+		t.handle.Delete()
+		t.handle = 0
 		t.lock.Unlock()
 		if t.writer != nil {
 			_ = t.writer.Close()

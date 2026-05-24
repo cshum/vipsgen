@@ -2,11 +2,12 @@
 
 package vips
 
+// #include <stdint.h>
 import "C"
 import (
-	"github.com/cshum/vipsgen/pointer"
 	"io"
 	"reflect"
+	"runtime/cgo"
 	"unsafe"
 )
 
@@ -17,9 +18,9 @@ func goLoggingHandler(domain *C.char, level C.int, message *C.char) {
 
 //export goSourceRead
 func goSourceRead(
-	ptr unsafe.Pointer, buffer unsafe.Pointer, size C.longlong,
+	handle C.uintptr_t, buffer unsafe.Pointer, size C.longlong,
 ) C.longlong {
-	source, ok := pointer.Restore(ptr).(*Source)
+	source, ok := cgo.Handle(handle).Value().(*Source)
 	if !ok {
 		return -1
 	}
@@ -40,9 +41,9 @@ func goSourceRead(
 
 //export goSourceSeek
 func goSourceSeek(
-	ptr unsafe.Pointer, offset C.longlong, whence int,
+	handle C.uintptr_t, offset C.longlong, whence int,
 ) C.longlong {
-	source, ok := pointer.Restore(ptr).(*Source)
+	source, ok := cgo.Handle(handle).Value().(*Source)
 	if ok && source.seeker != nil {
 		switch whence {
 		case io.SeekStart, io.SeekCurrent, io.SeekEnd:
@@ -56,9 +57,9 @@ func goSourceSeek(
 
 //export goTargetWrite
 func goTargetWrite(
-	ptr unsafe.Pointer, buffer unsafe.Pointer, size C.longlong,
+	handle C.uintptr_t, buffer unsafe.Pointer, size C.longlong,
 ) C.longlong {
-	target, ok := pointer.Restore(ptr).(*Target)
+	target, ok := cgo.Handle(handle).Value().(*Target)
 	if !ok {
 		return -1
 	}
@@ -77,9 +78,9 @@ func goTargetWrite(
 
 //export goTargetSeek
 func goTargetSeek(
-	ptr unsafe.Pointer, offset C.longlong, whence int,
+	handle C.uintptr_t, offset C.longlong, whence int,
 ) C.longlong {
-	target, ok := pointer.Restore(ptr).(*Target)
+	target, ok := cgo.Handle(handle).Value().(*Target)
 	if ok && target.seeker != nil {
 		switch whence {
 		case io.SeekStart, io.SeekCurrent, io.SeekEnd:
