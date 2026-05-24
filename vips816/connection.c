@@ -2,53 +2,53 @@
 
 #include "connection.h"
 
-static gint64 go_read(VipsSourceCustom *source_custom, void *buffer, gint64 length, void* ptr)
+static gint64 go_read(VipsSourceCustom *source_custom, void *buffer, gint64 length, uintptr_t handle)
 {
-  return goSourceRead(ptr, buffer, length);
+  return goSourceRead(handle, buffer, length);
 }
 
-static gint64 go_source_seek(VipsSourceCustom *source_custom, gint64 offset, int whence, void* ptr)
+static gint64 go_source_seek(VipsSourceCustom *source_custom, gint64 offset, int whence, uintptr_t handle)
 {
-  return goSourceSeek(ptr, offset, whence);
+  return goSourceSeek(handle, offset, whence);
 }
 
-static gint64 go_write(VipsTargetCustom *target_custom, void *buffer, gint64 length, void* ptr)
+static gint64 go_write(VipsTargetCustom *target_custom, void *buffer, gint64 length, uintptr_t handle)
 {
-  return goTargetWrite(ptr, buffer, length);
+  return goTargetWrite(handle, buffer, length);
 }
 
-static gint64 go_target_seek(VipsTargetCustom *target_custom, gint64 offset, int whence, void* ptr)
+static gint64 go_target_seek(VipsTargetCustom *target_custom, gint64 offset, int whence, uintptr_t handle)
 {
-  return goTargetSeek(ptr, offset, whence);
+  return goTargetSeek(handle, offset, whence);
 }
 
-VipsSourceCustom * create_go_custom_source(void* ptr)
+VipsSourceCustom * create_go_custom_source(uintptr_t handle)
 {
   VipsSourceCustom * source_custom = vips_source_custom_new();
-  g_signal_connect(source_custom, "read", G_CALLBACK(go_read), ptr);
+  g_signal_connect(source_custom, "read", G_CALLBACK(go_read), (gpointer) handle);
   return source_custom;
 }
 
-VipsSourceCustom * create_go_custom_source_with_seek(void* ptr)
+VipsSourceCustom * create_go_custom_source_with_seek(uintptr_t handle)
 {
   VipsSourceCustom * source_custom = vips_source_custom_new();
-  g_signal_connect(source_custom, "read", G_CALLBACK(go_read), ptr);
-  g_signal_connect(source_custom, "seek", G_CALLBACK(go_source_seek), ptr);
+  g_signal_connect(source_custom, "read", G_CALLBACK(go_read), (gpointer) handle);
+  g_signal_connect(source_custom, "seek", G_CALLBACK(go_source_seek), (gpointer) handle);
   return source_custom;
 }
 
-VipsTargetCustom * create_go_custom_target(void* ptr)
+VipsTargetCustom * create_go_custom_target(uintptr_t handle)
 {
   VipsTargetCustom * target_custom = vips_target_custom_new();
-  g_signal_connect(target_custom, "write", G_CALLBACK(go_write), ptr);
+  g_signal_connect(target_custom, "write", G_CALLBACK(go_write), (gpointer) handle);
   return target_custom;
 }
 
-VipsTargetCustom * create_go_custom_target_with_seek(void* ptr)
+VipsTargetCustom * create_go_custom_target_with_seek(uintptr_t handle)
 {
   VipsTargetCustom * target_custom = vips_target_custom_new();
-  g_signal_connect(target_custom, "write", G_CALLBACK(go_write), ptr);
-  g_signal_connect(target_custom, "seek", G_CALLBACK(go_target_seek), ptr);
+  g_signal_connect(target_custom, "write", G_CALLBACK(go_write), (gpointer) handle);
+  g_signal_connect(target_custom, "seek", G_CALLBACK(go_target_seek), (gpointer) handle);
   return target_custom;
 }
 
