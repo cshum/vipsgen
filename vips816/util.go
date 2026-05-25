@@ -33,13 +33,13 @@ var (
 )
 
 type Config struct {
-	ConcurrencyLevel     int
-	MaxCacheFiles        int
-	MaxCacheMem          int
-	MaxCacheSize         int
-	ReportLeaks          bool
-	CacheTrace           bool
-	VectorEnabled        bool
+	ConcurrencyLevel int
+	MaxCacheFiles    int
+	MaxCacheMem      int
+	MaxCacheSize     int
+	ReportLeaks      bool
+	CacheTrace       bool
+	VectorEnabled    bool
 	VectorDisableTargets int64
 }
 
