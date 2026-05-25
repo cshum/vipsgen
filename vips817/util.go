@@ -33,13 +33,14 @@ var (
 )
 
 type Config struct {
-	ConcurrencyLevel int
-	MaxCacheFiles    int
-	MaxCacheMem      int
-	MaxCacheSize     int
-	ReportLeaks      bool
-	CacheTrace       bool
-	VectorEnabled    bool
+	ConcurrencyLevel     int
+	MaxCacheFiles        int
+	MaxCacheMem          int
+	MaxCacheSize         int
+	ReportLeaks          bool
+	CacheTrace           bool
+	VectorEnabled        bool
+	VectorDisableTargets int64
 }
 
 // LogLevel log level
@@ -149,7 +150,9 @@ func startup(config *Config) {
 		C.vips_cache_set_max(0)
 	}
 
-	if config != nil && config.VectorEnabled {
+	if config != nil && config.VectorDisableTargets != 0 {
+		C.vips_vector_disable_targets(C.gint64(config.VectorDisableTargets))
+	} else if config != nil && config.VectorEnabled {
 		C.vips_vector_set_enabled(1)
 	} else {
 		C.vips_vector_set_enabled(0)
