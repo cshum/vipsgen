@@ -26,20 +26,21 @@ const MinorVersion = int(C.VIPS_MINOR_VERSION)
 const MicroVersion = int(C.VIPS_MICRO_VERSION)
 
 var (
-	lock       sync.Mutex
-	once       sync.Once
-	isStarted  bool
-	isShutdown bool
+	lock          sync.Mutex
+	once          sync.Once
+	isStarted     bool
+	isShutdown    bool
+	errorBufferMu sync.Mutex
 )
 
 type Config struct {
-	ConcurrencyLevel int
-	MaxCacheFiles    int
-	MaxCacheMem      int
-	MaxCacheSize     int
-	ReportLeaks      bool
-	CacheTrace       bool
-	VectorEnabled    bool
+	ConcurrencyLevel     int
+	MaxCacheFiles        int
+	MaxCacheMem          int
+	MaxCacheSize         int
+	ReportLeaks          bool
+	CacheTrace           bool
+	VectorEnabled        bool
 	VectorDisableTargets int64
 }
 
@@ -213,7 +214,7 @@ func HasOperation(name string) bool {
 	defer freeCString(cName)
 	vop := C.vips_operation_new(cName)
 	if vop == nil {
-		C.vips_error_clear()
+		clearVipsError()
 		return false
 	}
 	if C.is_gobject(unsafe.Pointer(vop)) != 0 {
@@ -230,10 +231,26 @@ func handleImageError(out *C.VipsImage) error {
 }
 
 func handleVipsError() error {
-	s := C.GoString(C.vips_error_buffer())
-	C.vips_error_clear()
+	s := readVipsError()
+	if s == "" {
+		return fmt.Errorf("vips: empty error buffer")
+	}
 
 	return fmt.Errorf("%v", s)
+}
+
+func clearVipsError() {
+	errorBufferMu.Lock()
+	defer errorBufferMu.Unlock()
+	C.vips_error_clear()
+}
+
+func readVipsError() string {
+	errorBufferMu.Lock()
+	defer errorBufferMu.Unlock()
+	s := C.GoString(C.vips_error_buffer())
+	C.vips_error_clear()
+	return s
 }
 
 func freeCString(s *C.char) {
