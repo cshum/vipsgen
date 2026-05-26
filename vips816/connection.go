@@ -10,9 +10,8 @@ import (
 	"io"
 	"runtime/cgo"
 	"sync"
+	"sync/atomic"
 )
-
-var handleDeletes sync.Map
 
 // Source contains a libvips VipsSourceCustom and manages its lifecycle.
 type Source struct {
@@ -20,13 +19,12 @@ type Source struct {
 	seeker io.Seeker
 	src    *C.VipsSourceCustom
 	handle cgo.Handle
+	deleted atomic.Uint32
 	lock   sync.Mutex
 }
 
 func newSourceHandle(source *Source) cgo.Handle {
-	handle := cgo.NewHandle(source)
-	handleDeletes.Store(uintptr(handle), handle)
-	return handle
+	return cgo.NewHandle(source)
 }
 
 func restoreSource(handle C.uintptr_t) (*Source, bool) {
@@ -37,18 +35,25 @@ func restoreSource(handle C.uintptr_t) (*Source, bool) {
 	return ctx, true
 }
 
-func deleteSourceHandle(handle cgo.Handle) {
-	if handle == 0 {
+
+func (s *Source) deleteHandle(handle cgo.Handle) {
+	if s == nil || handle == 0 {
 		return
 	}
-	if actual, ok := handleDeletes.LoadAndDelete(uintptr(handle)); ok {
-		actual.(cgo.Handle).Delete()
+	if s.deleted.CompareAndSwap(0, 1) {
+		handle.Delete()
 	}
 }
 
 //export goHandleDelete
 func goHandleDelete(handle C.uintptr_t) {
-	deleteSourceHandle(cgo.Handle(handle))
+	if source, ok := restoreSource(handle); ok {
+		source.deleteHandle(cgo.Handle(handle))
+		return
+	}
+	if target, ok := restoreTarget(handle); ok {
+		target.deleteHandle(cgo.Handle(handle))
+	}
 }
 
 // NewSource creates Source from reader
@@ -64,7 +69,7 @@ func NewSource(reader io.ReadCloser) *Source {
 		s.src = C.create_go_custom_source(C.uintptr_t(uintptr(s.handle)))
 	}
 	if s.src == nil {
-		deleteSourceHandle(s.handle)
+		s.deleteHandle(s.handle)
 		s.handle = 0
 	}
 	return s
@@ -86,7 +91,7 @@ func (s *Source) Close() {
 	if s.src != nil {
 		C.clear_source(&s.src)
 	} else {
-		deleteSourceHandle(s.handle)
+		s.deleteHandle(s.handle)
 	}
 	s.handle = 0
 	if reader != nil {
@@ -101,13 +106,12 @@ type Target struct {
 	seeker io.Seeker
 	target *C.VipsTargetCustom
 	handle cgo.Handle
+	deleted atomic.Uint32
 	lock   sync.Mutex
 }
 
 func newTargetHandle(target *Target) cgo.Handle {
-	handle := cgo.NewHandle(target)
-	handleDeletes.Store(uintptr(handle), handle)
-	return handle
+	return cgo.NewHandle(target)
 }
 
 func restoreTarget(handle C.uintptr_t) (*Target, bool) {
@@ -118,12 +122,12 @@ func restoreTarget(handle C.uintptr_t) (*Target, bool) {
 	return ctx, true
 }
 
-func deleteTargetHandle(handle cgo.Handle) {
-	if handle == 0 {
+func (t *Target) deleteHandle(handle cgo.Handle) {
+	if t == nil || handle == 0 {
 		return
 	}
-	if actual, ok := handleDeletes.LoadAndDelete(uintptr(handle)); ok {
-		actual.(cgo.Handle).Delete()
+	if t.deleted.CompareAndSwap(0, 1) {
+		handle.Delete()
 	}
 }
 
@@ -140,7 +144,7 @@ func NewTarget(writer io.WriteCloser) *Target {
 		t.target = C.create_go_custom_target(C.uintptr_t(uintptr(t.handle)))
 	}
 	if t.target == nil {
-		deleteTargetHandle(t.handle)
+		t.deleteHandle(t.handle)
 		t.handle = 0
 	}
 	return t
@@ -162,7 +166,7 @@ func (t *Target) Close() {
 	if t.target != nil {
 		C.clear_target(&t.target)
 	} else {
-		deleteTargetHandle(t.handle)
+		t.deleteHandle(t.handle)
 	}
 	t.handle = 0
 	if writer != nil {
