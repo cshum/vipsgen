@@ -22,9 +22,16 @@ static gint64 go_target_seek(VipsTargetCustom *target_custom, gint64 offset, int
   return goTargetSeek(handle, offset, whence);
 }
 
+static void go_handle_weak_notify(gpointer data, GObject *where_the_object_was)
+{
+  goHandleDelete((uintptr_t) data);
+}
+
 VipsSourceCustom * create_go_custom_source(uintptr_t handle)
 {
   VipsSourceCustom * source_custom = vips_source_custom_new();
+  if (source_custom == NULL) return NULL;
+  g_object_weak_ref(G_OBJECT(source_custom), go_handle_weak_notify, (gpointer) handle);
   g_signal_connect(source_custom, "read", G_CALLBACK(go_read), (gpointer) handle);
   return source_custom;
 }
@@ -32,6 +39,8 @@ VipsSourceCustom * create_go_custom_source(uintptr_t handle)
 VipsSourceCustom * create_go_custom_source_with_seek(uintptr_t handle)
 {
   VipsSourceCustom * source_custom = vips_source_custom_new();
+  if (source_custom == NULL) return NULL;
+  g_object_weak_ref(G_OBJECT(source_custom), go_handle_weak_notify, (gpointer) handle);
   g_signal_connect(source_custom, "read", G_CALLBACK(go_read), (gpointer) handle);
   g_signal_connect(source_custom, "seek", G_CALLBACK(go_source_seek), (gpointer) handle);
   return source_custom;
@@ -40,6 +49,8 @@ VipsSourceCustom * create_go_custom_source_with_seek(uintptr_t handle)
 VipsTargetCustom * create_go_custom_target(uintptr_t handle)
 {
   VipsTargetCustom * target_custom = vips_target_custom_new();
+  if (target_custom == NULL) return NULL;
+  g_object_weak_ref(G_OBJECT(target_custom), go_handle_weak_notify, (gpointer) handle);
   g_signal_connect(target_custom, "write", G_CALLBACK(go_write), (gpointer) handle);
   return target_custom;
 }
@@ -47,6 +58,8 @@ VipsTargetCustom * create_go_custom_target(uintptr_t handle)
 VipsTargetCustom * create_go_custom_target_with_seek(uintptr_t handle)
 {
   VipsTargetCustom * target_custom = vips_target_custom_new();
+  if (target_custom == NULL) return NULL;
+  g_object_weak_ref(G_OBJECT(target_custom), go_handle_weak_notify, (gpointer) handle);
   g_signal_connect(target_custom, "write", G_CALLBACK(go_write), (gpointer) handle);
   g_signal_connect(target_custom, "seek", G_CALLBACK(go_target_seek), (gpointer) handle);
   return target_custom;

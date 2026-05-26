@@ -88,5 +88,10 @@ func executeGenerationPlan(
 }
 
 func shouldSkipTemplate(templateFile string, includeTest bool) bool {
-	return !includeTest && strings.HasSuffix(templateFile, "_test.go.tmpl")
+	if includeTest {
+		return false
+	}
+
+	return strings.HasSuffix(templateFile, "_test.go.tmpl") ||
+		strings.HasSuffix(templateFile, "_race.go.tmpl")
 }

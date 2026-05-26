@@ -41,7 +41,7 @@ func (s *stubTemplateLoader) GenerateFile(templateName, outputFile string, data 
 
 func TestBuildGenerationPlanSkipsTestsWhenDisabled(t *testing.T) {
 	loader := &stubTemplateLoader{
-		listFiles: []string{"a.go.tmpl", "b_test.go.tmpl", "nested/c.go.tmpl"},
+		listFiles: []string{"a.go.tmpl", "b_test.go.tmpl", "helper_race.go.tmpl", "nested/c.go.tmpl"},
 	}
 	outputDir := t.TempDir()
 
@@ -63,7 +63,7 @@ func TestBuildGenerationPlanSkipsTestsWhenDisabled(t *testing.T) {
 
 func TestBuildGenerationPlanIncludesTestsWhenEnabled(t *testing.T) {
 	loader := &stubTemplateLoader{
-		listFiles: []string{"a.go.tmpl", "b_test.go.tmpl"},
+		listFiles: []string{"a.go.tmpl", "b_test.go.tmpl", "helper_race.go.tmpl"},
 	}
 	outputDir := t.TempDir()
 
@@ -72,10 +72,31 @@ func TestBuildGenerationPlanIncludesTestsWhenEnabled(t *testing.T) {
 		t.Fatalf("BuildGenerationPlan returned error: %v", err)
 	}
 
-	got := []string{plan.Tasks[0].OutputFile, plan.Tasks[1].OutputFile}
-	want := []string{filepath.Join(outputDir, "a.go"), filepath.Join(outputDir, "b_test.go")}
+	got := []string{plan.Tasks[0].OutputFile, plan.Tasks[1].OutputFile, plan.Tasks[2].OutputFile}
+	want := []string{filepath.Join(outputDir, "a.go"), filepath.Join(outputDir, "b_test.go"), filepath.Join(outputDir, "helper_race.go")}
 	if !reflect.DeepEqual(got, want) {
 		t.Fatalf("unexpected output files\n got: %#v\nwant: %#v", got, want)
+	}
+}
+
+func TestBuildGenerationPlanSkipsRaceHelpersWhenTestsDisabled(t *testing.T) {
+	loader := &stubTemplateLoader{
+		listFiles: []string{"connection_race.go.tmpl", "connection_race_test.go.tmpl", "core.go.tmpl"},
+	}
+	outputDir := t.TempDir()
+
+	plan, err := BuildGenerationPlan(loader, &TemplateData{}, outputDir)
+	if err != nil {
+		t.Fatalf("BuildGenerationPlan returned error: %v", err)
+	}
+
+	got := plan.Tasks
+	want := []GenerationTask{
+		{TemplateFile: "core.go.tmpl", OutputFile: filepath.Join(outputDir, "core.go")},
+	}
+
+	if !reflect.DeepEqual(got, want) {
+		t.Fatalf("unexpected plan tasks\n got: %#v\nwant: %#v", got, want)
 	}
 }
 
