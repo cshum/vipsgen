@@ -7,7 +7,6 @@ import "C"
 import (
 	"io"
 	"reflect"
-	"runtime/cgo"
 	"unsafe"
 )
 
@@ -20,8 +19,13 @@ func goLoggingHandler(domain *C.char, level C.int, message *C.char) {
 func goSourceRead(
 	handle C.uintptr_t, buffer unsafe.Pointer, size C.longlong,
 ) C.longlong {
-	source, ok := cgo.Handle(handle).Value().(*Source)
+	source, ok := restoreSource(handle)
 	if !ok {
+		return -1
+	}
+	source.lock.Lock()
+	defer source.lock.Unlock()
+	if source.reader == nil {
 		return -1
 	}
 	sh := &reflect.SliceHeader{
@@ -41,15 +45,22 @@ func goSourceRead(
 
 //export goSourceSeek
 func goSourceSeek(
-	handle C.uintptr_t, offset C.longlong, whence int,
+	handle C.uintptr_t, offset C.longlong, whence C.int,
 ) C.longlong {
-	source, ok := cgo.Handle(handle).Value().(*Source)
-	if ok && source.seeker != nil {
-		switch whence {
-		case io.SeekStart, io.SeekCurrent, io.SeekEnd:
-			if n, err := source.seeker.Seek(int64(offset), whence); err == nil {
-				return C.longlong(n)
-			}
+	source, ok := restoreSource(handle)
+	if !ok {
+		return -1
+	}
+	source.lock.Lock()
+	defer source.lock.Unlock()
+	if source.seeker == nil {
+		return -1
+	}
+	seekWhence := int(whence)
+	switch seekWhence {
+	case io.SeekStart, io.SeekCurrent, io.SeekEnd:
+		if n, err := source.seeker.Seek(int64(offset), seekWhence); err == nil {
+			return C.longlong(n)
 		}
 	}
 	return -1
@@ -59,8 +70,13 @@ func goSourceSeek(
 func goTargetWrite(
 	handle C.uintptr_t, buffer unsafe.Pointer, size C.longlong,
 ) C.longlong {
-	target, ok := cgo.Handle(handle).Value().(*Target)
+	target, ok := restoreTarget(handle)
 	if !ok {
+		return -1
+	}
+	target.lock.Lock()
+	defer target.lock.Unlock()
+	if target.writer == nil {
 		return -1
 	}
 	sh := &reflect.SliceHeader{
@@ -78,15 +94,22 @@ func goTargetWrite(
 
 //export goTargetSeek
 func goTargetSeek(
-	handle C.uintptr_t, offset C.longlong, whence int,
+	handle C.uintptr_t, offset C.longlong, whence C.int,
 ) C.longlong {
-	target, ok := cgo.Handle(handle).Value().(*Target)
-	if ok && target.seeker != nil {
-		switch whence {
-		case io.SeekStart, io.SeekCurrent, io.SeekEnd:
-			if n, err := target.seeker.Seek(int64(offset), whence); err == nil {
-				return C.longlong(n)
-			}
+	target, ok := restoreTarget(handle)
+	if !ok {
+		return -1
+	}
+	target.lock.Lock()
+	defer target.lock.Unlock()
+	if target.seeker == nil {
+		return -1
+	}
+	seekWhence := int(whence)
+	switch seekWhence {
+	case io.SeekStart, io.SeekCurrent, io.SeekEnd:
+		if n, err := target.seeker.Seek(int64(offset), seekWhence); err == nil {
+			return C.longlong(n)
 		}
 	}
 	return -1

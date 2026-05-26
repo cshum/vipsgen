@@ -8,11 +8,13 @@ extern long long goSourceRead(uintptr_t, void *, long long);
 extern long long goSourceSeek(uintptr_t, long long, int);
 extern long long goTargetWrite(uintptr_t, void *, long long);
 extern long long goTargetSeek(uintptr_t, long long, int);
+extern void goHandleDelete(uintptr_t);
 
 static gint64 go_read(VipsSourceCustom *source_custom, void *buffer, gint64 length, uintptr_t handle);
 static gint64 go_source_seek(VipsSourceCustom *source_custom, gint64 offset, int whence, uintptr_t handle);
 static gint64 go_write(VipsTargetCustom *target_custom, void *buffer, gint64 length, uintptr_t handle);
 static gint64 go_target_seek(VipsTargetCustom *target_custom, gint64 offset, int whence, uintptr_t handle);
+static void go_handle_weak_notify(gpointer data, GObject *where_the_object_was);
 
 VipsSourceCustom * create_go_custom_source(uintptr_t handle);
 VipsSourceCustom * create_go_custom_source_with_seek(uintptr_t handle);

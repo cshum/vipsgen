@@ -12,6 +12,8 @@ import (
 	"sync"
 )
 
+var handleDeletes sync.Map
+
 // Source contains a libvips VipsSourceCustom and manages its lifecycle.
 type Source struct {
 	reader io.ReadCloser
@@ -21,17 +23,49 @@ type Source struct {
 	lock   sync.Mutex
 }
 
+func newSourceHandle(source *Source) cgo.Handle {
+	handle := cgo.NewHandle(source)
+	handleDeletes.Store(uintptr(handle), handle)
+	return handle
+}
+
+func restoreSource(handle C.uintptr_t) (*Source, bool) {
+	ctx, ok := cgo.Handle(handle).Value().(*Source)
+	if !ok {
+		return nil, false
+	}
+	return ctx, true
+}
+
+func deleteSourceHandle(handle cgo.Handle) {
+	if handle == 0 {
+		return
+	}
+	if actual, ok := handleDeletes.LoadAndDelete(uintptr(handle)); ok {
+		actual.(cgo.Handle).Delete()
+	}
+}
+
+//export goHandleDelete
+func goHandleDelete(handle C.uintptr_t) {
+	deleteSourceHandle(cgo.Handle(handle))
+}
+
 // NewSource creates Source from reader
 func NewSource(reader io.ReadCloser) *Source {
 	Startup(nil)
 	s := &Source{reader: reader}
-	s.handle = cgo.NewHandle(s)
+	s.handle = newSourceHandle(s)
 	seeker, ok := reader.(io.Seeker)
 	if ok {
 		s.seeker = seeker
-		s.src = C.create_go_custom_source_with_seek(C.uintptr_t(s.handle))
+		s.src = C.create_go_custom_source_with_seek(C.uintptr_t(uintptr(s.handle)))
 	} else {
-		s.src = C.create_go_custom_source(C.uintptr_t(s.handle))
+		s.src = C.create_go_custom_source(C.uintptr_t(uintptr(s.handle)))
+	}
+	if s.src == nil {
+		deleteSourceHandle(s.handle)
+		s.handle = 0
 	}
 	return s
 }
@@ -42,19 +76,23 @@ func (s *Source) Close() {
 		return
 	}
 	s.lock.Lock()
-	if s.handle != 0 {
-		C.clear_source(&s.src)
-		s.handle.Delete()
-		s.handle = 0
-		s.lock.Unlock()
-		if s.reader != nil {
-			_ = s.reader.Close()
-			s.reader = nil
-		}
-		log("vipsgen", LogLevelDebug, fmt.Sprintf("closing source %p", s))
-	} else {
-		s.lock.Unlock()
+	defer s.lock.Unlock()
+	if s.src == nil && s.reader == nil && s.handle == 0 {
+		return
 	}
+	reader := s.reader
+	s.reader = nil
+	s.seeker = nil
+	if s.src != nil {
+		C.clear_source(&s.src)
+	} else {
+		deleteSourceHandle(s.handle)
+	}
+	s.handle = 0
+	if reader != nil {
+		_ = reader.Close()
+	}
+	log("vipsgen", LogLevelDebug, fmt.Sprintf("closing source %p", s))
 }
 
 // Target contains a libvips VipsTargetCustom and manages its lifecycle.
@@ -66,17 +104,44 @@ type Target struct {
 	lock   sync.Mutex
 }
 
+func newTargetHandle(target *Target) cgo.Handle {
+	handle := cgo.NewHandle(target)
+	handleDeletes.Store(uintptr(handle), handle)
+	return handle
+}
+
+func restoreTarget(handle C.uintptr_t) (*Target, bool) {
+	ctx, ok := cgo.Handle(handle).Value().(*Target)
+	if !ok {
+		return nil, false
+	}
+	return ctx, true
+}
+
+func deleteTargetHandle(handle cgo.Handle) {
+	if handle == 0 {
+		return
+	}
+	if actual, ok := handleDeletes.LoadAndDelete(uintptr(handle)); ok {
+		actual.(cgo.Handle).Delete()
+	}
+}
+
 // NewTarget creates Target from writer
 func NewTarget(writer io.WriteCloser) *Target {
 	Startup(nil)
 	t := &Target{writer: writer}
-	t.handle = cgo.NewHandle(t)
+	t.handle = newTargetHandle(t)
 	seeker, ok := writer.(io.Seeker)
 	if ok {
 		t.seeker = seeker
-		t.target = C.create_go_custom_target_with_seek(C.uintptr_t(t.handle))
+		t.target = C.create_go_custom_target_with_seek(C.uintptr_t(uintptr(t.handle)))
 	} else {
-		t.target = C.create_go_custom_target(C.uintptr_t(t.handle))
+		t.target = C.create_go_custom_target(C.uintptr_t(uintptr(t.handle)))
+	}
+	if t.target == nil {
+		deleteTargetHandle(t.handle)
+		t.handle = 0
 	}
 	return t
 }
@@ -87,17 +152,21 @@ func (t *Target) Close() {
 		return
 	}
 	t.lock.Lock()
-	if t.handle != 0 {
-		C.clear_target(&t.target)
-		t.handle.Delete()
-		t.handle = 0
-		t.lock.Unlock()
-		if t.writer != nil {
-			_ = t.writer.Close()
-			t.writer = nil
-		}
-		log("vipsgen", LogLevelDebug, fmt.Sprintf("closing target %p", t))
-	} else {
-		t.lock.Unlock()
+	defer t.lock.Unlock()
+	if t.target == nil && t.writer == nil && t.handle == 0 {
+		return
 	}
+	writer := t.writer
+	t.writer = nil
+	t.seeker = nil
+	if t.target != nil {
+		C.clear_target(&t.target)
+	} else {
+		deleteTargetHandle(t.handle)
+	}
+	t.handle = 0
+	if writer != nil {
+		_ = writer.Close()
+	}
+	log("vipsgen", LogLevelDebug, fmt.Sprintf("closing target %p", t))
 }

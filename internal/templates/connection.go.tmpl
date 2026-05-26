@@ -12,6 +12,8 @@ import (
 	"sync"
 )
 
+var handleDeletes sync.Map
+
 // Source contains a libvips VipsSourceCustom and manages its lifecycle.
 type Source struct {
 	reader io.ReadCloser
@@ -22,7 +24,9 @@ type Source struct {
 }
 
 func newSourceHandle(source *Source) cgo.Handle {
-	return cgo.NewHandle(source)
+	handle := cgo.NewHandle(source)
+	handleDeletes.Store(uintptr(handle), handle)
+	return handle
 }
 
 func restoreSource(handle C.uintptr_t) (*Source, bool) {
@@ -37,7 +41,9 @@ func deleteSourceHandle(handle cgo.Handle) {
 	if handle == 0 {
 		return
 	}
-	handle.Delete()
+	if actual, ok := handleDeletes.LoadAndDelete(uintptr(handle)); ok {
+		actual.(cgo.Handle).Delete()
+	}
 }
 
 //export goHandleDelete
@@ -57,6 +63,10 @@ func NewSource(reader io.ReadCloser) *Source {
 	} else {
 		s.src = C.create_go_custom_source(C.uintptr_t(uintptr(s.handle)))
 	}
+	if s.src == nil {
+		deleteSourceHandle(s.handle)
+		s.handle = 0
+	}
 	return s
 }
 
@@ -67,13 +77,17 @@ func (s *Source) Close() {
 	}
 	s.lock.Lock()
 	defer s.lock.Unlock()
-	if s.src == nil {
+	if s.src == nil && s.reader == nil && s.handle == 0 {
 		return
 	}
 	reader := s.reader
 	s.reader = nil
 	s.seeker = nil
-	C.clear_source(&s.src)
+	if s.src != nil {
+		C.clear_source(&s.src)
+	} else {
+		deleteSourceHandle(s.handle)
+	}
 	s.handle = 0
 	if reader != nil {
 		_ = reader.Close()
@@ -91,7 +105,9 @@ type Target struct {
 }
 
 func newTargetHandle(target *Target) cgo.Handle {
-	return cgo.NewHandle(target)
+	handle := cgo.NewHandle(target)
+	handleDeletes.Store(uintptr(handle), handle)
+	return handle
 }
 
 func restoreTarget(handle C.uintptr_t) (*Target, bool) {
@@ -106,7 +122,9 @@ func deleteTargetHandle(handle cgo.Handle) {
 	if handle == 0 {
 		return
 	}
-	handle.Delete()
+	if actual, ok := handleDeletes.LoadAndDelete(uintptr(handle)); ok {
+		actual.(cgo.Handle).Delete()
+	}
 }
 
 // NewTarget creates Target from writer
@@ -121,6 +139,10 @@ func NewTarget(writer io.WriteCloser) *Target {
 	} else {
 		t.target = C.create_go_custom_target(C.uintptr_t(uintptr(t.handle)))
 	}
+	if t.target == nil {
+		deleteTargetHandle(t.handle)
+		t.handle = 0
+	}
 	return t
 }
 
@@ -131,13 +153,17 @@ func (t *Target) Close() {
 	}
 	t.lock.Lock()
 	defer t.lock.Unlock()
-	if t.target == nil {
+	if t.target == nil && t.writer == nil && t.handle == 0 {
 		return
 	}
 	writer := t.writer
 	t.writer = nil
 	t.seeker = nil
-	C.clear_target(&t.target)
+	if t.target != nil {
+		C.clear_target(&t.target)
+	} else {
+		deleteTargetHandle(t.handle)
+	}
 	t.handle = 0
 	if writer != nil {
 		_ = writer.Close()
