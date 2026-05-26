@@ -49,6 +49,10 @@ int vipsgen_set_int(VipsOperation *operation, const char *name, int value) {
     return 0;
 }
 
+int vipsgen_set_int_allow_zero(VipsOperation *operation, const char *name, int value) {
+  return vips_object_set(VIPS_OBJECT(operation), name, value, NULL);
+}
+
 // vipsgen_set_keep passes the keep flag to libvips.
 // Go Keep(0) is the zero value meaning "not set" — skip and let libvips use its default.
 // Go KeepNone (-1) maps to C VIPS_FOREIGN_KEEP_NONE (0), explicitly stripping all metadata.
@@ -1746,7 +1750,7 @@ int vipsgen_heifsave_with_options(VipsImage* in, const char* filename, gint Q, g
         vipsgen_set_int(operation, "bitdepth", bitdepth) ||
         vipsgen_set_bool(operation, "lossless", lossless) ||
         vipsgen_set_int(operation, "compression", compression) ||
-        vipsgen_set_int(operation, "effort", effort) ||
+        vipsgen_set_int_allow_zero(operation, "effort", effort) ||
         vipsgen_set_int(operation, "subsample_mode", subsample_mode) ||
         vipsgen_set_int(operation, "encoder", encoder) ||
         vipsgen_set_keep(operation, keep) ||
@@ -1778,7 +1782,7 @@ int vipsgen_heifsave_buffer_with_options(VipsImage* in, void** buf, size_t* len,
         vipsgen_set_int(operation, "bitdepth", bitdepth) ||
         vipsgen_set_bool(operation, "lossless", lossless) ||
         vipsgen_set_int(operation, "compression", compression) ||
-        vipsgen_set_int(operation, "effort", effort) ||
+        vipsgen_set_int_allow_zero(operation, "effort", effort) ||
         vipsgen_set_int(operation, "subsample_mode", subsample_mode) ||
         vipsgen_set_int(operation, "encoder", encoder) ||
         vipsgen_set_keep(operation, keep) ||
@@ -1811,7 +1815,7 @@ int vipsgen_heifsave_target_with_options(VipsImage* in, VipsTargetCustom* target
         vipsgen_set_int(operation, "bitdepth", bitdepth) ||
         vipsgen_set_bool(operation, "lossless", lossless) ||
         vipsgen_set_int(operation, "compression", compression) ||
-        vipsgen_set_int(operation, "effort", effort) ||
+        vipsgen_set_int_allow_zero(operation, "effort", effort) ||
         vipsgen_set_int(operation, "subsample_mode", subsample_mode) ||
         vipsgen_set_int(operation, "encoder", encoder) ||
         vipsgen_set_keep(operation, keep) ||
@@ -5635,7 +5639,7 @@ int vipsgen_webpsave_with_options(VipsImage* in, const char* filename, gint Q, g
         vipsgen_set_bool(operation, "min_size", min_size) ||
         vipsgen_set_int(operation, "kmin", kmin) ||
         vipsgen_set_int(operation, "kmax", kmax) ||
-        vipsgen_set_int(operation, "effort", effort) ||
+        vipsgen_set_int_allow_zero(operation, "effort", effort) ||
         vipsgen_set_int(operation, "target_size", target_size) ||
         vipsgen_set_bool(operation, "mixed", mixed) ||
         vipsgen_set_bool(operation, "smart_deblock", smart_deblock) ||
@@ -5674,7 +5678,7 @@ int vipsgen_webpsave_buffer_with_options(VipsImage* in, void** buf, size_t* len,
         vipsgen_set_bool(operation, "min_size", min_size) ||
         vipsgen_set_int(operation, "kmin", kmin) ||
         vipsgen_set_int(operation, "kmax", kmax) ||
-        vipsgen_set_int(operation, "effort", effort) ||
+        vipsgen_set_int_allow_zero(operation, "effort", effort) ||
         vipsgen_set_int(operation, "target_size", target_size) ||
         vipsgen_set_bool(operation, "mixed", mixed) ||
         vipsgen_set_bool(operation, "smart_deblock", smart_deblock) ||
@@ -5714,7 +5718,7 @@ int vipsgen_webpsave_target_with_options(VipsImage* in, VipsTargetCustom* target
         vipsgen_set_bool(operation, "min_size", min_size) ||
         vipsgen_set_int(operation, "kmin", kmin) ||
         vipsgen_set_int(operation, "kmax", kmax) ||
-        vipsgen_set_int(operation, "effort", effort) ||
+        vipsgen_set_int_allow_zero(operation, "effort", effort) ||
         vipsgen_set_int(operation, "target_size", target_size) ||
         vipsgen_set_bool(operation, "mixed", mixed) ||
         vipsgen_set_bool(operation, "smart_deblock", smart_deblock) ||
