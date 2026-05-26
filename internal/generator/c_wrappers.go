@@ -7,6 +7,20 @@ import (
 	"github.com/cshum/vipsgen/internal/introspection"
 )
 
+func shouldAllowZeroEffort(op introspection.Operation, opt introspection.Argument) bool {
+	if opt.GoType != "int" || opt.Name != "effort" {
+		return false
+	}
+
+	switch op.Name {
+	case "heifsave", "heifsave_buffer", "heifsave_target",
+		"webpsave", "webpsave_buffer", "webpsave_mime", "webpsave_target":
+		return true
+	default:
+		return false
+	}
+}
+
 // generateCFunctionSignature generates just the function signature for vips operations
 func generateCFunctionSignature(op introspection.Operation, includeParamNames bool) string {
 	var result strings.Builder
@@ -248,8 +262,12 @@ func generateCFunctionImplementation(op introspection.Operation) string {
 				allParamsList = append(allParamsList,
 					fmt.Sprintf("vipsgen_set_target(operation, \"%s\", %s)", opt.Name, opt.Name))
 			} else if opt.GoType == "int" {
+				helper := "vipsgen_set_int"
+				if shouldAllowZeroEffort(op, opt) {
+					helper = "vipsgen_set_int_allow_zero"
+				}
 				allParamsList = append(allParamsList,
-					fmt.Sprintf("vipsgen_set_int(operation, \"%s\", %s)", opt.Name, opt.Name))
+					fmt.Sprintf("%s(operation, \"%s\", %s)", helper, opt.Name, opt.Name))
 			} else if opt.GoType == "float64" {
 				allParamsList = append(allParamsList,
 					fmt.Sprintf("vipsgen_set_double(operation, \"%s\", %s)", opt.Name, opt.Name))

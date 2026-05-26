@@ -49,6 +49,10 @@ int vipsgen_set_int(VipsOperation *operation, const char *name, int value) {
     return 0;
 }
 
+int vipsgen_set_int_allow_zero(VipsOperation *operation, const char *name, int value) {
+  return vips_object_set(VIPS_OBJECT(operation), name, value, NULL);
+}
+
 // vipsgen_set_keep passes the keep flag to libvips.
 // Go Keep(0) is the zero value meaning "not set" — skip and let libvips use its default.
 // Go KeepNone (-1) maps to C VIPS_FOREIGN_KEEP_NONE (0), explicitly stripping all metadata.
