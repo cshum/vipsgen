@@ -110,11 +110,11 @@ func main() {
 
 vipsgen provides pre-generated bindings for the following libvips versions. All packages use the same `vips` package name and API - only the import path differs.
 
-| Import Path | libvips Version | Use When |
-|-------------|----------------|----------|
-| `github.com/cshum/vipsgen/vips` | 8.18.5 | Latest version |
-| `github.com/cshum/vipsgen/vips817` | 8.17.3 | You have libvips 8.17.x installed |
-| `github.com/cshum/vipsgen/vips816` | 8.16.1 | You have libvips 8.16.x installed |
+| Import Path | libvips Version |
+|-------------|----------------|
+| `github.com/cshum/vipsgen/vips` | 8.18.x |
+| `github.com/cshum/vipsgen/vips817` | 8.17.x |
+| `github.com/cshum/vipsgen/vips816` | 8.16.x |
 
 **Important:** Only import ONE of these packages in your project. Choose based on your installed libvips version.
 
