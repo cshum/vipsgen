@@ -10054,7 +10054,12 @@ type LoadOptions struct {
 	Dpi int
 	// Autorotate Rotate image using exif orientation
 	Autorotate bool
-	// FailOnError Fail on first error
+	// FailOn is the error level to fail on (none/truncated/error/warning).
+	// When both FailOn and FailOnError are set, libvips ignores the
+	// deprecated "fail" boolean and uses fail_on.
+	FailOn FailOn
+	// FailOnError Fail on first error. Deprecated: maps to the libvips
+	// "fail" boolean, which libvips remaps to fail_on=warning. Prefer FailOn.
 	FailOnError bool
 	// Shrink Shrink factor for jpeg load
 	Shrink int
@@ -10086,6 +10091,16 @@ func (i *LoadOptions) OptionString() string {
 	}
 	if v := i.Dpi; v != 0 {
 		values = append(values, "dpi="+strconv.Itoa(v))
+	}
+	if v := i.FailOn; v != FailOnNone {
+		switch v {
+		case FailOnTruncated:
+			values = append(values, "fail_on=truncated")
+		case FailOnError:
+			values = append(values, "fail_on=error")
+		case FailOnWarning:
+			values = append(values, "fail_on=warning")
+		}
 	}
 	if v := i.FailOnError; v {
 		values = append(values, "fail="+boolToStr(v))
