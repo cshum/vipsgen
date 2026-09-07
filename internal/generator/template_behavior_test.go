@@ -252,3 +252,51 @@ func TestGenerateCFunctionImplementationPngSaveKeepsZeroAsUnsetSnapshot(t *testi
 		t.Fatalf("unexpected pngsave C function implementation\n got: %q\nwant: %q", got, want)
 	}
 }
+
+func TestGenerateCFunctionImplementationPngSaveAllowsZeroCompressionSnapshot(t *testing.T) {
+	op := introspection.Operation{
+		Name: "pngsave",
+		Arguments: []introspection.Argument{
+			{Name: "in", CType: "VipsImage*", GoType: "*C.VipsImage", IsInput: true, IsImage: true},
+			{Name: "filename", CType: "char*", GoType: "string", IsInput: true},
+		},
+		RequiredInputs: []introspection.Argument{
+			{Name: "in", CType: "VipsImage*", GoType: "*C.VipsImage", IsInput: true, IsImage: true},
+			{Name: "filename", CType: "char*", GoType: "string", IsInput: true},
+		},
+		OptionalInputs: []introspection.Argument{
+			{Name: "compression", CType: "int", GoType: "int"},
+		},
+	}
+
+	got := generateCFunctionImplementation(op)
+	want := "int vipsgen_pngsave(VipsImage* in, char* filename) {\n    return vips_pngsave(in, filename, NULL);\n}\n\nint vipsgen_pngsave_with_options(VipsImage* in, char* filename, int compression) {\n    VipsOperation *operation = vips_operation_new(\"pngsave\");\n    if (!operation) return 1;\n    if (\n        vips_object_set(VIPS_OBJECT(operation), \"in\", in, NULL) ||\n        vips_object_set(VIPS_OBJECT(operation), \"filename\", filename, NULL) ||\n        vipsgen_set_int_allow_zero(operation, \"compression\", compression)\n    ) {\n        g_object_unref(operation);\n        return 1;\n    }\n    int result = vipsgen_operation_execute(operation, NULL);\n    return result;\n}"
+
+	if got != want {
+		t.Fatalf("unexpected pngsave C function implementation\n got: %q\nwant: %q", got, want)
+	}
+}
+
+func TestGenerateCFunctionImplementationDzSaveKeepsZeroAsUnsetSnapshot(t *testing.T) {
+	op := introspection.Operation{
+		Name: "dzsave",
+		Arguments: []introspection.Argument{
+			{Name: "in", CType: "VipsImage*", GoType: "*C.VipsImage", IsInput: true, IsImage: true},
+			{Name: "filename", CType: "char*", GoType: "string", IsInput: true},
+		},
+		RequiredInputs: []introspection.Argument{
+			{Name: "in", CType: "VipsImage*", GoType: "*C.VipsImage", IsInput: true, IsImage: true},
+			{Name: "filename", CType: "char*", GoType: "string", IsInput: true},
+		},
+		OptionalInputs: []introspection.Argument{
+			{Name: "compression", CType: "int", GoType: "int"},
+		},
+	}
+
+	got := generateCFunctionImplementation(op)
+	want := "int vipsgen_dzsave(VipsImage* in, char* filename) {\n    return vips_dzsave(in, filename, NULL);\n}\n\nint vipsgen_dzsave_with_options(VipsImage* in, char* filename, int compression) {\n    VipsOperation *operation = vips_operation_new(\"dzsave\");\n    if (!operation) return 1;\n    if (\n        vips_object_set(VIPS_OBJECT(operation), \"in\", in, NULL) ||\n        vips_object_set(VIPS_OBJECT(operation), \"filename\", filename, NULL) ||\n        vipsgen_set_int(operation, \"compression\", compression)\n    ) {\n        g_object_unref(operation);\n        return 1;\n    }\n    int result = vipsgen_operation_execute(operation, NULL);\n    return result;\n}"
+
+	if got != want {
+		t.Fatalf("unexpected dzsave C function implementation\n got: %q\nwant: %q", got, want)
+	}
+}
