@@ -3906,7 +3906,7 @@ int vipsgen_pngsave_with_options(VipsImage* in, const char* filename, gint compr
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "filename", filename, NULL) ||
-        vipsgen_set_int(operation, "compression", compression) ||
+        vipsgen_set_int_allow_zero(operation, "compression", compression) ||
         vipsgen_set_bool(operation, "interlace", interlace) ||
         vipsgen_set_int(operation, "filter", filter) ||
         vipsgen_set_bool(operation, "palette", palette) ||
@@ -3939,7 +3939,7 @@ int vipsgen_pngsave_buffer_with_options(VipsImage* in, void** buf, size_t* len, 
     if (background != NULL && background_n > 0) { background_array = vips_array_double_new(background, background_n); }
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
-        vipsgen_set_int(operation, "compression", compression) ||
+        vipsgen_set_int_allow_zero(operation, "compression", compression) ||
         vipsgen_set_bool(operation, "interlace", interlace) ||
         vipsgen_set_int(operation, "filter", filter) ||
         vipsgen_set_bool(operation, "palette", palette) ||
@@ -3973,7 +3973,7 @@ int vipsgen_pngsave_target_with_options(VipsImage* in, VipsTargetCustom* target,
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "target", (VipsTarget*)target, NULL) ||
-        vipsgen_set_int(operation, "compression", compression) ||
+        vipsgen_set_int_allow_zero(operation, "compression", compression) ||
         vipsgen_set_bool(operation, "interlace", interlace) ||
         vipsgen_set_int(operation, "filter", filter) ||
         vipsgen_set_bool(operation, "palette", palette) ||
