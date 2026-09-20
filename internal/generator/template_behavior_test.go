@@ -300,3 +300,61 @@ func TestGenerateCFunctionImplementationDzSaveKeepsZeroAsUnsetSnapshot(t *testin
 		t.Fatalf("unexpected dzsave C function implementation\n got: %q\nwant: %q", got, want)
 	}
 }
+
+func TestGenerateCFunctionImplementationIccTransformAllowsZeroIntentSnapshot(t *testing.T) {
+	op := introspection.Operation{
+		Name: "icc_transform",
+		Arguments: []introspection.Argument{
+			{Name: "in", CType: "VipsImage*", GoType: "*C.VipsImage", IsInput: true, IsImage: true},
+			{Name: "out", CType: "VipsImage**", GoType: "*C.VipsImage", IsOutput: true},
+			{Name: "output_profile", CType: "char*", GoType: "string", IsInput: true},
+		},
+		RequiredInputs: []introspection.Argument{
+			{Name: "in", CType: "VipsImage*", GoType: "*C.VipsImage", IsInput: true, IsImage: true},
+			{Name: "output_profile", CType: "char*", GoType: "string", IsInput: true},
+		},
+		RequiredOutputs: []introspection.Argument{
+			{Name: "out", CType: "VipsImage**", GoType: "*C.VipsImage", IsOutput: true},
+		},
+		OptionalInputs: []introspection.Argument{
+			{Name: "pcs", CType: "VipsPCS", GoType: "PCS", IsEnum: true, EnumType: "PCS"},
+			{Name: "intent", CType: "VipsIntent", GoType: "Intent", IsEnum: true, EnumType: "Intent"},
+			{Name: "depth", CType: "int", GoType: "int"},
+		},
+	}
+
+	got := generateCFunctionImplementation(op)
+	want := "int vipsgen_icc_transform(VipsImage* in, VipsImage** out, char* output_profile) {\n    return vips_icc_transform(in, out, output_profile, NULL);\n}\n\nint vipsgen_icc_transform_with_options(VipsImage* in, VipsImage** out, char* output_profile, VipsPCS pcs, VipsIntent intent, int depth) {\n    VipsOperation *operation = vips_operation_new(\"icc_transform\");\n    if (!operation) return 1;\n    if (\n        vips_object_set(VIPS_OBJECT(operation), \"in\", in, NULL) ||\n        vips_object_set(VIPS_OBJECT(operation), \"output_profile\", output_profile, NULL) ||\n        vipsgen_set_int(operation, \"pcs\", pcs) ||\n        vipsgen_set_int_allow_zero(operation, \"intent\", intent) ||\n        vipsgen_set_int(operation, \"depth\", depth)\n    ) {\n        g_object_unref(operation);\n        return 1;\n    }\n    int result = vipsgen_operation_execute(operation, \"out\", out, NULL);\n    return result;\n}"
+
+	if got != want {
+		t.Fatalf("unexpected icc_transform C function implementation\n got: %q\nwant: %q", got, want)
+	}
+}
+
+func TestGenerateCFunctionImplementationThumbnailAllowsZeroIntentSnapshot(t *testing.T) {
+	op := introspection.Operation{
+		Name: "thumbnail",
+		Arguments: []introspection.Argument{
+			{Name: "filename", CType: "char*", GoType: "string", IsInput: true},
+			{Name: "width", CType: "int", GoType: "int", IsInput: true},
+			{Name: "out", CType: "VipsImage**", GoType: "*C.VipsImage", IsOutput: true},
+		},
+		RequiredInputs: []introspection.Argument{
+			{Name: "filename", CType: "char*", GoType: "string", IsInput: true},
+			{Name: "width", CType: "int", GoType: "int", IsInput: true},
+		},
+		RequiredOutputs: []introspection.Argument{
+			{Name: "out", CType: "VipsImage**", GoType: "*C.VipsImage", IsOutput: true},
+		},
+		OptionalInputs: []introspection.Argument{
+			{Name: "intent", CType: "VipsIntent", GoType: "Intent", IsEnum: true, EnumType: "Intent"},
+		},
+	}
+
+	got := generateCFunctionImplementation(op)
+	want := "int vipsgen_thumbnail(char* filename, int width, VipsImage** out) {\n    return vips_thumbnail(filename, width, out, NULL);\n}\n\nint vipsgen_thumbnail_with_options(char* filename, int width, VipsImage** out, VipsIntent intent) {\n    VipsOperation *operation = vips_operation_new(\"thumbnail\");\n    if (!operation) return 1;\n    if (\n        vips_object_set(VIPS_OBJECT(operation), \"filename\", filename, NULL) ||\n        vips_object_set(VIPS_OBJECT(operation), \"width\", width, NULL) ||\n        vipsgen_set_int_allow_zero(operation, \"intent\", intent)\n    ) {\n        g_object_unref(operation);\n        return 1;\n    }\n    int result = vipsgen_operation_execute(operation, \"out\", out, NULL);\n    return result;\n}"
+
+	if got != want {
+		t.Fatalf("unexpected thumbnail C function implementation\n got: %q\nwant: %q", got, want)
+	}
+}
