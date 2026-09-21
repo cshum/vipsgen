@@ -2001,7 +2001,7 @@ int vipsgen_icc_export_with_options(VipsImage* in, VipsImage** out, VipsPCS pcs,
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
         vipsgen_set_int(operation, "pcs", pcs) ||
-        vipsgen_set_int(operation, "intent", intent) ||
+        vipsgen_set_int_allow_zero(operation, "intent", intent) ||
         vipsgen_set_bool(operation, "black_point_compensation", black_point_compensation) ||
         vipsgen_set_string(operation, "output_profile", output_profile) ||
         vipsgen_set_int(operation, "depth", depth)
@@ -2023,7 +2023,7 @@ int vipsgen_icc_import_with_options(VipsImage* in, VipsImage** out, VipsPCS pcs,
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
         vipsgen_set_int(operation, "pcs", pcs) ||
-        vipsgen_set_int(operation, "intent", intent) ||
+        vipsgen_set_int_allow_zero(operation, "intent", intent) ||
         vipsgen_set_bool(operation, "black_point_compensation", black_point_compensation) ||
         vipsgen_set_bool(operation, "embedded", embedded) ||
         vipsgen_set_string(operation, "input_profile", input_profile)
@@ -2046,7 +2046,7 @@ int vipsgen_icc_transform_with_options(VipsImage* in, VipsImage** out, const cha
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "output_profile", output_profile, NULL) ||
         vipsgen_set_int(operation, "pcs", pcs) ||
-        vipsgen_set_int(operation, "intent", intent) ||
+        vipsgen_set_int_allow_zero(operation, "intent", intent) ||
         vipsgen_set_bool(operation, "black_point_compensation", black_point_compensation) ||
         vipsgen_set_bool(operation, "embedded", embedded) ||
         vipsgen_set_string(operation, "input_profile", input_profile) ||
@@ -5094,7 +5094,7 @@ int vipsgen_thumbnail_with_options(const char* filename, VipsImage** out, gint w
         vipsgen_set_bool(operation, "linear", linear) ||
         vipsgen_set_string(operation, "input_profile", input_profile) ||
         vipsgen_set_string(operation, "output_profile", output_profile) ||
-        vipsgen_set_int(operation, "intent", intent) ||
+        vipsgen_set_int_allow_zero(operation, "intent", intent) ||
         vipsgen_set_int(operation, "fail_on", fail_on)
     ) {
         g_object_unref(operation);
@@ -5124,7 +5124,7 @@ int vipsgen_thumbnail_buffer_with_options(void* buf, size_t len, VipsImage** out
         vipsgen_set_bool(operation, "linear", linear) ||
         vipsgen_set_string(operation, "input_profile", input_profile) ||
         vipsgen_set_string(operation, "output_profile", output_profile) ||
-        vipsgen_set_int(operation, "intent", intent) ||
+        vipsgen_set_int_allow_zero(operation, "intent", intent) ||
         vipsgen_set_int(operation, "fail_on", fail_on)
     ) {
         vips_area_unref((VipsArea *)blob);
@@ -5153,7 +5153,7 @@ int vipsgen_thumbnail_image_with_options(VipsImage* in, VipsImage** out, gint wi
         vipsgen_set_bool(operation, "linear", linear) ||
         vipsgen_set_string(operation, "input_profile", input_profile) ||
         vipsgen_set_string(operation, "output_profile", output_profile) ||
-        vipsgen_set_int(operation, "intent", intent) ||
+        vipsgen_set_int_allow_zero(operation, "intent", intent) ||
         vipsgen_set_int(operation, "fail_on", fail_on)
     ) {
         g_object_unref(operation);
@@ -5181,7 +5181,7 @@ int vipsgen_thumbnail_source_with_options(VipsSourceCustom* source, VipsImage** 
         vipsgen_set_bool(operation, "linear", linear) ||
         vipsgen_set_string(operation, "input_profile", input_profile) ||
         vipsgen_set_string(operation, "output_profile", output_profile) ||
-        vipsgen_set_int(operation, "intent", intent) ||
+        vipsgen_set_int_allow_zero(operation, "intent", intent) ||
         vipsgen_set_int(operation, "fail_on", fail_on)
     ) {
         g_object_unref(operation);
