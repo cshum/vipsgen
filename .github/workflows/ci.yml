@@ -32,13 +32,14 @@ jobs:
       V: 6
 
     steps:
+      - name: Check out code
+        uses: actions/checkout@v5
+
       - name: Set up Go
-        uses: actions/setup-go@v4
+        uses: actions/setup-go@v6
         with:
           go-version: ^1.24
-
-      - name: Check out code
-        uses: actions/checkout@v4
+          cache: false
 
       - name: Install dependencies
         run: |
@@ -74,7 +75,7 @@ jobs:
           EOF
 
       - name: Cache libvips
-        uses: actions/cache@v3
+        uses: actions/cache@v5
         with:
           path: vips-${{ matrix.vips_version }}
           key: ${{ runner.os }}-24.04-vips-introspection-${{ env.V }}-${{ matrix.vips_version }}
@@ -117,7 +118,7 @@ jobs:
           vips --list | grep -E "load|save"
 
       - name: Cache Go dependencies
-        uses: actions/cache@v3
+        uses: actions/cache@v5
         with:
           path: |
             ~/.cache/go-build
@@ -144,7 +145,7 @@ jobs:
           $(CGO_CFLAGS_ALLOW="-Xpreprocessor") go test -v ${{ matrix.output_dir }}/...
 
       - name: Upload generated bindings
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         if: (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository) || github.event_name == 'workflow_dispatch'
         with:
           name: bindings-${{ matrix.vips_version }}
@@ -161,22 +162,22 @@ jobs:
     if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
     steps:
       - name: Check out code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Download vips816 bindings
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: bindings-8.16.1
           path: vips816
 
       - name: Download vips817 bindings
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: bindings-8.17.3
           path: vips817
 
       - name: Download vips bindings
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: bindings-8.18.6
           path: vips
@@ -197,30 +198,30 @@ jobs:
     if: github.event_name == 'workflow_dispatch'
     steps:
       - name: Checkout main
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: main
 
       - name: Download vips816 bindings
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: bindings-8.16.1
           path: vips816
 
       - name: Download vips817 bindings
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: bindings-8.17.3
           path: vips817
 
       - name: Download vips bindings
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: bindings-8.18.6
           path: vips
 
       - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v6
+        uses: peter-evans/create-pull-request@v8
         with:
           commit-message: ${{ inputs.commit_message }}
           title: ${{ inputs.commit_message }}
