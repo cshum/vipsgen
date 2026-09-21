@@ -8,6 +8,9 @@ import (
 )
 
 func shouldIntAllowZero(op introspection.Operation, opt introspection.Argument) bool {
+	if opt.IsEnum {
+		return opt.EnumType == "Intent"
+	}
 	if opt.GoType != "int" {
 		return false
 	}
@@ -253,8 +256,12 @@ func generateCFunctionImplementation(op introspection.Operation) string {
 					allParamsList = append(allParamsList,
 						fmt.Sprintf("vipsgen_set_keep(operation, %s)", opt.Name))
 				} else {
+					helper := "vipsgen_set_int"
+					if shouldIntAllowZero(op, opt) {
+						helper = "vipsgen_set_int_allow_zero"
+					}
 					allParamsList = append(allParamsList,
-						fmt.Sprintf("vipsgen_set_int(operation, \"%s\", %s)", opt.Name, opt.Name))
+						fmt.Sprintf("%s(operation, \"%s\", %s)", helper, opt.Name, opt.Name))
 				}
 			} else if opt.GoType == "*C.VipsImage" {
 				allParamsList = append(allParamsList,
