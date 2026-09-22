@@ -115,6 +115,9 @@ static void collect_argument(VipsObject* object, GParamSpec* pspec,
     arg->int_default = 0;
     arg->double_default = 0.0;
     arg->string_default = NULL;
+    arg->has_range = 0;
+    arg->minimum = 0.0;
+    arg->maximum = 0.0;
     arg->is_image = 0;
     arg->is_buffer = 0;
     arg->is_array = 0;
@@ -165,24 +168,36 @@ static void collect_argument(VipsObject* object, GParamSpec* pspec,
         arg->has_default = 1;
         arg->default_type = 2;  // int
         arg->int_default = pspec_int->default_value;
+        arg->has_range = 1;
+        arg->minimum = pspec_int->minimum;
+        arg->maximum = pspec_int->maximum;
     }
     else if (G_IS_PARAM_SPEC_UINT(pspec)) {
         GParamSpecUInt *pspec_uint = G_PARAM_SPEC_UINT(pspec);
         arg->has_default = 1;
         arg->default_type = 2;  // int
         arg->int_default = (gint)pspec_uint->default_value;
+        arg->has_range = 1;
+        arg->minimum = pspec_uint->minimum;
+        arg->maximum = pspec_uint->maximum;
     }
     else if (G_IS_PARAM_SPEC_DOUBLE(pspec)) {
         GParamSpecDouble *pspec_double = G_PARAM_SPEC_DOUBLE(pspec);
         arg->has_default = 1;
         arg->default_type = 3;  // double
         arg->double_default = pspec_double->default_value;
+        arg->has_range = 1;
+        arg->minimum = pspec_double->minimum;
+        arg->maximum = pspec_double->maximum;
     }
     else if (G_IS_PARAM_SPEC_FLOAT(pspec)) {
         GParamSpecFloat *pspec_float = G_PARAM_SPEC_FLOAT(pspec);
         arg->has_default = 1;
         arg->default_type = 3;  // double
         arg->double_default = (gdouble)pspec_float->default_value;
+        arg->has_range = 1;
+        arg->minimum = pspec_float->minimum;
+        arg->maximum = pspec_float->maximum;
     }
     else if (G_IS_PARAM_SPEC_STRING(pspec)) {
         GParamSpecString *pspec_string = G_PARAM_SPEC_STRING(pspec);

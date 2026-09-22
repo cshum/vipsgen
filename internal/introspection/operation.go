@@ -50,6 +50,10 @@ type Argument struct {
 	Flags        int
 	IsEnum       bool
 	EnumType     string
+	EnumValues   []int
+	HasRange     bool
+	Minimum      float64
+	Maximum      float64
 	NInputFrom   string
 	DefaultValue interface{}
 }
@@ -218,6 +222,9 @@ func (v *Introspection) DiscoverOperationArguments(opName string) ([]Argument, e
 			IsSource:    isSource,
 			IsTarget:    isTarget,
 			Flags:       int(arg.flags),
+			HasRange:    int(arg.has_range) != 0,
+			Minimum:     float64(arg.minimum),
+			Maximum:     float64(arg.maximum),
 		}
 
 		// Check if this is an enum or flags type
@@ -242,6 +249,7 @@ func (v *Introspection) DiscoverOperationArguments(opName string) ([]Argument, e
 		if goArg.IsEnum {
 			enumName := C.GoString(C.g_type_name(arg.type_val))
 			goArg.EnumType = v.getGoEnumName(enumName)
+			goArg.EnumValues = getEnumValues(arg.type_val)
 			v.addEnumType(enumName, goArg.EnumType)
 		}
 		if isArray && isInput && required && !isAffineMatrix {
@@ -457,6 +465,35 @@ func (v *Introspection) DiscoverOperationArguments(opName string) ([]Argument, e
 	}
 
 	return goArgs, nil
+}
+
+func getEnumValues(gtype C.GType) []int {
+	typeName := C.g_type_name(gtype)
+	if typeName == nil {
+		return nil
+	}
+
+	cTypeName := C.CString(C.GoString(typeName))
+	defer C.free(unsafe.Pointer(cTypeName))
+
+	isFlags := C.int(0)
+	if C.is_type_flags(gtype) != 0 {
+		isFlags = 1
+	}
+
+	var count C.int
+	values := C.get_enum_or_flag_values(cTypeName, &count, isFlags)
+	if values == nil || count <= 0 {
+		return nil
+	}
+	defer C.free_enum_values(values, count)
+
+	valueSlice := (*[1 << 30]C.EnumValueInfo)(unsafe.Pointer(values))[:count:count]
+	result := make([]int, 0, int(count))
+	for _, value := range valueSlice {
+		result = append(result, int(value.value))
+	}
+	return result
 }
 
 // Helper function to extract default values based on type
