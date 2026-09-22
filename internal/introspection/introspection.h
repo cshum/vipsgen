@@ -47,6 +47,9 @@ typedef struct {
     gint int_default;
     gdouble double_default;
     char *string_default;
+    int has_range;
+    gdouble minimum;
+    gdouble maximum;
 } ArgInfo;
 
 // Get all arguments of an operation
