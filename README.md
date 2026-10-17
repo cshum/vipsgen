@@ -52,7 +52,7 @@ An optional argument is a **pointer** when libvips accepts its zero value and th
 &vips.PngsaveOptions{Compression: vips.Ptr(6)}  // same output as the default
 ```
 
-Each field comment states the accepted range and the default, and `Default<Op>Options` fills them in if you want to see them. Upgrading from v1? See [MIGRATION.md](MIGRATION.md).
+[`examples/option_presence`](https://github.com/cshum/vipsgen/tree/main/examples/option_presence) shows the four choices side by side. Each field comment states the accepted range and the default, and `Default<Op>Options` fills them in if you want to see them. Upgrading from v1? See [MIGRATION.md](MIGRATION.md).
 
 
 ```go

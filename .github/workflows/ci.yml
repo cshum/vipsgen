@@ -147,6 +147,14 @@ jobs:
         run: |
           $(CGO_CFLAGS_ALLOW="-Xpreprocessor") go test -v ./${{ matrix.output_dir }}/...
 
+      - name: Build examples
+        if: matrix.output_dir == 'vips'
+        run: |
+          # the examples import the 8.18 package, which this leg has just regenerated,
+          # so they only compile where that version is installed
+          if [ -n "$(gofmt -l examples/)" ]; then gofmt -l examples/; exit 1; fi
+          $(CGO_CFLAGS_ALLOW="-Xpreprocessor") go build ./examples/...
+
       - name: Upload generated bindings
         uses: actions/upload-artifact@v5
         if: (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository) || github.event_name == 'workflow_dispatch'

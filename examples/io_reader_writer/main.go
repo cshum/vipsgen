@@ -60,7 +60,7 @@ func main() {
 	err = image.WebpsaveTarget(target, &vips.WebpsaveTargetOptions{
 		Q:              vips.Ptr(85), // Quality factor (0-100)
 		Effort:         vips.Ptr(4),  // Compression effort (0-6)
-		SmartSubsample: true, // Better chroma subsampling
+		SmartSubsample: true,         // Better chroma subsampling
 	})
 	if err != nil {
 		log.Fatalf("Failed to save image as WebP: %v", err)
