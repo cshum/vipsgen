@@ -22,7 +22,7 @@ A field is a **pointer** when libvips accepts its zero value and that zero diffe
 | `&vips.ThumbnailOptions{Height: 1000}` | unchanged — `Height` has no ambiguity to resolve |
 | `vips.KeepNone` (-1, remapped) | `vips.KeepNone` (0, matching C `VIPS_FOREIGN_KEEP_NONE`) |
 
-`LoadOptions` fields are pointers as well, and `OptionString` tests nil rather than zero, so `Ptr(false)` is expressible.
+`LoadOptions` fields are pointers as well. `OptionString` still sends only values that differ from libvips' defaults: it is handed to whichever loader the format picks, and a loader that does not know an option rejects the whole load, so a `Ptr(false)` or a `Ptr(0)` is left out rather than spelled out.
 
 ## What is still there
 
