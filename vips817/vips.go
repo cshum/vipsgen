@@ -249,7 +249,7 @@ func vipsgenAffine(in *C.VipsImage, a float64, b float64, c float64, d float64) 
 }
 
 // vipsgenAffineWithOptions vips_affine affine transform of an image with optional arguments
-func vipsgenAffineWithOptions(in *C.VipsImage, a float64, b float64, c float64, d float64, interpolate *Interpolate, oarea []int, odx float64, ody float64, idx float64, idy float64, background []float64, premultiplied bool, extend Extend) (*C.VipsImage, error) {
+func vipsgenAffineWithOptions(in *C.VipsImage, a float64, b float64, c float64, d float64, interpolate *Interpolate, oarea []int, odx float64, ody float64, idx float64, idy float64, background []float64, premultiplied bool, extend *Extend) (*C.VipsImage, error) {
 	var out *C.VipsImage
 	coarea, coareaLength, err := convertToIntArray(oarea)
 	if err != nil {
@@ -265,7 +265,13 @@ func vipsgenAffineWithOptions(in *C.VipsImage, a float64, b float64, c float64, 
 	if cbackground != nil {
 		defer freeDoubleArray(cbackground)
 	}
-	if err := C.vipsgen_affine_with_options(in, &out, C.double(a), C.double(b), C.double(c), C.double(d), vipsInterpolateToC(interpolate), coarea, coareaLength, C.double(odx), C.double(ody), C.double(idx), C.double(idy), cbackground, cbackgroundLength, C.int(boolToInt(premultiplied)), C.VipsExtend(extend)); err != 0 {
+	var cextend C.VipsExtend
+	extendSet := C.int(0)
+	if extend != nil {
+		cextend = C.VipsExtend(*extend)
+		extendSet = 1
+	}
+	if err := C.vipsgen_affine_with_options(in, &out, C.double(a), C.double(b), C.double(c), C.double(d), vipsInterpolateToC(interpolate), coarea, coareaLength, C.double(odx), C.double(ody), C.double(idx), C.double(idy), cbackground, cbackgroundLength, C.int(boolToInt(premultiplied)), cextend, extendSet); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
@@ -469,7 +475,7 @@ func vipsgenBandrank(in []*C.VipsImage) (*C.VipsImage, error) {
 }
 
 // vipsgenBandrankWithOptions vips_bandrank band-wise rank of a set of images with optional arguments
-func vipsgenBandrankWithOptions(in []*C.VipsImage, index int) (*C.VipsImage, error) {
+func vipsgenBandrankWithOptions(in []*C.VipsImage, index *int) (*C.VipsImage, error) {
 	var out *C.VipsImage
 	if in == nil {
 		in = []*C.VipsImage{}
@@ -481,7 +487,13 @@ func vipsgenBandrankWithOptions(in []*C.VipsImage, index int) (*C.VipsImage, err
 	if cin != nil {
 		defer freeImageArray(cin)
 	}
-	if err := C.vipsgen_bandrank_with_options(cin, &out, C.int(len(in)), C.gint(index)); err != 0 {
+	var cindex C.gint
+	indexSet := C.int(0)
+	if index != nil {
+		cindex = C.gint(*index)
+		indexSet = 1
+	}
+	if err := C.vipsgen_bandrank_with_options(cin, &out, C.int(len(in)), cindex, indexSet); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
@@ -579,9 +591,15 @@ func vipsgenCanny(in *C.VipsImage) (*C.VipsImage, error) {
 }
 
 // vipsgenCannyWithOptions vips_canny Canny edge detector with optional arguments
-func vipsgenCannyWithOptions(in *C.VipsImage, sigma float64, precision Precision) (*C.VipsImage, error) {
+func vipsgenCannyWithOptions(in *C.VipsImage, sigma float64, precision *Precision) (*C.VipsImage, error) {
 	var out *C.VipsImage
-	if err := C.vipsgen_canny_with_options(in, &out, C.double(sigma), C.VipsPrecision(precision)); err != 0 {
+	var cprecision C.VipsPrecision
+	precisionSet := C.int(0)
+	if precision != nil {
+		cprecision = C.VipsPrecision(*precision)
+		precisionSet = 1
+	}
+	if err := C.vipsgen_canny_with_options(in, &out, C.double(sigma), cprecision, precisionSet); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
@@ -634,9 +652,15 @@ func vipsgenClamp(in *C.VipsImage) (*C.VipsImage, error) {
 }
 
 // vipsgenClampWithOptions vips_clamp clamp values of an image with optional arguments
-func vipsgenClampWithOptions(in *C.VipsImage, min float64, max float64) (*C.VipsImage, error) {
+func vipsgenClampWithOptions(in *C.VipsImage, min float64, max *float64) (*C.VipsImage, error) {
 	var out *C.VipsImage
-	if err := C.vipsgen_clamp_with_options(in, &out, C.double(min), C.double(max)); err != 0 {
+	var cmax C.double
+	maxSet := C.int(0)
+	if max != nil {
+		cmax = C.double(*max)
+		maxSet = 1
+	}
+	if err := C.vipsgen_clamp_with_options(in, &out, C.double(min), cmax, maxSet); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
@@ -652,9 +676,15 @@ func vipsgenColourspace(in *C.VipsImage, space Interpretation) (*C.VipsImage, er
 }
 
 // vipsgenColourspaceWithOptions vips_colourspace convert to a new colorspace with optional arguments
-func vipsgenColourspaceWithOptions(in *C.VipsImage, space Interpretation, sourceSpace Interpretation) (*C.VipsImage, error) {
+func vipsgenColourspaceWithOptions(in *C.VipsImage, space Interpretation, sourceSpace *Interpretation) (*C.VipsImage, error) {
 	var out *C.VipsImage
-	if err := C.vipsgen_colourspace_with_options(in, &out, C.VipsInterpretation(space), C.VipsInterpretation(sourceSpace)); err != 0 {
+	var csourceSpace C.VipsInterpretation
+	sourceSpaceSet := C.int(0)
+	if sourceSpace != nil {
+		csourceSpace = C.VipsInterpretation(*sourceSpace)
+		sourceSpaceSet = 1
+	}
+	if err := C.vipsgen_colourspace_with_options(in, &out, C.VipsInterpretation(space), csourceSpace, sourceSpaceSet); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
@@ -670,9 +700,21 @@ func vipsgenCompass(in *C.VipsImage, mask *C.VipsImage) (*C.VipsImage, error) {
 }
 
 // vipsgenCompassWithOptions vips_compass convolve with rotating mask with optional arguments
-func vipsgenCompassWithOptions(in *C.VipsImage, mask *C.VipsImage, times int, angle Angle45, combine Combine, precision Precision, layers int, cluster int) (*C.VipsImage, error) {
+func vipsgenCompassWithOptions(in *C.VipsImage, mask *C.VipsImage, times int, angle *Angle45, combine Combine, precision *Precision, layers int, cluster int) (*C.VipsImage, error) {
 	var out *C.VipsImage
-	if err := C.vipsgen_compass_with_options(in, &out, mask, C.gint(times), C.VipsAngle45(angle), C.VipsCombine(combine), C.VipsPrecision(precision), C.gint(layers), C.gint(cluster)); err != 0 {
+	var cangle C.VipsAngle45
+	angleSet := C.int(0)
+	if angle != nil {
+		cangle = C.VipsAngle45(*angle)
+		angleSet = 1
+	}
+	var cprecision C.VipsPrecision
+	precisionSet := C.int(0)
+	if precision != nil {
+		cprecision = C.VipsPrecision(*precision)
+		precisionSet = 1
+	}
+	if err := C.vipsgen_compass_with_options(in, &out, mask, C.gint(times), cangle, angleSet, C.VipsCombine(combine), cprecision, precisionSet, C.gint(layers), C.gint(cluster)); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
@@ -744,7 +786,7 @@ func vipsgenComposite(in []*C.VipsImage, mode []BlendMode) (*C.VipsImage, error)
 }
 
 // vipsgenCompositeWithOptions vips_composite blend an array of images with an array of blend modes with optional arguments
-func vipsgenCompositeWithOptions(in []*C.VipsImage, mode []BlendMode, x []int, y []int, compositingSpace Interpretation, premultiplied bool) (*C.VipsImage, error) {
+func vipsgenCompositeWithOptions(in []*C.VipsImage, mode []BlendMode, x []int, y []int, compositingSpace *Interpretation, premultiplied bool) (*C.VipsImage, error) {
 	var out *C.VipsImage
 	if in == nil {
 		in = []*C.VipsImage{}
@@ -780,7 +822,13 @@ func vipsgenCompositeWithOptions(in []*C.VipsImage, mode []BlendMode, x []int, y
 	if cy != nil {
 		defer freeIntArray(cy)
 	}
-	if err := C.vipsgen_composite_with_options(cin, &out, C.int(len(in)), cmode, cx, cxLength, cy, cyLength, C.VipsInterpretation(compositingSpace), C.int(boolToInt(premultiplied))); err != 0 {
+	var ccompositingSpace C.VipsInterpretation
+	compositingSpaceSet := C.int(0)
+	if compositingSpace != nil {
+		ccompositingSpace = C.VipsInterpretation(*compositingSpace)
+		compositingSpaceSet = 1
+	}
+	if err := C.vipsgen_composite_with_options(cin, &out, C.int(len(in)), cmode, cx, cxLength, cy, cyLength, ccompositingSpace, compositingSpaceSet, C.int(boolToInt(premultiplied))); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
@@ -796,9 +844,15 @@ func vipsgenComposite2(base *C.VipsImage, overlay *C.VipsImage, mode BlendMode) 
 }
 
 // vipsgenComposite2WithOptions vips_composite2 blend a pair of images with a blend mode with optional arguments
-func vipsgenComposite2WithOptions(base *C.VipsImage, overlay *C.VipsImage, mode BlendMode, x int, y int, compositingSpace Interpretation, premultiplied bool) (*C.VipsImage, error) {
+func vipsgenComposite2WithOptions(base *C.VipsImage, overlay *C.VipsImage, mode BlendMode, x int, y int, compositingSpace *Interpretation, premultiplied bool) (*C.VipsImage, error) {
 	var out *C.VipsImage
-	if err := C.vipsgen_composite2_with_options(base, overlay, &out, C.VipsBlendMode(mode), C.gint(x), C.gint(y), C.VipsInterpretation(compositingSpace), C.int(boolToInt(premultiplied))); err != 0 {
+	var ccompositingSpace C.VipsInterpretation
+	compositingSpaceSet := C.int(0)
+	if compositingSpace != nil {
+		ccompositingSpace = C.VipsInterpretation(*compositingSpace)
+		compositingSpaceSet = 1
+	}
+	if err := C.vipsgen_composite2_with_options(base, overlay, &out, C.VipsBlendMode(mode), C.gint(x), C.gint(y), ccompositingSpace, compositingSpaceSet, C.int(boolToInt(premultiplied))); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
@@ -814,9 +868,15 @@ func vipsgenConv(in *C.VipsImage, mask *C.VipsImage) (*C.VipsImage, error) {
 }
 
 // vipsgenConvWithOptions vips_conv convolution operation with optional arguments
-func vipsgenConvWithOptions(in *C.VipsImage, mask *C.VipsImage, precision Precision, layers int, cluster int) (*C.VipsImage, error) {
+func vipsgenConvWithOptions(in *C.VipsImage, mask *C.VipsImage, precision *Precision, layers int, cluster int) (*C.VipsImage, error) {
 	var out *C.VipsImage
-	if err := C.vipsgen_conv_with_options(in, &out, mask, C.VipsPrecision(precision), C.gint(layers), C.gint(cluster)); err != 0 {
+	var cprecision C.VipsPrecision
+	precisionSet := C.int(0)
+	if precision != nil {
+		cprecision = C.VipsPrecision(*precision)
+		precisionSet = 1
+	}
+	if err := C.vipsgen_conv_with_options(in, &out, mask, cprecision, precisionSet, C.gint(layers), C.gint(cluster)); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
@@ -886,9 +946,15 @@ func vipsgenConvsep(in *C.VipsImage, mask *C.VipsImage) (*C.VipsImage, error) {
 }
 
 // vipsgenConvsepWithOptions vips_convsep separable convolution operation with optional arguments
-func vipsgenConvsepWithOptions(in *C.VipsImage, mask *C.VipsImage, precision Precision, layers int, cluster int) (*C.VipsImage, error) {
+func vipsgenConvsepWithOptions(in *C.VipsImage, mask *C.VipsImage, precision *Precision, layers int, cluster int) (*C.VipsImage, error) {
 	var out *C.VipsImage
-	if err := C.vipsgen_convsep_with_options(in, &out, mask, C.VipsPrecision(precision), C.gint(layers), C.gint(cluster)); err != 0 {
+	var cprecision C.VipsPrecision
+	precisionSet := C.int(0)
+	if precision != nil {
+		cprecision = C.VipsPrecision(*precision)
+		precisionSet = 1
+	}
+	if err := C.vipsgen_convsep_with_options(in, &out, mask, cprecision, precisionSet, C.gint(layers), C.gint(cluster)); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
@@ -935,15 +1001,31 @@ func vipsgenCsvload(filename string) (*C.VipsImage, error) {
 }
 
 // vipsgenCsvloadWithOptions vips_csvload load csv with optional arguments
-func vipsgenCsvloadWithOptions(filename string, skip int, lines int, whitespace string, separator string, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
+func vipsgenCsvloadWithOptions(filename string, skip int, lines *int, whitespace *string, separator *string, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
 	var out *C.VipsImage
 	cfilename := C.CString(filename)
 	defer freeCString(cfilename)
-	cwhitespace := C.CString(whitespace)
-	defer freeCString(cwhitespace)
-	cseparator := C.CString(separator)
-	defer freeCString(cseparator)
-	if err := C.vipsgen_csvload_with_options(cfilename, &out, C.gint(skip), C.gint(lines), cwhitespace, cseparator, C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
+	var clines C.gint
+	linesSet := C.int(0)
+	if lines != nil {
+		clines = C.gint(*lines)
+		linesSet = 1
+	}
+	var cwhitespace *C.char
+	whitespaceSet := C.int(0)
+	if whitespace != nil {
+		cwhitespace = C.CString(*whitespace)
+		whitespaceSet = 1
+		defer freeCString(cwhitespace)
+	}
+	var cseparator *C.char
+	separatorSet := C.int(0)
+	if separator != nil {
+		cseparator = C.CString(*separator)
+		separatorSet = 1
+		defer freeCString(cseparator)
+	}
+	if err := C.vipsgen_csvload_with_options(cfilename, &out, C.gint(skip), clines, linesSet, cwhitespace, whitespaceSet, cseparator, separatorSet, C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
@@ -959,13 +1041,29 @@ func vipsgenCsvloadSource(source *C.VipsSourceCustom) (*C.VipsImage, error) {
 }
 
 // vipsgenCsvloadSourceWithOptions vips_csvload_source load csv with optional arguments
-func vipsgenCsvloadSourceWithOptions(source *C.VipsSourceCustom, skip int, lines int, whitespace string, separator string, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
+func vipsgenCsvloadSourceWithOptions(source *C.VipsSourceCustom, skip int, lines *int, whitespace *string, separator *string, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
 	var out *C.VipsImage
-	cwhitespace := C.CString(whitespace)
-	defer freeCString(cwhitespace)
-	cseparator := C.CString(separator)
-	defer freeCString(cseparator)
-	if err := C.vipsgen_csvload_source_with_options(source, &out, C.gint(skip), C.gint(lines), cwhitespace, cseparator, C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
+	var clines C.gint
+	linesSet := C.int(0)
+	if lines != nil {
+		clines = C.gint(*lines)
+		linesSet = 1
+	}
+	var cwhitespace *C.char
+	whitespaceSet := C.int(0)
+	if whitespace != nil {
+		cwhitespace = C.CString(*whitespace)
+		whitespaceSet = 1
+		defer freeCString(cwhitespace)
+	}
+	var cseparator *C.char
+	separatorSet := C.int(0)
+	if separator != nil {
+		cseparator = C.CString(*separator)
+		separatorSet = 1
+		defer freeCString(cseparator)
+	}
+	if err := C.vipsgen_csvload_source_with_options(source, &out, C.gint(skip), clines, linesSet, cwhitespace, whitespaceSet, cseparator, separatorSet, C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
@@ -982,7 +1080,7 @@ func vipsgenCsvsave(in *C.VipsImage, filename string) (error) {
 }
 
 // vipsgenCsvsaveWithOptions vips_csvsave save image to csv with optional arguments
-func vipsgenCsvsaveWithOptions(in *C.VipsImage, filename string, separator string, keep Keep, background []float64, pageHeight int, profile string) (error) {
+func vipsgenCsvsaveWithOptions(in *C.VipsImage, filename string, separator *string, keep *Keep, background []float64, pageHeight int, profile string) (error) {
 	cfilename := C.CString(filename)
 	defer freeCString(cfilename)
 	cbackground, cbackgroundLength, err := convertToDoubleArray(background)
@@ -992,11 +1090,22 @@ func vipsgenCsvsaveWithOptions(in *C.VipsImage, filename string, separator strin
 	if cbackground != nil {
 		defer freeDoubleArray(cbackground)
 	}
-	cseparator := C.CString(separator)
-	defer freeCString(cseparator)
+	var cseparator *C.char
+	separatorSet := C.int(0)
+	if separator != nil {
+		cseparator = C.CString(*separator)
+		separatorSet = 1
+		defer freeCString(cseparator)
+	}
+	var ckeep C.VipsForeignKeep
+	keepSet := C.int(0)
+	if keep != nil {
+		ckeep = C.VipsForeignKeep(*keep)
+		keepSet = 1
+	}
 	cprofile := C.CString(profile)
 	defer freeCString(cprofile)
-	if err := C.vipsgen_csvsave_with_options(in, cfilename, cseparator, C.VipsForeignKeep(keep), cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
+	if err := C.vipsgen_csvsave_with_options(in, cfilename, cseparator, separatorSet, ckeep, keepSet, cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
 		return handleVipsError()
 	}
 	return nil
@@ -1012,7 +1121,7 @@ func vipsgenCsvsaveTarget(in *C.VipsImage, target *C.VipsTargetCustom) (error) {
 }
 
 // vipsgenCsvsaveTargetWithOptions vips_csvsave_target save image to csv with optional arguments
-func vipsgenCsvsaveTargetWithOptions(in *C.VipsImage, target *C.VipsTargetCustom, separator string, keep Keep, background []float64, pageHeight int, profile string) (error) {
+func vipsgenCsvsaveTargetWithOptions(in *C.VipsImage, target *C.VipsTargetCustom, separator *string, keep *Keep, background []float64, pageHeight int, profile string) (error) {
 	cbackground, cbackgroundLength, err := convertToDoubleArray(background)
 	if err != nil {
 		return err
@@ -1020,11 +1129,22 @@ func vipsgenCsvsaveTargetWithOptions(in *C.VipsImage, target *C.VipsTargetCustom
 	if cbackground != nil {
 		defer freeDoubleArray(cbackground)
 	}
-	cseparator := C.CString(separator)
-	defer freeCString(cseparator)
+	var cseparator *C.char
+	separatorSet := C.int(0)
+	if separator != nil {
+		cseparator = C.CString(*separator)
+		separatorSet = 1
+		defer freeCString(cseparator)
+	}
+	var ckeep C.VipsForeignKeep
+	keepSet := C.int(0)
+	if keep != nil {
+		ckeep = C.VipsForeignKeep(*keep)
+		keepSet = 1
+	}
 	cprofile := C.CString(profile)
 	defer freeCString(cprofile)
-	if err := C.vipsgen_csvsave_target_with_options(in, target, cseparator, C.VipsForeignKeep(keep), cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
+	if err := C.vipsgen_csvsave_target_with_options(in, target, cseparator, separatorSet, ckeep, keepSet, cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
 		return handleVipsError()
 	}
 	return nil
@@ -1291,7 +1411,7 @@ func vipsgenDzsave(in *C.VipsImage, filename string) (error) {
 }
 
 // vipsgenDzsaveWithOptions vips_dzsave save image to deepzoom file with optional arguments
-func vipsgenDzsaveWithOptions(in *C.VipsImage, filename string, imagename string, layout DzLayout, suffix string, overlap int, tileSize int, centre bool, depth DzDepth, angle Angle, container DzContainer, compression int, regionShrink RegionShrink, skipBlanks int, id string, q int, keep Keep, background []float64, pageHeight int, profile string) (error) {
+func vipsgenDzsaveWithOptions(in *C.VipsImage, filename string, imagename string, layout DzLayout, suffix *string, overlap *int, tileSize int, centre bool, depth DzDepth, angle Angle, container DzContainer, compression int, regionShrink RegionShrink, skipBlanks *int, id *string, q int, keep *Keep, background []float64, pageHeight int, profile string) (error) {
 	cfilename := C.CString(filename)
 	defer freeCString(cfilename)
 	cbackground, cbackgroundLength, err := convertToDoubleArray(background)
@@ -1301,15 +1421,43 @@ func vipsgenDzsaveWithOptions(in *C.VipsImage, filename string, imagename string
 	if cbackground != nil {
 		defer freeDoubleArray(cbackground)
 	}
+	var csuffix *C.char
+	suffixSet := C.int(0)
+	if suffix != nil {
+		csuffix = C.CString(*suffix)
+		suffixSet = 1
+		defer freeCString(csuffix)
+	}
+	var coverlap C.gint
+	overlapSet := C.int(0)
+	if overlap != nil {
+		coverlap = C.gint(*overlap)
+		overlapSet = 1
+	}
+	var cskipBlanks C.gint
+	skipBlanksSet := C.int(0)
+	if skipBlanks != nil {
+		cskipBlanks = C.gint(*skipBlanks)
+		skipBlanksSet = 1
+	}
+	var cid *C.char
+	idSet := C.int(0)
+	if id != nil {
+		cid = C.CString(*id)
+		idSet = 1
+		defer freeCString(cid)
+	}
+	var ckeep C.VipsForeignKeep
+	keepSet := C.int(0)
+	if keep != nil {
+		ckeep = C.VipsForeignKeep(*keep)
+		keepSet = 1
+	}
 	cimagename := C.CString(imagename)
 	defer freeCString(cimagename)
-	csuffix := C.CString(suffix)
-	defer freeCString(csuffix)
-	cid := C.CString(id)
-	defer freeCString(cid)
 	cprofile := C.CString(profile)
 	defer freeCString(cprofile)
-	if err := C.vipsgen_dzsave_with_options(in, cfilename, cimagename, C.VipsForeignDzLayout(layout), csuffix, C.gint(overlap), C.gint(tileSize), C.int(boolToInt(centre)), C.VipsForeignDzDepth(depth), C.VipsAngle(angle), C.VipsForeignDzContainer(container), C.gint(compression), C.VipsRegionShrink(regionShrink), C.gint(skipBlanks), cid, C.gint(q), C.VipsForeignKeep(keep), cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
+	if err := C.vipsgen_dzsave_with_options(in, cfilename, cimagename, C.VipsForeignDzLayout(layout), csuffix, suffixSet, coverlap, overlapSet, C.gint(tileSize), C.int(boolToInt(centre)), C.VipsForeignDzDepth(depth), C.VipsAngle(angle), C.VipsForeignDzContainer(container), C.gint(compression), C.VipsRegionShrink(regionShrink), cskipBlanks, skipBlanksSet, cid, idSet, C.gint(q), ckeep, keepSet, cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
 		return handleVipsError()
 	}
 	return nil
@@ -1326,7 +1474,7 @@ func vipsgenDzsaveBuffer(in *C.VipsImage) ([]byte, error) {
 }
 
 // vipsgenDzsaveBufferWithOptions vips_dzsave_buffer save image to dz buffer with optional arguments
-func vipsgenDzsaveBufferWithOptions(in *C.VipsImage, imagename string, layout DzLayout, suffix string, overlap int, tileSize int, centre bool, depth DzDepth, angle Angle, container DzContainer, compression int, regionShrink RegionShrink, skipBlanks int, id string, q int, keep Keep, background []float64, pageHeight int, profile string) ([]byte, error) {
+func vipsgenDzsaveBufferWithOptions(in *C.VipsImage, imagename string, layout DzLayout, suffix *string, overlap *int, tileSize int, centre bool, depth DzDepth, angle Angle, container DzContainer, compression int, regionShrink RegionShrink, skipBlanks *int, id *string, q int, keep *Keep, background []float64, pageHeight int, profile string) ([]byte, error) {
 	var buf unsafe.Pointer
 	var length C.size_t
 	cbackground, cbackgroundLength, err := convertToDoubleArray(background)
@@ -1336,15 +1484,43 @@ func vipsgenDzsaveBufferWithOptions(in *C.VipsImage, imagename string, layout Dz
 	if cbackground != nil {
 		defer freeDoubleArray(cbackground)
 	}
+	var csuffix *C.char
+	suffixSet := C.int(0)
+	if suffix != nil {
+		csuffix = C.CString(*suffix)
+		suffixSet = 1
+		defer freeCString(csuffix)
+	}
+	var coverlap C.gint
+	overlapSet := C.int(0)
+	if overlap != nil {
+		coverlap = C.gint(*overlap)
+		overlapSet = 1
+	}
+	var cskipBlanks C.gint
+	skipBlanksSet := C.int(0)
+	if skipBlanks != nil {
+		cskipBlanks = C.gint(*skipBlanks)
+		skipBlanksSet = 1
+	}
+	var cid *C.char
+	idSet := C.int(0)
+	if id != nil {
+		cid = C.CString(*id)
+		idSet = 1
+		defer freeCString(cid)
+	}
+	var ckeep C.VipsForeignKeep
+	keepSet := C.int(0)
+	if keep != nil {
+		ckeep = C.VipsForeignKeep(*keep)
+		keepSet = 1
+	}
 	cimagename := C.CString(imagename)
 	defer freeCString(cimagename)
-	csuffix := C.CString(suffix)
-	defer freeCString(csuffix)
-	cid := C.CString(id)
-	defer freeCString(cid)
 	cprofile := C.CString(profile)
 	defer freeCString(cprofile)
-	if err := C.vipsgen_dzsave_buffer_with_options(in, &buf, &length, cimagename, C.VipsForeignDzLayout(layout), csuffix, C.gint(overlap), C.gint(tileSize), C.int(boolToInt(centre)), C.VipsForeignDzDepth(depth), C.VipsAngle(angle), C.VipsForeignDzContainer(container), C.gint(compression), C.VipsRegionShrink(regionShrink), C.gint(skipBlanks), cid, C.gint(q), C.VipsForeignKeep(keep), cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
+	if err := C.vipsgen_dzsave_buffer_with_options(in, &buf, &length, cimagename, C.VipsForeignDzLayout(layout), csuffix, suffixSet, coverlap, overlapSet, C.gint(tileSize), C.int(boolToInt(centre)), C.VipsForeignDzDepth(depth), C.VipsAngle(angle), C.VipsForeignDzContainer(container), C.gint(compression), C.VipsRegionShrink(regionShrink), cskipBlanks, skipBlanksSet, cid, idSet, C.gint(q), ckeep, keepSet, cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
 		return nil, handleVipsError()
 	}
 	return bufferToBytes(buf, length), nil
@@ -1360,7 +1536,7 @@ func vipsgenDzsaveTarget(in *C.VipsImage, target *C.VipsTargetCustom) (error) {
 }
 
 // vipsgenDzsaveTargetWithOptions vips_dzsave_target save image to deepzoom target with optional arguments
-func vipsgenDzsaveTargetWithOptions(in *C.VipsImage, target *C.VipsTargetCustom, imagename string, layout DzLayout, suffix string, overlap int, tileSize int, centre bool, depth DzDepth, angle Angle, container DzContainer, compression int, regionShrink RegionShrink, skipBlanks int, id string, q int, keep Keep, background []float64, pageHeight int, profile string) (error) {
+func vipsgenDzsaveTargetWithOptions(in *C.VipsImage, target *C.VipsTargetCustom, imagename string, layout DzLayout, suffix *string, overlap *int, tileSize int, centre bool, depth DzDepth, angle Angle, container DzContainer, compression int, regionShrink RegionShrink, skipBlanks *int, id *string, q int, keep *Keep, background []float64, pageHeight int, profile string) (error) {
 	cbackground, cbackgroundLength, err := convertToDoubleArray(background)
 	if err != nil {
 		return err
@@ -1368,15 +1544,43 @@ func vipsgenDzsaveTargetWithOptions(in *C.VipsImage, target *C.VipsTargetCustom,
 	if cbackground != nil {
 		defer freeDoubleArray(cbackground)
 	}
+	var csuffix *C.char
+	suffixSet := C.int(0)
+	if suffix != nil {
+		csuffix = C.CString(*suffix)
+		suffixSet = 1
+		defer freeCString(csuffix)
+	}
+	var coverlap C.gint
+	overlapSet := C.int(0)
+	if overlap != nil {
+		coverlap = C.gint(*overlap)
+		overlapSet = 1
+	}
+	var cskipBlanks C.gint
+	skipBlanksSet := C.int(0)
+	if skipBlanks != nil {
+		cskipBlanks = C.gint(*skipBlanks)
+		skipBlanksSet = 1
+	}
+	var cid *C.char
+	idSet := C.int(0)
+	if id != nil {
+		cid = C.CString(*id)
+		idSet = 1
+		defer freeCString(cid)
+	}
+	var ckeep C.VipsForeignKeep
+	keepSet := C.int(0)
+	if keep != nil {
+		ckeep = C.VipsForeignKeep(*keep)
+		keepSet = 1
+	}
 	cimagename := C.CString(imagename)
 	defer freeCString(cimagename)
-	csuffix := C.CString(suffix)
-	defer freeCString(csuffix)
-	cid := C.CString(id)
-	defer freeCString(cid)
 	cprofile := C.CString(profile)
 	defer freeCString(cprofile)
-	if err := C.vipsgen_dzsave_target_with_options(in, target, cimagename, C.VipsForeignDzLayout(layout), csuffix, C.gint(overlap), C.gint(tileSize), C.int(boolToInt(centre)), C.VipsForeignDzDepth(depth), C.VipsAngle(angle), C.VipsForeignDzContainer(container), C.gint(compression), C.VipsRegionShrink(regionShrink), C.gint(skipBlanks), cid, C.gint(q), C.VipsForeignKeep(keep), cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
+	if err := C.vipsgen_dzsave_target_with_options(in, target, cimagename, C.VipsForeignDzLayout(layout), csuffix, suffixSet, coverlap, overlapSet, C.gint(tileSize), C.int(boolToInt(centre)), C.VipsForeignDzDepth(depth), C.VipsAngle(angle), C.VipsForeignDzContainer(container), C.gint(compression), C.VipsRegionShrink(regionShrink), cskipBlanks, skipBlanksSet, cid, idSet, C.gint(q), ckeep, keepSet, cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
 		return handleVipsError()
 	}
 	return nil
@@ -1444,9 +1648,15 @@ func vipsgenEye(width int, height int) (*C.VipsImage, error) {
 }
 
 // vipsgenEyeWithOptions vips_eye make an image showing the eye's spatial response with optional arguments
-func vipsgenEyeWithOptions(width int, height int, uchar bool, factor float64) (*C.VipsImage, error) {
+func vipsgenEyeWithOptions(width int, height int, uchar bool, factor *float64) (*C.VipsImage, error) {
 	var out *C.VipsImage
-	if err := C.vipsgen_eye_with_options(&out, C.gint(width), C.gint(height), C.int(boolToInt(uchar)), C.double(factor)); err != 0 {
+	var cfactor C.double
+	factorSet := C.int(0)
+	if factor != nil {
+		cfactor = C.double(*factor)
+		factorSet = 1
+	}
+	if err := C.vipsgen_eye_with_options(&out, C.gint(width), C.gint(height), C.int(boolToInt(uchar)), cfactor, factorSet); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
@@ -1500,7 +1710,7 @@ func vipsgenFindTrim(in *C.VipsImage) (int, int, int, int, error) {
 }
 
 // vipsgenFindTrimWithOptions vips_find_trim search an image for non-edge areas with optional arguments
-func vipsgenFindTrimWithOptions(in *C.VipsImage, threshold float64, background []float64, lineArt bool) (int, int, int, int, error) {
+func vipsgenFindTrimWithOptions(in *C.VipsImage, threshold *float64, background []float64, lineArt bool) (int, int, int, int, error) {
 	var left int
 	cleft := new(C.gint)
 	var top int
@@ -1516,7 +1726,13 @@ func vipsgenFindTrimWithOptions(in *C.VipsImage, threshold float64, background [
 	if cbackground != nil {
 		defer freeDoubleArray(cbackground)
 	}
-	if err := C.vipsgen_find_trim_with_options(in, cleft, ctop, cwidth, cheight, C.double(threshold), cbackground, cbackgroundLength, C.int(boolToInt(lineArt))); err != 0 {
+	var cthreshold C.double
+	thresholdSet := C.int(0)
+	if threshold != nil {
+		cthreshold = C.double(*threshold)
+		thresholdSet = 1
+	}
+	if err := C.vipsgen_find_trim_with_options(in, cleft, ctop, cwidth, cheight, cthreshold, thresholdSet, cbackground, cbackgroundLength, C.int(boolToInt(lineArt))); err != 0 {
 		return 0, 0, 0, 0, handleVipsError()
 	}
 	left = int(*cleft)
@@ -1559,7 +1775,7 @@ func vipsgenFitssave(in *C.VipsImage, filename string) (error) {
 }
 
 // vipsgenFitssaveWithOptions vips_fitssave save image to fits file with optional arguments
-func vipsgenFitssaveWithOptions(in *C.VipsImage, filename string, keep Keep, background []float64, pageHeight int, profile string) (error) {
+func vipsgenFitssaveWithOptions(in *C.VipsImage, filename string, keep *Keep, background []float64, pageHeight int, profile string) (error) {
 	cfilename := C.CString(filename)
 	defer freeCString(cfilename)
 	cbackground, cbackgroundLength, err := convertToDoubleArray(background)
@@ -1569,9 +1785,15 @@ func vipsgenFitssaveWithOptions(in *C.VipsImage, filename string, keep Keep, bac
 	if cbackground != nil {
 		defer freeDoubleArray(cbackground)
 	}
+	var ckeep C.VipsForeignKeep
+	keepSet := C.int(0)
+	if keep != nil {
+		ckeep = C.VipsForeignKeep(*keep)
+		keepSet = 1
+	}
 	cprofile := C.CString(profile)
 	defer freeCString(cprofile)
-	if err := C.vipsgen_fitssave_with_options(in, cfilename, C.VipsForeignKeep(keep), cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
+	if err := C.vipsgen_fitssave_with_options(in, cfilename, ckeep, keepSet, cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
 		return handleVipsError()
 	}
 	return nil
@@ -1587,7 +1809,7 @@ func vipsgenFlatten(in *C.VipsImage) (*C.VipsImage, error) {
 }
 
 // vipsgenFlattenWithOptions vips_flatten flatten alpha out of an image with optional arguments
-func vipsgenFlattenWithOptions(in *C.VipsImage, background []float64, maxAlpha float64) (*C.VipsImage, error) {
+func vipsgenFlattenWithOptions(in *C.VipsImage, background []float64, maxAlpha *float64) (*C.VipsImage, error) {
 	var out *C.VipsImage
 	cbackground, cbackgroundLength, err := convertToDoubleArray(background)
 	if err != nil {
@@ -1596,7 +1818,13 @@ func vipsgenFlattenWithOptions(in *C.VipsImage, background []float64, maxAlpha f
 	if cbackground != nil {
 		defer freeDoubleArray(cbackground)
 	}
-	if err := C.vipsgen_flatten_with_options(in, &out, cbackground, cbackgroundLength, C.double(maxAlpha)); err != 0 {
+	var cmaxAlpha C.double
+	maxAlphaSet := C.int(0)
+	if maxAlpha != nil {
+		cmaxAlpha = C.double(*maxAlpha)
+		maxAlphaSet = 1
+	}
+	if err := C.vipsgen_flatten_with_options(in, &out, cbackground, cbackgroundLength, cmaxAlpha, maxAlphaSet); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
@@ -1711,9 +1939,21 @@ func vipsgenGaussnoise(width int, height int) (*C.VipsImage, error) {
 }
 
 // vipsgenGaussnoiseWithOptions vips_gaussnoise make a gaussnoise image with optional arguments
-func vipsgenGaussnoiseWithOptions(width int, height int, sigma float64, mean float64, seed int) (*C.VipsImage, error) {
+func vipsgenGaussnoiseWithOptions(width int, height int, sigma *float64, mean *float64, seed int) (*C.VipsImage, error) {
 	var out *C.VipsImage
-	if err := C.vipsgen_gaussnoise_with_options(&out, C.gint(width), C.gint(height), C.double(sigma), C.double(mean), C.gint(seed)); err != 0 {
+	var csigma C.double
+	sigmaSet := C.int(0)
+	if sigma != nil {
+		csigma = C.double(*sigma)
+		sigmaSet = 1
+	}
+	var cmean C.double
+	meanSet := C.int(0)
+	if mean != nil {
+		cmean = C.double(*mean)
+		meanSet = 1
+	}
+	if err := C.vipsgen_gaussnoise_with_options(&out, C.gint(width), C.gint(height), csigma, sigmaSet, cmean, meanSet, C.gint(seed)); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
@@ -1761,11 +2001,17 @@ func vipsgenGifload(filename string) (*C.VipsImage, error) {
 }
 
 // vipsgenGifloadWithOptions vips_gifload load GIF with libnsgif with optional arguments
-func vipsgenGifloadWithOptions(filename string, n int, page int, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
+func vipsgenGifloadWithOptions(filename string, n *int, page int, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
 	var out *C.VipsImage
 	cfilename := C.CString(filename)
 	defer freeCString(cfilename)
-	if err := C.vipsgen_gifload_with_options(cfilename, &out, C.gint(n), C.gint(page), C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
+	var cn C.gint
+	nSet := C.int(0)
+	if n != nil {
+		cn = C.gint(*n)
+		nSet = 1
+	}
+	if err := C.vipsgen_gifload_with_options(cfilename, &out, cn, nSet, C.gint(page), C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
@@ -1784,12 +2030,18 @@ func vipsgenGifloadBuffer(buf []byte) (*C.VipsImage, error) {
 }
 
 // vipsgenGifloadBufferWithOptions vips_gifload_buffer load GIF with libnsgif with optional arguments
-func vipsgenGifloadBufferWithOptions(buf []byte, n int, page int, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
+func vipsgenGifloadBufferWithOptions(buf []byte, n *int, page int, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
 	src := buf
 	// Reference src here so it's not garbage collected during image initialization.
 	defer runtime.KeepAlive(src)
 	var out *C.VipsImage
-	if err := C.vipsgen_gifload_buffer_with_options(unsafe.Pointer(&src[0]), C.size_t(len(src)), &out, C.gint(n), C.gint(page), C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
+	var cn C.gint
+	nSet := C.int(0)
+	if n != nil {
+		cn = C.gint(*n)
+		nSet = 1
+	}
+	if err := C.vipsgen_gifload_buffer_with_options(unsafe.Pointer(&src[0]), C.size_t(len(src)), &out, cn, nSet, C.gint(page), C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
@@ -1805,9 +2057,15 @@ func vipsgenGifloadSource(source *C.VipsSourceCustom) (*C.VipsImage, error) {
 }
 
 // vipsgenGifloadSourceWithOptions vips_gifload_source load gif from source with optional arguments
-func vipsgenGifloadSourceWithOptions(source *C.VipsSourceCustom, n int, page int, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
+func vipsgenGifloadSourceWithOptions(source *C.VipsSourceCustom, n *int, page int, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
 	var out *C.VipsImage
-	if err := C.vipsgen_gifload_source_with_options(source, &out, C.gint(n), C.gint(page), C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
+	var cn C.gint
+	nSet := C.int(0)
+	if n != nil {
+		cn = C.gint(*n)
+		nSet = 1
+	}
+	if err := C.vipsgen_gifload_source_with_options(source, &out, cn, nSet, C.gint(page), C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
@@ -1824,7 +2082,7 @@ func vipsgenGifsave(in *C.VipsImage, filename string) (error) {
 }
 
 // vipsgenGifsaveWithOptions vips_gifsave save as gif with optional arguments
-func vipsgenGifsaveWithOptions(in *C.VipsImage, filename string, dither float64, effort int, bitdepth int, interframeMaxerror float64, reuse bool, interpaletteMaxerror float64, interlace bool, keepDuplicateFrames bool, keep Keep, background []float64, pageHeight int, profile string) (error) {
+func vipsgenGifsaveWithOptions(in *C.VipsImage, filename string, dither *float64, effort int, bitdepth int, interframeMaxerror float64, reuse bool, interpaletteMaxerror *float64, interlace bool, keepDuplicateFrames bool, keep *Keep, background []float64, pageHeight int, profile string) (error) {
 	cfilename := C.CString(filename)
 	defer freeCString(cfilename)
 	cbackground, cbackgroundLength, err := convertToDoubleArray(background)
@@ -1834,9 +2092,27 @@ func vipsgenGifsaveWithOptions(in *C.VipsImage, filename string, dither float64,
 	if cbackground != nil {
 		defer freeDoubleArray(cbackground)
 	}
+	var cdither C.double
+	ditherSet := C.int(0)
+	if dither != nil {
+		cdither = C.double(*dither)
+		ditherSet = 1
+	}
+	var cinterpaletteMaxerror C.double
+	interpaletteMaxerrorSet := C.int(0)
+	if interpaletteMaxerror != nil {
+		cinterpaletteMaxerror = C.double(*interpaletteMaxerror)
+		interpaletteMaxerrorSet = 1
+	}
+	var ckeep C.VipsForeignKeep
+	keepSet := C.int(0)
+	if keep != nil {
+		ckeep = C.VipsForeignKeep(*keep)
+		keepSet = 1
+	}
 	cprofile := C.CString(profile)
 	defer freeCString(cprofile)
-	if err := C.vipsgen_gifsave_with_options(in, cfilename, C.double(dither), C.gint(effort), C.gint(bitdepth), C.double(interframeMaxerror), C.int(boolToInt(reuse)), C.double(interpaletteMaxerror), C.int(boolToInt(interlace)), C.int(boolToInt(keepDuplicateFrames)), C.VipsForeignKeep(keep), cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
+	if err := C.vipsgen_gifsave_with_options(in, cfilename, cdither, ditherSet, C.gint(effort), C.gint(bitdepth), C.double(interframeMaxerror), C.int(boolToInt(reuse)), cinterpaletteMaxerror, interpaletteMaxerrorSet, C.int(boolToInt(interlace)), C.int(boolToInt(keepDuplicateFrames)), ckeep, keepSet, cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
 		return handleVipsError()
 	}
 	return nil
@@ -1853,7 +2129,7 @@ func vipsgenGifsaveBuffer(in *C.VipsImage) ([]byte, error) {
 }
 
 // vipsgenGifsaveBufferWithOptions vips_gifsave_buffer save as gif with optional arguments
-func vipsgenGifsaveBufferWithOptions(in *C.VipsImage, dither float64, effort int, bitdepth int, interframeMaxerror float64, reuse bool, interpaletteMaxerror float64, interlace bool, keepDuplicateFrames bool, keep Keep, background []float64, pageHeight int, profile string) ([]byte, error) {
+func vipsgenGifsaveBufferWithOptions(in *C.VipsImage, dither *float64, effort int, bitdepth int, interframeMaxerror float64, reuse bool, interpaletteMaxerror *float64, interlace bool, keepDuplicateFrames bool, keep *Keep, background []float64, pageHeight int, profile string) ([]byte, error) {
 	var buf unsafe.Pointer
 	var length C.size_t
 	cbackground, cbackgroundLength, err := convertToDoubleArray(background)
@@ -1863,9 +2139,27 @@ func vipsgenGifsaveBufferWithOptions(in *C.VipsImage, dither float64, effort int
 	if cbackground != nil {
 		defer freeDoubleArray(cbackground)
 	}
+	var cdither C.double
+	ditherSet := C.int(0)
+	if dither != nil {
+		cdither = C.double(*dither)
+		ditherSet = 1
+	}
+	var cinterpaletteMaxerror C.double
+	interpaletteMaxerrorSet := C.int(0)
+	if interpaletteMaxerror != nil {
+		cinterpaletteMaxerror = C.double(*interpaletteMaxerror)
+		interpaletteMaxerrorSet = 1
+	}
+	var ckeep C.VipsForeignKeep
+	keepSet := C.int(0)
+	if keep != nil {
+		ckeep = C.VipsForeignKeep(*keep)
+		keepSet = 1
+	}
 	cprofile := C.CString(profile)
 	defer freeCString(cprofile)
-	if err := C.vipsgen_gifsave_buffer_with_options(in, &buf, &length, C.double(dither), C.gint(effort), C.gint(bitdepth), C.double(interframeMaxerror), C.int(boolToInt(reuse)), C.double(interpaletteMaxerror), C.int(boolToInt(interlace)), C.int(boolToInt(keepDuplicateFrames)), C.VipsForeignKeep(keep), cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
+	if err := C.vipsgen_gifsave_buffer_with_options(in, &buf, &length, cdither, ditherSet, C.gint(effort), C.gint(bitdepth), C.double(interframeMaxerror), C.int(boolToInt(reuse)), cinterpaletteMaxerror, interpaletteMaxerrorSet, C.int(boolToInt(interlace)), C.int(boolToInt(keepDuplicateFrames)), ckeep, keepSet, cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
 		return nil, handleVipsError()
 	}
 	return bufferToBytes(buf, length), nil
@@ -1881,7 +2175,7 @@ func vipsgenGifsaveTarget(in *C.VipsImage, target *C.VipsTargetCustom) (error) {
 }
 
 // vipsgenGifsaveTargetWithOptions vips_gifsave_target save as gif with optional arguments
-func vipsgenGifsaveTargetWithOptions(in *C.VipsImage, target *C.VipsTargetCustom, dither float64, effort int, bitdepth int, interframeMaxerror float64, reuse bool, interpaletteMaxerror float64, interlace bool, keepDuplicateFrames bool, keep Keep, background []float64, pageHeight int, profile string) (error) {
+func vipsgenGifsaveTargetWithOptions(in *C.VipsImage, target *C.VipsTargetCustom, dither *float64, effort int, bitdepth int, interframeMaxerror float64, reuse bool, interpaletteMaxerror *float64, interlace bool, keepDuplicateFrames bool, keep *Keep, background []float64, pageHeight int, profile string) (error) {
 	cbackground, cbackgroundLength, err := convertToDoubleArray(background)
 	if err != nil {
 		return err
@@ -1889,9 +2183,27 @@ func vipsgenGifsaveTargetWithOptions(in *C.VipsImage, target *C.VipsTargetCustom
 	if cbackground != nil {
 		defer freeDoubleArray(cbackground)
 	}
+	var cdither C.double
+	ditherSet := C.int(0)
+	if dither != nil {
+		cdither = C.double(*dither)
+		ditherSet = 1
+	}
+	var cinterpaletteMaxerror C.double
+	interpaletteMaxerrorSet := C.int(0)
+	if interpaletteMaxerror != nil {
+		cinterpaletteMaxerror = C.double(*interpaletteMaxerror)
+		interpaletteMaxerrorSet = 1
+	}
+	var ckeep C.VipsForeignKeep
+	keepSet := C.int(0)
+	if keep != nil {
+		ckeep = C.VipsForeignKeep(*keep)
+		keepSet = 1
+	}
 	cprofile := C.CString(profile)
 	defer freeCString(cprofile)
-	if err := C.vipsgen_gifsave_target_with_options(in, target, C.double(dither), C.gint(effort), C.gint(bitdepth), C.double(interframeMaxerror), C.int(boolToInt(reuse)), C.double(interpaletteMaxerror), C.int(boolToInt(interlace)), C.int(boolToInt(keepDuplicateFrames)), C.VipsForeignKeep(keep), cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
+	if err := C.vipsgen_gifsave_target_with_options(in, target, cdither, ditherSet, C.gint(effort), C.gint(bitdepth), C.double(interframeMaxerror), C.int(boolToInt(reuse)), cinterpaletteMaxerror, interpaletteMaxerrorSet, C.int(boolToInt(interlace)), C.int(boolToInt(keepDuplicateFrames)), ckeep, keepSet, cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
 		return handleVipsError()
 	}
 	return nil
@@ -1979,11 +2291,17 @@ func vipsgenHeifload(filename string) (*C.VipsImage, error) {
 }
 
 // vipsgenHeifloadWithOptions vips_heifload load a HEIF image with optional arguments
-func vipsgenHeifloadWithOptions(filename string, page int, n int, thumbnail bool, unlimited bool, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
+func vipsgenHeifloadWithOptions(filename string, page int, n *int, thumbnail bool, unlimited bool, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
 	var out *C.VipsImage
 	cfilename := C.CString(filename)
 	defer freeCString(cfilename)
-	if err := C.vipsgen_heifload_with_options(cfilename, &out, C.gint(page), C.gint(n), C.int(boolToInt(thumbnail)), C.int(boolToInt(unlimited)), C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
+	var cn C.gint
+	nSet := C.int(0)
+	if n != nil {
+		cn = C.gint(*n)
+		nSet = 1
+	}
+	if err := C.vipsgen_heifload_with_options(cfilename, &out, C.gint(page), cn, nSet, C.int(boolToInt(thumbnail)), C.int(boolToInt(unlimited)), C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
@@ -2002,12 +2320,18 @@ func vipsgenHeifloadBuffer(buf []byte) (*C.VipsImage, error) {
 }
 
 // vipsgenHeifloadBufferWithOptions vips_heifload_buffer load a HEIF image with optional arguments
-func vipsgenHeifloadBufferWithOptions(buf []byte, page int, n int, thumbnail bool, unlimited bool, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
+func vipsgenHeifloadBufferWithOptions(buf []byte, page int, n *int, thumbnail bool, unlimited bool, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
 	src := buf
 	// Reference src here so it's not garbage collected during image initialization.
 	defer runtime.KeepAlive(src)
 	var out *C.VipsImage
-	if err := C.vipsgen_heifload_buffer_with_options(unsafe.Pointer(&src[0]), C.size_t(len(src)), &out, C.gint(page), C.gint(n), C.int(boolToInt(thumbnail)), C.int(boolToInt(unlimited)), C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
+	var cn C.gint
+	nSet := C.int(0)
+	if n != nil {
+		cn = C.gint(*n)
+		nSet = 1
+	}
+	if err := C.vipsgen_heifload_buffer_with_options(unsafe.Pointer(&src[0]), C.size_t(len(src)), &out, C.gint(page), cn, nSet, C.int(boolToInt(thumbnail)), C.int(boolToInt(unlimited)), C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
@@ -2023,9 +2347,15 @@ func vipsgenHeifloadSource(source *C.VipsSourceCustom) (*C.VipsImage, error) {
 }
 
 // vipsgenHeifloadSourceWithOptions vips_heifload_source load a HEIF image with optional arguments
-func vipsgenHeifloadSourceWithOptions(source *C.VipsSourceCustom, page int, n int, thumbnail bool, unlimited bool, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
+func vipsgenHeifloadSourceWithOptions(source *C.VipsSourceCustom, page int, n *int, thumbnail bool, unlimited bool, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
 	var out *C.VipsImage
-	if err := C.vipsgen_heifload_source_with_options(source, &out, C.gint(page), C.gint(n), C.int(boolToInt(thumbnail)), C.int(boolToInt(unlimited)), C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
+	var cn C.gint
+	nSet := C.int(0)
+	if n != nil {
+		cn = C.gint(*n)
+		nSet = 1
+	}
+	if err := C.vipsgen_heifload_source_with_options(source, &out, C.gint(page), cn, nSet, C.int(boolToInt(thumbnail)), C.int(boolToInt(unlimited)), C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
@@ -2042,7 +2372,7 @@ func vipsgenHeifsave(in *C.VipsImage, filename string) (error) {
 }
 
 // vipsgenHeifsaveWithOptions vips_heifsave save image in HEIF format with optional arguments
-func vipsgenHeifsaveWithOptions(in *C.VipsImage, filename string, q int, bitdepth int, lossless bool, compression HeifCompression, effort int, subsampleMode Subsample, encoder HeifEncoder, keep Keep, background []float64, pageHeight int, profile string) (error) {
+func vipsgenHeifsaveWithOptions(in *C.VipsImage, filename string, q int, bitdepth int, lossless bool, compression HeifCompression, effort *int, subsampleMode Subsample, encoder HeifEncoder, keep *Keep, background []float64, pageHeight int, profile string) (error) {
 	cfilename := C.CString(filename)
 	defer freeCString(cfilename)
 	cbackground, cbackgroundLength, err := convertToDoubleArray(background)
@@ -2052,9 +2382,21 @@ func vipsgenHeifsaveWithOptions(in *C.VipsImage, filename string, q int, bitdept
 	if cbackground != nil {
 		defer freeDoubleArray(cbackground)
 	}
+	var ceffort C.gint
+	effortSet := C.int(0)
+	if effort != nil {
+		ceffort = C.gint(*effort)
+		effortSet = 1
+	}
+	var ckeep C.VipsForeignKeep
+	keepSet := C.int(0)
+	if keep != nil {
+		ckeep = C.VipsForeignKeep(*keep)
+		keepSet = 1
+	}
 	cprofile := C.CString(profile)
 	defer freeCString(cprofile)
-	if err := C.vipsgen_heifsave_with_options(in, cfilename, C.gint(q), C.gint(bitdepth), C.int(boolToInt(lossless)), C.VipsForeignHeifCompression(compression), C.gint(effort), C.VipsForeignSubsample(subsampleMode), C.VipsForeignHeifEncoder(encoder), C.VipsForeignKeep(keep), cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
+	if err := C.vipsgen_heifsave_with_options(in, cfilename, C.gint(q), C.gint(bitdepth), C.int(boolToInt(lossless)), C.VipsForeignHeifCompression(compression), ceffort, effortSet, C.VipsForeignSubsample(subsampleMode), C.VipsForeignHeifEncoder(encoder), ckeep, keepSet, cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
 		return handleVipsError()
 	}
 	return nil
@@ -2071,7 +2413,7 @@ func vipsgenHeifsaveBuffer(in *C.VipsImage) ([]byte, error) {
 }
 
 // vipsgenHeifsaveBufferWithOptions vips_heifsave_buffer save image in HEIF format with optional arguments
-func vipsgenHeifsaveBufferWithOptions(in *C.VipsImage, q int, bitdepth int, lossless bool, compression HeifCompression, effort int, subsampleMode Subsample, encoder HeifEncoder, keep Keep, background []float64, pageHeight int, profile string) ([]byte, error) {
+func vipsgenHeifsaveBufferWithOptions(in *C.VipsImage, q int, bitdepth int, lossless bool, compression HeifCompression, effort *int, subsampleMode Subsample, encoder HeifEncoder, keep *Keep, background []float64, pageHeight int, profile string) ([]byte, error) {
 	var buf unsafe.Pointer
 	var length C.size_t
 	cbackground, cbackgroundLength, err := convertToDoubleArray(background)
@@ -2081,9 +2423,21 @@ func vipsgenHeifsaveBufferWithOptions(in *C.VipsImage, q int, bitdepth int, loss
 	if cbackground != nil {
 		defer freeDoubleArray(cbackground)
 	}
+	var ceffort C.gint
+	effortSet := C.int(0)
+	if effort != nil {
+		ceffort = C.gint(*effort)
+		effortSet = 1
+	}
+	var ckeep C.VipsForeignKeep
+	keepSet := C.int(0)
+	if keep != nil {
+		ckeep = C.VipsForeignKeep(*keep)
+		keepSet = 1
+	}
 	cprofile := C.CString(profile)
 	defer freeCString(cprofile)
-	if err := C.vipsgen_heifsave_buffer_with_options(in, &buf, &length, C.gint(q), C.gint(bitdepth), C.int(boolToInt(lossless)), C.VipsForeignHeifCompression(compression), C.gint(effort), C.VipsForeignSubsample(subsampleMode), C.VipsForeignHeifEncoder(encoder), C.VipsForeignKeep(keep), cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
+	if err := C.vipsgen_heifsave_buffer_with_options(in, &buf, &length, C.gint(q), C.gint(bitdepth), C.int(boolToInt(lossless)), C.VipsForeignHeifCompression(compression), ceffort, effortSet, C.VipsForeignSubsample(subsampleMode), C.VipsForeignHeifEncoder(encoder), ckeep, keepSet, cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
 		return nil, handleVipsError()
 	}
 	return bufferToBytes(buf, length), nil
@@ -2099,7 +2453,7 @@ func vipsgenHeifsaveTarget(in *C.VipsImage, target *C.VipsTargetCustom) (error) 
 }
 
 // vipsgenHeifsaveTargetWithOptions vips_heifsave_target save image in HEIF format with optional arguments
-func vipsgenHeifsaveTargetWithOptions(in *C.VipsImage, target *C.VipsTargetCustom, q int, bitdepth int, lossless bool, compression HeifCompression, effort int, subsampleMode Subsample, encoder HeifEncoder, keep Keep, background []float64, pageHeight int, profile string) (error) {
+func vipsgenHeifsaveTargetWithOptions(in *C.VipsImage, target *C.VipsTargetCustom, q int, bitdepth int, lossless bool, compression HeifCompression, effort *int, subsampleMode Subsample, encoder HeifEncoder, keep *Keep, background []float64, pageHeight int, profile string) (error) {
 	cbackground, cbackgroundLength, err := convertToDoubleArray(background)
 	if err != nil {
 		return err
@@ -2107,9 +2461,21 @@ func vipsgenHeifsaveTargetWithOptions(in *C.VipsImage, target *C.VipsTargetCusto
 	if cbackground != nil {
 		defer freeDoubleArray(cbackground)
 	}
+	var ceffort C.gint
+	effortSet := C.int(0)
+	if effort != nil {
+		ceffort = C.gint(*effort)
+		effortSet = 1
+	}
+	var ckeep C.VipsForeignKeep
+	keepSet := C.int(0)
+	if keep != nil {
+		ckeep = C.VipsForeignKeep(*keep)
+		keepSet = 1
+	}
 	cprofile := C.CString(profile)
 	defer freeCString(cprofile)
-	if err := C.vipsgen_heifsave_target_with_options(in, target, C.gint(q), C.gint(bitdepth), C.int(boolToInt(lossless)), C.VipsForeignHeifCompression(compression), C.gint(effort), C.VipsForeignSubsample(subsampleMode), C.VipsForeignHeifEncoder(encoder), C.VipsForeignKeep(keep), cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
+	if err := C.vipsgen_heifsave_target_with_options(in, target, C.gint(q), C.gint(bitdepth), C.int(boolToInt(lossless)), C.VipsForeignHeifCompression(compression), ceffort, effortSet, C.VipsForeignSubsample(subsampleMode), C.VipsForeignHeifEncoder(encoder), ckeep, keepSet, cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
 		return handleVipsError()
 	}
 	return nil
@@ -2145,9 +2511,15 @@ func vipsgenHistEqual(in *C.VipsImage) (*C.VipsImage, error) {
 }
 
 // vipsgenHistEqualWithOptions vips_hist_equal histogram equalisation with optional arguments
-func vipsgenHistEqualWithOptions(in *C.VipsImage, band int) (*C.VipsImage, error) {
+func vipsgenHistEqualWithOptions(in *C.VipsImage, band *int) (*C.VipsImage, error) {
 	var out *C.VipsImage
-	if err := C.vipsgen_hist_equal_with_options(in, &out, C.gint(band)); err != 0 {
+	var cband C.gint
+	bandSet := C.int(0)
+	if band != nil {
+		cband = C.gint(*band)
+		bandSet = 1
+	}
+	if err := C.vipsgen_hist_equal_with_options(in, &out, cband, bandSet); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
@@ -2163,9 +2535,15 @@ func vipsgenHistFind(in *C.VipsImage) (*C.VipsImage, error) {
 }
 
 // vipsgenHistFindWithOptions vips_hist_find find image histogram with optional arguments
-func vipsgenHistFindWithOptions(in *C.VipsImage, band int) (*C.VipsImage, error) {
+func vipsgenHistFindWithOptions(in *C.VipsImage, band *int) (*C.VipsImage, error) {
 	var out *C.VipsImage
-	if err := C.vipsgen_hist_find_with_options(in, &out, C.gint(band)); err != 0 {
+	var cband C.gint
+	bandSet := C.int(0)
+	if band != nil {
+		cband = C.gint(*band)
+		bandSet = 1
+	}
+	if err := C.vipsgen_hist_find_with_options(in, &out, cband, bandSet); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
@@ -2181,9 +2559,15 @@ func vipsgenHistFindIndexed(in *C.VipsImage, index *C.VipsImage) (*C.VipsImage, 
 }
 
 // vipsgenHistFindIndexedWithOptions vips_hist_find_indexed find indexed image histogram with optional arguments
-func vipsgenHistFindIndexedWithOptions(in *C.VipsImage, index *C.VipsImage, combine Combine) (*C.VipsImage, error) {
+func vipsgenHistFindIndexedWithOptions(in *C.VipsImage, index *C.VipsImage, combine *Combine) (*C.VipsImage, error) {
 	var out *C.VipsImage
-	if err := C.vipsgen_hist_find_indexed_with_options(in, index, &out, C.VipsCombine(combine)); err != 0 {
+	var ccombine C.VipsCombine
+	combineSet := C.int(0)
+	if combine != nil {
+		ccombine = C.VipsCombine(*combine)
+		combineSet = 1
+	}
+	if err := C.vipsgen_hist_find_indexed_with_options(in, index, &out, ccombine, combineSet); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
@@ -2309,11 +2693,17 @@ func vipsgenIccExport(in *C.VipsImage) (*C.VipsImage, error) {
 }
 
 // vipsgenIccExportWithOptions vips_icc_export output to device with ICC profile with optional arguments
-func vipsgenIccExportWithOptions(in *C.VipsImage, pcs PCS, intent Intent, blackPointCompensation bool, outputProfile string, depth int) (*C.VipsImage, error) {
+func vipsgenIccExportWithOptions(in *C.VipsImage, pcs PCS, intent *Intent, blackPointCompensation bool, outputProfile string, depth int) (*C.VipsImage, error) {
 	var out *C.VipsImage
+	var cintent C.VipsIntent
+	intentSet := C.int(0)
+	if intent != nil {
+		cintent = C.VipsIntent(*intent)
+		intentSet = 1
+	}
 	coutputProfile := C.CString(outputProfile)
 	defer freeCString(coutputProfile)
-	if err := C.vipsgen_icc_export_with_options(in, &out, C.VipsPCS(pcs), C.VipsIntent(intent), C.int(boolToInt(blackPointCompensation)), coutputProfile, C.gint(depth)); err != 0 {
+	if err := C.vipsgen_icc_export_with_options(in, &out, C.VipsPCS(pcs), cintent, intentSet, C.int(boolToInt(blackPointCompensation)), coutputProfile, C.gint(depth)); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
@@ -2329,11 +2719,17 @@ func vipsgenIccImport(in *C.VipsImage) (*C.VipsImage, error) {
 }
 
 // vipsgenIccImportWithOptions vips_icc_import import from device with ICC profile with optional arguments
-func vipsgenIccImportWithOptions(in *C.VipsImage, pcs PCS, intent Intent, blackPointCompensation bool, embedded bool, inputProfile string) (*C.VipsImage, error) {
+func vipsgenIccImportWithOptions(in *C.VipsImage, pcs PCS, intent *Intent, blackPointCompensation bool, embedded bool, inputProfile string) (*C.VipsImage, error) {
 	var out *C.VipsImage
+	var cintent C.VipsIntent
+	intentSet := C.int(0)
+	if intent != nil {
+		cintent = C.VipsIntent(*intent)
+		intentSet = 1
+	}
 	cinputProfile := C.CString(inputProfile)
 	defer freeCString(cinputProfile)
-	if err := C.vipsgen_icc_import_with_options(in, &out, C.VipsPCS(pcs), C.VipsIntent(intent), C.int(boolToInt(blackPointCompensation)), C.int(boolToInt(embedded)), cinputProfile); err != 0 {
+	if err := C.vipsgen_icc_import_with_options(in, &out, C.VipsPCS(pcs), cintent, intentSet, C.int(boolToInt(blackPointCompensation)), C.int(boolToInt(embedded)), cinputProfile); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
@@ -2351,13 +2747,19 @@ func vipsgenIccTransform(in *C.VipsImage, outputProfile string) (*C.VipsImage, e
 }
 
 // vipsgenIccTransformWithOptions vips_icc_transform transform between devices with ICC profiles with optional arguments
-func vipsgenIccTransformWithOptions(in *C.VipsImage, outputProfile string, pcs PCS, intent Intent, blackPointCompensation bool, embedded bool, inputProfile string, depth int) (*C.VipsImage, error) {
+func vipsgenIccTransformWithOptions(in *C.VipsImage, outputProfile string, pcs PCS, intent *Intent, blackPointCompensation bool, embedded bool, inputProfile string, depth int) (*C.VipsImage, error) {
 	var out *C.VipsImage
 	coutputProfile := C.CString(outputProfile)
 	defer freeCString(coutputProfile)
+	var cintent C.VipsIntent
+	intentSet := C.int(0)
+	if intent != nil {
+		cintent = C.VipsIntent(*intent)
+		intentSet = 1
+	}
 	cinputProfile := C.CString(inputProfile)
 	defer freeCString(cinputProfile)
-	if err := C.vipsgen_icc_transform_with_options(in, &out, coutputProfile, C.VipsPCS(pcs), C.VipsIntent(intent), C.int(boolToInt(blackPointCompensation)), C.int(boolToInt(embedded)), cinputProfile, C.gint(depth)); err != 0 {
+	if err := C.vipsgen_icc_transform_with_options(in, &out, coutputProfile, C.VipsPCS(pcs), cintent, intentSet, C.int(boolToInt(blackPointCompensation)), C.int(boolToInt(embedded)), cinputProfile, C.gint(depth)); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
@@ -2569,7 +2971,7 @@ func vipsgenJp2ksave(in *C.VipsImage, filename string) (error) {
 }
 
 // vipsgenJp2ksaveWithOptions vips_jp2ksave save image in JPEG2000 format with optional arguments
-func vipsgenJp2ksaveWithOptions(in *C.VipsImage, filename string, tileWidth int, tileHeight int, lossless bool, q int, subsampleMode Subsample, keep Keep, background []float64, pageHeight int, profile string) (error) {
+func vipsgenJp2ksaveWithOptions(in *C.VipsImage, filename string, tileWidth int, tileHeight int, lossless bool, q int, subsampleMode *Subsample, keep *Keep, background []float64, pageHeight int, profile string) (error) {
 	cfilename := C.CString(filename)
 	defer freeCString(cfilename)
 	cbackground, cbackgroundLength, err := convertToDoubleArray(background)
@@ -2579,9 +2981,21 @@ func vipsgenJp2ksaveWithOptions(in *C.VipsImage, filename string, tileWidth int,
 	if cbackground != nil {
 		defer freeDoubleArray(cbackground)
 	}
+	var csubsampleMode C.VipsForeignSubsample
+	subsampleModeSet := C.int(0)
+	if subsampleMode != nil {
+		csubsampleMode = C.VipsForeignSubsample(*subsampleMode)
+		subsampleModeSet = 1
+	}
+	var ckeep C.VipsForeignKeep
+	keepSet := C.int(0)
+	if keep != nil {
+		ckeep = C.VipsForeignKeep(*keep)
+		keepSet = 1
+	}
 	cprofile := C.CString(profile)
 	defer freeCString(cprofile)
-	if err := C.vipsgen_jp2ksave_with_options(in, cfilename, C.gint(tileWidth), C.gint(tileHeight), C.int(boolToInt(lossless)), C.gint(q), C.VipsForeignSubsample(subsampleMode), C.VipsForeignKeep(keep), cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
+	if err := C.vipsgen_jp2ksave_with_options(in, cfilename, C.gint(tileWidth), C.gint(tileHeight), C.int(boolToInt(lossless)), C.gint(q), csubsampleMode, subsampleModeSet, ckeep, keepSet, cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
 		return handleVipsError()
 	}
 	return nil
@@ -2598,7 +3012,7 @@ func vipsgenJp2ksaveBuffer(in *C.VipsImage) ([]byte, error) {
 }
 
 // vipsgenJp2ksaveBufferWithOptions vips_jp2ksave_buffer save image in JPEG2000 format with optional arguments
-func vipsgenJp2ksaveBufferWithOptions(in *C.VipsImage, tileWidth int, tileHeight int, lossless bool, q int, subsampleMode Subsample, keep Keep, background []float64, pageHeight int, profile string) ([]byte, error) {
+func vipsgenJp2ksaveBufferWithOptions(in *C.VipsImage, tileWidth int, tileHeight int, lossless bool, q int, subsampleMode *Subsample, keep *Keep, background []float64, pageHeight int, profile string) ([]byte, error) {
 	var buf unsafe.Pointer
 	var length C.size_t
 	cbackground, cbackgroundLength, err := convertToDoubleArray(background)
@@ -2608,9 +3022,21 @@ func vipsgenJp2ksaveBufferWithOptions(in *C.VipsImage, tileWidth int, tileHeight
 	if cbackground != nil {
 		defer freeDoubleArray(cbackground)
 	}
+	var csubsampleMode C.VipsForeignSubsample
+	subsampleModeSet := C.int(0)
+	if subsampleMode != nil {
+		csubsampleMode = C.VipsForeignSubsample(*subsampleMode)
+		subsampleModeSet = 1
+	}
+	var ckeep C.VipsForeignKeep
+	keepSet := C.int(0)
+	if keep != nil {
+		ckeep = C.VipsForeignKeep(*keep)
+		keepSet = 1
+	}
 	cprofile := C.CString(profile)
 	defer freeCString(cprofile)
-	if err := C.vipsgen_jp2ksave_buffer_with_options(in, &buf, &length, C.gint(tileWidth), C.gint(tileHeight), C.int(boolToInt(lossless)), C.gint(q), C.VipsForeignSubsample(subsampleMode), C.VipsForeignKeep(keep), cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
+	if err := C.vipsgen_jp2ksave_buffer_with_options(in, &buf, &length, C.gint(tileWidth), C.gint(tileHeight), C.int(boolToInt(lossless)), C.gint(q), csubsampleMode, subsampleModeSet, ckeep, keepSet, cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
 		return nil, handleVipsError()
 	}
 	return bufferToBytes(buf, length), nil
@@ -2626,7 +3052,7 @@ func vipsgenJp2ksaveTarget(in *C.VipsImage, target *C.VipsTargetCustom) (error) 
 }
 
 // vipsgenJp2ksaveTargetWithOptions vips_jp2ksave_target save image in JPEG2000 format with optional arguments
-func vipsgenJp2ksaveTargetWithOptions(in *C.VipsImage, target *C.VipsTargetCustom, tileWidth int, tileHeight int, lossless bool, q int, subsampleMode Subsample, keep Keep, background []float64, pageHeight int, profile string) (error) {
+func vipsgenJp2ksaveTargetWithOptions(in *C.VipsImage, target *C.VipsTargetCustom, tileWidth int, tileHeight int, lossless bool, q int, subsampleMode *Subsample, keep *Keep, background []float64, pageHeight int, profile string) (error) {
 	cbackground, cbackgroundLength, err := convertToDoubleArray(background)
 	if err != nil {
 		return err
@@ -2634,9 +3060,21 @@ func vipsgenJp2ksaveTargetWithOptions(in *C.VipsImage, target *C.VipsTargetCusto
 	if cbackground != nil {
 		defer freeDoubleArray(cbackground)
 	}
+	var csubsampleMode C.VipsForeignSubsample
+	subsampleModeSet := C.int(0)
+	if subsampleMode != nil {
+		csubsampleMode = C.VipsForeignSubsample(*subsampleMode)
+		subsampleModeSet = 1
+	}
+	var ckeep C.VipsForeignKeep
+	keepSet := C.int(0)
+	if keep != nil {
+		ckeep = C.VipsForeignKeep(*keep)
+		keepSet = 1
+	}
 	cprofile := C.CString(profile)
 	defer freeCString(cprofile)
-	if err := C.vipsgen_jp2ksave_target_with_options(in, target, C.gint(tileWidth), C.gint(tileHeight), C.int(boolToInt(lossless)), C.gint(q), C.VipsForeignSubsample(subsampleMode), C.VipsForeignKeep(keep), cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
+	if err := C.vipsgen_jp2ksave_target_with_options(in, target, C.gint(tileWidth), C.gint(tileHeight), C.int(boolToInt(lossless)), C.gint(q), csubsampleMode, subsampleModeSet, ckeep, keepSet, cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
 		return handleVipsError()
 	}
 	return nil
@@ -2717,7 +3155,7 @@ func vipsgenJpegsave(in *C.VipsImage, filename string) (error) {
 }
 
 // vipsgenJpegsaveWithOptions vips_jpegsave save image to jpeg file with optional arguments
-func vipsgenJpegsaveWithOptions(in *C.VipsImage, filename string, q int, optimizeCoding bool, interlace bool, trellisQuant bool, overshootDeringing bool, optimizeScans bool, quantTable int, subsampleMode Subsample, restartInterval int, keep Keep, background []float64, pageHeight int, profile string) (error) {
+func vipsgenJpegsaveWithOptions(in *C.VipsImage, filename string, q int, optimizeCoding bool, interlace bool, trellisQuant bool, overshootDeringing bool, optimizeScans bool, quantTable int, subsampleMode Subsample, restartInterval int, keep *Keep, background []float64, pageHeight int, profile string) (error) {
 	cfilename := C.CString(filename)
 	defer freeCString(cfilename)
 	cbackground, cbackgroundLength, err := convertToDoubleArray(background)
@@ -2727,9 +3165,15 @@ func vipsgenJpegsaveWithOptions(in *C.VipsImage, filename string, q int, optimiz
 	if cbackground != nil {
 		defer freeDoubleArray(cbackground)
 	}
+	var ckeep C.VipsForeignKeep
+	keepSet := C.int(0)
+	if keep != nil {
+		ckeep = C.VipsForeignKeep(*keep)
+		keepSet = 1
+	}
 	cprofile := C.CString(profile)
 	defer freeCString(cprofile)
-	if err := C.vipsgen_jpegsave_with_options(in, cfilename, C.gint(q), C.int(boolToInt(optimizeCoding)), C.int(boolToInt(interlace)), C.int(boolToInt(trellisQuant)), C.int(boolToInt(overshootDeringing)), C.int(boolToInt(optimizeScans)), C.gint(quantTable), C.VipsForeignSubsample(subsampleMode), C.gint(restartInterval), C.VipsForeignKeep(keep), cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
+	if err := C.vipsgen_jpegsave_with_options(in, cfilename, C.gint(q), C.int(boolToInt(optimizeCoding)), C.int(boolToInt(interlace)), C.int(boolToInt(trellisQuant)), C.int(boolToInt(overshootDeringing)), C.int(boolToInt(optimizeScans)), C.gint(quantTable), C.VipsForeignSubsample(subsampleMode), C.gint(restartInterval), ckeep, keepSet, cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
 		return handleVipsError()
 	}
 	return nil
@@ -2746,7 +3190,7 @@ func vipsgenJpegsaveBuffer(in *C.VipsImage) ([]byte, error) {
 }
 
 // vipsgenJpegsaveBufferWithOptions vips_jpegsave_buffer save image to jpeg buffer with optional arguments
-func vipsgenJpegsaveBufferWithOptions(in *C.VipsImage, q int, optimizeCoding bool, interlace bool, trellisQuant bool, overshootDeringing bool, optimizeScans bool, quantTable int, subsampleMode Subsample, restartInterval int, keep Keep, background []float64, pageHeight int, profile string) ([]byte, error) {
+func vipsgenJpegsaveBufferWithOptions(in *C.VipsImage, q int, optimizeCoding bool, interlace bool, trellisQuant bool, overshootDeringing bool, optimizeScans bool, quantTable int, subsampleMode Subsample, restartInterval int, keep *Keep, background []float64, pageHeight int, profile string) ([]byte, error) {
 	var buf unsafe.Pointer
 	var length C.size_t
 	cbackground, cbackgroundLength, err := convertToDoubleArray(background)
@@ -2756,9 +3200,15 @@ func vipsgenJpegsaveBufferWithOptions(in *C.VipsImage, q int, optimizeCoding boo
 	if cbackground != nil {
 		defer freeDoubleArray(cbackground)
 	}
+	var ckeep C.VipsForeignKeep
+	keepSet := C.int(0)
+	if keep != nil {
+		ckeep = C.VipsForeignKeep(*keep)
+		keepSet = 1
+	}
 	cprofile := C.CString(profile)
 	defer freeCString(cprofile)
-	if err := C.vipsgen_jpegsave_buffer_with_options(in, &buf, &length, C.gint(q), C.int(boolToInt(optimizeCoding)), C.int(boolToInt(interlace)), C.int(boolToInt(trellisQuant)), C.int(boolToInt(overshootDeringing)), C.int(boolToInt(optimizeScans)), C.gint(quantTable), C.VipsForeignSubsample(subsampleMode), C.gint(restartInterval), C.VipsForeignKeep(keep), cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
+	if err := C.vipsgen_jpegsave_buffer_with_options(in, &buf, &length, C.gint(q), C.int(boolToInt(optimizeCoding)), C.int(boolToInt(interlace)), C.int(boolToInt(trellisQuant)), C.int(boolToInt(overshootDeringing)), C.int(boolToInt(optimizeScans)), C.gint(quantTable), C.VipsForeignSubsample(subsampleMode), C.gint(restartInterval), ckeep, keepSet, cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
 		return nil, handleVipsError()
 	}
 	return bufferToBytes(buf, length), nil
@@ -2774,7 +3224,7 @@ func vipsgenJpegsaveTarget(in *C.VipsImage, target *C.VipsTargetCustom) (error) 
 }
 
 // vipsgenJpegsaveTargetWithOptions vips_jpegsave_target save image to jpeg target with optional arguments
-func vipsgenJpegsaveTargetWithOptions(in *C.VipsImage, target *C.VipsTargetCustom, q int, optimizeCoding bool, interlace bool, trellisQuant bool, overshootDeringing bool, optimizeScans bool, quantTable int, subsampleMode Subsample, restartInterval int, keep Keep, background []float64, pageHeight int, profile string) (error) {
+func vipsgenJpegsaveTargetWithOptions(in *C.VipsImage, target *C.VipsTargetCustom, q int, optimizeCoding bool, interlace bool, trellisQuant bool, overshootDeringing bool, optimizeScans bool, quantTable int, subsampleMode Subsample, restartInterval int, keep *Keep, background []float64, pageHeight int, profile string) (error) {
 	cbackground, cbackgroundLength, err := convertToDoubleArray(background)
 	if err != nil {
 		return err
@@ -2782,9 +3232,15 @@ func vipsgenJpegsaveTargetWithOptions(in *C.VipsImage, target *C.VipsTargetCusto
 	if cbackground != nil {
 		defer freeDoubleArray(cbackground)
 	}
+	var ckeep C.VipsForeignKeep
+	keepSet := C.int(0)
+	if keep != nil {
+		ckeep = C.VipsForeignKeep(*keep)
+		keepSet = 1
+	}
 	cprofile := C.CString(profile)
 	defer freeCString(cprofile)
-	if err := C.vipsgen_jpegsave_target_with_options(in, target, C.gint(q), C.int(boolToInt(optimizeCoding)), C.int(boolToInt(interlace)), C.int(boolToInt(trellisQuant)), C.int(boolToInt(overshootDeringing)), C.int(boolToInt(optimizeScans)), C.gint(quantTable), C.VipsForeignSubsample(subsampleMode), C.gint(restartInterval), C.VipsForeignKeep(keep), cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
+	if err := C.vipsgen_jpegsave_target_with_options(in, target, C.gint(q), C.int(boolToInt(optimizeCoding)), C.int(boolToInt(interlace)), C.int(boolToInt(trellisQuant)), C.int(boolToInt(overshootDeringing)), C.int(boolToInt(optimizeScans)), C.gint(quantTable), C.VipsForeignSubsample(subsampleMode), C.gint(restartInterval), ckeep, keepSet, cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
 		return handleVipsError()
 	}
 	return nil
@@ -2802,11 +3258,17 @@ func vipsgenJxlload(filename string) (*C.VipsImage, error) {
 }
 
 // vipsgenJxlloadWithOptions vips_jxlload load JPEG-XL image with optional arguments
-func vipsgenJxlloadWithOptions(filename string, page int, n int, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
+func vipsgenJxlloadWithOptions(filename string, page int, n *int, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
 	var out *C.VipsImage
 	cfilename := C.CString(filename)
 	defer freeCString(cfilename)
-	if err := C.vipsgen_jxlload_with_options(cfilename, &out, C.gint(page), C.gint(n), C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
+	var cn C.gint
+	nSet := C.int(0)
+	if n != nil {
+		cn = C.gint(*n)
+		nSet = 1
+	}
+	if err := C.vipsgen_jxlload_with_options(cfilename, &out, C.gint(page), cn, nSet, C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
@@ -2825,12 +3287,18 @@ func vipsgenJxlloadBuffer(buf []byte) (*C.VipsImage, error) {
 }
 
 // vipsgenJxlloadBufferWithOptions vips_jxlload_buffer load JPEG-XL image with optional arguments
-func vipsgenJxlloadBufferWithOptions(buf []byte, page int, n int, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
+func vipsgenJxlloadBufferWithOptions(buf []byte, page int, n *int, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
 	src := buf
 	// Reference src here so it's not garbage collected during image initialization.
 	defer runtime.KeepAlive(src)
 	var out *C.VipsImage
-	if err := C.vipsgen_jxlload_buffer_with_options(unsafe.Pointer(&src[0]), C.size_t(len(src)), &out, C.gint(page), C.gint(n), C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
+	var cn C.gint
+	nSet := C.int(0)
+	if n != nil {
+		cn = C.gint(*n)
+		nSet = 1
+	}
+	if err := C.vipsgen_jxlload_buffer_with_options(unsafe.Pointer(&src[0]), C.size_t(len(src)), &out, C.gint(page), cn, nSet, C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
@@ -2846,9 +3314,15 @@ func vipsgenJxlloadSource(source *C.VipsSourceCustom) (*C.VipsImage, error) {
 }
 
 // vipsgenJxlloadSourceWithOptions vips_jxlload_source load JPEG-XL image with optional arguments
-func vipsgenJxlloadSourceWithOptions(source *C.VipsSourceCustom, page int, n int, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
+func vipsgenJxlloadSourceWithOptions(source *C.VipsSourceCustom, page int, n *int, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
 	var out *C.VipsImage
-	if err := C.vipsgen_jxlload_source_with_options(source, &out, C.gint(page), C.gint(n), C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
+	var cn C.gint
+	nSet := C.int(0)
+	if n != nil {
+		cn = C.gint(*n)
+		nSet = 1
+	}
+	if err := C.vipsgen_jxlload_source_with_options(source, &out, C.gint(page), cn, nSet, C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
@@ -2865,7 +3339,7 @@ func vipsgenJxlsave(in *C.VipsImage, filename string) (error) {
 }
 
 // vipsgenJxlsaveWithOptions vips_jxlsave save image in JPEG-XL format with optional arguments
-func vipsgenJxlsaveWithOptions(in *C.VipsImage, filename string, tier int, distance float64, effort int, lossless bool, q int, keep Keep, background []float64, pageHeight int, profile string) (error) {
+func vipsgenJxlsaveWithOptions(in *C.VipsImage, filename string, tier int, distance *float64, effort int, lossless bool, q *int, keep *Keep, background []float64, pageHeight int, profile string) (error) {
 	cfilename := C.CString(filename)
 	defer freeCString(cfilename)
 	cbackground, cbackgroundLength, err := convertToDoubleArray(background)
@@ -2875,9 +3349,27 @@ func vipsgenJxlsaveWithOptions(in *C.VipsImage, filename string, tier int, dista
 	if cbackground != nil {
 		defer freeDoubleArray(cbackground)
 	}
+	var cdistance C.double
+	distanceSet := C.int(0)
+	if distance != nil {
+		cdistance = C.double(*distance)
+		distanceSet = 1
+	}
+	var cq C.gint
+	qSet := C.int(0)
+	if q != nil {
+		cq = C.gint(*q)
+		qSet = 1
+	}
+	var ckeep C.VipsForeignKeep
+	keepSet := C.int(0)
+	if keep != nil {
+		ckeep = C.VipsForeignKeep(*keep)
+		keepSet = 1
+	}
 	cprofile := C.CString(profile)
 	defer freeCString(cprofile)
-	if err := C.vipsgen_jxlsave_with_options(in, cfilename, C.gint(tier), C.double(distance), C.gint(effort), C.int(boolToInt(lossless)), C.gint(q), C.VipsForeignKeep(keep), cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
+	if err := C.vipsgen_jxlsave_with_options(in, cfilename, C.gint(tier), cdistance, distanceSet, C.gint(effort), C.int(boolToInt(lossless)), cq, qSet, ckeep, keepSet, cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
 		return handleVipsError()
 	}
 	return nil
@@ -2894,7 +3386,7 @@ func vipsgenJxlsaveBuffer(in *C.VipsImage) ([]byte, error) {
 }
 
 // vipsgenJxlsaveBufferWithOptions vips_jxlsave_buffer save image in JPEG-XL format with optional arguments
-func vipsgenJxlsaveBufferWithOptions(in *C.VipsImage, tier int, distance float64, effort int, lossless bool, q int, keep Keep, background []float64, pageHeight int, profile string) ([]byte, error) {
+func vipsgenJxlsaveBufferWithOptions(in *C.VipsImage, tier int, distance *float64, effort int, lossless bool, q *int, keep *Keep, background []float64, pageHeight int, profile string) ([]byte, error) {
 	var buf unsafe.Pointer
 	var length C.size_t
 	cbackground, cbackgroundLength, err := convertToDoubleArray(background)
@@ -2904,9 +3396,27 @@ func vipsgenJxlsaveBufferWithOptions(in *C.VipsImage, tier int, distance float64
 	if cbackground != nil {
 		defer freeDoubleArray(cbackground)
 	}
+	var cdistance C.double
+	distanceSet := C.int(0)
+	if distance != nil {
+		cdistance = C.double(*distance)
+		distanceSet = 1
+	}
+	var cq C.gint
+	qSet := C.int(0)
+	if q != nil {
+		cq = C.gint(*q)
+		qSet = 1
+	}
+	var ckeep C.VipsForeignKeep
+	keepSet := C.int(0)
+	if keep != nil {
+		ckeep = C.VipsForeignKeep(*keep)
+		keepSet = 1
+	}
 	cprofile := C.CString(profile)
 	defer freeCString(cprofile)
-	if err := C.vipsgen_jxlsave_buffer_with_options(in, &buf, &length, C.gint(tier), C.double(distance), C.gint(effort), C.int(boolToInt(lossless)), C.gint(q), C.VipsForeignKeep(keep), cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
+	if err := C.vipsgen_jxlsave_buffer_with_options(in, &buf, &length, C.gint(tier), cdistance, distanceSet, C.gint(effort), C.int(boolToInt(lossless)), cq, qSet, ckeep, keepSet, cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
 		return nil, handleVipsError()
 	}
 	return bufferToBytes(buf, length), nil
@@ -2922,7 +3432,7 @@ func vipsgenJxlsaveTarget(in *C.VipsImage, target *C.VipsTargetCustom) (error) {
 }
 
 // vipsgenJxlsaveTargetWithOptions vips_jxlsave_target save image in JPEG-XL format with optional arguments
-func vipsgenJxlsaveTargetWithOptions(in *C.VipsImage, target *C.VipsTargetCustom, tier int, distance float64, effort int, lossless bool, q int, keep Keep, background []float64, pageHeight int, profile string) (error) {
+func vipsgenJxlsaveTargetWithOptions(in *C.VipsImage, target *C.VipsTargetCustom, tier int, distance *float64, effort int, lossless bool, q *int, keep *Keep, background []float64, pageHeight int, profile string) (error) {
 	cbackground, cbackgroundLength, err := convertToDoubleArray(background)
 	if err != nil {
 		return err
@@ -2930,9 +3440,27 @@ func vipsgenJxlsaveTargetWithOptions(in *C.VipsImage, target *C.VipsTargetCustom
 	if cbackground != nil {
 		defer freeDoubleArray(cbackground)
 	}
+	var cdistance C.double
+	distanceSet := C.int(0)
+	if distance != nil {
+		cdistance = C.double(*distance)
+		distanceSet = 1
+	}
+	var cq C.gint
+	qSet := C.int(0)
+	if q != nil {
+		cq = C.gint(*q)
+		qSet = 1
+	}
+	var ckeep C.VipsForeignKeep
+	keepSet := C.int(0)
+	if keep != nil {
+		ckeep = C.VipsForeignKeep(*keep)
+		keepSet = 1
+	}
 	cprofile := C.CString(profile)
 	defer freeCString(cprofile)
-	if err := C.vipsgen_jxlsave_target_with_options(in, target, C.gint(tier), C.double(distance), C.gint(effort), C.int(boolToInt(lossless)), C.gint(q), C.VipsForeignKeep(keep), cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
+	if err := C.vipsgen_jxlsave_target_with_options(in, target, C.gint(tier), cdistance, distanceSet, C.gint(effort), C.int(boolToInt(lossless)), cq, qSet, ckeep, keepSet, cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
 		return handleVipsError()
 	}
 	return nil
@@ -3070,13 +3598,19 @@ func vipsgenMagickload(filename string) (*C.VipsImage, error) {
 }
 
 // vipsgenMagickloadWithOptions vips_magickload load file with ImageMagick with optional arguments
-func vipsgenMagickloadWithOptions(filename string, density string, page int, n int, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
+func vipsgenMagickloadWithOptions(filename string, density string, page int, n *int, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
 	var out *C.VipsImage
 	cfilename := C.CString(filename)
 	defer freeCString(cfilename)
+	var cn C.gint
+	nSet := C.int(0)
+	if n != nil {
+		cn = C.gint(*n)
+		nSet = 1
+	}
 	cdensity := C.CString(density)
 	defer freeCString(cdensity)
-	if err := C.vipsgen_magickload_with_options(cfilename, &out, cdensity, C.gint(page), C.gint(n), C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
+	if err := C.vipsgen_magickload_with_options(cfilename, &out, cdensity, C.gint(page), cn, nSet, C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
@@ -3095,14 +3629,20 @@ func vipsgenMagickloadBuffer(buf []byte) (*C.VipsImage, error) {
 }
 
 // vipsgenMagickloadBufferWithOptions vips_magickload_buffer load buffer with ImageMagick with optional arguments
-func vipsgenMagickloadBufferWithOptions(buf []byte, density string, page int, n int, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
+func vipsgenMagickloadBufferWithOptions(buf []byte, density string, page int, n *int, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
 	src := buf
 	// Reference src here so it's not garbage collected during image initialization.
 	defer runtime.KeepAlive(src)
 	var out *C.VipsImage
+	var cn C.gint
+	nSet := C.int(0)
+	if n != nil {
+		cn = C.gint(*n)
+		nSet = 1
+	}
 	cdensity := C.CString(density)
 	defer freeCString(cdensity)
-	if err := C.vipsgen_magickload_buffer_with_options(unsafe.Pointer(&src[0]), C.size_t(len(src)), &out, cdensity, C.gint(page), C.gint(n), C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
+	if err := C.vipsgen_magickload_buffer_with_options(unsafe.Pointer(&src[0]), C.size_t(len(src)), &out, cdensity, C.gint(page), cn, nSet, C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
@@ -3119,7 +3659,7 @@ func vipsgenMagicksave(in *C.VipsImage, filename string) (error) {
 }
 
 // vipsgenMagicksaveWithOptions vips_magicksave save file with ImageMagick with optional arguments
-func vipsgenMagicksaveWithOptions(in *C.VipsImage, filename string, format string, quality int, optimizeGifFrames bool, optimizeGifTransparency bool, bitdepth int, keep Keep, background []float64, pageHeight int, profile string) (error) {
+func vipsgenMagicksaveWithOptions(in *C.VipsImage, filename string, format string, quality int, optimizeGifFrames bool, optimizeGifTransparency bool, bitdepth int, keep *Keep, background []float64, pageHeight int, profile string) (error) {
 	cfilename := C.CString(filename)
 	defer freeCString(cfilename)
 	cbackground, cbackgroundLength, err := convertToDoubleArray(background)
@@ -3129,11 +3669,17 @@ func vipsgenMagicksaveWithOptions(in *C.VipsImage, filename string, format strin
 	if cbackground != nil {
 		defer freeDoubleArray(cbackground)
 	}
+	var ckeep C.VipsForeignKeep
+	keepSet := C.int(0)
+	if keep != nil {
+		ckeep = C.VipsForeignKeep(*keep)
+		keepSet = 1
+	}
 	cformat := C.CString(format)
 	defer freeCString(cformat)
 	cprofile := C.CString(profile)
 	defer freeCString(cprofile)
-	if err := C.vipsgen_magicksave_with_options(in, cfilename, cformat, C.gint(quality), C.int(boolToInt(optimizeGifFrames)), C.int(boolToInt(optimizeGifTransparency)), C.gint(bitdepth), C.VipsForeignKeep(keep), cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
+	if err := C.vipsgen_magicksave_with_options(in, cfilename, cformat, C.gint(quality), C.int(boolToInt(optimizeGifFrames)), C.int(boolToInt(optimizeGifTransparency)), C.gint(bitdepth), ckeep, keepSet, cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
 		return handleVipsError()
 	}
 	return nil
@@ -3150,7 +3696,7 @@ func vipsgenMagicksaveBuffer(in *C.VipsImage) ([]byte, error) {
 }
 
 // vipsgenMagicksaveBufferWithOptions vips_magicksave_buffer save image to magick buffer with optional arguments
-func vipsgenMagicksaveBufferWithOptions(in *C.VipsImage, format string, quality int, optimizeGifFrames bool, optimizeGifTransparency bool, bitdepth int, keep Keep, background []float64, pageHeight int, profile string) ([]byte, error) {
+func vipsgenMagicksaveBufferWithOptions(in *C.VipsImage, format string, quality int, optimizeGifFrames bool, optimizeGifTransparency bool, bitdepth int, keep *Keep, background []float64, pageHeight int, profile string) ([]byte, error) {
 	var buf unsafe.Pointer
 	var length C.size_t
 	cbackground, cbackgroundLength, err := convertToDoubleArray(background)
@@ -3160,11 +3706,17 @@ func vipsgenMagicksaveBufferWithOptions(in *C.VipsImage, format string, quality 
 	if cbackground != nil {
 		defer freeDoubleArray(cbackground)
 	}
+	var ckeep C.VipsForeignKeep
+	keepSet := C.int(0)
+	if keep != nil {
+		ckeep = C.VipsForeignKeep(*keep)
+		keepSet = 1
+	}
 	cformat := C.CString(format)
 	defer freeCString(cformat)
 	cprofile := C.CString(profile)
 	defer freeCString(cprofile)
-	if err := C.vipsgen_magicksave_buffer_with_options(in, &buf, &length, cformat, C.gint(quality), C.int(boolToInt(optimizeGifFrames)), C.int(boolToInt(optimizeGifTransparency)), C.gint(bitdepth), C.VipsForeignKeep(keep), cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
+	if err := C.vipsgen_magicksave_buffer_with_options(in, &buf, &length, cformat, C.gint(quality), C.int(boolToInt(optimizeGifFrames)), C.int(boolToInt(optimizeGifTransparency)), C.gint(bitdepth), ckeep, keepSet, cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
 		return nil, handleVipsError()
 	}
 	return bufferToBytes(buf, length), nil
@@ -3180,7 +3732,7 @@ func vipsgenMapim(in *C.VipsImage, index *C.VipsImage) (*C.VipsImage, error) {
 }
 
 // vipsgenMapimWithOptions vips_mapim resample with a map image with optional arguments
-func vipsgenMapimWithOptions(in *C.VipsImage, index *C.VipsImage, interpolate *Interpolate, background []float64, premultiplied bool, extend Extend) (*C.VipsImage, error) {
+func vipsgenMapimWithOptions(in *C.VipsImage, index *C.VipsImage, interpolate *Interpolate, background []float64, premultiplied bool, extend *Extend) (*C.VipsImage, error) {
 	var out *C.VipsImage
 	cbackground, cbackgroundLength, err := convertToDoubleArray(background)
 	if err != nil {
@@ -3189,7 +3741,13 @@ func vipsgenMapimWithOptions(in *C.VipsImage, index *C.VipsImage, interpolate *I
 	if cbackground != nil {
 		defer freeDoubleArray(cbackground)
 	}
-	if err := C.vipsgen_mapim_with_options(in, &out, index, vipsInterpolateToC(interpolate), cbackground, cbackgroundLength, C.int(boolToInt(premultiplied)), C.VipsExtend(extend)); err != 0 {
+	var cextend C.VipsExtend
+	extendSet := C.int(0)
+	if extend != nil {
+		cextend = C.VipsExtend(*extend)
+		extendSet = 1
+	}
+	if err := C.vipsgen_mapim_with_options(in, &out, index, vipsInterpolateToC(interpolate), cbackground, cbackgroundLength, C.int(boolToInt(premultiplied)), cextend, extendSet); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
@@ -3205,9 +3763,15 @@ func vipsgenMaplut(in *C.VipsImage, lut *C.VipsImage) (*C.VipsImage, error) {
 }
 
 // vipsgenMaplutWithOptions vips_maplut map an image though a lut with optional arguments
-func vipsgenMaplutWithOptions(in *C.VipsImage, lut *C.VipsImage, band int) (*C.VipsImage, error) {
+func vipsgenMaplutWithOptions(in *C.VipsImage, lut *C.VipsImage, band *int) (*C.VipsImage, error) {
 	var out *C.VipsImage
-	if err := C.vipsgen_maplut_with_options(in, &out, lut, C.gint(band)); err != 0 {
+	var cband C.gint
+	bandSet := C.int(0)
+	if band != nil {
+		cband = C.gint(*band)
+		bandSet = 1
+	}
+	if err := C.vipsgen_maplut_with_options(in, &out, lut, cband, bandSet); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
@@ -3403,9 +3967,21 @@ func vipsgenMatch(ref *C.VipsImage, sec *C.VipsImage, xr1 int, yr1 int, xs1 int,
 }
 
 // vipsgenMatchWithOptions vips_match first-order match of two images with optional arguments
-func vipsgenMatchWithOptions(ref *C.VipsImage, sec *C.VipsImage, xr1 int, yr1 int, xs1 int, ys1 int, xr2 int, yr2 int, xs2 int, ys2 int, hwindow int, harea int, search bool, interpolate *Interpolate) (*C.VipsImage, error) {
+func vipsgenMatchWithOptions(ref *C.VipsImage, sec *C.VipsImage, xr1 int, yr1 int, xs1 int, ys1 int, xr2 int, yr2 int, xs2 int, ys2 int, hwindow *int, harea *int, search bool, interpolate *Interpolate) (*C.VipsImage, error) {
 	var out *C.VipsImage
-	if err := C.vipsgen_match_with_options(ref, sec, &out, C.gint(xr1), C.gint(yr1), C.gint(xs1), C.gint(ys1), C.gint(xr2), C.gint(yr2), C.gint(xs2), C.gint(ys2), C.gint(hwindow), C.gint(harea), C.int(boolToInt(search)), vipsInterpolateToC(interpolate)); err != 0 {
+	var chwindow C.gint
+	hwindowSet := C.int(0)
+	if hwindow != nil {
+		chwindow = C.gint(*hwindow)
+		hwindowSet = 1
+	}
+	var charea C.gint
+	hareaSet := C.int(0)
+	if harea != nil {
+		charea = C.gint(*harea)
+		hareaSet = 1
+	}
+	if err := C.vipsgen_match_with_options(ref, sec, &out, C.gint(xr1), C.gint(yr1), C.gint(xs1), C.gint(ys1), C.gint(xr2), C.gint(yr2), C.gint(xs2), C.gint(ys2), chwindow, hwindowSet, charea, hareaSet, C.int(boolToInt(search)), vipsInterpolateToC(interpolate)); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
@@ -3538,7 +4114,7 @@ func vipsgenMatrixprint(in *C.VipsImage) (error) {
 }
 
 // vipsgenMatrixprintWithOptions vips_matrixprint print matrix with optional arguments
-func vipsgenMatrixprintWithOptions(in *C.VipsImage, keep Keep, background []float64, pageHeight int, profile string) (error) {
+func vipsgenMatrixprintWithOptions(in *C.VipsImage, keep *Keep, background []float64, pageHeight int, profile string) (error) {
 	cbackground, cbackgroundLength, err := convertToDoubleArray(background)
 	if err != nil {
 		return err
@@ -3546,9 +4122,15 @@ func vipsgenMatrixprintWithOptions(in *C.VipsImage, keep Keep, background []floa
 	if cbackground != nil {
 		defer freeDoubleArray(cbackground)
 	}
+	var ckeep C.VipsForeignKeep
+	keepSet := C.int(0)
+	if keep != nil {
+		ckeep = C.VipsForeignKeep(*keep)
+		keepSet = 1
+	}
 	cprofile := C.CString(profile)
 	defer freeCString(cprofile)
-	if err := C.vipsgen_matrixprint_with_options(in, C.VipsForeignKeep(keep), cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
+	if err := C.vipsgen_matrixprint_with_options(in, ckeep, keepSet, cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
 		return handleVipsError()
 	}
 	return nil
@@ -3565,7 +4147,7 @@ func vipsgenMatrixsave(in *C.VipsImage, filename string) (error) {
 }
 
 // vipsgenMatrixsaveWithOptions vips_matrixsave save image to matrix with optional arguments
-func vipsgenMatrixsaveWithOptions(in *C.VipsImage, filename string, keep Keep, background []float64, pageHeight int, profile string) (error) {
+func vipsgenMatrixsaveWithOptions(in *C.VipsImage, filename string, keep *Keep, background []float64, pageHeight int, profile string) (error) {
 	cfilename := C.CString(filename)
 	defer freeCString(cfilename)
 	cbackground, cbackgroundLength, err := convertToDoubleArray(background)
@@ -3575,9 +4157,15 @@ func vipsgenMatrixsaveWithOptions(in *C.VipsImage, filename string, keep Keep, b
 	if cbackground != nil {
 		defer freeDoubleArray(cbackground)
 	}
+	var ckeep C.VipsForeignKeep
+	keepSet := C.int(0)
+	if keep != nil {
+		ckeep = C.VipsForeignKeep(*keep)
+		keepSet = 1
+	}
 	cprofile := C.CString(profile)
 	defer freeCString(cprofile)
-	if err := C.vipsgen_matrixsave_with_options(in, cfilename, C.VipsForeignKeep(keep), cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
+	if err := C.vipsgen_matrixsave_with_options(in, cfilename, ckeep, keepSet, cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
 		return handleVipsError()
 	}
 	return nil
@@ -3593,7 +4181,7 @@ func vipsgenMatrixsaveTarget(in *C.VipsImage, target *C.VipsTargetCustom) (error
 }
 
 // vipsgenMatrixsaveTargetWithOptions vips_matrixsave_target save image to matrix with optional arguments
-func vipsgenMatrixsaveTargetWithOptions(in *C.VipsImage, target *C.VipsTargetCustom, keep Keep, background []float64, pageHeight int, profile string) (error) {
+func vipsgenMatrixsaveTargetWithOptions(in *C.VipsImage, target *C.VipsTargetCustom, keep *Keep, background []float64, pageHeight int, profile string) (error) {
 	cbackground, cbackgroundLength, err := convertToDoubleArray(background)
 	if err != nil {
 		return err
@@ -3601,9 +4189,15 @@ func vipsgenMatrixsaveTargetWithOptions(in *C.VipsImage, target *C.VipsTargetCus
 	if cbackground != nil {
 		defer freeDoubleArray(cbackground)
 	}
+	var ckeep C.VipsForeignKeep
+	keepSet := C.int(0)
+	if keep != nil {
+		ckeep = C.VipsForeignKeep(*keep)
+		keepSet = 1
+	}
 	cprofile := C.CString(profile)
 	defer freeCString(cprofile)
-	if err := C.vipsgen_matrixsave_target_with_options(in, target, C.VipsForeignKeep(keep), cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
+	if err := C.vipsgen_matrixsave_target_with_options(in, target, ckeep, keepSet, cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
 		return handleVipsError()
 	}
 	return nil
@@ -3684,9 +4278,15 @@ func vipsgenMerge(ref *C.VipsImage, sec *C.VipsImage, direction Direction, dx in
 }
 
 // vipsgenMergeWithOptions vips_merge merge two images with optional arguments
-func vipsgenMergeWithOptions(ref *C.VipsImage, sec *C.VipsImage, direction Direction, dx int, dy int, mblend int) (*C.VipsImage, error) {
+func vipsgenMergeWithOptions(ref *C.VipsImage, sec *C.VipsImage, direction Direction, dx int, dy int, mblend *int) (*C.VipsImage, error) {
 	var out *C.VipsImage
-	if err := C.vipsgen_merge_with_options(ref, sec, &out, C.VipsDirection(direction), C.gint(dx), C.gint(dy), C.gint(mblend)); err != 0 {
+	var cmblend C.gint
+	mblendSet := C.int(0)
+	if mblend != nil {
+		cmblend = C.gint(*mblend)
+		mblendSet = 1
+	}
+	if err := C.vipsgen_merge_with_options(ref, sec, &out, C.VipsDirection(direction), C.gint(dx), C.gint(dy), cmblend, mblendSet); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
@@ -3758,8 +4358,26 @@ func vipsgenMosaic(ref *C.VipsImage, sec *C.VipsImage, direction Direction, xref
 }
 
 // vipsgenMosaicWithOptions vips_mosaic mosaic two images with optional arguments
-func vipsgenMosaicWithOptions(ref *C.VipsImage, sec *C.VipsImage, direction Direction, xref int, yref int, xsec int, ysec int, hwindow int, harea int, mblend int, bandno int, dx0 *int, dy0 *int, scale1 *float64, angle1 *float64, dy1 *float64, dx1 *float64) (*C.VipsImage, error) {
+func vipsgenMosaicWithOptions(ref *C.VipsImage, sec *C.VipsImage, direction Direction, xref int, yref int, xsec int, ysec int, hwindow *int, harea *int, mblend *int, bandno int, dx0 *int, dy0 *int, scale1 *float64, angle1 *float64, dy1 *float64, dx1 *float64) (*C.VipsImage, error) {
 	var out *C.VipsImage
+	var chwindow C.gint
+	hwindowSet := C.int(0)
+	if hwindow != nil {
+		chwindow = C.gint(*hwindow)
+		hwindowSet = 1
+	}
+	var charea C.gint
+	hareaSet := C.int(0)
+	if harea != nil {
+		charea = C.gint(*harea)
+		hareaSet = 1
+	}
+	var cmblend C.gint
+	mblendSet := C.int(0)
+	if mblend != nil {
+		cmblend = C.gint(*mblend)
+		mblendSet = 1
+	}
 	var cdx0Value C.gint
 	var cdx0 *C.gint
 	if dx0 != nil {
@@ -3790,7 +4408,7 @@ func vipsgenMosaicWithOptions(ref *C.VipsImage, sec *C.VipsImage, direction Dire
 	if dx1 != nil {
 		cdx1 = &cdx1Value
 	}
-	if err := C.vipsgen_mosaic_with_options(ref, sec, &out, C.VipsDirection(direction), C.gint(xref), C.gint(yref), C.gint(xsec), C.gint(ysec), C.gint(hwindow), C.gint(harea), C.gint(mblend), C.gint(bandno), cdx0, cdy0, cscale1, cangle1, cdy1, cdx1); err != 0 {
+	if err := C.vipsgen_mosaic_with_options(ref, sec, &out, C.VipsDirection(direction), C.gint(xref), C.gint(yref), C.gint(xsec), C.gint(ysec), chwindow, hwindowSet, charea, hareaSet, cmblend, mblendSet, C.gint(bandno), cdx0, cdy0, cscale1, cangle1, cdy1, cdx1); err != 0 {
 		return nil, handleImageError(out)
 	}
 	if dx0 != nil {
@@ -3824,9 +4442,27 @@ func vipsgenMosaic1(ref *C.VipsImage, sec *C.VipsImage, direction Direction, xr1
 }
 
 // vipsgenMosaic1WithOptions vips_mosaic1 first-order mosaic of two images with optional arguments
-func vipsgenMosaic1WithOptions(ref *C.VipsImage, sec *C.VipsImage, direction Direction, xr1 int, yr1 int, xs1 int, ys1 int, xr2 int, yr2 int, xs2 int, ys2 int, hwindow int, harea int, search bool, interpolate *Interpolate, mblend int) (*C.VipsImage, error) {
+func vipsgenMosaic1WithOptions(ref *C.VipsImage, sec *C.VipsImage, direction Direction, xr1 int, yr1 int, xs1 int, ys1 int, xr2 int, yr2 int, xs2 int, ys2 int, hwindow *int, harea *int, search bool, interpolate *Interpolate, mblend *int) (*C.VipsImage, error) {
 	var out *C.VipsImage
-	if err := C.vipsgen_mosaic1_with_options(ref, sec, &out, C.VipsDirection(direction), C.gint(xr1), C.gint(yr1), C.gint(xs1), C.gint(ys1), C.gint(xr2), C.gint(yr2), C.gint(xs2), C.gint(ys2), C.gint(hwindow), C.gint(harea), C.int(boolToInt(search)), vipsInterpolateToC(interpolate), C.gint(mblend)); err != 0 {
+	var chwindow C.gint
+	hwindowSet := C.int(0)
+	if hwindow != nil {
+		chwindow = C.gint(*hwindow)
+		hwindowSet = 1
+	}
+	var charea C.gint
+	hareaSet := C.int(0)
+	if harea != nil {
+		charea = C.gint(*harea)
+		hareaSet = 1
+	}
+	var cmblend C.gint
+	mblendSet := C.int(0)
+	if mblend != nil {
+		cmblend = C.gint(*mblend)
+		mblendSet = 1
+	}
+	if err := C.vipsgen_mosaic1_with_options(ref, sec, &out, C.VipsDirection(direction), C.gint(xr1), C.gint(yr1), C.gint(xs1), C.gint(ys1), C.gint(xr2), C.gint(yr2), C.gint(xs2), C.gint(ys2), chwindow, hwindowSet, charea, hareaSet, C.int(boolToInt(search)), vipsInterpolateToC(interpolate), cmblend, mblendSet); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
@@ -3842,9 +4478,15 @@ func vipsgenMsb(in *C.VipsImage) (*C.VipsImage, error) {
 }
 
 // vipsgenMsbWithOptions vips_msb pick most-significant byte from an image with optional arguments
-func vipsgenMsbWithOptions(in *C.VipsImage, band int) (*C.VipsImage, error) {
+func vipsgenMsbWithOptions(in *C.VipsImage, band *int) (*C.VipsImage, error) {
 	var out *C.VipsImage
-	if err := C.vipsgen_msb_with_options(in, &out, C.gint(band)); err != 0 {
+	var cband C.gint
+	bandSet := C.int(0)
+	if band != nil {
+		cband = C.gint(*band)
+		bandSet = 1
+	}
+	if err := C.vipsgen_msb_with_options(in, &out, cband, bandSet); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
@@ -3910,7 +4552,7 @@ func vipsgenNiftisave(in *C.VipsImage, filename string) (error) {
 }
 
 // vipsgenNiftisaveWithOptions vips_niftisave save image to nifti file with optional arguments
-func vipsgenNiftisaveWithOptions(in *C.VipsImage, filename string, keep Keep, background []float64, pageHeight int, profile string) (error) {
+func vipsgenNiftisaveWithOptions(in *C.VipsImage, filename string, keep *Keep, background []float64, pageHeight int, profile string) (error) {
 	cfilename := C.CString(filename)
 	defer freeCString(cfilename)
 	cbackground, cbackgroundLength, err := convertToDoubleArray(background)
@@ -3920,9 +4562,15 @@ func vipsgenNiftisaveWithOptions(in *C.VipsImage, filename string, keep Keep, ba
 	if cbackground != nil {
 		defer freeDoubleArray(cbackground)
 	}
+	var ckeep C.VipsForeignKeep
+	keepSet := C.int(0)
+	if keep != nil {
+		ckeep = C.VipsForeignKeep(*keep)
+		keepSet = 1
+	}
 	cprofile := C.CString(profile)
 	defer freeCString(cprofile)
-	if err := C.vipsgen_niftisave_with_options(in, cfilename, C.VipsForeignKeep(keep), cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
+	if err := C.vipsgen_niftisave_with_options(in, cfilename, ckeep, keepSet, cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
 		return handleVipsError()
 	}
 	return nil
@@ -4006,7 +4654,7 @@ func vipsgenPdfload(filename string) (*C.VipsImage, error) {
 }
 
 // vipsgenPdfloadWithOptions vips_pdfload load PDF from file with optional arguments
-func vipsgenPdfloadWithOptions(filename string, page int, n int, dpi float64, scale float64, background []float64, password string, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
+func vipsgenPdfloadWithOptions(filename string, page int, n *int, dpi float64, scale *float64, background []float64, password string, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
 	var out *C.VipsImage
 	cfilename := C.CString(filename)
 	defer freeCString(cfilename)
@@ -4017,9 +4665,21 @@ func vipsgenPdfloadWithOptions(filename string, page int, n int, dpi float64, sc
 	if cbackground != nil {
 		defer freeDoubleArray(cbackground)
 	}
+	var cn C.gint
+	nSet := C.int(0)
+	if n != nil {
+		cn = C.gint(*n)
+		nSet = 1
+	}
+	var cscale C.double
+	scaleSet := C.int(0)
+	if scale != nil {
+		cscale = C.double(*scale)
+		scaleSet = 1
+	}
 	cpassword := C.CString(password)
 	defer freeCString(cpassword)
-	if err := C.vipsgen_pdfload_with_options(cfilename, &out, C.gint(page), C.gint(n), C.double(dpi), C.double(scale), cbackground, cbackgroundLength, cpassword, C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
+	if err := C.vipsgen_pdfload_with_options(cfilename, &out, C.gint(page), cn, nSet, C.double(dpi), cscale, scaleSet, cbackground, cbackgroundLength, cpassword, C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
@@ -4038,7 +4698,7 @@ func vipsgenPdfloadBuffer(buf []byte) (*C.VipsImage, error) {
 }
 
 // vipsgenPdfloadBufferWithOptions vips_pdfload_buffer load PDF from buffer with optional arguments
-func vipsgenPdfloadBufferWithOptions(buf []byte, page int, n int, dpi float64, scale float64, background []float64, password string, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
+func vipsgenPdfloadBufferWithOptions(buf []byte, page int, n *int, dpi float64, scale *float64, background []float64, password string, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
 	src := buf
 	// Reference src here so it's not garbage collected during image initialization.
 	defer runtime.KeepAlive(src)
@@ -4050,9 +4710,21 @@ func vipsgenPdfloadBufferWithOptions(buf []byte, page int, n int, dpi float64, s
 	if cbackground != nil {
 		defer freeDoubleArray(cbackground)
 	}
+	var cn C.gint
+	nSet := C.int(0)
+	if n != nil {
+		cn = C.gint(*n)
+		nSet = 1
+	}
+	var cscale C.double
+	scaleSet := C.int(0)
+	if scale != nil {
+		cscale = C.double(*scale)
+		scaleSet = 1
+	}
 	cpassword := C.CString(password)
 	defer freeCString(cpassword)
-	if err := C.vipsgen_pdfload_buffer_with_options(unsafe.Pointer(&src[0]), C.size_t(len(src)), &out, C.gint(page), C.gint(n), C.double(dpi), C.double(scale), cbackground, cbackgroundLength, cpassword, C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
+	if err := C.vipsgen_pdfload_buffer_with_options(unsafe.Pointer(&src[0]), C.size_t(len(src)), &out, C.gint(page), cn, nSet, C.double(dpi), cscale, scaleSet, cbackground, cbackgroundLength, cpassword, C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
@@ -4068,7 +4740,7 @@ func vipsgenPdfloadSource(source *C.VipsSourceCustom) (*C.VipsImage, error) {
 }
 
 // vipsgenPdfloadSourceWithOptions vips_pdfload_source load PDF from source with optional arguments
-func vipsgenPdfloadSourceWithOptions(source *C.VipsSourceCustom, page int, n int, dpi float64, scale float64, background []float64, password string, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
+func vipsgenPdfloadSourceWithOptions(source *C.VipsSourceCustom, page int, n *int, dpi float64, scale *float64, background []float64, password string, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
 	var out *C.VipsImage
 	cbackground, cbackgroundLength, err := convertToDoubleArray(background)
 	if err != nil {
@@ -4077,9 +4749,21 @@ func vipsgenPdfloadSourceWithOptions(source *C.VipsSourceCustom, page int, n int
 	if cbackground != nil {
 		defer freeDoubleArray(cbackground)
 	}
+	var cn C.gint
+	nSet := C.int(0)
+	if n != nil {
+		cn = C.gint(*n)
+		nSet = 1
+	}
+	var cscale C.double
+	scaleSet := C.int(0)
+	if scale != nil {
+		cscale = C.double(*scale)
+		scaleSet = 1
+	}
 	cpassword := C.CString(password)
 	defer freeCString(cpassword)
-	if err := C.vipsgen_pdfload_source_with_options(source, &out, C.gint(page), C.gint(n), C.double(dpi), C.double(scale), cbackground, cbackgroundLength, cpassword, C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
+	if err := C.vipsgen_pdfload_source_with_options(source, &out, C.gint(page), cn, nSet, C.double(dpi), cscale, scaleSet, cbackground, cbackgroundLength, cpassword, C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
@@ -4198,7 +4882,7 @@ func vipsgenPngsave(in *C.VipsImage, filename string) (error) {
 }
 
 // vipsgenPngsaveWithOptions vips_pngsave save image to png file with optional arguments
-func vipsgenPngsaveWithOptions(in *C.VipsImage, filename string, compression int, interlace bool, filter PngFilter, palette bool, q int, dither float64, bitdepth int, effort int, keep Keep, background []float64, pageHeight int, profile string) (error) {
+func vipsgenPngsaveWithOptions(in *C.VipsImage, filename string, compression *int, interlace bool, filter PngFilter, palette bool, q *int, dither *float64, bitdepth int, effort int, keep *Keep, background []float64, pageHeight int, profile string) (error) {
 	cfilename := C.CString(filename)
 	defer freeCString(cfilename)
 	cbackground, cbackgroundLength, err := convertToDoubleArray(background)
@@ -4208,9 +4892,33 @@ func vipsgenPngsaveWithOptions(in *C.VipsImage, filename string, compression int
 	if cbackground != nil {
 		defer freeDoubleArray(cbackground)
 	}
+	var ccompression C.gint
+	compressionSet := C.int(0)
+	if compression != nil {
+		ccompression = C.gint(*compression)
+		compressionSet = 1
+	}
+	var cq C.gint
+	qSet := C.int(0)
+	if q != nil {
+		cq = C.gint(*q)
+		qSet = 1
+	}
+	var cdither C.double
+	ditherSet := C.int(0)
+	if dither != nil {
+		cdither = C.double(*dither)
+		ditherSet = 1
+	}
+	var ckeep C.VipsForeignKeep
+	keepSet := C.int(0)
+	if keep != nil {
+		ckeep = C.VipsForeignKeep(*keep)
+		keepSet = 1
+	}
 	cprofile := C.CString(profile)
 	defer freeCString(cprofile)
-	if err := C.vipsgen_pngsave_with_options(in, cfilename, C.gint(compression), C.int(boolToInt(interlace)), C.VipsForeignPngFilter(filter), C.int(boolToInt(palette)), C.gint(q), C.double(dither), C.gint(bitdepth), C.gint(effort), C.VipsForeignKeep(keep), cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
+	if err := C.vipsgen_pngsave_with_options(in, cfilename, ccompression, compressionSet, C.int(boolToInt(interlace)), C.VipsForeignPngFilter(filter), C.int(boolToInt(palette)), cq, qSet, cdither, ditherSet, C.gint(bitdepth), C.gint(effort), ckeep, keepSet, cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
 		return handleVipsError()
 	}
 	return nil
@@ -4227,7 +4935,7 @@ func vipsgenPngsaveBuffer(in *C.VipsImage) ([]byte, error) {
 }
 
 // vipsgenPngsaveBufferWithOptions vips_pngsave_buffer save image to png buffer with optional arguments
-func vipsgenPngsaveBufferWithOptions(in *C.VipsImage, compression int, interlace bool, filter PngFilter, palette bool, q int, dither float64, bitdepth int, effort int, keep Keep, background []float64, pageHeight int, profile string) ([]byte, error) {
+func vipsgenPngsaveBufferWithOptions(in *C.VipsImage, compression *int, interlace bool, filter PngFilter, palette bool, q *int, dither *float64, bitdepth int, effort int, keep *Keep, background []float64, pageHeight int, profile string) ([]byte, error) {
 	var buf unsafe.Pointer
 	var length C.size_t
 	cbackground, cbackgroundLength, err := convertToDoubleArray(background)
@@ -4237,9 +4945,33 @@ func vipsgenPngsaveBufferWithOptions(in *C.VipsImage, compression int, interlace
 	if cbackground != nil {
 		defer freeDoubleArray(cbackground)
 	}
+	var ccompression C.gint
+	compressionSet := C.int(0)
+	if compression != nil {
+		ccompression = C.gint(*compression)
+		compressionSet = 1
+	}
+	var cq C.gint
+	qSet := C.int(0)
+	if q != nil {
+		cq = C.gint(*q)
+		qSet = 1
+	}
+	var cdither C.double
+	ditherSet := C.int(0)
+	if dither != nil {
+		cdither = C.double(*dither)
+		ditherSet = 1
+	}
+	var ckeep C.VipsForeignKeep
+	keepSet := C.int(0)
+	if keep != nil {
+		ckeep = C.VipsForeignKeep(*keep)
+		keepSet = 1
+	}
 	cprofile := C.CString(profile)
 	defer freeCString(cprofile)
-	if err := C.vipsgen_pngsave_buffer_with_options(in, &buf, &length, C.gint(compression), C.int(boolToInt(interlace)), C.VipsForeignPngFilter(filter), C.int(boolToInt(palette)), C.gint(q), C.double(dither), C.gint(bitdepth), C.gint(effort), C.VipsForeignKeep(keep), cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
+	if err := C.vipsgen_pngsave_buffer_with_options(in, &buf, &length, ccompression, compressionSet, C.int(boolToInt(interlace)), C.VipsForeignPngFilter(filter), C.int(boolToInt(palette)), cq, qSet, cdither, ditherSet, C.gint(bitdepth), C.gint(effort), ckeep, keepSet, cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
 		return nil, handleVipsError()
 	}
 	return bufferToBytes(buf, length), nil
@@ -4255,7 +4987,7 @@ func vipsgenPngsaveTarget(in *C.VipsImage, target *C.VipsTargetCustom) (error) {
 }
 
 // vipsgenPngsaveTargetWithOptions vips_pngsave_target save image to target as PNG with optional arguments
-func vipsgenPngsaveTargetWithOptions(in *C.VipsImage, target *C.VipsTargetCustom, compression int, interlace bool, filter PngFilter, palette bool, q int, dither float64, bitdepth int, effort int, keep Keep, background []float64, pageHeight int, profile string) (error) {
+func vipsgenPngsaveTargetWithOptions(in *C.VipsImage, target *C.VipsTargetCustom, compression *int, interlace bool, filter PngFilter, palette bool, q *int, dither *float64, bitdepth int, effort int, keep *Keep, background []float64, pageHeight int, profile string) (error) {
 	cbackground, cbackgroundLength, err := convertToDoubleArray(background)
 	if err != nil {
 		return err
@@ -4263,9 +4995,33 @@ func vipsgenPngsaveTargetWithOptions(in *C.VipsImage, target *C.VipsTargetCustom
 	if cbackground != nil {
 		defer freeDoubleArray(cbackground)
 	}
+	var ccompression C.gint
+	compressionSet := C.int(0)
+	if compression != nil {
+		ccompression = C.gint(*compression)
+		compressionSet = 1
+	}
+	var cq C.gint
+	qSet := C.int(0)
+	if q != nil {
+		cq = C.gint(*q)
+		qSet = 1
+	}
+	var cdither C.double
+	ditherSet := C.int(0)
+	if dither != nil {
+		cdither = C.double(*dither)
+		ditherSet = 1
+	}
+	var ckeep C.VipsForeignKeep
+	keepSet := C.int(0)
+	if keep != nil {
+		ckeep = C.VipsForeignKeep(*keep)
+		keepSet = 1
+	}
 	cprofile := C.CString(profile)
 	defer freeCString(cprofile)
-	if err := C.vipsgen_pngsave_target_with_options(in, target, C.gint(compression), C.int(boolToInt(interlace)), C.VipsForeignPngFilter(filter), C.int(boolToInt(palette)), C.gint(q), C.double(dither), C.gint(bitdepth), C.gint(effort), C.VipsForeignKeep(keep), cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
+	if err := C.vipsgen_pngsave_target_with_options(in, target, ccompression, compressionSet, C.int(boolToInt(interlace)), C.VipsForeignPngFilter(filter), C.int(boolToInt(palette)), cq, qSet, cdither, ditherSet, C.gint(bitdepth), C.gint(effort), ckeep, keepSet, cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
 		return handleVipsError()
 	}
 	return nil
@@ -4346,7 +5102,7 @@ func vipsgenPpmsave(in *C.VipsImage, filename string) (error) {
 }
 
 // vipsgenPpmsaveWithOptions vips_ppmsave save image to ppm file with optional arguments
-func vipsgenPpmsaveWithOptions(in *C.VipsImage, filename string, format PpmFormat, ascii bool, bitdepth int, keep Keep, background []float64, pageHeight int, profile string) (error) {
+func vipsgenPpmsaveWithOptions(in *C.VipsImage, filename string, format *PpmFormat, ascii bool, bitdepth int, keep *Keep, background []float64, pageHeight int, profile string) (error) {
 	cfilename := C.CString(filename)
 	defer freeCString(cfilename)
 	cbackground, cbackgroundLength, err := convertToDoubleArray(background)
@@ -4356,9 +5112,21 @@ func vipsgenPpmsaveWithOptions(in *C.VipsImage, filename string, format PpmForma
 	if cbackground != nil {
 		defer freeDoubleArray(cbackground)
 	}
+	var cformat C.VipsForeignPpmFormat
+	formatSet := C.int(0)
+	if format != nil {
+		cformat = C.VipsForeignPpmFormat(*format)
+		formatSet = 1
+	}
+	var ckeep C.VipsForeignKeep
+	keepSet := C.int(0)
+	if keep != nil {
+		ckeep = C.VipsForeignKeep(*keep)
+		keepSet = 1
+	}
 	cprofile := C.CString(profile)
 	defer freeCString(cprofile)
-	if err := C.vipsgen_ppmsave_with_options(in, cfilename, C.VipsForeignPpmFormat(format), C.int(boolToInt(ascii)), C.gint(bitdepth), C.VipsForeignKeep(keep), cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
+	if err := C.vipsgen_ppmsave_with_options(in, cfilename, cformat, formatSet, C.int(boolToInt(ascii)), C.gint(bitdepth), ckeep, keepSet, cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
 		return handleVipsError()
 	}
 	return nil
@@ -4374,7 +5142,7 @@ func vipsgenPpmsaveTarget(in *C.VipsImage, target *C.VipsTargetCustom) (error) {
 }
 
 // vipsgenPpmsaveTargetWithOptions vips_ppmsave_target save to ppm with optional arguments
-func vipsgenPpmsaveTargetWithOptions(in *C.VipsImage, target *C.VipsTargetCustom, format PpmFormat, ascii bool, bitdepth int, keep Keep, background []float64, pageHeight int, profile string) (error) {
+func vipsgenPpmsaveTargetWithOptions(in *C.VipsImage, target *C.VipsTargetCustom, format *PpmFormat, ascii bool, bitdepth int, keep *Keep, background []float64, pageHeight int, profile string) (error) {
 	cbackground, cbackgroundLength, err := convertToDoubleArray(background)
 	if err != nil {
 		return err
@@ -4382,9 +5150,21 @@ func vipsgenPpmsaveTargetWithOptions(in *C.VipsImage, target *C.VipsTargetCustom
 	if cbackground != nil {
 		defer freeDoubleArray(cbackground)
 	}
+	var cformat C.VipsForeignPpmFormat
+	formatSet := C.int(0)
+	if format != nil {
+		cformat = C.VipsForeignPpmFormat(*format)
+		formatSet = 1
+	}
+	var ckeep C.VipsForeignKeep
+	keepSet := C.int(0)
+	if keep != nil {
+		ckeep = C.VipsForeignKeep(*keep)
+		keepSet = 1
+	}
 	cprofile := C.CString(profile)
 	defer freeCString(cprofile)
-	if err := C.vipsgen_ppmsave_target_with_options(in, target, C.VipsForeignPpmFormat(format), C.int(boolToInt(ascii)), C.gint(bitdepth), C.VipsForeignKeep(keep), cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
+	if err := C.vipsgen_ppmsave_target_with_options(in, target, cformat, formatSet, C.int(boolToInt(ascii)), C.gint(bitdepth), ckeep, keepSet, cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
 		return handleVipsError()
 	}
 	return nil
@@ -4400,9 +5180,15 @@ func vipsgenPremultiply(in *C.VipsImage) (*C.VipsImage, error) {
 }
 
 // vipsgenPremultiplyWithOptions vips_premultiply premultiply image alpha with optional arguments
-func vipsgenPremultiplyWithOptions(in *C.VipsImage, maxAlpha float64) (*C.VipsImage, error) {
+func vipsgenPremultiplyWithOptions(in *C.VipsImage, maxAlpha *float64) (*C.VipsImage, error) {
 	var out *C.VipsImage
-	if err := C.vipsgen_premultiply_with_options(in, &out, C.double(maxAlpha)); err != 0 {
+	var cmaxAlpha C.double
+	maxAlphaSet := C.int(0)
+	if maxAlpha != nil {
+		cmaxAlpha = C.double(*maxAlpha)
+		maxAlphaSet = 1
+	}
+	if err := C.vipsgen_premultiply_with_options(in, &out, cmaxAlpha, maxAlphaSet); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
@@ -4550,7 +5336,7 @@ func vipsgenRadsave(in *C.VipsImage, filename string) (error) {
 }
 
 // vipsgenRadsaveWithOptions vips_radsave save image to Radiance file with optional arguments
-func vipsgenRadsaveWithOptions(in *C.VipsImage, filename string, keep Keep, background []float64, pageHeight int, profile string) (error) {
+func vipsgenRadsaveWithOptions(in *C.VipsImage, filename string, keep *Keep, background []float64, pageHeight int, profile string) (error) {
 	cfilename := C.CString(filename)
 	defer freeCString(cfilename)
 	cbackground, cbackgroundLength, err := convertToDoubleArray(background)
@@ -4560,9 +5346,15 @@ func vipsgenRadsaveWithOptions(in *C.VipsImage, filename string, keep Keep, back
 	if cbackground != nil {
 		defer freeDoubleArray(cbackground)
 	}
+	var ckeep C.VipsForeignKeep
+	keepSet := C.int(0)
+	if keep != nil {
+		ckeep = C.VipsForeignKeep(*keep)
+		keepSet = 1
+	}
 	cprofile := C.CString(profile)
 	defer freeCString(cprofile)
-	if err := C.vipsgen_radsave_with_options(in, cfilename, C.VipsForeignKeep(keep), cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
+	if err := C.vipsgen_radsave_with_options(in, cfilename, ckeep, keepSet, cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
 		return handleVipsError()
 	}
 	return nil
@@ -4579,7 +5371,7 @@ func vipsgenRadsaveBuffer(in *C.VipsImage) ([]byte, error) {
 }
 
 // vipsgenRadsaveBufferWithOptions vips_radsave_buffer save image to Radiance buffer with optional arguments
-func vipsgenRadsaveBufferWithOptions(in *C.VipsImage, keep Keep, background []float64, pageHeight int, profile string) ([]byte, error) {
+func vipsgenRadsaveBufferWithOptions(in *C.VipsImage, keep *Keep, background []float64, pageHeight int, profile string) ([]byte, error) {
 	var buf unsafe.Pointer
 	var length C.size_t
 	cbackground, cbackgroundLength, err := convertToDoubleArray(background)
@@ -4589,9 +5381,15 @@ func vipsgenRadsaveBufferWithOptions(in *C.VipsImage, keep Keep, background []fl
 	if cbackground != nil {
 		defer freeDoubleArray(cbackground)
 	}
+	var ckeep C.VipsForeignKeep
+	keepSet := C.int(0)
+	if keep != nil {
+		ckeep = C.VipsForeignKeep(*keep)
+		keepSet = 1
+	}
 	cprofile := C.CString(profile)
 	defer freeCString(cprofile)
-	if err := C.vipsgen_radsave_buffer_with_options(in, &buf, &length, C.VipsForeignKeep(keep), cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
+	if err := C.vipsgen_radsave_buffer_with_options(in, &buf, &length, ckeep, keepSet, cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
 		return nil, handleVipsError()
 	}
 	return bufferToBytes(buf, length), nil
@@ -4607,7 +5405,7 @@ func vipsgenRadsaveTarget(in *C.VipsImage, target *C.VipsTargetCustom) (error) {
 }
 
 // vipsgenRadsaveTargetWithOptions vips_radsave_target save image to Radiance target with optional arguments
-func vipsgenRadsaveTargetWithOptions(in *C.VipsImage, target *C.VipsTargetCustom, keep Keep, background []float64, pageHeight int, profile string) (error) {
+func vipsgenRadsaveTargetWithOptions(in *C.VipsImage, target *C.VipsTargetCustom, keep *Keep, background []float64, pageHeight int, profile string) (error) {
 	cbackground, cbackgroundLength, err := convertToDoubleArray(background)
 	if err != nil {
 		return err
@@ -4615,9 +5413,15 @@ func vipsgenRadsaveTargetWithOptions(in *C.VipsImage, target *C.VipsTargetCustom
 	if cbackground != nil {
 		defer freeDoubleArray(cbackground)
 	}
+	var ckeep C.VipsForeignKeep
+	keepSet := C.int(0)
+	if keep != nil {
+		ckeep = C.VipsForeignKeep(*keep)
+		keepSet = 1
+	}
 	cprofile := C.CString(profile)
 	defer freeCString(cprofile)
-	if err := C.vipsgen_radsave_target_with_options(in, target, C.VipsForeignKeep(keep), cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
+	if err := C.vipsgen_radsave_target_with_options(in, target, ckeep, keepSet, cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
 		return handleVipsError()
 	}
 	return nil
@@ -4665,7 +5469,7 @@ func vipsgenRawsave(in *C.VipsImage, filename string) (error) {
 }
 
 // vipsgenRawsaveWithOptions vips_rawsave save image to raw file with optional arguments
-func vipsgenRawsaveWithOptions(in *C.VipsImage, filename string, keep Keep, background []float64, pageHeight int, profile string) (error) {
+func vipsgenRawsaveWithOptions(in *C.VipsImage, filename string, keep *Keep, background []float64, pageHeight int, profile string) (error) {
 	cfilename := C.CString(filename)
 	defer freeCString(cfilename)
 	cbackground, cbackgroundLength, err := convertToDoubleArray(background)
@@ -4675,9 +5479,15 @@ func vipsgenRawsaveWithOptions(in *C.VipsImage, filename string, keep Keep, back
 	if cbackground != nil {
 		defer freeDoubleArray(cbackground)
 	}
+	var ckeep C.VipsForeignKeep
+	keepSet := C.int(0)
+	if keep != nil {
+		ckeep = C.VipsForeignKeep(*keep)
+		keepSet = 1
+	}
 	cprofile := C.CString(profile)
 	defer freeCString(cprofile)
-	if err := C.vipsgen_rawsave_with_options(in, cfilename, C.VipsForeignKeep(keep), cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
+	if err := C.vipsgen_rawsave_with_options(in, cfilename, ckeep, keepSet, cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
 		return handleVipsError()
 	}
 	return nil
@@ -4694,7 +5504,7 @@ func vipsgenRawsaveBuffer(in *C.VipsImage) ([]byte, error) {
 }
 
 // vipsgenRawsaveBufferWithOptions vips_rawsave_buffer write raw image to buffer with optional arguments
-func vipsgenRawsaveBufferWithOptions(in *C.VipsImage, keep Keep, background []float64, pageHeight int, profile string) ([]byte, error) {
+func vipsgenRawsaveBufferWithOptions(in *C.VipsImage, keep *Keep, background []float64, pageHeight int, profile string) ([]byte, error) {
 	var buf unsafe.Pointer
 	var length C.size_t
 	cbackground, cbackgroundLength, err := convertToDoubleArray(background)
@@ -4704,9 +5514,15 @@ func vipsgenRawsaveBufferWithOptions(in *C.VipsImage, keep Keep, background []fl
 	if cbackground != nil {
 		defer freeDoubleArray(cbackground)
 	}
+	var ckeep C.VipsForeignKeep
+	keepSet := C.int(0)
+	if keep != nil {
+		ckeep = C.VipsForeignKeep(*keep)
+		keepSet = 1
+	}
 	cprofile := C.CString(profile)
 	defer freeCString(cprofile)
-	if err := C.vipsgen_rawsave_buffer_with_options(in, &buf, &length, C.VipsForeignKeep(keep), cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
+	if err := C.vipsgen_rawsave_buffer_with_options(in, &buf, &length, ckeep, keepSet, cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
 		return nil, handleVipsError()
 	}
 	return bufferToBytes(buf, length), nil
@@ -4722,7 +5538,7 @@ func vipsgenRawsaveTarget(in *C.VipsImage, target *C.VipsTargetCustom) (error) {
 }
 
 // vipsgenRawsaveTargetWithOptions vips_rawsave_target write raw image to target with optional arguments
-func vipsgenRawsaveTargetWithOptions(in *C.VipsImage, target *C.VipsTargetCustom, keep Keep, background []float64, pageHeight int, profile string) (error) {
+func vipsgenRawsaveTargetWithOptions(in *C.VipsImage, target *C.VipsTargetCustom, keep *Keep, background []float64, pageHeight int, profile string) (error) {
 	cbackground, cbackgroundLength, err := convertToDoubleArray(background)
 	if err != nil {
 		return err
@@ -4730,9 +5546,15 @@ func vipsgenRawsaveTargetWithOptions(in *C.VipsImage, target *C.VipsTargetCustom
 	if cbackground != nil {
 		defer freeDoubleArray(cbackground)
 	}
+	var ckeep C.VipsForeignKeep
+	keepSet := C.int(0)
+	if keep != nil {
+		ckeep = C.VipsForeignKeep(*keep)
+		keepSet = 1
+	}
 	cprofile := C.CString(profile)
 	defer freeCString(cprofile)
-	if err := C.vipsgen_rawsave_target_with_options(in, target, C.VipsForeignKeep(keep), cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
+	if err := C.vipsgen_rawsave_target_with_options(in, target, ckeep, keepSet, cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
 		return handleVipsError()
 	}
 	return nil
@@ -4757,9 +5579,15 @@ func vipsgenReduce(in *C.VipsImage, hshrink float64, vshrink float64) (*C.VipsIm
 }
 
 // vipsgenReduceWithOptions vips_reduce reduce an image with optional arguments
-func vipsgenReduceWithOptions(in *C.VipsImage, hshrink float64, vshrink float64, kernel Kernel, gap float64) (*C.VipsImage, error) {
+func vipsgenReduceWithOptions(in *C.VipsImage, hshrink float64, vshrink float64, kernel *Kernel, gap float64) (*C.VipsImage, error) {
 	var out *C.VipsImage
-	if err := C.vipsgen_reduce_with_options(in, &out, C.double(hshrink), C.double(vshrink), C.VipsKernel(kernel), C.double(gap)); err != 0 {
+	var ckernel C.VipsKernel
+	kernelSet := C.int(0)
+	if kernel != nil {
+		ckernel = C.VipsKernel(*kernel)
+		kernelSet = 1
+	}
+	if err := C.vipsgen_reduce_with_options(in, &out, C.double(hshrink), C.double(vshrink), ckernel, kernelSet, C.double(gap)); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
@@ -4775,9 +5603,15 @@ func vipsgenReduceh(in *C.VipsImage, hshrink float64) (*C.VipsImage, error) {
 }
 
 // vipsgenReducehWithOptions vips_reduceh shrink an image horizontally with optional arguments
-func vipsgenReducehWithOptions(in *C.VipsImage, hshrink float64, kernel Kernel, gap float64) (*C.VipsImage, error) {
+func vipsgenReducehWithOptions(in *C.VipsImage, hshrink float64, kernel *Kernel, gap float64) (*C.VipsImage, error) {
 	var out *C.VipsImage
-	if err := C.vipsgen_reduceh_with_options(in, &out, C.double(hshrink), C.VipsKernel(kernel), C.double(gap)); err != 0 {
+	var ckernel C.VipsKernel
+	kernelSet := C.int(0)
+	if kernel != nil {
+		ckernel = C.VipsKernel(*kernel)
+		kernelSet = 1
+	}
+	if err := C.vipsgen_reduceh_with_options(in, &out, C.double(hshrink), ckernel, kernelSet, C.double(gap)); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
@@ -4793,9 +5627,15 @@ func vipsgenReducev(in *C.VipsImage, vshrink float64) (*C.VipsImage, error) {
 }
 
 // vipsgenReducevWithOptions vips_reducev shrink an image vertically with optional arguments
-func vipsgenReducevWithOptions(in *C.VipsImage, vshrink float64, kernel Kernel, gap float64) (*C.VipsImage, error) {
+func vipsgenReducevWithOptions(in *C.VipsImage, vshrink float64, kernel *Kernel, gap float64) (*C.VipsImage, error) {
 	var out *C.VipsImage
-	if err := C.vipsgen_reducev_with_options(in, &out, C.double(vshrink), C.VipsKernel(kernel), C.double(gap)); err != 0 {
+	var ckernel C.VipsKernel
+	kernelSet := C.int(0)
+	if kernel != nil {
+		ckernel = C.VipsKernel(*kernel)
+		kernelSet = 1
+	}
+	if err := C.vipsgen_reducev_with_options(in, &out, C.double(vshrink), ckernel, kernelSet, C.double(gap)); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
@@ -4889,9 +5729,21 @@ func vipsgenResize(in *C.VipsImage, scale float64) (*C.VipsImage, error) {
 }
 
 // vipsgenResizeWithOptions vips_resize resize an image with optional arguments
-func vipsgenResizeWithOptions(in *C.VipsImage, scale float64, kernel Kernel, gap float64, vscale float64) (*C.VipsImage, error) {
+func vipsgenResizeWithOptions(in *C.VipsImage, scale float64, kernel *Kernel, gap *float64, vscale float64) (*C.VipsImage, error) {
 	var out *C.VipsImage
-	if err := C.vipsgen_resize_with_options(in, &out, C.double(scale), C.VipsKernel(kernel), C.double(gap), C.double(vscale)); err != 0 {
+	var ckernel C.VipsKernel
+	kernelSet := C.int(0)
+	if kernel != nil {
+		ckernel = C.VipsKernel(*kernel)
+		kernelSet = 1
+	}
+	var cgap C.double
+	gapSet := C.int(0)
+	if gap != nil {
+		cgap = C.double(*gap)
+		gapSet = 1
+	}
+	if err := C.vipsgen_resize_with_options(in, &out, C.double(scale), ckernel, kernelSet, cgap, gapSet, C.double(vscale)); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
@@ -4916,9 +5768,15 @@ func vipsgenRot45(in *C.VipsImage) (*C.VipsImage, error) {
 }
 
 // vipsgenRot45WithOptions vips_rot45 rotate an image with optional arguments
-func vipsgenRot45WithOptions(in *C.VipsImage, angle Angle45) (*C.VipsImage, error) {
+func vipsgenRot45WithOptions(in *C.VipsImage, angle *Angle45) (*C.VipsImage, error) {
 	var out *C.VipsImage
-	if err := C.vipsgen_rot45_with_options(in, &out, C.VipsAngle45(angle)); err != 0 {
+	var cangle C.VipsAngle45
+	angleSet := C.int(0)
+	if angle != nil {
+		cangle = C.VipsAngle45(*angle)
+		angleSet = 1
+	}
+	if err := C.vipsgen_rot45_with_options(in, &out, cangle, angleSet); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
@@ -5058,7 +5916,7 @@ func vipsgenSdf(width int, height int, shape SdfShape) (*C.VipsImage, error) {
 }
 
 // vipsgenSdfWithOptions vips_sdf create an SDF image with optional arguments
-func vipsgenSdfWithOptions(width int, height int, shape SdfShape, r float64, a []float64, b []float64, corners []float64) (*C.VipsImage, error) {
+func vipsgenSdfWithOptions(width int, height int, shape SdfShape, r *float64, a []float64, b []float64, corners []float64) (*C.VipsImage, error) {
 	var out *C.VipsImage
 	ca, caLength, err := convertToDoubleArray(a)
 	if err != nil {
@@ -5081,7 +5939,13 @@ func vipsgenSdfWithOptions(width int, height int, shape SdfShape, r float64, a [
 	if ccorners != nil {
 		defer freeDoubleArray(ccorners)
 	}
-	if err := C.vipsgen_sdf_with_options(&out, C.gint(width), C.gint(height), C.VipsSdfShape(shape), C.double(r), ca, caLength, cb, cbLength, ccorners, ccornersLength); err != 0 {
+	var cr C.double
+	rSet := C.int(0)
+	if r != nil {
+		cr = C.double(*r)
+		rSet = 1
+	}
+	if err := C.vipsgen_sdf_with_options(&out, C.gint(width), C.gint(height), C.VipsSdfShape(shape), cr, rSet, ca, caLength, cb, cbLength, ccorners, ccornersLength); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
@@ -5115,9 +5979,33 @@ func vipsgenSharpen(in *C.VipsImage) (*C.VipsImage, error) {
 }
 
 // vipsgenSharpenWithOptions vips_sharpen unsharp masking for print with optional arguments
-func vipsgenSharpenWithOptions(in *C.VipsImage, sigma float64, x1 float64, y2 float64, y3 float64, m1 float64, m2 float64) (*C.VipsImage, error) {
+func vipsgenSharpenWithOptions(in *C.VipsImage, sigma float64, x1 *float64, y2 *float64, y3 *float64, m1 float64, m2 *float64) (*C.VipsImage, error) {
 	var out *C.VipsImage
-	if err := C.vipsgen_sharpen_with_options(in, &out, C.double(sigma), C.double(x1), C.double(y2), C.double(y3), C.double(m1), C.double(m2)); err != 0 {
+	var cx1 C.double
+	x1Set := C.int(0)
+	if x1 != nil {
+		cx1 = C.double(*x1)
+		x1Set = 1
+	}
+	var cy2 C.double
+	y2Set := C.int(0)
+	if y2 != nil {
+		cy2 = C.double(*y2)
+		y2Set = 1
+	}
+	var cy3 C.double
+	y3Set := C.int(0)
+	if y3 != nil {
+		cy3 = C.double(*y3)
+		y3Set = 1
+	}
+	var cm2 C.double
+	m2Set := C.int(0)
+	if m2 != nil {
+		cm2 = C.double(*m2)
+		m2Set = 1
+	}
+	if err := C.vipsgen_sharpen_with_options(in, &out, C.double(sigma), cx1, x1Set, cy2, y2Set, cy3, y3Set, C.double(m1), cm2, m2Set); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
@@ -5196,7 +6084,7 @@ func vipsgenSimilarity(in *C.VipsImage) (*C.VipsImage, error) {
 }
 
 // vipsgenSimilarityWithOptions vips_similarity similarity transform of an image with optional arguments
-func vipsgenSimilarityWithOptions(in *C.VipsImage, scale float64, angle float64, interpolate *Interpolate, background []float64, odx float64, ody float64, idx float64, idy float64) (*C.VipsImage, error) {
+func vipsgenSimilarityWithOptions(in *C.VipsImage, scale *float64, angle float64, interpolate *Interpolate, background []float64, odx float64, ody float64, idx float64, idy float64) (*C.VipsImage, error) {
 	var out *C.VipsImage
 	cbackground, cbackgroundLength, err := convertToDoubleArray(background)
 	if err != nil {
@@ -5205,7 +6093,13 @@ func vipsgenSimilarityWithOptions(in *C.VipsImage, scale float64, angle float64,
 	if cbackground != nil {
 		defer freeDoubleArray(cbackground)
 	}
-	if err := C.vipsgen_similarity_with_options(in, &out, C.double(scale), C.double(angle), vipsInterpolateToC(interpolate), cbackground, cbackgroundLength, C.double(odx), C.double(ody), C.double(idx), C.double(idy)); err != 0 {
+	var cscale C.double
+	scaleSet := C.int(0)
+	if scale != nil {
+		cscale = C.double(*scale)
+		scaleSet = 1
+	}
+	if err := C.vipsgen_similarity_with_options(in, &out, cscale, scaleSet, C.double(angle), vipsInterpolateToC(interpolate), cbackground, cbackgroundLength, C.double(odx), C.double(ody), C.double(idx), C.double(idy)); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
@@ -5221,9 +6115,21 @@ func vipsgenSines(width int, height int) (*C.VipsImage, error) {
 }
 
 // vipsgenSinesWithOptions vips_sines make a 2D sine wave with optional arguments
-func vipsgenSinesWithOptions(width int, height int, uchar bool, hfreq float64, vfreq float64) (*C.VipsImage, error) {
+func vipsgenSinesWithOptions(width int, height int, uchar bool, hfreq *float64, vfreq *float64) (*C.VipsImage, error) {
 	var out *C.VipsImage
-	if err := C.vipsgen_sines_with_options(&out, C.gint(width), C.gint(height), C.int(boolToInt(uchar)), C.double(hfreq), C.double(vfreq)); err != 0 {
+	var chfreq C.double
+	hfreqSet := C.int(0)
+	if hfreq != nil {
+		chfreq = C.double(*hfreq)
+		hfreqSet = 1
+	}
+	var cvfreq C.double
+	vfreqSet := C.int(0)
+	if vfreq != nil {
+		cvfreq = C.double(*vfreq)
+		vfreqSet = 1
+	}
+	if err := C.vipsgen_sines_with_options(&out, C.gint(width), C.gint(height), C.int(boolToInt(uchar)), chfreq, hfreqSet, cvfreq, vfreqSet); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
@@ -5239,8 +6145,14 @@ func vipsgenSmartcrop(input *C.VipsImage, width int, height int) (*C.VipsImage, 
 }
 
 // vipsgenSmartcropWithOptions vips_smartcrop extract an area from an image with optional arguments
-func vipsgenSmartcropWithOptions(input *C.VipsImage, width int, height int, interesting Interesting, premultiplied bool, attentionX *int, attentionY *int) (*C.VipsImage, error) {
+func vipsgenSmartcropWithOptions(input *C.VipsImage, width int, height int, interesting *Interesting, premultiplied bool, attentionX *int, attentionY *int) (*C.VipsImage, error) {
 	var out *C.VipsImage
+	var cinteresting C.VipsInteresting
+	interestingSet := C.int(0)
+	if interesting != nil {
+		cinteresting = C.VipsInteresting(*interesting)
+		interestingSet = 1
+	}
 	var cattentionXValue C.gint
 	var cattentionX *C.gint
 	if attentionX != nil {
@@ -5251,7 +6163,7 @@ func vipsgenSmartcropWithOptions(input *C.VipsImage, width int, height int, inte
 	if attentionY != nil {
 		cattentionY = &cattentionYValue
 	}
-	if err := C.vipsgen_smartcrop_with_options(input, &out, C.gint(width), C.gint(height), C.VipsInteresting(interesting), C.int(boolToInt(premultiplied)), cattentionX, cattentionY); err != 0 {
+	if err := C.vipsgen_smartcrop_with_options(input, &out, C.gint(width), C.gint(height), cinteresting, interestingSet, C.int(boolToInt(premultiplied)), cattentionX, cattentionY); err != 0 {
 		return nil, handleImageError(out)
 	}
 	if attentionX != nil {
@@ -5309,9 +6221,33 @@ func vipsgenStdif(in *C.VipsImage, width int, height int) (*C.VipsImage, error) 
 }
 
 // vipsgenStdifWithOptions vips_stdif statistical difference with optional arguments
-func vipsgenStdifWithOptions(in *C.VipsImage, width int, height int, s0 float64, b float64, m0 float64, a float64) (*C.VipsImage, error) {
+func vipsgenStdifWithOptions(in *C.VipsImage, width int, height int, s0 *float64, b *float64, m0 *float64, a *float64) (*C.VipsImage, error) {
 	var out *C.VipsImage
-	if err := C.vipsgen_stdif_with_options(in, &out, C.gint(width), C.gint(height), C.double(s0), C.double(b), C.double(m0), C.double(a)); err != 0 {
+	var cs0 C.double
+	s0Set := C.int(0)
+	if s0 != nil {
+		cs0 = C.double(*s0)
+		s0Set = 1
+	}
+	var cb C.double
+	bSet := C.int(0)
+	if b != nil {
+		cb = C.double(*b)
+		bSet = 1
+	}
+	var cm0 C.double
+	m0Set := C.int(0)
+	if m0 != nil {
+		cm0 = C.double(*m0)
+		m0Set = 1
+	}
+	var ca C.double
+	aSet := C.int(0)
+	if a != nil {
+		ca = C.double(*a)
+		aSet = 1
+	}
+	if err := C.vipsgen_stdif_with_options(in, &out, C.gint(width), C.gint(height), cs0, s0Set, cb, bSet, cm0, m0Set, ca, aSet); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
@@ -5375,13 +6311,19 @@ func vipsgenSvgload(filename string) (*C.VipsImage, error) {
 }
 
 // vipsgenSvgloadWithOptions vips_svgload load SVG with rsvg with optional arguments
-func vipsgenSvgloadWithOptions(filename string, dpi float64, scale float64, unlimited bool, stylesheet string, highBitdepth bool, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
+func vipsgenSvgloadWithOptions(filename string, dpi float64, scale *float64, unlimited bool, stylesheet string, highBitdepth bool, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
 	var out *C.VipsImage
 	cfilename := C.CString(filename)
 	defer freeCString(cfilename)
+	var cscale C.double
+	scaleSet := C.int(0)
+	if scale != nil {
+		cscale = C.double(*scale)
+		scaleSet = 1
+	}
 	cstylesheet := C.CString(stylesheet)
 	defer freeCString(cstylesheet)
-	if err := C.vipsgen_svgload_with_options(cfilename, &out, C.double(dpi), C.double(scale), C.int(boolToInt(unlimited)), cstylesheet, C.int(boolToInt(highBitdepth)), C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
+	if err := C.vipsgen_svgload_with_options(cfilename, &out, C.double(dpi), cscale, scaleSet, C.int(boolToInt(unlimited)), cstylesheet, C.int(boolToInt(highBitdepth)), C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
@@ -5400,14 +6342,20 @@ func vipsgenSvgloadBuffer(buf []byte) (*C.VipsImage, error) {
 }
 
 // vipsgenSvgloadBufferWithOptions vips_svgload_buffer load SVG with rsvg with optional arguments
-func vipsgenSvgloadBufferWithOptions(buf []byte, dpi float64, scale float64, unlimited bool, stylesheet string, highBitdepth bool, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
+func vipsgenSvgloadBufferWithOptions(buf []byte, dpi float64, scale *float64, unlimited bool, stylesheet string, highBitdepth bool, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
 	src := buf
 	// Reference src here so it's not garbage collected during image initialization.
 	defer runtime.KeepAlive(src)
 	var out *C.VipsImage
+	var cscale C.double
+	scaleSet := C.int(0)
+	if scale != nil {
+		cscale = C.double(*scale)
+		scaleSet = 1
+	}
 	cstylesheet := C.CString(stylesheet)
 	defer freeCString(cstylesheet)
-	if err := C.vipsgen_svgload_buffer_with_options(unsafe.Pointer(&src[0]), C.size_t(len(src)), &out, C.double(dpi), C.double(scale), C.int(boolToInt(unlimited)), cstylesheet, C.int(boolToInt(highBitdepth)), C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
+	if err := C.vipsgen_svgload_buffer_with_options(unsafe.Pointer(&src[0]), C.size_t(len(src)), &out, C.double(dpi), cscale, scaleSet, C.int(boolToInt(unlimited)), cstylesheet, C.int(boolToInt(highBitdepth)), C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
@@ -5423,11 +6371,17 @@ func vipsgenSvgloadSource(source *C.VipsSourceCustom) (*C.VipsImage, error) {
 }
 
 // vipsgenSvgloadSourceWithOptions vips_svgload_source load svg from source with optional arguments
-func vipsgenSvgloadSourceWithOptions(source *C.VipsSourceCustom, dpi float64, scale float64, unlimited bool, stylesheet string, highBitdepth bool, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
+func vipsgenSvgloadSourceWithOptions(source *C.VipsSourceCustom, dpi float64, scale *float64, unlimited bool, stylesheet string, highBitdepth bool, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
 	var out *C.VipsImage
+	var cscale C.double
+	scaleSet := C.int(0)
+	if scale != nil {
+		cscale = C.double(*scale)
+		scaleSet = 1
+	}
 	cstylesheet := C.CString(stylesheet)
 	defer freeCString(cstylesheet)
-	if err := C.vipsgen_svgload_source_with_options(source, &out, C.double(dpi), C.double(scale), C.int(boolToInt(unlimited)), cstylesheet, C.int(boolToInt(highBitdepth)), C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
+	if err := C.vipsgen_svgload_source_with_options(source, &out, C.double(dpi), cscale, scaleSet, C.int(boolToInt(unlimited)), cstylesheet, C.int(boolToInt(highBitdepth)), C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
@@ -5531,15 +6485,21 @@ func vipsgenThumbnail(filename string, width int) (*C.VipsImage, error) {
 }
 
 // vipsgenThumbnailWithOptions vips_thumbnail generate thumbnail from file with optional arguments
-func vipsgenThumbnailWithOptions(filename string, width int, height int, size Size, noRotate bool, crop Interesting, linear bool, inputProfile string, outputProfile string, intent Intent, failOn FailOn) (*C.VipsImage, error) {
+func vipsgenThumbnailWithOptions(filename string, width int, height int, size Size, noRotate bool, crop Interesting, linear bool, inputProfile string, outputProfile string, intent *Intent, failOn FailOn) (*C.VipsImage, error) {
 	var out *C.VipsImage
 	cfilename := C.CString(filename)
 	defer freeCString(cfilename)
+	var cintent C.VipsIntent
+	intentSet := C.int(0)
+	if intent != nil {
+		cintent = C.VipsIntent(*intent)
+		intentSet = 1
+	}
 	cinputProfile := C.CString(inputProfile)
 	defer freeCString(cinputProfile)
 	coutputProfile := C.CString(outputProfile)
 	defer freeCString(coutputProfile)
-	if err := C.vipsgen_thumbnail_with_options(cfilename, &out, C.gint(width), C.gint(height), C.VipsSize(size), C.int(boolToInt(noRotate)), C.VipsInteresting(crop), C.int(boolToInt(linear)), cinputProfile, coutputProfile, C.VipsIntent(intent), C.VipsFailOn(failOn)); err != 0 {
+	if err := C.vipsgen_thumbnail_with_options(cfilename, &out, C.gint(width), C.gint(height), C.VipsSize(size), C.int(boolToInt(noRotate)), C.VipsInteresting(crop), C.int(boolToInt(linear)), cinputProfile, coutputProfile, cintent, intentSet, C.VipsFailOn(failOn)); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
@@ -5558,18 +6518,24 @@ func vipsgenThumbnailBuffer(buf []byte, width int) (*C.VipsImage, error) {
 }
 
 // vipsgenThumbnailBufferWithOptions vips_thumbnail_buffer generate thumbnail from buffer with optional arguments
-func vipsgenThumbnailBufferWithOptions(buf []byte, width int, optionString string, height int, size Size, noRotate bool, crop Interesting, linear bool, inputProfile string, outputProfile string, intent Intent, failOn FailOn) (*C.VipsImage, error) {
+func vipsgenThumbnailBufferWithOptions(buf []byte, width int, optionString string, height int, size Size, noRotate bool, crop Interesting, linear bool, inputProfile string, outputProfile string, intent *Intent, failOn FailOn) (*C.VipsImage, error) {
 	src := buf
 	// Reference src here so it's not garbage collected during image initialization.
 	defer runtime.KeepAlive(src)
 	var out *C.VipsImage
+	var cintent C.VipsIntent
+	intentSet := C.int(0)
+	if intent != nil {
+		cintent = C.VipsIntent(*intent)
+		intentSet = 1
+	}
 	coptionString := C.CString(optionString)
 	defer freeCString(coptionString)
 	cinputProfile := C.CString(inputProfile)
 	defer freeCString(cinputProfile)
 	coutputProfile := C.CString(outputProfile)
 	defer freeCString(coutputProfile)
-	if err := C.vipsgen_thumbnail_buffer_with_options(unsafe.Pointer(&src[0]), C.size_t(len(src)), &out, C.gint(width), coptionString, C.gint(height), C.VipsSize(size), C.int(boolToInt(noRotate)), C.VipsInteresting(crop), C.int(boolToInt(linear)), cinputProfile, coutputProfile, C.VipsIntent(intent), C.VipsFailOn(failOn)); err != 0 {
+	if err := C.vipsgen_thumbnail_buffer_with_options(unsafe.Pointer(&src[0]), C.size_t(len(src)), &out, C.gint(width), coptionString, C.gint(height), C.VipsSize(size), C.int(boolToInt(noRotate)), C.VipsInteresting(crop), C.int(boolToInt(linear)), cinputProfile, coutputProfile, cintent, intentSet, C.VipsFailOn(failOn)); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
@@ -5585,13 +6551,19 @@ func vipsgenThumbnailImage(in *C.VipsImage, width int) (*C.VipsImage, error) {
 }
 
 // vipsgenThumbnailImageWithOptions vips_thumbnail_image generate thumbnail from image with optional arguments
-func vipsgenThumbnailImageWithOptions(in *C.VipsImage, width int, height int, size Size, noRotate bool, crop Interesting, linear bool, inputProfile string, outputProfile string, intent Intent, failOn FailOn) (*C.VipsImage, error) {
+func vipsgenThumbnailImageWithOptions(in *C.VipsImage, width int, height int, size Size, noRotate bool, crop Interesting, linear bool, inputProfile string, outputProfile string, intent *Intent, failOn FailOn) (*C.VipsImage, error) {
 	var out *C.VipsImage
+	var cintent C.VipsIntent
+	intentSet := C.int(0)
+	if intent != nil {
+		cintent = C.VipsIntent(*intent)
+		intentSet = 1
+	}
 	cinputProfile := C.CString(inputProfile)
 	defer freeCString(cinputProfile)
 	coutputProfile := C.CString(outputProfile)
 	defer freeCString(coutputProfile)
-	if err := C.vipsgen_thumbnail_image_with_options(in, &out, C.gint(width), C.gint(height), C.VipsSize(size), C.int(boolToInt(noRotate)), C.VipsInteresting(crop), C.int(boolToInt(linear)), cinputProfile, coutputProfile, C.VipsIntent(intent), C.VipsFailOn(failOn)); err != 0 {
+	if err := C.vipsgen_thumbnail_image_with_options(in, &out, C.gint(width), C.gint(height), C.VipsSize(size), C.int(boolToInt(noRotate)), C.VipsInteresting(crop), C.int(boolToInt(linear)), cinputProfile, coutputProfile, cintent, intentSet, C.VipsFailOn(failOn)); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
@@ -5607,15 +6579,21 @@ func vipsgenThumbnailSource(source *C.VipsSourceCustom, width int) (*C.VipsImage
 }
 
 // vipsgenThumbnailSourceWithOptions vips_thumbnail_source generate thumbnail from source with optional arguments
-func vipsgenThumbnailSourceWithOptions(source *C.VipsSourceCustom, width int, optionString string, height int, size Size, noRotate bool, crop Interesting, linear bool, inputProfile string, outputProfile string, intent Intent, failOn FailOn) (*C.VipsImage, error) {
+func vipsgenThumbnailSourceWithOptions(source *C.VipsSourceCustom, width int, optionString string, height int, size Size, noRotate bool, crop Interesting, linear bool, inputProfile string, outputProfile string, intent *Intent, failOn FailOn) (*C.VipsImage, error) {
 	var out *C.VipsImage
+	var cintent C.VipsIntent
+	intentSet := C.int(0)
+	if intent != nil {
+		cintent = C.VipsIntent(*intent)
+		intentSet = 1
+	}
 	coptionString := C.CString(optionString)
 	defer freeCString(coptionString)
 	cinputProfile := C.CString(inputProfile)
 	defer freeCString(cinputProfile)
 	coutputProfile := C.CString(outputProfile)
 	defer freeCString(coutputProfile)
-	if err := C.vipsgen_thumbnail_source_with_options(source, &out, C.gint(width), coptionString, C.gint(height), C.VipsSize(size), C.int(boolToInt(noRotate)), C.VipsInteresting(crop), C.int(boolToInt(linear)), cinputProfile, coutputProfile, C.VipsIntent(intent), C.VipsFailOn(failOn)); err != 0 {
+	if err := C.vipsgen_thumbnail_source_with_options(source, &out, C.gint(width), coptionString, C.gint(height), C.VipsSize(size), C.int(boolToInt(noRotate)), C.VipsInteresting(crop), C.int(boolToInt(linear)), cinputProfile, coutputProfile, cintent, intentSet, C.VipsFailOn(failOn)); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
@@ -5633,11 +6611,23 @@ func vipsgenTiffload(filename string) (*C.VipsImage, error) {
 }
 
 // vipsgenTiffloadWithOptions vips_tiffload load tiff from file with optional arguments
-func vipsgenTiffloadWithOptions(filename string, page int, n int, autorotate bool, subifd int, unlimited bool, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
+func vipsgenTiffloadWithOptions(filename string, page int, n *int, autorotate bool, subifd *int, unlimited bool, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
 	var out *C.VipsImage
 	cfilename := C.CString(filename)
 	defer freeCString(cfilename)
-	if err := C.vipsgen_tiffload_with_options(cfilename, &out, C.gint(page), C.gint(n), C.int(boolToInt(autorotate)), C.gint(subifd), C.int(boolToInt(unlimited)), C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
+	var cn C.gint
+	nSet := C.int(0)
+	if n != nil {
+		cn = C.gint(*n)
+		nSet = 1
+	}
+	var csubifd C.gint
+	subifdSet := C.int(0)
+	if subifd != nil {
+		csubifd = C.gint(*subifd)
+		subifdSet = 1
+	}
+	if err := C.vipsgen_tiffload_with_options(cfilename, &out, C.gint(page), cn, nSet, C.int(boolToInt(autorotate)), csubifd, subifdSet, C.int(boolToInt(unlimited)), C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
@@ -5656,12 +6646,24 @@ func vipsgenTiffloadBuffer(buf []byte) (*C.VipsImage, error) {
 }
 
 // vipsgenTiffloadBufferWithOptions vips_tiffload_buffer load tiff from buffer with optional arguments
-func vipsgenTiffloadBufferWithOptions(buf []byte, page int, n int, autorotate bool, subifd int, unlimited bool, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
+func vipsgenTiffloadBufferWithOptions(buf []byte, page int, n *int, autorotate bool, subifd *int, unlimited bool, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
 	src := buf
 	// Reference src here so it's not garbage collected during image initialization.
 	defer runtime.KeepAlive(src)
 	var out *C.VipsImage
-	if err := C.vipsgen_tiffload_buffer_with_options(unsafe.Pointer(&src[0]), C.size_t(len(src)), &out, C.gint(page), C.gint(n), C.int(boolToInt(autorotate)), C.gint(subifd), C.int(boolToInt(unlimited)), C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
+	var cn C.gint
+	nSet := C.int(0)
+	if n != nil {
+		cn = C.gint(*n)
+		nSet = 1
+	}
+	var csubifd C.gint
+	subifdSet := C.int(0)
+	if subifd != nil {
+		csubifd = C.gint(*subifd)
+		subifdSet = 1
+	}
+	if err := C.vipsgen_tiffload_buffer_with_options(unsafe.Pointer(&src[0]), C.size_t(len(src)), &out, C.gint(page), cn, nSet, C.int(boolToInt(autorotate)), csubifd, subifdSet, C.int(boolToInt(unlimited)), C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
@@ -5677,9 +6679,21 @@ func vipsgenTiffloadSource(source *C.VipsSourceCustom) (*C.VipsImage, error) {
 }
 
 // vipsgenTiffloadSourceWithOptions vips_tiffload_source load tiff from source with optional arguments
-func vipsgenTiffloadSourceWithOptions(source *C.VipsSourceCustom, page int, n int, autorotate bool, subifd int, unlimited bool, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
+func vipsgenTiffloadSourceWithOptions(source *C.VipsSourceCustom, page int, n *int, autorotate bool, subifd *int, unlimited bool, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
 	var out *C.VipsImage
-	if err := C.vipsgen_tiffload_source_with_options(source, &out, C.gint(page), C.gint(n), C.int(boolToInt(autorotate)), C.gint(subifd), C.int(boolToInt(unlimited)), C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
+	var cn C.gint
+	nSet := C.int(0)
+	if n != nil {
+		cn = C.gint(*n)
+		nSet = 1
+	}
+	var csubifd C.gint
+	subifdSet := C.int(0)
+	if subifd != nil {
+		csubifd = C.gint(*subifd)
+		subifdSet = 1
+	}
+	if err := C.vipsgen_tiffload_source_with_options(source, &out, C.gint(page), cn, nSet, C.int(boolToInt(autorotate)), csubifd, subifdSet, C.int(boolToInt(unlimited)), C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
@@ -5696,7 +6710,7 @@ func vipsgenTiffsave(in *C.VipsImage, filename string) (error) {
 }
 
 // vipsgenTiffsaveWithOptions vips_tiffsave save image to tiff file with optional arguments
-func vipsgenTiffsaveWithOptions(in *C.VipsImage, filename string, compression TiffCompression, q int, predictor TiffPredictor, tile bool, tileWidth int, tileHeight int, pyramid bool, miniswhite bool, bitdepth int, resunit TiffResunit, xres float64, yres float64, bigtiff bool, properties bool, regionShrink RegionShrink, level int, lossless bool, depth DzDepth, subifd bool, premultiply bool, keep Keep, background []float64, pageHeight int, profile string) (error) {
+func vipsgenTiffsaveWithOptions(in *C.VipsImage, filename string, compression TiffCompression, q int, predictor TiffPredictor, tile bool, tileWidth int, tileHeight int, pyramid bool, miniswhite bool, bitdepth int, resunit TiffResunit, xres float64, yres float64, bigtiff bool, properties bool, regionShrink RegionShrink, level int, lossless bool, depth *DzDepth, subifd bool, premultiply bool, keep *Keep, background []float64, pageHeight int, profile string) (error) {
 	cfilename := C.CString(filename)
 	defer freeCString(cfilename)
 	cbackground, cbackgroundLength, err := convertToDoubleArray(background)
@@ -5706,9 +6720,21 @@ func vipsgenTiffsaveWithOptions(in *C.VipsImage, filename string, compression Ti
 	if cbackground != nil {
 		defer freeDoubleArray(cbackground)
 	}
+	var cdepth C.VipsForeignDzDepth
+	depthSet := C.int(0)
+	if depth != nil {
+		cdepth = C.VipsForeignDzDepth(*depth)
+		depthSet = 1
+	}
+	var ckeep C.VipsForeignKeep
+	keepSet := C.int(0)
+	if keep != nil {
+		ckeep = C.VipsForeignKeep(*keep)
+		keepSet = 1
+	}
 	cprofile := C.CString(profile)
 	defer freeCString(cprofile)
-	if err := C.vipsgen_tiffsave_with_options(in, cfilename, C.VipsForeignTiffCompression(compression), C.gint(q), C.VipsForeignTiffPredictor(predictor), C.int(boolToInt(tile)), C.gint(tileWidth), C.gint(tileHeight), C.int(boolToInt(pyramid)), C.int(boolToInt(miniswhite)), C.gint(bitdepth), C.VipsForeignTiffResunit(resunit), C.double(xres), C.double(yres), C.int(boolToInt(bigtiff)), C.int(boolToInt(properties)), C.VipsRegionShrink(regionShrink), C.gint(level), C.int(boolToInt(lossless)), C.VipsForeignDzDepth(depth), C.int(boolToInt(subifd)), C.int(boolToInt(premultiply)), C.VipsForeignKeep(keep), cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
+	if err := C.vipsgen_tiffsave_with_options(in, cfilename, C.VipsForeignTiffCompression(compression), C.gint(q), C.VipsForeignTiffPredictor(predictor), C.int(boolToInt(tile)), C.gint(tileWidth), C.gint(tileHeight), C.int(boolToInt(pyramid)), C.int(boolToInt(miniswhite)), C.gint(bitdepth), C.VipsForeignTiffResunit(resunit), C.double(xres), C.double(yres), C.int(boolToInt(bigtiff)), C.int(boolToInt(properties)), C.VipsRegionShrink(regionShrink), C.gint(level), C.int(boolToInt(lossless)), cdepth, depthSet, C.int(boolToInt(subifd)), C.int(boolToInt(premultiply)), ckeep, keepSet, cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
 		return handleVipsError()
 	}
 	return nil
@@ -5725,7 +6751,7 @@ func vipsgenTiffsaveBuffer(in *C.VipsImage) ([]byte, error) {
 }
 
 // vipsgenTiffsaveBufferWithOptions vips_tiffsave_buffer save image to tiff buffer with optional arguments
-func vipsgenTiffsaveBufferWithOptions(in *C.VipsImage, compression TiffCompression, q int, predictor TiffPredictor, tile bool, tileWidth int, tileHeight int, pyramid bool, miniswhite bool, bitdepth int, resunit TiffResunit, xres float64, yres float64, bigtiff bool, properties bool, regionShrink RegionShrink, level int, lossless bool, depth DzDepth, subifd bool, premultiply bool, keep Keep, background []float64, pageHeight int, profile string) ([]byte, error) {
+func vipsgenTiffsaveBufferWithOptions(in *C.VipsImage, compression TiffCompression, q int, predictor TiffPredictor, tile bool, tileWidth int, tileHeight int, pyramid bool, miniswhite bool, bitdepth int, resunit TiffResunit, xres float64, yres float64, bigtiff bool, properties bool, regionShrink RegionShrink, level int, lossless bool, depth *DzDepth, subifd bool, premultiply bool, keep *Keep, background []float64, pageHeight int, profile string) ([]byte, error) {
 	var buf unsafe.Pointer
 	var length C.size_t
 	cbackground, cbackgroundLength, err := convertToDoubleArray(background)
@@ -5735,9 +6761,21 @@ func vipsgenTiffsaveBufferWithOptions(in *C.VipsImage, compression TiffCompressi
 	if cbackground != nil {
 		defer freeDoubleArray(cbackground)
 	}
+	var cdepth C.VipsForeignDzDepth
+	depthSet := C.int(0)
+	if depth != nil {
+		cdepth = C.VipsForeignDzDepth(*depth)
+		depthSet = 1
+	}
+	var ckeep C.VipsForeignKeep
+	keepSet := C.int(0)
+	if keep != nil {
+		ckeep = C.VipsForeignKeep(*keep)
+		keepSet = 1
+	}
 	cprofile := C.CString(profile)
 	defer freeCString(cprofile)
-	if err := C.vipsgen_tiffsave_buffer_with_options(in, &buf, &length, C.VipsForeignTiffCompression(compression), C.gint(q), C.VipsForeignTiffPredictor(predictor), C.int(boolToInt(tile)), C.gint(tileWidth), C.gint(tileHeight), C.int(boolToInt(pyramid)), C.int(boolToInt(miniswhite)), C.gint(bitdepth), C.VipsForeignTiffResunit(resunit), C.double(xres), C.double(yres), C.int(boolToInt(bigtiff)), C.int(boolToInt(properties)), C.VipsRegionShrink(regionShrink), C.gint(level), C.int(boolToInt(lossless)), C.VipsForeignDzDepth(depth), C.int(boolToInt(subifd)), C.int(boolToInt(premultiply)), C.VipsForeignKeep(keep), cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
+	if err := C.vipsgen_tiffsave_buffer_with_options(in, &buf, &length, C.VipsForeignTiffCompression(compression), C.gint(q), C.VipsForeignTiffPredictor(predictor), C.int(boolToInt(tile)), C.gint(tileWidth), C.gint(tileHeight), C.int(boolToInt(pyramid)), C.int(boolToInt(miniswhite)), C.gint(bitdepth), C.VipsForeignTiffResunit(resunit), C.double(xres), C.double(yres), C.int(boolToInt(bigtiff)), C.int(boolToInt(properties)), C.VipsRegionShrink(regionShrink), C.gint(level), C.int(boolToInt(lossless)), cdepth, depthSet, C.int(boolToInt(subifd)), C.int(boolToInt(premultiply)), ckeep, keepSet, cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
 		return nil, handleVipsError()
 	}
 	return bufferToBytes(buf, length), nil
@@ -5753,7 +6791,7 @@ func vipsgenTiffsaveTarget(in *C.VipsImage, target *C.VipsTargetCustom) (error) 
 }
 
 // vipsgenTiffsaveTargetWithOptions vips_tiffsave_target save image to tiff target with optional arguments
-func vipsgenTiffsaveTargetWithOptions(in *C.VipsImage, target *C.VipsTargetCustom, compression TiffCompression, q int, predictor TiffPredictor, tile bool, tileWidth int, tileHeight int, pyramid bool, miniswhite bool, bitdepth int, resunit TiffResunit, xres float64, yres float64, bigtiff bool, properties bool, regionShrink RegionShrink, level int, lossless bool, depth DzDepth, subifd bool, premultiply bool, keep Keep, background []float64, pageHeight int, profile string) (error) {
+func vipsgenTiffsaveTargetWithOptions(in *C.VipsImage, target *C.VipsTargetCustom, compression TiffCompression, q int, predictor TiffPredictor, tile bool, tileWidth int, tileHeight int, pyramid bool, miniswhite bool, bitdepth int, resunit TiffResunit, xres float64, yres float64, bigtiff bool, properties bool, regionShrink RegionShrink, level int, lossless bool, depth *DzDepth, subifd bool, premultiply bool, keep *Keep, background []float64, pageHeight int, profile string) (error) {
 	cbackground, cbackgroundLength, err := convertToDoubleArray(background)
 	if err != nil {
 		return err
@@ -5761,9 +6799,21 @@ func vipsgenTiffsaveTargetWithOptions(in *C.VipsImage, target *C.VipsTargetCusto
 	if cbackground != nil {
 		defer freeDoubleArray(cbackground)
 	}
+	var cdepth C.VipsForeignDzDepth
+	depthSet := C.int(0)
+	if depth != nil {
+		cdepth = C.VipsForeignDzDepth(*depth)
+		depthSet = 1
+	}
+	var ckeep C.VipsForeignKeep
+	keepSet := C.int(0)
+	if keep != nil {
+		ckeep = C.VipsForeignKeep(*keep)
+		keepSet = 1
+	}
 	cprofile := C.CString(profile)
 	defer freeCString(cprofile)
-	if err := C.vipsgen_tiffsave_target_with_options(in, target, C.VipsForeignTiffCompression(compression), C.gint(q), C.VipsForeignTiffPredictor(predictor), C.int(boolToInt(tile)), C.gint(tileWidth), C.gint(tileHeight), C.int(boolToInt(pyramid)), C.int(boolToInt(miniswhite)), C.gint(bitdepth), C.VipsForeignTiffResunit(resunit), C.double(xres), C.double(yres), C.int(boolToInt(bigtiff)), C.int(boolToInt(properties)), C.VipsRegionShrink(regionShrink), C.gint(level), C.int(boolToInt(lossless)), C.VipsForeignDzDepth(depth), C.int(boolToInt(subifd)), C.int(boolToInt(premultiply)), C.VipsForeignKeep(keep), cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
+	if err := C.vipsgen_tiffsave_target_with_options(in, target, C.VipsForeignTiffCompression(compression), C.gint(q), C.VipsForeignTiffPredictor(predictor), C.int(boolToInt(tile)), C.gint(tileWidth), C.gint(tileHeight), C.int(boolToInt(pyramid)), C.int(boolToInt(miniswhite)), C.gint(bitdepth), C.VipsForeignTiffResunit(resunit), C.double(xres), C.double(yres), C.int(boolToInt(bigtiff)), C.int(boolToInt(properties)), C.VipsRegionShrink(regionShrink), C.gint(level), C.int(boolToInt(lossless)), cdepth, depthSet, C.int(boolToInt(subifd)), C.int(boolToInt(premultiply)), ckeep, keepSet, cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
 		return handleVipsError()
 	}
 	return nil
@@ -5779,9 +6829,15 @@ func vipsgenTilecache(in *C.VipsImage) (*C.VipsImage, error) {
 }
 
 // vipsgenTilecacheWithOptions vips_tilecache cache an image as a set of tiles with optional arguments
-func vipsgenTilecacheWithOptions(in *C.VipsImage, tileWidth int, tileHeight int, maxTiles int, access Access, threaded bool, persistent bool) (*C.VipsImage, error) {
+func vipsgenTilecacheWithOptions(in *C.VipsImage, tileWidth int, tileHeight int, maxTiles *int, access Access, threaded bool, persistent bool) (*C.VipsImage, error) {
 	var out *C.VipsImage
-	if err := C.vipsgen_tilecache_with_options(in, &out, C.gint(tileWidth), C.gint(tileHeight), C.gint(maxTiles), C.VipsAccess(access), C.int(boolToInt(threaded)), C.int(boolToInt(persistent))); err != 0 {
+	var cmaxTiles C.gint
+	maxTilesSet := C.int(0)
+	if maxTiles != nil {
+		cmaxTiles = C.gint(*maxTiles)
+		maxTilesSet = 1
+	}
+	if err := C.vipsgen_tilecache_with_options(in, &out, C.gint(tileWidth), C.gint(tileHeight), cmaxTiles, maxTilesSet, C.VipsAccess(access), C.int(boolToInt(threaded)), C.int(boolToInt(persistent))); err != 0 {
 		return nil, handleVipsError()
 	}
 	return out, nil
@@ -5797,9 +6853,33 @@ func vipsgenTonelut() (*C.VipsImage, error) {
 }
 
 // vipsgenTonelutWithOptions vips_tonelut build a look-up table with optional arguments
-func vipsgenTonelutWithOptions(inMax int, outMax int, lb float64, lw float64, ps float64, pm float64, ph float64, s float64, m float64, h float64) (*C.VipsImage, error) {
+func vipsgenTonelutWithOptions(inMax int, outMax int, lb float64, lw *float64, ps *float64, pm *float64, ph *float64, s float64, m float64, h float64) (*C.VipsImage, error) {
 	var out *C.VipsImage
-	if err := C.vipsgen_tonelut_with_options(&out, C.gint(inMax), C.gint(outMax), C.double(lb), C.double(lw), C.double(ps), C.double(pm), C.double(ph), C.double(s), C.double(m), C.double(h)); err != 0 {
+	var clw C.double
+	lwSet := C.int(0)
+	if lw != nil {
+		clw = C.double(*lw)
+		lwSet = 1
+	}
+	var cps C.double
+	psSet := C.int(0)
+	if ps != nil {
+		cps = C.double(*ps)
+		psSet = 1
+	}
+	var cpm C.double
+	pmSet := C.int(0)
+	if pm != nil {
+		cpm = C.double(*pm)
+		pmSet = 1
+	}
+	var cph C.double
+	phSet := C.int(0)
+	if ph != nil {
+		cph = C.double(*ph)
+		phSet = 1
+	}
+	if err := C.vipsgen_tonelut_with_options(&out, C.gint(inMax), C.gint(outMax), C.double(lb), clw, lwSet, cps, psSet, cpm, pmSet, cph, phSet, C.double(s), C.double(m), C.double(h)); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
@@ -5833,9 +6913,21 @@ func vipsgenUnpremultiply(in *C.VipsImage) (*C.VipsImage, error) {
 }
 
 // vipsgenUnpremultiplyWithOptions vips_unpremultiply unpremultiply image alpha with optional arguments
-func vipsgenUnpremultiplyWithOptions(in *C.VipsImage, maxAlpha float64, alphaBand int) (*C.VipsImage, error) {
+func vipsgenUnpremultiplyWithOptions(in *C.VipsImage, maxAlpha *float64, alphaBand *int) (*C.VipsImage, error) {
 	var out *C.VipsImage
-	if err := C.vipsgen_unpremultiply_with_options(in, &out, C.double(maxAlpha), C.gint(alphaBand)); err != 0 {
+	var cmaxAlpha C.double
+	maxAlphaSet := C.int(0)
+	if maxAlpha != nil {
+		cmaxAlpha = C.double(*maxAlpha)
+		maxAlphaSet = 1
+	}
+	var calphaBand C.gint
+	alphaBandSet := C.int(0)
+	if alphaBand != nil {
+		calphaBand = C.gint(*alphaBand)
+		alphaBandSet = 1
+	}
+	if err := C.vipsgen_unpremultiply_with_options(in, &out, cmaxAlpha, maxAlphaSet, calphaBand, alphaBandSet); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
@@ -5892,7 +6984,7 @@ func vipsgenVipssave(in *C.VipsImage, filename string) (error) {
 }
 
 // vipsgenVipssaveWithOptions vips_vipssave save image to file in vips format with optional arguments
-func vipsgenVipssaveWithOptions(in *C.VipsImage, filename string, keep Keep, background []float64, pageHeight int, profile string) (error) {
+func vipsgenVipssaveWithOptions(in *C.VipsImage, filename string, keep *Keep, background []float64, pageHeight int, profile string) (error) {
 	cfilename := C.CString(filename)
 	defer freeCString(cfilename)
 	cbackground, cbackgroundLength, err := convertToDoubleArray(background)
@@ -5902,9 +6994,15 @@ func vipsgenVipssaveWithOptions(in *C.VipsImage, filename string, keep Keep, bac
 	if cbackground != nil {
 		defer freeDoubleArray(cbackground)
 	}
+	var ckeep C.VipsForeignKeep
+	keepSet := C.int(0)
+	if keep != nil {
+		ckeep = C.VipsForeignKeep(*keep)
+		keepSet = 1
+	}
 	cprofile := C.CString(profile)
 	defer freeCString(cprofile)
-	if err := C.vipsgen_vipssave_with_options(in, cfilename, C.VipsForeignKeep(keep), cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
+	if err := C.vipsgen_vipssave_with_options(in, cfilename, ckeep, keepSet, cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
 		return handleVipsError()
 	}
 	return nil
@@ -5920,7 +7018,7 @@ func vipsgenVipssaveTarget(in *C.VipsImage, target *C.VipsTargetCustom) (error) 
 }
 
 // vipsgenVipssaveTargetWithOptions vips_vipssave_target save image to target in vips format with optional arguments
-func vipsgenVipssaveTargetWithOptions(in *C.VipsImage, target *C.VipsTargetCustom, keep Keep, background []float64, pageHeight int, profile string) (error) {
+func vipsgenVipssaveTargetWithOptions(in *C.VipsImage, target *C.VipsTargetCustom, keep *Keep, background []float64, pageHeight int, profile string) (error) {
 	cbackground, cbackgroundLength, err := convertToDoubleArray(background)
 	if err != nil {
 		return err
@@ -5928,9 +7026,15 @@ func vipsgenVipssaveTargetWithOptions(in *C.VipsImage, target *C.VipsTargetCusto
 	if cbackground != nil {
 		defer freeDoubleArray(cbackground)
 	}
+	var ckeep C.VipsForeignKeep
+	keepSet := C.int(0)
+	if keep != nil {
+		ckeep = C.VipsForeignKeep(*keep)
+		keepSet = 1
+	}
 	cprofile := C.CString(profile)
 	defer freeCString(cprofile)
-	if err := C.vipsgen_vipssave_target_with_options(in, target, C.VipsForeignKeep(keep), cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
+	if err := C.vipsgen_vipssave_target_with_options(in, target, ckeep, keepSet, cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
 		return handleVipsError()
 	}
 	return nil
@@ -5948,11 +7052,23 @@ func vipsgenWebpload(filename string) (*C.VipsImage, error) {
 }
 
 // vipsgenWebploadWithOptions vips_webpload load webp from file with optional arguments
-func vipsgenWebploadWithOptions(filename string, page int, n int, scale float64, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
+func vipsgenWebploadWithOptions(filename string, page int, n *int, scale *float64, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
 	var out *C.VipsImage
 	cfilename := C.CString(filename)
 	defer freeCString(cfilename)
-	if err := C.vipsgen_webpload_with_options(cfilename, &out, C.gint(page), C.gint(n), C.double(scale), C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
+	var cn C.gint
+	nSet := C.int(0)
+	if n != nil {
+		cn = C.gint(*n)
+		nSet = 1
+	}
+	var cscale C.double
+	scaleSet := C.int(0)
+	if scale != nil {
+		cscale = C.double(*scale)
+		scaleSet = 1
+	}
+	if err := C.vipsgen_webpload_with_options(cfilename, &out, C.gint(page), cn, nSet, cscale, scaleSet, C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
@@ -5971,12 +7087,24 @@ func vipsgenWebploadBuffer(buf []byte) (*C.VipsImage, error) {
 }
 
 // vipsgenWebploadBufferWithOptions vips_webpload_buffer load webp from buffer with optional arguments
-func vipsgenWebploadBufferWithOptions(buf []byte, page int, n int, scale float64, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
+func vipsgenWebploadBufferWithOptions(buf []byte, page int, n *int, scale *float64, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
 	src := buf
 	// Reference src here so it's not garbage collected during image initialization.
 	defer runtime.KeepAlive(src)
 	var out *C.VipsImage
-	if err := C.vipsgen_webpload_buffer_with_options(unsafe.Pointer(&src[0]), C.size_t(len(src)), &out, C.gint(page), C.gint(n), C.double(scale), C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
+	var cn C.gint
+	nSet := C.int(0)
+	if n != nil {
+		cn = C.gint(*n)
+		nSet = 1
+	}
+	var cscale C.double
+	scaleSet := C.int(0)
+	if scale != nil {
+		cscale = C.double(*scale)
+		scaleSet = 1
+	}
+	if err := C.vipsgen_webpload_buffer_with_options(unsafe.Pointer(&src[0]), C.size_t(len(src)), &out, C.gint(page), cn, nSet, cscale, scaleSet, C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
@@ -5992,9 +7120,21 @@ func vipsgenWebploadSource(source *C.VipsSourceCustom) (*C.VipsImage, error) {
 }
 
 // vipsgenWebploadSourceWithOptions vips_webpload_source load webp from source with optional arguments
-func vipsgenWebploadSourceWithOptions(source *C.VipsSourceCustom, page int, n int, scale float64, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
+func vipsgenWebploadSourceWithOptions(source *C.VipsSourceCustom, page int, n *int, scale *float64, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
 	var out *C.VipsImage
-	if err := C.vipsgen_webpload_source_with_options(source, &out, C.gint(page), C.gint(n), C.double(scale), C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
+	var cn C.gint
+	nSet := C.int(0)
+	if n != nil {
+		cn = C.gint(*n)
+		nSet = 1
+	}
+	var cscale C.double
+	scaleSet := C.int(0)
+	if scale != nil {
+		cscale = C.double(*scale)
+		scaleSet = 1
+	}
+	if err := C.vipsgen_webpload_source_with_options(source, &out, C.gint(page), cn, nSet, cscale, scaleSet, C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
@@ -6011,7 +7151,7 @@ func vipsgenWebpsave(in *C.VipsImage, filename string) (error) {
 }
 
 // vipsgenWebpsaveWithOptions vips_webpsave save as WebP with optional arguments
-func vipsgenWebpsaveWithOptions(in *C.VipsImage, filename string, q int, lossless bool, preset WebpPreset, smartSubsample bool, nearLossless bool, alphaQ int, minSize bool, kmin int, kmax int, effort int, targetSize int, mixed bool, smartDeblock bool, passes int, keep Keep, background []float64, pageHeight int, profile string) (error) {
+func vipsgenWebpsaveWithOptions(in *C.VipsImage, filename string, q *int, lossless bool, preset WebpPreset, smartSubsample bool, nearLossless bool, alphaQ *int, minSize bool, kmin *int, kmax *int, effort *int, targetSize int, mixed bool, smartDeblock bool, passes int, keep *Keep, background []float64, pageHeight int, profile string) (error) {
 	cfilename := C.CString(filename)
 	defer freeCString(cfilename)
 	cbackground, cbackgroundLength, err := convertToDoubleArray(background)
@@ -6021,9 +7161,45 @@ func vipsgenWebpsaveWithOptions(in *C.VipsImage, filename string, q int, lossles
 	if cbackground != nil {
 		defer freeDoubleArray(cbackground)
 	}
+	var cq C.gint
+	qSet := C.int(0)
+	if q != nil {
+		cq = C.gint(*q)
+		qSet = 1
+	}
+	var calphaQ C.gint
+	alphaQSet := C.int(0)
+	if alphaQ != nil {
+		calphaQ = C.gint(*alphaQ)
+		alphaQSet = 1
+	}
+	var ckmin C.gint
+	kminSet := C.int(0)
+	if kmin != nil {
+		ckmin = C.gint(*kmin)
+		kminSet = 1
+	}
+	var ckmax C.gint
+	kmaxSet := C.int(0)
+	if kmax != nil {
+		ckmax = C.gint(*kmax)
+		kmaxSet = 1
+	}
+	var ceffort C.gint
+	effortSet := C.int(0)
+	if effort != nil {
+		ceffort = C.gint(*effort)
+		effortSet = 1
+	}
+	var ckeep C.VipsForeignKeep
+	keepSet := C.int(0)
+	if keep != nil {
+		ckeep = C.VipsForeignKeep(*keep)
+		keepSet = 1
+	}
 	cprofile := C.CString(profile)
 	defer freeCString(cprofile)
-	if err := C.vipsgen_webpsave_with_options(in, cfilename, C.gint(q), C.int(boolToInt(lossless)), C.VipsForeignWebpPreset(preset), C.int(boolToInt(smartSubsample)), C.int(boolToInt(nearLossless)), C.gint(alphaQ), C.int(boolToInt(minSize)), C.gint(kmin), C.gint(kmax), C.gint(effort), C.gint(targetSize), C.int(boolToInt(mixed)), C.int(boolToInt(smartDeblock)), C.gint(passes), C.VipsForeignKeep(keep), cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
+	if err := C.vipsgen_webpsave_with_options(in, cfilename, cq, qSet, C.int(boolToInt(lossless)), C.VipsForeignWebpPreset(preset), C.int(boolToInt(smartSubsample)), C.int(boolToInt(nearLossless)), calphaQ, alphaQSet, C.int(boolToInt(minSize)), ckmin, kminSet, ckmax, kmaxSet, ceffort, effortSet, C.gint(targetSize), C.int(boolToInt(mixed)), C.int(boolToInt(smartDeblock)), C.gint(passes), ckeep, keepSet, cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
 		return handleVipsError()
 	}
 	return nil
@@ -6040,7 +7216,7 @@ func vipsgenWebpsaveBuffer(in *C.VipsImage) ([]byte, error) {
 }
 
 // vipsgenWebpsaveBufferWithOptions vips_webpsave_buffer save as WebP with optional arguments
-func vipsgenWebpsaveBufferWithOptions(in *C.VipsImage, q int, lossless bool, preset WebpPreset, smartSubsample bool, nearLossless bool, alphaQ int, minSize bool, kmin int, kmax int, effort int, targetSize int, mixed bool, smartDeblock bool, passes int, keep Keep, background []float64, pageHeight int, profile string) ([]byte, error) {
+func vipsgenWebpsaveBufferWithOptions(in *C.VipsImage, q *int, lossless bool, preset WebpPreset, smartSubsample bool, nearLossless bool, alphaQ *int, minSize bool, kmin *int, kmax *int, effort *int, targetSize int, mixed bool, smartDeblock bool, passes int, keep *Keep, background []float64, pageHeight int, profile string) ([]byte, error) {
 	var buf unsafe.Pointer
 	var length C.size_t
 	cbackground, cbackgroundLength, err := convertToDoubleArray(background)
@@ -6050,9 +7226,45 @@ func vipsgenWebpsaveBufferWithOptions(in *C.VipsImage, q int, lossless bool, pre
 	if cbackground != nil {
 		defer freeDoubleArray(cbackground)
 	}
+	var cq C.gint
+	qSet := C.int(0)
+	if q != nil {
+		cq = C.gint(*q)
+		qSet = 1
+	}
+	var calphaQ C.gint
+	alphaQSet := C.int(0)
+	if alphaQ != nil {
+		calphaQ = C.gint(*alphaQ)
+		alphaQSet = 1
+	}
+	var ckmin C.gint
+	kminSet := C.int(0)
+	if kmin != nil {
+		ckmin = C.gint(*kmin)
+		kminSet = 1
+	}
+	var ckmax C.gint
+	kmaxSet := C.int(0)
+	if kmax != nil {
+		ckmax = C.gint(*kmax)
+		kmaxSet = 1
+	}
+	var ceffort C.gint
+	effortSet := C.int(0)
+	if effort != nil {
+		ceffort = C.gint(*effort)
+		effortSet = 1
+	}
+	var ckeep C.VipsForeignKeep
+	keepSet := C.int(0)
+	if keep != nil {
+		ckeep = C.VipsForeignKeep(*keep)
+		keepSet = 1
+	}
 	cprofile := C.CString(profile)
 	defer freeCString(cprofile)
-	if err := C.vipsgen_webpsave_buffer_with_options(in, &buf, &length, C.gint(q), C.int(boolToInt(lossless)), C.VipsForeignWebpPreset(preset), C.int(boolToInt(smartSubsample)), C.int(boolToInt(nearLossless)), C.gint(alphaQ), C.int(boolToInt(minSize)), C.gint(kmin), C.gint(kmax), C.gint(effort), C.gint(targetSize), C.int(boolToInt(mixed)), C.int(boolToInt(smartDeblock)), C.gint(passes), C.VipsForeignKeep(keep), cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
+	if err := C.vipsgen_webpsave_buffer_with_options(in, &buf, &length, cq, qSet, C.int(boolToInt(lossless)), C.VipsForeignWebpPreset(preset), C.int(boolToInt(smartSubsample)), C.int(boolToInt(nearLossless)), calphaQ, alphaQSet, C.int(boolToInt(minSize)), ckmin, kminSet, ckmax, kmaxSet, ceffort, effortSet, C.gint(targetSize), C.int(boolToInt(mixed)), C.int(boolToInt(smartDeblock)), C.gint(passes), ckeep, keepSet, cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
 		return nil, handleVipsError()
 	}
 	return bufferToBytes(buf, length), nil
@@ -6068,7 +7280,7 @@ func vipsgenWebpsaveTarget(in *C.VipsImage, target *C.VipsTargetCustom) (error) 
 }
 
 // vipsgenWebpsaveTargetWithOptions vips_webpsave_target save as WebP with optional arguments
-func vipsgenWebpsaveTargetWithOptions(in *C.VipsImage, target *C.VipsTargetCustom, q int, lossless bool, preset WebpPreset, smartSubsample bool, nearLossless bool, alphaQ int, minSize bool, kmin int, kmax int, effort int, targetSize int, mixed bool, smartDeblock bool, passes int, keep Keep, background []float64, pageHeight int, profile string) (error) {
+func vipsgenWebpsaveTargetWithOptions(in *C.VipsImage, target *C.VipsTargetCustom, q *int, lossless bool, preset WebpPreset, smartSubsample bool, nearLossless bool, alphaQ *int, minSize bool, kmin *int, kmax *int, effort *int, targetSize int, mixed bool, smartDeblock bool, passes int, keep *Keep, background []float64, pageHeight int, profile string) (error) {
 	cbackground, cbackgroundLength, err := convertToDoubleArray(background)
 	if err != nil {
 		return err
@@ -6076,9 +7288,45 @@ func vipsgenWebpsaveTargetWithOptions(in *C.VipsImage, target *C.VipsTargetCusto
 	if cbackground != nil {
 		defer freeDoubleArray(cbackground)
 	}
+	var cq C.gint
+	qSet := C.int(0)
+	if q != nil {
+		cq = C.gint(*q)
+		qSet = 1
+	}
+	var calphaQ C.gint
+	alphaQSet := C.int(0)
+	if alphaQ != nil {
+		calphaQ = C.gint(*alphaQ)
+		alphaQSet = 1
+	}
+	var ckmin C.gint
+	kminSet := C.int(0)
+	if kmin != nil {
+		ckmin = C.gint(*kmin)
+		kminSet = 1
+	}
+	var ckmax C.gint
+	kmaxSet := C.int(0)
+	if kmax != nil {
+		ckmax = C.gint(*kmax)
+		kmaxSet = 1
+	}
+	var ceffort C.gint
+	effortSet := C.int(0)
+	if effort != nil {
+		ceffort = C.gint(*effort)
+		effortSet = 1
+	}
+	var ckeep C.VipsForeignKeep
+	keepSet := C.int(0)
+	if keep != nil {
+		ckeep = C.VipsForeignKeep(*keep)
+		keepSet = 1
+	}
 	cprofile := C.CString(profile)
 	defer freeCString(cprofile)
-	if err := C.vipsgen_webpsave_target_with_options(in, target, C.gint(q), C.int(boolToInt(lossless)), C.VipsForeignWebpPreset(preset), C.int(boolToInt(smartSubsample)), C.int(boolToInt(nearLossless)), C.gint(alphaQ), C.int(boolToInt(minSize)), C.gint(kmin), C.gint(kmax), C.gint(effort), C.gint(targetSize), C.int(boolToInt(mixed)), C.int(boolToInt(smartDeblock)), C.gint(passes), C.VipsForeignKeep(keep), cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
+	if err := C.vipsgen_webpsave_target_with_options(in, target, cq, qSet, C.int(boolToInt(lossless)), C.VipsForeignWebpPreset(preset), C.int(boolToInt(smartSubsample)), C.int(boolToInt(nearLossless)), calphaQ, alphaQSet, C.int(boolToInt(minSize)), ckmin, kminSet, ckmax, kmaxSet, ceffort, effortSet, C.gint(targetSize), C.int(boolToInt(mixed)), C.int(boolToInt(smartDeblock)), C.gint(passes), ckeep, keepSet, cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
 		return handleVipsError()
 	}
 	return nil

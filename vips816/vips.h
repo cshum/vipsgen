@@ -11,7 +11,6 @@ int vipsgen_operation_save_buffer(VipsOperation *operation, void** buf, size_t* 
 int vipsgen_set_source(VipsOperation *operation, const char *name, VipsSource *value);
 int vipsgen_set_target(VipsOperation *operation, const char *name, VipsTarget *value);
 int vipsgen_set_int(VipsOperation *operation, const char *name, int value);
-int vipsgen_set_keep(VipsOperation *operation, int value);
 int vipsgen_set_bool(VipsOperation *operation, const char *name, gboolean value);
 int vipsgen_set_double(VipsOperation *operation, const char *name, double value);
 int vipsgen_set_guint64(VipsOperation *operation, const char *name, guint64 value);
@@ -71,7 +70,7 @@ int vipsgen_add(VipsImage* left, VipsImage* right, VipsImage** out);
 int vipsgen_addalpha(VipsImage* in, VipsImage** out);
 
 int vipsgen_affine(VipsImage* in, VipsImage** out, double a, double b, double c, double d);
-int vipsgen_affine_with_options(VipsImage* in, VipsImage** out, double a, double b, double c, double d, VipsInterpolate* interpolate, int* oarea, int oarea_n, double odx, double ody, double idx, double idy, double* background, int background_n, gboolean premultiplied, VipsExtend extend);
+int vipsgen_affine_with_options(VipsImage* in, VipsImage** out, double a, double b, double c, double d, VipsInterpolate* interpolate, int* oarea, int oarea_n, double odx, double ody, double idx, double idy, double* background, int background_n, gboolean premultiplied, VipsExtend extend, int extend_set);
 
 int vipsgen_analyzeload(const char* filename, VipsImage** out);
 int vipsgen_analyzeload_with_options(const char* filename, VipsImage** out, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
@@ -96,7 +95,7 @@ int vipsgen_bandjoin_const(VipsImage* in, VipsImage** out, double* c, int n);
 int vipsgen_bandmean(VipsImage* in, VipsImage** out);
 
 int vipsgen_bandrank(VipsImage** in, VipsImage** out, int n);
-int vipsgen_bandrank_with_options(VipsImage** in, VipsImage** out, int n, gint index);
+int vipsgen_bandrank_with_options(VipsImage** in, VipsImage** out, int n, gint index, int index_set);
 
 int vipsgen_bandunfold(VipsImage* in, VipsImage** out);
 int vipsgen_bandunfold_with_options(VipsImage* in, VipsImage** out, gint factor);
@@ -113,7 +112,7 @@ int vipsgen_buildlut(VipsImage* in, VipsImage** out);
 int vipsgen_byteswap(VipsImage* in, VipsImage** out);
 
 int vipsgen_canny(VipsImage* in, VipsImage** out);
-int vipsgen_canny_with_options(VipsImage* in, VipsImage** out, double sigma, VipsPrecision precision);
+int vipsgen_canny_with_options(VipsImage* in, VipsImage** out, double sigma, VipsPrecision precision, int precision_set);
 
 int vipsgen_case(VipsImage* index, VipsImage** cases, VipsImage** out, int n);
 
@@ -124,10 +123,10 @@ int vipsgen_clamp(VipsImage* in, VipsImage** out);
 int vipsgen_clamp_with_options(VipsImage* in, VipsImage** out, double min, double max);
 
 int vipsgen_colourspace(VipsImage* in, VipsImage** out, VipsInterpretation space);
-int vipsgen_colourspace_with_options(VipsImage* in, VipsImage** out, VipsInterpretation space, VipsInterpretation source_space);
+int vipsgen_colourspace_with_options(VipsImage* in, VipsImage** out, VipsInterpretation space, VipsInterpretation source_space, int source_space_set);
 
 int vipsgen_compass(VipsImage* in, VipsImage** out, VipsImage* mask);
-int vipsgen_compass_with_options(VipsImage* in, VipsImage** out, VipsImage* mask, gint times, VipsAngle45 angle, VipsCombine combine, VipsPrecision precision, gint layers, gint cluster);
+int vipsgen_compass_with_options(VipsImage* in, VipsImage** out, VipsImage* mask, gint times, VipsAngle45 angle, int angle_set, VipsCombine combine, VipsPrecision precision, int precision_set, gint layers, gint cluster);
 
 int vipsgen_complex(VipsImage* in, VipsImage** out, VipsOperationComplex cmplx);
 
@@ -138,13 +137,13 @@ int vipsgen_complexform(VipsImage* left, VipsImage* right, VipsImage** out);
 int vipsgen_complexget(VipsImage* in, VipsImage** out, VipsOperationComplexget get);
 
 int vipsgen_composite(VipsImage** in, VipsImage** out, int n, int* mode);
-int vipsgen_composite_with_options(VipsImage** in, VipsImage** out, int n, int* mode, int* x, int x_n, int* y, int y_n, VipsInterpretation compositing_space, gboolean premultiplied);
+int vipsgen_composite_with_options(VipsImage** in, VipsImage** out, int n, int* mode, int* x, int x_n, int* y, int y_n, VipsInterpretation compositing_space, int compositing_space_set, gboolean premultiplied);
 
 int vipsgen_composite2(VipsImage* base, VipsImage* overlay, VipsImage** out, VipsBlendMode mode);
-int vipsgen_composite2_with_options(VipsImage* base, VipsImage* overlay, VipsImage** out, VipsBlendMode mode, gint x, gint y, VipsInterpretation compositing_space, gboolean premultiplied);
+int vipsgen_composite2_with_options(VipsImage* base, VipsImage* overlay, VipsImage** out, VipsBlendMode mode, gint x, gint y, VipsInterpretation compositing_space, int compositing_space_set, gboolean premultiplied);
 
 int vipsgen_conv(VipsImage* in, VipsImage** out, VipsImage* mask);
-int vipsgen_conv_with_options(VipsImage* in, VipsImage** out, VipsImage* mask, VipsPrecision precision, gint layers, gint cluster);
+int vipsgen_conv_with_options(VipsImage* in, VipsImage** out, VipsImage* mask, VipsPrecision precision, int precision_set, gint layers, gint cluster);
 
 int vipsgen_conva(VipsImage* in, VipsImage** out, VipsImage* mask);
 int vipsgen_conva_with_options(VipsImage* in, VipsImage** out, VipsImage* mask, gint layers, gint cluster);
@@ -157,7 +156,7 @@ int vipsgen_convf(VipsImage* in, VipsImage** out, VipsImage* mask);
 int vipsgen_convi(VipsImage* in, VipsImage** out, VipsImage* mask);
 
 int vipsgen_convsep(VipsImage* in, VipsImage** out, VipsImage* mask);
-int vipsgen_convsep_with_options(VipsImage* in, VipsImage** out, VipsImage* mask, VipsPrecision precision, gint layers, gint cluster);
+int vipsgen_convsep_with_options(VipsImage* in, VipsImage** out, VipsImage* mask, VipsPrecision precision, int precision_set, gint layers, gint cluster);
 
 int vipsgen_copy(VipsImage* in, VipsImage** out);
 int vipsgen_copy_with_options(VipsImage* in, VipsImage** out, gint width, gint height, gint bands, VipsBandFormat format, VipsCoding coding, VipsInterpretation interpretation, double xres, double yres, gint xoffset, gint yoffset);
@@ -165,16 +164,16 @@ int vipsgen_copy_with_options(VipsImage* in, VipsImage** out, gint width, gint h
 int vipsgen_countlines(VipsImage* in, double* nolines, VipsDirection direction);
 
 int vipsgen_csvload(const char* filename, VipsImage** out);
-int vipsgen_csvload_with_options(const char* filename, VipsImage** out, gint skip, gint lines, const char* whitespace, const char* separator, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
+int vipsgen_csvload_with_options(const char* filename, VipsImage** out, gint skip, gint lines, const char* whitespace, int whitespace_set, const char* separator, int separator_set, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
 
 int vipsgen_csvload_source(VipsSourceCustom* source, VipsImage** out);
-int vipsgen_csvload_source_with_options(VipsSourceCustom* source, VipsImage** out, gint skip, gint lines, const char* whitespace, const char* separator, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
+int vipsgen_csvload_source_with_options(VipsSourceCustom* source, VipsImage** out, gint skip, gint lines, const char* whitespace, int whitespace_set, const char* separator, int separator_set, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
 
 int vipsgen_csvsave(VipsImage* in, const char* filename);
-int vipsgen_csvsave_with_options(VipsImage* in, const char* filename, const char* separator, VipsForeignKeep keep, double* background, int background_n, gint page_height, const char* profile);
+int vipsgen_csvsave_with_options(VipsImage* in, const char* filename, const char* separator, int separator_set, VipsForeignKeep keep, int keep_set, double* background, int background_n, gint page_height, const char* profile);
 
 int vipsgen_csvsave_target(VipsImage* in, VipsTargetCustom* target);
-int vipsgen_csvsave_target_with_options(VipsImage* in, VipsTargetCustom* target, const char* separator, VipsForeignKeep keep, double* background, int background_n, gint page_height, const char* profile);
+int vipsgen_csvsave_target_with_options(VipsImage* in, VipsTargetCustom* target, const char* separator, int separator_set, VipsForeignKeep keep, int keep_set, double* background, int background_n, gint page_height, const char* profile);
 
 int vipsgen_dE00(VipsImage* left, VipsImage* right, VipsImage** out);
 
@@ -205,13 +204,13 @@ int vipsgen_draw_rect_with_options(VipsImage* image, double* ink, int n, gint le
 int vipsgen_draw_smudge(VipsImage* image, gint left, gint top, gint width, gint height);
 
 int vipsgen_dzsave(VipsImage* in, const char* filename);
-int vipsgen_dzsave_with_options(VipsImage* in, const char* filename, const char* imagename, VipsForeignDzLayout layout, const char* suffix, gint overlap, gint tile_size, gboolean centre, VipsForeignDzDepth depth, VipsAngle angle, VipsForeignDzContainer container, gint compression, VipsRegionShrink region_shrink, gint skip_blanks, const char* id, gint Q, VipsForeignKeep keep, double* background, int background_n, gint page_height, const char* profile);
+int vipsgen_dzsave_with_options(VipsImage* in, const char* filename, const char* imagename, VipsForeignDzLayout layout, const char* suffix, int suffix_set, gint overlap, int overlap_set, gint tile_size, gboolean centre, VipsForeignDzDepth depth, VipsAngle angle, VipsForeignDzContainer container, gint compression, VipsRegionShrink region_shrink, gint skip_blanks, int skip_blanks_set, const char* id, int id_set, gint Q, VipsForeignKeep keep, int keep_set, double* background, int background_n, gint page_height, const char* profile);
 
 int vipsgen_dzsave_buffer(VipsImage* in, void** buf, size_t* len);
-int vipsgen_dzsave_buffer_with_options(VipsImage* in, void** buf, size_t* len, const char* imagename, VipsForeignDzLayout layout, const char* suffix, gint overlap, gint tile_size, gboolean centre, VipsForeignDzDepth depth, VipsAngle angle, VipsForeignDzContainer container, gint compression, VipsRegionShrink region_shrink, gint skip_blanks, const char* id, gint Q, VipsForeignKeep keep, double* background, int background_n, gint page_height, const char* profile);
+int vipsgen_dzsave_buffer_with_options(VipsImage* in, void** buf, size_t* len, const char* imagename, VipsForeignDzLayout layout, const char* suffix, int suffix_set, gint overlap, int overlap_set, gint tile_size, gboolean centre, VipsForeignDzDepth depth, VipsAngle angle, VipsForeignDzContainer container, gint compression, VipsRegionShrink region_shrink, gint skip_blanks, int skip_blanks_set, const char* id, int id_set, gint Q, VipsForeignKeep keep, int keep_set, double* background, int background_n, gint page_height, const char* profile);
 
 int vipsgen_dzsave_target(VipsImage* in, VipsTargetCustom* target);
-int vipsgen_dzsave_target_with_options(VipsImage* in, VipsTargetCustom* target, const char* imagename, VipsForeignDzLayout layout, const char* suffix, gint overlap, gint tile_size, gboolean centre, VipsForeignDzDepth depth, VipsAngle angle, VipsForeignDzContainer container, gint compression, VipsRegionShrink region_shrink, gint skip_blanks, const char* id, gint Q, VipsForeignKeep keep, double* background, int background_n, gint page_height, const char* profile);
+int vipsgen_dzsave_target_with_options(VipsImage* in, VipsTargetCustom* target, const char* imagename, VipsForeignDzLayout layout, const char* suffix, int suffix_set, gint overlap, int overlap_set, gint tile_size, gboolean centre, VipsForeignDzDepth depth, VipsAngle angle, VipsForeignDzContainer container, gint compression, VipsRegionShrink region_shrink, gint skip_blanks, int skip_blanks_set, const char* id, int id_set, gint Q, VipsForeignKeep keep, int keep_set, double* background, int background_n, gint page_height, const char* profile);
 
 int vipsgen_embed(VipsImage* in, VipsImage** out, gint x, gint y, gint width, gint height);
 int vipsgen_embed_with_options(VipsImage* in, VipsImage** out, gint x, gint y, gint width, gint height, VipsExtend extend, double* background, int background_n);
@@ -222,7 +221,7 @@ int vipsgen_extract_band(VipsImage* in, VipsImage** out, gint band);
 int vipsgen_extract_band_with_options(VipsImage* in, VipsImage** out, gint band, gint n);
 
 int vipsgen_eye(VipsImage** out, gint width, gint height);
-int vipsgen_eye_with_options(VipsImage** out, gint width, gint height, gboolean uchar, double factor);
+int vipsgen_eye_with_options(VipsImage** out, gint width, gint height, gboolean uchar, double factor, int factor_set);
 
 int vipsgen_falsecolour(VipsImage* in, VipsImage** out);
 
@@ -231,16 +230,16 @@ int vipsgen_fastcor(VipsImage* in, VipsImage* ref, VipsImage** out);
 int vipsgen_fill_nearest(VipsImage* in, VipsImage** out);
 
 int vipsgen_find_trim(VipsImage* in, gint* left, gint* top, gint* width, gint* height);
-int vipsgen_find_trim_with_options(VipsImage* in, gint* left, gint* top, gint* width, gint* height, double threshold, double* background, int background_n, gboolean line_art);
+int vipsgen_find_trim_with_options(VipsImage* in, gint* left, gint* top, gint* width, gint* height, double threshold, int threshold_set, double* background, int background_n, gboolean line_art);
 
 int vipsgen_fitsload(const char* filename, VipsImage** out);
 int vipsgen_fitsload_with_options(const char* filename, VipsImage** out, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
 
 int vipsgen_fitssave(VipsImage* in, const char* filename);
-int vipsgen_fitssave_with_options(VipsImage* in, const char* filename, VipsForeignKeep keep, double* background, int background_n, gint page_height, const char* profile);
+int vipsgen_fitssave_with_options(VipsImage* in, const char* filename, VipsForeignKeep keep, int keep_set, double* background, int background_n, gint page_height, const char* profile);
 
 int vipsgen_flatten(VipsImage* in, VipsImage** out);
-int vipsgen_flatten_with_options(VipsImage* in, VipsImage** out, double* background, int background_n, double max_alpha);
+int vipsgen_flatten_with_options(VipsImage* in, VipsImage** out, double* background, int background_n, double max_alpha, int max_alpha_set);
 
 int vipsgen_flip(VipsImage* in, VipsImage** out, VipsDirection direction);
 
@@ -262,28 +261,28 @@ int vipsgen_gaussmat(VipsImage** out, double sigma, double min_ampl);
 int vipsgen_gaussmat_with_options(VipsImage** out, double sigma, double min_ampl, gboolean separable, VipsPrecision precision);
 
 int vipsgen_gaussnoise(VipsImage** out, gint width, gint height);
-int vipsgen_gaussnoise_with_options(VipsImage** out, gint width, gint height, double sigma, double mean, gint seed);
+int vipsgen_gaussnoise_with_options(VipsImage** out, gint width, gint height, double sigma, int sigma_set, double mean, int mean_set, gint seed);
 
 int vipsgen_getpoint(VipsImage* in, double** out_array, int* n, gint x, gint y);
 int vipsgen_getpoint_with_options(VipsImage* in, double** out_array, int* n, gint x, gint y, gboolean unpack_complex);
 
 int vipsgen_gifload(const char* filename, VipsImage** out);
-int vipsgen_gifload_with_options(const char* filename, VipsImage** out, gint n, gint page, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
+int vipsgen_gifload_with_options(const char* filename, VipsImage** out, gint n, int n_set, gint page, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
 
 int vipsgen_gifload_buffer(void* buf, size_t len, VipsImage** out);
-int vipsgen_gifload_buffer_with_options(void* buf, size_t len, VipsImage** out, gint n, gint page, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
+int vipsgen_gifload_buffer_with_options(void* buf, size_t len, VipsImage** out, gint n, int n_set, gint page, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
 
 int vipsgen_gifload_source(VipsSourceCustom* source, VipsImage** out);
-int vipsgen_gifload_source_with_options(VipsSourceCustom* source, VipsImage** out, gint n, gint page, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
+int vipsgen_gifload_source_with_options(VipsSourceCustom* source, VipsImage** out, gint n, int n_set, gint page, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
 
 int vipsgen_gifsave(VipsImage* in, const char* filename);
-int vipsgen_gifsave_with_options(VipsImage* in, const char* filename, double dither, gint effort, gint bitdepth, double interframe_maxerror, gboolean reuse, double interpalette_maxerror, gboolean interlace, VipsForeignKeep keep, double* background, int background_n, gint page_height, const char* profile);
+int vipsgen_gifsave_with_options(VipsImage* in, const char* filename, double dither, int dither_set, gint effort, gint bitdepth, double interframe_maxerror, gboolean reuse, double interpalette_maxerror, int interpalette_maxerror_set, gboolean interlace, VipsForeignKeep keep, int keep_set, double* background, int background_n, gint page_height, const char* profile);
 
 int vipsgen_gifsave_buffer(VipsImage* in, void** buf, size_t* len);
-int vipsgen_gifsave_buffer_with_options(VipsImage* in, void** buf, size_t* len, double dither, gint effort, gint bitdepth, double interframe_maxerror, gboolean reuse, double interpalette_maxerror, gboolean interlace, VipsForeignKeep keep, double* background, int background_n, gint page_height, const char* profile);
+int vipsgen_gifsave_buffer_with_options(VipsImage* in, void** buf, size_t* len, double dither, int dither_set, gint effort, gint bitdepth, double interframe_maxerror, gboolean reuse, double interpalette_maxerror, int interpalette_maxerror_set, gboolean interlace, VipsForeignKeep keep, int keep_set, double* background, int background_n, gint page_height, const char* profile);
 
 int vipsgen_gifsave_target(VipsImage* in, VipsTargetCustom* target);
-int vipsgen_gifsave_target_with_options(VipsImage* in, VipsTargetCustom* target, double dither, gint effort, gint bitdepth, double interframe_maxerror, gboolean reuse, double interpalette_maxerror, gboolean interlace, VipsForeignKeep keep, double* background, int background_n, gint page_height, const char* profile);
+int vipsgen_gifsave_target_with_options(VipsImage* in, VipsTargetCustom* target, double dither, int dither_set, gint effort, gint bitdepth, double interframe_maxerror, gboolean reuse, double interpalette_maxerror, int interpalette_maxerror_set, gboolean interlace, VipsForeignKeep keep, int keep_set, double* background, int background_n, gint page_height, const char* profile);
 
 int vipsgen_globalbalance(VipsImage* in, VipsImage** out);
 int vipsgen_globalbalance_with_options(VipsImage* in, VipsImage** out, double gamma, gboolean int_output);
@@ -297,35 +296,35 @@ int vipsgen_grey_with_options(VipsImage** out, gint width, gint height, gboolean
 int vipsgen_grid(VipsImage* in, VipsImage** out, gint tile_height, gint across, gint down);
 
 int vipsgen_heifload(const char* filename, VipsImage** out);
-int vipsgen_heifload_with_options(const char* filename, VipsImage** out, gint page, gint n, gboolean thumbnail, gboolean unlimited, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
+int vipsgen_heifload_with_options(const char* filename, VipsImage** out, gint page, gint n, int n_set, gboolean thumbnail, gboolean unlimited, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
 
 int vipsgen_heifload_buffer(void* buf, size_t len, VipsImage** out);
-int vipsgen_heifload_buffer_with_options(void* buf, size_t len, VipsImage** out, gint page, gint n, gboolean thumbnail, gboolean unlimited, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
+int vipsgen_heifload_buffer_with_options(void* buf, size_t len, VipsImage** out, gint page, gint n, int n_set, gboolean thumbnail, gboolean unlimited, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
 
 int vipsgen_heifload_source(VipsSourceCustom* source, VipsImage** out);
-int vipsgen_heifload_source_with_options(VipsSourceCustom* source, VipsImage** out, gint page, gint n, gboolean thumbnail, gboolean unlimited, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
+int vipsgen_heifload_source_with_options(VipsSourceCustom* source, VipsImage** out, gint page, gint n, int n_set, gboolean thumbnail, gboolean unlimited, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
 
 int vipsgen_heifsave(VipsImage* in, const char* filename);
-int vipsgen_heifsave_with_options(VipsImage* in, const char* filename, gint Q, gint bitdepth, gboolean lossless, VipsForeignHeifCompression compression, gint effort, VipsForeignSubsample subsample_mode, VipsForeignHeifEncoder encoder, VipsForeignKeep keep, double* background, int background_n, gint page_height, const char* profile);
+int vipsgen_heifsave_with_options(VipsImage* in, const char* filename, gint Q, gint bitdepth, gboolean lossless, VipsForeignHeifCompression compression, gint effort, int effort_set, VipsForeignSubsample subsample_mode, VipsForeignHeifEncoder encoder, VipsForeignKeep keep, int keep_set, double* background, int background_n, gint page_height, const char* profile);
 
 int vipsgen_heifsave_buffer(VipsImage* in, void** buf, size_t* len);
-int vipsgen_heifsave_buffer_with_options(VipsImage* in, void** buf, size_t* len, gint Q, gint bitdepth, gboolean lossless, VipsForeignHeifCompression compression, gint effort, VipsForeignSubsample subsample_mode, VipsForeignHeifEncoder encoder, VipsForeignKeep keep, double* background, int background_n, gint page_height, const char* profile);
+int vipsgen_heifsave_buffer_with_options(VipsImage* in, void** buf, size_t* len, gint Q, gint bitdepth, gboolean lossless, VipsForeignHeifCompression compression, gint effort, int effort_set, VipsForeignSubsample subsample_mode, VipsForeignHeifEncoder encoder, VipsForeignKeep keep, int keep_set, double* background, int background_n, gint page_height, const char* profile);
 
 int vipsgen_heifsave_target(VipsImage* in, VipsTargetCustom* target);
-int vipsgen_heifsave_target_with_options(VipsImage* in, VipsTargetCustom* target, gint Q, gint bitdepth, gboolean lossless, VipsForeignHeifCompression compression, gint effort, VipsForeignSubsample subsample_mode, VipsForeignHeifEncoder encoder, VipsForeignKeep keep, double* background, int background_n, gint page_height, const char* profile);
+int vipsgen_heifsave_target_with_options(VipsImage* in, VipsTargetCustom* target, gint Q, gint bitdepth, gboolean lossless, VipsForeignHeifCompression compression, gint effort, int effort_set, VipsForeignSubsample subsample_mode, VipsForeignHeifEncoder encoder, VipsForeignKeep keep, int keep_set, double* background, int background_n, gint page_height, const char* profile);
 
 int vipsgen_hist_cum(VipsImage* in, VipsImage** out);
 
 int vipsgen_hist_entropy(VipsImage* in, double* out);
 
 int vipsgen_hist_equal(VipsImage* in, VipsImage** out);
-int vipsgen_hist_equal_with_options(VipsImage* in, VipsImage** out, gint band);
+int vipsgen_hist_equal_with_options(VipsImage* in, VipsImage** out, gint band, int band_set);
 
 int vipsgen_hist_find(VipsImage* in, VipsImage** out);
-int vipsgen_hist_find_with_options(VipsImage* in, VipsImage** out, gint band);
+int vipsgen_hist_find_with_options(VipsImage* in, VipsImage** out, gint band, int band_set);
 
 int vipsgen_hist_find_indexed(VipsImage* in, VipsImage* index, VipsImage** out);
-int vipsgen_hist_find_indexed_with_options(VipsImage* in, VipsImage* index, VipsImage** out, VipsCombine combine);
+int vipsgen_hist_find_indexed_with_options(VipsImage* in, VipsImage* index, VipsImage** out, VipsCombine combine, int combine_set);
 
 int vipsgen_hist_find_ndim(VipsImage* in, VipsImage** out);
 int vipsgen_hist_find_ndim_with_options(VipsImage* in, VipsImage** out, gint bins);
@@ -348,13 +347,13 @@ int vipsgen_hough_line(VipsImage* in, VipsImage** out);
 int vipsgen_hough_line_with_options(VipsImage* in, VipsImage** out, gint width, gint height);
 
 int vipsgen_icc_export(VipsImage* in, VipsImage** out);
-int vipsgen_icc_export_with_options(VipsImage* in, VipsImage** out, VipsPCS pcs, VipsIntent intent, gboolean black_point_compensation, const char* output_profile, gint depth);
+int vipsgen_icc_export_with_options(VipsImage* in, VipsImage** out, VipsPCS pcs, VipsIntent intent, int intent_set, gboolean black_point_compensation, const char* output_profile, gint depth);
 
 int vipsgen_icc_import(VipsImage* in, VipsImage** out);
-int vipsgen_icc_import_with_options(VipsImage* in, VipsImage** out, VipsPCS pcs, VipsIntent intent, gboolean black_point_compensation, gboolean embedded, const char* input_profile);
+int vipsgen_icc_import_with_options(VipsImage* in, VipsImage** out, VipsPCS pcs, VipsIntent intent, int intent_set, gboolean black_point_compensation, gboolean embedded, const char* input_profile);
 
 int vipsgen_icc_transform(VipsImage* in, VipsImage** out, const char* output_profile);
-int vipsgen_icc_transform_with_options(VipsImage* in, VipsImage** out, const char* output_profile, VipsPCS pcs, VipsIntent intent, gboolean black_point_compensation, gboolean embedded, const char* input_profile, gint depth);
+int vipsgen_icc_transform_with_options(VipsImage* in, VipsImage** out, const char* output_profile, VipsPCS pcs, VipsIntent intent, int intent_set, gboolean black_point_compensation, gboolean embedded, const char* input_profile, gint depth);
 
 int vipsgen_identity(VipsImage** out);
 int vipsgen_identity_with_options(VipsImage** out, gint bands, gboolean ushort, gint size);
@@ -386,13 +385,13 @@ int vipsgen_jp2kload_source(VipsSourceCustom* source, VipsImage** out);
 int vipsgen_jp2kload_source_with_options(VipsSourceCustom* source, VipsImage** out, gint page, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
 
 int vipsgen_jp2ksave(VipsImage* in, const char* filename);
-int vipsgen_jp2ksave_with_options(VipsImage* in, const char* filename, gint tile_width, gint tile_height, gboolean lossless, gint Q, VipsForeignSubsample subsample_mode, VipsForeignKeep keep, double* background, int background_n, gint page_height, const char* profile);
+int vipsgen_jp2ksave_with_options(VipsImage* in, const char* filename, gint tile_width, gint tile_height, gboolean lossless, gint Q, VipsForeignSubsample subsample_mode, int subsample_mode_set, VipsForeignKeep keep, int keep_set, double* background, int background_n, gint page_height, const char* profile);
 
 int vipsgen_jp2ksave_buffer(VipsImage* in, void** buf, size_t* len);
-int vipsgen_jp2ksave_buffer_with_options(VipsImage* in, void** buf, size_t* len, gint tile_width, gint tile_height, gboolean lossless, gint Q, VipsForeignSubsample subsample_mode, VipsForeignKeep keep, double* background, int background_n, gint page_height, const char* profile);
+int vipsgen_jp2ksave_buffer_with_options(VipsImage* in, void** buf, size_t* len, gint tile_width, gint tile_height, gboolean lossless, gint Q, VipsForeignSubsample subsample_mode, int subsample_mode_set, VipsForeignKeep keep, int keep_set, double* background, int background_n, gint page_height, const char* profile);
 
 int vipsgen_jp2ksave_target(VipsImage* in, VipsTargetCustom* target);
-int vipsgen_jp2ksave_target_with_options(VipsImage* in, VipsTargetCustom* target, gint tile_width, gint tile_height, gboolean lossless, gint Q, VipsForeignSubsample subsample_mode, VipsForeignKeep keep, double* background, int background_n, gint page_height, const char* profile);
+int vipsgen_jp2ksave_target_with_options(VipsImage* in, VipsTargetCustom* target, gint tile_width, gint tile_height, gboolean lossless, gint Q, VipsForeignSubsample subsample_mode, int subsample_mode_set, VipsForeignKeep keep, int keep_set, double* background, int background_n, gint page_height, const char* profile);
 
 int vipsgen_jpegload(const char* filename, VipsImage** out);
 int vipsgen_jpegload_with_options(const char* filename, VipsImage** out, gint shrink, gboolean autorotate, gboolean unlimited, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
@@ -404,31 +403,31 @@ int vipsgen_jpegload_source(VipsSourceCustom* source, VipsImage** out);
 int vipsgen_jpegload_source_with_options(VipsSourceCustom* source, VipsImage** out, gint shrink, gboolean autorotate, gboolean unlimited, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
 
 int vipsgen_jpegsave(VipsImage* in, const char* filename);
-int vipsgen_jpegsave_with_options(VipsImage* in, const char* filename, gint Q, gboolean optimize_coding, gboolean interlace, gboolean trellis_quant, gboolean overshoot_deringing, gboolean optimize_scans, gint quant_table, VipsForeignSubsample subsample_mode, gint restart_interval, VipsForeignKeep keep, double* background, int background_n, gint page_height, const char* profile);
+int vipsgen_jpegsave_with_options(VipsImage* in, const char* filename, gint Q, gboolean optimize_coding, gboolean interlace, gboolean trellis_quant, gboolean overshoot_deringing, gboolean optimize_scans, gint quant_table, VipsForeignSubsample subsample_mode, gint restart_interval, VipsForeignKeep keep, int keep_set, double* background, int background_n, gint page_height, const char* profile);
 
 int vipsgen_jpegsave_buffer(VipsImage* in, void** buf, size_t* len);
-int vipsgen_jpegsave_buffer_with_options(VipsImage* in, void** buf, size_t* len, gint Q, gboolean optimize_coding, gboolean interlace, gboolean trellis_quant, gboolean overshoot_deringing, gboolean optimize_scans, gint quant_table, VipsForeignSubsample subsample_mode, gint restart_interval, VipsForeignKeep keep, double* background, int background_n, gint page_height, const char* profile);
+int vipsgen_jpegsave_buffer_with_options(VipsImage* in, void** buf, size_t* len, gint Q, gboolean optimize_coding, gboolean interlace, gboolean trellis_quant, gboolean overshoot_deringing, gboolean optimize_scans, gint quant_table, VipsForeignSubsample subsample_mode, gint restart_interval, VipsForeignKeep keep, int keep_set, double* background, int background_n, gint page_height, const char* profile);
 
 int vipsgen_jpegsave_target(VipsImage* in, VipsTargetCustom* target);
-int vipsgen_jpegsave_target_with_options(VipsImage* in, VipsTargetCustom* target, gint Q, gboolean optimize_coding, gboolean interlace, gboolean trellis_quant, gboolean overshoot_deringing, gboolean optimize_scans, gint quant_table, VipsForeignSubsample subsample_mode, gint restart_interval, VipsForeignKeep keep, double* background, int background_n, gint page_height, const char* profile);
+int vipsgen_jpegsave_target_with_options(VipsImage* in, VipsTargetCustom* target, gint Q, gboolean optimize_coding, gboolean interlace, gboolean trellis_quant, gboolean overshoot_deringing, gboolean optimize_scans, gint quant_table, VipsForeignSubsample subsample_mode, gint restart_interval, VipsForeignKeep keep, int keep_set, double* background, int background_n, gint page_height, const char* profile);
 
 int vipsgen_jxlload(const char* filename, VipsImage** out);
-int vipsgen_jxlload_with_options(const char* filename, VipsImage** out, gint page, gint n, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
+int vipsgen_jxlload_with_options(const char* filename, VipsImage** out, gint page, gint n, int n_set, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
 
 int vipsgen_jxlload_buffer(void* buf, size_t len, VipsImage** out);
-int vipsgen_jxlload_buffer_with_options(void* buf, size_t len, VipsImage** out, gint page, gint n, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
+int vipsgen_jxlload_buffer_with_options(void* buf, size_t len, VipsImage** out, gint page, gint n, int n_set, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
 
 int vipsgen_jxlload_source(VipsSourceCustom* source, VipsImage** out);
-int vipsgen_jxlload_source_with_options(VipsSourceCustom* source, VipsImage** out, gint page, gint n, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
+int vipsgen_jxlload_source_with_options(VipsSourceCustom* source, VipsImage** out, gint page, gint n, int n_set, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
 
 int vipsgen_jxlsave(VipsImage* in, const char* filename);
-int vipsgen_jxlsave_with_options(VipsImage* in, const char* filename, gint tier, double distance, gint effort, gboolean lossless, gint Q, VipsForeignKeep keep, double* background, int background_n, gint page_height, const char* profile);
+int vipsgen_jxlsave_with_options(VipsImage* in, const char* filename, gint tier, double distance, int distance_set, gint effort, gboolean lossless, gint Q, int Q_set, VipsForeignKeep keep, int keep_set, double* background, int background_n, gint page_height, const char* profile);
 
 int vipsgen_jxlsave_buffer(VipsImage* in, void** buf, size_t* len);
-int vipsgen_jxlsave_buffer_with_options(VipsImage* in, void** buf, size_t* len, gint tier, double distance, gint effort, gboolean lossless, gint Q, VipsForeignKeep keep, double* background, int background_n, gint page_height, const char* profile);
+int vipsgen_jxlsave_buffer_with_options(VipsImage* in, void** buf, size_t* len, gint tier, double distance, int distance_set, gint effort, gboolean lossless, gint Q, int Q_set, VipsForeignKeep keep, int keep_set, double* background, int background_n, gint page_height, const char* profile);
 
 int vipsgen_jxlsave_target(VipsImage* in, VipsTargetCustom* target);
-int vipsgen_jxlsave_target_with_options(VipsImage* in, VipsTargetCustom* target, gint tier, double distance, gint effort, gboolean lossless, gint Q, VipsForeignKeep keep, double* background, int background_n, gint page_height, const char* profile);
+int vipsgen_jxlsave_target_with_options(VipsImage* in, VipsTargetCustom* target, gint tier, double distance, int distance_set, gint effort, gboolean lossless, gint Q, int Q_set, VipsForeignKeep keep, int keep_set, double* background, int background_n, gint page_height, const char* profile);
 
 int vipsgen_labelregions(VipsImage* in, VipsImage** mask);
 int vipsgen_labelregions_with_options(VipsImage* in, VipsImage** mask, gint* segments);
@@ -443,22 +442,22 @@ int vipsgen_logmat(VipsImage** out, double sigma, double min_ampl);
 int vipsgen_logmat_with_options(VipsImage** out, double sigma, double min_ampl, gboolean separable, VipsPrecision precision);
 
 int vipsgen_magickload(const char* filename, VipsImage** out);
-int vipsgen_magickload_with_options(const char* filename, VipsImage** out, const char* density, gint page, gint n, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
+int vipsgen_magickload_with_options(const char* filename, VipsImage** out, const char* density, gint page, gint n, int n_set, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
 
 int vipsgen_magickload_buffer(void* buf, size_t len, VipsImage** out);
-int vipsgen_magickload_buffer_with_options(void* buf, size_t len, VipsImage** out, const char* density, gint page, gint n, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
+int vipsgen_magickload_buffer_with_options(void* buf, size_t len, VipsImage** out, const char* density, gint page, gint n, int n_set, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
 
 int vipsgen_magicksave(VipsImage* in, const char* filename);
-int vipsgen_magicksave_with_options(VipsImage* in, const char* filename, const char* format, gint quality, gboolean optimize_gif_frames, gboolean optimize_gif_transparency, gint bitdepth, VipsForeignKeep keep, double* background, int background_n, gint page_height, const char* profile);
+int vipsgen_magicksave_with_options(VipsImage* in, const char* filename, const char* format, gint quality, gboolean optimize_gif_frames, gboolean optimize_gif_transparency, gint bitdepth, VipsForeignKeep keep, int keep_set, double* background, int background_n, gint page_height, const char* profile);
 
 int vipsgen_magicksave_buffer(VipsImage* in, void** buf, size_t* len);
-int vipsgen_magicksave_buffer_with_options(VipsImage* in, void** buf, size_t* len, const char* format, gint quality, gboolean optimize_gif_frames, gboolean optimize_gif_transparency, gint bitdepth, VipsForeignKeep keep, double* background, int background_n, gint page_height, const char* profile);
+int vipsgen_magicksave_buffer_with_options(VipsImage* in, void** buf, size_t* len, const char* format, gint quality, gboolean optimize_gif_frames, gboolean optimize_gif_transparency, gint bitdepth, VipsForeignKeep keep, int keep_set, double* background, int background_n, gint page_height, const char* profile);
 
 int vipsgen_mapim(VipsImage* in, VipsImage** out, VipsImage* index);
-int vipsgen_mapim_with_options(VipsImage* in, VipsImage** out, VipsImage* index, VipsInterpolate* interpolate, double* background, int background_n, gboolean premultiplied, VipsExtend extend);
+int vipsgen_mapim_with_options(VipsImage* in, VipsImage** out, VipsImage* index, VipsInterpolate* interpolate, double* background, int background_n, gboolean premultiplied, VipsExtend extend, int extend_set);
 
 int vipsgen_maplut(VipsImage* in, VipsImage** out, VipsImage* lut);
-int vipsgen_maplut_with_options(VipsImage* in, VipsImage** out, VipsImage* lut, gint band);
+int vipsgen_maplut_with_options(VipsImage* in, VipsImage** out, VipsImage* lut, gint band, int band_set);
 
 int vipsgen_mask_butterworth(VipsImage** out, gint width, gint height, double order, double frequency_cutoff, double amplitude_cutoff);
 int vipsgen_mask_butterworth_with_options(VipsImage** out, gint width, gint height, double order, double frequency_cutoff, double amplitude_cutoff, gboolean uchar, gboolean nodc, gboolean reject, gboolean optical);
@@ -491,7 +490,7 @@ int vipsgen_mask_ideal_ring(VipsImage** out, gint width, gint height, double fre
 int vipsgen_mask_ideal_ring_with_options(VipsImage** out, gint width, gint height, double frequency_cutoff, double ringwidth, gboolean uchar, gboolean nodc, gboolean reject, gboolean optical);
 
 int vipsgen_match(VipsImage* ref, VipsImage* sec, VipsImage** out, gint xr1, gint yr1, gint xs1, gint ys1, gint xr2, gint yr2, gint xs2, gint ys2);
-int vipsgen_match_with_options(VipsImage* ref, VipsImage* sec, VipsImage** out, gint xr1, gint yr1, gint xs1, gint ys1, gint xr2, gint yr2, gint xs2, gint ys2, gint hwindow, gint harea, gboolean search, VipsInterpolate* interpolate);
+int vipsgen_match_with_options(VipsImage* ref, VipsImage* sec, VipsImage** out, gint xr1, gint yr1, gint xs1, gint ys1, gint xr2, gint yr2, gint xs2, gint ys2, gint hwindow, int hwindow_set, gint harea, int harea_set, gboolean search, VipsInterpolate* interpolate);
 
 int vipsgen_math(VipsImage* in, VipsImage** out, VipsOperationMath math);
 
@@ -511,13 +510,13 @@ int vipsgen_matrixload_source(VipsSourceCustom* source, VipsImage** out);
 int vipsgen_matrixload_source_with_options(VipsSourceCustom* source, VipsImage** out, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
 
 int vipsgen_matrixprint(VipsImage* in);
-int vipsgen_matrixprint_with_options(VipsImage* in, VipsForeignKeep keep, double* background, int background_n, gint page_height, const char* profile);
+int vipsgen_matrixprint_with_options(VipsImage* in, VipsForeignKeep keep, int keep_set, double* background, int background_n, gint page_height, const char* profile);
 
 int vipsgen_matrixsave(VipsImage* in, const char* filename);
-int vipsgen_matrixsave_with_options(VipsImage* in, const char* filename, VipsForeignKeep keep, double* background, int background_n, gint page_height, const char* profile);
+int vipsgen_matrixsave_with_options(VipsImage* in, const char* filename, VipsForeignKeep keep, int keep_set, double* background, int background_n, gint page_height, const char* profile);
 
 int vipsgen_matrixsave_target(VipsImage* in, VipsTargetCustom* target);
-int vipsgen_matrixsave_target_with_options(VipsImage* in, VipsTargetCustom* target, VipsForeignKeep keep, double* background, int background_n, gint page_height, const char* profile);
+int vipsgen_matrixsave_target_with_options(VipsImage* in, VipsTargetCustom* target, VipsForeignKeep keep, int keep_set, double* background, int background_n, gint page_height, const char* profile);
 
 int vipsgen_max(VipsImage* in, double* out);
 int vipsgen_max_with_options(VipsImage* in, double* out, gint size, gint* x, gint* y);
@@ -528,7 +527,7 @@ int vipsgen_measure(VipsImage* in, VipsImage** out, gint h, gint v);
 int vipsgen_measure_with_options(VipsImage* in, VipsImage** out, gint h, gint v, gint left, gint top, gint width, gint height);
 
 int vipsgen_merge(VipsImage* ref, VipsImage* sec, VipsImage** out, VipsDirection direction, gint dx, gint dy);
-int vipsgen_merge_with_options(VipsImage* ref, VipsImage* sec, VipsImage** out, VipsDirection direction, gint dx, gint dy, gint mblend);
+int vipsgen_merge_with_options(VipsImage* ref, VipsImage* sec, VipsImage** out, VipsDirection direction, gint dx, gint dy, gint mblend, int mblend_set);
 
 int vipsgen_min(VipsImage* in, double* out);
 int vipsgen_min_with_options(VipsImage* in, double* out, gint size, gint* x, gint* y);
@@ -538,10 +537,10 @@ int vipsgen_minpair(VipsImage* left, VipsImage* right, VipsImage** out);
 int vipsgen_morph(VipsImage* in, VipsImage** out, VipsImage* mask, VipsOperationMorphology morph);
 
 int vipsgen_mosaic(VipsImage* ref, VipsImage* sec, VipsImage** out, VipsDirection direction, gint xref, gint yref, gint xsec, gint ysec);
-int vipsgen_mosaic_with_options(VipsImage* ref, VipsImage* sec, VipsImage** out, VipsDirection direction, gint xref, gint yref, gint xsec, gint ysec, gint hwindow, gint harea, gint mblend, gint bandno, gint* dx0, gint* dy0, double* scale1, double* angle1, double* dy1, double* dx1);
+int vipsgen_mosaic_with_options(VipsImage* ref, VipsImage* sec, VipsImage** out, VipsDirection direction, gint xref, gint yref, gint xsec, gint ysec, gint hwindow, int hwindow_set, gint harea, int harea_set, gint mblend, int mblend_set, gint bandno, gint* dx0, gint* dy0, double* scale1, double* angle1, double* dy1, double* dx1);
 
 int vipsgen_mosaic1(VipsImage* ref, VipsImage* sec, VipsImage** out, VipsDirection direction, gint xr1, gint yr1, gint xs1, gint ys1, gint xr2, gint yr2, gint xs2, gint ys2);
-int vipsgen_mosaic1_with_options(VipsImage* ref, VipsImage* sec, VipsImage** out, VipsDirection direction, gint xr1, gint yr1, gint xs1, gint ys1, gint xr2, gint yr2, gint xs2, gint ys2, gint hwindow, gint harea, gboolean search, VipsInterpolate* interpolate, gint mblend);
+int vipsgen_mosaic1_with_options(VipsImage* ref, VipsImage* sec, VipsImage** out, VipsDirection direction, gint xr1, gint yr1, gint xs1, gint ys1, gint xr2, gint yr2, gint xs2, gint ys2, gint hwindow, int hwindow_set, gint harea, int harea_set, gboolean search, VipsInterpolate* interpolate, gint mblend, int mblend_set);
 
 int vipsgen_msb(VipsImage* in, VipsImage** out);
 int vipsgen_msb_with_options(VipsImage* in, VipsImage** out, gint band);
@@ -555,7 +554,7 @@ int vipsgen_niftiload_source(VipsSourceCustom* source, VipsImage** out);
 int vipsgen_niftiload_source_with_options(VipsSourceCustom* source, VipsImage** out, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
 
 int vipsgen_niftisave(VipsImage* in, const char* filename);
-int vipsgen_niftisave_with_options(VipsImage* in, const char* filename, VipsForeignKeep keep, double* background, int background_n, gint page_height, const char* profile);
+int vipsgen_niftisave_with_options(VipsImage* in, const char* filename, VipsForeignKeep keep, int keep_set, double* background, int background_n, gint page_height, const char* profile);
 
 int vipsgen_openexrload(const char* filename, VipsImage** out);
 int vipsgen_openexrload_with_options(const char* filename, VipsImage** out, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
@@ -567,13 +566,13 @@ int vipsgen_openslideload_source(VipsSourceCustom* source, VipsImage** out);
 int vipsgen_openslideload_source_with_options(VipsSourceCustom* source, VipsImage** out, gint level, gboolean autocrop, const char* associated, gboolean attach_associated, gboolean rgb, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
 
 int vipsgen_pdfload(const char* filename, VipsImage** out);
-int vipsgen_pdfload_with_options(const char* filename, VipsImage** out, gint page, gint n, double dpi, double scale, double* background, int background_n, const char* password, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
+int vipsgen_pdfload_with_options(const char* filename, VipsImage** out, gint page, gint n, int n_set, double dpi, double scale, int scale_set, double* background, int background_n, const char* password, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
 
 int vipsgen_pdfload_buffer(void* buf, size_t len, VipsImage** out);
-int vipsgen_pdfload_buffer_with_options(void* buf, size_t len, VipsImage** out, gint page, gint n, double dpi, double scale, double* background, int background_n, const char* password, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
+int vipsgen_pdfload_buffer_with_options(void* buf, size_t len, VipsImage** out, gint page, gint n, int n_set, double dpi, double scale, int scale_set, double* background, int background_n, const char* password, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
 
 int vipsgen_pdfload_source(VipsSourceCustom* source, VipsImage** out);
-int vipsgen_pdfload_source_with_options(VipsSourceCustom* source, VipsImage** out, gint page, gint n, double dpi, double scale, double* background, int background_n, const char* password, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
+int vipsgen_pdfload_source_with_options(VipsSourceCustom* source, VipsImage** out, gint page, gint n, int n_set, double dpi, double scale, int scale_set, double* background, int background_n, const char* password, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
 
 int vipsgen_percent(VipsImage* in, double percent, gint* threshold);
 
@@ -592,13 +591,13 @@ int vipsgen_pngload_source(VipsSourceCustom* source, VipsImage** out);
 int vipsgen_pngload_source_with_options(VipsSourceCustom* source, VipsImage** out, gboolean unlimited, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
 
 int vipsgen_pngsave(VipsImage* in, const char* filename);
-int vipsgen_pngsave_with_options(VipsImage* in, const char* filename, gint compression, gboolean interlace, VipsForeignPngFilter filter, gboolean palette, gint Q, double dither, gint bitdepth, gint effort, VipsForeignKeep keep, double* background, int background_n, gint page_height, const char* profile);
+int vipsgen_pngsave_with_options(VipsImage* in, const char* filename, gint compression, int compression_set, gboolean interlace, VipsForeignPngFilter filter, gboolean palette, gint Q, int Q_set, double dither, int dither_set, gint bitdepth, gint effort, VipsForeignKeep keep, int keep_set, double* background, int background_n, gint page_height, const char* profile);
 
 int vipsgen_pngsave_buffer(VipsImage* in, void** buf, size_t* len);
-int vipsgen_pngsave_buffer_with_options(VipsImage* in, void** buf, size_t* len, gint compression, gboolean interlace, VipsForeignPngFilter filter, gboolean palette, gint Q, double dither, gint bitdepth, gint effort, VipsForeignKeep keep, double* background, int background_n, gint page_height, const char* profile);
+int vipsgen_pngsave_buffer_with_options(VipsImage* in, void** buf, size_t* len, gint compression, int compression_set, gboolean interlace, VipsForeignPngFilter filter, gboolean palette, gint Q, int Q_set, double dither, int dither_set, gint bitdepth, gint effort, VipsForeignKeep keep, int keep_set, double* background, int background_n, gint page_height, const char* profile);
 
 int vipsgen_pngsave_target(VipsImage* in, VipsTargetCustom* target);
-int vipsgen_pngsave_target_with_options(VipsImage* in, VipsTargetCustom* target, gint compression, gboolean interlace, VipsForeignPngFilter filter, gboolean palette, gint Q, double dither, gint bitdepth, gint effort, VipsForeignKeep keep, double* background, int background_n, gint page_height, const char* profile);
+int vipsgen_pngsave_target_with_options(VipsImage* in, VipsTargetCustom* target, gint compression, int compression_set, gboolean interlace, VipsForeignPngFilter filter, gboolean palette, gint Q, int Q_set, double dither, int dither_set, gint bitdepth, gint effort, VipsForeignKeep keep, int keep_set, double* background, int background_n, gint page_height, const char* profile);
 
 int vipsgen_ppmload(const char* filename, VipsImage** out);
 int vipsgen_ppmload_with_options(const char* filename, VipsImage** out, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
@@ -607,13 +606,13 @@ int vipsgen_ppmload_source(VipsSourceCustom* source, VipsImage** out);
 int vipsgen_ppmload_source_with_options(VipsSourceCustom* source, VipsImage** out, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
 
 int vipsgen_ppmsave(VipsImage* in, const char* filename);
-int vipsgen_ppmsave_with_options(VipsImage* in, const char* filename, VipsForeignPpmFormat format, gboolean ascii, gint bitdepth, VipsForeignKeep keep, double* background, int background_n, gint page_height, const char* profile);
+int vipsgen_ppmsave_with_options(VipsImage* in, const char* filename, VipsForeignPpmFormat format, int format_set, gboolean ascii, gint bitdepth, VipsForeignKeep keep, int keep_set, double* background, int background_n, gint page_height, const char* profile);
 
 int vipsgen_ppmsave_target(VipsImage* in, VipsTargetCustom* target);
-int vipsgen_ppmsave_target_with_options(VipsImage* in, VipsTargetCustom* target, VipsForeignPpmFormat format, gboolean ascii, gint bitdepth, VipsForeignKeep keep, double* background, int background_n, gint page_height, const char* profile);
+int vipsgen_ppmsave_target_with_options(VipsImage* in, VipsTargetCustom* target, VipsForeignPpmFormat format, int format_set, gboolean ascii, gint bitdepth, VipsForeignKeep keep, int keep_set, double* background, int background_n, gint page_height, const char* profile);
 
 int vipsgen_premultiply(VipsImage* in, VipsImage** out);
-int vipsgen_premultiply_with_options(VipsImage* in, VipsImage** out, double max_alpha);
+int vipsgen_premultiply_with_options(VipsImage* in, VipsImage** out, double max_alpha, int max_alpha_set);
 
 int vipsgen_prewitt(VipsImage* in, VipsImage** out);
 
@@ -638,13 +637,13 @@ int vipsgen_radload_source(VipsSourceCustom* source, VipsImage** out);
 int vipsgen_radload_source_with_options(VipsSourceCustom* source, VipsImage** out, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
 
 int vipsgen_radsave(VipsImage* in, const char* filename);
-int vipsgen_radsave_with_options(VipsImage* in, const char* filename, VipsForeignKeep keep, double* background, int background_n, gint page_height, const char* profile);
+int vipsgen_radsave_with_options(VipsImage* in, const char* filename, VipsForeignKeep keep, int keep_set, double* background, int background_n, gint page_height, const char* profile);
 
 int vipsgen_radsave_buffer(VipsImage* in, void** buf, size_t* len);
-int vipsgen_radsave_buffer_with_options(VipsImage* in, void** buf, size_t* len, VipsForeignKeep keep, double* background, int background_n, gint page_height, const char* profile);
+int vipsgen_radsave_buffer_with_options(VipsImage* in, void** buf, size_t* len, VipsForeignKeep keep, int keep_set, double* background, int background_n, gint page_height, const char* profile);
 
 int vipsgen_radsave_target(VipsImage* in, VipsTargetCustom* target);
-int vipsgen_radsave_target_with_options(VipsImage* in, VipsTargetCustom* target, VipsForeignKeep keep, double* background, int background_n, gint page_height, const char* profile);
+int vipsgen_radsave_target_with_options(VipsImage* in, VipsTargetCustom* target, VipsForeignKeep keep, int keep_set, double* background, int background_n, gint page_height, const char* profile);
 
 int vipsgen_rank(VipsImage* in, VipsImage** out, gint width, gint height, gint index);
 
@@ -652,24 +651,24 @@ int vipsgen_rawload(const char* filename, VipsImage** out, gint width, gint heig
 int vipsgen_rawload_with_options(const char* filename, VipsImage** out, gint width, gint height, gint bands, guint64 offset, VipsBandFormat format, VipsInterpretation interpretation, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
 
 int vipsgen_rawsave(VipsImage* in, const char* filename);
-int vipsgen_rawsave_with_options(VipsImage* in, const char* filename, VipsForeignKeep keep, double* background, int background_n, gint page_height, const char* profile);
+int vipsgen_rawsave_with_options(VipsImage* in, const char* filename, VipsForeignKeep keep, int keep_set, double* background, int background_n, gint page_height, const char* profile);
 
 int vipsgen_rawsave_buffer(VipsImage* in, void** buf, size_t* len);
-int vipsgen_rawsave_buffer_with_options(VipsImage* in, void** buf, size_t* len, VipsForeignKeep keep, double* background, int background_n, gint page_height, const char* profile);
+int vipsgen_rawsave_buffer_with_options(VipsImage* in, void** buf, size_t* len, VipsForeignKeep keep, int keep_set, double* background, int background_n, gint page_height, const char* profile);
 
 int vipsgen_rawsave_target(VipsImage* in, VipsTargetCustom* target);
-int vipsgen_rawsave_target_with_options(VipsImage* in, VipsTargetCustom* target, VipsForeignKeep keep, double* background, int background_n, gint page_height, const char* profile);
+int vipsgen_rawsave_target_with_options(VipsImage* in, VipsTargetCustom* target, VipsForeignKeep keep, int keep_set, double* background, int background_n, gint page_height, const char* profile);
 
 int vipsgen_recomb(VipsImage* in, VipsImage** out, VipsImage* m);
 
 int vipsgen_reduce(VipsImage* in, VipsImage** out, double hshrink, double vshrink);
-int vipsgen_reduce_with_options(VipsImage* in, VipsImage** out, double hshrink, double vshrink, VipsKernel kernel, double gap);
+int vipsgen_reduce_with_options(VipsImage* in, VipsImage** out, double hshrink, double vshrink, VipsKernel kernel, int kernel_set, double gap);
 
 int vipsgen_reduceh(VipsImage* in, VipsImage** out, double hshrink);
-int vipsgen_reduceh_with_options(VipsImage* in, VipsImage** out, double hshrink, VipsKernel kernel, double gap);
+int vipsgen_reduceh_with_options(VipsImage* in, VipsImage** out, double hshrink, VipsKernel kernel, int kernel_set, double gap);
 
 int vipsgen_reducev(VipsImage* in, VipsImage** out, double vshrink);
-int vipsgen_reducev_with_options(VipsImage* in, VipsImage** out, double vshrink, VipsKernel kernel, double gap);
+int vipsgen_reducev_with_options(VipsImage* in, VipsImage** out, double vshrink, VipsKernel kernel, int kernel_set, double gap);
 
 int vipsgen_relational(VipsImage* left, VipsImage* right, VipsImage** out, VipsOperationRelational relational);
 
@@ -682,12 +681,12 @@ int vipsgen_remainder_const(VipsImage* in, VipsImage** out, double* c, int n);
 int vipsgen_replicate(VipsImage* in, VipsImage** out, gint across, gint down);
 
 int vipsgen_resize(VipsImage* in, VipsImage** out, double scale);
-int vipsgen_resize_with_options(VipsImage* in, VipsImage** out, double scale, VipsKernel kernel, double gap, double vscale);
+int vipsgen_resize_with_options(VipsImage* in, VipsImage** out, double scale, VipsKernel kernel, int kernel_set, double gap, int gap_set, double vscale);
 
 int vipsgen_rot(VipsImage* in, VipsImage** out, VipsAngle angle);
 
 int vipsgen_rot45(VipsImage* in, VipsImage** out);
-int vipsgen_rot45_with_options(VipsImage* in, VipsImage** out, VipsAngle45 angle);
+int vipsgen_rot45_with_options(VipsImage* in, VipsImage** out, VipsAngle45 angle, int angle_set);
 
 int vipsgen_rotate(VipsImage* in, VipsImage** out, double angle);
 int vipsgen_rotate_with_options(VipsImage* in, VipsImage** out, double angle, VipsInterpolate* interpolate, double* background, int background_n, double odx, double ody, double idx, double idy);
@@ -712,13 +711,13 @@ int vipsgen_scale_with_options(VipsImage* in, VipsImage** out, double exp, gbool
 int vipsgen_scharr(VipsImage* in, VipsImage** out);
 
 int vipsgen_sdf(VipsImage** out, gint width, gint height, VipsSdfShape shape);
-int vipsgen_sdf_with_options(VipsImage** out, gint width, gint height, VipsSdfShape shape, double r, double* a, int a_n, double* b, int b_n, double* corners, int corners_n);
+int vipsgen_sdf_with_options(VipsImage** out, gint width, gint height, VipsSdfShape shape, double r, int r_set, double* a, int a_n, double* b, int b_n, double* corners, int corners_n);
 
 int vipsgen_sequential(VipsImage* in, VipsImage** out);
 int vipsgen_sequential_with_options(VipsImage* in, VipsImage** out, gint tile_height);
 
 int vipsgen_sharpen(VipsImage* in, VipsImage** out);
-int vipsgen_sharpen_with_options(VipsImage* in, VipsImage** out, double sigma, double x1, double y2, double y3, double m1, double m2);
+int vipsgen_sharpen_with_options(VipsImage* in, VipsImage** out, double sigma, double x1, int x1_set, double y2, int y2_set, double y3, int y3_set, double m1, double m2, int m2_set);
 
 int vipsgen_shrink(VipsImage* in, VipsImage** out, double hshrink, double vshrink);
 int vipsgen_shrink_with_options(VipsImage* in, VipsImage** out, double hshrink, double vshrink, gboolean ceil);
@@ -732,13 +731,13 @@ int vipsgen_shrinkv_with_options(VipsImage* in, VipsImage** out, gint vshrink, g
 int vipsgen_sign(VipsImage* in, VipsImage** out);
 
 int vipsgen_similarity(VipsImage* in, VipsImage** out);
-int vipsgen_similarity_with_options(VipsImage* in, VipsImage** out, double scale, double angle, VipsInterpolate* interpolate, double* background, int background_n, double odx, double ody, double idx, double idy);
+int vipsgen_similarity_with_options(VipsImage* in, VipsImage** out, double scale, int scale_set, double angle, VipsInterpolate* interpolate, double* background, int background_n, double odx, double ody, double idx, double idy);
 
 int vipsgen_sines(VipsImage** out, gint width, gint height);
-int vipsgen_sines_with_options(VipsImage** out, gint width, gint height, gboolean uchar, double hfreq, double vfreq);
+int vipsgen_sines_with_options(VipsImage** out, gint width, gint height, gboolean uchar, double hfreq, int hfreq_set, double vfreq, int vfreq_set);
 
 int vipsgen_smartcrop(VipsImage* input, VipsImage** out, gint width, gint height);
-int vipsgen_smartcrop_with_options(VipsImage* input, VipsImage** out, gint width, gint height, VipsInteresting interesting, gboolean premultiplied, gint* attention_x, gint* attention_y);
+int vipsgen_smartcrop_with_options(VipsImage* input, VipsImage** out, gint width, gint height, VipsInteresting interesting, int interesting_set, gboolean premultiplied, gint* attention_x, gint* attention_y);
 
 int vipsgen_sobel(VipsImage* in, VipsImage** out);
 
@@ -749,7 +748,7 @@ int vipsgen_spectrum(VipsImage* in, VipsImage** out);
 int vipsgen_stats(VipsImage* in, VipsImage** out);
 
 int vipsgen_stdif(VipsImage* in, VipsImage** out, gint width, gint height);
-int vipsgen_stdif_with_options(VipsImage* in, VipsImage** out, gint width, gint height, double s0, double b, double m0, double a);
+int vipsgen_stdif_with_options(VipsImage* in, VipsImage** out, gint width, gint height, double s0, int s0_set, double b, int b_set, double m0, int m0_set, double a, int a_set);
 
 int vipsgen_subsample(VipsImage* input, VipsImage** out, gint xfac, gint yfac);
 int vipsgen_subsample_with_options(VipsImage* input, VipsImage** out, gint xfac, gint yfac, gboolean point);
@@ -759,13 +758,13 @@ int vipsgen_subtract(VipsImage* left, VipsImage* right, VipsImage** out);
 int vipsgen_sum(VipsImage** in, VipsImage** out, int n);
 
 int vipsgen_svgload(const char* filename, VipsImage** out);
-int vipsgen_svgload_with_options(const char* filename, VipsImage** out, double dpi, double scale, gboolean unlimited, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
+int vipsgen_svgload_with_options(const char* filename, VipsImage** out, double dpi, double scale, int scale_set, gboolean unlimited, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
 
 int vipsgen_svgload_buffer(void* buf, size_t len, VipsImage** out);
-int vipsgen_svgload_buffer_with_options(void* buf, size_t len, VipsImage** out, double dpi, double scale, gboolean unlimited, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
+int vipsgen_svgload_buffer_with_options(void* buf, size_t len, VipsImage** out, double dpi, double scale, int scale_set, gboolean unlimited, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
 
 int vipsgen_svgload_source(VipsSourceCustom* source, VipsImage** out);
-int vipsgen_svgload_source_with_options(VipsSourceCustom* source, VipsImage** out, double dpi, double scale, gboolean unlimited, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
+int vipsgen_svgload_source_with_options(VipsSourceCustom* source, VipsImage** out, double dpi, double scale, int scale_set, gboolean unlimited, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
 
 int vipsgen_switch(VipsImage** tests, VipsImage** out, int n);
 
@@ -776,46 +775,46 @@ int vipsgen_text(VipsImage** out, const char* text);
 int vipsgen_text_with_options(VipsImage** out, const char* text, const char* font, gint width, gint height, VipsAlign align, gboolean justify, gint dpi, gint spacing, const char* fontfile, gboolean rgba, VipsTextWrap wrap, gint* autofit_dpi);
 
 int vipsgen_thumbnail(const char* filename, VipsImage** out, gint width);
-int vipsgen_thumbnail_with_options(const char* filename, VipsImage** out, gint width, gint height, VipsSize size, gboolean no_rotate, VipsInteresting crop, gboolean linear, const char* import_profile, const char* export_profile, VipsIntent intent, VipsFailOn fail_on);
+int vipsgen_thumbnail_with_options(const char* filename, VipsImage** out, gint width, gint height, VipsSize size, gboolean no_rotate, VipsInteresting crop, gboolean linear, const char* import_profile, const char* export_profile, VipsIntent intent, int intent_set, VipsFailOn fail_on);
 
 int vipsgen_thumbnail_buffer(void* buf, size_t len, VipsImage** out, gint width);
-int vipsgen_thumbnail_buffer_with_options(void* buf, size_t len, VipsImage** out, gint width, const char* option_string, gint height, VipsSize size, gboolean no_rotate, VipsInteresting crop, gboolean linear, const char* import_profile, const char* export_profile, VipsIntent intent, VipsFailOn fail_on);
+int vipsgen_thumbnail_buffer_with_options(void* buf, size_t len, VipsImage** out, gint width, const char* option_string, gint height, VipsSize size, gboolean no_rotate, VipsInteresting crop, gboolean linear, const char* import_profile, const char* export_profile, VipsIntent intent, int intent_set, VipsFailOn fail_on);
 
 int vipsgen_thumbnail_image(VipsImage* in, VipsImage** out, gint width);
-int vipsgen_thumbnail_image_with_options(VipsImage* in, VipsImage** out, gint width, gint height, VipsSize size, gboolean no_rotate, VipsInteresting crop, gboolean linear, const char* import_profile, const char* export_profile, VipsIntent intent, VipsFailOn fail_on);
+int vipsgen_thumbnail_image_with_options(VipsImage* in, VipsImage** out, gint width, gint height, VipsSize size, gboolean no_rotate, VipsInteresting crop, gboolean linear, const char* import_profile, const char* export_profile, VipsIntent intent, int intent_set, VipsFailOn fail_on);
 
 int vipsgen_thumbnail_source(VipsSourceCustom* source, VipsImage** out, gint width);
-int vipsgen_thumbnail_source_with_options(VipsSourceCustom* source, VipsImage** out, gint width, const char* option_string, gint height, VipsSize size, gboolean no_rotate, VipsInteresting crop, gboolean linear, const char* import_profile, const char* export_profile, VipsIntent intent, VipsFailOn fail_on);
+int vipsgen_thumbnail_source_with_options(VipsSourceCustom* source, VipsImage** out, gint width, const char* option_string, gint height, VipsSize size, gboolean no_rotate, VipsInteresting crop, gboolean linear, const char* import_profile, const char* export_profile, VipsIntent intent, int intent_set, VipsFailOn fail_on);
 
 int vipsgen_tiffload(const char* filename, VipsImage** out);
-int vipsgen_tiffload_with_options(const char* filename, VipsImage** out, gint page, gint subifd, gint n, gboolean autorotate, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
+int vipsgen_tiffload_with_options(const char* filename, VipsImage** out, gint page, gint subifd, int subifd_set, gint n, int n_set, gboolean autorotate, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
 
 int vipsgen_tiffload_buffer(void* buf, size_t len, VipsImage** out);
-int vipsgen_tiffload_buffer_with_options(void* buf, size_t len, VipsImage** out, gint page, gint subifd, gint n, gboolean autorotate, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
+int vipsgen_tiffload_buffer_with_options(void* buf, size_t len, VipsImage** out, gint page, gint subifd, int subifd_set, gint n, int n_set, gboolean autorotate, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
 
 int vipsgen_tiffload_source(VipsSourceCustom* source, VipsImage** out);
-int vipsgen_tiffload_source_with_options(VipsSourceCustom* source, VipsImage** out, gint page, gint subifd, gint n, gboolean autorotate, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
+int vipsgen_tiffload_source_with_options(VipsSourceCustom* source, VipsImage** out, gint page, gint subifd, int subifd_set, gint n, int n_set, gboolean autorotate, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
 
 int vipsgen_tiffsave(VipsImage* in, const char* filename);
-int vipsgen_tiffsave_with_options(VipsImage* in, const char* filename, VipsForeignTiffCompression compression, gint Q, VipsForeignTiffPredictor predictor, gboolean tile, gint tile_width, gint tile_height, gboolean pyramid, gboolean miniswhite, gint bitdepth, VipsForeignTiffResunit resunit, double xres, double yres, gboolean bigtiff, gboolean properties, VipsRegionShrink region_shrink, gint level, gboolean lossless, VipsForeignDzDepth depth, gboolean subifd, gboolean premultiply, VipsForeignKeep keep, double* background, int background_n, gint page_height, const char* profile);
+int vipsgen_tiffsave_with_options(VipsImage* in, const char* filename, VipsForeignTiffCompression compression, gint Q, VipsForeignTiffPredictor predictor, gboolean tile, gint tile_width, gint tile_height, gboolean pyramid, gboolean miniswhite, gint bitdepth, VipsForeignTiffResunit resunit, double xres, double yres, gboolean bigtiff, gboolean properties, VipsRegionShrink region_shrink, gint level, gboolean lossless, VipsForeignDzDepth depth, int depth_set, gboolean subifd, gboolean premultiply, VipsForeignKeep keep, int keep_set, double* background, int background_n, gint page_height, const char* profile);
 
 int vipsgen_tiffsave_buffer(VipsImage* in, void** buf, size_t* len);
-int vipsgen_tiffsave_buffer_with_options(VipsImage* in, void** buf, size_t* len, VipsForeignTiffCompression compression, gint Q, VipsForeignTiffPredictor predictor, gboolean tile, gint tile_width, gint tile_height, gboolean pyramid, gboolean miniswhite, gint bitdepth, VipsForeignTiffResunit resunit, double xres, double yres, gboolean bigtiff, gboolean properties, VipsRegionShrink region_shrink, gint level, gboolean lossless, VipsForeignDzDepth depth, gboolean subifd, gboolean premultiply, VipsForeignKeep keep, double* background, int background_n, gint page_height, const char* profile);
+int vipsgen_tiffsave_buffer_with_options(VipsImage* in, void** buf, size_t* len, VipsForeignTiffCompression compression, gint Q, VipsForeignTiffPredictor predictor, gboolean tile, gint tile_width, gint tile_height, gboolean pyramid, gboolean miniswhite, gint bitdepth, VipsForeignTiffResunit resunit, double xres, double yres, gboolean bigtiff, gboolean properties, VipsRegionShrink region_shrink, gint level, gboolean lossless, VipsForeignDzDepth depth, int depth_set, gboolean subifd, gboolean premultiply, VipsForeignKeep keep, int keep_set, double* background, int background_n, gint page_height, const char* profile);
 
 int vipsgen_tiffsave_target(VipsImage* in, VipsTargetCustom* target);
-int vipsgen_tiffsave_target_with_options(VipsImage* in, VipsTargetCustom* target, VipsForeignTiffCompression compression, gint Q, VipsForeignTiffPredictor predictor, gboolean tile, gint tile_width, gint tile_height, gboolean pyramid, gboolean miniswhite, gint bitdepth, VipsForeignTiffResunit resunit, double xres, double yres, gboolean bigtiff, gboolean properties, VipsRegionShrink region_shrink, gint level, gboolean lossless, VipsForeignDzDepth depth, gboolean subifd, gboolean premultiply, VipsForeignKeep keep, double* background, int background_n, gint page_height, const char* profile);
+int vipsgen_tiffsave_target_with_options(VipsImage* in, VipsTargetCustom* target, VipsForeignTiffCompression compression, gint Q, VipsForeignTiffPredictor predictor, gboolean tile, gint tile_width, gint tile_height, gboolean pyramid, gboolean miniswhite, gint bitdepth, VipsForeignTiffResunit resunit, double xres, double yres, gboolean bigtiff, gboolean properties, VipsRegionShrink region_shrink, gint level, gboolean lossless, VipsForeignDzDepth depth, int depth_set, gboolean subifd, gboolean premultiply, VipsForeignKeep keep, int keep_set, double* background, int background_n, gint page_height, const char* profile);
 
 int vipsgen_tilecache(VipsImage* in, VipsImage** out);
-int vipsgen_tilecache_with_options(VipsImage* in, VipsImage** out, gint tile_width, gint tile_height, gint max_tiles, VipsAccess access, gboolean threaded, gboolean persistent);
+int vipsgen_tilecache_with_options(VipsImage* in, VipsImage** out, gint tile_width, gint tile_height, gint max_tiles, int max_tiles_set, VipsAccess access, gboolean threaded, gboolean persistent);
 
 int vipsgen_tonelut(VipsImage** out);
-int vipsgen_tonelut_with_options(VipsImage** out, gint in_max, gint out_max, double Lb, double Lw, double Ps, double Pm, double Ph, double S, double M, double H);
+int vipsgen_tonelut_with_options(VipsImage** out, gint in_max, gint out_max, double Lb, double Lw, int Lw_set, double Ps, int Ps_set, double Pm, int Pm_set, double Ph, int Ph_set, double S, double M, double H);
 
 int vipsgen_transpose3d(VipsImage* in, VipsImage** out);
 int vipsgen_transpose3d_with_options(VipsImage* in, VipsImage** out, gint page_height);
 
 int vipsgen_unpremultiply(VipsImage* in, VipsImage** out);
-int vipsgen_unpremultiply_with_options(VipsImage* in, VipsImage** out, double max_alpha, gint alpha_band);
+int vipsgen_unpremultiply_with_options(VipsImage* in, VipsImage** out, double max_alpha, int max_alpha_set, gint alpha_band, int alpha_band_set);
 
 int vipsgen_vipsload(const char* filename, VipsImage** out);
 int vipsgen_vipsload_with_options(const char* filename, VipsImage** out, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
@@ -824,28 +823,28 @@ int vipsgen_vipsload_source(VipsSourceCustom* source, VipsImage** out);
 int vipsgen_vipsload_source_with_options(VipsSourceCustom* source, VipsImage** out, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
 
 int vipsgen_vipssave(VipsImage* in, const char* filename);
-int vipsgen_vipssave_with_options(VipsImage* in, const char* filename, VipsForeignKeep keep, double* background, int background_n, gint page_height, const char* profile);
+int vipsgen_vipssave_with_options(VipsImage* in, const char* filename, VipsForeignKeep keep, int keep_set, double* background, int background_n, gint page_height, const char* profile);
 
 int vipsgen_vipssave_target(VipsImage* in, VipsTargetCustom* target);
-int vipsgen_vipssave_target_with_options(VipsImage* in, VipsTargetCustom* target, VipsForeignKeep keep, double* background, int background_n, gint page_height, const char* profile);
+int vipsgen_vipssave_target_with_options(VipsImage* in, VipsTargetCustom* target, VipsForeignKeep keep, int keep_set, double* background, int background_n, gint page_height, const char* profile);
 
 int vipsgen_webpload(const char* filename, VipsImage** out);
-int vipsgen_webpload_with_options(const char* filename, VipsImage** out, gint page, gint n, double scale, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
+int vipsgen_webpload_with_options(const char* filename, VipsImage** out, gint page, gint n, int n_set, double scale, int scale_set, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
 
 int vipsgen_webpload_buffer(void* buf, size_t len, VipsImage** out);
-int vipsgen_webpload_buffer_with_options(void* buf, size_t len, VipsImage** out, gint page, gint n, double scale, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
+int vipsgen_webpload_buffer_with_options(void* buf, size_t len, VipsImage** out, gint page, gint n, int n_set, double scale, int scale_set, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
 
 int vipsgen_webpload_source(VipsSourceCustom* source, VipsImage** out);
-int vipsgen_webpload_source_with_options(VipsSourceCustom* source, VipsImage** out, gint page, gint n, double scale, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
+int vipsgen_webpload_source_with_options(VipsSourceCustom* source, VipsImage** out, gint page, gint n, int n_set, double scale, int scale_set, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
 
 int vipsgen_webpsave(VipsImage* in, const char* filename);
-int vipsgen_webpsave_with_options(VipsImage* in, const char* filename, gint Q, gboolean lossless, VipsForeignWebpPreset preset, gboolean smart_subsample, gboolean near_lossless, gint alpha_q, gboolean min_size, gint kmin, gint kmax, gint effort, gint target_size, gboolean mixed, gboolean smart_deblock, gint passes, VipsForeignKeep keep, double* background, int background_n, gint page_height, const char* profile);
+int vipsgen_webpsave_with_options(VipsImage* in, const char* filename, gint Q, int Q_set, gboolean lossless, VipsForeignWebpPreset preset, gboolean smart_subsample, gboolean near_lossless, gint alpha_q, int alpha_q_set, gboolean min_size, gint kmin, int kmin_set, gint kmax, int kmax_set, gint effort, int effort_set, gint target_size, gboolean mixed, gboolean smart_deblock, gint passes, VipsForeignKeep keep, int keep_set, double* background, int background_n, gint page_height, const char* profile);
 
 int vipsgen_webpsave_buffer(VipsImage* in, void** buf, size_t* len);
-int vipsgen_webpsave_buffer_with_options(VipsImage* in, void** buf, size_t* len, gint Q, gboolean lossless, VipsForeignWebpPreset preset, gboolean smart_subsample, gboolean near_lossless, gint alpha_q, gboolean min_size, gint kmin, gint kmax, gint effort, gint target_size, gboolean mixed, gboolean smart_deblock, gint passes, VipsForeignKeep keep, double* background, int background_n, gint page_height, const char* profile);
+int vipsgen_webpsave_buffer_with_options(VipsImage* in, void** buf, size_t* len, gint Q, int Q_set, gboolean lossless, VipsForeignWebpPreset preset, gboolean smart_subsample, gboolean near_lossless, gint alpha_q, int alpha_q_set, gboolean min_size, gint kmin, int kmin_set, gint kmax, int kmax_set, gint effort, int effort_set, gint target_size, gboolean mixed, gboolean smart_deblock, gint passes, VipsForeignKeep keep, int keep_set, double* background, int background_n, gint page_height, const char* profile);
 
 int vipsgen_webpsave_target(VipsImage* in, VipsTargetCustom* target);
-int vipsgen_webpsave_target_with_options(VipsImage* in, VipsTargetCustom* target, gint Q, gboolean lossless, VipsForeignWebpPreset preset, gboolean smart_subsample, gboolean near_lossless, gint alpha_q, gboolean min_size, gint kmin, gint kmax, gint effort, gint target_size, gboolean mixed, gboolean smart_deblock, gint passes, VipsForeignKeep keep, double* background, int background_n, gint page_height, const char* profile);
+int vipsgen_webpsave_target_with_options(VipsImage* in, VipsTargetCustom* target, gint Q, int Q_set, gboolean lossless, VipsForeignWebpPreset preset, gboolean smart_subsample, gboolean near_lossless, gint alpha_q, int alpha_q_set, gboolean min_size, gint kmin, int kmin_set, gint kmax, int kmax_set, gint effort, int effort_set, gint target_size, gboolean mixed, gboolean smart_deblock, gint passes, VipsForeignKeep keep, int keep_set, double* background, int background_n, gint page_height, const char* profile);
 
 int vipsgen_worley(VipsImage** out, gint width, gint height);
 int vipsgen_worley_with_options(VipsImage** out, gint width, gint height, gint cell_size, gint seed);

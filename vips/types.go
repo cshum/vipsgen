@@ -291,7 +291,7 @@ type Keep int
 
 // Keep enum
 const (
-	KeepNone Keep = -1
+	KeepNone Keep = C.VIPS_FOREIGN_KEEP_NONE
 	KeepExif Keep = C.VIPS_FOREIGN_KEEP_EXIF
 	KeepXmp Keep = C.VIPS_FOREIGN_KEEP_XMP
 	KeepIptc Keep = C.VIPS_FOREIGN_KEEP_IPTC
@@ -791,4 +791,11 @@ func (i *Interpolate) Close() {
 		C.g_object_unref(C.gpointer(i.interp))
 		i.interp = nil
 	}
+}
+
+// Ptr returns a pointer to value, for the option fields whose zero value is a
+// value libvips accepts. A nil field means "not supplied", so the operation uses
+// its own default; Ptr(0) means "supplied, and the value is zero".
+func Ptr[T any](value T) *T {
+	return &value
 }
