@@ -1,10 +1,8 @@
-package zeroprobe
+package vips
 
 import (
 	"path/filepath"
 	"testing"
-
-	"github.com/cshum/vipsgen/v2/vips"
 )
 
 // gifload.n and friends are plain fields because libvips rejects an explicit zero for
@@ -17,14 +15,14 @@ import (
 // arguments is classified the other way, this file stops building.
 
 var (
-	_ = vips.TiffloadOptions{N: 0}                    // plain: n=0 is rejected
-	_ = vips.TiffloadOptions{Subifd: 0}               // plain: subifd=0 is rejected
-	_ = vips.SvgloadOptions{Scale: 0.0}               // plain: scale=0 is rejected
-	_ = vips.WebploadOptions{Scale: 0.0}              // plain: scale=0 is rejected
-	_ = vips.WebploadOptions{N: vips.Ptr(0)}          // pointer: n=0 is accepted here
-	_ = vips.PngsaveOptions{Compression: vips.Ptr(0)} // pointer: uncompressed is real
-	_ = vips.WebpsaveOptions{Effort: vips.Ptr(0)}     // pointer
-	_ = vips.GifloadOptions{N: 0}                     // plain: n=0 is rejected
+	_ = TiffloadOptions{N: 0}               // plain: n=0 is rejected
+	_ = TiffloadOptions{Subifd: 0}          // plain: subifd=0 is rejected
+	_ = SvgloadOptions{Scale: 0.0}          // plain: scale=0 is rejected
+	_ = WebploadOptions{Scale: 0.0}         // plain: scale=0 is rejected
+	_ = WebploadOptions{N: Ptr(0)}          // pointer: n=0 is accepted here
+	_ = PngsaveOptions{Compression: Ptr(0)} // pointer: uncompressed is real
+	_ = WebpsaveOptions{Effort: Ptr(0)}     // pointer
+	_ = GifloadOptions{N: 0}                // plain: n=0 is rejected
 )
 
 // The two that remain pointers are still probeable at run time, and they are the reason
@@ -39,16 +37,16 @@ func outcome(zero, none bool) string {
 	return "ok"
 }
 
-func TestExplicitZeroIsAcceptedWhereTheRuleSaysPointer(t *testing.T) {
+func TestZeroClassificationPins(t *testing.T) {
 	dir := t.TempDir()
-	img, err := vips.NewBlack(1, 1, nil)
+	img, err := NewBlack(1, 1, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
 	png := filepath.Join(dir, "out.png")
 	if got := outcome(
-		img.Pngsave(png, &vips.PngsaveOptions{Compression: vips.Ptr(0)}) != nil,
-		img.Pngsave(png, &vips.PngsaveOptions{}) != nil,
+		img.Pngsave(png, &PngsaveOptions{Compression: Ptr(0)}) != nil,
+		img.Pngsave(png, &PngsaveOptions{}) != nil,
 	); got != "ok" {
 		t.Errorf("pngsave.compression: got %s, want ok", got)
 	}
@@ -57,8 +55,8 @@ func TestExplicitZeroIsAcceptedWhereTheRuleSaysPointer(t *testing.T) {
 		t.Fatal(err)
 	}
 	if got := outcome(
-		func() error { _, e := vips.NewWebpload(webp, &vips.WebploadOptions{N: vips.Ptr(0)}); return e }() != nil,
-		func() error { _, e := vips.NewWebpload(webp, &vips.WebploadOptions{}); return e }() != nil,
+		func() error { _, e := NewWebpload(webp, &WebploadOptions{N: Ptr(0)}); return e }() != nil,
+		func() error { _, e := NewWebpload(webp, &WebploadOptions{}); return e }() != nil,
 	); got != "ok" {
 		t.Errorf("webpload.n: got %s, want ok - this is why n is not in the exception table", got)
 	}
