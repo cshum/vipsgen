@@ -415,10 +415,8 @@ Do not commit generated code in `vips*/` directories. Generated bindings are cre
 
 **For maintainers:** After merging a fork PR, manually run the CI workflow from the Actions tab to regenerate bindings.
 
-A few arguments are classified by measurement rather than metadata, because GParamSpec cannot
-say whether a zero is a value or an error. The table is in `internal/generator/presence.go`
-and the classification is pinned by `vips/zero_pins_test.go`; re-run the probes when
-bumping libvips.
+
+Generator conventions live in [AGENTS.md](AGENTS.md).
 
 ## License
 

@@ -59,9 +59,13 @@ the generated code is not (`GifloadOptions`, `N`), which is easy to get wrong in
 
 ## Tests
 
-- Tests under `internal/` are version-independent by design. One that imports `v2/vips`
-  drags the 8.18-generated package into the 8.16 and 8.17 legs, which fails on headers the
-  older libvips does not have. Pins on version-specific behaviour belong inside `vips/`.
+- `./internal/...` runs on every leg, but each leg tests only its own output directory
+  (`go test ./${{ matrix.output_dir }}/...`). So a test under `internal/` that imports
+  `v2/vips` drags the 8.18-generated package into the 8.16 and 8.17 legs and fails on headers
+  the older libvips does not have - which is why `vips/zero_pins_test.go` sits inside the
+  package rather than beside the generator.
+- The consequence is that those pins run on one leg only, against the libvips the exception
+  list was measured on. Behaviour on the other legs is not pinned.
 - The generated tests count open images, so close what you open.
 
 ## Docs
