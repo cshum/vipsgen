@@ -7,7 +7,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/cshum/vipsgen/vips"
+	"github.com/cshum/vipsgen/v2/vips"
 )
 
 // goImageToVips converts any image.Image to a *vips.Image via NewImageFromMemory.

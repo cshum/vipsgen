@@ -1,6 +1,6 @@
 # vipsgen
 
-[![Go Reference](https://pkg.go.dev/badge/github.com/cshum/vipsgen/vips.svg)](https://pkg.go.dev/github.com/cshum/vipsgen/vips)
+[![Go Reference](https://pkg.go.dev/badge/github.com/cshum/vipsgen/v2/vips.svg)](https://pkg.go.dev/github.com/cshum/vipsgen/v2/vips)
 [![CI](https://github.com/cshum/vipsgen/actions/workflows/ci.yml/badge.svg)](https://github.com/cshum/vipsgen/actions/workflows/ci.yml)
 
 vipsgen is a Go binding generator for [libvips](https://github.com/libvips/libvips) - a fast and efficient image processing library.
@@ -17,7 +17,7 @@ vipsgen solves this by generating type-safe, robust, and fully documented Go bin
 
 You can use vipsgen in two ways:
 
-- **Import directly**: Use the pre-generated library `github.com/cshum/vipsgen/vips` for the latest default installation of libvips, or see [pre-generated packages](#pre-generated-packages)
+- **Import directly**: Use the pre-generated library `github.com/cshum/vipsgen/v2/vips` for the latest default installation of libvips, or see [pre-generated packages](#pre-generated-packages)
 - **Generate custom bindings**: Run the vipsgen command to create bindings for your specific libvips version and installation
 
 
@@ -37,12 +37,15 @@ export CGO_CFLAGS_ALLOW="-Xpreprocessor"
 Use the package directly:
 
 ```bash
-go get -u github.com/cshum/vipsgen/vips
+go get -u github.com/cshum/vipsgen/v2/vips
 ```
 
 All operations support parameters and optional arguments through structs, maintaining direct equivalence with the [libvips API](https://www.libvips.org/API/current/). 
-Pass `nil` to use default behavior for optional arguments. 
-See [examples](https://github.com/cshum/vipsgen/tree/main/examples) for common usage patterns.
+Pass `nil` for libvips' own default, or `vips.Ptr(v)` to supply a value explicitly, a zero
+included. The field type says which: a `*int` or `*string` field takes `vips.Ptr(v)`, a plain
+one does not, and each field comment gives its range and default. See [examples](https://github.com/cshum/vipsgen/tree/main/examples) for usage
+patterns, [`examples/option_presence`](https://github.com/cshum/vipsgen/tree/main/examples/option_presence)
+for the difference, and [MIGRATION.md](MIGRATION.md) if you are upgrading from v1.
 
 
 ```go
@@ -52,7 +55,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/cshum/vipsgen/vips"
+	"github.com/cshum/vipsgen/v2/vips"
 )
 
 func main() {
@@ -95,9 +98,9 @@ func main() {
 
 	// Save the result as WebP file with options
 	err = image.Webpsave("resized-gopher.webp", &vips.WebpsaveOptions{
-		Q:              85,   // Quality factor (0-100)
-		Effort:         4,    // Compression effort (0-6)
-		SmartSubsample: true, // Better chroma subsampling
+		Q:              vips.Ptr(85), // Quality factor (0-100)
+		Effort:         vips.Ptr(4),  // Compression effort (0-6)
+		SmartSubsample: true,         // Better chroma subsampling
 	})
 	if err != nil {
 		log.Fatalf("Failed to save image as WebP: %v", err)
@@ -112,9 +115,9 @@ vipsgen provides pre-generated bindings for the following libvips versions. All 
 
 | Import Path | libvips Version |
 |-------------|----------------|
-| `github.com/cshum/vipsgen/vips` | 8.18.x |
-| `github.com/cshum/vipsgen/vips817` | 8.17.x |
-| `github.com/cshum/vipsgen/vips816` | 8.16.x |
+| `github.com/cshum/vipsgen/v2/vips` | 8.18.x |
+| `github.com/cshum/vipsgen/v2/vips817` | 8.17.x |
+| `github.com/cshum/vipsgen/v2/vips816` | 8.16.x |
 
 **Important:** Only import ONE of these packages in your project. Choose based on your installed libvips version.
 
@@ -122,13 +125,13 @@ Check your libvips version with `vips --version`, then use the corresponding imp
 
 ```go
 // For libvips 8.18.x (latest - recommended)
-import "github.com/cshum/vipsgen/vips"
+import "github.com/cshum/vipsgen/v2/vips"
 
 // For libvips 8.17.x
-import "github.com/cshum/vipsgen/vips817"
+import "github.com/cshum/vipsgen/v2/vips817"
 
 // For libvips 8.16.x
-import "github.com/cshum/vipsgen/vips816"
+import "github.com/cshum/vipsgen/v2/vips816"
 
 func main() {
     // API is identical across all versions
@@ -145,7 +148,7 @@ func main() {
 
 ## Image Loaders
 
-**Generic loaders** — [`NewImageFromFile`](https://pkg.go.dev/github.com/cshum/vipsgen/vips#NewImageFromFile), [`NewImageFromBuffer`](https://pkg.go.dev/github.com/cshum/vipsgen/vips#NewImageFromBuffer), [`NewImageFromSource`](https://pkg.go.dev/github.com/cshum/vipsgen/vips#NewImageFromSource) — automatically detect the image format and accept `LoadOptions`, a generic options struct covering common options across formats. Since not every format supports every option, use the **format-specific loaders** — [`NewGifload`](https://pkg.go.dev/github.com/cshum/vipsgen/vips#NewGifload), [`NewJpegloadBuffer`](https://pkg.go.dev/github.com/cshum/vipsgen/vips#NewJpegloadBuffer), [`NewPngloadSource`](https://pkg.go.dev/github.com/cshum/vipsgen/vips#NewPngloadSource), etc. — for precise, type-safe control. A few common examples:
+**Generic loaders** — [`NewImageFromFile`](https://pkg.go.dev/github.com/cshum/vipsgen/v2/vips#NewImageFromFile), [`NewImageFromBuffer`](https://pkg.go.dev/github.com/cshum/vipsgen/v2/vips#NewImageFromBuffer), [`NewImageFromSource`](https://pkg.go.dev/github.com/cshum/vipsgen/v2/vips#NewImageFromSource) — automatically detect the image format and accept `LoadOptions`, a generic options struct covering common options across formats. Since not every format supports every option, use the **format-specific loaders** — [`NewGifload`](https://pkg.go.dev/github.com/cshum/vipsgen/v2/vips#NewGifload), [`NewJpegloadBuffer`](https://pkg.go.dev/github.com/cshum/vipsgen/v2/vips#NewJpegloadBuffer), [`NewPngloadSource`](https://pkg.go.dev/github.com/cshum/vipsgen/v2/vips#NewPngloadSource), etc. — for precise, type-safe control. A few common examples:
 
 **Animated GIF** — `N: -1` loads all frames ([full example](https://github.com/cshum/vipsgen/tree/main/examples/from_file)):
 
@@ -204,7 +207,7 @@ These methods automatically fall through to the equivalent single-frame operatio
 Code generation requires libvips to be built with GObject introspection support.
 
 ```bash
-go install github.com/cshum/vipsgen/cmd/vipsgen@latest
+go install github.com/cshum/vipsgen/v2/cmd/vipsgen@latest
 ```
 
 Generate the bindings:
@@ -297,16 +300,19 @@ int vipsgen_resize(VipsImage* in, VipsImage** out, double scale) {
     return vips_resize(in, out, scale, NULL);
 }
 
-// With options - uses VipsOperation for optional parameters  
-int vipsgen_resize_with_options(VipsImage* in, VipsImage** out, double scale, 
-                               VipsKernel kernel, double gap, double vscale) {
+// With options - uses VipsOperation for optional parameters. An option that libvips
+// could read as zero carries a set flag, so an explicit zero is passed on instead of
+// being mistaken for "not supplied".
+int vipsgen_resize_with_options(VipsImage* in, VipsImage** out, double scale,
+                               VipsKernel kernel, int kernel_set, double gap, int gap_set,
+                               double vscale) {
     VipsOperation *operation = vips_operation_new("resize");
     if (!operation) return 1;
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "scale", scale, NULL) ||
-        vipsgen_set_int(operation, "kernel", kernel) ||
-        vipsgen_set_double(operation, "gap", gap) ||
+        (kernel_set && vips_object_set(VIPS_OBJECT(operation), "kernel", kernel, NULL)) ||
+        (gap_set && vips_object_set(VIPS_OBJECT(operation), "gap", gap, NULL)) ||
         vipsgen_set_double(operation, "vscale", vscale)
     ) {
         g_object_unref(operation);
@@ -336,19 +342,18 @@ func vipsgenResize(in *C.VipsImage, scale float64) (*C.VipsImage, error) {
 }
 
 // vipsgenResizeWithOptions vips_resize resize an image with optional arguments
-func vipsgenResizeWithOptions(in *C.VipsImage, scale float64, kernel Kernel, 
-                             gap float64, vscale float64) (*C.VipsImage, error) {
-    var out *C.VipsImage
-    if err := C.vipsgen_resize_with_options(in, &out, C.double(scale), 
-                                           C.VipsKernel(kernel), C.double(gap), 
-                                           C.double(vscale)); err != 0 {
-        return nil, handleImageError(out)
-    }
-    return out, nil
+func vipsgenResizeWithOptions(in *C.VipsImage, scale float64, kernel *Kernel, gap *float64, vscale float64) (*C.VipsImage, error) {
+	var out *C.VipsImage
+	ckernel, kernelSet := optionInt(kernel)
+	cgap, gapSet := optionFloat(gap)
+	if err := C.vipsgen_resize_with_options(in, &out, C.double(scale), C.VipsKernel(ckernel), kernelSet, C.double(cgap), gapSet, C.double(vscale)); err != 0 {
+		return nil, handleImageError(out)
+	}
+	return out, nil
 }
 ```
 
-This layer handles C array conversion, string conversion with cleanup, memory management, error handling, and type conversion between Go and C.
+This layer handles C array conversion, string conversion with cleanup, memory management, error handling, and type conversion between Go and C. `optionInt`, `optionFloat` and `optionString` turn a nil field into "not supplied".
 
 **3. Go Method Layer (image.go)**
 
@@ -359,28 +364,27 @@ This layer handles C array conversion, string conversion with cleanup, memory ma
 ```go
 // ResizeOptions optional arguments for vips_resize
 type ResizeOptions struct {
-    // Kernel Resampling kernel
-    Kernel Kernel
-    // Gap Reducing gap
-    Gap float64
-    // Vscale Vertical scale image by this factor
+    // Kernel Resampling kernel (default KernelLanczos3)
+    Kernel *Kernel
+    // Gap Reducing gap (range 0-1000000, default 2)
+    Gap *float64
+    // Vscale Vertical scale image by this factor (range 0-10000000)
     Vscale float64
 }
 
 // DefaultResizeOptions creates default value for vips_resize optional arguments
 func DefaultResizeOptions() *ResizeOptions {
     return &ResizeOptions{
-        Kernel: Kernel(5),
-        Gap: 2,
+        Kernel: Ptr(KernelLanczos3),
+        Gap:    Ptr(2),
     }
 }
 
 // Resize vips_resize resize an image
-func (r *Image) Resize(scale float64, options *ResizeOptions) error {
+func (r *Image) Resize(scale float64, options *ResizeOptions) (error) {
     if options != nil {
         // Use the WithOptions variant when options are provided
-        out, err := vipsgenResizeWithOptions(r.image, scale, 
-                                           options.Kernel, options.Gap, options.Vscale)
+        out, err := vipsgenResizeWithOptions(r.image, scale, options.Kernel, options.Gap, options.Vscale)
         if err != nil {
             return err
         }
@@ -410,6 +414,9 @@ Do not commit generated code in `vips*/` directories. Generated bindings are cre
 **For contributors:** Submit PRs with source code changes only. Maintainers will regenerate bindings after merge.
 
 **For maintainers:** After merging a fork PR, manually run the CI workflow from the Actions tab to regenerate bindings.
+
+
+Generator conventions live in [AGENTS.md](AGENTS.md).
 
 ## License
 

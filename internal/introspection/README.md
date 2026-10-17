@@ -12,7 +12,9 @@ one `vips*` download restores them all.
   fail with `ld: library 'vips' not found` pointing at the deleted install.
 - In the diff, look for what changes an option's presence: a default crossing zero, a
   bound becoming finite, a new flags bit (`keep` is 31 before 8.18, 63 after), an
-  argument appearing or disappearing.
+  argument appearing or disappearing. A handful of arguments are classified by
+  measurement instead, because metadata cannot say whether a zero is a value or an error:
+  re-run the probes behind the table in `internal/generator/presence.go`.
 
 What the tests do and deliberately do not assert is stated in `operation_test.go`, next
 to the assertions themselves.

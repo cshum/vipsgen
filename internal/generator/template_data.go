@@ -1,8 +1,13 @@
 package generator
 
 import (
-	"github.com/cshum/vipsgen/internal/introspection"
+	"github.com/cshum/vipsgen/v2/internal/introspection"
 )
+
+// enumValueNames maps an enum type's Go name and numeric value to the Go constant
+// name, so a generated comment can say "default IntentLast" instead of "default 7".
+// It is filled in once per run by NewTemplateData.
+var enumValueNames = map[string]map[int]string{}
 
 // TemplateData holds all data needed by any template
 type TemplateData struct {
@@ -21,29 +26,20 @@ func NewTemplateData(
 	imageTypes []introspection.ImageTypeInfo,
 	includeTest bool,
 ) *TemplateData {
-	applyEnumOverrides(enumTypes)
+	enumValueNames = map[string]map[int]string{}
+	for _, et := range enumTypes {
+		values := make(map[int]string, len(et.Values))
+		for _, v := range et.Values {
+			values[v.Value] = v.GoName
+		}
+		enumValueNames[et.GoName] = values
+	}
+
 	return &TemplateData{
 		VipsVersion: vipsVersion,
 		Operations:  operations,
 		EnumTypes:   enumTypes,
 		ImageTypes:  imageTypes,
 		IncludeTest: includeTest,
-	}
-}
-
-// applyEnumOverrides post-processes discovered enum types to apply Go-side value
-// overrides. This keeps special-case logic out of templates.
-func applyEnumOverrides(enumTypes []introspection.EnumTypeInfo) {
-	for i, et := range enumTypes {
-		if et.GoName == "Keep" {
-			for j, v := range et.Values {
-				if v.GoName == "KeepNone" {
-					// KeepNone is remapped to -1 in Go so that the zero value of a
-					// Keep field (0) means "not set" and is safe in empty structs.
-					// vipsgen_set_keep translates Go -1 back to C VIPS_FOREIGN_KEEP_NONE (0).
-					enumTypes[i].Values[j].GoValue = "-1"
-				}
-			}
-		}
 	}
 }

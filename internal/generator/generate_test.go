@@ -9,7 +9,7 @@ import (
 	"testing"
 	"text/template"
 
-	"github.com/cshum/vipsgen/internal/templates"
+	"github.com/cshum/vipsgen/v2/internal/templates"
 )
 
 type stubTemplateLoader struct {

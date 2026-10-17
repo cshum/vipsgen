@@ -6,7 +6,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/cshum/vipsgen/vips"
+	"github.com/cshum/vipsgen/v2/vips"
 )
 
 func getBytesFromURL(url string) ([]byte, error) {
@@ -106,9 +106,9 @@ func demonstrateMosaic() {
 	options := vips.DefaultMosaicOptions()
 
 	// Use appropriate search windows
-	options.Hwindow = 5
-	options.Harea = 15
-	options.Mblend = 10
+	options.Hwindow = vips.Ptr(5)
+	options.Harea = vips.Ptr(15)
+	options.Mblend = vips.Ptr(10)
 
 	// Set tie points in the overlap region
 	// Reference point in the overlap area of first image

@@ -4,32 +4,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/cshum/vipsgen/internal/introspection"
+	"github.com/cshum/vipsgen/v2/internal/introspection"
 )
-
-func shouldIntAllowZero(op introspection.Operation, opt introspection.Argument) bool {
-	if opt.IsEnum {
-		return opt.EnumType == "Intent"
-	}
-	if opt.GoType != "int" {
-		return false
-	}
-
-	switch opt.Name {
-	case "effort":
-		switch op.Name {
-		case "heifsave", "heifsave_buffer", "heifsave_target",
-			"webpsave", "webpsave_buffer", "webpsave_mime", "webpsave_target":
-			return true
-		}
-	case "compression":
-		switch op.Name {
-		case "pngsave", "pngsave_buffer", "pngsave_target":
-			return true
-		}
-	}
-	return false
-}
 
 // generateCFunctionSignature generates just the function signature for vips operations
 func generateCFunctionSignature(op introspection.Operation, includeParamNames bool) string {
@@ -76,6 +52,10 @@ func generateCWithOptionsSignature(op introspection.Operation) string {
 		}
 		result.WriteString(fmt.Sprintf("%s %s", opt.CType, opt.Name))
 
+		if argPresence(opt) == PresencePointer {
+			result.WriteString(fmt.Sprintf(", int %s_set", opt.Name))
+		}
+
 		if hasCArrayLengthParam(opt.GoType) {
 			result.WriteString(fmt.Sprintf(", int %s_n", opt.Name))
 		}
@@ -121,6 +101,13 @@ func writeCArrayCleanups(result *strings.Builder, indent string, args []introspe
 			}
 		}
 	}
+}
+
+// presenceCSetter passes an option only when the caller supplied it. The set flag
+// decides, so a zero value reaches libvips as the value it is.
+func presenceCSetter(opt introspection.Argument) string {
+	return fmt.Sprintf("(%s_set && vips_object_set(VIPS_OBJECT(operation), \"%s\", %s, NULL))",
+		opt.Name, opt.Name, opt.Name)
 }
 
 // generateCFunctionDeclaration generates header declarations for vips operations
@@ -233,6 +220,10 @@ func generateCFunctionImplementation(op introspection.Operation) string {
 		}
 
 		for _, opt := range op.OptionalInputs {
+			if argPresence(opt) == PresencePointer {
+				allParamsList = append(allParamsList, presenceCSetter(opt))
+				continue
+			}
 			if strings.HasPrefix(opt.GoType, "[]") {
 				arrayType := getArrayType(opt.GoType)
 				if arrayType == "double" {
@@ -252,17 +243,8 @@ func generateCFunctionImplementation(op introspection.Operation) string {
 				allParamsList = append(allParamsList,
 					fmt.Sprintf("vipsgen_set_string(operation, \"%s\", %s)", opt.Name, opt.Name))
 			} else if opt.IsEnum {
-				if opt.Name == "keep" && opt.EnumType == "Keep" {
-					allParamsList = append(allParamsList,
-						fmt.Sprintf("vipsgen_set_keep(operation, %s)", opt.Name))
-				} else {
-					helper := "vipsgen_set_int"
-					if shouldIntAllowZero(op, opt) {
-						helper = "vipsgen_set_int_allow_zero"
-					}
-					allParamsList = append(allParamsList,
-						fmt.Sprintf("%s(operation, \"%s\", %s)", helper, opt.Name, opt.Name))
-				}
+				allParamsList = append(allParamsList,
+					fmt.Sprintf("vipsgen_set_int(operation, \"%s\", %s)", opt.Name, opt.Name))
 			} else if opt.GoType == "*C.VipsImage" {
 				allParamsList = append(allParamsList,
 					fmt.Sprintf("vipsgen_set_image(operation, \"%s\", %s)", opt.Name, opt.Name))
@@ -276,12 +258,8 @@ func generateCFunctionImplementation(op introspection.Operation) string {
 				allParamsList = append(allParamsList,
 					fmt.Sprintf("vipsgen_set_target(operation, \"%s\", %s)", opt.Name, opt.Name))
 			} else if opt.GoType == "int" {
-				helper := "vipsgen_set_int"
-				if shouldIntAllowZero(op, opt) {
-					helper = "vipsgen_set_int_allow_zero"
-				}
 				allParamsList = append(allParamsList,
-					fmt.Sprintf("%s(operation, \"%s\", %s)", helper, opt.Name, opt.Name))
+					fmt.Sprintf("vipsgen_set_int(operation, \"%s\", %s)", opt.Name, opt.Name))
 			} else if opt.GoType == "float64" {
 				allParamsList = append(allParamsList,
 					fmt.Sprintf("vipsgen_set_double(operation, \"%s\", %s)", opt.Name, opt.Name))

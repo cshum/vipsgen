@@ -3,7 +3,7 @@ package generator
 import (
 	"text/template"
 
-	"github.com/cshum/vipsgen/internal/introspection"
+	"github.com/cshum/vipsgen/v2/internal/introspection"
 )
 
 // GetTemplateFuncMap Helper functions for templates

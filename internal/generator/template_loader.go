@@ -1,7 +1,9 @@
 package generator
 
 import (
+	"bytes"
 	"fmt"
+	"go/format"
 	"io/fs"
 	"log"
 	"os"
@@ -96,11 +98,30 @@ func (t *templateLoader) ListFiles() ([]string, error) {
 	return templateFiles, nil
 }
 
-// GenerateFile generates a file using a template and data
+// GenerateFile generates a file using a template and data. Go source is formatted
+// before it is written, so a generated package reads like hand-written Go however the
+// templates happen to be spaced.
 func (t *templateLoader) GenerateFile(templateName, outputFile string, data interface{}) error {
 	tmpl, err := t.LoadTemplate(templateName)
 	if err != nil {
 		return err
+	}
+
+	var buffer bytes.Buffer
+	if err := tmpl.Execute(&buffer, data); err != nil {
+		return fmt.Errorf("failed to execute template: %v", err)
+	}
+
+	content := buffer.Bytes()
+	if strings.HasSuffix(outputFile, ".go") {
+		formatted, err := format.Source(content)
+		if err != nil {
+			// Keep what the template produced: the compile error that follows points
+			// at the template, which beats failing generation here.
+			log.Printf("warning: %s is not valid Go, writing it unformatted: %v", outputFile, err)
+		} else {
+			content = formatted
+		}
 	}
 
 	file, err := prepareOutputFile(outputFile)
@@ -109,9 +130,8 @@ func (t *templateLoader) GenerateFile(templateName, outputFile string, data inte
 	}
 	defer file.Close()
 
-	// Execute template
-	if err := tmpl.Execute(file, data); err != nil {
-		return fmt.Errorf("failed to execute template: %v", err)
+	if _, err := file.Write(content); err != nil {
+		return fmt.Errorf("failed to write %s: %v", outputFile, err)
 	}
 
 	return nil

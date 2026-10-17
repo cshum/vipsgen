@@ -492,3 +492,31 @@ func getImagePointer(img *Image) *C.VipsImage {
 	}
 	return img.image
 }
+
+// optionInt returns an optional enum, flags or integer argument's value and whether
+// the caller supplied it. nil means "not supplied", so libvips keeps its own default;
+// a supplied value is passed on even when it is zero.
+func optionInt[T ~int | ~int32 | ~int64 | ~uint32 | ~uint64](value *T) (int64, C.int) {
+	if value == nil {
+		return 0, 0
+	}
+	return int64(*value), 1
+}
+
+// optionFloat returns an optional floating point argument's value and whether the
+// caller supplied it.
+func optionFloat[T ~float32 | ~float64](value *T) (float64, C.int) {
+	if value == nil {
+		return 0, 0
+	}
+	return float64(*value), 1
+}
+
+// optionString returns a C copy of an optional string argument and whether the caller
+// supplied it. freeCString accepts nil, so the caller always releases the copy.
+func optionString(value *string) (*C.char, C.int) {
+	if value == nil {
+		return nil, 0
+	}
+	return C.CString(*value), 1
+}
