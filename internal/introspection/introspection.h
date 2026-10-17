@@ -50,6 +50,11 @@ typedef struct {
     int has_range;
     gdouble minimum;
     gdouble maximum;
+    // Whether each bound is actually specified. A pspec may declare an
+    // infinite bound, which cannot be serialized as JSON and has no numeric
+    // meaning: minimum/maximum are only meaningful when the matching flag is set.
+    int has_min;
+    int has_max;
 } ArgInfo;
 
 // Get all arguments of an operation

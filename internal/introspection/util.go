@@ -156,7 +156,7 @@ func debugJson(data any, filename string) {
 		if err != nil {
 			log.Printf("Warning: failed to write %s: %v", filename, err)
 		} else {
-			log.Printf("Wrote introspected Enum Types to %s", filename)
+			log.Printf("Wrote introspection dump to %s", filename)
 		}
 	}
 }
