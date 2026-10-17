@@ -9920,9 +9920,7 @@ func ProfileLoad(name string) ([]byte, error) {
 }
 
 // LoadOptions are options for loading an image. Some are type-specific.
-// Every field is optional and a plain value: omit one to let libvips use its own default.
-// That differs from the generated option structs, where a pointer marks the arguments whose
-// zero libvips accepts and which differ from the default - no loader argument is one.
+// Every field is optional: omit one to let libvips use its own default.
 type LoadOptions struct {
 	// N Number of pages to load, -1 for all
 	N int
@@ -10453,11 +10451,19 @@ type EmbedMultiPageOptions struct {
 	Background []float64
 }
 
+// DefaultEmbedMultiPageOptions creates default options for EmbedMultiPage
+func DefaultEmbedMultiPageOptions() *EmbedMultiPageOptions {
+	return &EmbedMultiPageOptions{
+		Extend:     ExtendBlack,
+		Background: []float64{},
+	}
+}
+
 // EmbedMultiPage embeds the image in a larger image with the specified dimensions
 // When the image has multiple pages (e.g. animated GIF), this embeds each frame
 func (r *Image) EmbedMultiPage(left, top, width, height int, options *EmbedMultiPageOptions) error {
 	if options == nil {
-		options = &EmbedMultiPageOptions{}
+		options = DefaultEmbedMultiPageOptions()
 	}
 
 	if r.Height() == r.PageHeight() {
