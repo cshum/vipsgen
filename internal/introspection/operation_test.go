@@ -1,6 +1,11 @@
 package introspection
 
-import "testing"
+import (
+	"encoding/json"
+	"math"
+	"strings"
+	"testing"
+)
 
 func TestDiscoverOperationArgumentMetadata(t *testing.T) {
 	introspection := NewIntrospection(false)
@@ -61,4 +66,72 @@ func containsInt(values []int, wanted int) bool {
 		}
 	}
 	return false
+}
+
+// TestOperationBoundsAreFiniteOrUnbounded guards the -debug dump. GParamSpec
+// bounds can be infinite, and a single infinite value aborted the JSON marshal
+// for every operation, so -debug silently stopped writing the dump at all.
+// Bounds are therefore reported as finite-or-absent: the value is only
+// meaningful when HasMinimum/HasMaximum says the bound was declared.
+func TestOperationBoundsAreFiniteOrUnbounded(t *testing.T) {
+	introspection := NewIntrospection(false)
+	operations := introspection.DiscoverOperations()
+	if len(operations) == 0 {
+		t.Fatal("no operations discovered")
+	}
+
+	const (
+		noMinimum = 1
+		noMaximum = 2
+	)
+	missing := map[string]int{}
+	discovered := map[string]bool{}
+	for _, op := range operations {
+		discovered[op.Name] = true
+		// Arguments holds required inputs and outputs; optional inputs live in
+		// their own slice, and the unbounded ranges are all optional.
+		args := append(append([]Argument{}, op.Arguments...), op.OptionalInputs...)
+		for _, arg := range args {
+			if math.IsInf(arg.Minimum, 0) || math.IsInf(arg.Maximum, 0) ||
+				math.IsNaN(arg.Minimum) || math.IsNaN(arg.Maximum) {
+				t.Errorf("%s.%s has a non-finite bound: min=%v max=%v", op.Name, arg.Name, arg.Minimum, arg.Maximum)
+			}
+			if arg.HasRange && !arg.HasMinimum {
+				missing[op.Name+"."+arg.Name] |= noMinimum
+			}
+			if arg.HasRange && !arg.HasMaximum {
+				missing[op.Name+"."+arg.Name] |= noMaximum
+			}
+		}
+	}
+
+	// Arguments whose pspec declares an unbounded range; both bounds for the
+	// clamp/stdif ranges, the upper bound only for find_trim.
+	want := map[string]int{
+		"clamp.min":           noMinimum | noMaximum,
+		"clamp.max":           noMinimum | noMaximum,
+		"find_trim.threshold": noMaximum,
+		"stdif.m0":            noMinimum | noMaximum,
+		"stdif.s0":            noMinimum | noMaximum,
+	}
+	for name, bits := range want {
+		op := name[:strings.Index(name, ".")]
+		if !discovered[op] {
+			t.Logf("operation %s not available in this libvips build", op)
+			continue
+		}
+		if missing[name] != bits {
+			t.Errorf("%s missing bounds = %d, want %d", name, missing[name], bits)
+		}
+	}
+	for name, bits := range missing {
+		if _, ok := want[name]; !ok {
+			t.Logf("other unbounded range reported: %s (missing bounds %d)", name, bits)
+		}
+	}
+
+	// The actual regression: the operations must marshal for the dump.
+	if _, err := json.Marshal(operations); err != nil {
+		t.Fatalf("marshalling operations for the -debug dump failed: %v", err)
+	}
 }

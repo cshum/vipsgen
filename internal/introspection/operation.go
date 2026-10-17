@@ -54,6 +54,8 @@ type Argument struct {
 	HasRange     bool
 	Minimum      float64
 	Maximum      float64
+	HasMinimum   bool
+	HasMaximum   bool
 	NInputFrom   string
 	DefaultValue interface{}
 }
@@ -225,6 +227,8 @@ func (v *Introspection) DiscoverOperationArguments(opName string) ([]Argument, e
 			HasRange:    int(arg.has_range) != 0,
 			Minimum:     float64(arg.minimum),
 			Maximum:     float64(arg.maximum),
+			HasMinimum:  int(arg.has_min) != 0,
+			HasMaximum:  int(arg.has_max) != 0,
 		}
 
 		// Check if this is an enum or flags type
