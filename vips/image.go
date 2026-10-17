@@ -10280,7 +10280,7 @@ type LoadOptions struct {
 	// FailOn is the error level to fail on (none/truncated/error/warning).
 	// When both FailOn and FailOnError are set, libvips ignores the
 	// deprecated "fail" boolean and uses fail_on.
-	FailOn *FailOn
+	FailOn FailOn
 	// FailOnError Fail on first error. Deprecated: maps to the libvips
 	// "fail" boolean, which libvips remaps to fail_on=warning. Prefer FailOn.
 	FailOnError bool
@@ -10318,8 +10318,8 @@ func (i *LoadOptions) OptionString() string {
 	if i.Dpi != 0 {
 		values = append(values, "dpi="+strconv.Itoa(i.Dpi))
 	}
-	if v := i.FailOn; v != nil && *v != FailOnNone {
-		switch *v {
+	if i.FailOn != FailOnNone {
+		switch i.FailOn {
 		case FailOnTruncated:
 			values = append(values, "fail_on=truncated")
 		case FailOnError:
