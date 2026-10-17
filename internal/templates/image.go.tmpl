@@ -55,9 +55,9 @@ type LoadOptions struct {
 	// N Number of pages to load, -1 for all
 	N *int
 	// Page First page to load
-	Page *int
+	Page int
 	// Dpi Resolution in DPI
-	Dpi *int
+	Dpi int
 	// Autorotate Rotate image using exif orientation
 	Autorotate bool
 	// FailOn is the error level to fail on (none/truncated/error/warning).
@@ -95,11 +95,11 @@ func (i *LoadOptions) OptionString() string {
 	if v := i.N; v != nil && *v != 0 {
 		values = append(values, "n="+strconv.Itoa(*v))
 	}
-	if v := i.Page; v != nil && *v != 0 {
-		values = append(values, "page="+strconv.Itoa(*v))
+	if i.Page != 0 {
+		values = append(values, "page="+strconv.Itoa(i.Page))
 	}
-	if v := i.Dpi; v != nil && *v != 0 {
-		values = append(values, "dpi="+strconv.Itoa(*v))
+	if i.Dpi != 0 {
+		values = append(values, "dpi="+strconv.Itoa(i.Dpi))
 	}
 	if v := i.FailOn; v != nil && *v != FailOnNone {
 		switch *v {
