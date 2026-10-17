@@ -14,7 +14,7 @@ v1 stays consumable at its existing import paths, so v1 code keeps building whil
 
 The loader shim's own arguments (`LoadOptions`) are hand-written rather than classified, so they were checked against their use cases and are plain values: the booleans (`Thumbnail`, `Unlimited`, `Memory`, `Autorotate`, `FailOnError`), `Shrink`, `Access`, `Dpi`, `Page` and `N`. A pointer is needed only where a caller must be able to supply a zero *and* libvips' default differs from it — here the zero is either the default, outside the argument's range, or, for `n`, an error (`gifload: bad page number`).
 
-Generated option fields follow the metadata rule without exceptions, and it errs toward pointers: where the metadata says zero is a legal value the field is a pointer, even if passing a zero would be odd. An unnecessary `vips.Ptr(0)` is visible and rejected by libvips; a dropped explicit zero is not.
+Generated option fields follow the metadata rule without exceptions, and it errs toward pointers. That means the two surfaces can differ: `gifload.n` stays a pointer because the metadata accepts a zero for it, while the shim's `N` is plain because a zero there is an error. The rule errs toward pointers: where the metadata says zero is a legal value the field is a pointer, even if passing a zero would be odd. An unnecessary `vips.Ptr(0)` is visible and rejected by libvips; a dropped explicit zero is not.
 
 ## When a field is a pointer
 
