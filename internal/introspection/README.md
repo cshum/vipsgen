@@ -1,65 +1,52 @@
 # Introspection metadata
 
 `internal/introspection` reads libvips through GObject introspection and hands the
-generator a model of every operation argument: type, required/optional, enum and
-flags membership, `GParamSpec` default, and numeric bounds with their presence.
+generator a model of every operation argument: type, required/optional, enum and flags
+membership, `GParamSpec` default, and numeric bounds together with whether each bound
+is declared at all.
 
-Two things pin that model:
+## What the tests guarantee
 
-- `operation_test.go` asserts what is true of *any* libvips version — no non-finite
-  bound ever reaches the metadata (a single `±Inf` used to abort the whole `-debug`
-  dump), every operation marshals for that dump, a flags default is non-zero and is
-  itself a member of the flags class, and 64-bit arguments carry a range.
-- `testdata/metadata-<version>.txt` is a golden of the projection the option-presence
-  rule reads, for one libvips version. Exact numbers live there, never in the tests,
-  so a version difference is a reviewable diff instead of a failure.
+`operation_test.go` asserts only what is true of *any* libvips version:
+
+- no non-finite bound reaches the metadata — a single `±Inf` used to abort the whole
+  `-debug` dump, which is why bounds are reported as finite-or-absent — and every
+  operation still marshals for that dump;
+- a flags argument reports a non-zero default that is itself a member of the flags
+  class, and `IsFlags` distinguishes a flags class from an enum;
+- a 64-bit argument carries a range;
+- the argument classes the option-presence rule needs keep their pspec defaults.
+
+Per-version facts — which arguments have an unbounded range, the value of a default,
+the bits in a mask — are deliberately *not* pinned in tests: they belong to the libvips
+build, and pinning them turns a version bump into a test failure instead of a
+reviewable diff. When the v2 options rule is implemented, its classifier and a
+version-keyed metadata golden will live here.
 
 ## Bumping the libvips version
 
-The matrix in `.github/workflows/ci.yml` pins the supported versions; nothing moves
-until you edit it. When you do:
+The matrix in `.github/workflows/ci.yml` is the single source of truth. A version
+change is one matrix entry: no step names a version, because each generated package is
+uploaded as an artifact named after its output directory (`vips`, `vips816`,
+`vips817`) and the commit jobs restore them with one `vips*` pattern download.
 
-1. Upgrade libvips locally and **clear the Go build cache**: cgo caches the
-   pkg-config output, so builds and tests otherwise fail with `ld: library 'vips'
-   not found` naming the *deleted* install path, while `pkg-config --modversion vips`
-   already reports the new one.
+1. Change the matrix entry (`vips_version` / `output_dir`) in a PR.
+2. CI builds that libvips from source, runs `go test ./internal/...`, regenerates the
+   package, and — for a same-repo PR — the `commit` job pushes
+   `build: update generated vips packages` when the regenerated bindings differ. Treat
+   that commit as the version change, not as noise.
+3. If you also upgrade libvips locally, **clear the Go build cache**: cgo caches the
+   pkg-config output, so builds and tests otherwise fail with
+   `ld: library 'vips' not found` naming the *deleted* install path, while
+   `pkg-config --modversion vips` already reports the new one.
 
    ```bash
    go clean -cache
    pkg-config --modversion vips   # must report the version you just installed
    ```
 
-2. Point the matrix leg at the new version in `.github/workflows/ci.yml`
-   (`vips_version` / `output_dir`). CI builds libvips from source, runs
-   `go test ./internal/...`, regenerates the package and the golden, and the
-   `commit` job commits both onto the PR — so the metadata diff lands with the
-   regenerated bindings.
-
-3. Regenerate and read the golden diff before trusting the bump:
-
-   ```bash
-   go test ./internal/introspection -run TestMetadataGolden -update
-   git diff internal/introspection/testdata/
-   ```
-
-   The diff is the answer to "what changed": new operations, changed defaults
-   (`clamp.max` went 0.0 → 1.0 in 8.17), changed ranges, new flags bits
-   (`VIPS_FOREIGN_KEEP_ALL` is 31 before gainmap support and 63 from 8.18), or a
-   bound that became finite. A golden for a version the matrix no longer runs can be
-   deleted; keep it only while that line is still supported.
-
-4. Read the golden for option-presence consequences. Nothing consumes this metadata
-   yet: the v2 options rule is still a proposal, so no classification step applies
-   until it is implemented, and then the classifier will live beside this metadata
-   rather than in a scratch directory. What to watch for in the diff either way is a
-   default moving across zero, a bound becoming finite, or a new flags bit — those
-   are the changes that will flip a field between pointer and value, and they are why
-   the rule has to be derived at generation time rather than pinned in vipsgen.
-
-5. Expect the `commit`/`commit-manual` jobs to add `build: update generated vips
-   packages`: regenerated bindings plus the matrix versions' goldens. Review that
-   commit as the metadata change, not as noise.
-
-The goldens are generated by CI for every matrix version, which is what keeps the
-per-version expectations alive: a version with no golden *skips* `TestMetadataGolden`
-rather than failing, so an unregenerated golden silently stops guarding anything.
+4. Read the regenerated bindings for what the presence rule will care about: a default
+   moving across zero, a bound becoming finite, a new flags bit (`VIPS_FOREIGN_KEEP_ALL`
+   is 31 before gainmap support and 63 from 8.18), an argument added or removed. Those
+   are the changes that flip a field between pointer and value, which is why the rule
+   has to be derived at generation time rather than pinned in vipsgen.
