@@ -5,23 +5,14 @@ generator a model of every operation argument: type, required/optional, enum and
 membership, `GParamSpec` default, and numeric bounds together with whether each bound
 is declared at all.
 
-## What the tests guarantee
-
-`operation_test.go` asserts only what is true of *any* libvips version:
-
-- no non-finite bound reaches the metadata — a single `±Inf` used to abort the whole
-  `-debug` dump, which is why bounds are reported as finite-or-absent — and every
-  operation still marshals for that dump;
-- a flags argument reports a non-zero default that is itself a member of the flags
-  class, and `IsFlags` distinguishes a flags class from an enum;
-- a 64-bit argument carries a range;
-- the argument classes the option-presence rule needs keep their pspec defaults.
-
-Per-version facts — which arguments have an unbounded range, the value of a default,
-the bits in a mask — are deliberately *not* pinned in tests: they belong to the libvips
-build, and pinning them turns a version bump into a test failure instead of a
-reviewable diff. When the v2 options rule is implemented, its classifier and a
-version-keyed metadata golden will live here.
+The tests assert only what is true of *any* libvips version: a bound is never
+non-finite, every operation marshals for the `-debug` dump, a flags default is non-zero
+and a member of its own flags class, a plain enum is not mistaken for one, and a 64-bit
+argument carries a range. Which arguments have an unbounded range, the value of a
+default, the bits in a mask — none of that is pinned in tests, because it belongs to
+the libvips build and pinning it turns a version bump into a failure instead of a
+diff. When the v2 options rule is implemented, its classifier and a version-keyed
+metadata golden go here.
 
 ## Bumping the libvips version
 

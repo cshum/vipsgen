@@ -19,8 +19,17 @@ func TestDiscoverOperationArgumentMetadata(t *testing.T) {
 	if !intent.IsEnum || intent.EnumType != "Intent" {
 		t.Fatalf("intent metadata = %+v, want Intent enum", intent)
 	}
-	if intent.DefaultValue != 1 {
-		t.Fatalf("intent default = %v, want 1", intent.DefaultValue)
+	if intent.IsFlags {
+		t.Errorf("intent IsFlags = true, want false: a plain enum must not look like a flags class")
+	}
+	// The default itself is a property of the libvips build, so only the shape
+	// the presence rule reads is asserted: a non-zero default with a zero member.
+	intentDefault, ok := intent.DefaultValue.(int)
+	if !ok {
+		t.Fatalf("intent default = %#v, want an int", intent.DefaultValue)
+	}
+	if intentDefault == 0 {
+		t.Errorf("intent default = 0, want a non-zero default")
 	}
 	if !containsInt(intent.EnumValues, 0) {
 		t.Fatalf("intent enum values = %v, want zero-valued member", intent.EnumValues)
