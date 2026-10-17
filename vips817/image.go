@@ -10017,6 +10017,11 @@ func ProfileLoad(name string) ([]byte, error) {
 // LoadOptions are options for loading an image. Some are type-specific.
 // Every field is optional: leave it nil to let libvips use its own default.
 type LoadOptions struct {
+	// These loader arguments are plain values, and the test is the same one the
+	// generated option fields pass: a pointer is needed only where a caller must be able
+	// to supply a zero *and* libvips' own default differs from it. Here the zero is
+	// either the default (the booleans, page, access) or outside the argument's range
+	// (dpi), and for n a zero is an error, not a page count.
 	// N Number of pages to load, -1 for all
 	N int
 	// Page First page to load
