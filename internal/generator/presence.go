@@ -1,6 +1,6 @@
 package generator
 
-import "github.com/cshum/vipsgen/internal/introspection"
+import "github.com/cshum/vipsgen/v2/internal/introspection"
 
 // Presence describes how a generated optional argument tells libvips whether the
 // caller supplied it.

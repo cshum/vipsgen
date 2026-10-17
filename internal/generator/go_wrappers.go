@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/cshum/vipsgen/internal/introspection"
+	"github.com/cshum/vipsgen/v2/internal/introspection"
 )
 
 // getOutputScalarCType returns the cgo scalar type used for temporary output storage.

@@ -4,9 +4,9 @@ import (
 	"flag"
 	"log"
 
-	"github.com/cshum/vipsgen/internal/generator"
-	"github.com/cshum/vipsgen/internal/introspection"
-	"github.com/cshum/vipsgen/internal/templates"
+	"github.com/cshum/vipsgen/v2/internal/generator"
+	"github.com/cshum/vipsgen/v2/internal/introspection"
+	"github.com/cshum/vipsgen/v2/internal/templates"
 )
 
 func main() {

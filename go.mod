@@ -1,4 +1,4 @@
-module github.com/cshum/vipsgen
+module github.com/cshum/vipsgen/v2
 
 go 1.24.2
 

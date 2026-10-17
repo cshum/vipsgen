@@ -3,7 +3,7 @@ package generator
 import (
 	"testing"
 
-	"github.com/cshum/vipsgen/internal/introspection"
+	"github.com/cshum/vipsgen/v2/internal/introspection"
 )
 
 func TestGenerateImageMethodBodySingleImageOutputSnapshot(t *testing.T) {

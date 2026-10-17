@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/cshum/vipsgen/vips"
+	"github.com/cshum/vipsgen/v2/vips"
 	_ "image/png"
 	"io"
 	"log"

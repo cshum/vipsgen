@@ -1,7 +1,7 @@
 package generator
 
 import (
-	"github.com/cshum/vipsgen/internal/introspection"
+	"github.com/cshum/vipsgen/v2/internal/introspection"
 	"strings"
 )
 
