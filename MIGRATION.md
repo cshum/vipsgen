@@ -58,16 +58,6 @@ Every saver argument was measured too and accepts an explicit zero -
 them. The list keys on operation and argument, not on the argument name.
 
 
-## What is still there
-
-`Default<Op>Options` survives, but its fields are pointers now, so reading one takes a deref
-where v1 returned a value. It fills them from the defaults of the libvips it was generated
-against, which makes it a description rather than something to build payloads with: omitting
-a field takes whatever the installed libvips uses.
-
-Generated field comments now state the accepted range and the default, so neither has to be
-looked up in libvips' documentation.
-
 ## Why the change
 
 v1 decided an option was "not supplied" by looking at its value, so an explicit `0` was
