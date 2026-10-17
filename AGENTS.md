@@ -57,6 +57,11 @@ input. Two traps:
 `OptionalInputs` and their types. Note that its `GoName` is lowercase (`gifload`, `n`) while
 the generated code is not (`GifloadOptions`, `N`), which is easy to get wrong in a script.
 
+The templates also carry hand-written API beside the generated operations - the multi-page
+helpers, `Pages`, `Loop`, the metadata accessors. That is v1 API: change it only for a stated
+reason. Rewriting a helper for v2 dropped `DefaultEmbedMultiPageOptions`, which nothing
+needed removed.
+
 ## Tests
 
 - `./internal/...` runs on every leg, but each leg tests only its own output directory
