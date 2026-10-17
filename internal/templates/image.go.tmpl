@@ -112,25 +112,25 @@ func (i *LoadOptions) OptionString() string {
 		}
 	}
 	if i.FailOnError {
-		values = append(values, "fail="+boolToStr(*v))
+		values = append(values, "fail="+boolToStr(i.FailOnError))
 	}
 	if i.Shrink != 0 {
-		values = append(values, "shrink="+strconv.Itoa(*v))
+		values = append(values, "shrink="+strconv.Itoa(i.Shrink))
 	}
 	if i.Autorotate {
-		values = append(values, "autorotate="+boolToStr(*v))
+		values = append(values, "autorotate="+boolToStr(i.Autorotate))
 	}
 	if i.Unlimited {
-		values = append(values, "unlimited="+boolToStr(*v))
+		values = append(values, "unlimited="+boolToStr(i.Unlimited))
 	}
 	if i.Thumbnail {
-		values = append(values, "thumbnail="+boolToStr(*v))
+		values = append(values, "thumbnail="+boolToStr(i.Thumbnail))
 	}
 	if i.Memory {
-		values = append(values, "memory="+boolToStr(*v))
+		values = append(values, "memory="+boolToStr(i.Memory))
 	}
 	if i.Access != 0 {
-		switch *access {
+		switch i.Access {
 		case AccessSequential:
 			values = append(values, "access=sequential")
 		case AccessRandom:
