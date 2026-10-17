@@ -10265,7 +10265,7 @@ func ProfileLoad(name string) ([]byte, error) {
 // Every field is optional: leave it nil to let libvips use its own default.
 type LoadOptions struct {
 	// N Number of pages to load, -1 for all
-	N *int
+	N int
 	// Page First page to load
 	Page int
 	// Dpi Resolution in DPI
@@ -10304,8 +10304,8 @@ func DefaultLoadOptions() *LoadOptions {
 // left out here rather than spelled out.
 func (i *LoadOptions) OptionString() string {
 	var values []string
-	if v := i.N; v != nil && *v != 0 {
-		values = append(values, "n="+strconv.Itoa(*v))
+	if i.N != 0 {
+		values = append(values, "n="+strconv.Itoa(i.N))
 	}
 	if i.Page != 0 {
 		values = append(values, "page="+strconv.Itoa(i.Page))
