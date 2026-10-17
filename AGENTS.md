@@ -48,8 +48,7 @@ input. Two traps:
 - The `vips` CLI swallows an empty string, so an empty `--id` proves nothing. Measure
   strings through the Go API, where `vips.Ptr("")` reaches libvips.
 - A single-page input can give the wrong verdict for `n`, which is about pages: a documented
-  rejection only reproduces with a multi-page file. That is why `heifload.n` and `pdfload.n`
-  were missed on the first pass.
+  rejection only reproduces with a multi-page file.
 
 ## The debug dump
 
@@ -59,8 +58,7 @@ the generated code is not (`GifloadOptions`, `N`), which is easy to get wrong in
 
 The templates also carry hand-written API beside the generated operations - the multi-page
 helpers, `Pages`, `Loop`, the metadata accessors. That is v1 API: change it only for a stated
-reason. Rewriting a helper for v2 dropped `DefaultEmbedMultiPageOptions`, which nothing
-needed removed.
+reason.
 
 ## Tests
 
