@@ -468,7 +468,7 @@ func TestBasicFormatConversions(t *testing.T) {
 
 	// Test WebP saving with options
 	webpBuf2, err := img.WebpsaveBuffer(&WebpsaveBufferOptions{
-		Q: Ptr(80),
+		Q:        Ptr(80),
 		Lossless: true})
 	require.NoError(t, err)
 	t.Logf("WebP save with options succeeded: %d bytes", len(webpBuf2))
@@ -883,7 +883,7 @@ func TestBuiltinImageGeneration(t *testing.T) {
 	// 5. Gaussian noise
 	noiseImg, err := NewGaussnoise(width, height, &GaussnoiseOptions{
 		Sigma: Ptr(50.0),
-		Mean: Ptr(128.0)})
+		Mean:  Ptr(128.0)})
 	require.NoError(t, err)
 	defer noiseImg.Close()
 
@@ -1525,7 +1525,7 @@ func TestFilterOptions(t *testing.T) {
 
 	err = blurMinAmplImg.Gaussblur(5.0, &GaussblurOptions{
 		MinAmpl: 0.01, // Very small minimum amplitude
-})
+	})
 	require.NoError(t, err)
 	t.Log("Gaussblur with minAmpl succeeded")
 
@@ -1546,11 +1546,11 @@ func TestFilterOptions(t *testing.T) {
 	defer customSharpenImg.Close()
 
 	err = customSharpenImg.Sharpen(&SharpenOptions{
-		Sigma: 3.0,  // Larger radius
+		Sigma: 3.0,       // Larger radius
 		X1:    Ptr(2.0),  // Different threshold
 		Y2:    Ptr(20.0), // Different brightening
 		Y3:    Ptr(20.0), // Different darkening
-})
+	})
 	require.NoError(t, err)
 	t.Log("Sharpen with custom options succeeded")
 
@@ -1571,9 +1571,9 @@ func TestFilterOptions(t *testing.T) {
 	defer customCannyImg.Close()
 
 	err = customCannyImg.Canny(&CannyOptions{
-		Sigma:     2.0,              // Custom sigma
+		Sigma:     2.0,                   // Custom sigma
 		Precision: Ptr(PrecisionInteger), // Integer precision
-})
+	})
 	require.NoError(t, err)
 	t.Log("Canny with custom options succeeded")
 
@@ -1641,7 +1641,7 @@ func TestLoadOptions(t *testing.T) {
 	// 1.3. With shrink factor (load at reduced size)
 	img3, err := NewJpegloadBuffer(jpegData, &JpegloadBufferOptions{
 		Shrink: 2, // Load at half size
-})
+	})
 	require.NoError(t, err)
 	defer img3.Close()
 	t.Logf("JPEG loaded with shrink=2: %dx%d", img3.Width(), img3.Height())
@@ -1774,14 +1774,14 @@ func TestSaveOptions(t *testing.T) {
 	// 1.3. With custom options - low compression
 	pngLowCompBuf, err := img.PngsaveBuffer(&PngsaveBufferOptions{
 		Compression: Ptr(1), // Low compression
-})
+	})
 	require.NoError(t, err)
 	t.Logf("PNG save with low compression: %d bytes", len(pngLowCompBuf))
 
 	// 1.4. With custom options - high compression
 	pngHighCompBuf, err := img.PngsaveBuffer(&PngsaveBufferOptions{
 		Compression: Ptr(9), // High compression
-})
+	})
 	require.NoError(t, err)
 	t.Logf("PNG save with high compression: %d bytes", len(pngHighCompBuf))
 
@@ -1814,14 +1814,14 @@ func TestSaveOptions(t *testing.T) {
 	// 2.3. With custom options - low quality
 	jpegLowQualBuf, err := img.JpegsaveBuffer(&JpegsaveBufferOptions{
 		Q: 25, // Low quality
-})
+	})
 	require.NoError(t, err)
 	t.Logf("JPEG save with low quality: %d bytes", len(jpegLowQualBuf))
 
 	// 2.4. With custom options - high quality
 	jpegHighQualBuf, err := img.JpegsaveBuffer(&JpegsaveBufferOptions{
 		Q: 95, // High quality
-})
+	})
 	require.NoError(t, err)
 	t.Logf("JPEG save with high quality: %d bytes", len(jpegHighQualBuf))
 
@@ -1860,23 +1860,23 @@ func TestSaveOptions(t *testing.T) {
 	// 3.4. With custom options - quality
 	webpQualityBuf, err := img.WebpsaveBuffer(&WebpsaveBufferOptions{
 		Q: Ptr(50), // Medium quality
-})
+	})
 	require.NoError(t, err)
 	t.Logf("WebP save with quality 50: %d bytes", len(webpQualityBuf))
 
 	// 3.5. With custom options - low effort (faster encoding)
 	webpLowEffortBuf, err := img.WebpsaveBuffer(&WebpsaveBufferOptions{
-		Q: Ptr(75),
+		Q:      Ptr(75),
 		Effort: Ptr(1), // Low effort
-})
+	})
 	require.NoError(t, err)
 	t.Logf("WebP save with low effort: %d bytes", len(webpLowEffortBuf))
 
 	// 3.6. With custom options - high effort (better compression)
 	webpHighEffortBuf, err := img.WebpsaveBuffer(&WebpsaveBufferOptions{
-		Q: Ptr(75),
+		Q:      Ptr(75),
 		Effort: Ptr(6), // High effort
-})
+	})
 	require.NoError(t, err)
 	t.Logf("WebP save with high effort: %d bytes", len(webpHighEffortBuf))
 
@@ -1938,7 +1938,7 @@ func TestOptionsVariants(t *testing.T) {
 	customOptions := &ResizeOptions{
 		Kernel: Ptr(KernelLanczos3),
 		Vscale: 0.5, // Different vertical scale
-}
+	}
 	err = customOptionsImg.Resize(0.75, customOptions)
 	require.NoError(t, err)
 	t.Log("Resize with custom options succeeded")
@@ -2009,7 +2009,7 @@ func TestOptionsVariants(t *testing.T) {
 	customEmbedOptions := &EmbedOptions{
 		Extend:     ExtendWhite,
 		Background: []float64{255, 0, 0}, // Red background
-}
+	}
 	err = embedCustomImg.Embed(10, 10, width+20, height+20, customEmbedOptions)
 	require.NoError(t, err)
 	t.Log("Embed with custom options succeeded")
@@ -2354,7 +2354,7 @@ func TestParameterBinding(t *testing.T) {
 	// 1. Integer parameters
 	err = img.Resize(2.0, &ResizeOptions{
 		Kernel: Ptr(KernelLanczos3), // enum -> int conversion
-})
+	})
 	require.NoError(t, err)
 	assert.Equal(t, 200, img.Width())
 
@@ -2365,7 +2365,7 @@ func TestParameterBinding(t *testing.T) {
 
 	err = blurImg.Gaussblur(2.5, &GaussblurOptions{
 		MinAmpl: 0.1, // float64 parameter
-})
+	})
 	require.NoError(t, err)
 
 	// 3. Boolean parameters
@@ -2900,7 +2900,7 @@ func TestRequiredVsOptionalParameters(t *testing.T) {
 
 	err = img2.Resize(0.5, &ResizeOptions{
 		Kernel: Ptr(KernelLanczos3),
-		Gap: Ptr(2.0)})
+		Gap:    Ptr(2.0)})
 	require.NoError(t, err)
 	assert.Equal(t, 50, img2.Width())
 
@@ -2925,14 +2925,14 @@ func TestOptionalParameterDefaults(t *testing.T) {
 	err = img.Gaussblur(2.0, &GaussblurOptions{
 		MinAmpl: 0.1, // Set this field
 		// Precision field should use default
-})
+	})
 	require.NoError(t, err)
 
 	// Test PNG save with partial options
 	buf, err := img.PngsaveBuffer(&PngsaveBufferOptions{
 		Compression: Ptr(6), // Set this field
 		// Other fields should use defaults
-})
+	})
 	require.NoError(t, err)
 	assert.NotEmpty(t, buf)
 }
@@ -3193,8 +3193,8 @@ func TestSourceWithOptions(t *testing.T) {
 
 	// Test loading from source with options
 	img, err := NewImageFromSource(source, &LoadOptions{
-		Shrink: Ptr(2),
-		Autorotate: Ptr(true),
+		Shrink:      Ptr(2),
+		Autorotate:  Ptr(true),
 		FailOnError: Ptr(true)})
 	require.NoError(t, err)
 	defer img.Close()
@@ -3323,9 +3323,9 @@ func TestFormatSpecificOptions(t *testing.T) {
 
 	// 3. WebP-specific options
 	webpBuf, err := img.WebpsaveBuffer(&WebpsaveBufferOptions{
-		Q: Ptr(80),
+		Q:        Ptr(80),
 		Lossless: false,
-		Effort: Ptr(6)})
+		Effort:   Ptr(6)})
 	require.NoError(t, err)
 	assert.NotEmpty(t, webpBuf)
 
@@ -3378,7 +3378,7 @@ func TestTarget(t *testing.T) {
 
 	// Save to target using WebpsaveTarget
 	err = img.WebpsaveTarget(target, &WebpsaveTargetOptions{
-		Q: Ptr(85),
+		Q:      Ptr(85),
 		Effort: Ptr(4)})
 	require.NoError(t, err)
 

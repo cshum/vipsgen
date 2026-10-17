@@ -15,12 +15,12 @@ import (
 
 // Source contains a libvips VipsSourceCustom and manages its lifecycle.
 type Source struct {
-	reader io.ReadCloser
-	seeker io.Seeker
-	src    *C.VipsSourceCustom
-	handle cgo.Handle
+	reader  io.ReadCloser
+	seeker  io.Seeker
+	src     *C.VipsSourceCustom
+	handle  cgo.Handle
 	deleted atomic.Uint32
-	lock   sync.Mutex
+	lock    sync.Mutex
 }
 
 func newSourceHandle(source *Source) cgo.Handle {
@@ -34,7 +34,6 @@ func restoreSource(handle C.uintptr_t) (*Source, bool) {
 	}
 	return ctx, true
 }
-
 
 func (s *Source) deleteHandle(handle cgo.Handle) {
 	if s == nil || handle == 0 {
@@ -102,12 +101,12 @@ func (s *Source) Close() {
 
 // Target contains a libvips VipsTargetCustom and manages its lifecycle.
 type Target struct {
-	writer io.WriteCloser
-	seeker io.Seeker
-	target *C.VipsTargetCustom
-	handle cgo.Handle
+	writer  io.WriteCloser
+	seeker  io.Seeker
+	target  *C.VipsTargetCustom
+	handle  cgo.Handle
 	deleted atomic.Uint32
-	lock   sync.Mutex
+	lock    sync.Mutex
 }
 
 func newTargetHandle(target *Target) cgo.Handle {

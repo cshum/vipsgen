@@ -25,7 +25,6 @@ type Image struct {
 	pageHeight int // cached page height
 }
 
-
 // AnalyzeloadOptions optional arguments for vips_analyzeload
 type AnalyzeloadOptions struct {
 	// Memory Force open via memory
@@ -40,8 +39,7 @@ type AnalyzeloadOptions struct {
 
 // DefaultAnalyzeloadOptions creates default value for vips_analyzeload optional arguments
 func DefaultAnalyzeloadOptions() *AnalyzeloadOptions {
-	return &AnalyzeloadOptions{
-	}
+	return &AnalyzeloadOptions{}
 }
 
 // NewAnalyzeload vips_analyzeload load an Analyze6 image
@@ -84,7 +82,7 @@ type ArrayjoinOptions struct {
 // DefaultArrayjoinOptions creates default value for vips_arrayjoin optional arguments
 func DefaultArrayjoinOptions() *ArrayjoinOptions {
 	return &ArrayjoinOptions{
-		Across: 1,
+		Across:   1,
 		Hspacing: 1,
 		Vspacing: 1,
 	}
@@ -108,7 +106,6 @@ func NewArrayjoin(in []*Image, options *ArrayjoinOptions) (*Image, error) {
 	}
 	return newImageRef(vipsImage, ImageTypeUnknown, nil), nil
 }
-
 
 // NewBandjoin vips_bandjoin bandwise join a set of images
 //
@@ -249,9 +246,9 @@ type CsvloadOptions struct {
 // DefaultCsvloadOptions creates default value for vips_csvload optional arguments
 func DefaultCsvloadOptions() *CsvloadOptions {
 	return &CsvloadOptions{
-		Lines: Ptr(-1),
+		Lines:      Ptr(-1),
 		Whitespace: Ptr(" "),
-		Separator: Ptr(";,\t"),
+		Separator:  Ptr(";,\t"),
 	}
 }
 
@@ -297,9 +294,9 @@ type CsvloadSourceOptions struct {
 // DefaultCsvloadSourceOptions creates default value for vips_csvload_source optional arguments
 func DefaultCsvloadSourceOptions() *CsvloadSourceOptions {
 	return &CsvloadSourceOptions{
-		Lines: Ptr(-1),
+		Lines:      Ptr(-1),
 		Whitespace: Ptr(" "),
-		Separator: Ptr(";,\t"),
+		Separator:  Ptr(";,\t"),
 	}
 }
 
@@ -492,8 +489,7 @@ type FitsloadOptions struct {
 
 // DefaultFitsloadOptions creates default value for vips_fitsload optional arguments
 func DefaultFitsloadOptions() *FitsloadOptions {
-	return &FitsloadOptions{
-	}
+	return &FitsloadOptions{}
 }
 
 // NewFitsload vips_fitsload load a FITS image
@@ -514,7 +510,6 @@ func NewFitsload(filename string, options *FitsloadOptions) (*Image, error) {
 	}
 	return newImageRef(vipsImage, ImageTypeFits, nil), nil
 }
-
 
 // NewFractsurf vips_fractsurf make a fractal surface
 //
@@ -540,8 +535,7 @@ type GaussmatOptions struct {
 
 // DefaultGaussmatOptions creates default value for vips_gaussmat optional arguments
 func DefaultGaussmatOptions() *GaussmatOptions {
-	return &GaussmatOptions{
-	}
+	return &GaussmatOptions{}
 }
 
 // NewGaussmat vips_gaussmat make a gaussian image
@@ -578,7 +572,7 @@ type GaussnoiseOptions struct {
 func DefaultGaussnoiseOptions() *GaussnoiseOptions {
 	return &GaussnoiseOptions{
 		Sigma: Ptr(30.0),
-		Mean: Ptr(128.0),
+		Mean:  Ptr(128.0),
 	}
 }
 
@@ -737,8 +731,7 @@ type GreyOptions struct {
 
 // DefaultGreyOptions creates default value for vips_grey optional arguments
 func DefaultGreyOptions() *GreyOptions {
-	return &GreyOptions{
-	}
+	return &GreyOptions{}
 }
 
 // NewGrey vips_grey make a grey ramp image
@@ -914,7 +907,7 @@ type IdentityOptions struct {
 func DefaultIdentityOptions() *IdentityOptions {
 	return &IdentityOptions{
 		Bands: 1,
-		Size: 65536,
+		Size:  65536,
 	}
 }
 
@@ -953,8 +946,7 @@ type Jp2kloadOptions struct {
 
 // DefaultJp2kloadOptions creates default value for vips_jp2kload optional arguments
 func DefaultJp2kloadOptions() *Jp2kloadOptions {
-	return &Jp2kloadOptions{
-	}
+	return &Jp2kloadOptions{}
 }
 
 // NewJp2kload vips_jp2kload load JPEG2000 image
@@ -994,8 +986,7 @@ type Jp2kloadBufferOptions struct {
 
 // DefaultJp2kloadBufferOptions creates default value for vips_jp2kload_buffer optional arguments
 func DefaultJp2kloadBufferOptions() *Jp2kloadBufferOptions {
-	return &Jp2kloadBufferOptions{
-	}
+	return &Jp2kloadBufferOptions{}
 }
 
 // NewJp2kloadBuffer vips_jp2kload_buffer load JPEG2000 image
@@ -1036,8 +1027,7 @@ type Jp2kloadSourceOptions struct {
 
 // DefaultJp2kloadSourceOptions creates default value for vips_jp2kload_source optional arguments
 func DefaultJp2kloadSourceOptions() *Jp2kloadSourceOptions {
-	return &Jp2kloadSourceOptions{
-	}
+	return &Jp2kloadSourceOptions{}
 }
 
 // NewJp2kloadSource vips_jp2kload_source load JPEG2000 image
@@ -1329,8 +1319,7 @@ type LogmatOptions struct {
 
 // DefaultLogmatOptions creates default value for vips_logmat optional arguments
 func DefaultLogmatOptions() *LogmatOptions {
-	return &LogmatOptions{
-	}
+	return &LogmatOptions{}
 }
 
 // NewLogmat vips_logmat make a Laplacian of Gaussian image
@@ -1500,8 +1489,7 @@ type MaskButterworthOptions struct {
 
 // DefaultMaskButterworthOptions creates default value for vips_mask_butterworth optional arguments
 func DefaultMaskButterworthOptions() *MaskButterworthOptions {
-	return &MaskButterworthOptions{
-	}
+	return &MaskButterworthOptions{}
 }
 
 // NewMaskButterworth vips_mask_butterworth make a butterworth filter
@@ -1541,8 +1529,7 @@ type MaskButterworthBandOptions struct {
 
 // DefaultMaskButterworthBandOptions creates default value for vips_mask_butterworth_band optional arguments
 func DefaultMaskButterworthBandOptions() *MaskButterworthBandOptions {
-	return &MaskButterworthBandOptions{
-	}
+	return &MaskButterworthBandOptions{}
 }
 
 // NewMaskButterworthBand vips_mask_butterworth_band make a butterworth_band filter
@@ -1584,8 +1571,7 @@ type MaskButterworthRingOptions struct {
 
 // DefaultMaskButterworthRingOptions creates default value for vips_mask_butterworth_ring optional arguments
 func DefaultMaskButterworthRingOptions() *MaskButterworthRingOptions {
-	return &MaskButterworthRingOptions{
-	}
+	return &MaskButterworthRingOptions{}
 }
 
 // NewMaskButterworthRing vips_mask_butterworth_ring make a butterworth ring filter
@@ -1626,8 +1612,7 @@ type MaskFractalOptions struct {
 
 // DefaultMaskFractalOptions creates default value for vips_mask_fractal optional arguments
 func DefaultMaskFractalOptions() *MaskFractalOptions {
-	return &MaskFractalOptions{
-	}
+	return &MaskFractalOptions{}
 }
 
 // NewMaskFractal vips_mask_fractal make fractal filter
@@ -1665,8 +1650,7 @@ type MaskGaussianOptions struct {
 
 // DefaultMaskGaussianOptions creates default value for vips_mask_gaussian optional arguments
 func DefaultMaskGaussianOptions() *MaskGaussianOptions {
-	return &MaskGaussianOptions{
-	}
+	return &MaskGaussianOptions{}
 }
 
 // NewMaskGaussian vips_mask_gaussian make a gaussian filter
@@ -1705,8 +1689,7 @@ type MaskGaussianBandOptions struct {
 
 // DefaultMaskGaussianBandOptions creates default value for vips_mask_gaussian_band optional arguments
 func DefaultMaskGaussianBandOptions() *MaskGaussianBandOptions {
-	return &MaskGaussianBandOptions{
-	}
+	return &MaskGaussianBandOptions{}
 }
 
 // NewMaskGaussianBand vips_mask_gaussian_band make a gaussian filter
@@ -1747,8 +1730,7 @@ type MaskGaussianRingOptions struct {
 
 // DefaultMaskGaussianRingOptions creates default value for vips_mask_gaussian_ring optional arguments
 func DefaultMaskGaussianRingOptions() *MaskGaussianRingOptions {
-	return &MaskGaussianRingOptions{
-	}
+	return &MaskGaussianRingOptions{}
 }
 
 // NewMaskGaussianRing vips_mask_gaussian_ring make a gaussian ring filter
@@ -1788,8 +1770,7 @@ type MaskIdealOptions struct {
 
 // DefaultMaskIdealOptions creates default value for vips_mask_ideal optional arguments
 func DefaultMaskIdealOptions() *MaskIdealOptions {
-	return &MaskIdealOptions{
-	}
+	return &MaskIdealOptions{}
 }
 
 // NewMaskIdeal vips_mask_ideal make an ideal filter
@@ -1827,8 +1808,7 @@ type MaskIdealBandOptions struct {
 
 // DefaultMaskIdealBandOptions creates default value for vips_mask_ideal_band optional arguments
 func DefaultMaskIdealBandOptions() *MaskIdealBandOptions {
-	return &MaskIdealBandOptions{
-	}
+	return &MaskIdealBandOptions{}
 }
 
 // NewMaskIdealBand vips_mask_ideal_band make an ideal band filter
@@ -1868,8 +1848,7 @@ type MaskIdealRingOptions struct {
 
 // DefaultMaskIdealRingOptions creates default value for vips_mask_ideal_ring optional arguments
 func DefaultMaskIdealRingOptions() *MaskIdealRingOptions {
-	return &MaskIdealRingOptions{
-	}
+	return &MaskIdealRingOptions{}
 }
 
 // NewMaskIdealRing vips_mask_ideal_ring make an ideal ring filter
@@ -1908,8 +1887,7 @@ type MatloadOptions struct {
 
 // DefaultMatloadOptions creates default value for vips_matload optional arguments
 func DefaultMatloadOptions() *MatloadOptions {
-	return &MatloadOptions{
-	}
+	return &MatloadOptions{}
 }
 
 // NewMatload vips_matload load mat from file
@@ -1945,8 +1923,7 @@ type MatrixloadOptions struct {
 
 // DefaultMatrixloadOptions creates default value for vips_matrixload optional arguments
 func DefaultMatrixloadOptions() *MatrixloadOptions {
-	return &MatrixloadOptions{
-	}
+	return &MatrixloadOptions{}
 }
 
 // NewMatrixload vips_matrixload load matrix
@@ -1982,8 +1959,7 @@ type MatrixloadSourceOptions struct {
 
 // DefaultMatrixloadSourceOptions creates default value for vips_matrixload_source optional arguments
 func DefaultMatrixloadSourceOptions() *MatrixloadSourceOptions {
-	return &MatrixloadSourceOptions{
-	}
+	return &MatrixloadSourceOptions{}
 }
 
 // NewMatrixloadSource vips_matrixload_source load matrix
@@ -2019,8 +1995,7 @@ type NiftiloadOptions struct {
 
 // DefaultNiftiloadOptions creates default value for vips_niftiload optional arguments
 func DefaultNiftiloadOptions() *NiftiloadOptions {
-	return &NiftiloadOptions{
-	}
+	return &NiftiloadOptions{}
 }
 
 // NewNiftiload vips_niftiload load NIfTI volume
@@ -2056,8 +2031,7 @@ type NiftiloadSourceOptions struct {
 
 // DefaultNiftiloadSourceOptions creates default value for vips_niftiload_source optional arguments
 func DefaultNiftiloadSourceOptions() *NiftiloadSourceOptions {
-	return &NiftiloadSourceOptions{
-	}
+	return &NiftiloadSourceOptions{}
 }
 
 // NewNiftiloadSource vips_niftiload_source load NIfTI volumes
@@ -2093,8 +2067,7 @@ type OpenexrloadOptions struct {
 
 // DefaultOpenexrloadOptions creates default value for vips_openexrload optional arguments
 func DefaultOpenexrloadOptions() *OpenexrloadOptions {
-	return &OpenexrloadOptions{
-	}
+	return &OpenexrloadOptions{}
 }
 
 // NewOpenexrload vips_openexrload load an OpenEXR image
@@ -2140,8 +2113,7 @@ type OpenslideloadOptions struct {
 
 // DefaultOpenslideloadOptions creates default value for vips_openslideload optional arguments
 func DefaultOpenslideloadOptions() *OpenslideloadOptions {
-	return &OpenslideloadOptions{
-	}
+	return &OpenslideloadOptions{}
 }
 
 // NewOpenslideload vips_openslideload load file with OpenSlide
@@ -2187,8 +2159,7 @@ type OpenslideloadSourceOptions struct {
 
 // DefaultOpenslideloadSourceOptions creates default value for vips_openslideload_source optional arguments
 func DefaultOpenslideloadSourceOptions() *OpenslideloadSourceOptions {
-	return &OpenslideloadSourceOptions{
-	}
+	return &OpenslideloadSourceOptions{}
 }
 
 // NewOpenslideloadSource vips_openslideload_source load source with OpenSlide
@@ -2239,9 +2210,9 @@ type PdfloadOptions struct {
 // DefaultPdfloadOptions creates default value for vips_pdfload optional arguments
 func DefaultPdfloadOptions() *PdfloadOptions {
 	return &PdfloadOptions{
-		N: Ptr(1),
-		Dpi: 72.0,
-		Scale: Ptr(1.0),
+		N:       Ptr(1),
+		Dpi:     72.0,
+		Scale:   Ptr(1.0),
 		PageBox: Ptr(PdfPageBoxCrop),
 	}
 }
@@ -2294,9 +2265,9 @@ type PdfloadBufferOptions struct {
 // DefaultPdfloadBufferOptions creates default value for vips_pdfload_buffer optional arguments
 func DefaultPdfloadBufferOptions() *PdfloadBufferOptions {
 	return &PdfloadBufferOptions{
-		N: Ptr(1),
-		Dpi: 72.0,
-		Scale: Ptr(1.0),
+		N:       Ptr(1),
+		Dpi:     72.0,
+		Scale:   Ptr(1.0),
 		PageBox: Ptr(PdfPageBoxCrop),
 	}
 }
@@ -2350,9 +2321,9 @@ type PdfloadSourceOptions struct {
 // DefaultPdfloadSourceOptions creates default value for vips_pdfload_source optional arguments
 func DefaultPdfloadSourceOptions() *PdfloadSourceOptions {
 	return &PdfloadSourceOptions{
-		N: Ptr(1),
-		Dpi: 72.0,
-		Scale: Ptr(1.0),
+		N:       Ptr(1),
+		Dpi:     72.0,
+		Scale:   Ptr(1.0),
 		PageBox: Ptr(PdfPageBoxCrop),
 	}
 }
@@ -2429,8 +2400,7 @@ type PngloadOptions struct {
 
 // DefaultPngloadOptions creates default value for vips_pngload optional arguments
 func DefaultPngloadOptions() *PngloadOptions {
-	return &PngloadOptions{
-	}
+	return &PngloadOptions{}
 }
 
 // NewPngload vips_pngload load png from file
@@ -2468,8 +2438,7 @@ type PngloadBufferOptions struct {
 
 // DefaultPngloadBufferOptions creates default value for vips_pngload_buffer optional arguments
 func DefaultPngloadBufferOptions() *PngloadBufferOptions {
-	return &PngloadBufferOptions{
-	}
+	return &PngloadBufferOptions{}
 }
 
 // NewPngloadBuffer vips_pngload_buffer load png from buffer
@@ -2508,8 +2477,7 @@ type PngloadSourceOptions struct {
 
 // DefaultPngloadSourceOptions creates default value for vips_pngload_source optional arguments
 func DefaultPngloadSourceOptions() *PngloadSourceOptions {
-	return &PngloadSourceOptions{
-	}
+	return &PngloadSourceOptions{}
 }
 
 // NewPngloadSource vips_pngload_source load png from source
@@ -2545,8 +2513,7 @@ type PpmloadOptions struct {
 
 // DefaultPpmloadOptions creates default value for vips_ppmload optional arguments
 func DefaultPpmloadOptions() *PpmloadOptions {
-	return &PpmloadOptions{
-	}
+	return &PpmloadOptions{}
 }
 
 // NewPpmload vips_ppmload load ppm from file
@@ -2582,8 +2549,7 @@ type PpmloadBufferOptions struct {
 
 // DefaultPpmloadBufferOptions creates default value for vips_ppmload_buffer optional arguments
 func DefaultPpmloadBufferOptions() *PpmloadBufferOptions {
-	return &PpmloadBufferOptions{
-	}
+	return &PpmloadBufferOptions{}
 }
 
 // NewPpmloadBuffer vips_ppmload_buffer load ppm from buffer
@@ -2620,8 +2586,7 @@ type PpmloadSourceOptions struct {
 
 // DefaultPpmloadSourceOptions creates default value for vips_ppmload_source optional arguments
 func DefaultPpmloadSourceOptions() *PpmloadSourceOptions {
-	return &PpmloadSourceOptions{
-	}
+	return &PpmloadSourceOptions{}
 }
 
 // NewPpmloadSource vips_ppmload_source load ppm from source
@@ -2657,8 +2622,7 @@ type RadloadOptions struct {
 
 // DefaultRadloadOptions creates default value for vips_radload optional arguments
 func DefaultRadloadOptions() *RadloadOptions {
-	return &RadloadOptions{
-	}
+	return &RadloadOptions{}
 }
 
 // NewRadload vips_radload load a Radiance image from a file
@@ -2694,8 +2658,7 @@ type RadloadBufferOptions struct {
 
 // DefaultRadloadBufferOptions creates default value for vips_radload_buffer optional arguments
 func DefaultRadloadBufferOptions() *RadloadBufferOptions {
-	return &RadloadBufferOptions{
-	}
+	return &RadloadBufferOptions{}
 }
 
 // NewRadloadBuffer vips_radload_buffer load rad from buffer
@@ -2732,8 +2695,7 @@ type RadloadSourceOptions struct {
 
 // DefaultRadloadSourceOptions creates default value for vips_radload_source optional arguments
 func DefaultRadloadSourceOptions() *RadloadSourceOptions {
-	return &RadloadSourceOptions{
-	}
+	return &RadloadSourceOptions{}
 }
 
 // NewRadloadSource vips_radload_source load rad from source
@@ -2775,8 +2737,7 @@ type RawloadOptions struct {
 
 // DefaultRawloadOptions creates default value for vips_rawload optional arguments
 func DefaultRawloadOptions() *RawloadOptions {
-	return &RawloadOptions{
-	}
+	return &RawloadOptions{}
 }
 
 // NewRawload vips_rawload load raw data from a file
@@ -2879,7 +2840,6 @@ func NewSines(width int, height int, options *SinesOptions) (*Image, error) {
 	return newImageRef(vipsImage, ImageTypeUnknown, nil), nil
 }
 
-
 // NewSum vips_sum sum an array of images
 //
 // The in specifies array of input images.
@@ -2917,7 +2877,7 @@ type SvgloadOptions struct {
 // DefaultSvgloadOptions creates default value for vips_svgload optional arguments
 func DefaultSvgloadOptions() *SvgloadOptions {
 	return &SvgloadOptions{
-		Dpi: 72.0,
+		Dpi:   72.0,
 		Scale: Ptr(1.0),
 	}
 }
@@ -2966,7 +2926,7 @@ type SvgloadBufferOptions struct {
 // DefaultSvgloadBufferOptions creates default value for vips_svgload_buffer optional arguments
 func DefaultSvgloadBufferOptions() *SvgloadBufferOptions {
 	return &SvgloadBufferOptions{
-		Dpi: 72.0,
+		Dpi:   72.0,
 		Scale: Ptr(1.0),
 	}
 }
@@ -3016,7 +2976,7 @@ type SvgloadSourceOptions struct {
 // DefaultSvgloadSourceOptions creates default value for vips_svgload_source optional arguments
 func DefaultSvgloadSourceOptions() *SvgloadSourceOptions {
 	return &SvgloadSourceOptions{
-		Dpi: 72.0,
+		Dpi:   72.0,
 		Scale: Ptr(1.0),
 	}
 }
@@ -3039,7 +2999,6 @@ func NewSvgloadSource(source *Source, options *SvgloadSourceOptions) (*Image, er
 	}
 	return newImageRef(vipsImage, ImageTypeSvg, nil), nil
 }
-
 
 // NewSwitch vips_switch find the index of the first non-zero pixel in tests
 //
@@ -3067,8 +3026,7 @@ type SystemOptions struct {
 
 // DefaultSystemOptions creates default value for vips_system optional arguments
 func DefaultSystemOptions() *SystemOptions {
-	return &SystemOptions{
-	}
+	return &SystemOptions{}
 }
 
 // NewSystem vips_system run an external command
@@ -3323,7 +3281,7 @@ type TiffloadOptions struct {
 // DefaultTiffloadOptions creates default value for vips_tiffload optional arguments
 func DefaultTiffloadOptions() *TiffloadOptions {
 	return &TiffloadOptions{
-		N: Ptr(1),
+		N:      Ptr(1),
 		Subifd: Ptr(-1),
 	}
 }
@@ -3372,7 +3330,7 @@ type TiffloadBufferOptions struct {
 // DefaultTiffloadBufferOptions creates default value for vips_tiffload_buffer optional arguments
 func DefaultTiffloadBufferOptions() *TiffloadBufferOptions {
 	return &TiffloadBufferOptions{
-		N: Ptr(1),
+		N:      Ptr(1),
 		Subifd: Ptr(-1),
 	}
 }
@@ -3422,7 +3380,7 @@ type TiffloadSourceOptions struct {
 // DefaultTiffloadSourceOptions creates default value for vips_tiffload_source optional arguments
 func DefaultTiffloadSourceOptions() *TiffloadSourceOptions {
 	return &TiffloadSourceOptions{
-		N: Ptr(1),
+		N:      Ptr(1),
 		Subifd: Ptr(-1),
 	}
 }
@@ -3473,12 +3431,12 @@ type TonelutOptions struct {
 // DefaultTonelutOptions creates default value for vips_tonelut optional arguments
 func DefaultTonelutOptions() *TonelutOptions {
 	return &TonelutOptions{
-		InMax: 32767,
+		InMax:  32767,
 		OutMax: 32767,
-		Lw: Ptr(100.0),
-		Ps: Ptr(0.2),
-		Pm: Ptr(0.5),
-		Ph: Ptr(0.8),
+		Lw:     Ptr(100.0),
+		Ps:     Ptr(0.2),
+		Pm:     Ptr(0.5),
+		Ph:     Ptr(0.8),
 	}
 }
 
@@ -3513,8 +3471,7 @@ type VipsloadOptions struct {
 
 // DefaultVipsloadOptions creates default value for vips_vipsload optional arguments
 func DefaultVipsloadOptions() *VipsloadOptions {
-	return &VipsloadOptions{
-	}
+	return &VipsloadOptions{}
 }
 
 // NewVipsload vips_vipsload load vips from file
@@ -3550,8 +3507,7 @@ type VipsloadSourceOptions struct {
 
 // DefaultVipsloadSourceOptions creates default value for vips_vipsload_source optional arguments
 func DefaultVipsloadSourceOptions() *VipsloadSourceOptions {
-	return &VipsloadSourceOptions{
-	}
+	return &VipsloadSourceOptions{}
 }
 
 // NewVipsloadSource vips_vipsload_source load vips from source
@@ -3594,7 +3550,7 @@ type WebploadOptions struct {
 // DefaultWebploadOptions creates default value for vips_webpload optional arguments
 func DefaultWebploadOptions() *WebploadOptions {
 	return &WebploadOptions{
-		N: Ptr(1),
+		N:     Ptr(1),
 		Scale: Ptr(1.0),
 	}
 }
@@ -3639,7 +3595,7 @@ type WebploadBufferOptions struct {
 // DefaultWebploadBufferOptions creates default value for vips_webpload_buffer optional arguments
 func DefaultWebploadBufferOptions() *WebploadBufferOptions {
 	return &WebploadBufferOptions{
-		N: Ptr(1),
+		N:     Ptr(1),
 		Scale: Ptr(1.0),
 	}
 }
@@ -3685,7 +3641,7 @@ type WebploadSourceOptions struct {
 // DefaultWebploadSourceOptions creates default value for vips_webpload_source optional arguments
 func DefaultWebploadSourceOptions() *WebploadSourceOptions {
 	return &WebploadSourceOptions{
-		N: Ptr(1),
+		N:     Ptr(1),
 		Scale: Ptr(1.0),
 	}
 }
@@ -3791,8 +3747,7 @@ type ZoneOptions struct {
 
 // DefaultZoneOptions creates default value for vips_zone optional arguments
 func DefaultZoneOptions() *ZoneOptions {
-	return &ZoneOptions{
-	}
+	return &ZoneOptions{}
 }
 
 // NewZone vips_zone make a zone plate
@@ -3815,11 +3770,8 @@ func NewZone(width int, height int, options *ZoneOptions) (*Image, error) {
 	return newImageRef(vipsImage, ImageTypeUnknown, nil), nil
 }
 
-
-
-
 // CMC2LCh vips_CMC2LCh transform LCh to CMC
-func (r *Image) CMC2LCh() (error) {
+func (r *Image) CMC2LCh() error {
 	out, err := vipsgenCMC2LCh(r.image)
 	if err != nil {
 		return err
@@ -3828,9 +3780,8 @@ func (r *Image) CMC2LCh() (error) {
 	return nil
 }
 
-
 // CMYK2XYZ vips_CMYK2XYZ transform CMYK to XYZ
-func (r *Image) CMYK2XYZ() (error) {
+func (r *Image) CMYK2XYZ() error {
 	out, err := vipsgenCMYK2XYZ(r.image)
 	if err != nil {
 		return err
@@ -3839,9 +3790,8 @@ func (r *Image) CMYK2XYZ() (error) {
 	return nil
 }
 
-
 // HSV2sRGB vips_HSV2sRGB transform HSV to sRGB
-func (r *Image) HSV2sRGB() (error) {
+func (r *Image) HSV2sRGB() error {
 	out, err := vipsgenHSV2sRGB(r.image)
 	if err != nil {
 		return err
@@ -3850,9 +3800,8 @@ func (r *Image) HSV2sRGB() (error) {
 	return nil
 }
 
-
 // LCh2CMC vips_LCh2CMC transform LCh to CMC
-func (r *Image) LCh2CMC() (error) {
+func (r *Image) LCh2CMC() error {
 	out, err := vipsgenLCh2CMC(r.image)
 	if err != nil {
 		return err
@@ -3861,9 +3810,8 @@ func (r *Image) LCh2CMC() (error) {
 	return nil
 }
 
-
 // LCh2Lab vips_LCh2Lab transform LCh to Lab
-func (r *Image) LCh2Lab() (error) {
+func (r *Image) LCh2Lab() error {
 	out, err := vipsgenLCh2Lab(r.image)
 	if err != nil {
 		return err
@@ -3872,9 +3820,8 @@ func (r *Image) LCh2Lab() (error) {
 	return nil
 }
 
-
 // Lab2LCh vips_Lab2LCh transform Lab to LCh
-func (r *Image) Lab2LCh() (error) {
+func (r *Image) Lab2LCh() error {
 	out, err := vipsgenLab2LCh(r.image)
 	if err != nil {
 		return err
@@ -3883,9 +3830,8 @@ func (r *Image) Lab2LCh() (error) {
 	return nil
 }
 
-
 // Lab2LabQ vips_Lab2LabQ transform float Lab to LabQ coding
-func (r *Image) Lab2LabQ() (error) {
+func (r *Image) Lab2LabQ() error {
 	out, err := vipsgenLab2LabQ(r.image)
 	if err != nil {
 		return err
@@ -3894,9 +3840,8 @@ func (r *Image) Lab2LabQ() (error) {
 	return nil
 }
 
-
 // Lab2LabS vips_Lab2LabS transform float Lab to signed short
-func (r *Image) Lab2LabS() (error) {
+func (r *Image) Lab2LabS() error {
 	out, err := vipsgenLab2LabS(r.image)
 	if err != nil {
 		return err
@@ -3913,12 +3858,11 @@ type Lab2XYZOptions struct {
 
 // DefaultLab2XYZOptions creates default value for vips_Lab2XYZ optional arguments
 func DefaultLab2XYZOptions() *Lab2XYZOptions {
-	return &Lab2XYZOptions{
-	}
+	return &Lab2XYZOptions{}
 }
 
 // Lab2XYZ vips_Lab2XYZ transform CIELAB to XYZ
-func (r *Image) Lab2XYZ(options *Lab2XYZOptions) (error) {
+func (r *Image) Lab2XYZ(options *Lab2XYZOptions) error {
 	if options != nil {
 		out, err := vipsgenLab2XYZWithOptions(r.image, options.Temp)
 		if err != nil {
@@ -3935,9 +3879,8 @@ func (r *Image) Lab2XYZ(options *Lab2XYZOptions) (error) {
 	return nil
 }
 
-
 // LabQ2Lab vips_LabQ2Lab unpack a LabQ image to float Lab
-func (r *Image) LabQ2Lab() (error) {
+func (r *Image) LabQ2Lab() error {
 	out, err := vipsgenLabQ2Lab(r.image)
 	if err != nil {
 		return err
@@ -3946,9 +3889,8 @@ func (r *Image) LabQ2Lab() (error) {
 	return nil
 }
 
-
 // LabQ2LabS vips_LabQ2LabS unpack a LabQ image to short Lab
-func (r *Image) LabQ2LabS() (error) {
+func (r *Image) LabQ2LabS() error {
 	out, err := vipsgenLabQ2LabS(r.image)
 	if err != nil {
 		return err
@@ -3957,9 +3899,8 @@ func (r *Image) LabQ2LabS() (error) {
 	return nil
 }
 
-
 // LabQ2sRGB vips_LabQ2sRGB convert a LabQ image to sRGB
-func (r *Image) LabQ2sRGB() (error) {
+func (r *Image) LabQ2sRGB() error {
 	out, err := vipsgenLabQ2sRGB(r.image)
 	if err != nil {
 		return err
@@ -3968,9 +3909,8 @@ func (r *Image) LabQ2sRGB() (error) {
 	return nil
 }
 
-
 // LabS2Lab vips_LabS2Lab transform signed short Lab to float
-func (r *Image) LabS2Lab() (error) {
+func (r *Image) LabS2Lab() error {
 	out, err := vipsgenLabS2Lab(r.image)
 	if err != nil {
 		return err
@@ -3979,9 +3919,8 @@ func (r *Image) LabS2Lab() (error) {
 	return nil
 }
 
-
 // LabS2LabQ vips_LabS2LabQ transform short Lab to LabQ coding
-func (r *Image) LabS2LabQ() (error) {
+func (r *Image) LabS2LabQ() error {
 	out, err := vipsgenLabS2LabQ(r.image)
 	if err != nil {
 		return err
@@ -3990,9 +3929,8 @@ func (r *Image) LabS2LabQ() (error) {
 	return nil
 }
 
-
 // Oklab2Oklch vips_Oklab2Oklch transform Oklab to Oklch
-func (r *Image) Oklab2Oklch() (error) {
+func (r *Image) Oklab2Oklch() error {
 	out, err := vipsgenOklab2Oklch(r.image)
 	if err != nil {
 		return err
@@ -4001,9 +3939,8 @@ func (r *Image) Oklab2Oklch() (error) {
 	return nil
 }
 
-
 // Oklab2XYZ vips_Oklab2XYZ transform Oklab to XYZ
-func (r *Image) Oklab2XYZ() (error) {
+func (r *Image) Oklab2XYZ() error {
 	out, err := vipsgenOklab2XYZ(r.image)
 	if err != nil {
 		return err
@@ -4012,9 +3949,8 @@ func (r *Image) Oklab2XYZ() (error) {
 	return nil
 }
 
-
 // Oklch2Oklab vips_Oklch2Oklab transform Oklch to Oklab
-func (r *Image) Oklch2Oklab() (error) {
+func (r *Image) Oklch2Oklab() error {
 	out, err := vipsgenOklch2Oklab(r.image)
 	if err != nil {
 		return err
@@ -4023,9 +3959,8 @@ func (r *Image) Oklch2Oklab() (error) {
 	return nil
 }
 
-
 // XYZ2CMYK vips_XYZ2CMYK transform XYZ to CMYK
-func (r *Image) XYZ2CMYK() (error) {
+func (r *Image) XYZ2CMYK() error {
 	out, err := vipsgenXYZ2CMYK(r.image)
 	if err != nil {
 		return err
@@ -4042,12 +3977,11 @@ type XYZ2LabOptions struct {
 
 // DefaultXYZ2LabOptions creates default value for vips_XYZ2Lab optional arguments
 func DefaultXYZ2LabOptions() *XYZ2LabOptions {
-	return &XYZ2LabOptions{
-	}
+	return &XYZ2LabOptions{}
 }
 
 // XYZ2Lab vips_XYZ2Lab transform XYZ to Lab
-func (r *Image) XYZ2Lab(options *XYZ2LabOptions) (error) {
+func (r *Image) XYZ2Lab(options *XYZ2LabOptions) error {
 	if options != nil {
 		out, err := vipsgenXYZ2LabWithOptions(r.image, options.Temp)
 		if err != nil {
@@ -4064,9 +3998,8 @@ func (r *Image) XYZ2Lab(options *XYZ2LabOptions) (error) {
 	return nil
 }
 
-
 // XYZ2Oklab vips_XYZ2Oklab transform XYZ to Oklab
-func (r *Image) XYZ2Oklab() (error) {
+func (r *Image) XYZ2Oklab() error {
 	out, err := vipsgenXYZ2Oklab(r.image)
 	if err != nil {
 		return err
@@ -4075,9 +4008,8 @@ func (r *Image) XYZ2Oklab() (error) {
 	return nil
 }
 
-
 // XYZ2Yxy vips_XYZ2Yxy transform XYZ to Yxy
-func (r *Image) XYZ2Yxy() (error) {
+func (r *Image) XYZ2Yxy() error {
 	out, err := vipsgenXYZ2Yxy(r.image)
 	if err != nil {
 		return err
@@ -4086,9 +4018,8 @@ func (r *Image) XYZ2Yxy() (error) {
 	return nil
 }
 
-
 // XYZ2scRGB vips_XYZ2scRGB transform XYZ to scRGB
-func (r *Image) XYZ2scRGB() (error) {
+func (r *Image) XYZ2scRGB() error {
 	out, err := vipsgenXYZ2scRGB(r.image)
 	if err != nil {
 		return err
@@ -4097,9 +4028,8 @@ func (r *Image) XYZ2scRGB() (error) {
 	return nil
 }
 
-
 // Yxy2XYZ vips_Yxy2XYZ transform Yxy to XYZ
-func (r *Image) Yxy2XYZ() (error) {
+func (r *Image) Yxy2XYZ() error {
 	out, err := vipsgenYxy2XYZ(r.image)
 	if err != nil {
 		return err
@@ -4108,9 +4038,8 @@ func (r *Image) Yxy2XYZ() (error) {
 	return nil
 }
 
-
 // Abs vips_abs absolute value of an image
-func (r *Image) Abs() (error) {
+func (r *Image) Abs() error {
 	out, err := vipsgenAbs(r.image)
 	if err != nil {
 		return err
@@ -4119,11 +4048,10 @@ func (r *Image) Abs() (error) {
 	return nil
 }
 
-
 // Add vips_add add two images
 //
 // The right specifies right-hand image argument.
-func (r *Image) Add(right *Image) (error) {
+func (r *Image) Add(right *Image) error {
 	out, err := vipsgenAdd(r.image, right.image)
 	if err != nil {
 		return err
@@ -4132,9 +4060,8 @@ func (r *Image) Add(right *Image) (error) {
 	return nil
 }
 
-
 // Addalpha vips_addalpha append an alpha channel
-func (r *Image) Addalpha() (error) {
+func (r *Image) Addalpha() error {
 	out, err := vipsgenAddalpha(r.image)
 	if err != nil {
 		return err
@@ -4178,7 +4105,7 @@ func DefaultAffineOptions() *AffineOptions {
 // The b specifies coefficient b (horizontal shear).
 // The c specifies coefficient c (vertical shear).
 // The d specifies coefficient d (vertical scale).
-func (r *Image) Affine(a float64, b float64, c float64, d float64, options *AffineOptions) (error) {
+func (r *Image) Affine(a float64, b float64, c float64, d float64, options *AffineOptions) error {
 	if options != nil {
 		out, err := vipsgenAffineWithOptions(r.image, a, b, c, d, options.Interpolate, options.Oarea, options.Odx, options.Ody, options.Idx, options.Idy, options.Background, options.Premultiplied, options.Extend)
 		if err != nil {
@@ -4203,12 +4130,11 @@ type AutorotOptions struct {
 
 // DefaultAutorotOptions creates default value for vips_autorot optional arguments
 func DefaultAutorotOptions() *AutorotOptions {
-	return &AutorotOptions{
-	}
+	return &AutorotOptions{}
 }
 
 // Autorot vips_autorot autorotate image by exif tag
-func (r *Image) Autorot(options *AutorotOptions) (error) {
+func (r *Image) Autorot(options *AutorotOptions) error {
 	if options != nil {
 		out, err := vipsgenAutorotWithOptions(r.image, &options.Flip)
 		if err != nil {
@@ -4225,7 +4151,6 @@ func (r *Image) Autorot(options *AutorotOptions) (error) {
 	return nil
 }
 
-
 // Avg vips_avg find image average
 func (r *Image) Avg() (float64, error) {
 	out, err := vipsgenAvg(r.image)
@@ -4235,11 +4160,10 @@ func (r *Image) Avg() (float64, error) {
 	return out, nil
 }
 
-
 // Bandbool vips_bandbool boolean operation across image bands
 //
 // The boolean specifies boolean to perform.
-func (r *Image) Bandbool(boolean OperationBoolean) (error) {
+func (r *Image) Bandbool(boolean OperationBoolean) error {
 	out, err := vipsgenBandbool(r.image, boolean)
 	if err != nil {
 		return err
@@ -4256,12 +4180,11 @@ type BandfoldOptions struct {
 
 // DefaultBandfoldOptions creates default value for vips_bandfold optional arguments
 func DefaultBandfoldOptions() *BandfoldOptions {
-	return &BandfoldOptions{
-	}
+	return &BandfoldOptions{}
 }
 
 // Bandfold vips_bandfold fold up x axis into bands
-func (r *Image) Bandfold(options *BandfoldOptions) (error) {
+func (r *Image) Bandfold(options *BandfoldOptions) error {
 	if options != nil {
 		out, err := vipsgenBandfoldWithOptions(r.image, options.Factor)
 		if err != nil {
@@ -4278,11 +4201,10 @@ func (r *Image) Bandfold(options *BandfoldOptions) (error) {
 	return nil
 }
 
-
 // BandjoinConst vips_bandjoin_const append a constant band to an image
 //
 // The c specifies array of constants to add.
-func (r *Image) BandjoinConst(c []float64) (error) {
+func (r *Image) BandjoinConst(c []float64) error {
 	out, err := vipsgenBandjoinConst(r.image, c)
 	if err != nil {
 		return err
@@ -4291,9 +4213,8 @@ func (r *Image) BandjoinConst(c []float64) (error) {
 	return nil
 }
 
-
 // Bandmean vips_bandmean band-wise average
-func (r *Image) Bandmean() (error) {
+func (r *Image) Bandmean() error {
 	out, err := vipsgenBandmean(r.image)
 	if err != nil {
 		return err
@@ -4310,12 +4231,11 @@ type BandunfoldOptions struct {
 
 // DefaultBandunfoldOptions creates default value for vips_bandunfold optional arguments
 func DefaultBandunfoldOptions() *BandunfoldOptions {
-	return &BandunfoldOptions{
-	}
+	return &BandunfoldOptions{}
 }
 
 // Bandunfold vips_bandunfold unfold image bands into x axis
-func (r *Image) Bandunfold(options *BandunfoldOptions) (error) {
+func (r *Image) Bandunfold(options *BandunfoldOptions) error {
 	if options != nil {
 		out, err := vipsgenBandunfoldWithOptions(r.image, options.Factor)
 		if err != nil {
@@ -4332,12 +4252,11 @@ func (r *Image) Bandunfold(options *BandunfoldOptions) (error) {
 	return nil
 }
 
-
 // Boolean vips_boolean boolean operation on two images
 //
 // The right specifies right-hand image argument.
 // The boolean specifies boolean to perform.
-func (r *Image) Boolean(right *Image, boolean OperationBoolean) (error) {
+func (r *Image) Boolean(right *Image, boolean OperationBoolean) error {
 	out, err := vipsgenBoolean(r.image, right.image, boolean)
 	if err != nil {
 		return err
@@ -4346,12 +4265,11 @@ func (r *Image) Boolean(right *Image, boolean OperationBoolean) (error) {
 	return nil
 }
 
-
 // BooleanConst vips_boolean_const boolean operations against a constant
 //
 // The boolean specifies boolean to perform.
 // The c specifies array of constants.
-func (r *Image) BooleanConst(boolean OperationBoolean, c []float64) (error) {
+func (r *Image) BooleanConst(boolean OperationBoolean, c []float64) error {
 	out, err := vipsgenBooleanConst(r.image, boolean, c)
 	if err != nil {
 		return err
@@ -4360,9 +4278,8 @@ func (r *Image) BooleanConst(boolean OperationBoolean, c []float64) (error) {
 	return nil
 }
 
-
 // Buildlut vips_buildlut build a look-up table
-func (r *Image) Buildlut() (error) {
+func (r *Image) Buildlut() error {
 	out, err := vipsgenBuildlut(r.image)
 	if err != nil {
 		return err
@@ -4371,9 +4288,8 @@ func (r *Image) Buildlut() (error) {
 	return nil
 }
 
-
 // Byteswap vips_byteswap byteswap an image
-func (r *Image) Byteswap() (error) {
+func (r *Image) Byteswap() error {
 	out, err := vipsgenByteswap(r.image)
 	if err != nil {
 		return err
@@ -4393,13 +4309,13 @@ type CannyOptions struct {
 // DefaultCannyOptions creates default value for vips_canny optional arguments
 func DefaultCannyOptions() *CannyOptions {
 	return &CannyOptions{
-		Sigma: 1.4,
+		Sigma:     1.4,
 		Precision: Ptr(PrecisionFloat),
 	}
 }
 
 // Canny vips_canny Canny edge detector
-func (r *Image) Canny(options *CannyOptions) (error) {
+func (r *Image) Canny(options *CannyOptions) error {
 	if options != nil {
 		out, err := vipsgenCannyWithOptions(r.image, options.Sigma, options.Precision)
 		if err != nil {
@@ -4416,11 +4332,10 @@ func (r *Image) Canny(options *CannyOptions) (error) {
 	return nil
 }
 
-
 // Case vips_case use pixel values to pick cases from an array of images
 //
 // The cases specifies array of case images.
-func (r *Image) Case(cases []*Image) (error) {
+func (r *Image) Case(cases []*Image) error {
 	out, err := vipsgenCase(r.image, convertImagesToVipsImages(cases))
 	if err != nil {
 		return err
@@ -4437,14 +4352,13 @@ type CastOptions struct {
 
 // DefaultCastOptions creates default value for vips_cast optional arguments
 func DefaultCastOptions() *CastOptions {
-	return &CastOptions{
-	}
+	return &CastOptions{}
 }
 
 // Cast vips_cast cast an image
 //
 // The format specifies format to cast to.
-func (r *Image) Cast(format BandFormat, options *CastOptions) (error) {
+func (r *Image) Cast(format BandFormat, options *CastOptions) error {
 	if options != nil {
 		out, err := vipsgenCastWithOptions(r.image, format, options.Shift)
 		if err != nil {
@@ -4477,7 +4391,7 @@ func DefaultClampOptions() *ClampOptions {
 }
 
 // Clamp vips_clamp clamp values of an image
-func (r *Image) Clamp(options *ClampOptions) (error) {
+func (r *Image) Clamp(options *ClampOptions) error {
 	if options != nil {
 		out, err := vipsgenClampWithOptions(r.image, options.Min, options.Max)
 		if err != nil {
@@ -4510,7 +4424,7 @@ func DefaultColourspaceOptions() *ColourspaceOptions {
 // Colourspace vips_colourspace convert to a new colorspace
 //
 // The space specifies destination color space.
-func (r *Image) Colourspace(space Interpretation, options *ColourspaceOptions) (error) {
+func (r *Image) Colourspace(space Interpretation, options *ColourspaceOptions) error {
 	if options != nil {
 		out, err := vipsgenColourspaceWithOptions(r.image, space, options.SourceSpace)
 		if err != nil {
@@ -4546,18 +4460,18 @@ type CompassOptions struct {
 // DefaultCompassOptions creates default value for vips_compass optional arguments
 func DefaultCompassOptions() *CompassOptions {
 	return &CompassOptions{
-		Times: 2,
-		Angle: Ptr(Angle45D90),
+		Times:     2,
+		Angle:     Ptr(Angle45D90),
 		Precision: Ptr(PrecisionFloat),
-		Layers: 5,
-		Cluster: 1,
+		Layers:    5,
+		Cluster:   1,
 	}
 }
 
 // Compass vips_compass convolve with rotating mask
 //
 // The mask specifies input matrix image.
-func (r *Image) Compass(mask *Image, options *CompassOptions) (error) {
+func (r *Image) Compass(mask *Image, options *CompassOptions) error {
 	if options != nil {
 		out, err := vipsgenCompassWithOptions(r.image, mask.image, options.Times, options.Angle, options.Combine, options.Precision, options.Layers, options.Cluster)
 		if err != nil {
@@ -4574,11 +4488,10 @@ func (r *Image) Compass(mask *Image, options *CompassOptions) (error) {
 	return nil
 }
 
-
 // Complex vips_complex perform a complex operation on an image
 //
 // The cmplx specifies complex to perform.
-func (r *Image) Complex(cmplx OperationComplex) (error) {
+func (r *Image) Complex(cmplx OperationComplex) error {
 	out, err := vipsgenComplex(r.image, cmplx)
 	if err != nil {
 		return err
@@ -4587,12 +4500,11 @@ func (r *Image) Complex(cmplx OperationComplex) (error) {
 	return nil
 }
 
-
 // Complex2 vips_complex2 complex binary operations on two images
 //
 // The right specifies right-hand image argument.
 // The cmplx specifies binary complex operation to perform.
-func (r *Image) Complex2(right *Image, cmplx OperationComplex2) (error) {
+func (r *Image) Complex2(right *Image, cmplx OperationComplex2) error {
 	out, err := vipsgenComplex2(r.image, right.image, cmplx)
 	if err != nil {
 		return err
@@ -4601,11 +4513,10 @@ func (r *Image) Complex2(right *Image, cmplx OperationComplex2) (error) {
 	return nil
 }
 
-
 // Complexform vips_complexform form a complex image from two real images
 //
 // The right specifies right-hand image argument.
-func (r *Image) Complexform(right *Image) (error) {
+func (r *Image) Complexform(right *Image) error {
 	out, err := vipsgenComplexform(r.image, right.image)
 	if err != nil {
 		return err
@@ -4614,11 +4525,10 @@ func (r *Image) Complexform(right *Image) (error) {
 	return nil
 }
 
-
 // Complexget vips_complexget get a component from a complex image
 //
 // The get specifies complex to perform.
-func (r *Image) Complexget(get OperationComplexget) (error) {
+func (r *Image) Complexget(get OperationComplexget) error {
 	out, err := vipsgenComplexget(r.image, get)
 	if err != nil {
 		return err
@@ -4650,7 +4560,7 @@ func DefaultComposite2Options() *Composite2Options {
 //
 // The overlay specifies overlay image.
 // The mode specifies vipsBlendMode to join with.
-func (r *Image) Composite2(overlay *Image, mode BlendMode, options *Composite2Options) (error) {
+func (r *Image) Composite2(overlay *Image, mode BlendMode, options *Composite2Options) error {
 	if options != nil {
 		out, err := vipsgenComposite2WithOptions(r.image, overlay.image, mode, options.X, options.Y, options.CompositingSpace, options.Premultiplied)
 		if err != nil {
@@ -4681,15 +4591,15 @@ type ConvOptions struct {
 func DefaultConvOptions() *ConvOptions {
 	return &ConvOptions{
 		Precision: Ptr(PrecisionFloat),
-		Layers: 5,
-		Cluster: 1,
+		Layers:    5,
+		Cluster:   1,
 	}
 }
 
 // Conv vips_conv convolution operation
 //
 // The mask specifies input matrix image.
-func (r *Image) Conv(mask *Image, options *ConvOptions) (error) {
+func (r *Image) Conv(mask *Image, options *ConvOptions) error {
 	if options != nil {
 		out, err := vipsgenConvWithOptions(r.image, mask.image, options.Precision, options.Layers, options.Cluster)
 		if err != nil {
@@ -4717,7 +4627,7 @@ type ConvaOptions struct {
 // DefaultConvaOptions creates default value for vips_conva optional arguments
 func DefaultConvaOptions() *ConvaOptions {
 	return &ConvaOptions{
-		Layers: 5,
+		Layers:  5,
 		Cluster: 1,
 	}
 }
@@ -4725,7 +4635,7 @@ func DefaultConvaOptions() *ConvaOptions {
 // Conva vips_conva approximate integer convolution
 //
 // The mask specifies input matrix image.
-func (r *Image) Conva(mask *Image, options *ConvaOptions) (error) {
+func (r *Image) Conva(mask *Image, options *ConvaOptions) error {
 	if options != nil {
 		out, err := vipsgenConvaWithOptions(r.image, mask.image, options.Layers, options.Cluster)
 		if err != nil {
@@ -4758,7 +4668,7 @@ func DefaultConvasepOptions() *ConvasepOptions {
 // Convasep vips_convasep approximate separable integer convolution
 //
 // The mask specifies input matrix image.
-func (r *Image) Convasep(mask *Image, options *ConvasepOptions) (error) {
+func (r *Image) Convasep(mask *Image, options *ConvasepOptions) error {
 	if options != nil {
 		out, err := vipsgenConvasepWithOptions(r.image, mask.image, options.Layers)
 		if err != nil {
@@ -4775,11 +4685,10 @@ func (r *Image) Convasep(mask *Image, options *ConvasepOptions) (error) {
 	return nil
 }
 
-
 // Convf vips_convf float convolution operation
 //
 // The mask specifies input matrix image.
-func (r *Image) Convf(mask *Image) (error) {
+func (r *Image) Convf(mask *Image) error {
 	out, err := vipsgenConvf(r.image, mask.image)
 	if err != nil {
 		return err
@@ -4788,11 +4697,10 @@ func (r *Image) Convf(mask *Image) (error) {
 	return nil
 }
 
-
 // Convi vips_convi int convolution operation
 //
 // The mask specifies input matrix image.
-func (r *Image) Convi(mask *Image) (error) {
+func (r *Image) Convi(mask *Image) error {
 	out, err := vipsgenConvi(r.image, mask.image)
 	if err != nil {
 		return err
@@ -4815,15 +4723,15 @@ type ConvsepOptions struct {
 func DefaultConvsepOptions() *ConvsepOptions {
 	return &ConvsepOptions{
 		Precision: Ptr(PrecisionFloat),
-		Layers: 5,
-		Cluster: 1,
+		Layers:    5,
+		Cluster:   1,
 	}
 }
 
 // Convsep vips_convsep separable convolution operation
 //
 // The mask specifies input matrix image.
-func (r *Image) Convsep(mask *Image, options *ConvsepOptions) (error) {
+func (r *Image) Convsep(mask *Image, options *ConvsepOptions) error {
 	if options != nil {
 		out, err := vipsgenConvsepWithOptions(r.image, mask.image, options.Precision, options.Layers, options.Cluster)
 		if err != nil {
@@ -4866,8 +4774,7 @@ type CopyOptions struct {
 
 // DefaultCopyOptions creates default value for vips_copy optional arguments
 func DefaultCopyOptions() *CopyOptions {
-	return &CopyOptions{
-	}
+	return &CopyOptions{}
 }
 
 // Copy vips_copy copy an image
@@ -4887,7 +4794,6 @@ func (r *Image) Copy(options *CopyOptions) (*Image, error) {
 	outImage := newImageRef(out, r.format, nil)
 	return outImage, nil
 }
-
 
 // Countlines vips_countlines count lines in an image
 //
@@ -4918,14 +4824,14 @@ type CsvsaveOptions struct {
 func DefaultCsvsaveOptions() *CsvsaveOptions {
 	return &CsvsaveOptions{
 		Separator: Ptr("\t"),
-		Keep: Ptr(KeepAll),
+		Keep:      Ptr(KeepAll),
 	}
 }
 
 // Csvsave vips_csvsave save image to csv
 //
 // The filename specifies filename to save to.
-func (r *Image) Csvsave(filename string, options *CsvsaveOptions) (error) {
+func (r *Image) Csvsave(filename string, options *CsvsaveOptions) error {
 	if options != nil {
 		err := vipsgenCsvsaveWithOptions(r.image, filename, options.Separator, options.Keep, options.Background, options.PageHeight, options.Profile)
 		if err != nil {
@@ -4958,14 +4864,14 @@ type CsvsaveTargetOptions struct {
 func DefaultCsvsaveTargetOptions() *CsvsaveTargetOptions {
 	return &CsvsaveTargetOptions{
 		Separator: Ptr("\t"),
-		Keep: Ptr(KeepAll),
+		Keep:      Ptr(KeepAll),
 	}
 }
 
 // CsvsaveTarget vips_csvsave_target save image to csv
 //
 // The target specifies target to save to.
-func (r *Image) CsvsaveTarget(target *Target, options *CsvsaveTargetOptions) (error) {
+func (r *Image) CsvsaveTarget(target *Target, options *CsvsaveTargetOptions) error {
 	if options != nil {
 		err := vipsgenCsvsaveTargetWithOptions(r.image, target.target, options.Separator, options.Keep, options.Background, options.PageHeight, options.Profile)
 		if err != nil {
@@ -4980,11 +4886,10 @@ func (r *Image) CsvsaveTarget(target *Target, options *CsvsaveTargetOptions) (er
 	return nil
 }
 
-
 // DE00 vips_dE00 calculate dE00
 //
 // The right specifies right-hand input image.
-func (r *Image) DE00(right *Image) (error) {
+func (r *Image) DE00(right *Image) error {
 	out, err := vipsgenDE00(r.image, right.image)
 	if err != nil {
 		return err
@@ -4993,11 +4898,10 @@ func (r *Image) DE00(right *Image) (error) {
 	return nil
 }
 
-
 // DE76 vips_dE76 calculate dE76
 //
 // The right specifies right-hand input image.
-func (r *Image) DE76(right *Image) (error) {
+func (r *Image) DE76(right *Image) error {
 	out, err := vipsgenDE76(r.image, right.image)
 	if err != nil {
 		return err
@@ -5006,11 +4910,10 @@ func (r *Image) DE76(right *Image) (error) {
 	return nil
 }
 
-
 // DECMC vips_dECMC calculate dECMC
 //
 // The right specifies right-hand input image.
-func (r *Image) DECMC(right *Image) (error) {
+func (r *Image) DECMC(right *Image) error {
 	out, err := vipsgenDECMC(r.image, right.image)
 	if err != nil {
 		return err
@@ -5018,7 +4921,6 @@ func (r *Image) DECMC(right *Image) (error) {
 	r.setImage(out)
 	return nil
 }
-
 
 // Deviate vips_deviate find image standard deviation
 func (r *Image) Deviate() (float64, error) {
@@ -5029,11 +4931,10 @@ func (r *Image) Deviate() (float64, error) {
 	return out, nil
 }
 
-
 // Divide vips_divide divide two images
 //
 // The right specifies right-hand image argument.
-func (r *Image) Divide(right *Image) (error) {
+func (r *Image) Divide(right *Image) error {
 	out, err := vipsgenDivide(r.image, right.image)
 	if err != nil {
 		return err
@@ -5050,8 +4951,7 @@ type DrawCircleOptions struct {
 
 // DefaultDrawCircleOptions creates default value for vips_draw_circle optional arguments
 func DefaultDrawCircleOptions() *DrawCircleOptions {
-	return &DrawCircleOptions{
-	}
+	return &DrawCircleOptions{}
 }
 
 // DrawCircle vips_draw_circle draw a circle on an image
@@ -5060,7 +4960,7 @@ func DefaultDrawCircleOptions() *DrawCircleOptions {
 // The cx specifies centre of draw_circle.
 // The cy specifies centre of draw_circle.
 // The radius specifies radius in pixels.
-func (r *Image) DrawCircle(ink []float64, cx int, cy int, radius int, options *DrawCircleOptions) (error) {
+func (r *Image) DrawCircle(ink []float64, cx int, cy int, radius int, options *DrawCircleOptions) error {
 	if options != nil {
 		err := vipsgenDrawCircleWithOptions(r.image, ink, cx, cy, radius, options.Fill)
 		if err != nil {
@@ -5093,8 +4993,7 @@ type DrawFloodOptions struct {
 
 // DefaultDrawFloodOptions creates default value for vips_draw_flood optional arguments
 func DefaultDrawFloodOptions() *DrawFloodOptions {
-	return &DrawFloodOptions{
-	}
+	return &DrawFloodOptions{}
 }
 
 // DrawFlood vips_draw_flood flood-fill an area
@@ -5102,7 +5001,7 @@ func DefaultDrawFloodOptions() *DrawFloodOptions {
 // The ink specifies color for pixels.
 // The x specifies drawFlood start point.
 // The y specifies drawFlood start point.
-func (r *Image) DrawFlood(ink []float64, x int, y int, options *DrawFloodOptions) (error) {
+func (r *Image) DrawFlood(ink []float64, x int, y int, options *DrawFloodOptions) error {
 	if options != nil {
 		err := vipsgenDrawFloodWithOptions(r.image, ink, x, y, getImagePointer(options.Test), options.Equal, &options.Left, &options.Top, &options.Width, &options.Height)
 		if err != nil {
@@ -5125,8 +5024,7 @@ type DrawImageOptions struct {
 
 // DefaultDrawImageOptions creates default value for vips_draw_image optional arguments
 func DefaultDrawImageOptions() *DrawImageOptions {
-	return &DrawImageOptions{
-	}
+	return &DrawImageOptions{}
 }
 
 // DrawImage vips_draw_image paint an image into another image
@@ -5134,7 +5032,7 @@ func DefaultDrawImageOptions() *DrawImageOptions {
 // The sub specifies sub-image to insert into main image.
 // The x specifies draw image here.
 // The y specifies draw image here.
-func (r *Image) DrawImage(sub *Image, x int, y int, options *DrawImageOptions) (error) {
+func (r *Image) DrawImage(sub *Image, x int, y int, options *DrawImageOptions) error {
 	if options != nil {
 		err := vipsgenDrawImageWithOptions(r.image, sub.image, x, y, options.Mode)
 		if err != nil {
@@ -5149,7 +5047,6 @@ func (r *Image) DrawImage(sub *Image, x int, y int, options *DrawImageOptions) (
 	return nil
 }
 
-
 // DrawLine vips_draw_line draw a line on an image
 //
 // The ink specifies color for pixels.
@@ -5157,7 +5054,7 @@ func (r *Image) DrawImage(sub *Image, x int, y int, options *DrawImageOptions) (
 // The y1 specifies start of draw_line.
 // The x2 specifies end of draw_line.
 // The y2 specifies end of draw_line.
-func (r *Image) DrawLine(ink []float64, x1 int, y1 int, x2 int, y2 int) (error) {
+func (r *Image) DrawLine(ink []float64, x1 int, y1 int, x2 int, y2 int) error {
 	err := vipsgenDrawLine(r.image, ink, x1, y1, x2, y2)
 	if err != nil {
 		return err
@@ -5165,14 +5062,13 @@ func (r *Image) DrawLine(ink []float64, x1 int, y1 int, x2 int, y2 int) (error) 
 	return nil
 }
 
-
 // DrawMask vips_draw_mask draw a mask on an image
 //
 // The ink specifies color for pixels.
 // The mask specifies mask of pixels to draw.
 // The x specifies draw mask here.
 // The y specifies draw mask here.
-func (r *Image) DrawMask(ink []float64, mask *Image, x int, y int) (error) {
+func (r *Image) DrawMask(ink []float64, mask *Image, x int, y int) error {
 	err := vipsgenDrawMask(r.image, ink, mask.image, x, y)
 	if err != nil {
 		return err
@@ -5188,8 +5084,7 @@ type DrawRectOptions struct {
 
 // DefaultDrawRectOptions creates default value for vips_draw_rect optional arguments
 func DefaultDrawRectOptions() *DrawRectOptions {
-	return &DrawRectOptions{
-	}
+	return &DrawRectOptions{}
 }
 
 // DrawRect vips_draw_rect paint a rectangle on an image
@@ -5199,7 +5094,7 @@ func DefaultDrawRectOptions() *DrawRectOptions {
 // The top specifies rect to fill.
 // The width specifies rect to fill.
 // The height specifies rect to fill.
-func (r *Image) DrawRect(ink []float64, left int, top int, width int, height int, options *DrawRectOptions) (error) {
+func (r *Image) DrawRect(ink []float64, left int, top int, width int, height int, options *DrawRectOptions) error {
 	if options != nil {
 		err := vipsgenDrawRectWithOptions(r.image, ink, left, top, width, height, options.Fill)
 		if err != nil {
@@ -5214,14 +5109,13 @@ func (r *Image) DrawRect(ink []float64, left int, top int, width int, height int
 	return nil
 }
 
-
 // DrawSmudge vips_draw_smudge blur a rectangle on an image
 //
 // The left specifies rect to fill.
 // The top specifies rect to fill.
 // The width specifies rect to fill.
 // The height specifies rect to fill.
-func (r *Image) DrawSmudge(left int, top int, width int, height int) (error) {
+func (r *Image) DrawSmudge(left int, top int, width int, height int) error {
 	err := vipsgenDrawSmudge(r.image, left, top, width, height)
 	if err != nil {
 		return err
@@ -5272,20 +5166,20 @@ type DzsaveOptions struct {
 // DefaultDzsaveOptions creates default value for vips_dzsave optional arguments
 func DefaultDzsaveOptions() *DzsaveOptions {
 	return &DzsaveOptions{
-		Suffix: Ptr(".jpeg"),
-		Overlap: Ptr(1),
-		TileSize: 254,
+		Suffix:     Ptr(".jpeg"),
+		Overlap:    Ptr(1),
+		TileSize:   254,
 		SkipBlanks: Ptr(-1),
-		Id: Ptr("https://example.com/iiif"),
-		Q: 75,
-		Keep: Ptr(KeepAll),
+		Id:         Ptr("https://example.com/iiif"),
+		Q:          75,
+		Keep:       Ptr(KeepAll),
 	}
 }
 
 // Dzsave vips_dzsave save image to deepzoom file
 //
 // The filename specifies filename to save to.
-func (r *Image) Dzsave(filename string, options *DzsaveOptions) (error) {
+func (r *Image) Dzsave(filename string, options *DzsaveOptions) error {
 	if options != nil {
 		err := vipsgenDzsaveWithOptions(r.image, filename, options.Imagename, options.Layout, options.Suffix, options.Overlap, options.TileSize, options.Centre, options.Depth, options.Angle, options.Container, options.Compression, options.RegionShrink, options.SkipBlanks, options.Id, options.Q, options.Keep, options.Background, options.PageHeight, options.Profile)
 		if err != nil {
@@ -5343,13 +5237,13 @@ type DzsaveBufferOptions struct {
 // DefaultDzsaveBufferOptions creates default value for vips_dzsave_buffer optional arguments
 func DefaultDzsaveBufferOptions() *DzsaveBufferOptions {
 	return &DzsaveBufferOptions{
-		Suffix: Ptr(".jpeg"),
-		Overlap: Ptr(1),
-		TileSize: 254,
+		Suffix:     Ptr(".jpeg"),
+		Overlap:    Ptr(1),
+		TileSize:   254,
 		SkipBlanks: Ptr(-1),
-		Id: Ptr("https://example.com/iiif"),
-		Q: 75,
-		Keep: Ptr(KeepAll),
+		Id:         Ptr("https://example.com/iiif"),
+		Q:          75,
+		Keep:       Ptr(KeepAll),
 	}
 }
 
@@ -5412,20 +5306,20 @@ type DzsaveTargetOptions struct {
 // DefaultDzsaveTargetOptions creates default value for vips_dzsave_target optional arguments
 func DefaultDzsaveTargetOptions() *DzsaveTargetOptions {
 	return &DzsaveTargetOptions{
-		Suffix: Ptr(".jpeg"),
-		Overlap: Ptr(1),
-		TileSize: 254,
+		Suffix:     Ptr(".jpeg"),
+		Overlap:    Ptr(1),
+		TileSize:   254,
 		SkipBlanks: Ptr(-1),
-		Id: Ptr("https://example.com/iiif"),
-		Q: 75,
-		Keep: Ptr(KeepAll),
+		Id:         Ptr("https://example.com/iiif"),
+		Q:          75,
+		Keep:       Ptr(KeepAll),
 	}
 }
 
 // DzsaveTarget vips_dzsave_target save image to deepzoom target
 //
 // The target specifies target to save to.
-func (r *Image) DzsaveTarget(target *Target, options *DzsaveTargetOptions) (error) {
+func (r *Image) DzsaveTarget(target *Target, options *DzsaveTargetOptions) error {
 	if options != nil {
 		err := vipsgenDzsaveTargetWithOptions(r.image, target.target, options.Imagename, options.Layout, options.Suffix, options.Overlap, options.TileSize, options.Centre, options.Depth, options.Angle, options.Container, options.Compression, options.RegionShrink, options.SkipBlanks, options.Id, options.Q, options.Keep, options.Background, options.PageHeight, options.Profile)
 		if err != nil {
@@ -5450,8 +5344,7 @@ type EmbedOptions struct {
 
 // DefaultEmbedOptions creates default value for vips_embed optional arguments
 func DefaultEmbedOptions() *EmbedOptions {
-	return &EmbedOptions{
-	}
+	return &EmbedOptions{}
 }
 
 // Embed vips_embed embed an image in a larger image
@@ -5460,7 +5353,7 @@ func DefaultEmbedOptions() *EmbedOptions {
 // The y specifies top edge of input in output.
 // The width specifies image width in pixels.
 // The height specifies image height in pixels.
-func (r *Image) Embed(x int, y int, width int, height int, options *EmbedOptions) (error) {
+func (r *Image) Embed(x int, y int, width int, height int, options *EmbedOptions) error {
 	if options != nil {
 		out, err := vipsgenEmbedWithOptions(r.image, x, y, width, height, options.Extend, options.Background)
 		if err != nil {
@@ -5477,14 +5370,13 @@ func (r *Image) Embed(x int, y int, width int, height int, options *EmbedOptions
 	return nil
 }
 
-
 // ExtractArea vips_extract_area extract an area from an image
 //
 // The left specifies left edge of extract area.
 // The top specifies top edge of extract area.
 // The width specifies width of extract area.
 // The height specifies height of extract area.
-func (r *Image) ExtractArea(left int, top int, width int, height int) (error) {
+func (r *Image) ExtractArea(left int, top int, width int, height int) error {
 	out, err := vipsgenExtractArea(r.image, left, top, width, height)
 	if err != nil {
 		return err
@@ -5509,7 +5401,7 @@ func DefaultExtractBandOptions() *ExtractBandOptions {
 // ExtractBand vips_extract_band extract band from an image
 //
 // The band specifies band to extract.
-func (r *Image) ExtractBand(band int, options *ExtractBandOptions) (error) {
+func (r *Image) ExtractBand(band int, options *ExtractBandOptions) error {
 	if options != nil {
 		out, err := vipsgenExtractBandWithOptions(r.image, band, options.N)
 		if err != nil {
@@ -5526,9 +5418,8 @@ func (r *Image) ExtractBand(band int, options *ExtractBandOptions) (error) {
 	return nil
 }
 
-
 // Falsecolour vips_falsecolour false-color an image
-func (r *Image) Falsecolour() (error) {
+func (r *Image) Falsecolour() error {
 	out, err := vipsgenFalsecolour(r.image)
 	if err != nil {
 		return err
@@ -5537,11 +5428,10 @@ func (r *Image) Falsecolour() (error) {
 	return nil
 }
 
-
 // Fastcor vips_fastcor fast correlation
 //
 // The ref specifies input reference image.
-func (r *Image) Fastcor(ref *Image) (error) {
+func (r *Image) Fastcor(ref *Image) error {
 	out, err := vipsgenFastcor(r.image, ref.image)
 	if err != nil {
 		return err
@@ -5549,7 +5439,6 @@ func (r *Image) Fastcor(ref *Image) (error) {
 	r.setImage(out)
 	return nil
 }
-
 
 // FillNearest vips_fill_nearest fill image zeros with nearest non-zero pixel
 func (r *Image) FillNearest() (*Image, error) {
@@ -5616,7 +5505,7 @@ func DefaultFitssaveOptions() *FitssaveOptions {
 // Fitssave vips_fitssave save image to fits file
 //
 // The filename specifies filename to save to.
-func (r *Image) Fitssave(filename string, options *FitssaveOptions) (error) {
+func (r *Image) Fitssave(filename string, options *FitssaveOptions) error {
 	if options != nil {
 		err := vipsgenFitssaveWithOptions(r.image, filename, options.Keep, options.Background, options.PageHeight, options.Profile)
 		if err != nil {
@@ -5647,7 +5536,7 @@ func DefaultFlattenOptions() *FlattenOptions {
 }
 
 // Flatten vips_flatten flatten alpha out of an image
-func (r *Image) Flatten(options *FlattenOptions) (error) {
+func (r *Image) Flatten(options *FlattenOptions) error {
 	if options != nil {
 		out, err := vipsgenFlattenWithOptions(r.image, options.Background, options.MaxAlpha)
 		if err != nil {
@@ -5664,11 +5553,10 @@ func (r *Image) Flatten(options *FlattenOptions) (error) {
 	return nil
 }
 
-
 // Flip vips_flip flip an image
 //
 // The direction specifies direction to flip image.
-func (r *Image) Flip(direction Direction) (error) {
+func (r *Image) Flip(direction Direction) error {
 	out, err := vipsgenFlip(r.image, direction)
 	if err != nil {
 		return err
@@ -5677,9 +5565,8 @@ func (r *Image) Flip(direction Direction) (error) {
 	return nil
 }
 
-
 // Float2rad vips_float2rad transform float RGB to Radiance coding
-func (r *Image) Float2rad() (error) {
+func (r *Image) Float2rad() error {
 	out, err := vipsgenFloat2rad(r.image)
 	if err != nil {
 		return err
@@ -5688,11 +5575,10 @@ func (r *Image) Float2rad() (error) {
 	return nil
 }
 
-
 // Freqmult vips_freqmult frequency-domain filtering
 //
 // The mask specifies input mask image.
-func (r *Image) Freqmult(mask *Image) (error) {
+func (r *Image) Freqmult(mask *Image) error {
 	out, err := vipsgenFreqmult(r.image, mask.image)
 	if err != nil {
 		return err
@@ -5701,9 +5587,8 @@ func (r *Image) Freqmult(mask *Image) (error) {
 	return nil
 }
 
-
 // Fwfft vips_fwfft forward FFT
-func (r *Image) Fwfft() (error) {
+func (r *Image) Fwfft() error {
 	out, err := vipsgenFwfft(r.image)
 	if err != nil {
 		return err
@@ -5726,7 +5611,7 @@ func DefaultGammaOptions() *GammaOptions {
 }
 
 // Gamma vips_gamma gamma an image
-func (r *Image) Gamma(options *GammaOptions) (error) {
+func (r *Image) Gamma(options *GammaOptions) error {
 	if options != nil {
 		out, err := vipsgenGammaWithOptions(r.image, options.Exponent)
 		if err != nil {
@@ -5761,7 +5646,7 @@ func DefaultGaussblurOptions() *GaussblurOptions {
 // Gaussblur vips_gaussblur gaussian blur
 //
 // The sigma specifies sigma of Gaussian.
-func (r *Image) Gaussblur(sigma float64, options *GaussblurOptions) (error) {
+func (r *Image) Gaussblur(sigma float64, options *GaussblurOptions) error {
 	if options != nil {
 		out, err := vipsgenGaussblurWithOptions(r.image, sigma, options.MinAmpl, options.Precision)
 		if err != nil {
@@ -5786,8 +5671,7 @@ type GetpointOptions struct {
 
 // DefaultGetpointOptions creates default value for vips_getpoint optional arguments
 func DefaultGetpointOptions() *GetpointOptions {
-	return &GetpointOptions{
-	}
+	return &GetpointOptions{}
 }
 
 // Getpoint vips_getpoint read a point from an image
@@ -5840,18 +5724,18 @@ type GifsaveOptions struct {
 // DefaultGifsaveOptions creates default value for vips_gifsave optional arguments
 func DefaultGifsaveOptions() *GifsaveOptions {
 	return &GifsaveOptions{
-		Dither: Ptr(1.0),
-		Effort: 7,
-		Bitdepth: 8,
+		Dither:               Ptr(1.0),
+		Effort:               7,
+		Bitdepth:             8,
 		InterpaletteMaxerror: Ptr(3.0),
-		Keep: Ptr(KeepAll),
+		Keep:                 Ptr(KeepAll),
 	}
 }
 
 // Gifsave vips_gifsave save as gif
 //
 // The filename specifies filename to save to.
-func (r *Image) Gifsave(filename string, options *GifsaveOptions) (error) {
+func (r *Image) Gifsave(filename string, options *GifsaveOptions) error {
 	if options != nil {
 		err := vipsgenGifsaveWithOptions(r.image, filename, options.Dither, options.Effort, options.Bitdepth, options.InterframeMaxerror, options.Reuse, options.InterpaletteMaxerror, options.Interlace, options.KeepDuplicateFrames, options.Keep, options.Background, options.PageHeight, options.Profile)
 		if err != nil {
@@ -5897,11 +5781,11 @@ type GifsaveBufferOptions struct {
 // DefaultGifsaveBufferOptions creates default value for vips_gifsave_buffer optional arguments
 func DefaultGifsaveBufferOptions() *GifsaveBufferOptions {
 	return &GifsaveBufferOptions{
-		Dither: Ptr(1.0),
-		Effort: 7,
-		Bitdepth: 8,
+		Dither:               Ptr(1.0),
+		Effort:               7,
+		Bitdepth:             8,
 		InterpaletteMaxerror: Ptr(3.0),
-		Keep: Ptr(KeepAll),
+		Keep:                 Ptr(KeepAll),
 	}
 }
 
@@ -5952,18 +5836,18 @@ type GifsaveTargetOptions struct {
 // DefaultGifsaveTargetOptions creates default value for vips_gifsave_target optional arguments
 func DefaultGifsaveTargetOptions() *GifsaveTargetOptions {
 	return &GifsaveTargetOptions{
-		Dither: Ptr(1.0),
-		Effort: 7,
-		Bitdepth: 8,
+		Dither:               Ptr(1.0),
+		Effort:               7,
+		Bitdepth:             8,
 		InterpaletteMaxerror: Ptr(3.0),
-		Keep: Ptr(KeepAll),
+		Keep:                 Ptr(KeepAll),
 	}
 }
 
 // GifsaveTarget vips_gifsave_target save as gif
 //
 // The target specifies target to save to.
-func (r *Image) GifsaveTarget(target *Target, options *GifsaveTargetOptions) (error) {
+func (r *Image) GifsaveTarget(target *Target, options *GifsaveTargetOptions) error {
 	if options != nil {
 		err := vipsgenGifsaveTargetWithOptions(r.image, target.target, options.Dither, options.Effort, options.Bitdepth, options.InterframeMaxerror, options.Reuse, options.InterpaletteMaxerror, options.Interlace, options.KeepDuplicateFrames, options.Keep, options.Background, options.PageHeight, options.Profile)
 		if err != nil {
@@ -5994,7 +5878,7 @@ func DefaultGlobalbalanceOptions() *GlobalbalanceOptions {
 }
 
 // Globalbalance vips_globalbalance global balance an image mosaic
-func (r *Image) Globalbalance(options *GlobalbalanceOptions) (error) {
+func (r *Image) Globalbalance(options *GlobalbalanceOptions) error {
 	if options != nil {
 		out, err := vipsgenGlobalbalanceWithOptions(r.image, options.Gamma, options.IntOutput)
 		if err != nil {
@@ -6021,8 +5905,7 @@ type GravityOptions struct {
 
 // DefaultGravityOptions creates default value for vips_gravity optional arguments
 func DefaultGravityOptions() *GravityOptions {
-	return &GravityOptions{
-	}
+	return &GravityOptions{}
 }
 
 // Gravity vips_gravity place an image within a larger image with a certain gravity
@@ -6030,7 +5913,7 @@ func DefaultGravityOptions() *GravityOptions {
 // The direction specifies direction to place image within width/height.
 // The width specifies image width in pixels.
 // The height specifies image height in pixels.
-func (r *Image) Gravity(direction CompassDirection, width int, height int, options *GravityOptions) (error) {
+func (r *Image) Gravity(direction CompassDirection, width int, height int, options *GravityOptions) error {
 	if options != nil {
 		out, err := vipsgenGravityWithOptions(r.image, direction, width, height, options.Extend, options.Background)
 		if err != nil {
@@ -6047,13 +5930,12 @@ func (r *Image) Gravity(direction CompassDirection, width int, height int, optio
 	return nil
 }
 
-
 // Grid vips_grid grid an image
 //
 // The tileHeight specifies chop into tiles this high.
 // The across specifies number of tiles across.
 // The down specifies number of tiles down.
-func (r *Image) Grid(tileHeight int, across int, down int) (error) {
+func (r *Image) Grid(tileHeight int, across int, down int) error {
 	out, err := vipsgenGrid(r.image, tileHeight, across, down)
 	if err != nil {
 		return err
@@ -6093,18 +5975,18 @@ type HeifsaveOptions struct {
 // DefaultHeifsaveOptions creates default value for vips_heifsave optional arguments
 func DefaultHeifsaveOptions() *HeifsaveOptions {
 	return &HeifsaveOptions{
-		Q: 50,
-		Bitdepth: 12,
+		Q:           50,
+		Bitdepth:    12,
 		Compression: HeifCompressionHevc,
-		Effort: Ptr(4),
-		Keep: Ptr(KeepAll),
+		Effort:      Ptr(4),
+		Keep:        Ptr(KeepAll),
 	}
 }
 
 // Heifsave vips_heifsave save image in HEIF format
 //
 // The filename specifies filename to save to.
-func (r *Image) Heifsave(filename string, options *HeifsaveOptions) (error) {
+func (r *Image) Heifsave(filename string, options *HeifsaveOptions) error {
 	if options != nil {
 		err := vipsgenHeifsaveWithOptions(r.image, filename, options.Q, options.Bitdepth, options.Lossless, options.Compression, options.Effort, options.SubsampleMode, options.Encoder, options.Tune, options.Keep, options.Background, options.PageHeight, options.Profile)
 		if err != nil {
@@ -6150,11 +6032,11 @@ type HeifsaveBufferOptions struct {
 // DefaultHeifsaveBufferOptions creates default value for vips_heifsave_buffer optional arguments
 func DefaultHeifsaveBufferOptions() *HeifsaveBufferOptions {
 	return &HeifsaveBufferOptions{
-		Q: 50,
-		Bitdepth: 12,
+		Q:           50,
+		Bitdepth:    12,
 		Compression: HeifCompressionHevc,
-		Effort: Ptr(4),
-		Keep: Ptr(KeepAll),
+		Effort:      Ptr(4),
+		Keep:        Ptr(KeepAll),
 	}
 }
 
@@ -6205,18 +6087,18 @@ type HeifsaveTargetOptions struct {
 // DefaultHeifsaveTargetOptions creates default value for vips_heifsave_target optional arguments
 func DefaultHeifsaveTargetOptions() *HeifsaveTargetOptions {
 	return &HeifsaveTargetOptions{
-		Q: 50,
-		Bitdepth: 12,
+		Q:           50,
+		Bitdepth:    12,
 		Compression: HeifCompressionHevc,
-		Effort: Ptr(4),
-		Keep: Ptr(KeepAll),
+		Effort:      Ptr(4),
+		Keep:        Ptr(KeepAll),
 	}
 }
 
 // HeifsaveTarget vips_heifsave_target save image in HEIF format
 //
 // The target specifies target to save to.
-func (r *Image) HeifsaveTarget(target *Target, options *HeifsaveTargetOptions) (error) {
+func (r *Image) HeifsaveTarget(target *Target, options *HeifsaveTargetOptions) error {
 	if options != nil {
 		err := vipsgenHeifsaveTargetWithOptions(r.image, target.target, options.Q, options.Bitdepth, options.Lossless, options.Compression, options.Effort, options.SubsampleMode, options.Encoder, options.Tune, options.Keep, options.Background, options.PageHeight, options.Profile)
 		if err != nil {
@@ -6231,9 +6113,8 @@ func (r *Image) HeifsaveTarget(target *Target, options *HeifsaveTargetOptions) (
 	return nil
 }
 
-
 // HistCum vips_hist_cum form cumulative histogram
-func (r *Image) HistCum() (error) {
+func (r *Image) HistCum() error {
 	out, err := vipsgenHistCum(r.image)
 	if err != nil {
 		return err
@@ -6241,7 +6122,6 @@ func (r *Image) HistCum() (error) {
 	r.setImage(out)
 	return nil
 }
-
 
 // HistEntropy vips_hist_entropy estimate image entropy
 func (r *Image) HistEntropy() (float64, error) {
@@ -6266,7 +6146,7 @@ func DefaultHistEqualOptions() *HistEqualOptions {
 }
 
 // HistEqual vips_hist_equal histogram equalisation
-func (r *Image) HistEqual(options *HistEqualOptions) (error) {
+func (r *Image) HistEqual(options *HistEqualOptions) error {
 	if options != nil {
 		out, err := vipsgenHistEqualWithOptions(r.image, options.Band)
 		if err != nil {
@@ -6297,7 +6177,7 @@ func DefaultHistFindOptions() *HistFindOptions {
 }
 
 // HistFind vips_hist_find find image histogram
-func (r *Image) HistFind(options *HistFindOptions) (error) {
+func (r *Image) HistFind(options *HistFindOptions) error {
 	if options != nil {
 		out, err := vipsgenHistFindWithOptions(r.image, options.Band)
 		if err != nil {
@@ -6330,7 +6210,7 @@ func DefaultHistFindIndexedOptions() *HistFindIndexedOptions {
 // HistFindIndexed vips_hist_find_indexed find indexed image histogram
 //
 // The index specifies index image.
-func (r *Image) HistFindIndexed(index *Image, options *HistFindIndexedOptions) (error) {
+func (r *Image) HistFindIndexed(index *Image, options *HistFindIndexedOptions) error {
 	if options != nil {
 		out, err := vipsgenHistFindIndexedWithOptions(r.image, index.image, options.Combine)
 		if err != nil {
@@ -6361,7 +6241,7 @@ func DefaultHistFindNdimOptions() *HistFindNdimOptions {
 }
 
 // HistFindNdim vips_hist_find_ndim find n-dimensional image histogram
-func (r *Image) HistFindNdim(options *HistFindNdimOptions) (error) {
+func (r *Image) HistFindNdim(options *HistFindNdimOptions) error {
 	if options != nil {
 		out, err := vipsgenHistFindNdimWithOptions(r.image, options.Bins)
 		if err != nil {
@@ -6377,7 +6257,6 @@ func (r *Image) HistFindNdim(options *HistFindNdimOptions) (error) {
 	r.setImage(out)
 	return nil
 }
-
 
 // HistIsmonotonic vips_hist_ismonotonic test for monotonicity
 func (r *Image) HistIsmonotonic() (bool, error) {
@@ -6396,15 +6275,14 @@ type HistLocalOptions struct {
 
 // DefaultHistLocalOptions creates default value for vips_hist_local optional arguments
 func DefaultHistLocalOptions() *HistLocalOptions {
-	return &HistLocalOptions{
-	}
+	return &HistLocalOptions{}
 }
 
 // HistLocal vips_hist_local local histogram equalisation
 //
 // The width specifies window width in pixels.
 // The height specifies window height in pixels.
-func (r *Image) HistLocal(width int, height int, options *HistLocalOptions) (error) {
+func (r *Image) HistLocal(width int, height int, options *HistLocalOptions) error {
 	if options != nil {
 		out, err := vipsgenHistLocalWithOptions(r.image, width, height, options.MaxSlope)
 		if err != nil {
@@ -6421,11 +6299,10 @@ func (r *Image) HistLocal(width int, height int, options *HistLocalOptions) (err
 	return nil
 }
 
-
 // HistMatch vips_hist_match match two histograms
 //
 // The ref specifies reference histogram.
-func (r *Image) HistMatch(ref *Image) (error) {
+func (r *Image) HistMatch(ref *Image) error {
 	out, err := vipsgenHistMatch(r.image, ref.image)
 	if err != nil {
 		return err
@@ -6434,9 +6311,8 @@ func (r *Image) HistMatch(ref *Image) (error) {
 	return nil
 }
 
-
 // HistNorm vips_hist_norm normalise histogram
-func (r *Image) HistNorm() (error) {
+func (r *Image) HistNorm() error {
 	out, err := vipsgenHistNorm(r.image)
 	if err != nil {
 		return err
@@ -6445,9 +6321,8 @@ func (r *Image) HistNorm() (error) {
 	return nil
 }
 
-
 // HistPlot vips_hist_plot plot histogram
-func (r *Image) HistPlot() (error) {
+func (r *Image) HistPlot() error {
 	out, err := vipsgenHistPlot(r.image)
 	if err != nil {
 		return err
@@ -6469,14 +6344,14 @@ type HoughCircleOptions struct {
 // DefaultHoughCircleOptions creates default value for vips_hough_circle optional arguments
 func DefaultHoughCircleOptions() *HoughCircleOptions {
 	return &HoughCircleOptions{
-		Scale: 1,
+		Scale:     1,
 		MinRadius: 10,
 		MaxRadius: 20,
 	}
 }
 
 // HoughCircle vips_hough_circle find hough circle transform
-func (r *Image) HoughCircle(options *HoughCircleOptions) (error) {
+func (r *Image) HoughCircle(options *HoughCircleOptions) error {
 	if options != nil {
 		out, err := vipsgenHoughCircleWithOptions(r.image, options.Scale, options.MinRadius, options.MaxRadius)
 		if err != nil {
@@ -6504,13 +6379,13 @@ type HoughLineOptions struct {
 // DefaultHoughLineOptions creates default value for vips_hough_line optional arguments
 func DefaultHoughLineOptions() *HoughLineOptions {
 	return &HoughLineOptions{
-		Width: 256,
+		Width:  256,
 		Height: 256,
 	}
 }
 
 // HoughLine vips_hough_line find hough line transform
-func (r *Image) HoughLine(options *HoughLineOptions) (error) {
+func (r *Image) HoughLine(options *HoughLineOptions) error {
 	if options != nil {
 		out, err := vipsgenHoughLineWithOptions(r.image, options.Width, options.Height)
 		if err != nil {
@@ -6545,12 +6420,12 @@ type IccExportOptions struct {
 func DefaultIccExportOptions() *IccExportOptions {
 	return &IccExportOptions{
 		Intent: Ptr(IntentRelative),
-		Depth: 8,
+		Depth:  8,
 	}
 }
 
 // IccExport vips_icc_export output to device with ICC profile
-func (r *Image) IccExport(options *IccExportOptions) (error) {
+func (r *Image) IccExport(options *IccExportOptions) error {
 	if options != nil {
 		out, err := vipsgenIccExportWithOptions(r.image, options.Pcs, options.Intent, options.BlackPointCompensation, options.OutputProfile, options.Depth)
 		if err != nil {
@@ -6589,7 +6464,7 @@ func DefaultIccImportOptions() *IccImportOptions {
 }
 
 // IccImport vips_icc_import import from device with ICC profile
-func (r *Image) IccImport(options *IccImportOptions) (error) {
+func (r *Image) IccImport(options *IccImportOptions) error {
 	if options != nil {
 		out, err := vipsgenIccImportWithOptions(r.image, options.Pcs, options.Intent, options.BlackPointCompensation, options.Embedded, options.InputProfile)
 		if err != nil {
@@ -6626,14 +6501,14 @@ type IccTransformOptions struct {
 func DefaultIccTransformOptions() *IccTransformOptions {
 	return &IccTransformOptions{
 		Intent: Ptr(IntentRelative),
-		Depth: 8,
+		Depth:  8,
 	}
 }
 
 // IccTransform vips_icc_transform transform between devices with ICC profiles
 //
 // The outputProfile specifies filename to load output profile from.
-func (r *Image) IccTransform(outputProfile string, options *IccTransformOptions) (error) {
+func (r *Image) IccTransform(outputProfile string, options *IccTransformOptions) error {
 	if options != nil {
 		out, err := vipsgenIccTransformWithOptions(r.image, outputProfile, options.Pcs, options.Intent, options.BlackPointCompensation, options.Embedded, options.InputProfile, options.Depth)
 		if err != nil {
@@ -6658,15 +6533,14 @@ type IfthenelseOptions struct {
 
 // DefaultIfthenelseOptions creates default value for vips_ifthenelse optional arguments
 func DefaultIfthenelseOptions() *IfthenelseOptions {
-	return &IfthenelseOptions{
-	}
+	return &IfthenelseOptions{}
 }
 
 // Ifthenelse vips_ifthenelse ifthenelse an image
 //
 // The in1 specifies source for TRUE pixels.
 // The in2 specifies source for FALSE pixels.
-func (r *Image) Ifthenelse(in1 *Image, in2 *Image, options *IfthenelseOptions) (error) {
+func (r *Image) Ifthenelse(in1 *Image, in2 *Image, options *IfthenelseOptions) error {
 	if options != nil {
 		out, err := vipsgenIfthenelseWithOptions(r.image, in1.image, in2.image, options.Blend)
 		if err != nil {
@@ -6693,8 +6567,7 @@ type InsertOptions struct {
 
 // DefaultInsertOptions creates default value for vips_insert optional arguments
 func DefaultInsertOptions() *InsertOptions {
-	return &InsertOptions{
-	}
+	return &InsertOptions{}
 }
 
 // Insert vips_insert insert image @sub into @main at @x, @y
@@ -6702,7 +6575,7 @@ func DefaultInsertOptions() *InsertOptions {
 // The sub specifies sub-image to insert into main image.
 // The x specifies left edge of sub in main.
 // The y specifies top edge of sub in main.
-func (r *Image) Insert(sub *Image, x int, y int, options *InsertOptions) (error) {
+func (r *Image) Insert(sub *Image, x int, y int, options *InsertOptions) error {
 	if options != nil {
 		out, err := vipsgenInsertWithOptions(r.image, sub.image, x, y, options.Expand, options.Background)
 		if err != nil {
@@ -6719,9 +6592,8 @@ func (r *Image) Insert(sub *Image, x int, y int, options *InsertOptions) (error)
 	return nil
 }
 
-
 // Invert vips_invert invert an image
-func (r *Image) Invert() (error) {
+func (r *Image) Invert() error {
 	out, err := vipsgenInvert(r.image)
 	if err != nil {
 		return err
@@ -6744,7 +6616,7 @@ func DefaultInvertlutOptions() *InvertlutOptions {
 }
 
 // Invertlut vips_invertlut build an inverted look-up table
-func (r *Image) Invertlut(options *InvertlutOptions) (error) {
+func (r *Image) Invertlut(options *InvertlutOptions) error {
 	if options != nil {
 		out, err := vipsgenInvertlutWithOptions(r.image, options.Size)
 		if err != nil {
@@ -6769,12 +6641,11 @@ type InvfftOptions struct {
 
 // DefaultInvfftOptions creates default value for vips_invfft optional arguments
 func DefaultInvfftOptions() *InvfftOptions {
-	return &InvfftOptions{
-	}
+	return &InvfftOptions{}
 }
 
 // Invfft vips_invfft inverse FFT
-func (r *Image) Invfft(options *InvfftOptions) (error) {
+func (r *Image) Invfft(options *InvfftOptions) error {
 	if options != nil {
 		out, err := vipsgenInvfftWithOptions(r.image, options.Real)
 		if err != nil {
@@ -6805,15 +6676,14 @@ type JoinOptions struct {
 
 // DefaultJoinOptions creates default value for vips_join optional arguments
 func DefaultJoinOptions() *JoinOptions {
-	return &JoinOptions{
-	}
+	return &JoinOptions{}
 }
 
 // Join vips_join join a pair of images
 //
 // The in2 specifies second input image.
 // The direction specifies join left-right or up-down.
-func (r *Image) Join(in2 *Image, direction Direction, options *JoinOptions) (error) {
+func (r *Image) Join(in2 *Image, direction Direction, options *JoinOptions) error {
 	if options != nil {
 		out, err := vipsgenJoinWithOptions(r.image, in2.image, direction, options.Expand, options.Shim, options.Background, options.Align)
 		if err != nil {
@@ -6855,18 +6725,18 @@ type Jp2ksaveOptions struct {
 // DefaultJp2ksaveOptions creates default value for vips_jp2ksave optional arguments
 func DefaultJp2ksaveOptions() *Jp2ksaveOptions {
 	return &Jp2ksaveOptions{
-		TileWidth: 512,
-		TileHeight: 512,
-		Q: 48,
+		TileWidth:     512,
+		TileHeight:    512,
+		Q:             48,
 		SubsampleMode: Ptr(SubsampleOff),
-		Keep: Ptr(KeepAll),
+		Keep:          Ptr(KeepAll),
 	}
 }
 
 // Jp2ksave vips_jp2ksave save image in JPEG2000 format
 //
 // The filename specifies filename to save to.
-func (r *Image) Jp2ksave(filename string, options *Jp2ksaveOptions) (error) {
+func (r *Image) Jp2ksave(filename string, options *Jp2ksaveOptions) error {
 	if options != nil {
 		err := vipsgenJp2ksaveWithOptions(r.image, filename, options.TileWidth, options.TileHeight, options.Lossless, options.Q, options.SubsampleMode, options.Keep, options.Background, options.PageHeight, options.Profile)
 		if err != nil {
@@ -6906,11 +6776,11 @@ type Jp2ksaveBufferOptions struct {
 // DefaultJp2ksaveBufferOptions creates default value for vips_jp2ksave_buffer optional arguments
 func DefaultJp2ksaveBufferOptions() *Jp2ksaveBufferOptions {
 	return &Jp2ksaveBufferOptions{
-		TileWidth: 512,
-		TileHeight: 512,
-		Q: 48,
+		TileWidth:     512,
+		TileHeight:    512,
+		Q:             48,
 		SubsampleMode: Ptr(SubsampleOff),
-		Keep: Ptr(KeepAll),
+		Keep:          Ptr(KeepAll),
 	}
 }
 
@@ -6955,18 +6825,18 @@ type Jp2ksaveTargetOptions struct {
 // DefaultJp2ksaveTargetOptions creates default value for vips_jp2ksave_target optional arguments
 func DefaultJp2ksaveTargetOptions() *Jp2ksaveTargetOptions {
 	return &Jp2ksaveTargetOptions{
-		TileWidth: 512,
-		TileHeight: 512,
-		Q: 48,
+		TileWidth:     512,
+		TileHeight:    512,
+		Q:             48,
 		SubsampleMode: Ptr(SubsampleOff),
-		Keep: Ptr(KeepAll),
+		Keep:          Ptr(KeepAll),
 	}
 }
 
 // Jp2ksaveTarget vips_jp2ksave_target save image in JPEG2000 format
 //
 // The target specifies target to save to.
-func (r *Image) Jp2ksaveTarget(target *Target, options *Jp2ksaveTargetOptions) (error) {
+func (r *Image) Jp2ksaveTarget(target *Target, options *Jp2ksaveTargetOptions) error {
 	if options != nil {
 		err := vipsgenJp2ksaveTargetWithOptions(r.image, target.target, options.TileWidth, options.TileHeight, options.Lossless, options.Q, options.SubsampleMode, options.Keep, options.Background, options.PageHeight, options.Profile)
 		if err != nil {
@@ -7014,7 +6884,7 @@ type JpegsaveOptions struct {
 // DefaultJpegsaveOptions creates default value for vips_jpegsave optional arguments
 func DefaultJpegsaveOptions() *JpegsaveOptions {
 	return &JpegsaveOptions{
-		Q: 75,
+		Q:    75,
 		Keep: Ptr(KeepAll),
 	}
 }
@@ -7022,7 +6892,7 @@ func DefaultJpegsaveOptions() *JpegsaveOptions {
 // Jpegsave vips_jpegsave save as jpeg
 //
 // The filename specifies filename to save to.
-func (r *Image) Jpegsave(filename string, options *JpegsaveOptions) (error) {
+func (r *Image) Jpegsave(filename string, options *JpegsaveOptions) error {
 	if options != nil {
 		err := vipsgenJpegsaveWithOptions(r.image, filename, options.Q, options.OptimizeCoding, options.Interlace, options.TrellisQuant, options.OvershootDeringing, options.OptimizeScans, options.QuantTable, options.SubsampleMode, options.RestartInterval, options.Keep, options.Background, options.PageHeight, options.Profile)
 		if err != nil {
@@ -7070,7 +6940,7 @@ type JpegsaveBufferOptions struct {
 // DefaultJpegsaveBufferOptions creates default value for vips_jpegsave_buffer optional arguments
 func DefaultJpegsaveBufferOptions() *JpegsaveBufferOptions {
 	return &JpegsaveBufferOptions{
-		Q: 75,
+		Q:    75,
 		Keep: Ptr(KeepAll),
 	}
 }
@@ -7124,7 +6994,7 @@ type JpegsaveTargetOptions struct {
 // DefaultJpegsaveTargetOptions creates default value for vips_jpegsave_target optional arguments
 func DefaultJpegsaveTargetOptions() *JpegsaveTargetOptions {
 	return &JpegsaveTargetOptions{
-		Q: 75,
+		Q:    75,
 		Keep: Ptr(KeepAll),
 	}
 }
@@ -7132,7 +7002,7 @@ func DefaultJpegsaveTargetOptions() *JpegsaveTargetOptions {
 // JpegsaveTarget vips_jpegsave_target save as jpeg
 //
 // The target specifies target to save to.
-func (r *Image) JpegsaveTarget(target *Target, options *JpegsaveTargetOptions) (error) {
+func (r *Image) JpegsaveTarget(target *Target, options *JpegsaveTargetOptions) error {
 	if options != nil {
 		err := vipsgenJpegsaveTargetWithOptions(r.image, target.target, options.Q, options.OptimizeCoding, options.Interlace, options.TrellisQuant, options.OvershootDeringing, options.OptimizeScans, options.QuantTable, options.SubsampleMode, options.RestartInterval, options.Keep, options.Background, options.PageHeight, options.Profile)
 		if err != nil {
@@ -7175,17 +7045,17 @@ type JxlsaveOptions struct {
 func DefaultJxlsaveOptions() *JxlsaveOptions {
 	return &JxlsaveOptions{
 		Distance: Ptr(1.0),
-		Effort: 7,
-		Q: Ptr(75),
+		Effort:   7,
+		Q:        Ptr(75),
 		Bitdepth: 8,
-		Keep: Ptr(KeepAll),
+		Keep:     Ptr(KeepAll),
 	}
 }
 
 // Jxlsave vips_jxlsave save image in JPEG-XL format
 //
 // The filename specifies filename to save to.
-func (r *Image) Jxlsave(filename string, options *JxlsaveOptions) (error) {
+func (r *Image) Jxlsave(filename string, options *JxlsaveOptions) error {
 	if options != nil {
 		err := vipsgenJxlsaveWithOptions(r.image, filename, options.Tier, options.Distance, options.Effort, options.Lossless, options.Q, options.Bitdepth, options.Keep, options.Background, options.PageHeight, options.Profile)
 		if err != nil {
@@ -7228,10 +7098,10 @@ type JxlsaveBufferOptions struct {
 func DefaultJxlsaveBufferOptions() *JxlsaveBufferOptions {
 	return &JxlsaveBufferOptions{
 		Distance: Ptr(1.0),
-		Effort: 7,
-		Q: Ptr(75),
+		Effort:   7,
+		Q:        Ptr(75),
 		Bitdepth: 8,
-		Keep: Ptr(KeepAll),
+		Keep:     Ptr(KeepAll),
 	}
 }
 
@@ -7279,17 +7149,17 @@ type JxlsaveTargetOptions struct {
 func DefaultJxlsaveTargetOptions() *JxlsaveTargetOptions {
 	return &JxlsaveTargetOptions{
 		Distance: Ptr(1.0),
-		Effort: 7,
-		Q: Ptr(75),
+		Effort:   7,
+		Q:        Ptr(75),
 		Bitdepth: 8,
-		Keep: Ptr(KeepAll),
+		Keep:     Ptr(KeepAll),
 	}
 }
 
 // JxlsaveTarget vips_jxlsave_target save image in JPEG-XL format
 //
 // The target specifies target to save to.
-func (r *Image) JxlsaveTarget(target *Target, options *JxlsaveTargetOptions) (error) {
+func (r *Image) JxlsaveTarget(target *Target, options *JxlsaveTargetOptions) error {
 	if options != nil {
 		err := vipsgenJxlsaveTargetWithOptions(r.image, target.target, options.Tier, options.Distance, options.Effort, options.Lossless, options.Q, options.Bitdepth, options.Keep, options.Background, options.PageHeight, options.Profile)
 		if err != nil {
@@ -7312,12 +7182,11 @@ type LabelregionsOptions struct {
 
 // DefaultLabelregionsOptions creates default value for vips_labelregions optional arguments
 func DefaultLabelregionsOptions() *LabelregionsOptions {
-	return &LabelregionsOptions{
-	}
+	return &LabelregionsOptions{}
 }
 
 // Labelregions vips_labelregions label regions in an image
-func (r *Image) Labelregions(options *LabelregionsOptions) (error) {
+func (r *Image) Labelregions(options *LabelregionsOptions) error {
 	if options != nil {
 		out, err := vipsgenLabelregionsWithOptions(r.image, &options.Segments)
 		if err != nil {
@@ -7342,15 +7211,14 @@ type LinearOptions struct {
 
 // DefaultLinearOptions creates default value for vips_linear optional arguments
 func DefaultLinearOptions() *LinearOptions {
-	return &LinearOptions{
-	}
+	return &LinearOptions{}
 }
 
 // Linear vips_linear calculate (a * in + b)
 //
 // The a specifies multiply by this.
 // The b specifies add this.
-func (r *Image) Linear(a []float64, b []float64, options *LinearOptions) (error) {
+func (r *Image) Linear(a []float64, b []float64, options *LinearOptions) error {
 	if options != nil {
 		out, err := vipsgenLinearWithOptions(r.image, a, b, options.Uchar)
 		if err != nil {
@@ -7436,7 +7304,7 @@ func DefaultMagicksaveOptions() *MagicksaveOptions {
 // Magicksave vips_magicksave save file with ImageMagick
 //
 // The filename specifies filename to save to.
-func (r *Image) Magicksave(filename string, options *MagicksaveOptions) (error) {
+func (r *Image) Magicksave(filename string, options *MagicksaveOptions) error {
 	if options != nil {
 		err := vipsgenMagicksaveWithOptions(r.image, filename, options.Format, options.Quality, options.OptimizeGifFrames, options.OptimizeGifTransparency, options.Bitdepth, options.Keep, options.Background, options.PageHeight, options.Profile)
 		if err != nil {
@@ -7518,7 +7386,7 @@ func DefaultMapimOptions() *MapimOptions {
 // Mapim vips_mapim resample with a map image
 //
 // The index specifies index pixels with this.
-func (r *Image) Mapim(index *Image, options *MapimOptions) (error) {
+func (r *Image) Mapim(index *Image, options *MapimOptions) error {
 	if options != nil {
 		out, err := vipsgenMapimWithOptions(r.image, index.image, options.Interpolate, options.Background, options.Premultiplied, options.Extend)
 		if err != nil {
@@ -7551,7 +7419,7 @@ func DefaultMaplutOptions() *MaplutOptions {
 // Maplut vips_maplut map an image though a lut
 //
 // The lut specifies look-up table image.
-func (r *Image) Maplut(lut *Image, options *MaplutOptions) (error) {
+func (r *Image) Maplut(lut *Image, options *MaplutOptions) error {
 	if options != nil {
 		out, err := vipsgenMaplutWithOptions(r.image, lut.image, options.Band)
 		if err != nil {
@@ -7584,7 +7452,7 @@ type MatchOptions struct {
 func DefaultMatchOptions() *MatchOptions {
 	return &MatchOptions{
 		Hwindow: Ptr(5),
-		Harea: Ptr(15),
+		Harea:   Ptr(15),
 	}
 }
 
@@ -7599,7 +7467,7 @@ func DefaultMatchOptions() *MatchOptions {
 // The yr2 specifies position of second reference tie-point.
 // The xs2 specifies position of second secondary tie-point.
 // The ys2 specifies position of second secondary tie-point.
-func (r *Image) Match(sec *Image, xr1 int, yr1 int, xs1 int, ys1 int, xr2 int, yr2 int, xs2 int, ys2 int, options *MatchOptions) (error) {
+func (r *Image) Match(sec *Image, xr1 int, yr1 int, xs1 int, ys1 int, xr2 int, yr2 int, xs2 int, ys2 int, options *MatchOptions) error {
 	if options != nil {
 		out, err := vipsgenMatchWithOptions(r.image, sec.image, xr1, yr1, xs1, ys1, xr2, yr2, xs2, ys2, options.Hwindow, options.Harea, options.Search, options.Interpolate)
 		if err != nil {
@@ -7616,11 +7484,10 @@ func (r *Image) Match(sec *Image, xr1 int, yr1 int, xs1 int, ys1 int, xr2 int, y
 	return nil
 }
 
-
 // Math vips_math apply a math operation to an image
 //
 // The math specifies math to perform.
-func (r *Image) Math(math OperationMath) (error) {
+func (r *Image) Math(math OperationMath) error {
 	out, err := vipsgenMath(r.image, math)
 	if err != nil {
 		return err
@@ -7629,12 +7496,11 @@ func (r *Image) Math(math OperationMath) (error) {
 	return nil
 }
 
-
 // Math2 vips_math2 binary math operations
 //
 // The right specifies right-hand image argument.
 // The math2 specifies math to perform.
-func (r *Image) Math2(right *Image, math2 OperationMath2) (error) {
+func (r *Image) Math2(right *Image, math2 OperationMath2) error {
 	out, err := vipsgenMath2(r.image, right.image, math2)
 	if err != nil {
 		return err
@@ -7643,12 +7509,11 @@ func (r *Image) Math2(right *Image, math2 OperationMath2) (error) {
 	return nil
 }
 
-
 // Math2Const vips_math2_const binary math operations with a constant
 //
 // The math2 specifies math to perform.
 // The c specifies array of constants.
-func (r *Image) Math2Const(math2 OperationMath2, c []float64) (error) {
+func (r *Image) Math2Const(math2 OperationMath2, c []float64) error {
 	out, err := vipsgenMath2Const(r.image, math2, c)
 	if err != nil {
 		return err
@@ -7657,9 +7522,8 @@ func (r *Image) Math2Const(math2 OperationMath2, c []float64) (error) {
 	return nil
 }
 
-
 // Matrixinvert vips_matrixinvert invert a matrix
-func (r *Image) Matrixinvert() (error) {
+func (r *Image) Matrixinvert() error {
 	out, err := vipsgenMatrixinvert(r.image)
 	if err != nil {
 		return err
@@ -7668,11 +7532,10 @@ func (r *Image) Matrixinvert() (error) {
 	return nil
 }
 
-
 // Matrixmultiply vips_matrixmultiply multiply two matrices
 //
 // The right specifies second matrix to multiply.
-func (r *Image) Matrixmultiply(right *Image) (error) {
+func (r *Image) Matrixmultiply(right *Image) error {
 	out, err := vipsgenMatrixmultiply(r.image, right.image)
 	if err != nil {
 		return err
@@ -7701,7 +7564,7 @@ func DefaultMatrixprintOptions() *MatrixprintOptions {
 }
 
 // Matrixprint vips_matrixprint print matrix
-func (r *Image) Matrixprint(options *MatrixprintOptions) (error) {
+func (r *Image) Matrixprint(options *MatrixprintOptions) error {
 	if options != nil {
 		err := vipsgenMatrixprintWithOptions(r.image, options.Keep, options.Background, options.PageHeight, options.Profile)
 		if err != nil {
@@ -7738,7 +7601,7 @@ func DefaultMatrixsaveOptions() *MatrixsaveOptions {
 // Matrixsave vips_matrixsave save image to matrix
 //
 // The filename specifies filename to save to.
-func (r *Image) Matrixsave(filename string, options *MatrixsaveOptions) (error) {
+func (r *Image) Matrixsave(filename string, options *MatrixsaveOptions) error {
 	if options != nil {
 		err := vipsgenMatrixsaveWithOptions(r.image, filename, options.Keep, options.Background, options.PageHeight, options.Profile)
 		if err != nil {
@@ -7775,7 +7638,7 @@ func DefaultMatrixsaveTargetOptions() *MatrixsaveTargetOptions {
 // MatrixsaveTarget vips_matrixsave_target save image to matrix
 //
 // The target specifies target to save to.
-func (r *Image) MatrixsaveTarget(target *Target, options *MatrixsaveTargetOptions) (error) {
+func (r *Image) MatrixsaveTarget(target *Target, options *MatrixsaveTargetOptions) error {
 	if options != nil {
 		err := vipsgenMatrixsaveTargetWithOptions(r.image, target.target, options.Keep, options.Background, options.PageHeight, options.Profile)
 		if err != nil {
@@ -7823,11 +7686,10 @@ func (r *Image) Max(options *MaxOptions) (float64, error) {
 	return out, nil
 }
 
-
 // Maxpair vips_maxpair maximum of a pair of images
 //
 // The right specifies right-hand image argument.
-func (r *Image) Maxpair(right *Image) (error) {
+func (r *Image) Maxpair(right *Image) error {
 	out, err := vipsgenMaxpair(r.image, right.image)
 	if err != nil {
 		return err
@@ -7851,7 +7713,7 @@ type MeasureOptions struct {
 // DefaultMeasureOptions creates default value for vips_measure optional arguments
 func DefaultMeasureOptions() *MeasureOptions {
 	return &MeasureOptions{
-		Width: 1,
+		Width:  1,
 		Height: 1,
 	}
 }
@@ -7860,7 +7722,7 @@ func DefaultMeasureOptions() *MeasureOptions {
 //
 // The h specifies number of patches across chart.
 // The v specifies number of patches down chart.
-func (r *Image) Measure(h int, v int, options *MeasureOptions) (error) {
+func (r *Image) Measure(h int, v int, options *MeasureOptions) error {
 	if options != nil {
 		out, err := vipsgenMeasureWithOptions(r.image, h, v, options.Left, options.Top, options.Width, options.Height)
 		if err != nil {
@@ -7896,7 +7758,7 @@ func DefaultMergeOptions() *MergeOptions {
 // The direction specifies horizontal or vertical merge.
 // The dx specifies horizontal displacement from sec to ref.
 // The dy specifies vertical displacement from sec to ref.
-func (r *Image) Merge(sec *Image, direction Direction, dx int, dy int, options *MergeOptions) (error) {
+func (r *Image) Merge(sec *Image, direction Direction, dx int, dy int, options *MergeOptions) error {
 	if options != nil {
 		out, err := vipsgenMergeWithOptions(r.image, sec.image, direction, dx, dy, options.Mblend)
 		if err != nil {
@@ -7946,11 +7808,10 @@ func (r *Image) Min(options *MinOptions) (float64, error) {
 	return out, nil
 }
 
-
 // Minpair vips_minpair minimum of a pair of images
 //
 // The right specifies right-hand image argument.
-func (r *Image) Minpair(right *Image) (error) {
+func (r *Image) Minpair(right *Image) error {
 	out, err := vipsgenMinpair(r.image, right.image)
 	if err != nil {
 		return err
@@ -7959,12 +7820,11 @@ func (r *Image) Minpair(right *Image) (error) {
 	return nil
 }
 
-
 // Morph vips_morph morphology operation
 //
 // The mask specifies input matrix image.
 // The morph specifies morphological operation to perform.
-func (r *Image) Morph(mask *Image, morph OperationMorphology) (error) {
+func (r *Image) Morph(mask *Image, morph OperationMorphology) error {
 	out, err := vipsgenMorph(r.image, mask.image, morph)
 	if err != nil {
 		return err
@@ -8001,8 +7861,8 @@ type MosaicOptions struct {
 func DefaultMosaicOptions() *MosaicOptions {
 	return &MosaicOptions{
 		Hwindow: Ptr(5),
-		Harea: Ptr(15),
-		Mblend: Ptr(10),
+		Harea:   Ptr(15),
+		Mblend:  Ptr(10),
 	}
 }
 
@@ -8014,7 +7874,7 @@ func DefaultMosaicOptions() *MosaicOptions {
 // The yref specifies position of reference tie-point.
 // The xsec specifies position of secondary tie-point.
 // The ysec specifies position of secondary tie-point.
-func (r *Image) Mosaic(sec *Image, direction Direction, xref int, yref int, xsec int, ysec int, options *MosaicOptions) (error) {
+func (r *Image) Mosaic(sec *Image, direction Direction, xref int, yref int, xsec int, ysec int, options *MosaicOptions) error {
 	if options != nil {
 		out, err := vipsgenMosaicWithOptions(r.image, sec.image, direction, xref, yref, xsec, ysec, options.Hwindow, options.Harea, options.Mblend, options.Bandno, &options.Dx0, &options.Dy0, &options.Scale1, &options.Angle1, &options.Dy1, &options.Dx1)
 		if err != nil {
@@ -8049,8 +7909,8 @@ type Mosaic1Options struct {
 func DefaultMosaic1Options() *Mosaic1Options {
 	return &Mosaic1Options{
 		Hwindow: Ptr(5),
-		Harea: Ptr(15),
-		Mblend: Ptr(10),
+		Harea:   Ptr(15),
+		Mblend:  Ptr(10),
 	}
 }
 
@@ -8066,7 +7926,7 @@ func DefaultMosaic1Options() *Mosaic1Options {
 // The yr2 specifies position of second reference tie-point.
 // The xs2 specifies position of second secondary tie-point.
 // The ys2 specifies position of second secondary tie-point.
-func (r *Image) Mosaic1(sec *Image, direction Direction, xr1 int, yr1 int, xs1 int, ys1 int, xr2 int, yr2 int, xs2 int, ys2 int, options *Mosaic1Options) (error) {
+func (r *Image) Mosaic1(sec *Image, direction Direction, xr1 int, yr1 int, xs1 int, ys1 int, xr2 int, yr2 int, xs2 int, ys2 int, options *Mosaic1Options) error {
 	if options != nil {
 		out, err := vipsgenMosaic1WithOptions(r.image, sec.image, direction, xr1, yr1, xs1, ys1, xr2, yr2, xs2, ys2, options.Hwindow, options.Harea, options.Search, options.Interpolate, options.Mblend)
 		if err != nil {
@@ -8097,7 +7957,7 @@ func DefaultMsbOptions() *MsbOptions {
 }
 
 // Msb vips_msb pick most-significant byte from an image
-func (r *Image) Msb(options *MsbOptions) (error) {
+func (r *Image) Msb(options *MsbOptions) error {
 	if options != nil {
 		out, err := vipsgenMsbWithOptions(r.image, options.Band)
 		if err != nil {
@@ -8114,11 +7974,10 @@ func (r *Image) Msb(options *MsbOptions) (error) {
 	return nil
 }
 
-
 // Multiply vips_multiply multiply two images
 //
 // The right specifies right-hand image argument.
-func (r *Image) Multiply(right *Image) (error) {
+func (r *Image) Multiply(right *Image) error {
 	out, err := vipsgenMultiply(r.image, right.image)
 	if err != nil {
 		return err
@@ -8149,7 +8008,7 @@ func DefaultNiftisaveOptions() *NiftisaveOptions {
 // Niftisave vips_niftisave save image to nifti file
 //
 // The filename specifies filename to save to.
-func (r *Image) Niftisave(filename string, options *NiftisaveOptions) (error) {
+func (r *Image) Niftisave(filename string, options *NiftisaveOptions) error {
 	if options != nil {
 		err := vipsgenNiftisaveWithOptions(r.image, filename, options.Keep, options.Background, options.PageHeight, options.Profile)
 		if err != nil {
@@ -8164,7 +8023,6 @@ func (r *Image) Niftisave(filename string, options *NiftisaveOptions) (error) {
 	return nil
 }
 
-
 // Percent vips_percent find threshold for percent of pixels
 //
 // The percent specifies percent of pixels.
@@ -8176,11 +8034,10 @@ func (r *Image) Percent(percent float64) (int, error) {
 	return threshold, nil
 }
 
-
 // Phasecor vips_phasecor calculate phase correlation
 //
 // The in2 specifies second input image.
-func (r *Image) Phasecor(in2 *Image) (error) {
+func (r *Image) Phasecor(in2 *Image) error {
 	out, err := vipsgenPhasecor(r.image, in2.image)
 	if err != nil {
 		return err
@@ -8221,19 +8078,19 @@ type PngsaveOptions struct {
 func DefaultPngsaveOptions() *PngsaveOptions {
 	return &PngsaveOptions{
 		Compression: Ptr(6),
-		Filter: PngFilterNone,
-		Q: Ptr(100),
-		Dither: Ptr(1.0),
-		Bitdepth: 8,
-		Effort: 7,
-		Keep: Ptr(KeepAll),
+		Filter:      PngFilterNone,
+		Q:           Ptr(100),
+		Dither:      Ptr(1.0),
+		Bitdepth:    8,
+		Effort:      7,
+		Keep:        Ptr(KeepAll),
 	}
 }
 
 // Pngsave vips_pngsave save image to file as png
 //
 // The filename specifies filename to save to.
-func (r *Image) Pngsave(filename string, options *PngsaveOptions) (error) {
+func (r *Image) Pngsave(filename string, options *PngsaveOptions) error {
 	if options != nil {
 		err := vipsgenPngsaveWithOptions(r.image, filename, options.Compression, options.Interlace, options.Filter, options.Palette, options.Q, options.Dither, options.Bitdepth, options.Effort, options.Keep, options.Background, options.PageHeight, options.Profile)
 		if err != nil {
@@ -8280,12 +8137,12 @@ type PngsaveBufferOptions struct {
 func DefaultPngsaveBufferOptions() *PngsaveBufferOptions {
 	return &PngsaveBufferOptions{
 		Compression: Ptr(6),
-		Filter: PngFilterNone,
-		Q: Ptr(100),
-		Dither: Ptr(1.0),
-		Bitdepth: 8,
-		Effort: 7,
-		Keep: Ptr(KeepAll),
+		Filter:      PngFilterNone,
+		Q:           Ptr(100),
+		Dither:      Ptr(1.0),
+		Bitdepth:    8,
+		Effort:      7,
+		Keep:        Ptr(KeepAll),
 	}
 }
 
@@ -8337,19 +8194,19 @@ type PngsaveTargetOptions struct {
 func DefaultPngsaveTargetOptions() *PngsaveTargetOptions {
 	return &PngsaveTargetOptions{
 		Compression: Ptr(6),
-		Filter: PngFilterNone,
-		Q: Ptr(100),
-		Dither: Ptr(1.0),
-		Bitdepth: 8,
-		Effort: 7,
-		Keep: Ptr(KeepAll),
+		Filter:      PngFilterNone,
+		Q:           Ptr(100),
+		Dither:      Ptr(1.0),
+		Bitdepth:    8,
+		Effort:      7,
+		Keep:        Ptr(KeepAll),
 	}
 }
 
 // PngsaveTarget vips_pngsave_target save image to target as PNG
 //
 // The target specifies target to save to.
-func (r *Image) PngsaveTarget(target *Target, options *PngsaveTargetOptions) (error) {
+func (r *Image) PngsaveTarget(target *Target, options *PngsaveTargetOptions) error {
 	if options != nil {
 		err := vipsgenPngsaveTargetWithOptions(r.image, target.target, options.Compression, options.Interlace, options.Filter, options.Palette, options.Q, options.Dither, options.Bitdepth, options.Effort, options.Keep, options.Background, options.PageHeight, options.Profile)
 		if err != nil {
@@ -8386,14 +8243,14 @@ type PpmsaveOptions struct {
 func DefaultPpmsaveOptions() *PpmsaveOptions {
 	return &PpmsaveOptions{
 		Format: Ptr(PpmFormatPpm),
-		Keep: Ptr(KeepAll),
+		Keep:   Ptr(KeepAll),
 	}
 }
 
 // Ppmsave vips_ppmsave save image to ppm file
 //
 // The filename specifies filename to save to.
-func (r *Image) Ppmsave(filename string, options *PpmsaveOptions) (error) {
+func (r *Image) Ppmsave(filename string, options *PpmsaveOptions) error {
 	if options != nil {
 		err := vipsgenPpmsaveWithOptions(r.image, filename, options.Format, options.Ascii, options.Bitdepth, options.Keep, options.Background, options.PageHeight, options.Profile)
 		if err != nil {
@@ -8430,14 +8287,14 @@ type PpmsaveTargetOptions struct {
 func DefaultPpmsaveTargetOptions() *PpmsaveTargetOptions {
 	return &PpmsaveTargetOptions{
 		Format: Ptr(PpmFormatPpm),
-		Keep: Ptr(KeepAll),
+		Keep:   Ptr(KeepAll),
 	}
 }
 
 // PpmsaveTarget vips_ppmsave_target save to ppm
 //
 // The target specifies target to save to.
-func (r *Image) PpmsaveTarget(target *Target, options *PpmsaveTargetOptions) (error) {
+func (r *Image) PpmsaveTarget(target *Target, options *PpmsaveTargetOptions) error {
 	if options != nil {
 		err := vipsgenPpmsaveTargetWithOptions(r.image, target.target, options.Format, options.Ascii, options.Bitdepth, options.Keep, options.Background, options.PageHeight, options.Profile)
 		if err != nil {
@@ -8466,7 +8323,7 @@ func DefaultPremultiplyOptions() *PremultiplyOptions {
 }
 
 // Premultiply vips_premultiply premultiply image alpha
-func (r *Image) Premultiply(options *PremultiplyOptions) (error) {
+func (r *Image) Premultiply(options *PremultiplyOptions) error {
 	if options != nil {
 		out, err := vipsgenPremultiplyWithOptions(r.image, options.MaxAlpha)
 		if err != nil {
@@ -8483,9 +8340,8 @@ func (r *Image) Premultiply(options *PremultiplyOptions) (error) {
 	return nil
 }
 
-
 // Prewitt vips_prewitt Prewitt edge detector
-func (r *Image) Prewitt() (error) {
+func (r *Image) Prewitt() error {
 	out, err := vipsgenPrewitt(r.image)
 	if err != nil {
 		return err
@@ -8493,7 +8349,6 @@ func (r *Image) Prewitt() (error) {
 	r.setImage(out)
 	return nil
 }
-
 
 // Profile vips_profile find image profiles
 func (r *Image) Profile() (*Image, *Image, error) {
@@ -8505,7 +8360,6 @@ func (r *Image) Profile() (*Image, *Image, error) {
 	rowsImage := newImageRef(rows, r.format, nil)
 	return columnsImage, rowsImage, nil
 }
-
 
 // Project vips_project find image projections
 func (r *Image) Project() (*Image, *Image, error) {
@@ -8526,14 +8380,13 @@ type QuadraticOptions struct {
 
 // DefaultQuadraticOptions creates default value for vips_quadratic optional arguments
 func DefaultQuadraticOptions() *QuadraticOptions {
-	return &QuadraticOptions{
-	}
+	return &QuadraticOptions{}
 }
 
 // Quadratic vips_quadratic resample an image with a quadratic transform
 //
 // The coeff specifies coefficient matrix.
-func (r *Image) Quadratic(coeff *Image, options *QuadraticOptions) (error) {
+func (r *Image) Quadratic(coeff *Image, options *QuadraticOptions) error {
 	if options != nil {
 		out, err := vipsgenQuadraticWithOptions(r.image, coeff.image, options.Interpolate)
 		if err != nil {
@@ -8550,9 +8403,8 @@ func (r *Image) Quadratic(coeff *Image, options *QuadraticOptions) (error) {
 	return nil
 }
 
-
 // Rad2float vips_rad2float unpack Radiance coding to float RGB
-func (r *Image) Rad2float() (error) {
+func (r *Image) Rad2float() error {
 	out, err := vipsgenRad2float(r.image)
 	if err != nil {
 		return err
@@ -8583,7 +8435,7 @@ func DefaultRadsaveOptions() *RadsaveOptions {
 // Radsave vips_radsave save image to Radiance file
 //
 // The filename specifies filename to save to.
-func (r *Image) Radsave(filename string, options *RadsaveOptions) (error) {
+func (r *Image) Radsave(filename string, options *RadsaveOptions) error {
 	if options != nil {
 		err := vipsgenRadsaveWithOptions(r.image, filename, options.Keep, options.Background, options.PageHeight, options.Profile)
 		if err != nil {
@@ -8655,7 +8507,7 @@ func DefaultRadsaveTargetOptions() *RadsaveTargetOptions {
 // RadsaveTarget vips_radsave_target save image to Radiance target
 //
 // The target specifies target to save to.
-func (r *Image) RadsaveTarget(target *Target, options *RadsaveTargetOptions) (error) {
+func (r *Image) RadsaveTarget(target *Target, options *RadsaveTargetOptions) error {
 	if options != nil {
 		err := vipsgenRadsaveTargetWithOptions(r.image, target.target, options.Keep, options.Background, options.PageHeight, options.Profile)
 		if err != nil {
@@ -8670,13 +8522,12 @@ func (r *Image) RadsaveTarget(target *Target, options *RadsaveTargetOptions) (er
 	return nil
 }
 
-
 // Rank vips_rank rank filter
 //
 // The width specifies window width in pixels.
 // The height specifies window height in pixels.
 // The index specifies select pixel at index.
-func (r *Image) Rank(width int, height int, index int) (error) {
+func (r *Image) Rank(width int, height int, index int) error {
 	out, err := vipsgenRank(r.image, width, height, index)
 	if err != nil {
 		return err
@@ -8707,7 +8558,7 @@ func DefaultRawsaveOptions() *RawsaveOptions {
 // Rawsave vips_rawsave save image to raw file
 //
 // The filename specifies filename to save to.
-func (r *Image) Rawsave(filename string, options *RawsaveOptions) (error) {
+func (r *Image) Rawsave(filename string, options *RawsaveOptions) error {
 	if options != nil {
 		err := vipsgenRawsaveWithOptions(r.image, filename, options.Keep, options.Background, options.PageHeight, options.Profile)
 		if err != nil {
@@ -8779,7 +8630,7 @@ func DefaultRawsaveTargetOptions() *RawsaveTargetOptions {
 // RawsaveTarget vips_rawsave_target write raw image to target
 //
 // The target specifies target to save to.
-func (r *Image) RawsaveTarget(target *Target, options *RawsaveTargetOptions) (error) {
+func (r *Image) RawsaveTarget(target *Target, options *RawsaveTargetOptions) error {
 	if options != nil {
 		err := vipsgenRawsaveTargetWithOptions(r.image, target.target, options.Keep, options.Background, options.PageHeight, options.Profile)
 		if err != nil {
@@ -8794,11 +8645,10 @@ func (r *Image) RawsaveTarget(target *Target, options *RawsaveTargetOptions) (er
 	return nil
 }
 
-
 // Recomb vips_recomb linear recombination with matrix
 //
 // The m specifies matrix of coefficients.
-func (r *Image) Recomb(m *Image) (error) {
+func (r *Image) Recomb(m *Image) error {
 	out, err := vipsgenRecomb(r.image, m.image)
 	if err != nil {
 		return err
@@ -8826,7 +8676,7 @@ func DefaultReduceOptions() *ReduceOptions {
 //
 // The hshrink specifies horizontal shrink factor.
 // The vshrink specifies vertical shrink factor.
-func (r *Image) Reduce(hshrink float64, vshrink float64, options *ReduceOptions) (error) {
+func (r *Image) Reduce(hshrink float64, vshrink float64, options *ReduceOptions) error {
 	if options != nil {
 		out, err := vipsgenReduceWithOptions(r.image, hshrink, vshrink, options.Kernel, options.Gap)
 		if err != nil {
@@ -8861,7 +8711,7 @@ func DefaultReducehOptions() *ReducehOptions {
 // Reduceh vips_reduceh shrink an image horizontally
 //
 // The hshrink specifies horizontal shrink factor.
-func (r *Image) Reduceh(hshrink float64, options *ReducehOptions) (error) {
+func (r *Image) Reduceh(hshrink float64, options *ReducehOptions) error {
 	if options != nil {
 		out, err := vipsgenReducehWithOptions(r.image, hshrink, options.Kernel, options.Gap)
 		if err != nil {
@@ -8896,7 +8746,7 @@ func DefaultReducevOptions() *ReducevOptions {
 // Reducev vips_reducev shrink an image vertically
 //
 // The vshrink specifies vertical shrink factor.
-func (r *Image) Reducev(vshrink float64, options *ReducevOptions) (error) {
+func (r *Image) Reducev(vshrink float64, options *ReducevOptions) error {
 	if options != nil {
 		out, err := vipsgenReducevWithOptions(r.image, vshrink, options.Kernel, options.Gap)
 		if err != nil {
@@ -8913,12 +8763,11 @@ func (r *Image) Reducev(vshrink float64, options *ReducevOptions) (error) {
 	return nil
 }
 
-
 // Relational vips_relational relational operation on two images
 //
 // The right specifies right-hand image argument.
 // The relational specifies relational to perform.
-func (r *Image) Relational(right *Image, relational OperationRelational) (error) {
+func (r *Image) Relational(right *Image, relational OperationRelational) error {
 	out, err := vipsgenRelational(r.image, right.image, relational)
 	if err != nil {
 		return err
@@ -8927,12 +8776,11 @@ func (r *Image) Relational(right *Image, relational OperationRelational) (error)
 	return nil
 }
 
-
 // RelationalConst vips_relational_const relational operations against a constant
 //
 // The relational specifies relational to perform.
 // The c specifies array of constants.
-func (r *Image) RelationalConst(relational OperationRelational, c []float64) (error) {
+func (r *Image) RelationalConst(relational OperationRelational, c []float64) error {
 	out, err := vipsgenRelationalConst(r.image, relational, c)
 	if err != nil {
 		return err
@@ -8941,11 +8789,10 @@ func (r *Image) RelationalConst(relational OperationRelational, c []float64) (er
 	return nil
 }
 
-
 // Remainder vips_remainder remainder after integer division of two images
 //
 // The right specifies right-hand image argument.
-func (r *Image) Remainder(right *Image) (error) {
+func (r *Image) Remainder(right *Image) error {
 	out, err := vipsgenRemainder(r.image, right.image)
 	if err != nil {
 		return err
@@ -8954,11 +8801,10 @@ func (r *Image) Remainder(right *Image) (error) {
 	return nil
 }
 
-
 // RemainderConst vips_remainder_const remainder after integer division of an image and a constant
 //
 // The c specifies array of constants.
-func (r *Image) RemainderConst(c []float64) (error) {
+func (r *Image) RemainderConst(c []float64) error {
 	out, err := vipsgenRemainderConst(r.image, c)
 	if err != nil {
 		return err
@@ -8967,12 +8813,11 @@ func (r *Image) RemainderConst(c []float64) (error) {
 	return nil
 }
 
-
 // Remosaic vips_remosaic rebuild an mosaiced image
 //
 // The oldStr specifies search for this string.
 // The newStr specifies and swap for this string.
-func (r *Image) Remosaic(oldStr string, newStr string) (error) {
+func (r *Image) Remosaic(oldStr string, newStr string) error {
 	out, err := vipsgenRemosaic(r.image, oldStr, newStr)
 	if err != nil {
 		return err
@@ -8981,12 +8826,11 @@ func (r *Image) Remosaic(oldStr string, newStr string) (error) {
 	return nil
 }
 
-
 // Replicate vips_replicate replicate an image
 //
 // The across specifies repeat this many times horizontally.
 // The down specifies repeat this many times vertically.
-func (r *Image) Replicate(across int, down int) (error) {
+func (r *Image) Replicate(across int, down int) error {
 	out, err := vipsgenReplicate(r.image, across, down)
 	if err != nil {
 		return err
@@ -9009,14 +8853,14 @@ type ResizeOptions struct {
 func DefaultResizeOptions() *ResizeOptions {
 	return &ResizeOptions{
 		Kernel: Ptr(KernelLanczos3),
-		Gap: Ptr(2.0),
+		Gap:    Ptr(2.0),
 	}
 }
 
 // Resize vips_resize resize an image
 //
 // The scale specifies scale image by this factor.
-func (r *Image) Resize(scale float64, options *ResizeOptions) (error) {
+func (r *Image) Resize(scale float64, options *ResizeOptions) error {
 	if options != nil {
 		out, err := vipsgenResizeWithOptions(r.image, scale, options.Kernel, options.Gap, options.Vscale)
 		if err != nil {
@@ -9033,11 +8877,10 @@ func (r *Image) Resize(scale float64, options *ResizeOptions) (error) {
 	return nil
 }
 
-
 // Rot vips_rot rotate an image
 //
 // The angle specifies angle to rotate image.
-func (r *Image) Rot(angle Angle) (error) {
+func (r *Image) Rot(angle Angle) error {
 	out, err := vipsgenRot(r.image, angle)
 	if err != nil {
 		return err
@@ -9060,7 +8903,7 @@ func DefaultRot45Options() *Rot45Options {
 }
 
 // Rot45 vips_rot45 rotate an image
-func (r *Image) Rot45(options *Rot45Options) (error) {
+func (r *Image) Rot45(options *Rot45Options) error {
 	if options != nil {
 		out, err := vipsgenRot45WithOptions(r.image, options.Angle)
 		if err != nil {
@@ -9095,14 +8938,13 @@ type RotateOptions struct {
 
 // DefaultRotateOptions creates default value for vips_rotate optional arguments
 func DefaultRotateOptions() *RotateOptions {
-	return &RotateOptions{
-	}
+	return &RotateOptions{}
 }
 
 // Rotate vips_rotate rotate an image by a number of degrees
 //
 // The angle specifies rotate clockwise by this many degrees.
-func (r *Image) Rotate(angle float64, options *RotateOptions) (error) {
+func (r *Image) Rotate(angle float64, options *RotateOptions) error {
 	if options != nil {
 		out, err := vipsgenRotateWithOptions(r.image, angle, options.Interpolate, options.Background, options.Odx, options.Ody, options.Idx, options.Idy)
 		if err != nil {
@@ -9119,11 +8961,10 @@ func (r *Image) Rotate(angle float64, options *RotateOptions) (error) {
 	return nil
 }
 
-
 // Round vips_round perform a round function on an image
 //
 // The round specifies rounding operation to perform.
-func (r *Image) Round(round OperationRound) (error) {
+func (r *Image) Round(round OperationRound) error {
 	out, err := vipsgenRound(r.image, round)
 	if err != nil {
 		return err
@@ -9132,9 +8973,8 @@ func (r *Image) Round(round OperationRound) (error) {
 	return nil
 }
 
-
 // SRGB2HSV vips_sRGB2HSV transform sRGB to HSV
-func (r *Image) SRGB2HSV() (error) {
+func (r *Image) SRGB2HSV() error {
 	out, err := vipsgenSRGB2HSV(r.image)
 	if err != nil {
 		return err
@@ -9143,9 +8983,8 @@ func (r *Image) SRGB2HSV() (error) {
 	return nil
 }
 
-
 // SRGB2scRGB vips_sRGB2scRGB convert an sRGB image to scRGB
-func (r *Image) SRGB2scRGB() (error) {
+func (r *Image) SRGB2scRGB() error {
 	out, err := vipsgenSRGB2scRGB(r.image)
 	if err != nil {
 		return err
@@ -9168,7 +9007,7 @@ func DefaultScRGB2BWOptions() *ScRGB2BWOptions {
 }
 
 // ScRGB2BW vips_scRGB2BW convert scRGB to BW
-func (r *Image) ScRGB2BW(options *ScRGB2BWOptions) (error) {
+func (r *Image) ScRGB2BW(options *ScRGB2BWOptions) error {
 	if options != nil {
 		out, err := vipsgenScRGB2BWWithOptions(r.image, options.Depth)
 		if err != nil {
@@ -9185,9 +9024,8 @@ func (r *Image) ScRGB2BW(options *ScRGB2BWOptions) (error) {
 	return nil
 }
 
-
 // ScRGB2XYZ vips_scRGB2XYZ transform scRGB to XYZ
-func (r *Image) ScRGB2XYZ() (error) {
+func (r *Image) ScRGB2XYZ() error {
 	out, err := vipsgenScRGB2XYZ(r.image)
 	if err != nil {
 		return err
@@ -9210,7 +9048,7 @@ func DefaultScRGB2sRGBOptions() *ScRGB2sRGBOptions {
 }
 
 // ScRGB2sRGB vips_scRGB2sRGB convert scRGB to sRGB
-func (r *Image) ScRGB2sRGB(options *ScRGB2sRGBOptions) (error) {
+func (r *Image) ScRGB2sRGB(options *ScRGB2sRGBOptions) error {
 	if options != nil {
 		out, err := vipsgenScRGB2sRGBWithOptions(r.image, options.Depth)
 		if err != nil {
@@ -9243,7 +9081,7 @@ func DefaultScaleOptions() *ScaleOptions {
 }
 
 // Scale vips_scale scale an image to uchar
-func (r *Image) Scale(options *ScaleOptions) (error) {
+func (r *Image) Scale(options *ScaleOptions) error {
 	if options != nil {
 		out, err := vipsgenScaleWithOptions(r.image, options.Exp, options.Log)
 		if err != nil {
@@ -9260,9 +9098,8 @@ func (r *Image) Scale(options *ScaleOptions) (error) {
 	return nil
 }
 
-
 // Scharr vips_scharr Scharr edge detector
-func (r *Image) Scharr() (error) {
+func (r *Image) Scharr() error {
 	out, err := vipsgenScharr(r.image)
 	if err != nil {
 		return err
@@ -9322,15 +9159,15 @@ type SharpenOptions struct {
 func DefaultSharpenOptions() *SharpenOptions {
 	return &SharpenOptions{
 		Sigma: 0.5,
-		X1: Ptr(2.0),
-		Y2: Ptr(10.0),
-		Y3: Ptr(20.0),
-		M2: Ptr(3.0),
+		X1:    Ptr(2.0),
+		Y2:    Ptr(10.0),
+		Y3:    Ptr(20.0),
+		M2:    Ptr(3.0),
 	}
 }
 
 // Sharpen vips_sharpen unsharp masking for print
-func (r *Image) Sharpen(options *SharpenOptions) (error) {
+func (r *Image) Sharpen(options *SharpenOptions) error {
 	if options != nil {
 		out, err := vipsgenSharpenWithOptions(r.image, options.Sigma, options.X1, options.Y2, options.Y3, options.M1, options.M2)
 		if err != nil {
@@ -9355,15 +9192,14 @@ type ShrinkOptions struct {
 
 // DefaultShrinkOptions creates default value for vips_shrink optional arguments
 func DefaultShrinkOptions() *ShrinkOptions {
-	return &ShrinkOptions{
-	}
+	return &ShrinkOptions{}
 }
 
 // Shrink vips_shrink shrink an image
 //
 // The hshrink specifies horizontal shrink factor.
 // The vshrink specifies vertical shrink factor.
-func (r *Image) Shrink(hshrink float64, vshrink float64, options *ShrinkOptions) (error) {
+func (r *Image) Shrink(hshrink float64, vshrink float64, options *ShrinkOptions) error {
 	if options != nil {
 		out, err := vipsgenShrinkWithOptions(r.image, hshrink, vshrink, options.Ceil)
 		if err != nil {
@@ -9388,14 +9224,13 @@ type ShrinkhOptions struct {
 
 // DefaultShrinkhOptions creates default value for vips_shrinkh optional arguments
 func DefaultShrinkhOptions() *ShrinkhOptions {
-	return &ShrinkhOptions{
-	}
+	return &ShrinkhOptions{}
 }
 
 // Shrinkh vips_shrinkh shrink an image horizontally
 //
 // The hshrink specifies horizontal shrink factor.
-func (r *Image) Shrinkh(hshrink int, options *ShrinkhOptions) (error) {
+func (r *Image) Shrinkh(hshrink int, options *ShrinkhOptions) error {
 	if options != nil {
 		out, err := vipsgenShrinkhWithOptions(r.image, hshrink, options.Ceil)
 		if err != nil {
@@ -9420,14 +9255,13 @@ type ShrinkvOptions struct {
 
 // DefaultShrinkvOptions creates default value for vips_shrinkv optional arguments
 func DefaultShrinkvOptions() *ShrinkvOptions {
-	return &ShrinkvOptions{
-	}
+	return &ShrinkvOptions{}
 }
 
 // Shrinkv vips_shrinkv shrink an image vertically
 //
 // The vshrink specifies vertical shrink factor.
-func (r *Image) Shrinkv(vshrink int, options *ShrinkvOptions) (error) {
+func (r *Image) Shrinkv(vshrink int, options *ShrinkvOptions) error {
 	if options != nil {
 		out, err := vipsgenShrinkvWithOptions(r.image, vshrink, options.Ceil)
 		if err != nil {
@@ -9444,9 +9278,8 @@ func (r *Image) Shrinkv(vshrink int, options *ShrinkvOptions) (error) {
 	return nil
 }
 
-
 // Sign vips_sign unit vector of pixel
-func (r *Image) Sign() (error) {
+func (r *Image) Sign() error {
 	out, err := vipsgenSign(r.image)
 	if err != nil {
 		return err
@@ -9483,7 +9316,7 @@ func DefaultSimilarityOptions() *SimilarityOptions {
 }
 
 // Similarity vips_similarity similarity transform of an image
-func (r *Image) Similarity(options *SimilarityOptions) (error) {
+func (r *Image) Similarity(options *SimilarityOptions) error {
 	if options != nil {
 		out, err := vipsgenSimilarityWithOptions(r.image, options.Scale, options.Angle, options.Interpolate, options.Background, options.Odx, options.Ody, options.Idx, options.Idy)
 		if err != nil {
@@ -9523,7 +9356,7 @@ func DefaultSmartcropOptions() *SmartcropOptions {
 //
 // The width specifies width of extract area.
 // The height specifies height of extract area.
-func (r *Image) Smartcrop(width int, height int, options *SmartcropOptions) (error) {
+func (r *Image) Smartcrop(width int, height int, options *SmartcropOptions) error {
 	if options != nil {
 		out, err := vipsgenSmartcropWithOptions(r.image, width, height, options.Interesting, options.Premultiplied, &options.AttentionX, &options.AttentionY)
 		if err != nil {
@@ -9540,9 +9373,8 @@ func (r *Image) Smartcrop(width int, height int, options *SmartcropOptions) (err
 	return nil
 }
 
-
 // Sobel vips_sobel Sobel edge detector
-func (r *Image) Sobel() (error) {
+func (r *Image) Sobel() error {
 	out, err := vipsgenSobel(r.image)
 	if err != nil {
 		return err
@@ -9551,11 +9383,10 @@ func (r *Image) Sobel() (error) {
 	return nil
 }
 
-
 // Spcor vips_spcor spatial correlation
 //
 // The ref specifies input reference image.
-func (r *Image) Spcor(ref *Image) (error) {
+func (r *Image) Spcor(ref *Image) error {
 	out, err := vipsgenSpcor(r.image, ref.image)
 	if err != nil {
 		return err
@@ -9564,9 +9395,8 @@ func (r *Image) Spcor(ref *Image) (error) {
 	return nil
 }
 
-
 // Spectrum vips_spectrum make displayable power spectrum
-func (r *Image) Spectrum() (error) {
+func (r *Image) Spectrum() error {
 	out, err := vipsgenSpectrum(r.image)
 	if err != nil {
 		return err
@@ -9575,9 +9405,8 @@ func (r *Image) Spectrum() (error) {
 	return nil
 }
 
-
 // Stats vips_stats find many image stats
-func (r *Image) Stats() (error) {
+func (r *Image) Stats() error {
 	out, err := vipsgenStats(r.image)
 	if err != nil {
 		return err
@@ -9602,9 +9431,9 @@ type StdifOptions struct {
 func DefaultStdifOptions() *StdifOptions {
 	return &StdifOptions{
 		S0: Ptr(50.0),
-		B: Ptr(0.5),
+		B:  Ptr(0.5),
 		M0: Ptr(128.0),
-		A: Ptr(0.5),
+		A:  Ptr(0.5),
 	}
 }
 
@@ -9612,7 +9441,7 @@ func DefaultStdifOptions() *StdifOptions {
 //
 // The width specifies window width in pixels.
 // The height specifies window height in pixels.
-func (r *Image) Stdif(width int, height int, options *StdifOptions) (error) {
+func (r *Image) Stdif(width int, height int, options *StdifOptions) error {
 	if options != nil {
 		out, err := vipsgenStdifWithOptions(r.image, width, height, options.S0, options.B, options.M0, options.A)
 		if err != nil {
@@ -9637,15 +9466,14 @@ type SubsampleOptions struct {
 
 // DefaultSubsampleOptions creates default value for vips_subsample optional arguments
 func DefaultSubsampleOptions() *SubsampleOptions {
-	return &SubsampleOptions{
-	}
+	return &SubsampleOptions{}
 }
 
 // Subsample vips_subsample subsample an image
 //
 // The xfac specifies horizontal subsample factor.
 // The yfac specifies vertical subsample factor.
-func (r *Image) Subsample(xfac int, yfac int, options *SubsampleOptions) (error) {
+func (r *Image) Subsample(xfac int, yfac int, options *SubsampleOptions) error {
 	if options != nil {
 		out, err := vipsgenSubsampleWithOptions(r.image, xfac, yfac, options.Point)
 		if err != nil {
@@ -9662,11 +9490,10 @@ func (r *Image) Subsample(xfac int, yfac int, options *SubsampleOptions) (error)
 	return nil
 }
 
-
 // Subtract vips_subtract subtract two images
 //
 // The right specifies right-hand image argument.
-func (r *Image) Subtract(right *Image) (error) {
+func (r *Image) Subtract(right *Image) error {
 	out, err := vipsgenSubtract(r.image, right.image)
 	if err != nil {
 		return err
@@ -9708,7 +9535,7 @@ func DefaultThumbnailImageOptions() *ThumbnailImageOptions {
 // ThumbnailImage vips_thumbnail_image generate thumbnail from image
 //
 // The width specifies size to this width.
-func (r *Image) ThumbnailImage(width int, options *ThumbnailImageOptions) (error) {
+func (r *Image) ThumbnailImage(width int, options *ThumbnailImageOptions) error {
 	if options != nil {
 		out, err := vipsgenThumbnailImageWithOptions(r.image, width, options.Height, options.Size, options.NoRotate, options.Crop, options.Linear, options.InputProfile, options.OutputProfile, options.Intent, options.FailOn)
 		if err != nil {
@@ -9780,21 +9607,21 @@ type TiffsaveOptions struct {
 // DefaultTiffsaveOptions creates default value for vips_tiffsave optional arguments
 func DefaultTiffsaveOptions() *TiffsaveOptions {
 	return &TiffsaveOptions{
-		Q: 75,
-		Predictor: TiffPredictorHorizontal,
-		TileWidth: 128,
+		Q:          75,
+		Predictor:  TiffPredictorHorizontal,
+		TileWidth:  128,
 		TileHeight: 128,
-		Xres: 1.0,
-		Yres: 1.0,
-		Depth: Ptr(DzDepthOnetile),
-		Keep: Ptr(KeepAll),
+		Xres:       1.0,
+		Yres:       1.0,
+		Depth:      Ptr(DzDepthOnetile),
+		Keep:       Ptr(KeepAll),
 	}
 }
 
 // Tiffsave vips_tiffsave save image to tiff file
 //
 // The filename specifies filename to save to.
-func (r *Image) Tiffsave(filename string, options *TiffsaveOptions) (error) {
+func (r *Image) Tiffsave(filename string, options *TiffsaveOptions) error {
 	if options != nil {
 		err := vipsgenTiffsaveWithOptions(r.image, filename, options.Compression, options.Q, options.Predictor, options.Tile, options.TileWidth, options.TileHeight, options.Pyramid, options.Miniswhite, options.Bitdepth, options.Resunit, options.Xres, options.Yres, options.Bigtiff, options.Properties, options.RegionShrink, options.Level, options.Lossless, options.Depth, options.Subifd, options.Premultiply, options.Keep, options.Background, options.PageHeight, options.Profile)
 		if err != nil {
@@ -9864,14 +9691,14 @@ type TiffsaveBufferOptions struct {
 // DefaultTiffsaveBufferOptions creates default value for vips_tiffsave_buffer optional arguments
 func DefaultTiffsaveBufferOptions() *TiffsaveBufferOptions {
 	return &TiffsaveBufferOptions{
-		Q: 75,
-		Predictor: TiffPredictorHorizontal,
-		TileWidth: 128,
+		Q:          75,
+		Predictor:  TiffPredictorHorizontal,
+		TileWidth:  128,
 		TileHeight: 128,
-		Xres: 1.0,
-		Yres: 1.0,
-		Depth: Ptr(DzDepthOnetile),
-		Keep: Ptr(KeepAll),
+		Xres:       1.0,
+		Yres:       1.0,
+		Depth:      Ptr(DzDepthOnetile),
+		Keep:       Ptr(KeepAll),
 	}
 }
 
@@ -9946,21 +9773,21 @@ type TiffsaveTargetOptions struct {
 // DefaultTiffsaveTargetOptions creates default value for vips_tiffsave_target optional arguments
 func DefaultTiffsaveTargetOptions() *TiffsaveTargetOptions {
 	return &TiffsaveTargetOptions{
-		Q: 75,
-		Predictor: TiffPredictorHorizontal,
-		TileWidth: 128,
+		Q:          75,
+		Predictor:  TiffPredictorHorizontal,
+		TileWidth:  128,
 		TileHeight: 128,
-		Xres: 1.0,
-		Yres: 1.0,
-		Depth: Ptr(DzDepthOnetile),
-		Keep: Ptr(KeepAll),
+		Xres:       1.0,
+		Yres:       1.0,
+		Depth:      Ptr(DzDepthOnetile),
+		Keep:       Ptr(KeepAll),
 	}
 }
 
 // TiffsaveTarget vips_tiffsave_target save image to tiff target
 //
 // The target specifies target to save to.
-func (r *Image) TiffsaveTarget(target *Target, options *TiffsaveTargetOptions) (error) {
+func (r *Image) TiffsaveTarget(target *Target, options *TiffsaveTargetOptions) error {
 	if options != nil {
 		err := vipsgenTiffsaveTargetWithOptions(r.image, target.target, options.Compression, options.Q, options.Predictor, options.Tile, options.TileWidth, options.TileHeight, options.Pyramid, options.Miniswhite, options.Bitdepth, options.Resunit, options.Xres, options.Yres, options.Bigtiff, options.Properties, options.RegionShrink, options.Level, options.Lossless, options.Depth, options.Subifd, options.Premultiply, options.Keep, options.Background, options.PageHeight, options.Profile)
 		if err != nil {
@@ -9994,9 +9821,9 @@ type TilecacheOptions struct {
 // DefaultTilecacheOptions creates default value for vips_tilecache optional arguments
 func DefaultTilecacheOptions() *TilecacheOptions {
 	return &TilecacheOptions{
-		TileWidth: 128,
+		TileWidth:  128,
 		TileHeight: 128,
-		MaxTiles: Ptr(1000),
+		MaxTiles:   Ptr(1000),
 	}
 }
 
@@ -10026,12 +9853,11 @@ type Transpose3dOptions struct {
 
 // DefaultTranspose3dOptions creates default value for vips_transpose3d optional arguments
 func DefaultTranspose3dOptions() *Transpose3dOptions {
-	return &Transpose3dOptions{
-	}
+	return &Transpose3dOptions{}
 }
 
 // Transpose3d vips_transpose3d transpose3d an image
-func (r *Image) Transpose3d(options *Transpose3dOptions) (error) {
+func (r *Image) Transpose3d(options *Transpose3dOptions) error {
 	if options != nil {
 		out, err := vipsgenTranspose3dWithOptions(r.image, options.PageHeight)
 		if err != nil {
@@ -10048,9 +9874,8 @@ func (r *Image) Transpose3d(options *Transpose3dOptions) (error) {
 	return nil
 }
 
-
 // Uhdr2scRGB vips_uhdr2scRGB transform uhdr to scRGB
-func (r *Image) Uhdr2scRGB() (error) {
+func (r *Image) Uhdr2scRGB() error {
 	out, err := vipsgenUhdr2scRGB(r.image)
 	if err != nil {
 		return err
@@ -10070,13 +9895,13 @@ type UnpremultiplyOptions struct {
 // DefaultUnpremultiplyOptions creates default value for vips_unpremultiply optional arguments
 func DefaultUnpremultiplyOptions() *UnpremultiplyOptions {
 	return &UnpremultiplyOptions{
-		MaxAlpha: Ptr(255.0),
+		MaxAlpha:  Ptr(255.0),
 		AlphaBand: Ptr(3),
 	}
 }
 
 // Unpremultiply vips_unpremultiply unpremultiply image alpha
-func (r *Image) Unpremultiply(options *UnpremultiplyOptions) (error) {
+func (r *Image) Unpremultiply(options *UnpremultiplyOptions) error {
 	if options != nil {
 		out, err := vipsgenUnpremultiplyWithOptions(r.image, options.MaxAlpha, options.AlphaBand)
 		if err != nil {
@@ -10115,7 +9940,7 @@ func DefaultVipssaveOptions() *VipssaveOptions {
 // Vipssave vips_vipssave save image to file in vips format
 //
 // The filename specifies filename to save to.
-func (r *Image) Vipssave(filename string, options *VipssaveOptions) (error) {
+func (r *Image) Vipssave(filename string, options *VipssaveOptions) error {
 	if options != nil {
 		err := vipsgenVipssaveWithOptions(r.image, filename, options.Keep, options.Background, options.PageHeight, options.Profile)
 		if err != nil {
@@ -10152,7 +9977,7 @@ func DefaultVipssaveTargetOptions() *VipssaveTargetOptions {
 // VipssaveTarget vips_vipssave_target save image to target in vips format
 //
 // The target specifies target to save to.
-func (r *Image) VipssaveTarget(target *Target, options *VipssaveTargetOptions) (error) {
+func (r *Image) VipssaveTarget(target *Target, options *VipssaveTargetOptions) error {
 	if options != nil {
 		err := vipsgenVipssaveTargetWithOptions(r.image, target.target, options.Keep, options.Background, options.PageHeight, options.Profile)
 		if err != nil {
@@ -10212,20 +10037,20 @@ type WebpsaveOptions struct {
 // DefaultWebpsaveOptions creates default value for vips_webpsave optional arguments
 func DefaultWebpsaveOptions() *WebpsaveOptions {
 	return &WebpsaveOptions{
-		Q: Ptr(75),
+		Q:      Ptr(75),
 		AlphaQ: Ptr(100),
-		Kmin: Ptr(2147483646),
-		Kmax: Ptr(2147483647),
+		Kmin:   Ptr(2147483646),
+		Kmax:   Ptr(2147483647),
 		Effort: Ptr(4),
 		Passes: 1,
-		Keep: Ptr(KeepAll),
+		Keep:   Ptr(KeepAll),
 	}
 }
 
 // Webpsave vips_webpsave save as WebP
 //
 // The filename specifies filename to save to.
-func (r *Image) Webpsave(filename string, options *WebpsaveOptions) (error) {
+func (r *Image) Webpsave(filename string, options *WebpsaveOptions) error {
 	if options != nil {
 		err := vipsgenWebpsaveWithOptions(r.image, filename, options.Q, options.Lossless, options.Exact, options.Preset, options.SmartSubsample, options.NearLossless, options.AlphaQ, options.MinSize, options.Kmin, options.Kmax, options.Effort, options.TargetSize, options.Mixed, options.SmartDeblock, options.Passes, options.Keep, options.Background, options.PageHeight, options.Profile)
 		if err != nil {
@@ -10285,13 +10110,13 @@ type WebpsaveBufferOptions struct {
 // DefaultWebpsaveBufferOptions creates default value for vips_webpsave_buffer optional arguments
 func DefaultWebpsaveBufferOptions() *WebpsaveBufferOptions {
 	return &WebpsaveBufferOptions{
-		Q: Ptr(75),
+		Q:      Ptr(75),
 		AlphaQ: Ptr(100),
-		Kmin: Ptr(2147483646),
-		Kmax: Ptr(2147483647),
+		Kmin:   Ptr(2147483646),
+		Kmax:   Ptr(2147483647),
 		Effort: Ptr(4),
 		Passes: 1,
-		Keep: Ptr(KeepAll),
+		Keep:   Ptr(KeepAll),
 	}
 }
 
@@ -10356,20 +10181,20 @@ type WebpsaveTargetOptions struct {
 // DefaultWebpsaveTargetOptions creates default value for vips_webpsave_target optional arguments
 func DefaultWebpsaveTargetOptions() *WebpsaveTargetOptions {
 	return &WebpsaveTargetOptions{
-		Q: Ptr(75),
+		Q:      Ptr(75),
 		AlphaQ: Ptr(100),
-		Kmin: Ptr(2147483646),
-		Kmax: Ptr(2147483647),
+		Kmin:   Ptr(2147483646),
+		Kmax:   Ptr(2147483647),
 		Effort: Ptr(4),
 		Passes: 1,
-		Keep: Ptr(KeepAll),
+		Keep:   Ptr(KeepAll),
 	}
 }
 
 // WebpsaveTarget vips_webpsave_target save as WebP
 //
 // The target specifies target to save to.
-func (r *Image) WebpsaveTarget(target *Target, options *WebpsaveTargetOptions) (error) {
+func (r *Image) WebpsaveTarget(target *Target, options *WebpsaveTargetOptions) error {
 	if options != nil {
 		err := vipsgenWebpsaveTargetWithOptions(r.image, target.target, options.Q, options.Lossless, options.Exact, options.Preset, options.SmartSubsample, options.NearLossless, options.AlphaQ, options.MinSize, options.Kmin, options.Kmax, options.Effort, options.TargetSize, options.Mixed, options.SmartDeblock, options.Passes, options.Keep, options.Background, options.PageHeight, options.Profile)
 		if err != nil {
@@ -10394,12 +10219,11 @@ type WrapOptions struct {
 
 // DefaultWrapOptions creates default value for vips_wrap optional arguments
 func DefaultWrapOptions() *WrapOptions {
-	return &WrapOptions{
-	}
+	return &WrapOptions{}
 }
 
 // Wrap vips_wrap wrap image origin
-func (r *Image) Wrap(options *WrapOptions) (error) {
+func (r *Image) Wrap(options *WrapOptions) error {
 	if options != nil {
 		out, err := vipsgenWrapWithOptions(r.image, options.X, options.Y)
 		if err != nil {
@@ -10416,12 +10240,11 @@ func (r *Image) Wrap(options *WrapOptions) (error) {
 	return nil
 }
 
-
 // Zoom vips_zoom zoom an image
 //
 // The xfac specifies horizontal zoom factor.
 // The yfac specifies vertical zoom factor.
-func (r *Image) Zoom(xfac int, yfac int) (error) {
+func (r *Image) Zoom(xfac int, yfac int) error {
 	out, err := vipsgenZoom(r.image, xfac, yfac)
 	if err != nil {
 		return err
@@ -10430,8 +10253,6 @@ func (r *Image) Zoom(xfac int, yfac int) (error) {
 	return nil
 }
 
-
-
 // ProfileLoad vips_profile_load load named ICC profile
 //
 // The name specifies profile name.
@@ -10439,7 +10260,6 @@ func ProfileLoad(name string) ([]byte, error) {
 	Startup(nil)
 	return vipsgenProfileLoad(name)
 }
-
 
 // LoadOptions are options for loading an image. Some are type-specific.
 // Every field is optional: leave it nil to let libvips use its own default.
@@ -10590,7 +10410,6 @@ func (r *Image) WriteToMemory() ([]byte, error) {
 	return vipsgenImageWriteToMemory(r.image)
 }
 
-
 func newImageRef(vipsImage *C.VipsImage, format ImageType, buf []byte) *Image {
 	imageRef := &Image{
 		image:  vipsImage,
@@ -10717,7 +10536,7 @@ func (r *Image) GetFields() []string {
 
 // HasField vips_image_get_typeof checks if the image has a metadata field with the given name
 func (r *Image) HasField(name string) bool {
-    return vipsImageHasField(r.image, name)
+	return vipsImageHasField(r.image, name)
 }
 
 // GetBlob vips_image_get_blob retrieves binary metadata from the image by field name
@@ -10819,16 +10638,15 @@ func (r *Image) RemoveOrientation() error {
 // Pages returns the number of pages in the Image
 // For animated images this corresponds to the number of frames
 func (r *Image) Pages() int {
-	
+
 	// libvips uses the same attribute (n_pages) to represent the number of pyramid layers in JP2K
 	// as we interpret the attribute as frames and JP2K does not support animation we override this with 1
 	if r.format == ImageTypeJp2k {
 		return 1
 	}
-	
+
 	return vipsGetImageNPages(r.image)
 }
-
 
 // SetPages sets the number of pages in the Image
 // For animated images this corresponds to the number of frames
@@ -10982,7 +10800,7 @@ func (r *Image) EmbedMultiPage(left, top, width, height int, options *EmbedMulti
 	if options == nil {
 		options = &EmbedMultiPageOptions{}
 	}
-	
+
 	if r.Height() == r.PageHeight() {
 		out, err := vipsgenEmbedWithOptions(r.image, left, top, width, height, options.Extend, options.Background)
 		if err != nil {
@@ -10991,7 +10809,7 @@ func (r *Image) EmbedMultiPage(left, top, width, height int, options *EmbedMulti
 		r.setImage(out)
 		return nil
 	}
-	
+
 	if options.Extend == ExtendBackground {
 		bg := []float64{0, 0, 0, 255}
 		if len(options.Background) > 0 {
@@ -11020,7 +10838,7 @@ func (r *Image) EmbedMultiPage(left, top, width, height int, options *EmbedMulti
 
 // ExtractAreaMultiPage extracts a region from the image, working correctly with multi-page (animated) images
 func (r *Image) ExtractAreaMultiPage(left, top, width, height int) error {
-	
+
 	if r.Height() == r.PageHeight() {
 		out, err := vipsgenExtractArea(r.image, left, top, width, height)
 		if err != nil {
@@ -11029,7 +10847,7 @@ func (r *Image) ExtractAreaMultiPage(left, top, width, height int) error {
 		r.setImage(out)
 		return nil
 	}
-	
+
 	out, err := vipsgenExtractAreaMultiPage(r.image, left, top, width, height)
 	if err != nil {
 		return err
@@ -11040,7 +10858,7 @@ func (r *Image) ExtractAreaMultiPage(left, top, width, height int) error {
 
 // RotMultiPage rotates an image by a multiple of 90 degrees, working correctly with multi-page (animated) images
 func (r *Image) RotMultiPage(angle Angle) error {
-	
+
 	if r.Height() == r.PageHeight() {
 		out, err := vipsgenRot(r.image, angle)
 		if err != nil {
@@ -11049,7 +10867,7 @@ func (r *Image) RotMultiPage(angle Angle) error {
 		r.setImage(out)
 		return nil
 	}
-	
+
 	out, err := vipsgenRotMultiPage(r.image, angle)
 	if err != nil {
 		return err
@@ -11057,4 +10875,3 @@ func (r *Image) RotMultiPage(angle Angle) error {
 	r.setImage(out)
 	return nil
 }
-

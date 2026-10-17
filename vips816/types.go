@@ -14,44 +14,43 @@ type ImageType string
 
 // ImageType enum
 const (
-	ImageTypeUnknown ImageType = "unknown"
-	ImageTypeJpeg ImageType = "jpeg"
-	ImageTypeGif ImageType = "gif"
-	ImageTypePng ImageType = "png"
-	ImageTypeWebp ImageType = "webp"
-	ImageTypeHeif ImageType = "heif"
-	ImageTypeSvg ImageType = "svg"
-	ImageTypeTiff ImageType = "tiff"
-	ImageTypeJp2k ImageType = "jp2k"
-	ImageTypeAvif ImageType = "avif"
-	ImageTypePdf ImageType = "pdf"
-	ImageTypeBmp ImageType = "bmp"
-	ImageTypeMagick ImageType = "magick"
-	ImageTypeAnalyze ImageType = "analyze"
-	ImageTypeCsv ImageType = "csv"
-	ImageTypeDz ImageType = "dz"
-	ImageTypeFits ImageType = "fits"
-	ImageTypeJxl ImageType = "jxl"
-	ImageTypeMat ImageType = "mat"
-	ImageTypeMatrix ImageType = "matrix"
-	ImageTypeOpenexr ImageType = "openexr"
+	ImageTypeUnknown   ImageType = "unknown"
+	ImageTypeJpeg      ImageType = "jpeg"
+	ImageTypeGif       ImageType = "gif"
+	ImageTypePng       ImageType = "png"
+	ImageTypeWebp      ImageType = "webp"
+	ImageTypeHeif      ImageType = "heif"
+	ImageTypeSvg       ImageType = "svg"
+	ImageTypeTiff      ImageType = "tiff"
+	ImageTypeJp2k      ImageType = "jp2k"
+	ImageTypeAvif      ImageType = "avif"
+	ImageTypePdf       ImageType = "pdf"
+	ImageTypeBmp       ImageType = "bmp"
+	ImageTypeMagick    ImageType = "magick"
+	ImageTypeAnalyze   ImageType = "analyze"
+	ImageTypeCsv       ImageType = "csv"
+	ImageTypeDz        ImageType = "dz"
+	ImageTypeFits      ImageType = "fits"
+	ImageTypeJxl       ImageType = "jxl"
+	ImageTypeMat       ImageType = "mat"
+	ImageTypeMatrix    ImageType = "matrix"
+	ImageTypeOpenexr   ImageType = "openexr"
 	ImageTypeOpenslide ImageType = "openslide"
-	ImageTypePpm ImageType = "ppm"
-	ImageTypeRad ImageType = "rad"
-	ImageTypeRaw ImageType = "raw"
-	ImageTypeVips ImageType = "vips"
+	ImageTypePpm       ImageType = "ppm"
+	ImageTypeRad       ImageType = "rad"
+	ImageTypeRaw       ImageType = "raw"
+	ImageTypeVips      ImageType = "vips"
 )
-
 
 // Access represents VipsAccess type
 type Access int
 
 // Access enum
 const (
-	AccessRandom Access = C.VIPS_ACCESS_RANDOM
-	AccessSequential Access = C.VIPS_ACCESS_SEQUENTIAL
+	AccessRandom               Access = C.VIPS_ACCESS_RANDOM
+	AccessSequential           Access = C.VIPS_ACCESS_SEQUENTIAL
 	AccessSequentialUnbuffered Access = C.VIPS_ACCESS_SEQUENTIAL_UNBUFFERED
-	AccessLast Access = C.VIPS_ACCESS_LAST
+	AccessLast                 Access = C.VIPS_ACCESS_LAST
 )
 
 // Align represents VipsAlign type
@@ -59,10 +58,10 @@ type Align int
 
 // Align enum
 const (
-	AlignLow Align = C.VIPS_ALIGN_LOW
+	AlignLow    Align = C.VIPS_ALIGN_LOW
 	AlignCentre Align = C.VIPS_ALIGN_CENTRE
-	AlignHigh Align = C.VIPS_ALIGN_HIGH
-	AlignLast Align = C.VIPS_ALIGN_LAST
+	AlignHigh   Align = C.VIPS_ALIGN_HIGH
+	AlignLast   Align = C.VIPS_ALIGN_LAST
 )
 
 // Angle represents VipsAngle type
@@ -70,8 +69,8 @@ type Angle int
 
 // Angle enum
 const (
-	AngleD0 Angle = C.VIPS_ANGLE_D0
-	AngleD90 Angle = C.VIPS_ANGLE_D90
+	AngleD0   Angle = C.VIPS_ANGLE_D0
+	AngleD90  Angle = C.VIPS_ANGLE_D90
 	AngleD180 Angle = C.VIPS_ANGLE_D180
 	AngleD270 Angle = C.VIPS_ANGLE_D270
 	AngleLast Angle = C.VIPS_ANGLE_LAST
@@ -82,9 +81,9 @@ type Angle45 int
 
 // Angle45 enum
 const (
-	Angle45D0 Angle45 = C.VIPS_ANGLE45_D0
-	Angle45D45 Angle45 = C.VIPS_ANGLE45_D45
-	Angle45D90 Angle45 = C.VIPS_ANGLE45_D90
+	Angle45D0   Angle45 = C.VIPS_ANGLE45_D0
+	Angle45D45  Angle45 = C.VIPS_ANGLE45_D45
+	Angle45D90  Angle45 = C.VIPS_ANGLE45_D90
 	Angle45D135 Angle45 = C.VIPS_ANGLE45_D135
 	Angle45D180 Angle45 = C.VIPS_ANGLE45_D180
 	Angle45D225 Angle45 = C.VIPS_ANGLE45_D225
@@ -98,18 +97,18 @@ type BandFormat int
 
 // BandFormat enum
 const (
-	BandFormatNotset BandFormat = C.VIPS_FORMAT_NOTSET
-	BandFormatUchar BandFormat = C.VIPS_FORMAT_UCHAR
-	BandFormatChar BandFormat = C.VIPS_FORMAT_CHAR
-	BandFormatUshort BandFormat = C.VIPS_FORMAT_USHORT
-	BandFormatShort BandFormat = C.VIPS_FORMAT_SHORT
-	BandFormatUint BandFormat = C.VIPS_FORMAT_UINT
-	BandFormatInt BandFormat = C.VIPS_FORMAT_INT
-	BandFormatFloat BandFormat = C.VIPS_FORMAT_FLOAT
-	BandFormatComplex BandFormat = C.VIPS_FORMAT_COMPLEX
-	BandFormatDouble BandFormat = C.VIPS_FORMAT_DOUBLE
+	BandFormatNotset    BandFormat = C.VIPS_FORMAT_NOTSET
+	BandFormatUchar     BandFormat = C.VIPS_FORMAT_UCHAR
+	BandFormatChar      BandFormat = C.VIPS_FORMAT_CHAR
+	BandFormatUshort    BandFormat = C.VIPS_FORMAT_USHORT
+	BandFormatShort     BandFormat = C.VIPS_FORMAT_SHORT
+	BandFormatUint      BandFormat = C.VIPS_FORMAT_UINT
+	BandFormatInt       BandFormat = C.VIPS_FORMAT_INT
+	BandFormatFloat     BandFormat = C.VIPS_FORMAT_FLOAT
+	BandFormatComplex   BandFormat = C.VIPS_FORMAT_COMPLEX
+	BandFormatDouble    BandFormat = C.VIPS_FORMAT_DOUBLE
 	BandFormatDpcomplex BandFormat = C.VIPS_FORMAT_DPCOMPLEX
-	BandFormatLast BandFormat = C.VIPS_FORMAT_LAST
+	BandFormatLast      BandFormat = C.VIPS_FORMAT_LAST
 )
 
 // BlendMode represents VipsBlendMode type
@@ -117,32 +116,32 @@ type BlendMode int
 
 // BlendMode enum
 const (
-	BlendModeClear BlendMode = C.VIPS_BLEND_MODE_CLEAR
-	BlendModeSource BlendMode = C.VIPS_BLEND_MODE_SOURCE
-	BlendModeOver BlendMode = C.VIPS_BLEND_MODE_OVER
-	BlendModeIn BlendMode = C.VIPS_BLEND_MODE_IN
-	BlendModeOut BlendMode = C.VIPS_BLEND_MODE_OUT
-	BlendModeAtop BlendMode = C.VIPS_BLEND_MODE_ATOP
-	BlendModeDest BlendMode = C.VIPS_BLEND_MODE_DEST
-	BlendModeDestOver BlendMode = C.VIPS_BLEND_MODE_DEST_OVER
-	BlendModeDestIn BlendMode = C.VIPS_BLEND_MODE_DEST_IN
-	BlendModeDestOut BlendMode = C.VIPS_BLEND_MODE_DEST_OUT
-	BlendModeDestAtop BlendMode = C.VIPS_BLEND_MODE_DEST_ATOP
-	BlendModeXor BlendMode = C.VIPS_BLEND_MODE_XOR
-	BlendModeAdd BlendMode = C.VIPS_BLEND_MODE_ADD
-	BlendModeSaturate BlendMode = C.VIPS_BLEND_MODE_SATURATE
-	BlendModeMultiply BlendMode = C.VIPS_BLEND_MODE_MULTIPLY
-	BlendModeScreen BlendMode = C.VIPS_BLEND_MODE_SCREEN
-	BlendModeOverlay BlendMode = C.VIPS_BLEND_MODE_OVERLAY
-	BlendModeDarken BlendMode = C.VIPS_BLEND_MODE_DARKEN
-	BlendModeLighten BlendMode = C.VIPS_BLEND_MODE_LIGHTEN
+	BlendModeClear       BlendMode = C.VIPS_BLEND_MODE_CLEAR
+	BlendModeSource      BlendMode = C.VIPS_BLEND_MODE_SOURCE
+	BlendModeOver        BlendMode = C.VIPS_BLEND_MODE_OVER
+	BlendModeIn          BlendMode = C.VIPS_BLEND_MODE_IN
+	BlendModeOut         BlendMode = C.VIPS_BLEND_MODE_OUT
+	BlendModeAtop        BlendMode = C.VIPS_BLEND_MODE_ATOP
+	BlendModeDest        BlendMode = C.VIPS_BLEND_MODE_DEST
+	BlendModeDestOver    BlendMode = C.VIPS_BLEND_MODE_DEST_OVER
+	BlendModeDestIn      BlendMode = C.VIPS_BLEND_MODE_DEST_IN
+	BlendModeDestOut     BlendMode = C.VIPS_BLEND_MODE_DEST_OUT
+	BlendModeDestAtop    BlendMode = C.VIPS_BLEND_MODE_DEST_ATOP
+	BlendModeXor         BlendMode = C.VIPS_BLEND_MODE_XOR
+	BlendModeAdd         BlendMode = C.VIPS_BLEND_MODE_ADD
+	BlendModeSaturate    BlendMode = C.VIPS_BLEND_MODE_SATURATE
+	BlendModeMultiply    BlendMode = C.VIPS_BLEND_MODE_MULTIPLY
+	BlendModeScreen      BlendMode = C.VIPS_BLEND_MODE_SCREEN
+	BlendModeOverlay     BlendMode = C.VIPS_BLEND_MODE_OVERLAY
+	BlendModeDarken      BlendMode = C.VIPS_BLEND_MODE_DARKEN
+	BlendModeLighten     BlendMode = C.VIPS_BLEND_MODE_LIGHTEN
 	BlendModeColourDodge BlendMode = C.VIPS_BLEND_MODE_COLOUR_DODGE
-	BlendModeColourBurn BlendMode = C.VIPS_BLEND_MODE_COLOUR_BURN
-	BlendModeHardLight BlendMode = C.VIPS_BLEND_MODE_HARD_LIGHT
-	BlendModeSoftLight BlendMode = C.VIPS_BLEND_MODE_SOFT_LIGHT
-	BlendModeDifference BlendMode = C.VIPS_BLEND_MODE_DIFFERENCE
-	BlendModeExclusion BlendMode = C.VIPS_BLEND_MODE_EXCLUSION
-	BlendModeLast BlendMode = C.VIPS_BLEND_MODE_LAST
+	BlendModeColourBurn  BlendMode = C.VIPS_BLEND_MODE_COLOUR_BURN
+	BlendModeHardLight   BlendMode = C.VIPS_BLEND_MODE_HARD_LIGHT
+	BlendModeSoftLight   BlendMode = C.VIPS_BLEND_MODE_SOFT_LIGHT
+	BlendModeDifference  BlendMode = C.VIPS_BLEND_MODE_DIFFERENCE
+	BlendModeExclusion   BlendMode = C.VIPS_BLEND_MODE_EXCLUSION
+	BlendModeLast        BlendMode = C.VIPS_BLEND_MODE_LAST
 )
 
 // Coding represents VipsCoding type
@@ -151,10 +150,10 @@ type Coding int
 // Coding enum
 const (
 	CodingError Coding = C.VIPS_CODING_ERROR
-	CodingNone Coding = C.VIPS_CODING_NONE
-	CodingLabq Coding = C.VIPS_CODING_LABQ
-	CodingRad Coding = C.VIPS_CODING_RAD
-	CodingLast Coding = C.VIPS_CODING_LAST
+	CodingNone  Coding = C.VIPS_CODING_NONE
+	CodingLabq  Coding = C.VIPS_CODING_LABQ
+	CodingRad   Coding = C.VIPS_CODING_RAD
+	CodingLast  Coding = C.VIPS_CODING_LAST
 )
 
 // Combine represents VipsCombine type
@@ -162,9 +161,9 @@ type Combine int
 
 // Combine enum
 const (
-	CombineMax Combine = C.VIPS_COMBINE_MAX
-	CombineSum Combine = C.VIPS_COMBINE_SUM
-	CombineMin Combine = C.VIPS_COMBINE_MIN
+	CombineMax  Combine = C.VIPS_COMBINE_MAX
+	CombineSum  Combine = C.VIPS_COMBINE_SUM
+	CombineMin  Combine = C.VIPS_COMBINE_MIN
 	CombineLast Combine = C.VIPS_COMBINE_LAST
 )
 
@@ -173,8 +172,8 @@ type CombineMode int
 
 // CombineMode enum
 const (
-	CombineModeSet CombineMode = C.VIPS_COMBINE_MODE_SET
-	CombineModeAdd CombineMode = C.VIPS_COMBINE_MODE_ADD
+	CombineModeSet  CombineMode = C.VIPS_COMBINE_MODE_SET
+	CombineModeAdd  CombineMode = C.VIPS_COMBINE_MODE_ADD
 	CombineModeLast CombineMode = C.VIPS_COMBINE_MODE_LAST
 )
 
@@ -183,16 +182,16 @@ type CompassDirection int
 
 // CompassDirection enum
 const (
-	CompassDirectionCentre CompassDirection = C.VIPS_COMPASS_DIRECTION_CENTRE
-	CompassDirectionNorth CompassDirection = C.VIPS_COMPASS_DIRECTION_NORTH
-	CompassDirectionEast CompassDirection = C.VIPS_COMPASS_DIRECTION_EAST
-	CompassDirectionSouth CompassDirection = C.VIPS_COMPASS_DIRECTION_SOUTH
-	CompassDirectionWest CompassDirection = C.VIPS_COMPASS_DIRECTION_WEST
+	CompassDirectionCentre    CompassDirection = C.VIPS_COMPASS_DIRECTION_CENTRE
+	CompassDirectionNorth     CompassDirection = C.VIPS_COMPASS_DIRECTION_NORTH
+	CompassDirectionEast      CompassDirection = C.VIPS_COMPASS_DIRECTION_EAST
+	CompassDirectionSouth     CompassDirection = C.VIPS_COMPASS_DIRECTION_SOUTH
+	CompassDirectionWest      CompassDirection = C.VIPS_COMPASS_DIRECTION_WEST
 	CompassDirectionNorthEast CompassDirection = C.VIPS_COMPASS_DIRECTION_NORTH_EAST
 	CompassDirectionSouthEast CompassDirection = C.VIPS_COMPASS_DIRECTION_SOUTH_EAST
 	CompassDirectionSouthWest CompassDirection = C.VIPS_COMPASS_DIRECTION_SOUTH_WEST
 	CompassDirectionNorthWest CompassDirection = C.VIPS_COMPASS_DIRECTION_NORTH_WEST
-	CompassDirectionLast CompassDirection = C.VIPS_COMPASS_DIRECTION_LAST
+	CompassDirectionLast      CompassDirection = C.VIPS_COMPASS_DIRECTION_LAST
 )
 
 // Direction represents VipsDirection type
@@ -201,8 +200,8 @@ type Direction int
 // Direction enum
 const (
 	DirectionHorizontal Direction = C.VIPS_DIRECTION_HORIZONTAL
-	DirectionVertical Direction = C.VIPS_DIRECTION_VERTICAL
-	DirectionLast Direction = C.VIPS_DIRECTION_LAST
+	DirectionVertical   Direction = C.VIPS_DIRECTION_VERTICAL
+	DirectionLast       Direction = C.VIPS_DIRECTION_LAST
 )
 
 // Extend represents VipsExtend type
@@ -210,13 +209,13 @@ type Extend int
 
 // Extend enum
 const (
-	ExtendBlack Extend = C.VIPS_EXTEND_BLACK
-	ExtendCopy Extend = C.VIPS_EXTEND_COPY
-	ExtendRepeat Extend = C.VIPS_EXTEND_REPEAT
-	ExtendMirror Extend = C.VIPS_EXTEND_MIRROR
-	ExtendWhite Extend = C.VIPS_EXTEND_WHITE
+	ExtendBlack      Extend = C.VIPS_EXTEND_BLACK
+	ExtendCopy       Extend = C.VIPS_EXTEND_COPY
+	ExtendRepeat     Extend = C.VIPS_EXTEND_REPEAT
+	ExtendMirror     Extend = C.VIPS_EXTEND_MIRROR
+	ExtendWhite      Extend = C.VIPS_EXTEND_WHITE
 	ExtendBackground Extend = C.VIPS_EXTEND_BACKGROUND
-	ExtendLast Extend = C.VIPS_EXTEND_LAST
+	ExtendLast       Extend = C.VIPS_EXTEND_LAST
 )
 
 // FailOn represents VipsFailOn type
@@ -224,11 +223,11 @@ type FailOn int
 
 // FailOn enum
 const (
-	FailOnNone FailOn = C.VIPS_FAIL_ON_NONE
+	FailOnNone      FailOn = C.VIPS_FAIL_ON_NONE
 	FailOnTruncated FailOn = C.VIPS_FAIL_ON_TRUNCATED
-	FailOnError FailOn = C.VIPS_FAIL_ON_ERROR
-	FailOnWarning FailOn = C.VIPS_FAIL_ON_WARNING
-	FailOnLast FailOn = C.VIPS_FAIL_ON_LAST
+	FailOnError     FailOn = C.VIPS_FAIL_ON_ERROR
+	FailOnWarning   FailOn = C.VIPS_FAIL_ON_WARNING
+	FailOnLast      FailOn = C.VIPS_FAIL_ON_LAST
 )
 
 // DzContainer represents VipsForeignDzContainer type
@@ -236,9 +235,9 @@ type DzContainer int
 
 // DzContainer enum
 const (
-	DzContainerFs DzContainer = C.VIPS_FOREIGN_DZ_CONTAINER_FS
-	DzContainerZip DzContainer = C.VIPS_FOREIGN_DZ_CONTAINER_ZIP
-	DzContainerSzi DzContainer = C.VIPS_FOREIGN_DZ_CONTAINER_SZI
+	DzContainerFs   DzContainer = C.VIPS_FOREIGN_DZ_CONTAINER_FS
+	DzContainerZip  DzContainer = C.VIPS_FOREIGN_DZ_CONTAINER_ZIP
+	DzContainerSzi  DzContainer = C.VIPS_FOREIGN_DZ_CONTAINER_SZI
 	DzContainerLast DzContainer = C.VIPS_FOREIGN_DZ_CONTAINER_LAST
 )
 
@@ -248,9 +247,9 @@ type DzDepth int
 // DzDepth enum
 const (
 	DzDepthOnepixel DzDepth = C.VIPS_FOREIGN_DZ_DEPTH_ONEPIXEL
-	DzDepthOnetile DzDepth = C.VIPS_FOREIGN_DZ_DEPTH_ONETILE
-	DzDepthOne DzDepth = C.VIPS_FOREIGN_DZ_DEPTH_ONE
-	DzDepthLast DzDepth = C.VIPS_FOREIGN_DZ_DEPTH_LAST
+	DzDepthOnetile  DzDepth = C.VIPS_FOREIGN_DZ_DEPTH_ONETILE
+	DzDepthOne      DzDepth = C.VIPS_FOREIGN_DZ_DEPTH_ONE
+	DzDepthLast     DzDepth = C.VIPS_FOREIGN_DZ_DEPTH_LAST
 )
 
 // DzLayout represents VipsForeignDzLayout type
@@ -258,12 +257,12 @@ type DzLayout int
 
 // DzLayout enum
 const (
-	DzLayoutDz DzLayout = C.VIPS_FOREIGN_DZ_LAYOUT_DZ
+	DzLayoutDz      DzLayout = C.VIPS_FOREIGN_DZ_LAYOUT_DZ
 	DzLayoutZoomify DzLayout = C.VIPS_FOREIGN_DZ_LAYOUT_ZOOMIFY
-	DzLayoutGoogle DzLayout = C.VIPS_FOREIGN_DZ_LAYOUT_GOOGLE
-	DzLayoutIiif DzLayout = C.VIPS_FOREIGN_DZ_LAYOUT_IIIF
-	DzLayoutIiif3 DzLayout = C.VIPS_FOREIGN_DZ_LAYOUT_IIIF3
-	DzLayoutLast DzLayout = C.VIPS_FOREIGN_DZ_LAYOUT_LAST
+	DzLayoutGoogle  DzLayout = C.VIPS_FOREIGN_DZ_LAYOUT_GOOGLE
+	DzLayoutIiif    DzLayout = C.VIPS_FOREIGN_DZ_LAYOUT_IIIF
+	DzLayoutIiif3   DzLayout = C.VIPS_FOREIGN_DZ_LAYOUT_IIIF3
+	DzLayoutLast    DzLayout = C.VIPS_FOREIGN_DZ_LAYOUT_LAST
 )
 
 // Flags represents VipsForeignFlags type
@@ -271,11 +270,11 @@ type Flags int
 
 // Flags enum
 const (
-	FlagsNone Flags = C.VIPS_FOREIGN_NONE
-	FlagsPartial Flags = C.VIPS_FOREIGN_PARTIAL
-	FlagsBigendian Flags = C.VIPS_FOREIGN_BIGENDIAN
+	FlagsNone       Flags = C.VIPS_FOREIGN_NONE
+	FlagsPartial    Flags = C.VIPS_FOREIGN_PARTIAL
+	FlagsBigendian  Flags = C.VIPS_FOREIGN_BIGENDIAN
 	FlagsSequential Flags = C.VIPS_FOREIGN_SEQUENTIAL
-	FlagsAll Flags = C.VIPS_FOREIGN_ALL
+	FlagsAll        Flags = C.VIPS_FOREIGN_ALL
 )
 
 // HeifCompression represents VipsForeignHeifCompression type
@@ -284,9 +283,9 @@ type HeifCompression int
 // HeifCompression enum
 const (
 	HeifCompressionHevc HeifCompression = C.VIPS_FOREIGN_HEIF_COMPRESSION_HEVC
-	HeifCompressionAvc HeifCompression = C.VIPS_FOREIGN_HEIF_COMPRESSION_AVC
+	HeifCompressionAvc  HeifCompression = C.VIPS_FOREIGN_HEIF_COMPRESSION_AVC
 	HeifCompressionJpeg HeifCompression = C.VIPS_FOREIGN_HEIF_COMPRESSION_JPEG
-	HeifCompressionAv1 HeifCompression = C.VIPS_FOREIGN_HEIF_COMPRESSION_AV1
+	HeifCompressionAv1  HeifCompression = C.VIPS_FOREIGN_HEIF_COMPRESSION_AV1
 	HeifCompressionLast HeifCompression = C.VIPS_FOREIGN_HEIF_COMPRESSION_LAST
 )
 
@@ -295,12 +294,12 @@ type HeifEncoder int
 
 // HeifEncoder enum
 const (
-	HeifEncoderAuto HeifEncoder = C.VIPS_FOREIGN_HEIF_ENCODER_AUTO
-	HeifEncoderAom HeifEncoder = C.VIPS_FOREIGN_HEIF_ENCODER_AOM
+	HeifEncoderAuto  HeifEncoder = C.VIPS_FOREIGN_HEIF_ENCODER_AUTO
+	HeifEncoderAom   HeifEncoder = C.VIPS_FOREIGN_HEIF_ENCODER_AOM
 	HeifEncoderRav1e HeifEncoder = C.VIPS_FOREIGN_HEIF_ENCODER_RAV1E
-	HeifEncoderSvt HeifEncoder = C.VIPS_FOREIGN_HEIF_ENCODER_SVT
-	HeifEncoderX265 HeifEncoder = C.VIPS_FOREIGN_HEIF_ENCODER_X265
-	HeifEncoderLast HeifEncoder = C.VIPS_FOREIGN_HEIF_ENCODER_LAST
+	HeifEncoderSvt   HeifEncoder = C.VIPS_FOREIGN_HEIF_ENCODER_SVT
+	HeifEncoderX265  HeifEncoder = C.VIPS_FOREIGN_HEIF_ENCODER_X265
+	HeifEncoderLast  HeifEncoder = C.VIPS_FOREIGN_HEIF_ENCODER_LAST
 )
 
 // Keep represents VipsForeignKeep type
@@ -308,13 +307,13 @@ type Keep int
 
 // Keep enum
 const (
-	KeepNone Keep = C.VIPS_FOREIGN_KEEP_NONE
-	KeepExif Keep = C.VIPS_FOREIGN_KEEP_EXIF
-	KeepXmp Keep = C.VIPS_FOREIGN_KEEP_XMP
-	KeepIptc Keep = C.VIPS_FOREIGN_KEEP_IPTC
-	KeepIcc Keep = C.VIPS_FOREIGN_KEEP_ICC
+	KeepNone  Keep = C.VIPS_FOREIGN_KEEP_NONE
+	KeepExif  Keep = C.VIPS_FOREIGN_KEEP_EXIF
+	KeepXmp   Keep = C.VIPS_FOREIGN_KEEP_XMP
+	KeepIptc  Keep = C.VIPS_FOREIGN_KEEP_IPTC
+	KeepIcc   Keep = C.VIPS_FOREIGN_KEEP_ICC
 	KeepOther Keep = C.VIPS_FOREIGN_KEEP_OTHER
-	KeepAll Keep = C.VIPS_FOREIGN_KEEP_ALL
+	KeepAll   Keep = C.VIPS_FOREIGN_KEEP_ALL
 )
 
 // PngFilter represents VipsForeignPngFilter type
@@ -322,12 +321,12 @@ type PngFilter int
 
 // PngFilter enum
 const (
-	PngFilterNone PngFilter = C.VIPS_FOREIGN_PNG_FILTER_NONE
-	PngFilterSub PngFilter = C.VIPS_FOREIGN_PNG_FILTER_SUB
-	PngFilterUp PngFilter = C.VIPS_FOREIGN_PNG_FILTER_UP
-	PngFilterAvg PngFilter = C.VIPS_FOREIGN_PNG_FILTER_AVG
+	PngFilterNone  PngFilter = C.VIPS_FOREIGN_PNG_FILTER_NONE
+	PngFilterSub   PngFilter = C.VIPS_FOREIGN_PNG_FILTER_SUB
+	PngFilterUp    PngFilter = C.VIPS_FOREIGN_PNG_FILTER_UP
+	PngFilterAvg   PngFilter = C.VIPS_FOREIGN_PNG_FILTER_AVG
 	PngFilterPaeth PngFilter = C.VIPS_FOREIGN_PNG_FILTER_PAETH
-	PngFilterAll PngFilter = C.VIPS_FOREIGN_PNG_FILTER_ALL
+	PngFilterAll   PngFilter = C.VIPS_FOREIGN_PNG_FILTER_ALL
 )
 
 // PpmFormat represents VipsForeignPpmFormat type
@@ -335,11 +334,11 @@ type PpmFormat int
 
 // PpmFormat enum
 const (
-	PpmFormatPbm PpmFormat = C.VIPS_FOREIGN_PPM_FORMAT_PBM
-	PpmFormatPgm PpmFormat = C.VIPS_FOREIGN_PPM_FORMAT_PGM
-	PpmFormatPpm PpmFormat = C.VIPS_FOREIGN_PPM_FORMAT_PPM
-	PpmFormatPfm PpmFormat = C.VIPS_FOREIGN_PPM_FORMAT_PFM
-	PpmFormatPnm PpmFormat = C.VIPS_FOREIGN_PPM_FORMAT_PNM
+	PpmFormatPbm  PpmFormat = C.VIPS_FOREIGN_PPM_FORMAT_PBM
+	PpmFormatPgm  PpmFormat = C.VIPS_FOREIGN_PPM_FORMAT_PGM
+	PpmFormatPpm  PpmFormat = C.VIPS_FOREIGN_PPM_FORMAT_PPM
+	PpmFormatPfm  PpmFormat = C.VIPS_FOREIGN_PPM_FORMAT_PFM
+	PpmFormatPnm  PpmFormat = C.VIPS_FOREIGN_PPM_FORMAT_PNM
 	PpmFormatLast PpmFormat = C.VIPS_FOREIGN_PPM_FORMAT_LAST
 )
 
@@ -349,8 +348,8 @@ type Subsample int
 // Subsample enum
 const (
 	SubsampleAuto Subsample = C.VIPS_FOREIGN_SUBSAMPLE_AUTO
-	SubsampleOn Subsample = C.VIPS_FOREIGN_SUBSAMPLE_ON
-	SubsampleOff Subsample = C.VIPS_FOREIGN_SUBSAMPLE_OFF
+	SubsampleOn   Subsample = C.VIPS_FOREIGN_SUBSAMPLE_ON
+	SubsampleOff  Subsample = C.VIPS_FOREIGN_SUBSAMPLE_OFF
 	SubsampleLast Subsample = C.VIPS_FOREIGN_SUBSAMPLE_LAST
 )
 
@@ -359,16 +358,16 @@ type TiffCompression int
 
 // TiffCompression enum
 const (
-	TiffCompressionNone TiffCompression = C.VIPS_FOREIGN_TIFF_COMPRESSION_NONE
-	TiffCompressionJpeg TiffCompression = C.VIPS_FOREIGN_TIFF_COMPRESSION_JPEG
-	TiffCompressionDeflate TiffCompression = C.VIPS_FOREIGN_TIFF_COMPRESSION_DEFLATE
-	TiffCompressionPackbits TiffCompression = C.VIPS_FOREIGN_TIFF_COMPRESSION_PACKBITS
+	TiffCompressionNone      TiffCompression = C.VIPS_FOREIGN_TIFF_COMPRESSION_NONE
+	TiffCompressionJpeg      TiffCompression = C.VIPS_FOREIGN_TIFF_COMPRESSION_JPEG
+	TiffCompressionDeflate   TiffCompression = C.VIPS_FOREIGN_TIFF_COMPRESSION_DEFLATE
+	TiffCompressionPackbits  TiffCompression = C.VIPS_FOREIGN_TIFF_COMPRESSION_PACKBITS
 	TiffCompressionCcittfax4 TiffCompression = C.VIPS_FOREIGN_TIFF_COMPRESSION_CCITTFAX4
-	TiffCompressionLzw TiffCompression = C.VIPS_FOREIGN_TIFF_COMPRESSION_LZW
-	TiffCompressionWebp TiffCompression = C.VIPS_FOREIGN_TIFF_COMPRESSION_WEBP
-	TiffCompressionZstd TiffCompression = C.VIPS_FOREIGN_TIFF_COMPRESSION_ZSTD
-	TiffCompressionJp2k TiffCompression = C.VIPS_FOREIGN_TIFF_COMPRESSION_JP2K
-	TiffCompressionLast TiffCompression = C.VIPS_FOREIGN_TIFF_COMPRESSION_LAST
+	TiffCompressionLzw       TiffCompression = C.VIPS_FOREIGN_TIFF_COMPRESSION_LZW
+	TiffCompressionWebp      TiffCompression = C.VIPS_FOREIGN_TIFF_COMPRESSION_WEBP
+	TiffCompressionZstd      TiffCompression = C.VIPS_FOREIGN_TIFF_COMPRESSION_ZSTD
+	TiffCompressionJp2k      TiffCompression = C.VIPS_FOREIGN_TIFF_COMPRESSION_JP2K
+	TiffCompressionLast      TiffCompression = C.VIPS_FOREIGN_TIFF_COMPRESSION_LAST
 )
 
 // TiffPredictor represents VipsForeignTiffPredictor type
@@ -376,10 +375,10 @@ type TiffPredictor int
 
 // TiffPredictor enum
 const (
-	TiffPredictorNone TiffPredictor = C.VIPS_FOREIGN_TIFF_PREDICTOR_NONE
+	TiffPredictorNone       TiffPredictor = C.VIPS_FOREIGN_TIFF_PREDICTOR_NONE
 	TiffPredictorHorizontal TiffPredictor = C.VIPS_FOREIGN_TIFF_PREDICTOR_HORIZONTAL
-	TiffPredictorFloat TiffPredictor = C.VIPS_FOREIGN_TIFF_PREDICTOR_FLOAT
-	TiffPredictorLast TiffPredictor = C.VIPS_FOREIGN_TIFF_PREDICTOR_LAST
+	TiffPredictorFloat      TiffPredictor = C.VIPS_FOREIGN_TIFF_PREDICTOR_FLOAT
+	TiffPredictorLast       TiffPredictor = C.VIPS_FOREIGN_TIFF_PREDICTOR_LAST
 )
 
 // TiffResunit represents VipsForeignTiffResunit type
@@ -387,7 +386,7 @@ type TiffResunit int
 
 // TiffResunit enum
 const (
-	TiffResunitCm TiffResunit = C.VIPS_FOREIGN_TIFF_RESUNIT_CM
+	TiffResunitCm   TiffResunit = C.VIPS_FOREIGN_TIFF_RESUNIT_CM
 	TiffResunitInch TiffResunit = C.VIPS_FOREIGN_TIFF_RESUNIT_INCH
 	TiffResunitLast TiffResunit = C.VIPS_FOREIGN_TIFF_RESUNIT_LAST
 )
@@ -399,11 +398,11 @@ type WebpPreset int
 const (
 	WebpPresetDefault WebpPreset = C.VIPS_FOREIGN_WEBP_PRESET_DEFAULT
 	WebpPresetPicture WebpPreset = C.VIPS_FOREIGN_WEBP_PRESET_PICTURE
-	WebpPresetPhoto WebpPreset = C.VIPS_FOREIGN_WEBP_PRESET_PHOTO
+	WebpPresetPhoto   WebpPreset = C.VIPS_FOREIGN_WEBP_PRESET_PHOTO
 	WebpPresetDrawing WebpPreset = C.VIPS_FOREIGN_WEBP_PRESET_DRAWING
-	WebpPresetIcon WebpPreset = C.VIPS_FOREIGN_WEBP_PRESET_ICON
-	WebpPresetText WebpPreset = C.VIPS_FOREIGN_WEBP_PRESET_TEXT
-	WebpPresetLast WebpPreset = C.VIPS_FOREIGN_WEBP_PRESET_LAST
+	WebpPresetIcon    WebpPreset = C.VIPS_FOREIGN_WEBP_PRESET_ICON
+	WebpPresetText    WebpPreset = C.VIPS_FOREIGN_WEBP_PRESET_TEXT
+	WebpPresetLast    WebpPreset = C.VIPS_FOREIGN_WEBP_PRESET_LAST
 )
 
 // Intent represents VipsIntent type
@@ -412,10 +411,10 @@ type Intent int
 // Intent enum
 const (
 	IntentPerceptual Intent = C.VIPS_INTENT_PERCEPTUAL
-	IntentRelative Intent = C.VIPS_INTENT_RELATIVE
+	IntentRelative   Intent = C.VIPS_INTENT_RELATIVE
 	IntentSaturation Intent = C.VIPS_INTENT_SATURATION
-	IntentAbsolute Intent = C.VIPS_INTENT_ABSOLUTE
-	IntentLast Intent = C.VIPS_INTENT_LAST
+	IntentAbsolute   Intent = C.VIPS_INTENT_ABSOLUTE
+	IntentLast       Intent = C.VIPS_INTENT_LAST
 )
 
 // Interesting represents VipsInteresting type
@@ -423,14 +422,14 @@ type Interesting int
 
 // Interesting enum
 const (
-	InterestingNone Interesting = C.VIPS_INTERESTING_NONE
-	InterestingCentre Interesting = C.VIPS_INTERESTING_CENTRE
-	InterestingEntropy Interesting = C.VIPS_INTERESTING_ENTROPY
+	InterestingNone      Interesting = C.VIPS_INTERESTING_NONE
+	InterestingCentre    Interesting = C.VIPS_INTERESTING_CENTRE
+	InterestingEntropy   Interesting = C.VIPS_INTERESTING_ENTROPY
 	InterestingAttention Interesting = C.VIPS_INTERESTING_ATTENTION
-	InterestingLow Interesting = C.VIPS_INTERESTING_LOW
-	InterestingHigh Interesting = C.VIPS_INTERESTING_HIGH
-	InterestingAll Interesting = C.VIPS_INTERESTING_ALL
-	InterestingLast Interesting = C.VIPS_INTERESTING_LAST
+	InterestingLow       Interesting = C.VIPS_INTERESTING_LOW
+	InterestingHigh      Interesting = C.VIPS_INTERESTING_HIGH
+	InterestingAll       Interesting = C.VIPS_INTERESTING_ALL
+	InterestingLast      Interesting = C.VIPS_INTERESTING_LAST
 )
 
 // Interpretation represents VipsInterpretation type
@@ -438,27 +437,27 @@ type Interpretation int
 
 // Interpretation enum
 const (
-	InterpretationError Interpretation = C.VIPS_INTERPRETATION_ERROR
+	InterpretationError     Interpretation = C.VIPS_INTERPRETATION_ERROR
 	InterpretationMultiband Interpretation = C.VIPS_INTERPRETATION_MULTIBAND
-	InterpretationBW Interpretation = C.VIPS_INTERPRETATION_B_W
+	InterpretationBW        Interpretation = C.VIPS_INTERPRETATION_B_W
 	InterpretationHistogram Interpretation = C.VIPS_INTERPRETATION_HISTOGRAM
-	InterpretationXyz Interpretation = C.VIPS_INTERPRETATION_XYZ
-	InterpretationLab Interpretation = C.VIPS_INTERPRETATION_LAB
-	InterpretationCmyk Interpretation = C.VIPS_INTERPRETATION_CMYK
-	InterpretationLabq Interpretation = C.VIPS_INTERPRETATION_LABQ
-	InterpretationRgb Interpretation = C.VIPS_INTERPRETATION_RGB
-	InterpretationCmc Interpretation = C.VIPS_INTERPRETATION_CMC
-	InterpretationLch Interpretation = C.VIPS_INTERPRETATION_LCH
-	InterpretationLabs Interpretation = C.VIPS_INTERPRETATION_LABS
-	InterpretationSrgb Interpretation = C.VIPS_INTERPRETATION_sRGB
-	InterpretationYxy Interpretation = C.VIPS_INTERPRETATION_YXY
-	InterpretationFourier Interpretation = C.VIPS_INTERPRETATION_FOURIER
-	InterpretationRgb16 Interpretation = C.VIPS_INTERPRETATION_RGB16
-	InterpretationGrey16 Interpretation = C.VIPS_INTERPRETATION_GREY16
-	InterpretationMatrix Interpretation = C.VIPS_INTERPRETATION_MATRIX
-	InterpretationScrgb Interpretation = C.VIPS_INTERPRETATION_scRGB
-	InterpretationHsv Interpretation = C.VIPS_INTERPRETATION_HSV
-	InterpretationLast Interpretation = C.VIPS_INTERPRETATION_LAST
+	InterpretationXyz       Interpretation = C.VIPS_INTERPRETATION_XYZ
+	InterpretationLab       Interpretation = C.VIPS_INTERPRETATION_LAB
+	InterpretationCmyk      Interpretation = C.VIPS_INTERPRETATION_CMYK
+	InterpretationLabq      Interpretation = C.VIPS_INTERPRETATION_LABQ
+	InterpretationRgb       Interpretation = C.VIPS_INTERPRETATION_RGB
+	InterpretationCmc       Interpretation = C.VIPS_INTERPRETATION_CMC
+	InterpretationLch       Interpretation = C.VIPS_INTERPRETATION_LCH
+	InterpretationLabs      Interpretation = C.VIPS_INTERPRETATION_LABS
+	InterpretationSrgb      Interpretation = C.VIPS_INTERPRETATION_sRGB
+	InterpretationYxy       Interpretation = C.VIPS_INTERPRETATION_YXY
+	InterpretationFourier   Interpretation = C.VIPS_INTERPRETATION_FOURIER
+	InterpretationRgb16     Interpretation = C.VIPS_INTERPRETATION_RGB16
+	InterpretationGrey16    Interpretation = C.VIPS_INTERPRETATION_GREY16
+	InterpretationMatrix    Interpretation = C.VIPS_INTERPRETATION_MATRIX
+	InterpretationScrgb     Interpretation = C.VIPS_INTERPRETATION_scRGB
+	InterpretationHsv       Interpretation = C.VIPS_INTERPRETATION_HSV
+	InterpretationLast      Interpretation = C.VIPS_INTERPRETATION_LAST
 )
 
 // Kernel represents VipsKernel type
@@ -466,13 +465,13 @@ type Kernel int
 
 // Kernel enum
 const (
-	KernelNearest Kernel = C.VIPS_KERNEL_NEAREST
-	KernelLinear Kernel = C.VIPS_KERNEL_LINEAR
-	KernelCubic Kernel = C.VIPS_KERNEL_CUBIC
+	KernelNearest  Kernel = C.VIPS_KERNEL_NEAREST
+	KernelLinear   Kernel = C.VIPS_KERNEL_LINEAR
+	KernelCubic    Kernel = C.VIPS_KERNEL_CUBIC
 	KernelMitchell Kernel = C.VIPS_KERNEL_MITCHELL
 	KernelLanczos2 Kernel = C.VIPS_KERNEL_LANCZOS2
 	KernelLanczos3 Kernel = C.VIPS_KERNEL_LANCZOS3
-	KernelLast Kernel = C.VIPS_KERNEL_LAST
+	KernelLast     Kernel = C.VIPS_KERNEL_LAST
 )
 
 // OperationBoolean represents VipsOperationBoolean type
@@ -480,12 +479,12 @@ type OperationBoolean int
 
 // OperationBoolean enum
 const (
-	OperationBooleanAnd OperationBoolean = C.VIPS_OPERATION_BOOLEAN_AND
-	OperationBooleanOr OperationBoolean = C.VIPS_OPERATION_BOOLEAN_OR
-	OperationBooleanEor OperationBoolean = C.VIPS_OPERATION_BOOLEAN_EOR
+	OperationBooleanAnd    OperationBoolean = C.VIPS_OPERATION_BOOLEAN_AND
+	OperationBooleanOr     OperationBoolean = C.VIPS_OPERATION_BOOLEAN_OR
+	OperationBooleanEor    OperationBoolean = C.VIPS_OPERATION_BOOLEAN_EOR
 	OperationBooleanLshift OperationBoolean = C.VIPS_OPERATION_BOOLEAN_LSHIFT
 	OperationBooleanRshift OperationBoolean = C.VIPS_OPERATION_BOOLEAN_RSHIFT
-	OperationBooleanLast OperationBoolean = C.VIPS_OPERATION_BOOLEAN_LAST
+	OperationBooleanLast   OperationBoolean = C.VIPS_OPERATION_BOOLEAN_LAST
 )
 
 // OperationComplex represents VipsOperationComplex type
@@ -494,9 +493,9 @@ type OperationComplex int
 // OperationComplex enum
 const (
 	OperationComplexPolar OperationComplex = C.VIPS_OPERATION_COMPLEX_POLAR
-	OperationComplexRect OperationComplex = C.VIPS_OPERATION_COMPLEX_RECT
-	OperationComplexConj OperationComplex = C.VIPS_OPERATION_COMPLEX_CONJ
-	OperationComplexLast OperationComplex = C.VIPS_OPERATION_COMPLEX_LAST
+	OperationComplexRect  OperationComplex = C.VIPS_OPERATION_COMPLEX_RECT
+	OperationComplexConj  OperationComplex = C.VIPS_OPERATION_COMPLEX_CONJ
+	OperationComplexLast  OperationComplex = C.VIPS_OPERATION_COMPLEX_LAST
 )
 
 // OperationComplex2 represents VipsOperationComplex2 type
@@ -505,7 +504,7 @@ type OperationComplex2 int
 // OperationComplex2 enum
 const (
 	OperationComplex2CrossPhase OperationComplex2 = C.VIPS_OPERATION_COMPLEX2_CROSS_PHASE
-	OperationComplex2Last OperationComplex2 = C.VIPS_OPERATION_COMPLEX2_LAST
+	OperationComplex2Last       OperationComplex2 = C.VIPS_OPERATION_COMPLEX2_LAST
 )
 
 // OperationComplexget represents VipsOperationComplexget type
@@ -523,23 +522,23 @@ type OperationMath int
 
 // OperationMath enum
 const (
-	OperationMathSin OperationMath = C.VIPS_OPERATION_MATH_SIN
-	OperationMathCos OperationMath = C.VIPS_OPERATION_MATH_COS
-	OperationMathTan OperationMath = C.VIPS_OPERATION_MATH_TAN
-	OperationMathAsin OperationMath = C.VIPS_OPERATION_MATH_ASIN
-	OperationMathAcos OperationMath = C.VIPS_OPERATION_MATH_ACOS
-	OperationMathAtan OperationMath = C.VIPS_OPERATION_MATH_ATAN
-	OperationMathLog OperationMath = C.VIPS_OPERATION_MATH_LOG
+	OperationMathSin   OperationMath = C.VIPS_OPERATION_MATH_SIN
+	OperationMathCos   OperationMath = C.VIPS_OPERATION_MATH_COS
+	OperationMathTan   OperationMath = C.VIPS_OPERATION_MATH_TAN
+	OperationMathAsin  OperationMath = C.VIPS_OPERATION_MATH_ASIN
+	OperationMathAcos  OperationMath = C.VIPS_OPERATION_MATH_ACOS
+	OperationMathAtan  OperationMath = C.VIPS_OPERATION_MATH_ATAN
+	OperationMathLog   OperationMath = C.VIPS_OPERATION_MATH_LOG
 	OperationMathLog10 OperationMath = C.VIPS_OPERATION_MATH_LOG10
-	OperationMathExp OperationMath = C.VIPS_OPERATION_MATH_EXP
+	OperationMathExp   OperationMath = C.VIPS_OPERATION_MATH_EXP
 	OperationMathExp10 OperationMath = C.VIPS_OPERATION_MATH_EXP10
-	OperationMathSinh OperationMath = C.VIPS_OPERATION_MATH_SINH
-	OperationMathCosh OperationMath = C.VIPS_OPERATION_MATH_COSH
-	OperationMathTanh OperationMath = C.VIPS_OPERATION_MATH_TANH
+	OperationMathSinh  OperationMath = C.VIPS_OPERATION_MATH_SINH
+	OperationMathCosh  OperationMath = C.VIPS_OPERATION_MATH_COSH
+	OperationMathTanh  OperationMath = C.VIPS_OPERATION_MATH_TANH
 	OperationMathAsinh OperationMath = C.VIPS_OPERATION_MATH_ASINH
 	OperationMathAcosh OperationMath = C.VIPS_OPERATION_MATH_ACOSH
 	OperationMathAtanh OperationMath = C.VIPS_OPERATION_MATH_ATANH
-	OperationMathLast OperationMath = C.VIPS_OPERATION_MATH_LAST
+	OperationMathLast  OperationMath = C.VIPS_OPERATION_MATH_LAST
 )
 
 // OperationMath2 represents VipsOperationMath2 type
@@ -547,10 +546,10 @@ type OperationMath2 int
 
 // OperationMath2 enum
 const (
-	OperationMath2Pow OperationMath2 = C.VIPS_OPERATION_MATH2_POW
-	OperationMath2Wop OperationMath2 = C.VIPS_OPERATION_MATH2_WOP
+	OperationMath2Pow   OperationMath2 = C.VIPS_OPERATION_MATH2_POW
+	OperationMath2Wop   OperationMath2 = C.VIPS_OPERATION_MATH2_WOP
 	OperationMath2Atan2 OperationMath2 = C.VIPS_OPERATION_MATH2_ATAN2
-	OperationMath2Last OperationMath2 = C.VIPS_OPERATION_MATH2_LAST
+	OperationMath2Last  OperationMath2 = C.VIPS_OPERATION_MATH2_LAST
 )
 
 // OperationMorphology represents VipsOperationMorphology type
@@ -558,9 +557,9 @@ type OperationMorphology int
 
 // OperationMorphology enum
 const (
-	OperationMorphologyErode OperationMorphology = C.VIPS_OPERATION_MORPHOLOGY_ERODE
+	OperationMorphologyErode  OperationMorphology = C.VIPS_OPERATION_MORPHOLOGY_ERODE
 	OperationMorphologyDilate OperationMorphology = C.VIPS_OPERATION_MORPHOLOGY_DILATE
-	OperationMorphologyLast OperationMorphology = C.VIPS_OPERATION_MORPHOLOGY_LAST
+	OperationMorphologyLast   OperationMorphology = C.VIPS_OPERATION_MORPHOLOGY_LAST
 )
 
 // OperationRelational represents VipsOperationRelational type
@@ -568,13 +567,13 @@ type OperationRelational int
 
 // OperationRelational enum
 const (
-	OperationRelationalEqual OperationRelational = C.VIPS_OPERATION_RELATIONAL_EQUAL
-	OperationRelationalNoteq OperationRelational = C.VIPS_OPERATION_RELATIONAL_NOTEQ
-	OperationRelationalLess OperationRelational = C.VIPS_OPERATION_RELATIONAL_LESS
+	OperationRelationalEqual  OperationRelational = C.VIPS_OPERATION_RELATIONAL_EQUAL
+	OperationRelationalNoteq  OperationRelational = C.VIPS_OPERATION_RELATIONAL_NOTEQ
+	OperationRelationalLess   OperationRelational = C.VIPS_OPERATION_RELATIONAL_LESS
 	OperationRelationalLesseq OperationRelational = C.VIPS_OPERATION_RELATIONAL_LESSEQ
-	OperationRelationalMore OperationRelational = C.VIPS_OPERATION_RELATIONAL_MORE
+	OperationRelationalMore   OperationRelational = C.VIPS_OPERATION_RELATIONAL_MORE
 	OperationRelationalMoreeq OperationRelational = C.VIPS_OPERATION_RELATIONAL_MOREEQ
-	OperationRelationalLast OperationRelational = C.VIPS_OPERATION_RELATIONAL_LAST
+	OperationRelationalLast   OperationRelational = C.VIPS_OPERATION_RELATIONAL_LAST
 )
 
 // OperationRound represents VipsOperationRound type
@@ -582,10 +581,10 @@ type OperationRound int
 
 // OperationRound enum
 const (
-	OperationRoundRint OperationRound = C.VIPS_OPERATION_ROUND_RINT
-	OperationRoundCeil OperationRound = C.VIPS_OPERATION_ROUND_CEIL
+	OperationRoundRint  OperationRound = C.VIPS_OPERATION_ROUND_RINT
+	OperationRoundCeil  OperationRound = C.VIPS_OPERATION_ROUND_CEIL
 	OperationRoundFloor OperationRound = C.VIPS_OPERATION_ROUND_FLOOR
-	OperationRoundLast OperationRound = C.VIPS_OPERATION_ROUND_LAST
+	OperationRoundLast  OperationRound = C.VIPS_OPERATION_ROUND_LAST
 )
 
 // PCS represents VipsPCS type
@@ -593,8 +592,8 @@ type PCS int
 
 // PCS enum
 const (
-	PcsLab PCS = C.VIPS_PCS_LAB
-	PcsXyz PCS = C.VIPS_PCS_XYZ
+	PcsLab  PCS = C.VIPS_PCS_LAB
+	PcsXyz  PCS = C.VIPS_PCS_XYZ
 	PcsLast PCS = C.VIPS_PCS_LAST
 )
 
@@ -603,10 +602,10 @@ type Precision int
 
 // Precision enum
 const (
-	PrecisionInteger Precision = C.VIPS_PRECISION_INTEGER
-	PrecisionFloat Precision = C.VIPS_PRECISION_FLOAT
+	PrecisionInteger     Precision = C.VIPS_PRECISION_INTEGER
+	PrecisionFloat       Precision = C.VIPS_PRECISION_FLOAT
 	PrecisionApproximate Precision = C.VIPS_PRECISION_APPROXIMATE
-	PrecisionLast Precision = C.VIPS_PRECISION_LAST
+	PrecisionLast        Precision = C.VIPS_PRECISION_LAST
 )
 
 // RegionShrink represents VipsRegionShrink type
@@ -614,13 +613,13 @@ type RegionShrink int
 
 // RegionShrink enum
 const (
-	RegionShrinkMean RegionShrink = C.VIPS_REGION_SHRINK_MEAN
-	RegionShrinkMedian RegionShrink = C.VIPS_REGION_SHRINK_MEDIAN
-	RegionShrinkMode RegionShrink = C.VIPS_REGION_SHRINK_MODE
-	RegionShrinkMax RegionShrink = C.VIPS_REGION_SHRINK_MAX
-	RegionShrinkMin RegionShrink = C.VIPS_REGION_SHRINK_MIN
+	RegionShrinkMean    RegionShrink = C.VIPS_REGION_SHRINK_MEAN
+	RegionShrinkMedian  RegionShrink = C.VIPS_REGION_SHRINK_MEDIAN
+	RegionShrinkMode    RegionShrink = C.VIPS_REGION_SHRINK_MODE
+	RegionShrinkMax     RegionShrink = C.VIPS_REGION_SHRINK_MAX
+	RegionShrinkMin     RegionShrink = C.VIPS_REGION_SHRINK_MIN
 	RegionShrinkNearest RegionShrink = C.VIPS_REGION_SHRINK_NEAREST
-	RegionShrinkLast RegionShrink = C.VIPS_REGION_SHRINK_LAST
+	RegionShrinkLast    RegionShrink = C.VIPS_REGION_SHRINK_LAST
 )
 
 // SdfShape represents VipsSdfShape type
@@ -628,11 +627,11 @@ type SdfShape int
 
 // SdfShape enum
 const (
-	SdfShapeCircle SdfShape = C.VIPS_SDF_SHAPE_CIRCLE
-	SdfShapeBox SdfShape = C.VIPS_SDF_SHAPE_BOX
+	SdfShapeCircle     SdfShape = C.VIPS_SDF_SHAPE_CIRCLE
+	SdfShapeBox        SdfShape = C.VIPS_SDF_SHAPE_BOX
 	SdfShapeRoundedBox SdfShape = C.VIPS_SDF_SHAPE_ROUNDED_BOX
-	SdfShapeLine SdfShape = C.VIPS_SDF_SHAPE_LINE
-	SdfShapeLast SdfShape = C.VIPS_SDF_SHAPE_LAST
+	SdfShapeLine       SdfShape = C.VIPS_SDF_SHAPE_LINE
+	SdfShapeLast       SdfShape = C.VIPS_SDF_SHAPE_LAST
 )
 
 // Size represents VipsSize type
@@ -640,11 +639,11 @@ type Size int
 
 // Size enum
 const (
-	SizeBoth Size = C.VIPS_SIZE_BOTH
-	SizeUp Size = C.VIPS_SIZE_UP
-	SizeDown Size = C.VIPS_SIZE_DOWN
+	SizeBoth  Size = C.VIPS_SIZE_BOTH
+	SizeUp    Size = C.VIPS_SIZE_UP
+	SizeDown  Size = C.VIPS_SIZE_DOWN
 	SizeForce Size = C.VIPS_SIZE_FORCE
-	SizeLast Size = C.VIPS_SIZE_LAST
+	SizeLast  Size = C.VIPS_SIZE_LAST
 )
 
 // TextWrap represents VipsTextWrap type
@@ -652,40 +651,39 @@ type TextWrap int
 
 // TextWrap enum
 const (
-	TextWrapWord TextWrap = C.VIPS_TEXT_WRAP_WORD
-	TextWrapChar TextWrap = C.VIPS_TEXT_WRAP_CHAR
+	TextWrapWord     TextWrap = C.VIPS_TEXT_WRAP_WORD
+	TextWrapChar     TextWrap = C.VIPS_TEXT_WRAP_CHAR
 	TextWrapWordChar TextWrap = C.VIPS_TEXT_WRAP_WORD_CHAR
-	TextWrapNone TextWrap = C.VIPS_TEXT_WRAP_NONE
-	TextWrapLast TextWrap = C.VIPS_TEXT_WRAP_LAST
+	TextWrapNone     TextWrap = C.VIPS_TEXT_WRAP_NONE
+	TextWrapLast     TextWrap = C.VIPS_TEXT_WRAP_LAST
 )
-
 
 // imageMimeTypes map the various image types to its mime type representation
 var imageMimeTypes = map[ImageType]string{
-	ImageTypeJpeg: "image/jpeg",
-	ImageTypeGif: "image/gif",
-	ImageTypePng: "image/png",
-	ImageTypeWebp: "image/webp",
-	ImageTypeHeif: "image/heif",
-	ImageTypeSvg: "image/svg+xml",
-	ImageTypeTiff: "image/tiff",
-	ImageTypeJp2k: "image/jp2",
-	ImageTypeAvif: "image/avif",
-	ImageTypePdf: "application/pdf",
-	ImageTypeBmp: "image/bmp",
-	ImageTypeAnalyze: "application/x-analyze",
-	ImageTypeCsv: "text/csv",
-	ImageTypeDz: "image/x-deepzoom",
-	ImageTypeFits: "image/fits",
-	ImageTypeJxl: "image/jxl",
-	ImageTypeMat: "application/x-matlab-data",
-	ImageTypeMatrix: "application/x-matrix",
-	ImageTypeOpenexr: "image/openexr",
+	ImageTypeJpeg:      "image/jpeg",
+	ImageTypeGif:       "image/gif",
+	ImageTypePng:       "image/png",
+	ImageTypeWebp:      "image/webp",
+	ImageTypeHeif:      "image/heif",
+	ImageTypeSvg:       "image/svg+xml",
+	ImageTypeTiff:      "image/tiff",
+	ImageTypeJp2k:      "image/jp2",
+	ImageTypeAvif:      "image/avif",
+	ImageTypePdf:       "application/pdf",
+	ImageTypeBmp:       "image/bmp",
+	ImageTypeAnalyze:   "application/x-analyze",
+	ImageTypeCsv:       "text/csv",
+	ImageTypeDz:        "image/x-deepzoom",
+	ImageTypeFits:      "image/fits",
+	ImageTypeJxl:       "image/jxl",
+	ImageTypeMat:       "application/x-matlab-data",
+	ImageTypeMatrix:    "application/x-matrix",
+	ImageTypeOpenexr:   "image/openexr",
 	ImageTypeOpenslide: "application/x-openslide",
-	ImageTypePpm: "image/x-portable-pixmap",
-	ImageTypeRad: "image/rad",
-	ImageTypeRaw: "image/raw",
-	ImageTypeVips: "image/vnd.libvips",
+	ImageTypePpm:       "image/x-portable-pixmap",
+	ImageTypeRad:       "image/rad",
+	ImageTypeRaw:       "image/raw",
+	ImageTypeVips:      "image/vnd.libvips",
 }
 
 // MimeType returns the MIME type for the image type.
@@ -764,7 +762,7 @@ func vipsDetermineImageType(in *C.VipsImage) ImageType {
 			if strings.HasPrefix(vipsLoader, "magick") {
 				return ImageTypeMagick
 			}
-			
+
 		}
 	}
 	return ImageTypeUnknown
@@ -783,7 +781,7 @@ const (
 	InterpolateNearest  InterpolateType = "nearest"
 	InterpolateBilinear InterpolateType = "bilinear"
 	InterpolateBicubic  InterpolateType = "bicubic"
-	InterpolateLbb      InterpolateType = "lbb"      // Lanczos3
+	InterpolateLbb      InterpolateType = "lbb" // Lanczos3
 	InterpolateNohalo   InterpolateType = "nohalo"
 	InterpolateVsqbs    InterpolateType = "vsqbs"
 )
