@@ -50,7 +50,7 @@ verdicts differ between loaders that share one.
 
 `LoadOptions` is hand-written rather than classified, so its fields were checked against
 their use cases and are all plain values: the booleans (`Thumbnail`, `Unlimited`,
-`Memory`, `Autorotate`, `FailOnError`), `Shrink`, `Access`, `Dpi`, `Page` and `N`.
+`Memory`, `Autorotate`, `FailOnError`), `FailOn`, `Shrink`, `Access`, `Dpi`, `Page` and `N`.
 
 ## What is still there
 
