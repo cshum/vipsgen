@@ -66,12 +66,18 @@ var zeroRejectedArguments = map[[2]string]bool{
 // verdicts are libvips behaviour, not vocabulary.
 func ApplyMeasuredZeroPolicy(ops []introspection.Operation) {
 	for oi := range ops {
-		for ai := range ops[oi].Arguments {
-			a := &ops[oi].Arguments[ai]
-			if zeroRejectedArguments[[2]string{ops[oi].Name, a.Name}] {
-				a.ZeroRejected = true
+		op := &ops[oi]
+		// OptionalInputs holds copies, appended one at a time during introspection, so the
+		// flag has to be set on that slice too - it is the slice the classifiers read.
+		mark := func(args []introspection.Argument) {
+			for ai := range args {
+				if zeroRejectedArguments[[2]string{op.Name, args[ai].Name}] {
+					args[ai].ZeroRejected = true
+				}
 			}
 		}
+		mark(op.Arguments)
+		mark(op.OptionalInputs)
 	}
 }
 

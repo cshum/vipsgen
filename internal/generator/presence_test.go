@@ -415,3 +415,18 @@ func TestMeasuredZeroPolicyIsKeyedPerOperation(t *testing.T) {
 		t.Errorf("webpload.n: got %v, want a pointer - zero is accepted there", got)
 	}
 }
+
+// OptionalInputs is built by appending copies of each Argument, so a policy applied only
+// to Arguments silently does nothing: mark both, and check the slice the classifiers use.
+func TestMeasuredZeroPolicyReachesOptionalInputs(t *testing.T) {
+	numeric := introspection.Argument{
+		Name: "n", Type: "gint", GoType: "int", IsInput: true,
+		HasRange: true, HasMinimum: true, HasMaximum: true,
+		Minimum: -1, Maximum: 100000, DefaultValue: float64(1),
+	}
+	op := introspection.Operation{Name: "gifload", Arguments: []introspection.Argument{numeric}, OptionalInputs: []introspection.Argument{numeric}}
+	ApplyMeasuredZeroPolicy([]introspection.Operation{op})
+	if got := argPresence(op.OptionalInputs[0]); got != PresenceValue {
+		t.Errorf("gifload.n via OptionalInputs: got %v, want a plain field", got)
+	}
+}
