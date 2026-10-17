@@ -64,6 +64,13 @@ var zeroRejectedArguments = map[[2]string]bool{
 	{"pdfload", "n"}:         true,
 	{"pdfload_buffer", "n"}:  true,
 	{"pdfload_source", "n"}:  true,
+	{"magickload", "n"}:        true,
+	{"magickload_buffer", "n"}: true,
+	{"magickload_source", "n"}: true,
+	{"dzsave", "suffix"}:       true,
+	{"dzsave_buffer", "suffix"}: true,
+	{"dzsave_target", "suffix"}: true,
+	{"similarity", "scale"}:    true,
 }
 
 // ApplyMeasuredZeroPolicy marks the arguments above so argPresence returns a plain

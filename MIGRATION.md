@@ -51,7 +51,7 @@ from a zero it makes sense to pass. `gifload.n` and `webpload.n` have the same r
 (`gifload: bad page number`). Measured, those arguments are plain values anyway:
 
     gifload.n   tiffload.n   tiffload.subifd   webpload.scale   svgload.scale
-    heifload.n  pdfload.n
+    heifload.n  pdfload.n   magickload.n   similarity.scale   dzsave.suffix
 
 Every saver argument was measured too and accepts an explicit zero -
 `pngsave.compression = 0` stores uncompressed - which is why the rule stays in place for
