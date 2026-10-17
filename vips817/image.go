@@ -38,9 +38,7 @@ type AnalyzeloadOptions struct {
 	Revalidate bool
 }
 
-// DefaultAnalyzeloadOptions returns AnalyzeloadOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultAnalyzeloadOptions creates default value for vips_analyzeload optional arguments
 func DefaultAnalyzeloadOptions() *AnalyzeloadOptions {
 	return &AnalyzeloadOptions{
 	}
@@ -84,9 +82,7 @@ type ArrayjoinOptions struct {
 	Vspacing int
 }
 
-// DefaultArrayjoinOptions returns ArrayjoinOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultArrayjoinOptions creates default value for vips_arrayjoin optional arguments
 func DefaultArrayjoinOptions() *ArrayjoinOptions {
 	return &ArrayjoinOptions{
 		Across: 1,
@@ -134,9 +130,7 @@ type BandrankOptions struct {
 	Index *int
 }
 
-// DefaultBandrankOptions returns BandrankOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultBandrankOptions creates default value for vips_bandrank optional arguments
 func DefaultBandrankOptions() *BandrankOptions {
 	return &BandrankOptions{
 		Index: Ptr(-1),
@@ -169,9 +163,7 @@ type BlackOptions struct {
 	Bands int
 }
 
-// DefaultBlackOptions returns BlackOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultBlackOptions creates default value for vips_black optional arguments
 func DefaultBlackOptions() *BlackOptions {
 	return &BlackOptions{
 		Bands: 1,
@@ -211,9 +203,7 @@ type CompositeOptions struct {
 	Premultiplied bool
 }
 
-// DefaultCompositeOptions returns CompositeOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultCompositeOptions creates default value for vips_composite optional arguments
 func DefaultCompositeOptions() *CompositeOptions {
 	return &CompositeOptions{
 		CompositingSpace: Ptr(InterpretationSrgb),
@@ -261,9 +251,7 @@ type CsvloadOptions struct {
 	Revalidate bool
 }
 
-// DefaultCsvloadOptions returns CsvloadOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultCsvloadOptions creates default value for vips_csvload optional arguments
 func DefaultCsvloadOptions() *CsvloadOptions {
 	return &CsvloadOptions{
 		Lines: Ptr(-1),
@@ -312,9 +300,7 @@ type CsvloadSourceOptions struct {
 	Revalidate bool
 }
 
-// DefaultCsvloadSourceOptions returns CsvloadSourceOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultCsvloadSourceOptions creates default value for vips_csvload_source optional arguments
 func DefaultCsvloadSourceOptions() *CsvloadSourceOptions {
 	return &CsvloadSourceOptions{
 		Lines: Ptr(-1),
@@ -351,9 +337,7 @@ type EyeOptions struct {
 	Factor *float64
 }
 
-// DefaultEyeOptions returns EyeOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultEyeOptions creates default value for vips_eye optional arguments
 func DefaultEyeOptions() *EyeOptions {
 	return &EyeOptions{
 		Factor: Ptr(0.5),
@@ -393,9 +377,7 @@ type FitsloadOptions struct {
 	Revalidate bool
 }
 
-// DefaultFitsloadOptions returns FitsloadOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultFitsloadOptions creates default value for vips_fitsload optional arguments
 func DefaultFitsloadOptions() *FitsloadOptions {
 	return &FitsloadOptions{
 	}
@@ -444,9 +426,7 @@ type GaussmatOptions struct {
 	Precision Precision
 }
 
-// DefaultGaussmatOptions returns GaussmatOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultGaussmatOptions creates default value for vips_gaussmat optional arguments
 func DefaultGaussmatOptions() *GaussmatOptions {
 	return &GaussmatOptions{
 	}
@@ -483,9 +463,7 @@ type GaussnoiseOptions struct {
 	Seed int
 }
 
-// DefaultGaussnoiseOptions returns GaussnoiseOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultGaussnoiseOptions creates default value for vips_gaussnoise optional arguments
 func DefaultGaussnoiseOptions() *GaussnoiseOptions {
 	return &GaussnoiseOptions{
 		Sigma: Ptr(30.0),
@@ -530,9 +508,7 @@ type GifloadOptions struct {
 	Revalidate bool
 }
 
-// DefaultGifloadOptions returns GifloadOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultGifloadOptions creates default value for vips_gifload optional arguments
 func DefaultGifloadOptions() *GifloadOptions {
 	return &GifloadOptions{
 		N: Ptr(1),
@@ -575,9 +551,7 @@ type GifloadBufferOptions struct {
 	Revalidate bool
 }
 
-// DefaultGifloadBufferOptions returns GifloadBufferOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultGifloadBufferOptions creates default value for vips_gifload_buffer optional arguments
 func DefaultGifloadBufferOptions() *GifloadBufferOptions {
 	return &GifloadBufferOptions{
 		N: Ptr(1),
@@ -621,9 +595,7 @@ type GifloadSourceOptions struct {
 	Revalidate bool
 }
 
-// DefaultGifloadSourceOptions returns GifloadSourceOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultGifloadSourceOptions creates default value for vips_gifload_source optional arguments
 func DefaultGifloadSourceOptions() *GifloadSourceOptions {
 	return &GifloadSourceOptions{
 		N: Ptr(1),
@@ -656,9 +628,7 @@ type GreyOptions struct {
 	Uchar bool
 }
 
-// DefaultGreyOptions returns GreyOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultGreyOptions creates default value for vips_grey optional arguments
 func DefaultGreyOptions() *GreyOptions {
 	return &GreyOptions{
 	}
@@ -705,9 +675,7 @@ type HeifloadOptions struct {
 	Revalidate bool
 }
 
-// DefaultHeifloadOptions returns HeifloadOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultHeifloadOptions creates default value for vips_heifload optional arguments
 func DefaultHeifloadOptions() *HeifloadOptions {
 	return &HeifloadOptions{
 		N: Ptr(1),
@@ -754,9 +722,7 @@ type HeifloadBufferOptions struct {
 	Revalidate bool
 }
 
-// DefaultHeifloadBufferOptions returns HeifloadBufferOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultHeifloadBufferOptions creates default value for vips_heifload_buffer optional arguments
 func DefaultHeifloadBufferOptions() *HeifloadBufferOptions {
 	return &HeifloadBufferOptions{
 		N: Ptr(1),
@@ -804,9 +770,7 @@ type HeifloadSourceOptions struct {
 	Revalidate bool
 }
 
-// DefaultHeifloadSourceOptions returns HeifloadSourceOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultHeifloadSourceOptions creates default value for vips_heifload_source optional arguments
 func DefaultHeifloadSourceOptions() *HeifloadSourceOptions {
 	return &HeifloadSourceOptions{
 		N: Ptr(1),
@@ -843,9 +807,7 @@ type IdentityOptions struct {
 	Size int
 }
 
-// DefaultIdentityOptions returns IdentityOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultIdentityOptions creates default value for vips_identity optional arguments
 func DefaultIdentityOptions() *IdentityOptions {
 	return &IdentityOptions{
 		Bands: 1,
@@ -887,9 +849,7 @@ type Jp2kloadOptions struct {
 	Revalidate bool
 }
 
-// DefaultJp2kloadOptions returns Jp2kloadOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultJp2kloadOptions creates default value for vips_jp2kload optional arguments
 func DefaultJp2kloadOptions() *Jp2kloadOptions {
 	return &Jp2kloadOptions{
 	}
@@ -931,9 +891,7 @@ type Jp2kloadBufferOptions struct {
 	Revalidate bool
 }
 
-// DefaultJp2kloadBufferOptions returns Jp2kloadBufferOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultJp2kloadBufferOptions creates default value for vips_jp2kload_buffer optional arguments
 func DefaultJp2kloadBufferOptions() *Jp2kloadBufferOptions {
 	return &Jp2kloadBufferOptions{
 	}
@@ -976,9 +934,7 @@ type Jp2kloadSourceOptions struct {
 	Revalidate bool
 }
 
-// DefaultJp2kloadSourceOptions returns Jp2kloadSourceOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultJp2kloadSourceOptions creates default value for vips_jp2kload_source optional arguments
 func DefaultJp2kloadSourceOptions() *Jp2kloadSourceOptions {
 	return &Jp2kloadSourceOptions{
 	}
@@ -1022,9 +978,7 @@ type JpegloadOptions struct {
 	Revalidate bool
 }
 
-// DefaultJpegloadOptions returns JpegloadOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultJpegloadOptions creates default value for vips_jpegload optional arguments
 func DefaultJpegloadOptions() *JpegloadOptions {
 	return &JpegloadOptions{
 		Shrink: 1,
@@ -1069,9 +1023,7 @@ type JpegloadBufferOptions struct {
 	Revalidate bool
 }
 
-// DefaultJpegloadBufferOptions returns JpegloadBufferOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultJpegloadBufferOptions creates default value for vips_jpegload_buffer optional arguments
 func DefaultJpegloadBufferOptions() *JpegloadBufferOptions {
 	return &JpegloadBufferOptions{
 		Shrink: 1,
@@ -1117,9 +1069,7 @@ type JpegloadSourceOptions struct {
 	Revalidate bool
 }
 
-// DefaultJpegloadSourceOptions returns JpegloadSourceOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultJpegloadSourceOptions creates default value for vips_jpegload_source optional arguments
 func DefaultJpegloadSourceOptions() *JpegloadSourceOptions {
 	return &JpegloadSourceOptions{
 		Shrink: 1,
@@ -1162,9 +1112,7 @@ type JxlloadOptions struct {
 	Revalidate bool
 }
 
-// DefaultJxlloadOptions returns JxlloadOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultJxlloadOptions creates default value for vips_jxlload optional arguments
 func DefaultJxlloadOptions() *JxlloadOptions {
 	return &JxlloadOptions{
 		N: Ptr(1),
@@ -1207,9 +1155,7 @@ type JxlloadBufferOptions struct {
 	Revalidate bool
 }
 
-// DefaultJxlloadBufferOptions returns JxlloadBufferOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultJxlloadBufferOptions creates default value for vips_jxlload_buffer optional arguments
 func DefaultJxlloadBufferOptions() *JxlloadBufferOptions {
 	return &JxlloadBufferOptions{
 		N: Ptr(1),
@@ -1253,9 +1199,7 @@ type JxlloadSourceOptions struct {
 	Revalidate bool
 }
 
-// DefaultJxlloadSourceOptions returns JxlloadSourceOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultJxlloadSourceOptions creates default value for vips_jxlload_source optional arguments
 func DefaultJxlloadSourceOptions() *JxlloadSourceOptions {
 	return &JxlloadSourceOptions{
 		N: Ptr(1),
@@ -1290,9 +1234,7 @@ type LogmatOptions struct {
 	Precision Precision
 }
 
-// DefaultLogmatOptions returns LogmatOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultLogmatOptions creates default value for vips_logmat optional arguments
 func DefaultLogmatOptions() *LogmatOptions {
 	return &LogmatOptions{
 	}
@@ -1337,9 +1279,7 @@ type MagickloadOptions struct {
 	Revalidate bool
 }
 
-// DefaultMagickloadOptions returns MagickloadOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultMagickloadOptions creates default value for vips_magickload optional arguments
 func DefaultMagickloadOptions() *MagickloadOptions {
 	return &MagickloadOptions{
 		N: Ptr(1),
@@ -1384,9 +1324,7 @@ type MagickloadBufferOptions struct {
 	Revalidate bool
 }
 
-// DefaultMagickloadBufferOptions returns MagickloadBufferOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultMagickloadBufferOptions creates default value for vips_magickload_buffer optional arguments
 func DefaultMagickloadBufferOptions() *MagickloadBufferOptions {
 	return &MagickloadBufferOptions{
 		N: Ptr(1),
@@ -1426,9 +1364,7 @@ type MaskButterworthOptions struct {
 	Optical bool
 }
 
-// DefaultMaskButterworthOptions returns MaskButterworthOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultMaskButterworthOptions creates default value for vips_mask_butterworth optional arguments
 func DefaultMaskButterworthOptions() *MaskButterworthOptions {
 	return &MaskButterworthOptions{
 	}
@@ -1470,9 +1406,7 @@ type MaskButterworthBandOptions struct {
 	Optical bool
 }
 
-// DefaultMaskButterworthBandOptions returns MaskButterworthBandOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultMaskButterworthBandOptions creates default value for vips_mask_butterworth_band optional arguments
 func DefaultMaskButterworthBandOptions() *MaskButterworthBandOptions {
 	return &MaskButterworthBandOptions{
 	}
@@ -1516,9 +1450,7 @@ type MaskButterworthRingOptions struct {
 	Optical bool
 }
 
-// DefaultMaskButterworthRingOptions returns MaskButterworthRingOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultMaskButterworthRingOptions creates default value for vips_mask_butterworth_ring optional arguments
 func DefaultMaskButterworthRingOptions() *MaskButterworthRingOptions {
 	return &MaskButterworthRingOptions{
 	}
@@ -1561,9 +1493,7 @@ type MaskFractalOptions struct {
 	Optical bool
 }
 
-// DefaultMaskFractalOptions returns MaskFractalOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultMaskFractalOptions creates default value for vips_mask_fractal optional arguments
 func DefaultMaskFractalOptions() *MaskFractalOptions {
 	return &MaskFractalOptions{
 	}
@@ -1603,9 +1533,7 @@ type MaskGaussianOptions struct {
 	Optical bool
 }
 
-// DefaultMaskGaussianOptions returns MaskGaussianOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultMaskGaussianOptions creates default value for vips_mask_gaussian optional arguments
 func DefaultMaskGaussianOptions() *MaskGaussianOptions {
 	return &MaskGaussianOptions{
 	}
@@ -1646,9 +1574,7 @@ type MaskGaussianBandOptions struct {
 	Optical bool
 }
 
-// DefaultMaskGaussianBandOptions returns MaskGaussianBandOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultMaskGaussianBandOptions creates default value for vips_mask_gaussian_band optional arguments
 func DefaultMaskGaussianBandOptions() *MaskGaussianBandOptions {
 	return &MaskGaussianBandOptions{
 	}
@@ -1691,9 +1617,7 @@ type MaskGaussianRingOptions struct {
 	Optical bool
 }
 
-// DefaultMaskGaussianRingOptions returns MaskGaussianRingOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultMaskGaussianRingOptions creates default value for vips_mask_gaussian_ring optional arguments
 func DefaultMaskGaussianRingOptions() *MaskGaussianRingOptions {
 	return &MaskGaussianRingOptions{
 	}
@@ -1735,9 +1659,7 @@ type MaskIdealOptions struct {
 	Optical bool
 }
 
-// DefaultMaskIdealOptions returns MaskIdealOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultMaskIdealOptions creates default value for vips_mask_ideal optional arguments
 func DefaultMaskIdealOptions() *MaskIdealOptions {
 	return &MaskIdealOptions{
 	}
@@ -1777,9 +1699,7 @@ type MaskIdealBandOptions struct {
 	Optical bool
 }
 
-// DefaultMaskIdealBandOptions returns MaskIdealBandOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultMaskIdealBandOptions creates default value for vips_mask_ideal_band optional arguments
 func DefaultMaskIdealBandOptions() *MaskIdealBandOptions {
 	return &MaskIdealBandOptions{
 	}
@@ -1821,9 +1741,7 @@ type MaskIdealRingOptions struct {
 	Optical bool
 }
 
-// DefaultMaskIdealRingOptions returns MaskIdealRingOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultMaskIdealRingOptions creates default value for vips_mask_ideal_ring optional arguments
 func DefaultMaskIdealRingOptions() *MaskIdealRingOptions {
 	return &MaskIdealRingOptions{
 	}
@@ -1864,9 +1782,7 @@ type MatloadOptions struct {
 	Revalidate bool
 }
 
-// DefaultMatloadOptions returns MatloadOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultMatloadOptions creates default value for vips_matload optional arguments
 func DefaultMatloadOptions() *MatloadOptions {
 	return &MatloadOptions{
 	}
@@ -1904,9 +1820,7 @@ type MatrixloadOptions struct {
 	Revalidate bool
 }
 
-// DefaultMatrixloadOptions returns MatrixloadOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultMatrixloadOptions creates default value for vips_matrixload optional arguments
 func DefaultMatrixloadOptions() *MatrixloadOptions {
 	return &MatrixloadOptions{
 	}
@@ -1944,9 +1858,7 @@ type MatrixloadSourceOptions struct {
 	Revalidate bool
 }
 
-// DefaultMatrixloadSourceOptions returns MatrixloadSourceOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultMatrixloadSourceOptions creates default value for vips_matrixload_source optional arguments
 func DefaultMatrixloadSourceOptions() *MatrixloadSourceOptions {
 	return &MatrixloadSourceOptions{
 	}
@@ -1984,9 +1896,7 @@ type NiftiloadOptions struct {
 	Revalidate bool
 }
 
-// DefaultNiftiloadOptions returns NiftiloadOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultNiftiloadOptions creates default value for vips_niftiload optional arguments
 func DefaultNiftiloadOptions() *NiftiloadOptions {
 	return &NiftiloadOptions{
 	}
@@ -2024,9 +1934,7 @@ type NiftiloadSourceOptions struct {
 	Revalidate bool
 }
 
-// DefaultNiftiloadSourceOptions returns NiftiloadSourceOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultNiftiloadSourceOptions creates default value for vips_niftiload_source optional arguments
 func DefaultNiftiloadSourceOptions() *NiftiloadSourceOptions {
 	return &NiftiloadSourceOptions{
 	}
@@ -2064,9 +1972,7 @@ type OpenexrloadOptions struct {
 	Revalidate bool
 }
 
-// DefaultOpenexrloadOptions returns OpenexrloadOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultOpenexrloadOptions creates default value for vips_openexrload optional arguments
 func DefaultOpenexrloadOptions() *OpenexrloadOptions {
 	return &OpenexrloadOptions{
 	}
@@ -2114,9 +2020,7 @@ type OpenslideloadOptions struct {
 	Revalidate bool
 }
 
-// DefaultOpenslideloadOptions returns OpenslideloadOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultOpenslideloadOptions creates default value for vips_openslideload optional arguments
 func DefaultOpenslideloadOptions() *OpenslideloadOptions {
 	return &OpenslideloadOptions{
 	}
@@ -2164,9 +2068,7 @@ type OpenslideloadSourceOptions struct {
 	Revalidate bool
 }
 
-// DefaultOpenslideloadSourceOptions returns OpenslideloadSourceOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultOpenslideloadSourceOptions creates default value for vips_openslideload_source optional arguments
 func DefaultOpenslideloadSourceOptions() *OpenslideloadSourceOptions {
 	return &OpenslideloadSourceOptions{
 	}
@@ -2216,9 +2118,7 @@ type PdfloadOptions struct {
 	Revalidate bool
 }
 
-// DefaultPdfloadOptions returns PdfloadOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultPdfloadOptions creates default value for vips_pdfload optional arguments
 func DefaultPdfloadOptions() *PdfloadOptions {
 	return &PdfloadOptions{
 		N: Ptr(1),
@@ -2271,9 +2171,7 @@ type PdfloadBufferOptions struct {
 	Revalidate bool
 }
 
-// DefaultPdfloadBufferOptions returns PdfloadBufferOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultPdfloadBufferOptions creates default value for vips_pdfload_buffer optional arguments
 func DefaultPdfloadBufferOptions() *PdfloadBufferOptions {
 	return &PdfloadBufferOptions{
 		N: Ptr(1),
@@ -2327,9 +2225,7 @@ type PdfloadSourceOptions struct {
 	Revalidate bool
 }
 
-// DefaultPdfloadSourceOptions returns PdfloadSourceOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultPdfloadSourceOptions creates default value for vips_pdfload_source optional arguments
 func DefaultPdfloadSourceOptions() *PdfloadSourceOptions {
 	return &PdfloadSourceOptions{
 		N: Ptr(1),
@@ -2368,9 +2264,7 @@ type PerlinOptions struct {
 	Seed int
 }
 
-// DefaultPerlinOptions returns PerlinOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultPerlinOptions creates default value for vips_perlin optional arguments
 func DefaultPerlinOptions() *PerlinOptions {
 	return &PerlinOptions{
 		CellSize: 256,
@@ -2412,9 +2306,7 @@ type PngloadOptions struct {
 	Revalidate bool
 }
 
-// DefaultPngloadOptions returns PngloadOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultPngloadOptions creates default value for vips_pngload optional arguments
 func DefaultPngloadOptions() *PngloadOptions {
 	return &PngloadOptions{
 	}
@@ -2454,9 +2346,7 @@ type PngloadBufferOptions struct {
 	Revalidate bool
 }
 
-// DefaultPngloadBufferOptions returns PngloadBufferOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultPngloadBufferOptions creates default value for vips_pngload_buffer optional arguments
 func DefaultPngloadBufferOptions() *PngloadBufferOptions {
 	return &PngloadBufferOptions{
 	}
@@ -2497,9 +2387,7 @@ type PngloadSourceOptions struct {
 	Revalidate bool
 }
 
-// DefaultPngloadSourceOptions returns PngloadSourceOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultPngloadSourceOptions creates default value for vips_pngload_source optional arguments
 func DefaultPngloadSourceOptions() *PngloadSourceOptions {
 	return &PngloadSourceOptions{
 	}
@@ -2537,9 +2425,7 @@ type PpmloadOptions struct {
 	Revalidate bool
 }
 
-// DefaultPpmloadOptions returns PpmloadOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultPpmloadOptions creates default value for vips_ppmload optional arguments
 func DefaultPpmloadOptions() *PpmloadOptions {
 	return &PpmloadOptions{
 	}
@@ -2577,9 +2463,7 @@ type PpmloadBufferOptions struct {
 	Revalidate bool
 }
 
-// DefaultPpmloadBufferOptions returns PpmloadBufferOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultPpmloadBufferOptions creates default value for vips_ppmload_buffer optional arguments
 func DefaultPpmloadBufferOptions() *PpmloadBufferOptions {
 	return &PpmloadBufferOptions{
 	}
@@ -2618,9 +2502,7 @@ type PpmloadSourceOptions struct {
 	Revalidate bool
 }
 
-// DefaultPpmloadSourceOptions returns PpmloadSourceOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultPpmloadSourceOptions creates default value for vips_ppmload_source optional arguments
 func DefaultPpmloadSourceOptions() *PpmloadSourceOptions {
 	return &PpmloadSourceOptions{
 	}
@@ -2658,9 +2540,7 @@ type RadloadOptions struct {
 	Revalidate bool
 }
 
-// DefaultRadloadOptions returns RadloadOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultRadloadOptions creates default value for vips_radload optional arguments
 func DefaultRadloadOptions() *RadloadOptions {
 	return &RadloadOptions{
 	}
@@ -2698,9 +2578,7 @@ type RadloadBufferOptions struct {
 	Revalidate bool
 }
 
-// DefaultRadloadBufferOptions returns RadloadBufferOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultRadloadBufferOptions creates default value for vips_radload_buffer optional arguments
 func DefaultRadloadBufferOptions() *RadloadBufferOptions {
 	return &RadloadBufferOptions{
 	}
@@ -2739,9 +2617,7 @@ type RadloadSourceOptions struct {
 	Revalidate bool
 }
 
-// DefaultRadloadSourceOptions returns RadloadSourceOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultRadloadSourceOptions creates default value for vips_radload_source optional arguments
 func DefaultRadloadSourceOptions() *RadloadSourceOptions {
 	return &RadloadSourceOptions{
 	}
@@ -2785,9 +2661,7 @@ type RawloadOptions struct {
 	Revalidate bool
 }
 
-// DefaultRawloadOptions returns RawloadOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultRawloadOptions creates default value for vips_rawload optional arguments
 func DefaultRawloadOptions() *RawloadOptions {
 	return &RawloadOptions{
 	}
@@ -2828,9 +2702,7 @@ type SdfOptions struct {
 	Corners []float64
 }
 
-// DefaultSdfOptions returns SdfOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultSdfOptions creates default value for vips_sdf optional arguments
 func DefaultSdfOptions() *SdfOptions {
 	return &SdfOptions{
 		R: Ptr(50.0),
@@ -2869,9 +2741,7 @@ type SinesOptions struct {
 	Vfreq *float64
 }
 
-// DefaultSinesOptions returns SinesOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultSinesOptions creates default value for vips_sines optional arguments
 func DefaultSinesOptions() *SinesOptions {
 	return &SinesOptions{
 		Hfreq: Ptr(0.5),
@@ -2935,9 +2805,7 @@ type SvgloadOptions struct {
 	Revalidate bool
 }
 
-// DefaultSvgloadOptions returns SvgloadOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultSvgloadOptions creates default value for vips_svgload optional arguments
 func DefaultSvgloadOptions() *SvgloadOptions {
 	return &SvgloadOptions{
 		Dpi: 72.0,
@@ -2987,9 +2855,7 @@ type SvgloadBufferOptions struct {
 	Revalidate bool
 }
 
-// DefaultSvgloadBufferOptions returns SvgloadBufferOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultSvgloadBufferOptions creates default value for vips_svgload_buffer optional arguments
 func DefaultSvgloadBufferOptions() *SvgloadBufferOptions {
 	return &SvgloadBufferOptions{
 		Dpi: 72.0,
@@ -3040,9 +2906,7 @@ type SvgloadSourceOptions struct {
 	Revalidate bool
 }
 
-// DefaultSvgloadSourceOptions returns SvgloadSourceOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultSvgloadSourceOptions creates default value for vips_svgload_source optional arguments
 func DefaultSvgloadSourceOptions() *SvgloadSourceOptions {
 	return &SvgloadSourceOptions{
 		Dpi: 72.0,
@@ -3093,9 +2957,7 @@ type SystemOptions struct {
 	InFormat string
 }
 
-// DefaultSystemOptions returns SystemOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultSystemOptions creates default value for vips_system optional arguments
 func DefaultSystemOptions() *SystemOptions {
 	return &SystemOptions{
 	}
@@ -3147,9 +3009,7 @@ type TextOptions struct {
 	AutofitDpi int
 }
 
-// DefaultTextOptions returns TextOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultTextOptions creates default value for vips_text optional arguments
 func DefaultTextOptions() *TextOptions {
 	return &TextOptions{
 		Dpi: 72,
@@ -3198,9 +3058,7 @@ type ThumbnailOptions struct {
 	FailOn FailOn
 }
 
-// DefaultThumbnailOptions returns ThumbnailOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultThumbnailOptions creates default value for vips_thumbnail optional arguments
 func DefaultThumbnailOptions() *ThumbnailOptions {
 	return &ThumbnailOptions{
 		Height: 1,
@@ -3253,9 +3111,7 @@ type ThumbnailBufferOptions struct {
 	FailOn FailOn
 }
 
-// DefaultThumbnailBufferOptions returns ThumbnailBufferOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultThumbnailBufferOptions creates default value for vips_thumbnail_buffer optional arguments
 func DefaultThumbnailBufferOptions() *ThumbnailBufferOptions {
 	return &ThumbnailBufferOptions{
 		Height: 1,
@@ -3310,9 +3166,7 @@ type ThumbnailSourceOptions struct {
 	FailOn FailOn
 }
 
-// DefaultThumbnailSourceOptions returns ThumbnailSourceOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultThumbnailSourceOptions creates default value for vips_thumbnail_source optional arguments
 func DefaultThumbnailSourceOptions() *ThumbnailSourceOptions {
 	return &ThumbnailSourceOptions{
 		Height: 1,
@@ -3363,9 +3217,7 @@ type TiffloadOptions struct {
 	Revalidate bool
 }
 
-// DefaultTiffloadOptions returns TiffloadOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultTiffloadOptions creates default value for vips_tiffload optional arguments
 func DefaultTiffloadOptions() *TiffloadOptions {
 	return &TiffloadOptions{
 		N: Ptr(1),
@@ -3415,9 +3267,7 @@ type TiffloadBufferOptions struct {
 	Revalidate bool
 }
 
-// DefaultTiffloadBufferOptions returns TiffloadBufferOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultTiffloadBufferOptions creates default value for vips_tiffload_buffer optional arguments
 func DefaultTiffloadBufferOptions() *TiffloadBufferOptions {
 	return &TiffloadBufferOptions{
 		N: Ptr(1),
@@ -3468,9 +3318,7 @@ type TiffloadSourceOptions struct {
 	Revalidate bool
 }
 
-// DefaultTiffloadSourceOptions returns TiffloadSourceOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultTiffloadSourceOptions creates default value for vips_tiffload_source optional arguments
 func DefaultTiffloadSourceOptions() *TiffloadSourceOptions {
 	return &TiffloadSourceOptions{
 		N: Ptr(1),
@@ -3522,9 +3370,7 @@ type TonelutOptions struct {
 	H float64
 }
 
-// DefaultTonelutOptions returns TonelutOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultTonelutOptions creates default value for vips_tonelut optional arguments
 func DefaultTonelutOptions() *TonelutOptions {
 	return &TonelutOptions{
 		InMax: 32767,
@@ -3566,9 +3412,7 @@ type VipsloadOptions struct {
 	Revalidate bool
 }
 
-// DefaultVipsloadOptions returns VipsloadOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultVipsloadOptions creates default value for vips_vipsload optional arguments
 func DefaultVipsloadOptions() *VipsloadOptions {
 	return &VipsloadOptions{
 	}
@@ -3606,9 +3450,7 @@ type VipsloadSourceOptions struct {
 	Revalidate bool
 }
 
-// DefaultVipsloadSourceOptions returns VipsloadSourceOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultVipsloadSourceOptions creates default value for vips_vipsload_source optional arguments
 func DefaultVipsloadSourceOptions() *VipsloadSourceOptions {
 	return &VipsloadSourceOptions{
 	}
@@ -3652,9 +3494,7 @@ type WebploadOptions struct {
 	Revalidate bool
 }
 
-// DefaultWebploadOptions returns WebploadOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultWebploadOptions creates default value for vips_webpload optional arguments
 func DefaultWebploadOptions() *WebploadOptions {
 	return &WebploadOptions{
 		N: Ptr(1),
@@ -3700,9 +3540,7 @@ type WebploadBufferOptions struct {
 	Revalidate bool
 }
 
-// DefaultWebploadBufferOptions returns WebploadBufferOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultWebploadBufferOptions creates default value for vips_webpload_buffer optional arguments
 func DefaultWebploadBufferOptions() *WebploadBufferOptions {
 	return &WebploadBufferOptions{
 		N: Ptr(1),
@@ -3749,9 +3587,7 @@ type WebploadSourceOptions struct {
 	Revalidate bool
 }
 
-// DefaultWebploadSourceOptions returns WebploadSourceOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultWebploadSourceOptions creates default value for vips_webpload_source optional arguments
 func DefaultWebploadSourceOptions() *WebploadSourceOptions {
 	return &WebploadSourceOptions{
 		N: Ptr(1),
@@ -3787,9 +3623,7 @@ type WorleyOptions struct {
 	Seed int
 }
 
-// DefaultWorleyOptions returns WorleyOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultWorleyOptions creates default value for vips_worley optional arguments
 func DefaultWorleyOptions() *WorleyOptions {
 	return &WorleyOptions{
 		CellSize: 256,
@@ -3827,9 +3661,7 @@ type XyzOptions struct {
 	Esize int
 }
 
-// DefaultXyzOptions returns XyzOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultXyzOptions creates default value for vips_xyz optional arguments
 func DefaultXyzOptions() *XyzOptions {
 	return &XyzOptions{
 		Csize: 1,
@@ -3865,9 +3697,7 @@ type ZoneOptions struct {
 	Uchar bool
 }
 
-// DefaultZoneOptions returns ZoneOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultZoneOptions creates default value for vips_zone optional arguments
 func DefaultZoneOptions() *ZoneOptions {
 	return &ZoneOptions{
 	}
@@ -3990,9 +3820,7 @@ type Lab2XYZOptions struct {
 	Temp []float64
 }
 
-// DefaultLab2XYZOptions returns Lab2XYZOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultLab2XYZOptions creates default value for vips_Lab2XYZ optional arguments
 func DefaultLab2XYZOptions() *Lab2XYZOptions {
 	return &Lab2XYZOptions{
 	}
@@ -4089,9 +3917,7 @@ type XYZ2LabOptions struct {
 	Temp []float64
 }
 
-// DefaultXYZ2LabOptions returns XYZ2LabOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultXYZ2LabOptions creates default value for vips_XYZ2Lab optional arguments
 func DefaultXYZ2LabOptions() *XYZ2LabOptions {
 	return &XYZ2LabOptions{
 	}
@@ -4206,9 +4032,7 @@ type AffineOptions struct {
 	Extend *Extend
 }
 
-// DefaultAffineOptions returns AffineOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultAffineOptions creates default value for vips_affine optional arguments
 func DefaultAffineOptions() *AffineOptions {
 	return &AffineOptions{
 		Extend: Ptr(ExtendBackground),
@@ -4245,9 +4069,7 @@ type AutorotOptions struct {
 	Flip bool
 }
 
-// DefaultAutorotOptions returns AutorotOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultAutorotOptions creates default value for vips_autorot optional arguments
 func DefaultAutorotOptions() *AutorotOptions {
 	return &AutorotOptions{
 	}
@@ -4301,9 +4123,7 @@ type BandfoldOptions struct {
 	Factor int
 }
 
-// DefaultBandfoldOptions returns BandfoldOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultBandfoldOptions creates default value for vips_bandfold optional arguments
 func DefaultBandfoldOptions() *BandfoldOptions {
 	return &BandfoldOptions{
 	}
@@ -4358,9 +4178,7 @@ type BandunfoldOptions struct {
 	Factor int
 }
 
-// DefaultBandunfoldOptions returns BandunfoldOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultBandunfoldOptions creates default value for vips_bandunfold optional arguments
 func DefaultBandunfoldOptions() *BandunfoldOptions {
 	return &BandunfoldOptions{
 	}
@@ -4443,9 +4261,7 @@ type CannyOptions struct {
 	Precision *Precision
 }
 
-// DefaultCannyOptions returns CannyOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultCannyOptions creates default value for vips_canny optional arguments
 func DefaultCannyOptions() *CannyOptions {
 	return &CannyOptions{
 		Sigma: 1.4,
@@ -4491,9 +4307,7 @@ type CastOptions struct {
 	Shift bool
 }
 
-// DefaultCastOptions returns CastOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultCastOptions creates default value for vips_cast optional arguments
 func DefaultCastOptions() *CastOptions {
 	return &CastOptions{
 	}
@@ -4528,9 +4342,7 @@ type ClampOptions struct {
 	Max *float64
 }
 
-// DefaultClampOptions returns ClampOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultClampOptions creates default value for vips_clamp optional arguments
 func DefaultClampOptions() *ClampOptions {
 	return &ClampOptions{
 		Max: Ptr(1.0),
@@ -4562,9 +4374,7 @@ type ColourspaceOptions struct {
 	SourceSpace *Interpretation
 }
 
-// DefaultColourspaceOptions returns ColourspaceOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultColourspaceOptions creates default value for vips_colourspace optional arguments
 func DefaultColourspaceOptions() *ColourspaceOptions {
 	return &ColourspaceOptions{
 		SourceSpace: Ptr(InterpretationSrgb),
@@ -4608,9 +4418,7 @@ type CompassOptions struct {
 	Cluster int
 }
 
-// DefaultCompassOptions returns CompassOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultCompassOptions creates default value for vips_compass optional arguments
 func DefaultCompassOptions() *CompassOptions {
 	return &CompassOptions{
 		Times: 2,
@@ -4707,9 +4515,7 @@ type Composite2Options struct {
 	Premultiplied bool
 }
 
-// DefaultComposite2Options returns Composite2Options with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultComposite2Options creates default value for vips_composite2 optional arguments
 func DefaultComposite2Options() *Composite2Options {
 	return &Composite2Options{
 		CompositingSpace: Ptr(InterpretationSrgb),
@@ -4748,9 +4554,7 @@ type ConvOptions struct {
 	Cluster int
 }
 
-// DefaultConvOptions returns ConvOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultConvOptions creates default value for vips_conv optional arguments
 func DefaultConvOptions() *ConvOptions {
 	return &ConvOptions{
 		Precision: Ptr(PrecisionFloat),
@@ -4788,9 +4592,7 @@ type ConvaOptions struct {
 	Cluster int
 }
 
-// DefaultConvaOptions returns ConvaOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultConvaOptions creates default value for vips_conva optional arguments
 func DefaultConvaOptions() *ConvaOptions {
 	return &ConvaOptions{
 		Layers: 5,
@@ -4825,9 +4627,7 @@ type ConvasepOptions struct {
 	Layers int
 }
 
-// DefaultConvasepOptions returns ConvasepOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultConvasepOptions creates default value for vips_convasep optional arguments
 func DefaultConvasepOptions() *ConvasepOptions {
 	return &ConvasepOptions{
 		Layers: 5,
@@ -4891,9 +4691,7 @@ type ConvsepOptions struct {
 	Cluster int
 }
 
-// DefaultConvsepOptions returns ConvsepOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultConvsepOptions creates default value for vips_convsep optional arguments
 func DefaultConvsepOptions() *ConvsepOptions {
 	return &ConvsepOptions{
 		Precision: Ptr(PrecisionFloat),
@@ -4947,9 +4745,7 @@ type CopyOptions struct {
 	Yoffset int
 }
 
-// DefaultCopyOptions returns CopyOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultCopyOptions creates default value for vips_copy optional arguments
 func DefaultCopyOptions() *CopyOptions {
 	return &CopyOptions{
 	}
@@ -5000,9 +4796,7 @@ type CsvsaveOptions struct {
 	Profile string
 }
 
-// DefaultCsvsaveOptions returns CsvsaveOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultCsvsaveOptions creates default value for vips_csvsave optional arguments
 func DefaultCsvsaveOptions() *CsvsaveOptions {
 	return &CsvsaveOptions{
 		Separator: Ptr("\t"),
@@ -5043,9 +4837,7 @@ type CsvsaveTargetOptions struct {
 	Profile string
 }
 
-// DefaultCsvsaveTargetOptions returns CsvsaveTargetOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultCsvsaveTargetOptions creates default value for vips_csvsave_target optional arguments
 func DefaultCsvsaveTargetOptions() *CsvsaveTargetOptions {
 	return &CsvsaveTargetOptions{
 		Separator: Ptr("\t"),
@@ -5140,9 +4932,7 @@ type DrawCircleOptions struct {
 	Fill bool
 }
 
-// DefaultDrawCircleOptions returns DrawCircleOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultDrawCircleOptions creates default value for vips_draw_circle optional arguments
 func DefaultDrawCircleOptions() *DrawCircleOptions {
 	return &DrawCircleOptions{
 	}
@@ -5186,9 +4976,7 @@ type DrawFloodOptions struct {
 	Height int
 }
 
-// DefaultDrawFloodOptions returns DrawFloodOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultDrawFloodOptions creates default value for vips_draw_flood optional arguments
 func DefaultDrawFloodOptions() *DrawFloodOptions {
 	return &DrawFloodOptions{
 	}
@@ -5221,9 +5009,7 @@ type DrawImageOptions struct {
 	Mode CombineMode
 }
 
-// DefaultDrawImageOptions returns DrawImageOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultDrawImageOptions creates default value for vips_draw_image optional arguments
 func DefaultDrawImageOptions() *DrawImageOptions {
 	return &DrawImageOptions{
 	}
@@ -5287,9 +5073,7 @@ type DrawRectOptions struct {
 	Fill bool
 }
 
-// DefaultDrawRectOptions returns DrawRectOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultDrawRectOptions creates default value for vips_draw_rect optional arguments
 func DefaultDrawRectOptions() *DrawRectOptions {
 	return &DrawRectOptions{
 	}
@@ -5373,9 +5157,7 @@ type DzsaveOptions struct {
 	Profile string
 }
 
-// DefaultDzsaveOptions returns DzsaveOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultDzsaveOptions creates default value for vips_dzsave optional arguments
 func DefaultDzsaveOptions() *DzsaveOptions {
 	return &DzsaveOptions{
 		Suffix: Ptr(".jpeg"),
@@ -5447,9 +5229,7 @@ type DzsaveBufferOptions struct {
 	Profile string
 }
 
-// DefaultDzsaveBufferOptions returns DzsaveBufferOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultDzsaveBufferOptions creates default value for vips_dzsave_buffer optional arguments
 func DefaultDzsaveBufferOptions() *DzsaveBufferOptions {
 	return &DzsaveBufferOptions{
 		Suffix: Ptr(".jpeg"),
@@ -5519,9 +5299,7 @@ type DzsaveTargetOptions struct {
 	Profile string
 }
 
-// DefaultDzsaveTargetOptions returns DzsaveTargetOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultDzsaveTargetOptions creates default value for vips_dzsave_target optional arguments
 func DefaultDzsaveTargetOptions() *DzsaveTargetOptions {
 	return &DzsaveTargetOptions{
 		Suffix: Ptr(".jpeg"),
@@ -5561,9 +5339,7 @@ type EmbedOptions struct {
 	Background []float64
 }
 
-// DefaultEmbedOptions returns EmbedOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultEmbedOptions creates default value for vips_embed optional arguments
 func DefaultEmbedOptions() *EmbedOptions {
 	return &EmbedOptions{
 	}
@@ -5615,9 +5391,7 @@ type ExtractBandOptions struct {
 	N int
 }
 
-// DefaultExtractBandOptions returns ExtractBandOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultExtractBandOptions creates default value for vips_extract_band optional arguments
 func DefaultExtractBandOptions() *ExtractBandOptions {
 	return &ExtractBandOptions{
 		N: 1,
@@ -5690,9 +5464,7 @@ type FindTrimOptions struct {
 	LineArt bool
 }
 
-// DefaultFindTrimOptions returns FindTrimOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultFindTrimOptions creates default value for vips_find_trim optional arguments
 func DefaultFindTrimOptions() *FindTrimOptions {
 	return &FindTrimOptions{
 		Threshold: Ptr(10.0),
@@ -5728,9 +5500,7 @@ type FitssaveOptions struct {
 	Profile string
 }
 
-// DefaultFitssaveOptions returns FitssaveOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultFitssaveOptions creates default value for vips_fitssave optional arguments
 func DefaultFitssaveOptions() *FitssaveOptions {
 	return &FitssaveOptions{
 		Keep: Ptr(KeepAll),
@@ -5764,9 +5534,7 @@ type FlattenOptions struct {
 	MaxAlpha *float64
 }
 
-// DefaultFlattenOptions returns FlattenOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultFlattenOptions creates default value for vips_flatten optional arguments
 func DefaultFlattenOptions() *FlattenOptions {
 	return &FlattenOptions{
 		MaxAlpha: Ptr(255.0),
@@ -5846,9 +5614,7 @@ type GammaOptions struct {
 	Exponent float64
 }
 
-// DefaultGammaOptions returns GammaOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultGammaOptions creates default value for vips_gamma optional arguments
 func DefaultGammaOptions() *GammaOptions {
 	return &GammaOptions{
 		Exponent: 0.4166666666666667,
@@ -5882,9 +5648,7 @@ type GaussblurOptions struct {
 	Precision Precision
 }
 
-// DefaultGaussblurOptions returns GaussblurOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultGaussblurOptions creates default value for vips_gaussblur optional arguments
 func DefaultGaussblurOptions() *GaussblurOptions {
 	return &GaussblurOptions{
 		MinAmpl: 0.2,
@@ -5918,9 +5682,7 @@ type GetpointOptions struct {
 	UnpackComplex bool
 }
 
-// DefaultGetpointOptions returns GetpointOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultGetpointOptions creates default value for vips_getpoint optional arguments
 func DefaultGetpointOptions() *GetpointOptions {
 	return &GetpointOptions{
 	}
@@ -5974,9 +5736,7 @@ type GifsaveOptions struct {
 	Profile string
 }
 
-// DefaultGifsaveOptions returns GifsaveOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultGifsaveOptions creates default value for vips_gifsave optional arguments
 func DefaultGifsaveOptions() *GifsaveOptions {
 	return &GifsaveOptions{
 		Dither: Ptr(1.0),
@@ -6034,9 +5794,7 @@ type GifsaveBufferOptions struct {
 	Profile string
 }
 
-// DefaultGifsaveBufferOptions returns GifsaveBufferOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultGifsaveBufferOptions creates default value for vips_gifsave_buffer optional arguments
 func DefaultGifsaveBufferOptions() *GifsaveBufferOptions {
 	return &GifsaveBufferOptions{
 		Dither: Ptr(1.0),
@@ -6092,9 +5850,7 @@ type GifsaveTargetOptions struct {
 	Profile string
 }
 
-// DefaultGifsaveTargetOptions returns GifsaveTargetOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultGifsaveTargetOptions creates default value for vips_gifsave_target optional arguments
 func DefaultGifsaveTargetOptions() *GifsaveTargetOptions {
 	return &GifsaveTargetOptions{
 		Dither: Ptr(1.0),
@@ -6132,9 +5888,7 @@ type GlobalbalanceOptions struct {
 	IntOutput bool
 }
 
-// DefaultGlobalbalanceOptions returns GlobalbalanceOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultGlobalbalanceOptions creates default value for vips_globalbalance optional arguments
 func DefaultGlobalbalanceOptions() *GlobalbalanceOptions {
 	return &GlobalbalanceOptions{
 		Gamma: 1.6,
@@ -6168,9 +5922,7 @@ type GravityOptions struct {
 	Background []float64
 }
 
-// DefaultGravityOptions returns GravityOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultGravityOptions creates default value for vips_gravity optional arguments
 func DefaultGravityOptions() *GravityOptions {
 	return &GravityOptions{
 	}
@@ -6240,9 +5992,7 @@ type HeifsaveOptions struct {
 	Profile string
 }
 
-// DefaultHeifsaveOptions returns HeifsaveOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultHeifsaveOptions creates default value for vips_heifsave optional arguments
 func DefaultHeifsaveOptions() *HeifsaveOptions {
 	return &HeifsaveOptions{
 		Q: 50,
@@ -6298,9 +6048,7 @@ type HeifsaveBufferOptions struct {
 	Profile string
 }
 
-// DefaultHeifsaveBufferOptions returns HeifsaveBufferOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultHeifsaveBufferOptions creates default value for vips_heifsave_buffer optional arguments
 func DefaultHeifsaveBufferOptions() *HeifsaveBufferOptions {
 	return &HeifsaveBufferOptions{
 		Q: 50,
@@ -6354,9 +6102,7 @@ type HeifsaveTargetOptions struct {
 	Profile string
 }
 
-// DefaultHeifsaveTargetOptions returns HeifsaveTargetOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultHeifsaveTargetOptions creates default value for vips_heifsave_target optional arguments
 func DefaultHeifsaveTargetOptions() *HeifsaveTargetOptions {
 	return &HeifsaveTargetOptions{
 		Q: 50,
@@ -6413,9 +6159,7 @@ type HistEqualOptions struct {
 	Band *int
 }
 
-// DefaultHistEqualOptions returns HistEqualOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultHistEqualOptions creates default value for vips_hist_equal optional arguments
 func DefaultHistEqualOptions() *HistEqualOptions {
 	return &HistEqualOptions{
 		Band: Ptr(-1),
@@ -6447,9 +6191,7 @@ type HistFindOptions struct {
 	Band *int
 }
 
-// DefaultHistFindOptions returns HistFindOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultHistFindOptions creates default value for vips_hist_find optional arguments
 func DefaultHistFindOptions() *HistFindOptions {
 	return &HistFindOptions{
 		Band: Ptr(-1),
@@ -6481,9 +6223,7 @@ type HistFindIndexedOptions struct {
 	Combine *Combine
 }
 
-// DefaultHistFindIndexedOptions returns HistFindIndexedOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultHistFindIndexedOptions creates default value for vips_hist_find_indexed optional arguments
 func DefaultHistFindIndexedOptions() *HistFindIndexedOptions {
 	return &HistFindIndexedOptions{
 		Combine: Ptr(CombineSum),
@@ -6517,9 +6257,7 @@ type HistFindNdimOptions struct {
 	Bins int
 }
 
-// DefaultHistFindNdimOptions returns HistFindNdimOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultHistFindNdimOptions creates default value for vips_hist_find_ndim optional arguments
 func DefaultHistFindNdimOptions() *HistFindNdimOptions {
 	return &HistFindNdimOptions{
 		Bins: 10,
@@ -6561,9 +6299,7 @@ type HistLocalOptions struct {
 	MaxSlope int
 }
 
-// DefaultHistLocalOptions returns HistLocalOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultHistLocalOptions creates default value for vips_hist_local optional arguments
 func DefaultHistLocalOptions() *HistLocalOptions {
 	return &HistLocalOptions{
 	}
@@ -6636,9 +6372,7 @@ type HoughCircleOptions struct {
 	MaxRadius int
 }
 
-// DefaultHoughCircleOptions returns HoughCircleOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultHoughCircleOptions creates default value for vips_hough_circle optional arguments
 func DefaultHoughCircleOptions() *HoughCircleOptions {
 	return &HoughCircleOptions{
 		Scale: 1,
@@ -6674,9 +6408,7 @@ type HoughLineOptions struct {
 	Height int
 }
 
-// DefaultHoughLineOptions returns HoughLineOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultHoughLineOptions creates default value for vips_hough_line optional arguments
 func DefaultHoughLineOptions() *HoughLineOptions {
 	return &HoughLineOptions{
 		Width: 256,
@@ -6717,9 +6449,7 @@ type IccExportOptions struct {
 	Depth int
 }
 
-// DefaultIccExportOptions returns IccExportOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultIccExportOptions creates default value for vips_icc_export optional arguments
 func DefaultIccExportOptions() *IccExportOptions {
 	return &IccExportOptions{
 		Intent: Ptr(IntentRelative),
@@ -6760,9 +6490,7 @@ type IccImportOptions struct {
 	InputProfile string
 }
 
-// DefaultIccImportOptions returns IccImportOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultIccImportOptions creates default value for vips_icc_import optional arguments
 func DefaultIccImportOptions() *IccImportOptions {
 	return &IccImportOptions{
 		Intent: Ptr(IntentRelative),
@@ -6804,9 +6532,7 @@ type IccTransformOptions struct {
 	Depth int
 }
 
-// DefaultIccTransformOptions returns IccTransformOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultIccTransformOptions creates default value for vips_icc_transform optional arguments
 func DefaultIccTransformOptions() *IccTransformOptions {
 	return &IccTransformOptions{
 		Intent: Ptr(IntentRelative),
@@ -6841,9 +6567,7 @@ type IfthenelseOptions struct {
 	Blend bool
 }
 
-// DefaultIfthenelseOptions returns IfthenelseOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultIfthenelseOptions creates default value for vips_ifthenelse optional arguments
 func DefaultIfthenelseOptions() *IfthenelseOptions {
 	return &IfthenelseOptions{
 	}
@@ -6879,9 +6603,7 @@ type InsertOptions struct {
 	Background []float64
 }
 
-// DefaultInsertOptions returns InsertOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultInsertOptions creates default value for vips_insert optional arguments
 func DefaultInsertOptions() *InsertOptions {
 	return &InsertOptions{
 	}
@@ -6927,9 +6649,7 @@ type InvertlutOptions struct {
 	Size int
 }
 
-// DefaultInvertlutOptions returns InvertlutOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultInvertlutOptions creates default value for vips_invertlut optional arguments
 func DefaultInvertlutOptions() *InvertlutOptions {
 	return &InvertlutOptions{
 		Size: 256,
@@ -6961,9 +6681,7 @@ type InvfftOptions struct {
 	Real bool
 }
 
-// DefaultInvfftOptions returns InvfftOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultInvfftOptions creates default value for vips_invfft optional arguments
 func DefaultInvfftOptions() *InvfftOptions {
 	return &InvfftOptions{
 	}
@@ -7000,9 +6718,7 @@ type JoinOptions struct {
 	Align Align
 }
 
-// DefaultJoinOptions returns JoinOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultJoinOptions creates default value for vips_join optional arguments
 func DefaultJoinOptions() *JoinOptions {
 	return &JoinOptions{
 	}
@@ -7052,9 +6768,7 @@ type Jp2ksaveOptions struct {
 	Profile string
 }
 
-// DefaultJp2ksaveOptions returns Jp2ksaveOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultJp2ksaveOptions creates default value for vips_jp2ksave optional arguments
 func DefaultJp2ksaveOptions() *Jp2ksaveOptions {
 	return &Jp2ksaveOptions{
 		TileWidth: 512,
@@ -7106,9 +6820,7 @@ type Jp2ksaveBufferOptions struct {
 	Profile string
 }
 
-// DefaultJp2ksaveBufferOptions returns Jp2ksaveBufferOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultJp2ksaveBufferOptions creates default value for vips_jp2ksave_buffer optional arguments
 func DefaultJp2ksaveBufferOptions() *Jp2ksaveBufferOptions {
 	return &Jp2ksaveBufferOptions{
 		TileWidth: 512,
@@ -7158,9 +6870,7 @@ type Jp2ksaveTargetOptions struct {
 	Profile string
 }
 
-// DefaultJp2ksaveTargetOptions returns Jp2ksaveTargetOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultJp2ksaveTargetOptions creates default value for vips_jp2ksave_target optional arguments
 func DefaultJp2ksaveTargetOptions() *Jp2ksaveTargetOptions {
 	return &Jp2ksaveTargetOptions{
 		TileWidth: 512,
@@ -7220,9 +6930,7 @@ type JpegsaveOptions struct {
 	Profile string
 }
 
-// DefaultJpegsaveOptions returns JpegsaveOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultJpegsaveOptions creates default value for vips_jpegsave optional arguments
 func DefaultJpegsaveOptions() *JpegsaveOptions {
 	return &JpegsaveOptions{
 		Q: 75,
@@ -7279,9 +6987,7 @@ type JpegsaveBufferOptions struct {
 	Profile string
 }
 
-// DefaultJpegsaveBufferOptions returns JpegsaveBufferOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultJpegsaveBufferOptions creates default value for vips_jpegsave_buffer optional arguments
 func DefaultJpegsaveBufferOptions() *JpegsaveBufferOptions {
 	return &JpegsaveBufferOptions{
 		Q: 75,
@@ -7336,9 +7042,7 @@ type JpegsaveTargetOptions struct {
 	Profile string
 }
 
-// DefaultJpegsaveTargetOptions returns JpegsaveTargetOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultJpegsaveTargetOptions creates default value for vips_jpegsave_target optional arguments
 func DefaultJpegsaveTargetOptions() *JpegsaveTargetOptions {
 	return &JpegsaveTargetOptions{
 		Q: 75,
@@ -7387,9 +7091,7 @@ type JxlsaveOptions struct {
 	Profile string
 }
 
-// DefaultJxlsaveOptions returns JxlsaveOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultJxlsaveOptions creates default value for vips_jxlsave optional arguments
 func DefaultJxlsaveOptions() *JxlsaveOptions {
 	return &JxlsaveOptions{
 		Distance: Ptr(1.0),
@@ -7440,9 +7142,7 @@ type JxlsaveBufferOptions struct {
 	Profile string
 }
 
-// DefaultJxlsaveBufferOptions returns JxlsaveBufferOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultJxlsaveBufferOptions creates default value for vips_jxlsave_buffer optional arguments
 func DefaultJxlsaveBufferOptions() *JxlsaveBufferOptions {
 	return &JxlsaveBufferOptions{
 		Distance: Ptr(1.0),
@@ -7491,9 +7191,7 @@ type JxlsaveTargetOptions struct {
 	Profile string
 }
 
-// DefaultJxlsaveTargetOptions returns JxlsaveTargetOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultJxlsaveTargetOptions creates default value for vips_jxlsave_target optional arguments
 func DefaultJxlsaveTargetOptions() *JxlsaveTargetOptions {
 	return &JxlsaveTargetOptions{
 		Distance: Ptr(1.0),
@@ -7528,9 +7226,7 @@ type LabelregionsOptions struct {
 	Segments int
 }
 
-// DefaultLabelregionsOptions returns LabelregionsOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultLabelregionsOptions creates default value for vips_labelregions optional arguments
 func DefaultLabelregionsOptions() *LabelregionsOptions {
 	return &LabelregionsOptions{
 	}
@@ -7561,9 +7257,7 @@ type LinearOptions struct {
 	Uchar bool
 }
 
-// DefaultLinearOptions returns LinearOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultLinearOptions creates default value for vips_linear optional arguments
 func DefaultLinearOptions() *LinearOptions {
 	return &LinearOptions{
 	}
@@ -7603,9 +7297,7 @@ type LinecacheOptions struct {
 	Persistent bool
 }
 
-// DefaultLinecacheOptions returns LinecacheOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultLinecacheOptions creates default value for vips_linecache optional arguments
 func DefaultLinecacheOptions() *LinecacheOptions {
 	return &LinecacheOptions{
 		TileHeight: 128,
@@ -7653,9 +7345,7 @@ type MagicksaveOptions struct {
 	Profile string
 }
 
-// DefaultMagicksaveOptions returns MagicksaveOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultMagicksaveOptions creates default value for vips_magicksave optional arguments
 func DefaultMagicksaveOptions() *MagicksaveOptions {
 	return &MagicksaveOptions{
 		Keep: Ptr(KeepAll),
@@ -7703,9 +7393,7 @@ type MagicksaveBufferOptions struct {
 	Profile string
 }
 
-// DefaultMagicksaveBufferOptions returns MagicksaveBufferOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultMagicksaveBufferOptions creates default value for vips_magicksave_buffer optional arguments
 func DefaultMagicksaveBufferOptions() *MagicksaveBufferOptions {
 	return &MagicksaveBufferOptions{
 		Keep: Ptr(KeepAll),
@@ -7741,9 +7429,7 @@ type MapimOptions struct {
 	Extend *Extend
 }
 
-// DefaultMapimOptions returns MapimOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultMapimOptions creates default value for vips_mapim optional arguments
 func DefaultMapimOptions() *MapimOptions {
 	return &MapimOptions{
 		Extend: Ptr(ExtendBackground),
@@ -7777,9 +7463,7 @@ type MaplutOptions struct {
 	Band *int
 }
 
-// DefaultMaplutOptions returns MaplutOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultMaplutOptions creates default value for vips_maplut optional arguments
 func DefaultMaplutOptions() *MaplutOptions {
 	return &MaplutOptions{
 		Band: Ptr(-1),
@@ -7819,9 +7503,7 @@ type MatchOptions struct {
 	Interpolate *Interpolate
 }
 
-// DefaultMatchOptions returns MatchOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultMatchOptions creates default value for vips_match optional arguments
 func DefaultMatchOptions() *MatchOptions {
 	return &MatchOptions{
 		Hwindow: Ptr(5),
@@ -7935,9 +7617,7 @@ type MatrixprintOptions struct {
 	Profile string
 }
 
-// DefaultMatrixprintOptions returns MatrixprintOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultMatrixprintOptions creates default value for vips_matrixprint optional arguments
 func DefaultMatrixprintOptions() *MatrixprintOptions {
 	return &MatrixprintOptions{
 		Keep: Ptr(KeepAll),
@@ -7973,9 +7653,7 @@ type MatrixsaveOptions struct {
 	Profile string
 }
 
-// DefaultMatrixsaveOptions returns MatrixsaveOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultMatrixsaveOptions creates default value for vips_matrixsave optional arguments
 func DefaultMatrixsaveOptions() *MatrixsaveOptions {
 	return &MatrixsaveOptions{
 		Keep: Ptr(KeepAll),
@@ -8013,9 +7691,7 @@ type MatrixsaveTargetOptions struct {
 	Profile string
 }
 
-// DefaultMatrixsaveTargetOptions returns MatrixsaveTargetOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultMatrixsaveTargetOptions creates default value for vips_matrixsave_target optional arguments
 func DefaultMatrixsaveTargetOptions() *MatrixsaveTargetOptions {
 	return &MatrixsaveTargetOptions{
 		Keep: Ptr(KeepAll),
@@ -8051,9 +7727,7 @@ type MaxOptions struct {
 	Y int
 }
 
-// DefaultMaxOptions returns MaxOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultMaxOptions creates default value for vips_max optional arguments
 func DefaultMaxOptions() *MaxOptions {
 	return &MaxOptions{
 		Size: 1,
@@ -8102,9 +7776,7 @@ type MeasureOptions struct {
 	Height int
 }
 
-// DefaultMeasureOptions returns MeasureOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultMeasureOptions creates default value for vips_measure optional arguments
 func DefaultMeasureOptions() *MeasureOptions {
 	return &MeasureOptions{
 		Width: 1,
@@ -8140,9 +7812,7 @@ type MergeOptions struct {
 	Mblend *int
 }
 
-// DefaultMergeOptions returns MergeOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultMergeOptions creates default value for vips_merge optional arguments
 func DefaultMergeOptions() *MergeOptions {
 	return &MergeOptions{
 		Mblend: Ptr(10),
@@ -8183,9 +7853,7 @@ type MinOptions struct {
 	Y int
 }
 
-// DefaultMinOptions returns MinOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultMinOptions creates default value for vips_min optional arguments
 func DefaultMinOptions() *MinOptions {
 	return &MinOptions{
 		Size: 1,
@@ -8260,9 +7928,7 @@ type MosaicOptions struct {
 	Dx1 float64
 }
 
-// DefaultMosaicOptions returns MosaicOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultMosaicOptions creates default value for vips_mosaic optional arguments
 func DefaultMosaicOptions() *MosaicOptions {
 	return &MosaicOptions{
 		Hwindow: Ptr(5),
@@ -8311,9 +7977,7 @@ type Mosaic1Options struct {
 	Mblend *int
 }
 
-// DefaultMosaic1Options returns Mosaic1Options with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultMosaic1Options creates default value for vips_mosaic1 optional arguments
 func DefaultMosaic1Options() *Mosaic1Options {
 	return &Mosaic1Options{
 		Hwindow: Ptr(5),
@@ -8358,9 +8022,7 @@ type MsbOptions struct {
 	Band *int
 }
 
-// DefaultMsbOptions returns MsbOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultMsbOptions creates default value for vips_msb optional arguments
 func DefaultMsbOptions() *MsbOptions {
 	return &MsbOptions{
 		Band: Ptr(-1),
@@ -8411,9 +8073,7 @@ type NiftisaveOptions struct {
 	Profile string
 }
 
-// DefaultNiftisaveOptions returns NiftisaveOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultNiftisaveOptions creates default value for vips_niftisave optional arguments
 func DefaultNiftisaveOptions() *NiftisaveOptions {
 	return &NiftisaveOptions{
 		Keep: Ptr(KeepAll),
@@ -8492,9 +8152,7 @@ type PngsaveOptions struct {
 	Profile string
 }
 
-// DefaultPngsaveOptions returns PngsaveOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultPngsaveOptions creates default value for vips_pngsave optional arguments
 func DefaultPngsaveOptions() *PngsaveOptions {
 	return &PngsaveOptions{
 		Compression: Ptr(6),
@@ -8554,9 +8212,7 @@ type PngsaveBufferOptions struct {
 	Profile string
 }
 
-// DefaultPngsaveBufferOptions returns PngsaveBufferOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultPngsaveBufferOptions creates default value for vips_pngsave_buffer optional arguments
 func DefaultPngsaveBufferOptions() *PngsaveBufferOptions {
 	return &PngsaveBufferOptions{
 		Compression: Ptr(6),
@@ -8614,9 +8270,7 @@ type PngsaveTargetOptions struct {
 	Profile string
 }
 
-// DefaultPngsaveTargetOptions returns PngsaveTargetOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultPngsaveTargetOptions creates default value for vips_pngsave_target optional arguments
 func DefaultPngsaveTargetOptions() *PngsaveTargetOptions {
 	return &PngsaveTargetOptions{
 		Compression: Ptr(6),
@@ -8666,9 +8320,7 @@ type PpmsaveOptions struct {
 	Profile string
 }
 
-// DefaultPpmsaveOptions returns PpmsaveOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultPpmsaveOptions creates default value for vips_ppmsave optional arguments
 func DefaultPpmsaveOptions() *PpmsaveOptions {
 	return &PpmsaveOptions{
 		Format: Ptr(PpmFormatPpm),
@@ -8713,9 +8365,7 @@ type PpmsaveTargetOptions struct {
 	Profile string
 }
 
-// DefaultPpmsaveTargetOptions returns PpmsaveTargetOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultPpmsaveTargetOptions creates default value for vips_ppmsave_target optional arguments
 func DefaultPpmsaveTargetOptions() *PpmsaveTargetOptions {
 	return &PpmsaveTargetOptions{
 		Format: Ptr(PpmFormatPpm),
@@ -8748,9 +8398,7 @@ type PremultiplyOptions struct {
 	MaxAlpha *float64
 }
 
-// DefaultPremultiplyOptions returns PremultiplyOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultPremultiplyOptions creates default value for vips_premultiply optional arguments
 func DefaultPremultiplyOptions() *PremultiplyOptions {
 	return &PremultiplyOptions{
 		MaxAlpha: Ptr(255.0),
@@ -8817,9 +8465,7 @@ type QuadraticOptions struct {
 	Interpolate *Interpolate
 }
 
-// DefaultQuadraticOptions returns QuadraticOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultQuadraticOptions creates default value for vips_quadratic optional arguments
 func DefaultQuadraticOptions() *QuadraticOptions {
 	return &QuadraticOptions{
 	}
@@ -8869,9 +8515,7 @@ type RadsaveOptions struct {
 	Profile string
 }
 
-// DefaultRadsaveOptions returns RadsaveOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultRadsaveOptions creates default value for vips_radsave optional arguments
 func DefaultRadsaveOptions() *RadsaveOptions {
 	return &RadsaveOptions{
 		Keep: Ptr(KeepAll),
@@ -8909,9 +8553,7 @@ type RadsaveBufferOptions struct {
 	Profile string
 }
 
-// DefaultRadsaveBufferOptions returns RadsaveBufferOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultRadsaveBufferOptions creates default value for vips_radsave_buffer optional arguments
 func DefaultRadsaveBufferOptions() *RadsaveBufferOptions {
 	return &RadsaveBufferOptions{
 		Keep: Ptr(KeepAll),
@@ -8947,9 +8589,7 @@ type RadsaveTargetOptions struct {
 	Profile string
 }
 
-// DefaultRadsaveTargetOptions returns RadsaveTargetOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultRadsaveTargetOptions creates default value for vips_radsave_target optional arguments
 func DefaultRadsaveTargetOptions() *RadsaveTargetOptions {
 	return &RadsaveTargetOptions{
 		Keep: Ptr(KeepAll),
@@ -9002,9 +8642,7 @@ type RawsaveOptions struct {
 	Profile string
 }
 
-// DefaultRawsaveOptions returns RawsaveOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultRawsaveOptions creates default value for vips_rawsave optional arguments
 func DefaultRawsaveOptions() *RawsaveOptions {
 	return &RawsaveOptions{
 		Keep: Ptr(KeepAll),
@@ -9042,9 +8680,7 @@ type RawsaveBufferOptions struct {
 	Profile string
 }
 
-// DefaultRawsaveBufferOptions returns RawsaveBufferOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultRawsaveBufferOptions creates default value for vips_rawsave_buffer optional arguments
 func DefaultRawsaveBufferOptions() *RawsaveBufferOptions {
 	return &RawsaveBufferOptions{
 		Keep: Ptr(KeepAll),
@@ -9080,9 +8716,7 @@ type RawsaveTargetOptions struct {
 	Profile string
 }
 
-// DefaultRawsaveTargetOptions returns RawsaveTargetOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultRawsaveTargetOptions creates default value for vips_rawsave_target optional arguments
 func DefaultRawsaveTargetOptions() *RawsaveTargetOptions {
 	return &RawsaveTargetOptions{
 		Keep: Ptr(KeepAll),
@@ -9129,9 +8763,7 @@ type ReduceOptions struct {
 	Gap float64
 }
 
-// DefaultReduceOptions returns ReduceOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultReduceOptions creates default value for vips_reduce optional arguments
 func DefaultReduceOptions() *ReduceOptions {
 	return &ReduceOptions{
 		Kernel: Ptr(KernelLanczos3),
@@ -9168,9 +8800,7 @@ type ReducehOptions struct {
 	Gap float64
 }
 
-// DefaultReducehOptions returns ReducehOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultReducehOptions creates default value for vips_reduceh optional arguments
 func DefaultReducehOptions() *ReducehOptions {
 	return &ReducehOptions{
 		Kernel: Ptr(KernelLanczos3),
@@ -9206,9 +8836,7 @@ type ReducevOptions struct {
 	Gap float64
 }
 
-// DefaultReducevOptions returns ReducevOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultReducevOptions creates default value for vips_reducev optional arguments
 func DefaultReducevOptions() *ReducevOptions {
 	return &ReducevOptions{
 		Kernel: Ptr(KernelLanczos3),
@@ -9328,9 +8956,7 @@ type ResizeOptions struct {
 	Vscale float64
 }
 
-// DefaultResizeOptions returns ResizeOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultResizeOptions creates default value for vips_resize optional arguments
 func DefaultResizeOptions() *ResizeOptions {
 	return &ResizeOptions{
 		Kernel: Ptr(KernelLanczos3),
@@ -9378,9 +9004,7 @@ type Rot45Options struct {
 	Angle *Angle45
 }
 
-// DefaultRot45Options returns Rot45Options with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultRot45Options creates default value for vips_rot45 optional arguments
 func DefaultRot45Options() *Rot45Options {
 	return &Rot45Options{
 		Angle: Ptr(Angle45D45),
@@ -9422,9 +9046,7 @@ type RotateOptions struct {
 	Idy float64
 }
 
-// DefaultRotateOptions returns RotateOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultRotateOptions creates default value for vips_rotate optional arguments
 func DefaultRotateOptions() *RotateOptions {
 	return &RotateOptions{
 	}
@@ -9492,9 +9114,7 @@ type ScRGB2BWOptions struct {
 	Depth int
 }
 
-// DefaultScRGB2BWOptions returns ScRGB2BWOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultScRGB2BWOptions creates default value for vips_scRGB2BW optional arguments
 func DefaultScRGB2BWOptions() *ScRGB2BWOptions {
 	return &ScRGB2BWOptions{
 		Depth: 8,
@@ -9537,9 +9157,7 @@ type ScRGB2sRGBOptions struct {
 	Depth int
 }
 
-// DefaultScRGB2sRGBOptions returns ScRGB2sRGBOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultScRGB2sRGBOptions creates default value for vips_scRGB2sRGB optional arguments
 func DefaultScRGB2sRGBOptions() *ScRGB2sRGBOptions {
 	return &ScRGB2sRGBOptions{
 		Depth: 8,
@@ -9573,9 +9191,7 @@ type ScaleOptions struct {
 	Log bool
 }
 
-// DefaultScaleOptions returns ScaleOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultScaleOptions creates default value for vips_scale optional arguments
 func DefaultScaleOptions() *ScaleOptions {
 	return &ScaleOptions{
 		Exp: 0.25,
@@ -9618,9 +9234,7 @@ type SequentialOptions struct {
 	TileHeight int
 }
 
-// DefaultSequentialOptions returns SequentialOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultSequentialOptions creates default value for vips_sequential optional arguments
 func DefaultSequentialOptions() *SequentialOptions {
 	return &SequentialOptions{
 		TileHeight: 1,
@@ -9662,9 +9276,7 @@ type SharpenOptions struct {
 	M2 *float64
 }
 
-// DefaultSharpenOptions returns SharpenOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultSharpenOptions creates default value for vips_sharpen optional arguments
 func DefaultSharpenOptions() *SharpenOptions {
 	return &SharpenOptions{
 		Sigma: 0.5,
@@ -9700,9 +9312,7 @@ type ShrinkOptions struct {
 	Ceil bool
 }
 
-// DefaultShrinkOptions returns ShrinkOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultShrinkOptions creates default value for vips_shrink optional arguments
 func DefaultShrinkOptions() *ShrinkOptions {
 	return &ShrinkOptions{
 	}
@@ -9736,9 +9346,7 @@ type ShrinkhOptions struct {
 	Ceil bool
 }
 
-// DefaultShrinkhOptions returns ShrinkhOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultShrinkhOptions creates default value for vips_shrinkh optional arguments
 func DefaultShrinkhOptions() *ShrinkhOptions {
 	return &ShrinkhOptions{
 	}
@@ -9771,9 +9379,7 @@ type ShrinkvOptions struct {
 	Ceil bool
 }
 
-// DefaultShrinkvOptions returns ShrinkvOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultShrinkvOptions creates default value for vips_shrinkv optional arguments
 func DefaultShrinkvOptions() *ShrinkvOptions {
 	return &ShrinkvOptions{
 	}
@@ -9831,9 +9437,7 @@ type SimilarityOptions struct {
 	Idy float64
 }
 
-// DefaultSimilarityOptions returns SimilarityOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultSimilarityOptions creates default value for vips_similarity optional arguments
 func DefaultSimilarityOptions() *SimilarityOptions {
 	return &SimilarityOptions{
 		Scale: Ptr(1.0),
@@ -9871,9 +9475,7 @@ type SmartcropOptions struct {
 	AttentionY int
 }
 
-// DefaultSmartcropOptions returns SmartcropOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultSmartcropOptions creates default value for vips_smartcrop optional arguments
 func DefaultSmartcropOptions() *SmartcropOptions {
 	return &SmartcropOptions{
 		Interesting: Ptr(InterestingAttention),
@@ -9960,9 +9562,7 @@ type StdifOptions struct {
 	A *float64
 }
 
-// DefaultStdifOptions returns StdifOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultStdifOptions creates default value for vips_stdif optional arguments
 func DefaultStdifOptions() *StdifOptions {
 	return &StdifOptions{
 		S0: Ptr(50.0),
@@ -10000,9 +9600,7 @@ type SubsampleOptions struct {
 	Point bool
 }
 
-// DefaultSubsampleOptions returns SubsampleOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultSubsampleOptions creates default value for vips_subsample optional arguments
 func DefaultSubsampleOptions() *SubsampleOptions {
 	return &SubsampleOptions{
 	}
@@ -10065,9 +9663,7 @@ type ThumbnailImageOptions struct {
 	FailOn FailOn
 }
 
-// DefaultThumbnailImageOptions returns ThumbnailImageOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultThumbnailImageOptions creates default value for vips_thumbnail_image optional arguments
 func DefaultThumbnailImageOptions() *ThumbnailImageOptions {
 	return &ThumbnailImageOptions{
 		Height: 1,
@@ -10148,9 +9744,7 @@ type TiffsaveOptions struct {
 	Profile string
 }
 
-// DefaultTiffsaveOptions returns TiffsaveOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultTiffsaveOptions creates default value for vips_tiffsave optional arguments
 func DefaultTiffsaveOptions() *TiffsaveOptions {
 	return &TiffsaveOptions{
 		Q: 75,
@@ -10235,9 +9829,7 @@ type TiffsaveBufferOptions struct {
 	Profile string
 }
 
-// DefaultTiffsaveBufferOptions returns TiffsaveBufferOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultTiffsaveBufferOptions creates default value for vips_tiffsave_buffer optional arguments
 func DefaultTiffsaveBufferOptions() *TiffsaveBufferOptions {
 	return &TiffsaveBufferOptions{
 		Q: 75,
@@ -10320,9 +9912,7 @@ type TiffsaveTargetOptions struct {
 	Profile string
 }
 
-// DefaultTiffsaveTargetOptions returns TiffsaveTargetOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultTiffsaveTargetOptions creates default value for vips_tiffsave_target optional arguments
 func DefaultTiffsaveTargetOptions() *TiffsaveTargetOptions {
 	return &TiffsaveTargetOptions{
 		Q: 75,
@@ -10371,9 +9961,7 @@ type TilecacheOptions struct {
 	Persistent bool
 }
 
-// DefaultTilecacheOptions returns TilecacheOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultTilecacheOptions creates default value for vips_tilecache optional arguments
 func DefaultTilecacheOptions() *TilecacheOptions {
 	return &TilecacheOptions{
 		TileWidth: 128,
@@ -10407,9 +9995,7 @@ type Transpose3dOptions struct {
 	PageHeight int
 }
 
-// DefaultTranspose3dOptions returns Transpose3dOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultTranspose3dOptions creates default value for vips_transpose3d optional arguments
 func DefaultTranspose3dOptions() *Transpose3dOptions {
 	return &Transpose3dOptions{
 	}
@@ -10442,9 +10028,7 @@ type UnpremultiplyOptions struct {
 	AlphaBand *int
 }
 
-// DefaultUnpremultiplyOptions returns UnpremultiplyOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultUnpremultiplyOptions creates default value for vips_unpremultiply optional arguments
 func DefaultUnpremultiplyOptions() *UnpremultiplyOptions {
 	return &UnpremultiplyOptions{
 		MaxAlpha: Ptr(255.0),
@@ -10483,9 +10067,7 @@ type VipssaveOptions struct {
 	Profile string
 }
 
-// DefaultVipssaveOptions returns VipssaveOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultVipssaveOptions creates default value for vips_vipssave optional arguments
 func DefaultVipssaveOptions() *VipssaveOptions {
 	return &VipssaveOptions{
 		Keep: Ptr(KeepAll),
@@ -10523,9 +10105,7 @@ type VipssaveTargetOptions struct {
 	Profile string
 }
 
-// DefaultVipssaveTargetOptions returns VipssaveTargetOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultVipssaveTargetOptions creates default value for vips_vipssave_target optional arguments
 func DefaultVipssaveTargetOptions() *VipssaveTargetOptions {
 	return &VipssaveTargetOptions{
 		Keep: Ptr(KeepAll),
@@ -10591,9 +10171,7 @@ type WebpsaveOptions struct {
 	Profile string
 }
 
-// DefaultWebpsaveOptions returns WebpsaveOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultWebpsaveOptions creates default value for vips_webpsave optional arguments
 func DefaultWebpsaveOptions() *WebpsaveOptions {
 	return &WebpsaveOptions{
 		Q: Ptr(75),
@@ -10665,9 +10243,7 @@ type WebpsaveBufferOptions struct {
 	Profile string
 }
 
-// DefaultWebpsaveBufferOptions returns WebpsaveBufferOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultWebpsaveBufferOptions creates default value for vips_webpsave_buffer optional arguments
 func DefaultWebpsaveBufferOptions() *WebpsaveBufferOptions {
 	return &WebpsaveBufferOptions{
 		Q: Ptr(75),
@@ -10737,9 +10313,7 @@ type WebpsaveTargetOptions struct {
 	Profile string
 }
 
-// DefaultWebpsaveTargetOptions returns WebpsaveTargetOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultWebpsaveTargetOptions creates default value for vips_webpsave_target optional arguments
 func DefaultWebpsaveTargetOptions() *WebpsaveTargetOptions {
 	return &WebpsaveTargetOptions{
 		Q: Ptr(75),
@@ -10779,9 +10353,7 @@ type WrapOptions struct {
 	Y int
 }
 
-// DefaultWrapOptions returns WrapOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultWrapOptions creates default value for vips_wrap optional arguments
 func DefaultWrapOptions() *WrapOptions {
 	return &WrapOptions{
 	}
