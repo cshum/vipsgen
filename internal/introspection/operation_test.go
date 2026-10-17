@@ -112,8 +112,8 @@ func TestOperationBoundsAreFiniteOrUnbounded(t *testing.T) {
 	}
 
 	// Which arguments have unbounded ranges is a property of the libvips build,
-	// not of this code, so it is not asserted here: the version-keyed metadata
-	// golden owns those expectations and shows the difference on a version bump.
+	// not of this code, so it is reported rather than asserted: pinning it here
+	// would fail the older libvips versions in the CI matrix.
 	if len(missing) > 0 {
 		names := make([]string, 0, len(missing))
 		for name := range missing {
@@ -138,8 +138,7 @@ func TestOperationBoundsAreFiniteOrUnbounded(t *testing.T) {
 // between libvips releases (VIPS_FOREIGN_KEEP_ALL is 31 before gainmap support
 // and 63 from 8.18), and pinning those numbers here would fail the older
 // versions in the CI matrix. What the rule needs is stable: a non-zero default
-// that is itself a member, and whether zero is a member. Exact values live in
-// the version-keyed metadata golden.
+// that is itself a member, and whether zero is a member.
 func TestFlagsAnd64BitArgumentMetadata(t *testing.T) {
 	introspection := NewIntrospection(false)
 
