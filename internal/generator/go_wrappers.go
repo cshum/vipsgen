@@ -345,7 +345,11 @@ func generateGoArgList(op introspection.Operation, withOptions bool) string {
 			continue
 		}
 		if !arg.IsOutput {
-			params = append(params, fmt.Sprintf("%s %s", arg.GoName, arg.GoType))
+			paramType := arg.GoType
+			if argPresence(arg) == PresencePointer {
+				paramType = "*" + paramType
+			}
+			params = append(params, fmt.Sprintf("%s %s", arg.GoName, paramType))
 		}
 	}
 
@@ -462,6 +466,12 @@ func generateVarDeclarations(op introspection.Operation, withOptions bool) strin
 	}
 
 	if withOptions {
+		for _, opt := range op.OptionalInputs {
+			if argPresence(opt) == PresencePointer {
+				decls = append(decls, generatePresenceDeclaration(opt))
+			}
+		}
+
 		if stringConv := formatStringConversions(op.OptionalInputs); stringConv != "" {
 			decls = append(decls, stringConv)
 		}
@@ -481,7 +491,7 @@ func generateVarDeclarations(op introspection.Operation, withOptions bool) strin
 func formatStringConversions(args []introspection.Argument) string {
 	var conversions []string
 	for _, arg := range args {
-		if !arg.IsOutput && arg.GoType == "string" {
+		if !arg.IsOutput && arg.GoType == "string" && argPresence(arg) != PresencePointer {
 			conversions = append(conversions, fmt.Sprintf("c%s := C.CString(%s)\n\tdefer freeCString(c%s)",
 				arg.GoName, arg.GoName, arg.GoName))
 		}
@@ -516,6 +526,10 @@ func generateFunctionCallArgs(op introspection.Operation, withOptions bool) stri
 			}
 			callArgs = append(callArgs, argStr)
 		} else {
+			if argPresence(arg) == PresencePointer {
+				callArgs = append(callArgs, "c"+arg.GoName, arg.GoName+"Set")
+				continue
+			}
 			if arg.IsInputN && arg.NInputFrom != "" {
 				argStr = fmt.Sprintf("C.int(len(%s))", arg.NInputFrom)
 				callArgs = append(callArgs, argStr)

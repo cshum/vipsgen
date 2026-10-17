@@ -103,12 +103,12 @@ func demonstrateMosaic() {
 	fmt.Printf("Overlap width: %d pixels (%.1f%%)\n", overlapWidth, float64(overlapWidth)/float64(img1.Width())*100)
 
 	// Create mosaic options to capture transformation parameters
-	options := vips.DefaultMosaicOptions()
+	options := &vips.MosaicOptions{}
 
 	// Use appropriate search windows
-	options.Hwindow = 5
-	options.Harea = 15
-	options.Mblend = 10
+	options.Hwindow = vips.Ptr(5)
+	options.Harea = vips.Ptr(15)
+	options.Mblend = vips.Ptr(10)
 
 	// Set tie points in the overlap region
 	// Reference point in the overlap area of first image
@@ -164,7 +164,7 @@ func demonstrateSmartcrop() {
 	fmt.Printf("Original image: %dx%d\n", img.Width(), img.Height())
 
 	// Create smartcrop options to capture attention coordinates
-	options := vips.DefaultSmartcropOptions()
+	options := &vips.SmartcropOptions{}
 
 	// Perform smart crop operation (crop to smaller size that fits within the image)
 	cropWidth := img.Width() / 2
@@ -215,7 +215,7 @@ func demonstrateMaxMinPositions() {
 	fmt.Printf("Analyzing image: %dx%d\n", img.Width(), img.Height())
 
 	// Find maximum value and its position
-	maxOptions := vips.DefaultMaxOptions()
+	maxOptions := &vips.MaxOptions{}
 	maxValue, err := img.Max(maxOptions)
 	if err != nil {
 		log.Printf("Max operation failed: %v", err)
@@ -227,7 +227,7 @@ func demonstrateMaxMinPositions() {
 	fmt.Printf("  Position: x=%d, y=%d\n", maxOptions.X, maxOptions.Y)
 
 	// Find minimum value and its position
-	minOptions := vips.DefaultMinOptions()
+	minOptions := &vips.MinOptions{}
 	minValue, err := img.Min(minOptions)
 	if err != nil {
 		log.Printf("Min operation failed: %v", err)
@@ -260,7 +260,7 @@ func demonstrateDrawFloodArea() {
 	fmt.Printf("Created test image: %dx%d\n", img.Width(), img.Height())
 
 	// Create draw flood options to capture affected area
-	options := vips.DefaultDrawFloodOptions()
+	options := &vips.DrawFloodOptions{}
 
 	// Perform flood fill operation (fill with red starting at 100,100)
 	err = img.DrawFlood([]float64{255, 0, 0}, 100, 100, options)

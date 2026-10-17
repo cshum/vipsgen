@@ -22,19 +22,7 @@ func generateOptionalInputsStruct(op introspection.Operation) string {
 
 	for _, opt := range op.OptionalInputs {
 		fieldName := strings.Title(opt.GoName)
-		var fieldType string
-		if opt.GoType == "*C.VipsImage" {
-			fieldType = "*Image"
-		} else if opt.GoType == "[]*C.VipsImage" {
-			fieldType = "[]*Image"
-		} else if opt.CType == "void*" {
-			fieldType = "[]byte"
-		} else {
-			fieldType = opt.GoType
-		}
-		if opt.IsEnum && opt.EnumType != "" {
-			fieldType = opt.EnumType
-		}
+		fieldType := optionFieldType(opt)
 		if opt.Description != "" {
 			result.WriteString(fmt.Sprintf("\t// %s %s\n", fieldName, opt.Description))
 		}
@@ -55,40 +43,6 @@ func generateOptionalInputsStruct(op introspection.Operation) string {
 	}
 
 	result.WriteString("}\n\n")
-
-	result.WriteString(fmt.Sprintf("// Default%s creates default value for vips_%s optional arguments\n",
-		structName, op.Name))
-	result.WriteString(fmt.Sprintf("func Default%s() *%s {\n", structName, structName))
-	result.WriteString(fmt.Sprintf("\treturn &%s{\n", structName))
-	for _, opt := range op.OptionalInputs {
-		fieldName := strings.Title(opt.GoName)
-
-		if opt.DefaultValue != nil {
-			switch v := opt.DefaultValue.(type) {
-			case bool:
-				if v {
-					result.WriteString(fmt.Sprintf("\t\t%s: %t,\n", fieldName, v))
-				}
-			case int:
-				if v != 0 {
-					if opt.IsEnum && opt.EnumType != "" {
-						result.WriteString(fmt.Sprintf("\t\t%s: %s(%d),\n", fieldName, opt.EnumType, v))
-					} else {
-						result.WriteString(fmt.Sprintf("\t\t%s: %d,\n", fieldName, v))
-					}
-				}
-			case float64:
-				if v != 0 {
-					result.WriteString(fmt.Sprintf("\t\t%s: %g,\n", fieldName, v))
-				}
-			case string:
-				if v != "" {
-					result.WriteString(fmt.Sprintf("\t\t%s: %q,\n", fieldName, v))
-				}
-			}
-		}
-	}
-	result.WriteString("\t}\n}\n")
 
 	return result.String()
 }

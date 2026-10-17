@@ -58,8 +58,8 @@ func main() {
 
 	// Save the result as WebP target with options
 	err = image.WebpsaveTarget(target, &vips.WebpsaveTargetOptions{
-		Q:              85,   // Quality factor (0-100)
-		Effort:         4,    // Compression effort (0-6)
+		Q:              vips.Ptr(85), // Quality factor (0-100)
+		Effort:         vips.Ptr(4),  // Compression effort (0-6)
 		SmartSubsample: true, // Better chroma subsampling
 	})
 	if err != nil {

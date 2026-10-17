@@ -205,156 +205,94 @@ func TestGenerateCFunctionImplementationBufferLoadWithOptionsSnapshot(t *testing
 	}
 }
 
-func TestGenerateCFunctionImplementationWebpSaveAllowsZeroEffortSnapshot(t *testing.T) {
+var in = []introspection.Argument{
+	{Name: "in", CType: "VipsImage*", GoType: "*C.VipsImage", IsInput: true, IsImage: true},
+	{Name: "filename", CType: "char*", GoType: "string", IsInput: true},
+}
+
+// The four snapshot tests below pin how an optional input reaches libvips after
+// v2: an option whose zero value libvips accepts and whose default differs gets a
+// presence flag, so an explicit zero is passed on; anything else keeps the plain
+// value and its skip-zero setter.
+
+func TestGenerateCFunctionImplementationPointerOptionSnapshot(t *testing.T) {
 	op := introspection.Operation{
-		Name: "webpsave",
-		Arguments: []introspection.Argument{
-			{Name: "in", CType: "VipsImage*", GoType: "*C.VipsImage", IsInput: true, IsImage: true},
-			{Name: "filename", CType: "char*", GoType: "string", IsInput: true},
-		},
-		RequiredInputs: []introspection.Argument{
-			{Name: "in", CType: "VipsImage*", GoType: "*C.VipsImage", IsInput: true, IsImage: true},
-			{Name: "filename", CType: "char*", GoType: "string", IsInput: true},
-		},
+		Name:           "webpsave",
+		Arguments:      in,
+		RequiredInputs: in,
 		OptionalInputs: []introspection.Argument{
-			{Name: "effort", CType: "int", GoType: "int"},
+			{Name: "effort", CType: "int", GoType: "int", HasMinimum: true, Minimum: 0, HasMaximum: true, Maximum: 6, DefaultValue: 4},
 		},
 	}
 
 	got := generateCFunctionImplementation(op)
-	want := "int vipsgen_webpsave(VipsImage* in, char* filename) {\n    return vips_webpsave(in, filename, NULL);\n}\n\nint vipsgen_webpsave_with_options(VipsImage* in, char* filename, int effort) {\n    VipsOperation *operation = vips_operation_new(\"webpsave\");\n    if (!operation) return 1;\n    if (\n        vips_object_set(VIPS_OBJECT(operation), \"in\", in, NULL) ||\n        vips_object_set(VIPS_OBJECT(operation), \"filename\", filename, NULL) ||\n        vipsgen_set_int_allow_zero(operation, \"effort\", effort)\n    ) {\n        g_object_unref(operation);\n        return 1;\n    }\n    int result = vipsgen_operation_execute(operation, NULL);\n    return result;\n}"
+	want := "int vipsgen_webpsave(VipsImage* in, char* filename) {\n    return vips_webpsave(in, filename, NULL);\n}\n\nint vipsgen_webpsave_with_options(VipsImage* in, char* filename, int effort, int effort_set) {\n    VipsOperation *operation = vips_operation_new(\"webpsave\");\n    if (!operation) return 1;\n    if (\n        vips_object_set(VIPS_OBJECT(operation), \"in\", in, NULL) ||\n        vips_object_set(VIPS_OBJECT(operation), \"filename\", filename, NULL) ||\n        (effort_set && vips_object_set(VIPS_OBJECT(operation), \"effort\", effort, NULL))\n    ) {\n        g_object_unref(operation);\n        return 1;\n    }\n    int result = vipsgen_operation_execute(operation, NULL);\n    return result;\n}"
 
 	if got != want {
 		t.Fatalf("unexpected webpsave C function implementation\n got: %q\nwant: %q", got, want)
 	}
 }
 
-func TestGenerateCFunctionImplementationPngSaveKeepsZeroAsUnsetSnapshot(t *testing.T) {
+func TestGenerateCFunctionImplementationPlainOptionSnapshot(t *testing.T) {
 	op := introspection.Operation{
-		Name: "pngsave",
-		Arguments: []introspection.Argument{
-			{Name: "in", CType: "VipsImage*", GoType: "*C.VipsImage", IsInput: true, IsImage: true},
-			{Name: "filename", CType: "char*", GoType: "string", IsInput: true},
-		},
-		RequiredInputs: []introspection.Argument{
-			{Name: "in", CType: "VipsImage*", GoType: "*C.VipsImage", IsInput: true, IsImage: true},
-			{Name: "filename", CType: "char*", GoType: "string", IsInput: true},
-		},
+		Name:           "pngsave",
+		Arguments:      in,
+		RequiredInputs: in,
 		OptionalInputs: []introspection.Argument{
-			{Name: "effort", CType: "int", GoType: "int"},
+			// default 0, so zero is the default and needs no flag
+			{Name: "bitdepth", CType: "int", GoType: "int", HasMinimum: true, Minimum: 0, HasMaximum: true, Maximum: 16, DefaultValue: 0},
 		},
 	}
 
 	got := generateCFunctionImplementation(op)
-	want := "int vipsgen_pngsave(VipsImage* in, char* filename) {\n    return vips_pngsave(in, filename, NULL);\n}\n\nint vipsgen_pngsave_with_options(VipsImage* in, char* filename, int effort) {\n    VipsOperation *operation = vips_operation_new(\"pngsave\");\n    if (!operation) return 1;\n    if (\n        vips_object_set(VIPS_OBJECT(operation), \"in\", in, NULL) ||\n        vips_object_set(VIPS_OBJECT(operation), \"filename\", filename, NULL) ||\n        vipsgen_set_int(operation, \"effort\", effort)\n    ) {\n        g_object_unref(operation);\n        return 1;\n    }\n    int result = vipsgen_operation_execute(operation, NULL);\n    return result;\n}"
+	want := "int vipsgen_pngsave(VipsImage* in, char* filename) {\n    return vips_pngsave(in, filename, NULL);\n}\n\nint vipsgen_pngsave_with_options(VipsImage* in, char* filename, int bitdepth) {\n    VipsOperation *operation = vips_operation_new(\"pngsave\");\n    if (!operation) return 1;\n    if (\n        vips_object_set(VIPS_OBJECT(operation), \"in\", in, NULL) ||\n        vips_object_set(VIPS_OBJECT(operation), \"filename\", filename, NULL) ||\n        vipsgen_set_int(operation, \"bitdepth\", bitdepth)\n    ) {\n        g_object_unref(operation);\n        return 1;\n    }\n    int result = vipsgen_operation_execute(operation, NULL);\n    return result;\n}"
 
 	if got != want {
 		t.Fatalf("unexpected pngsave C function implementation\n got: %q\nwant: %q", got, want)
 	}
 }
 
-func TestGenerateCFunctionImplementationPngSaveAllowsZeroCompressionSnapshot(t *testing.T) {
-	op := introspection.Operation{
-		Name: "pngsave",
-		Arguments: []introspection.Argument{
-			{Name: "in", CType: "VipsImage*", GoType: "*C.VipsImage", IsInput: true, IsImage: true},
-			{Name: "filename", CType: "char*", GoType: "string", IsInput: true},
-		},
-		RequiredInputs: []introspection.Argument{
-			{Name: "in", CType: "VipsImage*", GoType: "*C.VipsImage", IsInput: true, IsImage: true},
-			{Name: "filename", CType: "char*", GoType: "string", IsInput: true},
-		},
-		OptionalInputs: []introspection.Argument{
-			{Name: "compression", CType: "int", GoType: "int"},
-		},
-	}
-
-	got := generateCFunctionImplementation(op)
-	want := "int vipsgen_pngsave(VipsImage* in, char* filename) {\n    return vips_pngsave(in, filename, NULL);\n}\n\nint vipsgen_pngsave_with_options(VipsImage* in, char* filename, int compression) {\n    VipsOperation *operation = vips_operation_new(\"pngsave\");\n    if (!operation) return 1;\n    if (\n        vips_object_set(VIPS_OBJECT(operation), \"in\", in, NULL) ||\n        vips_object_set(VIPS_OBJECT(operation), \"filename\", filename, NULL) ||\n        vipsgen_set_int_allow_zero(operation, \"compression\", compression)\n    ) {\n        g_object_unref(operation);\n        return 1;\n    }\n    int result = vipsgen_operation_execute(operation, NULL);\n    return result;\n}"
-
-	if got != want {
-		t.Fatalf("unexpected pngsave C function implementation\n got: %q\nwant: %q", got, want)
-	}
-}
-
-func TestGenerateCFunctionImplementationDzSaveKeepsZeroAsUnsetSnapshot(t *testing.T) {
-	op := introspection.Operation{
-		Name: "dzsave",
-		Arguments: []introspection.Argument{
-			{Name: "in", CType: "VipsImage*", GoType: "*C.VipsImage", IsInput: true, IsImage: true},
-			{Name: "filename", CType: "char*", GoType: "string", IsInput: true},
-		},
-		RequiredInputs: []introspection.Argument{
-			{Name: "in", CType: "VipsImage*", GoType: "*C.VipsImage", IsInput: true, IsImage: true},
-			{Name: "filename", CType: "char*", GoType: "string", IsInput: true},
-		},
-		OptionalInputs: []introspection.Argument{
-			{Name: "compression", CType: "int", GoType: "int"},
-		},
-	}
-
-	got := generateCFunctionImplementation(op)
-	want := "int vipsgen_dzsave(VipsImage* in, char* filename) {\n    return vips_dzsave(in, filename, NULL);\n}\n\nint vipsgen_dzsave_with_options(VipsImage* in, char* filename, int compression) {\n    VipsOperation *operation = vips_operation_new(\"dzsave\");\n    if (!operation) return 1;\n    if (\n        vips_object_set(VIPS_OBJECT(operation), \"in\", in, NULL) ||\n        vips_object_set(VIPS_OBJECT(operation), \"filename\", filename, NULL) ||\n        vipsgen_set_int(operation, \"compression\", compression)\n    ) {\n        g_object_unref(operation);\n        return 1;\n    }\n    int result = vipsgen_operation_execute(operation, NULL);\n    return result;\n}"
-
-	if got != want {
-		t.Fatalf("unexpected dzsave C function implementation\n got: %q\nwant: %q", got, want)
-	}
-}
-
-func TestGenerateCFunctionImplementationIccTransformAllowsZeroIntentSnapshot(t *testing.T) {
-	op := introspection.Operation{
-		Name: "icc_transform",
-		Arguments: []introspection.Argument{
-			{Name: "in", CType: "VipsImage*", GoType: "*C.VipsImage", IsInput: true, IsImage: true},
-			{Name: "out", CType: "VipsImage**", GoType: "*C.VipsImage", IsOutput: true},
-			{Name: "output_profile", CType: "char*", GoType: "string", IsInput: true},
-		},
-		RequiredInputs: []introspection.Argument{
-			{Name: "in", CType: "VipsImage*", GoType: "*C.VipsImage", IsInput: true, IsImage: true},
-			{Name: "output_profile", CType: "char*", GoType: "string", IsInput: true},
-		},
-		RequiredOutputs: []introspection.Argument{
-			{Name: "out", CType: "VipsImage**", GoType: "*C.VipsImage", IsOutput: true},
-		},
-		OptionalInputs: []introspection.Argument{
-			{Name: "pcs", CType: "VipsPCS", GoType: "PCS", IsEnum: true, EnumType: "PCS"},
-			{Name: "intent", CType: "VipsIntent", GoType: "Intent", IsEnum: true, EnumType: "Intent"},
-			{Name: "depth", CType: "int", GoType: "int"},
-		},
-	}
-
-	got := generateCFunctionImplementation(op)
-	want := "int vipsgen_icc_transform(VipsImage* in, VipsImage** out, char* output_profile) {\n    return vips_icc_transform(in, out, output_profile, NULL);\n}\n\nint vipsgen_icc_transform_with_options(VipsImage* in, VipsImage** out, char* output_profile, VipsPCS pcs, VipsIntent intent, int depth) {\n    VipsOperation *operation = vips_operation_new(\"icc_transform\");\n    if (!operation) return 1;\n    if (\n        vips_object_set(VIPS_OBJECT(operation), \"in\", in, NULL) ||\n        vips_object_set(VIPS_OBJECT(operation), \"output_profile\", output_profile, NULL) ||\n        vipsgen_set_int(operation, \"pcs\", pcs) ||\n        vipsgen_set_int_allow_zero(operation, \"intent\", intent) ||\n        vipsgen_set_int(operation, \"depth\", depth)\n    ) {\n        g_object_unref(operation);\n        return 1;\n    }\n    int result = vipsgen_operation_execute(operation, \"out\", out, NULL);\n    return result;\n}"
-
-	if got != want {
-		t.Fatalf("unexpected icc_transform C function implementation\n got: %q\nwant: %q", got, want)
-	}
-}
-
-func TestGenerateCFunctionImplementationThumbnailAllowsZeroIntentSnapshot(t *testing.T) {
+func TestGenerateCFunctionImplementationEnumPointerSnapshot(t *testing.T) {
 	op := introspection.Operation{
 		Name: "thumbnail",
 		Arguments: []introspection.Argument{
 			{Name: "filename", CType: "char*", GoType: "string", IsInput: true},
-			{Name: "width", CType: "int", GoType: "int", IsInput: true},
-			{Name: "out", CType: "VipsImage**", GoType: "*C.VipsImage", IsOutput: true},
 		},
 		RequiredInputs: []introspection.Argument{
 			{Name: "filename", CType: "char*", GoType: "string", IsInput: true},
-			{Name: "width", CType: "int", GoType: "int", IsInput: true},
-		},
-		RequiredOutputs: []introspection.Argument{
-			{Name: "out", CType: "VipsImage**", GoType: "*C.VipsImage", IsOutput: true},
 		},
 		OptionalInputs: []introspection.Argument{
-			{Name: "intent", CType: "VipsIntent", GoType: "Intent", IsEnum: true, EnumType: "Intent"},
+			{Name: "intent", CType: "VipsIntent", GoType: "Intent", IsEnum: true, EnumType: "Intent", EnumValues: []int{0, 1, 2, 3, 4, 5, 6, 7}, DefaultValue: 7},
 		},
 	}
 
 	got := generateCFunctionImplementation(op)
-	want := "int vipsgen_thumbnail(char* filename, int width, VipsImage** out) {\n    return vips_thumbnail(filename, width, out, NULL);\n}\n\nint vipsgen_thumbnail_with_options(char* filename, int width, VipsImage** out, VipsIntent intent) {\n    VipsOperation *operation = vips_operation_new(\"thumbnail\");\n    if (!operation) return 1;\n    if (\n        vips_object_set(VIPS_OBJECT(operation), \"filename\", filename, NULL) ||\n        vips_object_set(VIPS_OBJECT(operation), \"width\", width, NULL) ||\n        vipsgen_set_int_allow_zero(operation, \"intent\", intent)\n    ) {\n        g_object_unref(operation);\n        return 1;\n    }\n    int result = vipsgen_operation_execute(operation, \"out\", out, NULL);\n    return result;\n}"
+	want := "int vipsgen_thumbnail(char* filename) {\n    return vips_thumbnail(filename, NULL);\n}\n\nint vipsgen_thumbnail_with_options(char* filename, VipsIntent intent, int intent_set) {\n    VipsOperation *operation = vips_operation_new(\"thumbnail\");\n    if (!operation) return 1;\n    if (\n        vips_object_set(VIPS_OBJECT(operation), \"filename\", filename, NULL) ||\n        (intent_set && vips_object_set(VIPS_OBJECT(operation), \"intent\", intent, NULL))\n    ) {\n        g_object_unref(operation);\n        return 1;\n    }\n    int result = vipsgen_operation_execute(operation, NULL);\n    return result;\n}"
 
 	if got != want {
 		t.Fatalf("unexpected thumbnail C function implementation\n got: %q\nwant: %q", got, want)
+	}
+}
+
+func TestGenerateCFunctionImplementationFlagPointerSnapshot(t *testing.T) {
+	in := []introspection.Argument{
+		{Name: "in", CType: "VipsImage*", GoType: "*C.VipsImage", IsInput: true, IsImage: true},
+	}
+	op := introspection.Operation{
+		Name:           "webpsave_buffer",
+		Arguments:      in,
+		RequiredInputs: in,
+		OptionalInputs: []introspection.Argument{
+			// keep is a flags argument whose zero (NONE) is a member and whose
+			// default is 63: v1 remapped it through vipsgen_set_keep, v2 does not
+			{Name: "keep", CType: "VipsForeignKeep", GoType: "Keep", IsEnum: true, IsFlags: true, EnumType: "Keep", EnumValues: []int{0, 1, 2, 4, 8, 16, 32}, DefaultValue: 63},
+		},
+	}
+
+	got := generateCFunctionImplementation(op)
+	want := "int vipsgen_webpsave_buffer(VipsImage* in) {\n    return vips_webpsave_buffer(in, NULL);\n}\n\nint vipsgen_webpsave_buffer_with_options(VipsImage* in, VipsForeignKeep keep, int keep_set) {\n    VipsOperation *operation = vips_operation_new(\"webpsave_buffer\");\n    if (!operation) return 1;\n    if (\n        vips_object_set(VIPS_OBJECT(operation), \"in\", in, NULL) ||\n        (keep_set && vips_object_set(VIPS_OBJECT(operation), \"keep\", keep, NULL))\n    ) {\n        g_object_unref(operation);\n        return 1;\n    }\n    int result = vipsgen_operation_save_buffer(operation, buf, len);\n    return result;\n}"
+
+	if got != want {
+		t.Fatalf("unexpected webpsave_buffer C function implementation\n got: %q\nwant: %q", got, want)
 	}
 }

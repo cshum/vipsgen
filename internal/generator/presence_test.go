@@ -6,64 +6,101 @@ import (
 	"github.com/cshum/vipsgen/v2/internal/introspection"
 )
 
-// v1ZeroAllowedReference is the released behaviour, written out independently of
-// argPresence so the classifier has to match a specification rather than itself.
-// It is the list that existed as shouldIntAllowZero before v2 started.
-func v1ZeroAllowedReference(op introspection.Operation, opt introspection.Argument) bool {
-	if opt.IsEnum {
-		return opt.EnumType == "Intent"
-	}
-	if opt.GoType != "int" {
-		return false
-	}
-	switch opt.Name {
-	case "effort":
-		switch op.Name {
-		case "heifsave", "heifsave_buffer", "heifsave_target",
-			"webpsave", "webpsave_buffer", "webpsave_mime", "webpsave_target":
-			return true
-		}
-	case "compression":
-		switch op.Name {
-		case "pngsave", "pngsave_buffer", "pngsave_target":
-			return true
-		}
-	}
-	return false
-}
-
-// TestArgPresenceMatchesV1Allowlist pins the v1 policy to the behaviour that
-// shipped: every optional input of every operation the installed libvips exposes
-// must classify identically to the hand-written list. It is version-independent —
-// the list names operations and enum types, not libvips values — so it runs on
-// every libvips in the CI matrix, and any v2 change to the policy has to be
-// deliberate rather than incidental.
-func TestArgPresenceMatchesV1Allowlist(t *testing.T) {
-	introspection := introspection.NewIntrospection(false)
-	operations := introspection.DiscoverOperations()
+// TestArgPresenceFollowsMetadata checks the v2 rule against the metadata of every
+// operation the installed libvips exposes, and pins the invariants that make the
+// pointer fields safe:
+//
+//   - a pointer field's type zero is a value libvips accepts, so Ptr(0) is a
+//     meaningful request rather than an error;
+//   - a pointer field's zero differs from the argument's default, so the two cases
+//     the field exists to tell apart really are different;
+//   - nothing that carries a pointer, image, array, source or target becomes a
+//     pointer, because presence for those has no separate meaning.
+//
+// Values from libvips are not pinned, so a libvips upgrade shows up as different
+// counts rather than a failure.
+func TestArgPresenceFollowsMetadata(t *testing.T) {
+	i := introspection.NewIntrospection(false)
+	operations := i.DiscoverOperations()
 	if len(operations) == 0 {
 		t.Fatal("no operations discovered")
 	}
 
-	var checked, zeroAllowed int
+	var pointer, value int
 	for _, op := range operations {
 		for _, opt := range op.OptionalInputs {
-			checked++
-			got := argPresence(op, opt) == PresenceZeroAllowed
-			want := v1ZeroAllowedReference(op, opt)
-			if got != want {
-				t.Errorf("%s.%s: zero-allowed = %v, want %v (v1 behaviour)", op.Name, opt.Name, got, want)
-			}
-			if want {
-				zeroAllowed++
+			switch argPresence(opt) {
+			case PresencePointer:
+				pointer++
+				if !zeroValueAccepted(opt) {
+					t.Errorf("%s.%s is a pointer but its zero value is not one libvips accepts", op.Name, opt.Name)
+				}
+				if isZeroDefault(opt.DefaultValue) {
+					t.Errorf("%s.%s is a pointer but its zero value equals its default", op.Name, opt.Name)
+				}
+				if opt.IsArray || opt.IsImage || opt.IsSource || opt.IsTarget || opt.IsOutput {
+					t.Errorf("%s.%s is a pointer but does not hold a scalar", op.Name, opt.Name)
+				}
+			case PresenceValue:
+				value++
 			}
 		}
 	}
-	if checked == 0 {
-		t.Fatal("no optional inputs discovered")
+	if pointer == 0 {
+		t.Fatal("no pointer optional inputs found; the rule matched nothing")
 	}
-	if zeroAllowed == 0 {
-		t.Fatal("no zero-allowed optional inputs found; the v1 rule matched nothing")
+	if value == 0 {
+		t.Fatal("no value optional inputs found; the rule matched everything")
 	}
-	t.Logf("optional inputs classified: %d, zero-allowed: %d", checked, zeroAllowed)
+	t.Logf("optional inputs: %d pointer, %d value", pointer, value)
+}
+
+// TestArgPresenceSpotsTheZeroValueCases checks the arguments where v1 needed a
+// hand-written exception, on operations present in every supported libvips.
+func TestArgPresenceSpotsTheZeroValueCases(t *testing.T) {
+	i := introspection.NewIntrospection(false)
+	operations := i.DiscoverOperations()
+
+	find := func(opName, argName string) (introspection.Argument, bool) {
+		for _, op := range operations {
+			if op.Name != opName {
+				continue
+			}
+			for _, opt := range op.OptionalInputs {
+				if opt.Name == argName {
+					return opt, true
+				}
+			}
+		}
+		return introspection.Argument{}, false
+	}
+
+	// libvips accepts 0 for these, and their defaults are non-zero, so they have to
+	// be pointers: this is exactly what the v1 allowlist was compensating for.
+	for _, want := range []struct{ op, arg string }{
+		{"webpsave_buffer", "effort"},
+		{"pngsave_buffer", "compression"},
+		{"thumbnail", "intent"},
+	} {
+		opt, ok := find(want.op, want.arg)
+		if !ok {
+			t.Fatalf("%s.%s not found; libvips changed", want.op, want.arg)
+		}
+		if argPresence(opt) != PresencePointer {
+			t.Errorf("%s.%s should be a pointer (zero is a value, default is %v)", want.op, want.arg, opt.DefaultValue)
+		}
+	}
+
+	// A boolean whose default is false has no ambiguity: false is the default.
+	if opt, ok := find("thumbnail", "no_rotate"); ok {
+		if argPresence(opt) != PresenceValue {
+			t.Errorf("thumbnail.no_rotate should stay a value (default %v)", opt.DefaultValue)
+		}
+	}
+	// A string with an empty default has no ambiguity either.
+	if opt, ok := find("pngsave", "profile"); ok {
+		if argPresence(opt) != PresenceValue {
+			t.Errorf("pngsave.profile should stay a value (default %q)", opt.DefaultValue)
+		}
+	}
 }

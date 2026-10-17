@@ -39,7 +39,7 @@ func main() {
 	}
 	// Load all animation frames using the GIF-specific file loader
 	image, err := vips.NewGifload("dancing-banana.gif", &vips.GifloadOptions{
-		N: -1, // -1 = load all animation frames
+		N: vips.Ptr(-1), // -1 = load all animation frames
 	})
 	if err != nil {
 		log.Fatalf("Failed to load image: %v", err)

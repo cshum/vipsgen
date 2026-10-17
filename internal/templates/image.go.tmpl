@@ -50,55 +50,60 @@ func {{.GoName}}({{generateMethodParams .}}) ({{generateUtilityFunctionReturnTyp
 {{end}}{{end}}
 
 // LoadOptions are options for loading an image. Some are type-specific.
+// Every field is optional: leave it nil to let libvips use its own default.
 type LoadOptions struct {
 	// N Number of pages to load, -1 for all
-	N int
+	N *int
 	// Page First page to load
-	Page int
+	Page *int
 	// Dpi Resolution in DPI
-	Dpi int
+	Dpi *int
 	// Autorotate Rotate image using exif orientation
-	Autorotate bool
+	Autorotate *bool
 	// FailOn is the error level to fail on (none/truncated/error/warning).
 	// When both FailOn and FailOnError are set, libvips ignores the
 	// deprecated "fail" boolean and uses fail_on.
-	FailOn FailOn
+	FailOn *FailOn
 	// FailOnError Fail on first error. Deprecated: maps to the libvips
 	// "fail" boolean, which libvips remaps to fail_on=warning. Prefer FailOn.
-	FailOnError bool
+	FailOnError *bool
 	// Shrink Shrink factor for jpeg load
-	Shrink int
+	Shrink *int
 	// Thumbnail Load the thumbnail instead of main image (for HEIF)
-	Thumbnail bool
+	Thumbnail *bool
 	// Unlimited Allow without size restrictions
-	Unlimited bool
+	Unlimited *bool
 	// Memory Force open via memory
-	Memory bool
+	Memory *bool
 	// Access Required access pattern for this file
-	Access Access
+	Access *Access
 }
 
 // DefaultLoadOptions creates default LoadOptions
 func DefaultLoadOptions() *LoadOptions {
 	return &LoadOptions{
-		FailOnError: true,
+		FailOnError: Ptr(true),
 	}
 }
 
-// OptionString convert import params to option_string
+// OptionString convert import params to option_string. A nil field is left out, so
+// libvips applies its own default; a field carrying a value is passed as that value,
+// zero or not.
 func (i *LoadOptions) OptionString() string {
 	var values []string
-	if v := i.N; v != 0 {
-		values = append(values, "n="+strconv.Itoa(v))
+	if v := i.N; v != nil {
+		values = append(values, "n="+strconv.Itoa(*v))
 	}
-	if v := i.Page; v != 0 {
-		values = append(values, "page="+strconv.Itoa(v))
+	if v := i.Page; v != nil {
+		values = append(values, "page="+strconv.Itoa(*v))
 	}
-	if v := i.Dpi; v != 0 {
-		values = append(values, "dpi="+strconv.Itoa(v))
+	if v := i.Dpi; v != nil {
+		values = append(values, "dpi="+strconv.Itoa(*v))
 	}
-	if v := i.FailOn; v != FailOnNone {
-		switch v {
+	if v := i.FailOn; v != nil {
+		switch *v {
+		case FailOnNone:
+			values = append(values, "fail_on=none")
 		case FailOnTruncated:
 			values = append(values, "fail_on=truncated")
 		case FailOnError:
@@ -107,26 +112,26 @@ func (i *LoadOptions) OptionString() string {
 			values = append(values, "fail_on=warning")
 		}
 	}
-	if v := i.FailOnError; v {
-		values = append(values, "fail="+boolToStr(v))
+	if v := i.FailOnError; v != nil {
+		values = append(values, "fail="+boolToStr(*v))
 	}
-	if v := i.Shrink; v != 0 {
-		values = append(values, "shrink="+strconv.Itoa(v))
+	if v := i.Shrink; v != nil {
+		values = append(values, "shrink="+strconv.Itoa(*v))
 	}
-	if v := i.Autorotate; v {
-		values = append(values, "autorotate="+boolToStr(v))
+	if v := i.Autorotate; v != nil {
+		values = append(values, "autorotate="+boolToStr(*v))
 	}
-	if v := i.Unlimited; v {
-		values = append(values, "unlimited="+boolToStr(v))
+	if v := i.Unlimited; v != nil {
+		values = append(values, "unlimited="+boolToStr(*v))
 	}
-	if v := i.Thumbnail; v {
-		values = append(values, "thumbnail="+boolToStr(v))
+	if v := i.Thumbnail; v != nil {
+		values = append(values, "thumbnail="+boolToStr(*v))
 	}
-	if v := i.Memory; v {
-		values = append(values, "memory="+boolToStr(v))
+	if v := i.Memory; v != nil {
+		values = append(values, "memory="+boolToStr(*v))
 	}
-	if access := i.Access; access != 0 {
-		switch access {
+	if access := i.Access; access != nil {
+		switch *access {
 		case AccessSequential:
 			values = append(values, "access=sequential")
 		case AccessRandom:
@@ -579,19 +584,11 @@ type EmbedMultiPageOptions struct {
 	Background []float64
 }
 
-// DefaultEmbedMultiPageOptions creates default options for EmbedMultiPage
-func DefaultEmbedMultiPageOptions() *EmbedMultiPageOptions {
-	return &EmbedMultiPageOptions{
-		Extend:     ExtendBlack,
-		Background: []float64{},
-	}
-}
-
 // EmbedMultiPage embeds the image in a larger image with the specified dimensions
 // When the image has multiple pages (e.g. animated GIF), this embeds each frame
 func (r *Image) EmbedMultiPage(left, top, width, height int, options *EmbedMultiPageOptions) error {
 	if options == nil {
-		options = DefaultEmbedMultiPageOptions()
+		options = &EmbedMultiPageOptions{}
 	}
 	{{range .Operations}}{{if (eq .Name "embed")}}
 	if r.Height() == r.PageHeight() {
