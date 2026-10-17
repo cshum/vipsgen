@@ -41,10 +41,10 @@ go get -u github.com/cshum/vipsgen/v2/vips
 ```
 
 All operations support parameters and optional arguments through structs, maintaining direct equivalence with the [libvips API](https://www.libvips.org/API/current/). 
-Pass `nil` to use default behavior for optional arguments. 
-See [examples](https://github.com/cshum/vipsgen/tree/main/examples) for common usage patterns.
-
-Optional arguments take `nil` for libvips' own default, or `vips.Ptr(v)` to supply a value explicitly, a zero included. The rule errs toward pointers: where the metadata says zero is a legal value, the field is a pointer even if a zero would be an odd thing to pass — see [`examples/option_presence`](https://github.com/cshum/vipsgen/tree/main/examples/option_presence). Upgrading from v1? See [MIGRATION.md](MIGRATION.md).
+Pass `nil` for libvips' own default, or `vips.Ptr(v)` to supply a value explicitly, a zero
+included. See [examples](https://github.com/cshum/vipsgen/tree/main/examples) for usage
+patterns, [`examples/option_presence`](https://github.com/cshum/vipsgen/tree/main/examples/option_presence)
+for the difference, and [MIGRATION.md](MIGRATION.md) if you are upgrading from v1.
 
 
 ```go
@@ -149,11 +149,11 @@ func main() {
 
 **Generic loaders** — [`NewImageFromFile`](https://pkg.go.dev/github.com/cshum/vipsgen/v2/vips#NewImageFromFile), [`NewImageFromBuffer`](https://pkg.go.dev/github.com/cshum/vipsgen/v2/vips#NewImageFromBuffer), [`NewImageFromSource`](https://pkg.go.dev/github.com/cshum/vipsgen/v2/vips#NewImageFromSource) — automatically detect the image format and accept `LoadOptions`, a generic options struct covering common options across formats. Since not every format supports every option, use the **format-specific loaders** — [`NewGifload`](https://pkg.go.dev/github.com/cshum/vipsgen/v2/vips#NewGifload), [`NewJpegloadBuffer`](https://pkg.go.dev/github.com/cshum/vipsgen/v2/vips#NewJpegloadBuffer), [`NewPngloadSource`](https://pkg.go.dev/github.com/cshum/vipsgen/v2/vips#NewPngloadSource), etc. — for precise, type-safe control. A few common examples:
 
-**Animated GIF** — `N: vips.Ptr(-1)` loads all frames ([full example](https://github.com/cshum/vipsgen/tree/main/examples/from_file)):
+**Animated GIF** — `N: -1` loads all frames ([full example](https://github.com/cshum/vipsgen/tree/main/examples/from_file)):
 
 ```go
 image, err := vips.NewGifload("animation.gif", &vips.GifloadOptions{
-    N: vips.Ptr(-1), // -1 = load all frames
+    N: -1, // -1 = load all frames
 })
 ```
 
@@ -413,6 +413,11 @@ Do not commit generated code in `vips*/` directories. Generated bindings are cre
 **For contributors:** Submit PRs with source code changes only. Maintainers will regenerate bindings after merge.
 
 **For maintainers:** After merging a fork PR, manually run the CI workflow from the Actions tab to regenerate bindings.
+
+A few arguments are classified by measurement rather than metadata, because GParamSpec cannot
+say whether a zero is a value or an error. The table is in `internal/generator/presence.go`
+and the classification is pinned by `vips/zero_pins_test.go`; re-run the probes when
+bumping libvips.
 
 ## License
 
