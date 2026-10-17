@@ -158,13 +158,13 @@ func createBlackImage(width, height int) (*Image, error) {
 func TestLoadOptionsOptionString(t *testing.T) {
 	// 1. Both set: both are emitted; libvips ignores the deprecated "fail"
 	// when fail_on is set
-	opts := &LoadOptions{FailOn: FailOnError, FailOnError: true}
+	opts := &LoadOptions{FailOn: Ptr(FailOnError), FailOnError: Ptr(true)}
 	s := opts.OptionString()
 	assert.Contains(t, s, "fail_on=error")
 	assert.Contains(t, s, "fail=TRUE")
 
 	// 2. Legacy FailOnError only: maps to the deprecated "fail" boolean
-	opts = &LoadOptions{FailOnError: true}
+	opts = &LoadOptions{FailOnError: Ptr(true)}
 	s = opts.OptionString()
 	assert.Contains(t, s, "fail=TRUE")
 	assert.NotContains(t, s, "fail_on=")
@@ -179,7 +179,7 @@ func TestLoadOptionsOptionString(t *testing.T) {
 		{level: FailOnWarning, nick: "warning"},
 	}
 	for _, tt := range tests {
-		s := (&LoadOptions{FailOn: tt.level}).OptionString()
+		s := (&LoadOptions{FailOn: Ptr(tt.level)}).OptionString()
 		assert.Contains(t, s, "fail_on="+tt.nick)
 		assert.NotContains(t, s, "fail=TRUE")
 	}
@@ -303,8 +303,7 @@ func TestBasicWhiteImage(t *testing.T) {
 
 	// Test resize operation with options
 	err = img.Resize(0.5, &ResizeOptions{
-		Kernel: KernelLanczos3,
-	})
+		Kernel: Ptr(KernelLanczos3)})
 	require.NoError(t, err)
 	assert.Equal(t, width/2, img.Width())
 	assert.Equal(t, height/2, img.Height())
@@ -352,7 +351,7 @@ func TestImageLoadSaveBuffer(t *testing.T) {
 	pngData := createTestPngBuffer(t, 150, 100)
 
 	// Load from buffer
-	img, err := NewPngloadBuffer(pngData, DefaultPngloadBufferOptions())
+	img, err := NewPngloadBuffer(pngData, &PngloadBufferOptions{})
 	require.NoError(t, err)
 	defer img.Close()
 
@@ -404,8 +403,7 @@ func TestImageTransformations(t *testing.T) {
 
 	// Test resize with options
 	err = img.Resize(1.5, &ResizeOptions{
-		Kernel: KernelLanczos3,
-	})
+		Kernel: Ptr(KernelLanczos3)})
 	require.NoError(t, err)
 	assert.Equal(t, int(float64(width)*1.5), img.Width())
 	assert.Equal(t, int(float64(height)*1.5), img.Height())
@@ -443,9 +441,8 @@ func TestBasicFormatConversions(t *testing.T) {
 
 	// Test PNG saving with options
 	pngBuf2, err := img.PngsaveBuffer(&PngsaveBufferOptions{
-		Compression: 6,
-		Filter:      PngFilterAll,
-	})
+		Compression: Ptr(6),
+		Filter:      PngFilterAll})
 	require.NoError(t, err)
 	t.Logf("PNG save with options succeeded: %d bytes", len(pngBuf2))
 	assert.NotEmpty(t, pngBuf2)
@@ -458,8 +455,7 @@ func TestBasicFormatConversions(t *testing.T) {
 
 	// Test JPEG saving with basic options
 	jpegBuf2, err := img.JpegsaveBuffer(&JpegsaveBufferOptions{
-		Q: 85,
-	})
+		Q: 85})
 	require.NoError(t, err)
 	t.Logf("JPEG save with options succeeded: %d bytes", len(jpegBuf2))
 	assert.NotEmpty(t, jpegBuf2)
@@ -472,9 +468,8 @@ func TestBasicFormatConversions(t *testing.T) {
 
 	// Test WebP saving with options
 	webpBuf2, err := img.WebpsaveBuffer(&WebpsaveBufferOptions{
-		Q:        80,
-		Lossless: true,
-	})
+		Q: Ptr(80),
+		Lossless: true})
 	require.NoError(t, err)
 	t.Logf("WebP save with options succeeded: %d bytes", len(webpBuf2))
 	assert.NotEmpty(t, webpBuf2)
@@ -509,8 +504,7 @@ func TestImageOperations(t *testing.T) {
 
 	// 4. Test resize and position with embed
 	err = imgCopy.Embed(10, 10, width+20, height+20, &EmbedOptions{
-		Extend: ExtendBlack,
-	})
+		Extend: ExtendBlack})
 	require.NoError(t, err)
 	t.Logf("Embed succeeded: new size %dx%d", imgCopy.Width(), imgCopy.Height())
 	assert.Equal(t, width+20, imgCopy.Width())
@@ -526,14 +520,13 @@ func TestFormatConversionChain(t *testing.T) {
 
 	// 1. First save as JPEG with minimal options
 	jpegBuf, err := img.JpegsaveBuffer(&JpegsaveBufferOptions{
-		Q: 80,
-	})
+		Q: 80})
 	require.NoError(t, err)
 	require.NotEmpty(t, jpegBuf)
 	t.Logf("JPEG save produced %d bytes", len(jpegBuf))
 
 	// 2. Load the JPEG
-	jpegImg, err := NewJpegloadBuffer(jpegBuf, DefaultJpegloadBufferOptions())
+	jpegImg, err := NewJpegloadBuffer(jpegBuf, &JpegloadBufferOptions{})
 	require.NoError(t, err)
 	defer jpegImg.Close()
 
@@ -569,7 +562,7 @@ func TestOperationComposition(t *testing.T) {
 	// Compose operations: resize, embed, and composite
 
 	// 1. Resize second image
-	err = img2.Resize(1.5, DefaultResizeOptions())
+	err = img2.Resize(1.5, &ResizeOptions{})
 	require.NoError(t, err)
 	assert.Equal(t, 75, img2.Width())
 	assert.Equal(t, 75, img2.Height())
@@ -671,31 +664,31 @@ func TestAllFormatsSupport(t *testing.T) {
 			return img.PngsaveBuffer(nil)
 		}},
 		{name: "PNG", saveFunc: func() ([]byte, error) {
-			return img.PngsaveBuffer(DefaultPngsaveBufferOptions())
+			return img.PngsaveBuffer(&PngsaveBufferOptions{})
 		}},
 		{name: "JPEG", saveFunc: func() ([]byte, error) {
 			return img.JpegsaveBuffer(nil)
 		}},
 		{name: "JPEG", saveFunc: func() ([]byte, error) {
-			return img.JpegsaveBuffer(DefaultJpegsaveBufferOptions())
+			return img.JpegsaveBuffer(&JpegsaveBufferOptions{})
 		}},
 		{name: "WebP", saveFunc: func() ([]byte, error) {
 			return img.WebpsaveBuffer(nil)
 		}},
 		{name: "WebP", saveFunc: func() ([]byte, error) {
-			return img.WebpsaveBuffer(DefaultWebpsaveBufferOptions())
+			return img.WebpsaveBuffer(&WebpsaveBufferOptions{})
 		}},
 		{name: "TIFF", saveFunc: func() ([]byte, error) {
 			return img.TiffsaveBuffer(nil)
 		}},
 		{name: "TIFF", saveFunc: func() ([]byte, error) {
-			return img.TiffsaveBuffer(DefaultTiffsaveBufferOptions())
+			return img.TiffsaveBuffer(&TiffsaveBufferOptions{})
 		}},
 		{name: "GIF", saveFunc: func() ([]byte, error) {
 			return img.GifsaveBuffer(nil)
 		}},
 		{name: "GIF", saveFunc: func() ([]byte, error) {
-			return img.GifsaveBuffer(DefaultGifsaveBufferOptions())
+			return img.GifsaveBuffer(&GifsaveBufferOptions{})
 		}},
 	}
 
@@ -747,8 +740,7 @@ func TestDrawOperationsWithPixelValidation(t *testing.T) {
 	// 1. Draw a red rectangle (x=50, y=50, width=100, height=100)
 	redColor := []float64{255, 0, 0}
 	err = img.DrawRect(redColor, 50, 50, 100, 100, &DrawRectOptions{
-		Fill: true,
-	})
+		Fill: true})
 	require.NoError(t, err)
 	t.Log("DrawRect successful")
 
@@ -769,8 +761,7 @@ func TestDrawOperationsWithPixelValidation(t *testing.T) {
 	// 2. Draw a blue circle (center=200,150, radius=50)
 	blueColor := []float64{0, 0, 255}
 	err = img.DrawCircle(blueColor, 200, 150, 50, &DrawCircleOptions{
-		Fill: true,
-	})
+		Fill: true})
 	require.NoError(t, err)
 	t.Log("DrawCircle successful")
 
@@ -874,8 +865,7 @@ func TestBuiltinImageGeneration(t *testing.T) {
 	// 3. Perlin noise image
 	perlinImg, err := NewPerlin(width, height, &PerlinOptions{
 		CellSize: 32,
-		Uchar:    true,
-	})
+		Uchar:    true})
 	require.NoError(t, err)
 	defer perlinImg.Close()
 
@@ -892,9 +882,8 @@ func TestBuiltinImageGeneration(t *testing.T) {
 
 	// 5. Gaussian noise
 	noiseImg, err := NewGaussnoise(width, height, &GaussnoiseOptions{
-		Sigma: 50.0,
-		Mean:  128.0,
-	})
+		Sigma: Ptr(50.0),
+		Mean: Ptr(128.0)})
 	require.NoError(t, err)
 	defer noiseImg.Close()
 
@@ -925,7 +914,7 @@ func TestImageManipulations(t *testing.T) {
 		resizeImg, err := img.Copy(nil)
 		require.NoError(t, err)
 
-		err = resizeImg.Resize(0.5, &ResizeOptions{Kernel: kernel})
+		err = resizeImg.Resize(0.5, &ResizeOptions{Kernel: Ptr(kernel)})
 		require.NoError(t, err)
 
 		assert.Equal(t, width/2, resizeImg.Width())
@@ -969,8 +958,7 @@ func TestImageBlending(t *testing.T) {
 	// Test overlaying the images
 	err = redImg.Composite2(blueImg, BlendModeOver, &Composite2Options{
 		X: 25,
-		Y: 25,
-	})
+		Y: 25})
 	require.NoError(t, err)
 	t.Log("Successfully blended images")
 
@@ -996,8 +984,7 @@ func TestImageBlending(t *testing.T) {
 
 		err = baseImg.Composite2(overlayImg, mode, &Composite2Options{
 			X: width / 4,
-			Y: height / 4,
-		})
+			Y: height / 4})
 		require.NoError(t, err)
 
 		t.Logf("Blend mode %d test: %v", mode, err == nil)
@@ -1162,7 +1149,7 @@ func TestRotateOperations(t *testing.T) {
 	require.NoError(t, err)
 	defer rot45Img.Close()
 
-	err = rot45Img.Rot45(&Rot45Options{Angle: Angle45D45})
+	err = rot45Img.Rot45(&Rot45Options{Angle: Ptr(Angle45D45)})
 	require.NoError(t, err)
 	t.Log("Rot45(Angle45D45) succeeded")
 	t.Logf("After Rot45: %dx%d", rot45Img.Width(), rot45Img.Height())
@@ -1185,7 +1172,7 @@ func TestRot45Requirements(t *testing.T) {
 	require.NoError(t, err)
 	defer evenImg.Close()
 
-	err = evenImg.Rot45(&Rot45Options{Angle: Angle45D45})
+	err = evenImg.Rot45(&Rot45Options{Angle: Ptr(Angle45D45)})
 	assert.Error(t, err, "Rot45 should fail with even-sized square image")
 	t.Logf("Expected error with even-sized square image: %v", err)
 
@@ -1195,7 +1182,7 @@ func TestRot45Requirements(t *testing.T) {
 	require.NoError(t, err)
 	defer rectImg.Close()
 
-	err = rectImg.Rot45(&Rot45Options{Angle: Angle45D45})
+	err = rectImg.Rot45(&Rot45Options{Angle: Ptr(Angle45D45)})
 	assert.Error(t, err, "Rot45 should fail with non-square image")
 	t.Logf("Expected error with non-square image: %v", err)
 
@@ -1205,7 +1192,7 @@ func TestRot45Requirements(t *testing.T) {
 	require.NoError(t, err)
 	defer oddImg.Close()
 
-	err = oddImg.Rot45(&Rot45Options{Angle: Angle45D45})
+	err = oddImg.Rot45(&Rot45Options{Angle: Ptr(Angle45D45)})
 	require.NoError(t, err)
 	t.Log("Rot45 succeeded with odd-sized square image as expected")
 
@@ -1227,7 +1214,7 @@ func TestRot45Requirements(t *testing.T) {
 	defer oddImg2.Close()
 
 	// Try 90-degree rotation (D90)
-	err = oddImg2.Rot45(&Rot45Options{Angle: Angle45D90})
+	err = oddImg2.Rot45(&Rot45Options{Angle: Ptr(Angle45D90)})
 	require.NoError(t, err, "Rot45 with Angle45D90 succeeded")
 }
 
@@ -1320,8 +1307,7 @@ func TestDrawOperations(t *testing.T) {
 
 	// 1. Draw a red rectangle (50,50 to 150,150)
 	err = img.DrawRect([]float64{255, 0, 0}, 50, 50, 100, 100, &DrawRectOptions{
-		Fill: true,
-	})
+		Fill: true})
 	require.NoError(t, err)
 	t.Log("DrawRect successful")
 
@@ -1343,8 +1329,7 @@ func TestDrawOperations(t *testing.T) {
 
 	// 2. Draw a blue circle (center at 200,150, radius 50)
 	err = img.DrawCircle([]float64{0, 0, 255}, 200, 150, 50, &DrawCircleOptions{
-		Fill: true,
-	})
+		Fill: true})
 	require.NoError(t, err)
 	t.Log("DrawCircle successful")
 
@@ -1540,7 +1525,7 @@ func TestFilterOptions(t *testing.T) {
 
 	err = blurMinAmplImg.Gaussblur(5.0, &GaussblurOptions{
 		MinAmpl: 0.01, // Very small minimum amplitude
-	})
+})
 	require.NoError(t, err)
 	t.Log("Gaussblur with minAmpl succeeded")
 
@@ -1562,10 +1547,10 @@ func TestFilterOptions(t *testing.T) {
 
 	err = customSharpenImg.Sharpen(&SharpenOptions{
 		Sigma: 3.0,  // Larger radius
-		X1:    2.0,  // Different threshold
-		Y2:    20.0, // Different brightening
-		Y3:    20.0, // Different darkening
-	})
+		X1:    Ptr(2.0),  // Different threshold
+		Y2:    Ptr(20.0), // Different brightening
+		Y3:    Ptr(20.0), // Different darkening
+})
 	require.NoError(t, err)
 	t.Log("Sharpen with custom options succeeded")
 
@@ -1587,8 +1572,8 @@ func TestFilterOptions(t *testing.T) {
 
 	err = customCannyImg.Canny(&CannyOptions{
 		Sigma:     2.0,              // Custom sigma
-		Precision: PrecisionInteger, // Integer precision
-	})
+		Precision: Ptr(PrecisionInteger), // Integer precision
+})
 	require.NoError(t, err)
 	t.Log("Canny with custom options succeeded")
 
@@ -1648,7 +1633,7 @@ func TestLoadOptions(t *testing.T) {
 	t.Logf("JPEG loaded with nil options: %dx%d", img1.Width(), img1.Height())
 
 	// 1.2. With default options
-	img2, err := NewJpegloadBuffer(jpegData, DefaultJpegloadBufferOptions())
+	img2, err := NewJpegloadBuffer(jpegData, &JpegloadBufferOptions{})
 	require.NoError(t, err)
 	defer img2.Close()
 	t.Logf("JPEG loaded with default options: %dx%d", img2.Width(), img2.Height())
@@ -1656,7 +1641,7 @@ func TestLoadOptions(t *testing.T) {
 	// 1.3. With shrink factor (load at reduced size)
 	img3, err := NewJpegloadBuffer(jpegData, &JpegloadBufferOptions{
 		Shrink: 2, // Load at half size
-	})
+})
 	require.NoError(t, err)
 	defer img3.Close()
 	t.Logf("JPEG loaded with shrink=2: %dx%d", img3.Width(), img3.Height())
@@ -1667,8 +1652,7 @@ func TestLoadOptions(t *testing.T) {
 
 	// 1.4. With autorotate option
 	img4, err := NewJpegloadBuffer(jpegData, &JpegloadBufferOptions{
-		Autorotate: true,
-	})
+		Autorotate: true})
 	require.NoError(t, err)
 	defer img4.Close()
 	t.Logf("JPEG loaded with autorotate: %dx%d", img4.Width(), img4.Height())
@@ -1702,15 +1686,14 @@ func TestLoadOptions(t *testing.T) {
 	t.Logf("PNG loaded with nil options: %dx%d", png1.Width(), png1.Height())
 
 	// 2.2. With default options
-	png2, err := NewPngloadBuffer(pngData, DefaultPngloadBufferOptions())
+	png2, err := NewPngloadBuffer(pngData, &PngloadBufferOptions{})
 	require.NoError(t, err)
 	defer png2.Close()
 	t.Logf("PNG loaded with default options: %dx%d", png2.Width(), png2.Height())
 
 	// 2.3. With unlimited option
 	png3, err := NewPngloadBuffer(pngData, &PngloadBufferOptions{
-		Unlimited: true,
-	})
+		Unlimited: true})
 	require.NoError(t, err)
 	defer png3.Close()
 	t.Logf("PNG loaded with unlimited: %dx%d", png3.Width(), png3.Height())
@@ -1731,8 +1714,7 @@ func TestLoadOptions(t *testing.T) {
 
 	// 3.3. With custom options
 	gen3, err := NewImageFromBuffer(pngData, &LoadOptions{
-		FailOnError: true,
-	})
+		FailOnError: Ptr(true)})
 	require.NoError(t, err)
 	defer gen3.Close()
 	t.Logf("Generic load with custom options: %dx%d", gen3.Width(), gen3.Height())
@@ -1785,37 +1767,35 @@ func TestSaveOptions(t *testing.T) {
 	t.Logf("PNG save with nil options: %d bytes", len(pngNilBuf))
 
 	// 1.2. With default options
-	pngDefaultBuf, err := img.PngsaveBuffer(DefaultPngsaveBufferOptions())
+	pngDefaultBuf, err := img.PngsaveBuffer(&PngsaveBufferOptions{})
 	require.NoError(t, err)
 	t.Logf("PNG save with default options: %d bytes", len(pngDefaultBuf))
 
 	// 1.3. With custom options - low compression
 	pngLowCompBuf, err := img.PngsaveBuffer(&PngsaveBufferOptions{
-		Compression: 1, // Low compression
-	})
+		Compression: Ptr(1), // Low compression
+})
 	require.NoError(t, err)
 	t.Logf("PNG save with low compression: %d bytes", len(pngLowCompBuf))
 
 	// 1.4. With custom options - high compression
 	pngHighCompBuf, err := img.PngsaveBuffer(&PngsaveBufferOptions{
-		Compression: 9, // High compression
-	})
+		Compression: Ptr(9), // High compression
+})
 	require.NoError(t, err)
 	t.Logf("PNG save with high compression: %d bytes", len(pngHighCompBuf))
 
 	// 1.5. With custom options - filter
 	pngWithFilterBuf, err := img.PngsaveBuffer(&PngsaveBufferOptions{
-		Compression: 6,
-		Filter:      PngFilterPaeth,
-	})
+		Compression: Ptr(6),
+		Filter:      PngFilterPaeth})
 	require.NoError(t, err)
 	t.Logf("PNG save with filter: %d bytes", len(pngWithFilterBuf))
 
 	// 1.6. With custom options - interlaced
 	pngInterlacedBuf, err := img.PngsaveBuffer(&PngsaveBufferOptions{
-		Compression: 6,
-		Interlace:   true,
-	})
+		Compression: Ptr(6),
+		Interlace:   true})
 	require.NoError(t, err)
 	t.Logf("PNG save with interlace: %d bytes", len(pngInterlacedBuf))
 
@@ -1827,37 +1807,35 @@ func TestSaveOptions(t *testing.T) {
 	t.Logf("JPEG save with nil options: %d bytes", len(jpegNilBuf))
 
 	// 2.2. With default options
-	jpegDefaultBuf, err := img.JpegsaveBuffer(DefaultJpegsaveBufferOptions())
+	jpegDefaultBuf, err := img.JpegsaveBuffer(&JpegsaveBufferOptions{})
 	require.NoError(t, err)
 	t.Logf("JPEG save with default options: %d bytes", len(jpegDefaultBuf))
 
 	// 2.3. With custom options - low quality
 	jpegLowQualBuf, err := img.JpegsaveBuffer(&JpegsaveBufferOptions{
 		Q: 25, // Low quality
-	})
+})
 	require.NoError(t, err)
 	t.Logf("JPEG save with low quality: %d bytes", len(jpegLowQualBuf))
 
 	// 2.4. With custom options - high quality
 	jpegHighQualBuf, err := img.JpegsaveBuffer(&JpegsaveBufferOptions{
 		Q: 95, // High quality
-	})
+})
 	require.NoError(t, err)
 	t.Logf("JPEG save with high quality: %d bytes", len(jpegHighQualBuf))
 
 	// 2.5. With custom options - optimize coding
 	jpegOptimizedBuf, err := img.JpegsaveBuffer(&JpegsaveBufferOptions{
 		Q:              75,
-		OptimizeCoding: true,
-	})
+		OptimizeCoding: true})
 	require.NoError(t, err)
 	t.Logf("JPEG save with optimize coding: %d bytes", len(jpegOptimizedBuf))
 
 	// 2.6. With custom options - interlaced/progressive
 	jpegInterlacedBuf, err := img.JpegsaveBuffer(&JpegsaveBufferOptions{
 		Q:         75,
-		Interlace: true,
-	})
+		Interlace: true})
 	require.NoError(t, err)
 	t.Logf("JPEG save with interlace: %d bytes", len(jpegInterlacedBuf))
 
@@ -1869,37 +1847,36 @@ func TestSaveOptions(t *testing.T) {
 	t.Logf("WebP save with nil options: %d bytes", len(webpNilBuf))
 
 	// 3.2. With default options
-	webpDefaultBuf, err := img.WebpsaveBuffer(DefaultWebpsaveBufferOptions())
+	webpDefaultBuf, err := img.WebpsaveBuffer(&WebpsaveBufferOptions{})
 	require.NoError(t, err)
 	t.Logf("WebP save with default options: %d bytes", len(webpDefaultBuf))
 
 	// 3.3. With custom options - lossless
 	webpLosslessBuf, err := img.WebpsaveBuffer(&WebpsaveBufferOptions{
-		Lossless: true,
-	})
+		Lossless: true})
 	require.NoError(t, err)
 	t.Logf("WebP save with lossless: %d bytes", len(webpLosslessBuf))
 
 	// 3.4. With custom options - quality
 	webpQualityBuf, err := img.WebpsaveBuffer(&WebpsaveBufferOptions{
-		Q: 50, // Medium quality
-	})
+		Q: Ptr(50), // Medium quality
+})
 	require.NoError(t, err)
 	t.Logf("WebP save with quality 50: %d bytes", len(webpQualityBuf))
 
 	// 3.5. With custom options - low effort (faster encoding)
 	webpLowEffortBuf, err := img.WebpsaveBuffer(&WebpsaveBufferOptions{
-		Q:      75,
-		Effort: 1, // Low effort
-	})
+		Q: Ptr(75),
+		Effort: Ptr(1), // Low effort
+})
 	require.NoError(t, err)
 	t.Logf("WebP save with low effort: %d bytes", len(webpLowEffortBuf))
 
 	// 3.6. With custom options - high effort (better compression)
 	webpHighEffortBuf, err := img.WebpsaveBuffer(&WebpsaveBufferOptions{
-		Q:      75,
-		Effort: 6, // High effort
-	})
+		Q: Ptr(75),
+		Effort: Ptr(6), // High effort
+})
 	require.NoError(t, err)
 	t.Logf("WebP save with high effort: %d bytes", len(webpHighEffortBuf))
 
@@ -1948,7 +1925,7 @@ func TestOptionsVariants(t *testing.T) {
 	require.NoError(t, err)
 	defer defaultOptionsImg.Close()
 
-	err = defaultOptionsImg.Resize(0.75, DefaultResizeOptions())
+	err = defaultOptionsImg.Resize(0.75, &ResizeOptions{})
 	require.NoError(t, err)
 	t.Log("Resize with default options succeeded")
 	assert.Equal(t, int(float64(width)*0.75), defaultOptionsImg.Width())
@@ -1959,9 +1936,9 @@ func TestOptionsVariants(t *testing.T) {
 	defer customOptionsImg.Close()
 
 	customOptions := &ResizeOptions{
-		Kernel: KernelLanczos3,
+		Kernel: Ptr(KernelLanczos3),
 		Vscale: 0.5, // Different vertical scale
-	}
+}
 	err = customOptionsImg.Resize(0.75, customOptions)
 	require.NoError(t, err)
 	t.Log("Resize with custom options succeeded")
@@ -1984,7 +1961,7 @@ func TestOptionsVariants(t *testing.T) {
 	require.NoError(t, err)
 	defer blurDefaultImg.Close()
 
-	err = blurDefaultImg.Gaussblur(5.0, DefaultGaussblurOptions())
+	err = blurDefaultImg.Gaussblur(5.0, &GaussblurOptions{})
 	require.NoError(t, err)
 	t.Log("Gaussblur with default options succeeded")
 
@@ -1995,8 +1972,7 @@ func TestOptionsVariants(t *testing.T) {
 
 	customBlurOptions := &GaussblurOptions{
 		MinAmpl:   0.1, // Minimum amplitude
-		Precision: PrecisionInteger,
-	}
+		Precision: PrecisionInteger}
 	err = blurCustomImg.Gaussblur(5.0, customBlurOptions)
 	require.NoError(t, err)
 	t.Log("Gaussblur with custom options succeeded")
@@ -2019,7 +1995,7 @@ func TestOptionsVariants(t *testing.T) {
 	require.NoError(t, err)
 	defer embedDefaultImg.Close()
 
-	err = embedDefaultImg.Embed(10, 10, width+20, height+20, DefaultEmbedOptions())
+	err = embedDefaultImg.Embed(10, 10, width+20, height+20, &EmbedOptions{})
 	require.NoError(t, err)
 	t.Log("Embed with default options succeeded")
 	assert.Equal(t, width+20, embedDefaultImg.Width())
@@ -2033,7 +2009,7 @@ func TestOptionsVariants(t *testing.T) {
 	customEmbedOptions := &EmbedOptions{
 		Extend:     ExtendWhite,
 		Background: []float64{255, 0, 0}, // Red background
-	}
+}
 	err = embedCustomImg.Embed(10, 10, width+20, height+20, customEmbedOptions)
 	require.NoError(t, err)
 	t.Log("Embed with custom options succeeded")
@@ -2377,8 +2353,8 @@ func TestParameterBinding(t *testing.T) {
 
 	// 1. Integer parameters
 	err = img.Resize(2.0, &ResizeOptions{
-		Kernel: KernelLanczos3, // enum -> int conversion
-	})
+		Kernel: Ptr(KernelLanczos3), // enum -> int conversion
+})
 	require.NoError(t, err)
 	assert.Equal(t, 200, img.Width())
 
@@ -2389,7 +2365,7 @@ func TestParameterBinding(t *testing.T) {
 
 	err = blurImg.Gaussblur(2.5, &GaussblurOptions{
 		MinAmpl: 0.1, // float64 parameter
-	})
+})
 	require.NoError(t, err)
 
 	// 3. Boolean parameters
@@ -2398,15 +2374,13 @@ func TestParameterBinding(t *testing.T) {
 	defer embedImg.Close()
 
 	err = embedImg.Embed(10, 10, 220, 220, &EmbedOptions{
-		Extend: ExtendBackground,
-	})
+		Extend: ExtendBackground})
 	require.NoError(t, err)
 
 	// 4. String parameters
 	textImg, err := NewText("Hello", &TextOptions{
 		Font: "sans 20", // string parameter
-		Dpi:  72,
-	})
+		Dpi:  72})
 	require.NoError(t, err)
 	defer textImg.Close()
 	assert.Greater(t, textImg.Width(), 0)
@@ -2456,8 +2430,7 @@ func TestEnumParameterBinding(t *testing.T) {
 		require.NoError(t, err)
 
 		err = testImg.Embed(5, 5, 110, 110, &EmbedOptions{
-			Extend: mode,
-		})
+			Extend: mode})
 		require.NoError(t, err, "Extend mode %v should work", mode)
 		testImg.Close()
 	}
@@ -2701,22 +2674,22 @@ func TestDefaultOptions(t *testing.T) {
 	// Test that default option functions work correctly
 
 	// 1. Resize options
-	resizeOpts := DefaultResizeOptions()
+	resizeOpts := &ResizeOptions{}
 	assert.NotNil(t, resizeOpts)
 	assert.IsType(t, &ResizeOptions{}, resizeOpts)
 
 	// 2. Gaussblur options
-	blurOpts := DefaultGaussblurOptions()
+	blurOpts := &GaussblurOptions{}
 	assert.NotNil(t, blurOpts)
 	assert.IsType(t, &GaussblurOptions{}, blurOpts)
 
 	// 3. PNG save options
-	pngOpts := DefaultPngsaveBufferOptions()
+	pngOpts := &PngsaveBufferOptions{}
 	assert.NotNil(t, pngOpts)
 	assert.IsType(t, &PngsaveBufferOptions{}, pngOpts)
 
 	// 4. JPEG save options
-	jpegOpts := DefaultJpegsaveBufferOptions()
+	jpegOpts := &JpegsaveBufferOptions{}
 	assert.NotNil(t, jpegOpts)
 	assert.IsType(t, &JpegsaveBufferOptions{}, jpegOpts)
 
@@ -2733,23 +2706,36 @@ func TestOptionsFieldTypes(t *testing.T) {
 	resizeOpts := &ResizeOptions{}
 	resizeType := reflect.TypeOf(resizeOpts).Elem()
 
-	// Find Kernel field
+	// Kernel and Gap are pointers: libvips accepts zero for both, and their
+	// defaults are non-zero, so nil ("not supplied") has to be distinguishable from
+	// Ptr(0) ("supplied as zero").
 	kernelField, found := resizeType.FieldByName("Kernel")
 	require.True(t, found, "ResizeOptions should have Kernel field")
-	assert.Equal(t, "Kernel", kernelField.Type.Name())
+	assert.Equal(t, "*vips.Kernel", kernelField.Type.String())
 
-	// Find Gap field
 	gapField, found := resizeType.FieldByName("Gap")
 	require.True(t, found, "ResizeOptions should have Gap field")
-	assert.Equal(t, "float64", gapField.Type.Name())
+	assert.Equal(t, "*float64", gapField.Type.String())
 
-	// Test PNG options
+	// Vscale is not a pointer: zero is outside the range libvips accepts, so there
+	// is nothing to disambiguate and the plain value is the better API.
+	vscaleField, found := resizeType.FieldByName("Vscale")
+	require.True(t, found, "ResizeOptions should have Vscale field")
+	assert.Equal(t, "float64", vscaleField.Type.String())
+
+	// Test PNG options: compression 0 means "store uncompressed", which the default
+	// of 6 would otherwise hide.
 	pngOpts := &PngsaveBufferOptions{}
 	pngType := reflect.TypeOf(pngOpts).Elem()
 
 	compressionField, found := pngType.FieldByName("Compression")
 	require.True(t, found, "PngsaveBufferOptions should have Compression field")
-	assert.Equal(t, "int", compressionField.Type.Name())
+	assert.Equal(t, "*int", compressionField.Type.String())
+
+	// A boolean whose default is false has no ambiguity to resolve.
+	interlaceField, found := pngType.FieldByName("Interlace")
+	require.True(t, found, "PngsaveBufferOptions should have Interlace field")
+	assert.Equal(t, "bool", interlaceField.Type.String())
 }
 
 func TestEnumTypeSafety(t *testing.T) {
@@ -2913,9 +2899,8 @@ func TestRequiredVsOptionalParameters(t *testing.T) {
 	defer img2.Close()
 
 	err = img2.Resize(0.5, &ResizeOptions{
-		Kernel: KernelLanczos3,
-		Gap:    2.0,
-	})
+		Kernel: Ptr(KernelLanczos3),
+		Gap: Ptr(2.0)})
 	require.NoError(t, err)
 	assert.Equal(t, 50, img2.Width())
 
@@ -2924,7 +2909,7 @@ func TestRequiredVsOptionalParameters(t *testing.T) {
 	require.NoError(t, err)
 	defer img3.Close()
 
-	err = img3.Resize(0.5, DefaultResizeOptions())
+	err = img3.Resize(0.5, &ResizeOptions{})
 	require.NoError(t, err)
 	assert.Equal(t, 50, img3.Width())
 }
@@ -2940,14 +2925,14 @@ func TestOptionalParameterDefaults(t *testing.T) {
 	err = img.Gaussblur(2.0, &GaussblurOptions{
 		MinAmpl: 0.1, // Set this field
 		// Precision field should use default
-	})
+})
 	require.NoError(t, err)
 
 	// Test PNG save with partial options
 	buf, err := img.PngsaveBuffer(&PngsaveBufferOptions{
-		Compression: 6, // Set this field
+		Compression: Ptr(6), // Set this field
 		// Other fields should use defaults
-	})
+})
 	require.NoError(t, err)
 	assert.NotEmpty(t, buf)
 }
@@ -2956,24 +2941,21 @@ func TestStringParameterHandling(t *testing.T) {
 	// Test that string parameters are properly converted to C strings and cleaned up
 
 	textImg, err := NewText("Hello World", &TextOptions{
-		Font: "sans 20",
-	})
+		Font: "sans 20"})
 	require.NoError(t, err)
 	defer textImg.Close()
 	assert.Greater(t, textImg.Width(), 0)
 	assert.Greater(t, textImg.Height(), 0)
 
 	textImg3, err := NewText("Test\nLine2\tTab", &TextOptions{
-		Font: "sans 12",
-	})
+		Font: "sans 12"})
 	require.NoError(t, err)
 	defer textImg3.Close()
 	assert.Greater(t, textImg3.Width(), 0)
 	assert.Greater(t, textImg3.Height(), 0)
 
 	textImg4, err := NewText("Hello 世界 🌍", &TextOptions{
-		Font: "sans 16",
-	})
+		Font: "sans 16"})
 	require.NoError(t, err)
 	defer textImg4.Close()
 	assert.Greater(t, textImg4.Width(), 0)
@@ -3147,8 +3129,7 @@ func TestInterpolationBinding(t *testing.T) {
 
 		// Test with operations that accept interpolation
 		err = testImg.Resize(0.5, &ResizeOptions{
-			Kernel: KernelLanczos3,
-		})
+			Kernel: Ptr(KernelLanczos3)})
 		require.NoError(t, err, "Interpolation %v should work", interpType)
 
 		// Clean up
@@ -3212,10 +3193,9 @@ func TestSourceWithOptions(t *testing.T) {
 
 	// Test loading from source with options
 	img, err := NewImageFromSource(source, &LoadOptions{
-		Shrink:      2,
-		Autorotate:  true,
-		FailOnError: true,
-	})
+		Shrink: Ptr(2),
+		Autorotate: Ptr(true),
+		FailOnError: Ptr(true)})
 	require.NoError(t, err)
 	defer img.Close()
 
@@ -3327,10 +3307,9 @@ func TestFormatSpecificOptions(t *testing.T) {
 
 	// 1. PNG-specific options
 	pngBuf, err := img.PngsaveBuffer(&PngsaveBufferOptions{
-		Compression: 9,
+		Compression: Ptr(9),
 		Interlace:   true,
-		Filter:      PngFilterPaeth,
-	})
+		Filter:      PngFilterPaeth})
 	require.NoError(t, err)
 	assert.NotEmpty(t, pngBuf)
 
@@ -3338,17 +3317,15 @@ func TestFormatSpecificOptions(t *testing.T) {
 	jpegBuf, err := img.JpegsaveBuffer(&JpegsaveBufferOptions{
 		Q:              95,
 		OptimizeCoding: true,
-		Interlace:      true,
-	})
+		Interlace:      true})
 	require.NoError(t, err)
 	assert.NotEmpty(t, jpegBuf)
 
 	// 3. WebP-specific options
 	webpBuf, err := img.WebpsaveBuffer(&WebpsaveBufferOptions{
-		Q:        80,
+		Q: Ptr(80),
 		Lossless: false,
-		Effort:   6,
-	})
+		Effort: Ptr(6)})
 	require.NoError(t, err)
 	assert.NotEmpty(t, webpBuf)
 
@@ -3356,8 +3333,7 @@ func TestFormatSpecificOptions(t *testing.T) {
 	jpegData := createTestJpegBuffer(t, 400, 300)
 	jpegImg, err := NewJpegloadBuffer(jpegData, &JpegloadBufferOptions{
 		Shrink:     2,
-		Autorotate: true,
-	})
+		Autorotate: true})
 	require.NoError(t, err)
 	defer jpegImg.Close()
 
@@ -3368,8 +3344,7 @@ func TestFormatSpecificOptions(t *testing.T) {
 	// 2. PNG with specific options
 	pngData := createTestPngBuffer(t, 200, 200)
 	pngImg, err := NewPngloadBuffer(pngData, &PngloadBufferOptions{
-		Unlimited: true,
-	})
+		Unlimited: true})
 	require.NoError(t, err)
 	defer pngImg.Close()
 
@@ -3403,9 +3378,8 @@ func TestTarget(t *testing.T) {
 
 	// Save to target using WebpsaveTarget
 	err = img.WebpsaveTarget(target, &WebpsaveTargetOptions{
-		Q:      85,
-		Effort: 4,
-	})
+		Q: Ptr(85),
+		Effort: Ptr(4)})
 	require.NoError(t, err)
 
 	// Verify data was written
@@ -3466,11 +3440,11 @@ func TestTargetPNGSaveOptions(t *testing.T) {
 		options *PngsaveTargetOptions
 	}{
 		{"nil options", nil},
-		{"default options", DefaultPngsaveTargetOptions()},
-		{"high compression", &PngsaveTargetOptions{Compression: 9}},
-		{"low compression", &PngsaveTargetOptions{Compression: 1}},
-		{"interlaced", &PngsaveTargetOptions{Compression: 6, Interlace: true}},
-		{"with filter", &PngsaveTargetOptions{Compression: 6, Filter: PngFilterPaeth}},
+		{"default options", &PngsaveTargetOptions{}},
+		{"high compression", &PngsaveTargetOptions{Compression: Ptr(9)}},
+		{"low compression", &PngsaveTargetOptions{Compression: Ptr(1)}},
+		{"interlaced", &PngsaveTargetOptions{Compression: Ptr(6), Interlace: true}},
+		{"with filter", &PngsaveTargetOptions{Compression: Ptr(6), Filter: PngFilterPaeth}},
 	}
 
 	for _, tc := range testCases {
@@ -3506,7 +3480,7 @@ func TestTargetFormatSelection(t *testing.T) {
 		{
 			name: "WebP for modern web",
 			saveFunc: func(target *Target) error {
-				return img.WebpsaveTarget(target, &WebpsaveTargetOptions{Q: 80})
+				return img.WebpsaveTarget(target, &WebpsaveTargetOptions{Q: Ptr(80)})
 			},
 			checkSig: func(data []byte) bool {
 				return len(data) >= 12 && string(data[0:4]) == "RIFF" && string(data[8:12]) == "WEBP"
@@ -3524,7 +3498,7 @@ func TestTargetFormatSelection(t *testing.T) {
 		{
 			name: "PNG for lossless",
 			saveFunc: func(target *Target) error {
-				return img.PngsaveTarget(target, &PngsaveTargetOptions{Compression: 6})
+				return img.PngsaveTarget(target, &PngsaveTargetOptions{Compression: Ptr(6)})
 			},
 			checkSig: func(data []byte) bool {
 				return len(data) >= 4 && data[0] == 0x89 && data[1] == 0x50 && data[2] == 0x4E && data[3] == 0x47
@@ -3572,8 +3546,7 @@ func TestTargetWithMultipleFormats(t *testing.T) {
 
 	err = img.JpegsaveTarget(jpegTarget, &JpegsaveTargetOptions{
 		Q:              80,
-		OptimizeCoding: true,
-	})
+		OptimizeCoding: true})
 	require.NoError(t, err)
 	assert.Greater(t, jpegBuf.Len(), 0, "JPEG target save should work")
 
@@ -3583,9 +3556,8 @@ func TestTargetWithMultipleFormats(t *testing.T) {
 	defer pngTarget.Close()
 
 	err = img.PngsaveTarget(pngTarget, &PngsaveTargetOptions{
-		Compression: 6,
-		Filter:      PngFilterAll,
-	})
+		Compression: Ptr(6),
+		Filter:      PngFilterAll})
 	require.NoError(t, err)
 	assert.Greater(t, pngBuf.Len(), 0, "PNG target save should work")
 
@@ -3664,17 +3636,17 @@ func TestTargetOptionStructures(t *testing.T) {
 	// Test that generated *saveTargetOptions work correctly
 
 	// Test WebP options
-	webpOpts := DefaultWebpsaveTargetOptions()
+	webpOpts := &WebpsaveTargetOptions{}
 	assert.NotNil(t, webpOpts)
 	assert.IsType(t, &WebpsaveTargetOptions{}, webpOpts)
 
 	// Test JPEG options
-	jpegOpts := DefaultJpegsaveTargetOptions()
+	jpegOpts := &JpegsaveTargetOptions{}
 	assert.NotNil(t, jpegOpts)
 	assert.IsType(t, &JpegsaveTargetOptions{}, jpegOpts)
 
 	// Test PNG options
-	pngOpts := DefaultPngsaveTargetOptions()
+	pngOpts := &PngsaveTargetOptions{}
 	assert.NotNil(t, pngOpts)
 	assert.IsType(t, &PngsaveTargetOptions{}, pngOpts)
 
@@ -3691,7 +3663,7 @@ func TestTargetOptionStructures(t *testing.T) {
 		{
 			name: "WebP",
 			saveFunc: func(target *Target) error {
-				return img.WebpsaveTarget(target, &WebpsaveTargetOptions{Q: 80, Lossless: false})
+				return img.WebpsaveTarget(target, &WebpsaveTargetOptions{Q: Ptr(80), Lossless: false})
 			},
 		},
 		{
@@ -3703,7 +3675,7 @@ func TestTargetOptionStructures(t *testing.T) {
 		{
 			name: "PNG",
 			saveFunc: func(target *Target) error {
-				return img.PngsaveTarget(target, &PngsaveTargetOptions{Compression: 6, Interlace: true})
+				return img.PngsaveTarget(target, &PngsaveTargetOptions{Compression: Ptr(6), Interlace: true})
 			},
 		},
 	}
@@ -3784,14 +3756,11 @@ func TestNewThumbnail_Options(t *testing.T) {
 		{
 			name: "with specific height",
 			bufferOptions: &ThumbnailBufferOptions{
-				Height: 100,
-			},
+				Height: 100},
 			fileOptions: &ThumbnailOptions{
-				Height: 100,
-			},
+				Height: 100},
 			sourceOptions: &ThumbnailSourceOptions{
-				Height: 100,
-			},
+				Height: 100},
 			validate: func(t *testing.T, img *Image, method string) {
 				assert.InDelta(t, 133, img.Width(), 2, "%s: width should be ~133", method)
 				assert.Equal(t, 100, img.Height(), "%s: height should be 100", method)
@@ -3800,14 +3769,11 @@ func TestNewThumbnail_Options(t *testing.T) {
 		{
 			name: "with size constraint",
 			bufferOptions: &ThumbnailBufferOptions{
-				Size: SizeBoth,
-			},
+				Size: SizeBoth},
 			fileOptions: &ThumbnailOptions{
-				Size: SizeBoth,
-			},
+				Size: SizeBoth},
 			sourceOptions: &ThumbnailSourceOptions{
-				Size: SizeBoth,
-			},
+				Size: SizeBoth},
 			validate: func(t *testing.T, img *Image, method string) {
 				// Both dimensions should be <= 200
 				assert.LessOrEqual(t, img.Width(), 200, "%s: width should be <= 200", method)
@@ -3817,14 +3783,11 @@ func TestNewThumbnail_Options(t *testing.T) {
 		{
 			name: "with fail on error",
 			bufferOptions: &ThumbnailBufferOptions{
-				FailOn: FailOnError,
-			},
+				FailOn: FailOnError},
 			fileOptions: &ThumbnailOptions{
-				FailOn: FailOnError,
-			},
+				FailOn: FailOnError},
 			sourceOptions: &ThumbnailSourceOptions{
-				FailOn: FailOnError,
-			},
+				FailOn: FailOnError},
 			validate: func(t *testing.T, img *Image, method string) {
 				assert.Equal(t, 200, img.Width(), "%s: width should be 200", method)
 				assert.InDelta(t, 150, img.Height(), 2, "%s: height should be ~150", method)
@@ -3833,14 +3796,11 @@ func TestNewThumbnail_Options(t *testing.T) {
 		{
 			name: "with linear interpolation",
 			bufferOptions: &ThumbnailBufferOptions{
-				Linear: true,
-			},
+				Linear: true},
 			fileOptions: &ThumbnailOptions{
-				Linear: true,
-			},
+				Linear: true},
 			sourceOptions: &ThumbnailSourceOptions{
-				Linear: true,
-			},
+				Linear: true},
 			validate: func(t *testing.T, img *Image, method string) {
 				assert.Equal(t, 200, img.Width(), "%s: width should be 200", method)
 				assert.InDelta(t, 150, img.Height(), 2, "%s: height should be ~150", method)
@@ -3850,16 +3810,13 @@ func TestNewThumbnail_Options(t *testing.T) {
 			name: "with crop center",
 			bufferOptions: &ThumbnailBufferOptions{
 				Height: 200,
-				Crop:   InterestingCentre,
-			},
+				Crop:   InterestingCentre},
 			fileOptions: &ThumbnailOptions{
 				Height: 200,
-				Crop:   InterestingCentre,
-			},
+				Crop:   InterestingCentre},
 			sourceOptions: &ThumbnailSourceOptions{
 				Height: 200,
-				Crop:   InterestingCentre,
-			},
+				Crop:   InterestingCentre},
 			validate: func(t *testing.T, img *Image, method string) {
 				assert.Equal(t, 200, img.Width(), "%s: width should be 200", method)
 				assert.Equal(t, 200, img.Height(), "%s: height should be 200 (cropped)", method)
@@ -3999,7 +3956,7 @@ func TestSmartcropOptionalOutputs(t *testing.T) {
 
 	// Test smartcrop with optional outputs
 	cropWidth, cropHeight := 100, 100
-	options := DefaultSmartcropOptions()
+	options := &SmartcropOptions{}
 	require.NotNil(t, options)
 
 	err = vipsImg.Smartcrop(cropWidth, cropHeight, options)
@@ -4044,7 +4001,7 @@ func TestMaxMinOptionalOutputs(t *testing.T) {
 	defer vipsImg.Close()
 
 	// Test Min operation with position output
-	minOptions := DefaultMinOptions()
+	minOptions := &MinOptions{}
 	require.NotNil(t, minOptions)
 
 	minValue, err := vipsImg.Min(minOptions)
@@ -4058,7 +4015,7 @@ func TestMaxMinOptionalOutputs(t *testing.T) {
 	assert.Equal(t, 0, minOptions.Y, "Min Y should be 0")
 
 	// Test Max operation with position output
-	maxOptions := DefaultMaxOptions()
+	maxOptions := &MaxOptions{}
 	require.NotNil(t, maxOptions)
 
 	maxValue, err := vipsImg.Max(maxOptions)
@@ -4086,7 +4043,7 @@ func TestDrawFloodOptionalOutputs(t *testing.T) {
 	require.NoError(t, err)
 
 	// Test flood fill with optional outputs
-	options := DefaultDrawFloodOptions()
+	options := &DrawFloodOptions{}
 	require.NotNil(t, options)
 
 	// Flood fill from a point inside the red rectangle
@@ -4276,7 +4233,7 @@ func TestImageFromFileWithSpecialCharsInName(t *testing.T) {
 			assert.Equal(t, 10, img.Height(), "height should be 10")
 
 			// Test loading with options (exercises the with_option C function path)
-			img2, err := NewImageFromFile(filePath, &LoadOptions{FailOnError: true})
+			img2, err := NewImageFromFile(filePath, &LoadOptions{FailOnError: Ptr(true)})
 			require.NoError(t, err, "NewImageFromFile with options should load file with special chars: %s", tc.filename)
 			defer img2.Close()
 
