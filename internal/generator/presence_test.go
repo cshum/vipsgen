@@ -104,3 +104,142 @@ func TestArgPresenceSpotsTheZeroValueCases(t *testing.T) {
 		}
 	}
 }
+
+// TestDescribeOptionDefault checks the annotation that tells a reader what happens
+// when an option is left nil, and what values libvips accepts.
+func TestDescribeOptionDefault(t *testing.T) {
+	// the enum index is per-run state, filled by NewTemplateData
+	NewTemplateData("test", nil, []introspection.EnumTypeInfo{{
+		CName:  "VipsIntent",
+		GoName: "Intent",
+		Values: []introspection.EnumValueInfo{
+			{CName: "VIPS_INTENT_PERCEPTUAL", GoName: "IntentPerceptual", Value: 0},
+			{CName: "VIPS_INTENT_RELATIVE", GoName: "IntentRelative", Value: 1},
+		},
+	}}, nil, false)
+
+	cases := []struct {
+		name string
+		arg  introspection.Argument
+		want string
+	}{
+		{
+			name: "pointer numeric with a range",
+			arg: introspection.Argument{Name: "compression", GoType: "int", CType: "int",
+				HasMinimum: true, Minimum: 0, HasMaximum: true, Maximum: 9, DefaultValue: 6},
+			want: " (range 0-9, default 6)",
+		},
+		{
+			name: "plain numeric outside the range still states its default",
+			arg: introspection.Argument{Name: "bitdepth", GoType: "int", CType: "int",
+				HasMinimum: true, Minimum: 8, HasMaximum: true, Maximum: 16, DefaultValue: 8},
+			want: " (range 8-16, default 8)",
+		},
+		{
+			name: "enum default by member name",
+			arg: introspection.Argument{Name: "intent", GoType: "Intent", CType: "VipsIntent", IsEnum: true,
+				EnumType: "Intent", EnumValues: []int{0, 1}, DefaultValue: int64(1)},
+			want: " (default IntentRelative)",
+		},
+		{
+			name: "unbounded numeric",
+			arg: introspection.Argument{Name: "effort", GoType: "int", CType: "int", DefaultValue: 4},
+			want: " (default 4)",
+		},
+		{
+			name: "plain field whose zero is the default",
+			arg: introspection.Argument{Name: "page_height", GoType: "int", CType: "int", DefaultValue: 0},
+			want: "",
+		},
+		{
+			name: "string default",
+			arg: introspection.Argument{Name: "separator", GoType: "string", CType: "char*", DefaultValue: ";"},
+			want: ` (default ";")`,
+		},
+		{
+			name: "output capture",
+			arg: introspection.Argument{Name: "x", GoType: "int", CType: "int*", IsOutput: true},
+			want: "",
+		},
+	}
+
+	for _, tc := range cases {
+		if got := describeOptionDefault(tc.arg); got != tc.want {
+			t.Errorf("%s: got %q, want %q", tc.name, got, tc.want)
+		}
+	}
+}
+
+// TestDefaultFieldLiteral checks what the Default<Op>Options constructors fill in:
+// pointer fields wrapped in Ptr, enums named rather than numbered, and nothing for a
+// field whose zero value is already the default.
+func TestDefaultFieldLiteral(t *testing.T) {
+	NewTemplateData("test", nil, []introspection.EnumTypeInfo{
+		{
+			CName:  "VipsIntent",
+			GoName: "Intent",
+			Values: []introspection.EnumValueInfo{
+				{CName: "VIPS_INTENT_PERCEPTUAL", GoName: "IntentPerceptual", Value: 0},
+				{CName: "VIPS_INTENT_RELATIVE", GoName: "IntentRelative", Value: 1},
+			},
+		},
+		{
+			CName:  "VipsForeignKeep",
+			GoName: "Keep",
+			Values: []introspection.EnumValueInfo{
+				{CName: "VIPS_FOREIGN_KEEP_NONE", GoName: "KeepNone", Value: 0},
+				{CName: "VIPS_FOREIGN_KEEP_EXIF", GoName: "KeepExif", Value: 1},
+				{CName: "VIPS_FOREIGN_KEEP_XMP", GoName: "KeepXmp", Value: 2},
+			},
+		},
+	}, nil, false)
+
+	cases := []struct {
+		name  string
+		arg   introspection.Argument
+		want  string
+		found bool
+	}{
+		{
+			name:  "numeric pointer",
+			arg:   introspection.Argument{Name: "compression", GoType: "int", CType: "int", DefaultValue: 6},
+			want:  "Ptr(6)",
+			found: true,
+		},
+		{
+			name:  "enum pointer named",
+			arg:   introspection.Argument{Name: "intent", GoType: "Intent", CType: "VipsIntent", IsEnum: true, EnumType: "Intent", EnumValues: []int{0, 1}, DefaultValue: int64(1)},
+			want:  "Ptr(IntentRelative)",
+			found: true,
+		},
+		{
+			name:  "flags pointer named",
+			arg:   introspection.Argument{Name: "keep", GoType: "Keep", CType: "VipsForeignKeep", IsEnum: true, IsFlags: true, EnumType: "Keep", EnumValues: []int{0, 1, 2}, DefaultValue: int64(2)},
+			want:  "Ptr(KeepXmp)",
+			found: true,
+		},
+		{
+			name:  "plain field with a non-zero default",
+			arg:   introspection.Argument{Name: "bitdepth", GoType: "int", CType: "int", HasMinimum: true, Minimum: 8, HasMaximum: true, Maximum: 16, DefaultValue: 8},
+			want:  "8",
+			found: true,
+		},
+		{
+			name:  "plain field whose zero value is the default",
+			arg:   introspection.Argument{Name: "page", GoType: "int", CType: "int", DefaultValue: 0},
+			found: false,
+		},
+		{
+			name:  "output capture",
+			arg:   introspection.Argument{Name: "x", GoType: "int", CType: "int*", IsOutput: true},
+			found: false,
+		},
+	}
+
+	for _, tc := range cases {
+		got, ok := defaultFieldLiteral(tc.arg)
+		if ok != tc.found || (ok && got != tc.want) {
+			t.Errorf("%s: got (%q, %v), want (%q, %v)", tc.name, got, ok, tc.want, tc.found)
+		}
+	}
+}

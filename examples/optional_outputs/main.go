@@ -103,7 +103,7 @@ func demonstrateMosaic() {
 	fmt.Printf("Overlap width: %d pixels (%.1f%%)\n", overlapWidth, float64(overlapWidth)/float64(img1.Width())*100)
 
 	// Create mosaic options to capture transformation parameters
-	options := &vips.MosaicOptions{}
+	options := vips.DefaultMosaicOptions()
 
 	// Use appropriate search windows
 	options.Hwindow = vips.Ptr(5)
@@ -164,7 +164,7 @@ func demonstrateSmartcrop() {
 	fmt.Printf("Original image: %dx%d\n", img.Width(), img.Height())
 
 	// Create smartcrop options to capture attention coordinates
-	options := &vips.SmartcropOptions{}
+	options := vips.DefaultSmartcropOptions()
 
 	// Perform smart crop operation (crop to smaller size that fits within the image)
 	cropWidth := img.Width() / 2
@@ -215,7 +215,7 @@ func demonstrateMaxMinPositions() {
 	fmt.Printf("Analyzing image: %dx%d\n", img.Width(), img.Height())
 
 	// Find maximum value and its position
-	maxOptions := &vips.MaxOptions{}
+	maxOptions := vips.DefaultMaxOptions()
 	maxValue, err := img.Max(maxOptions)
 	if err != nil {
 		log.Printf("Max operation failed: %v", err)
@@ -227,7 +227,7 @@ func demonstrateMaxMinPositions() {
 	fmt.Printf("  Position: x=%d, y=%d\n", maxOptions.X, maxOptions.Y)
 
 	// Find minimum value and its position
-	minOptions := &vips.MinOptions{}
+	minOptions := vips.DefaultMinOptions()
 	minValue, err := img.Min(minOptions)
 	if err != nil {
 		log.Printf("Min operation failed: %v", err)
@@ -260,7 +260,7 @@ func demonstrateDrawFloodArea() {
 	fmt.Printf("Created test image: %dx%d\n", img.Width(), img.Height())
 
 	// Create draw flood options to capture affected area
-	options := &vips.DrawFloodOptions{}
+	options := vips.DefaultDrawFloodOptions()
 
 	// Perform flood fill operation (fill with red starting at 100,100)
 	err = img.DrawFlood([]float64{255, 0, 0}, 100, 100, options)

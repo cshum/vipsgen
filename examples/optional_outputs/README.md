@@ -12,7 +12,7 @@ This example demonstrates how to capture optional output parameters from various
 The coordinates where the algorithm detected the most interesting content for cropping.
 
 ```go
-options := &vips.SmartcropOptions{}
+options := vips.DefaultSmartcropOptions()
 err := img.Smartcrop(width, height, options)
 
 // Access the attention coordinates
@@ -27,7 +27,7 @@ fmt.Printf("Attention Center: x=%d, y=%d\n", options.AttentionX, options.Attenti
 The detected transformation parameters when combining two images.
 
 ```go
-options := &vips.MosaicOptions{}
+options := vips.DefaultMosaicOptions()
 err := img1.Mosaic(img2, direction, xref, yref, xsec, ysec, options)
 
 // Access transformation parameters
@@ -44,7 +44,7 @@ fmt.Printf("Detected Rotation: %.3f degrees\n", options.Angle1)
 The coordinates where the maximum or minimum pixel values are located.
 
 ```go
-maxOptions := &vips.MaxOptions{}
+maxOptions := vips.DefaultMaxOptions()
 maxValue, err := img.Max(maxOptions)
 
 // Access position of maximum value
@@ -60,7 +60,7 @@ fmt.Printf("Maximum value: %.2f at position x=%d, y=%d\n",
 The bounding box of the area affected by the flood fill operation.
 
 ```go
-options := &vips.DrawFloodOptions{}
+options := vips.DefaultDrawFloodOptions()
 err := img.DrawFlood(color, x, y, options)
 
 // Access affected area bounds

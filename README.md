@@ -52,7 +52,7 @@ An optional argument is a **pointer** when libvips accepts its zero value and th
 &vips.PngsaveOptions{Compression: vips.Ptr(6)}  // same output as the default
 ```
 
-Upgrading from v1? See [MIGRATION.md](MIGRATION.md).
+Each field comment states the accepted range and the default, and `Default<Op>Options` fills them in if you want to see them. Upgrading from v1? See [MIGRATION.md](MIGRATION.md).
 
 
 ```go
@@ -381,12 +381,22 @@ This layer handles C array conversion, string conversion with cleanup, memory ma
 ```go
 // ResizeOptions optional arguments for vips_resize
 type ResizeOptions struct {
-    // Kernel Resampling kernel
+    // Kernel Resampling kernel (default KernelLanczos3)
     Kernel *Kernel
-    // Gap Reducing gap
+    // Gap Reducing gap (range 0-1000000, default 2)
     Gap *float64
-    // Vscale Vertical scale image by this factor
+    // Vscale Vertical scale image by this factor (range 0-10000000)
     Vscale float64
+}
+
+// DefaultResizeOptions returns ResizeOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultResizeOptions() *ResizeOptions {
+    return &ResizeOptions{
+        Kernel: Ptr(KernelLanczos3),
+        Gap:    Ptr(2),
+    }
 }
 
 // Resize vips_resize resize an image

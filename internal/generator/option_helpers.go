@@ -23,8 +23,11 @@ func generateOptionalInputsStruct(op introspection.Operation) string {
 	for _, opt := range op.OptionalInputs {
 		fieldName := strings.Title(opt.GoName)
 		fieldType := optionFieldType(opt)
+		annotation := describeOptionDefault(opt)
 		if opt.Description != "" {
-			result.WriteString(fmt.Sprintf("\t// %s %s\n", fieldName, opt.Description))
+			result.WriteString(fmt.Sprintf("\t// %s %s%s\n", fieldName, opt.Description, annotation))
+		} else if annotation != "" {
+			result.WriteString(fmt.Sprintf("\t// %s%s\n", fieldName, annotation))
 		}
 		result.WriteString(fmt.Sprintf("\t%s %s\n", fieldName, fieldType))
 	}
@@ -43,6 +46,21 @@ func generateOptionalInputsStruct(op introspection.Operation) string {
 	}
 
 	result.WriteString("}\n\n")
+
+	result.WriteString(fmt.Sprintf("// Default%s returns %s with libvips' own defaults filled in.\n",
+		structName, structName))
+	result.WriteString("// Optional: omitting a field already means \"use the default\", so this exists to\n")
+	result.WriteString("// show what those defaults are.\n")
+	result.WriteString(fmt.Sprintf("func Default%s() *%s {\n", structName, structName))
+	result.WriteString(fmt.Sprintf("\treturn &%s{\n", structName))
+	for _, opt := range op.OptionalInputs {
+		literal, ok := defaultFieldLiteral(opt)
+		if !ok {
+			continue
+		}
+		result.WriteString(fmt.Sprintf("\t\t%s: %s,\n", strings.Title(opt.GoName), literal))
+	}
+	result.WriteString("\t}\n}\n\n")
 
 	return result.String()
 }

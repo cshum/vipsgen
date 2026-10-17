@@ -1,6 +1,8 @@
 package generator
 
 import (
+	"math"
+	"strconv"
 	"strings"
 
 	"github.com/cshum/vipsgen/v2/internal/introspection"
@@ -189,4 +191,156 @@ func generatePresenceDeclaration(opt introspection.Argument) string {
 		"	" + setName + " = 1",
 		"}",
 	}, "\n\t")
+}
+
+// describeOptionDefault renders an option's accepted range and default for the
+// generated doc comment. The generator reads both from GParamSpec anyway, for the
+// presence rule, so the answer to "what happens if I leave this nil?" belongs in the
+// editor rather than only in libvips' own documentation.
+func describeOptionDefault(opt introspection.Argument) string {
+	if opt.IsOutput {
+		return ""
+	}
+
+	var parts []string
+	if rangeText := describeOptionRange(opt); rangeText != "" {
+		parts = append(parts, rangeText)
+	}
+	if defaultText := describeOptionDefaultValue(opt); defaultText != "" {
+		parts = append(parts, defaultText)
+	}
+	if len(parts) == 0 {
+		return ""
+	}
+	return " (" + strings.Join(parts, ", ") + ")"
+}
+
+func describeOptionRange(opt introspection.Argument) string {
+	if !isNumericOption(opt) || (!opt.HasMinimum && !opt.HasMaximum) {
+		return ""
+	}
+	switch {
+	case opt.HasMinimum && opt.HasMaximum:
+		return "range " + formatOptionNumber(opt.Minimum) + "-" + formatOptionNumber(opt.Maximum)
+	case opt.HasMinimum:
+		return "min " + formatOptionNumber(opt.Minimum)
+	default:
+		return "max " + formatOptionNumber(opt.Maximum)
+	}
+}
+
+func describeOptionDefaultValue(opt introspection.Argument) string {
+	// A plain field whose zero value is already the default does not need saying.
+	if argPresence(opt) == PresenceValue && isZeroDefault(opt.DefaultValue) {
+		return ""
+	}
+	switch v := opt.DefaultValue.(type) {
+	case nil:
+		return ""
+	case bool:
+		if !v {
+			return ""
+		}
+		return "default true"
+	case int:
+		if name, ok := enumMemberName(opt, int64(v)); ok {
+			return "default " + name
+		}
+		return "default " + formatOptionNumber(float64(v))
+	case int64:
+		if name, ok := enumMemberName(opt, v); ok {
+			return "default " + name
+		}
+		return "default " + formatOptionNumber(float64(v))
+	case uint64:
+		if name, ok := enumMemberName(opt, int64(v)); ok {
+			return "default " + name
+		}
+		return "default " + formatOptionNumber(float64(v))
+	case float64:
+		return "default " + formatOptionNumber(v)
+	case string:
+		if v == "" {
+			return ""
+		}
+		return "default " + strconv.Quote(v)
+	}
+	return ""
+}
+
+// enumMemberName names an enum or flags default when one of its members has exactly
+// that value. A bitmask that is not a single member keeps its number.
+func enumMemberName(opt introspection.Argument, value int64) (string, bool) {
+	if !opt.IsEnum && !opt.IsFlags {
+		return "", false
+	}
+	name, ok := enumValueNames[opt.EnumType][int(value)]
+	return name, ok
+}
+
+func formatOptionNumber(v float64) string {
+	if v == math.Trunc(v) && math.Abs(v) < 1e15 {
+		return strconv.FormatInt(int64(v), 10)
+	}
+	return strconv.FormatFloat(v, 'g', -1, 64)
+}
+
+// defaultFieldLiteral renders an option's default as a Go literal for the generated
+// Default<Op>Options constructor, wrapped in Ptr for the fields that carry presence.
+// It returns false when the default is the field's own zero value, which the
+// struct literal already says.
+func defaultFieldLiteral(opt introspection.Argument) (string, bool) {
+	var value string
+	switch v := opt.DefaultValue.(type) {
+	case nil:
+		return "", false
+	case bool:
+		if !v {
+			return "", false
+		}
+		value = "true"
+	case int:
+		value = formatIntDefault(opt, int64(v))
+	case int64:
+		value = formatIntDefault(opt, v)
+	case uint64:
+		value = formatFloatDefault(opt, float64(v))
+	case float64:
+		if v == 0 {
+			return "", false
+		}
+		value = formatFloatDefault(opt, v)
+	case string:
+		if v == "" {
+			return "", false
+		}
+		value = strconv.Quote(v)
+	default:
+		return "", false
+	}
+
+	if argPresence(opt) == PresencePointer {
+		return "Ptr(" + value + ")", true
+	}
+	if isZeroDefault(opt.DefaultValue) {
+		return "", false
+	}
+	return value, true
+}
+
+func formatIntDefault(opt introspection.Argument, value int64) string {
+	if name, ok := enumMemberName(opt, value); ok {
+		return name
+	}
+	return formatFloatDefault(opt, float64(value))
+}
+
+// formatFloatDefault keeps a float field's literal typed: Ptr(100) would infer *int,
+// so an integral default on a float option is written as 100.0.
+func formatFloatDefault(opt introspection.Argument, value float64) string {
+	text := formatOptionNumber(value)
+	if (opt.GoType == "float64" || opt.GoType == "float32") && !strings.ContainsAny(text, ".eE") {
+		text += ".0"
+	}
+	return text
 }

@@ -24,19 +24,25 @@ A field is a **pointer** when libvips accepts its zero value and that zero diffe
 
 `LoadOptions` fields are pointers as well, and `OptionString` tests nil rather than zero, so `Ptr(false)` is expressible.
 
-## Removed
+## What is still there
 
-The generated `Default<Op>Options` constructors, around 220 of them. With pointer fields the zero value of an options struct already means "use the defaults":
+`Default<Op>Options` stays, and now fills in libvips' own defaults, with `Ptr` on the fields that carry presence:
 
 ```go
-// v1
-options := vips.DefaultSmartcropOptions()
-
-// v2
-options := &vips.SmartcropOptions{}
+options := vips.DefaultPngsaveBufferOptions()
+// &PngsaveBufferOptions{Compression: Ptr(6), Filter: PngFilterNone, Q: Ptr(100), ...}
 ```
 
-`DefaultLoadOptions` stays: it carries a real default, `FailOnError: true`.
+You never have to call it: omitting a field already means "use the default". It is there to show what those defaults are.
+
+The field comments say the same thing where you need it — the accepted range and the default:
+
+```go
+	// Compression Compression factor (range 0-9, default 6)
+	Compression *int
+	// Bitdepth Number of bits per pixel (range 8-16, default 8)
+	Bitdepth int
+```
 
 ## Why the change
 

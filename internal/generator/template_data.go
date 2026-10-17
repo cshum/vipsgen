@@ -4,6 +4,11 @@ import (
 	"github.com/cshum/vipsgen/v2/internal/introspection"
 )
 
+// enumValueNames maps an enum type's Go name and numeric value to the Go constant
+// name, so a generated comment can say "default IntentLast" instead of "default 7".
+// It is filled in once per run by NewTemplateData.
+var enumValueNames = map[string]map[int]string{}
+
 // TemplateData holds all data needed by any template
 type TemplateData struct {
 	VipsVersion string
@@ -21,6 +26,15 @@ func NewTemplateData(
 	imageTypes []introspection.ImageTypeInfo,
 	includeTest bool,
 ) *TemplateData {
+	enumValueNames = map[string]map[int]string{}
+	for _, et := range enumTypes {
+		values := make(map[int]string, len(et.Values))
+		for _, v := range et.Values {
+			values[v.Value] = v.GoName
+		}
+		enumValueNames[et.GoName] = values
+	}
+
 	return &TemplateData{
 		VipsVersion: vipsVersion,
 		Operations:  operations,
