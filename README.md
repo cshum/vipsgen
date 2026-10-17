@@ -259,7 +259,7 @@ The generation process involves multiple layers to provide a type-safe, idiomati
 
 2. **Multi-Layer Generation**: To create type-safe, idiomatic Go APIs from libvips dynamic parameter system, vipsgen creates a layered approach that handles both required and optional parameters.
 
-3. **Type-Safe Bindings**: The generated code is fully type-safe with proper Go types, structs, and enums based on centralized introspection data.
+3. **Type-Safe Bindings**: The generated code is fully type-safe with proper Go types, structs, and enums based on centralized introspection data. Generated Go is gofmt-formatted before it is written, so a package reads like hand-written code.
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
