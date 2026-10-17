@@ -140,6 +140,13 @@ func TestOperationBoundsAreFiniteOrUnbounded(t *testing.T) {
 // carry no metadata at all: GFlags bitmasks (keep, filter) and 64-bit integers.
 // Both are inputs to the option-presence rule, which cannot classify a field
 // without knowing its default.
+//
+// The assertions are deliberately version-independent: the exact masks differ
+// between libvips releases (VIPS_FOREIGN_KEEP_ALL is 31 before gainmap support
+// and 63 from 8.18), and pinning those numbers here would fail the older
+// versions in the CI matrix. What the rule needs is stable: a non-zero default
+// that is itself a member, and whether zero is a member. Exact values live in
+// the version-keyed metadata golden.
 func TestFlagsAnd64BitArgumentMetadata(t *testing.T) {
 	introspection := NewIntrospection(false)
 
@@ -154,8 +161,12 @@ func TestFlagsAnd64BitArgumentMetadata(t *testing.T) {
 	if keep.HasRange {
 		t.Errorf("keep: HasRange=%v, want false (a flags mask has no numeric range)", keep.HasRange)
 	}
-	if keep.DefaultValue != int64(63) {
-		t.Errorf("keep: default = %#v, want int64(63) (all keep flags)", keep.DefaultValue)
+	keepDefault, ok := keep.DefaultValue.(int64)
+	if !ok {
+		t.Fatalf("keep: default = %#v, want an int64 mask", keep.DefaultValue)
+	}
+	if keepDefault == 0 {
+		t.Errorf("keep: default = %d, want a non-zero all-flags mask", keepDefault)
 	}
 	if !containsInt(keep.EnumValues, 0) {
 		t.Errorf("keep: members = %v, want VIPS_FOREIGN_KEEP_NONE(0) among them", keep.EnumValues)
@@ -169,8 +180,8 @@ func TestFlagsAnd64BitArgumentMetadata(t *testing.T) {
 	if !filter.IsFlags {
 		t.Fatalf("filter: IsFlags=%v, want true", filter.IsFlags)
 	}
-	if filter.DefaultValue != int64(8) {
-		t.Errorf("filter: default = %#v, want int64(8) (VIPS_FOREIGN_PNG_FILTER_NONE)", filter.DefaultValue)
+	if _, ok := filter.DefaultValue.(int64); !ok {
+		t.Fatalf("filter: default = %#v, want an int64 mask", filter.DefaultValue)
 	}
 	if containsInt(filter.EnumValues, 0) {
 		t.Errorf("filter: members = %v, want no zero member", filter.EnumValues)
@@ -191,8 +202,10 @@ func TestFlagsAnd64BitArgumentMetadata(t *testing.T) {
 		t.Errorf("offset: default = %#v, want int64(0)", offset.DefaultValue)
 	}
 
-	// Every flags argument must report a default: that is what lets the
-	// presence rule tell an explicit zero mask from an omitted one.
+	// Every flags argument must report a default that is one of its own
+	// members: that is what lets the presence rule tell an explicit zero mask
+	// from an omitted one, and a default outside the class would be a
+	// metadata bug that classification cannot survive.
 	operations := introspection.DiscoverOperations()
 	flagsArgs := 0
 	for _, op := range operations {
@@ -205,8 +218,13 @@ func TestFlagsAnd64BitArgumentMetadata(t *testing.T) {
 			if !arg.IsEnum {
 				t.Errorf("%s.%s: IsFlags but not IsEnum", op.Name, arg.Name)
 			}
-			if arg.DefaultValue == nil {
-				t.Errorf("%s.%s: flags argument without a default", op.Name, arg.Name)
+			mask, ok := arg.DefaultValue.(int64)
+			if !ok {
+				t.Errorf("%s.%s: flags argument default = %#v, want an int64 mask", op.Name, arg.Name, arg.DefaultValue)
+				continue
+			}
+			if !containsInt(arg.EnumValues, int(mask)) {
+				t.Errorf("%s.%s: default %d is not one of the flag members %v", op.Name, arg.Name, mask, arg.EnumValues)
 			}
 		}
 	}
