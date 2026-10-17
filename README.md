@@ -43,7 +43,8 @@ go get -u github.com/cshum/vipsgen/v2/vips
 All operations take their required arguments directly as Go arguments, and their optional arguments through an options struct, maintaining direct equivalence with the [libvips API](https://www.libvips.org/API/current/).
 - A pointer field, such as `*int`, `*string` or `*vips.Kernel`, takes `vips.Ptr(v)`; any other
   field takes the value itself. Each field comment gives its range and default.
-- `nil` leaves the option to libvips; `vips.Ptr(v)` passes it explicitly, a zero included.
+- An options struct needs only the fields you want to change: a pointer field left `nil` leaves
+  the option to libvips, and `vips.Ptr(v)` passes the value.
 - See [examples](https://github.com/cshum/vipsgen/tree/main/examples) for usage patterns, and
   [MIGRATION.md](MIGRATION.md) if you are upgrading from v1.
 
