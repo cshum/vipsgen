@@ -43,6 +43,7 @@ func TestZeroClassificationPins(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	defer img.Close()
 	png := filepath.Join(dir, "out.png")
 	if got := outcome(
 		img.Pngsave(png, &PngsaveOptions{Compression: Ptr(0)}) != nil,
@@ -55,8 +56,20 @@ func TestZeroClassificationPins(t *testing.T) {
 		t.Fatal(err)
 	}
 	if got := outcome(
-		func() error { _, e := NewWebpload(webp, &WebploadOptions{N: Ptr(0)}); return e }() != nil,
-		func() error { _, e := NewWebpload(webp, &WebploadOptions{}); return e }() != nil,
+		func() error {
+			i, e := NewWebpload(webp, &WebploadOptions{N: Ptr(0)})
+			if i != nil {
+				i.Close()
+			}
+			return e
+		}() != nil,
+		func() error {
+			i, e := NewWebpload(webp, &WebploadOptions{})
+			if i != nil {
+				i.Close()
+			}
+			return e
+		}() != nil,
 	); got != "ok" {
 		t.Errorf("webpload.n: got %s, want ok - this is why n is not in the exception table", got)
 	}
