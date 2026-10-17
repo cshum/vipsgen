@@ -22,6 +22,8 @@ var (
 	_ = WebploadOptions{N: Ptr(0)}          // pointer: n=0 is accepted here
 	_ = PngsaveOptions{Compression: Ptr(0)} // pointer: uncompressed is real
 	_ = WebpsaveOptions{Effort: Ptr(0)}     // pointer
+	_ = HeifloadOptions{N: 0}               // plain: n=0 is rejected ("bad seek")
+	_ = PdfloadOptions{N: 0}                // plain: n=0 is rejected ("pages out of range")
 	_ = GifloadOptions{N: 0}                // plain: n=0 is rejected
 )
 

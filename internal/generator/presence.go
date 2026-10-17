@@ -59,6 +59,17 @@ var zeroRejectedArguments = map[[2]string]bool{
 	{"svgload", "scale"}:          true,
 	{"svgload_buffer", "scale"}:   true,
 	{"svgload_source", "scale"}:   true,
+	// Found after the first pass, by probing the page-taking loaders the first sweep could
+	// not feed: heifload answers a zero with "bad seek" and pdfload with "pages out of
+	// range". webpload and jxlload take the same argument and accept a zero, so this list
+	// cannot be derived from the argument shape - it is only as complete as the formats that
+	// have been probed.
+	{"heifload", "n"}:        true,
+	{"heifload_buffer", "n"}: true,
+	{"heifload_source", "n"}: true,
+	{"pdfload", "n"}:         true,
+	{"pdfload_buffer", "n"}:  true,
+	{"pdfload_source", "n"}:  true,
 }
 
 // ApplyMeasuredZeroPolicy marks the arguments above so argPresence returns a plain

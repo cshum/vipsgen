@@ -50,11 +50,16 @@ from a zero it makes sense to pass. `gifload.n` and `webpload.n` have the same r
 (`gifload: bad page number`). Measured, those arguments are plain values anyway:
 
     gifload.n   tiffload.n   tiffload.subifd   webpload.scale   svgload.scale
+    heifload.n  pdfload.n
 
 Every saver argument was measured too and accepts an explicit zero -
 `pngsave.compression = 0` stores uncompressed - which is why the rule stays in place for
-them. The list keys on operation and argument, not on the argument name, because the
-verdicts differ between loaders that share one.
+them. The list keys on operation and argument, not on the argument name: `webpload.n` and
+`gifload.n` have the same range and the same default, and only the second rejects a zero.
+
+It is only as complete as the formats that have been probed, which is worth knowing before
+trusting it: `heifload.n` and `pdfload.n` were found on a second pass, once this machine
+could feed those loaders a file. Re-measure when bumping libvips.
 
 ## What is still there
 
