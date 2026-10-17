@@ -44,7 +44,7 @@ All operations support parameters and optional arguments through structs, mainta
 Pass `nil` to use default behavior for optional arguments. 
 See [examples](https://github.com/cshum/vipsgen/tree/main/examples) for common usage patterns.
 
-Optional arguments take `nil` for libvips' own default, or `vips.Ptr(v)` to supply a value explicitly, a zero included — see [`examples/option_presence`](https://github.com/cshum/vipsgen/tree/main/examples/option_presence). Upgrading from v1? See [MIGRATION.md](MIGRATION.md).
+Optional arguments take `nil` for libvips' own default, or `vips.Ptr(v)` to supply a value explicitly, a zero included. The rule errs toward pointers: where the metadata says zero is a legal value, the field is a pointer even if a zero would be an odd thing to pass — see [`examples/option_presence`](https://github.com/cshum/vipsgen/tree/main/examples/option_presence). Upgrading from v1? See [MIGRATION.md](MIGRATION.md).
 
 
 ```go
