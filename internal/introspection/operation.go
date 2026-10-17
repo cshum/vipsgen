@@ -49,6 +49,7 @@ type Argument struct {
 	IsArray      bool
 	Flags        int
 	IsEnum       bool
+	IsFlags      bool
 	EnumType     string
 	EnumValues   []int
 	HasRange     bool
@@ -235,8 +236,10 @@ func (v *Introspection) DiscoverOperationArguments(opName string) ([]Argument, e
 		isEnum := C.is_type_enum(arg.type_val) != 0
 		isFlags := C.is_type_flags(arg.type_val) != 0
 
-		// Set IsEnum if either enum or flags type
+		// Set IsEnum if either enum or flags type; IsFlags distinguishes the
+		// two, which matters because a flags class may not have a zero member
 		goArg.IsEnum = isEnum || isFlags
+		goArg.IsFlags = isFlags
 
 		// Determine Go type and C type based on GType
 		goArg.Type, goArg.GoType, goArg.CType = v.mapGTypeToTypes(arg.type_val, cTypeName, isOutput)
@@ -520,6 +523,8 @@ func (v *Introspection) extractDefaultValue(arg C.ArgInfo, goType string) interf
 			return C.GoString(arg.string_default)
 		}
 		return ""
+	case 5: // int64 or flags mask
+		return int64(arg.int64_default)
 	default:
 		return nil
 	}

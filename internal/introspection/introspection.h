@@ -46,6 +46,9 @@ typedef struct {
     gboolean bool_default;
     gint int_default;
     gdouble double_default;
+    // 64-bit and flags defaults. Flags masks are unsigned bitfields and are
+    // carried here rather than in int_default, which would truncate them.
+    gint64 int64_default;
     char *string_default;
     int has_range;
     gdouble minimum;

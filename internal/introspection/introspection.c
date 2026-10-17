@@ -130,6 +130,7 @@ static void collect_argument(VipsObject* object, GParamSpec* pspec,
     arg->bool_default = FALSE;
     arg->int_default = 0;
     arg->double_default = 0.0;
+    arg->int64_default = 0;
     arg->string_default = NULL;
     arg->has_range = 0;
     arg->minimum = 0.0;
@@ -217,11 +218,34 @@ static void collect_argument(VipsObject* object, GParamSpec* pspec,
             arg->string_default = strdup(pspec_string->default_value);
         }
     }
+    else if (G_IS_PARAM_SPEC_INT64(pspec)) {
+        GParamSpecInt64 *pspec_int64 = G_PARAM_SPEC_INT64(pspec);
+        arg->has_default = 1;
+        arg->default_type = 5;  // int64
+        arg->int64_default = pspec_int64->default_value;
+        collect_range(arg, (double)pspec_int64->minimum, (double)pspec_int64->maximum);
+    }
+    else if (G_IS_PARAM_SPEC_UINT64(pspec)) {
+        GParamSpecUInt64 *pspec_uint64 = G_PARAM_SPEC_UINT64(pspec);
+        arg->has_default = 1;
+        arg->default_type = 5;  // int64
+        arg->int64_default = (gint64)pspec_uint64->default_value;
+        collect_range(arg, (double)pspec_uint64->minimum, (double)pspec_uint64->maximum);
+    }
     else if (G_IS_PARAM_SPEC_ENUM(pspec)) {
         GParamSpecEnum *pspec_enum = G_PARAM_SPEC_ENUM(pspec);
         arg->has_default = 1;
         arg->default_type = 2;  // int
         arg->int_default = pspec_enum->default_value;
+    }
+    else if (G_IS_PARAM_SPEC_FLAGS(pspec)) {
+        // Flag membership comes from get_enum_or_flag_values; only the default
+        // mask is read here. It can set bits above G_MAXINT, so it travels in
+        // int64_default.
+        GParamSpecFlags *pspec_flags = G_PARAM_SPEC_FLAGS(pspec);
+        arg->has_default = 1;
+        arg->default_type = 5;  // int64
+        arg->int64_default = (gint64)pspec_flags->default_value;
     }
 }
 

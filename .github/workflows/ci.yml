@@ -21,11 +21,11 @@ jobs:
       matrix:
         include:
           - vips_version: "8.16.1"
-            output_dir: "./vips816"
+            output_dir: "vips816"
           - vips_version: "8.17.3"
-            output_dir: "./vips817"
-          - vips_version: "8.18.6"
-            output_dir: "./vips"
+            output_dir: "vips817"
+          - vips_version: "8.18.7"
+            output_dir: "vips"
     env:
       CGO_CFLAGS_ALLOW: -Xpreprocessor
       VIPS_VERSION: ${{ matrix.vips_version }}
@@ -135,6 +135,9 @@ jobs:
           mkdir -p bin
           go build -o bin/vipsgen cmd/vipsgen/main.go
 
+      - name: Run generator unit tests
+        run: go test -count=1 ./internal/...
+
       - name: Generate vips package
         run: |
           mkdir -p ${{ matrix.output_dir }}
@@ -142,13 +145,13 @@ jobs:
 
       - name: Run tests
         run: |
-          $(CGO_CFLAGS_ALLOW="-Xpreprocessor") go test -v ${{ matrix.output_dir }}/...
+          $(CGO_CFLAGS_ALLOW="-Xpreprocessor") go test -v ./${{ matrix.output_dir }}/...
 
       - name: Upload generated bindings
         uses: actions/upload-artifact@v5
         if: (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository) || github.event_name == 'workflow_dispatch'
         with:
-          name: bindings-${{ matrix.vips_version }}
+          name: ${{ matrix.output_dir }}
           path: ${{ matrix.output_dir }}
           retention-days: 1
 
@@ -164,23 +167,12 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v5
 
-      - name: Download vips816 bindings
+      - name: Download generated bindings
         uses: actions/download-artifact@v5
         with:
-          name: bindings-8.16.1
-          path: vips816
-
-      - name: Download vips817 bindings
-        uses: actions/download-artifact@v5
-        with:
-          name: bindings-8.17.3
-          path: vips817
-
-      - name: Download vips bindings
-        uses: actions/download-artifact@v5
-        with:
-          name: bindings-8.18.6
-          path: vips
+          # one artifact per package, named after its output dir: vips* restores vips/, vips816/, vips817/
+          pattern: vips*
+          path: .
 
       - name: Commit generated files
         uses: stefanzweifel/git-auto-commit-action@v5
@@ -202,23 +194,11 @@ jobs:
         with:
           ref: main
 
-      - name: Download vips816 bindings
+      - name: Download generated bindings
         uses: actions/download-artifact@v5
         with:
-          name: bindings-8.16.1
-          path: vips816
-
-      - name: Download vips817 bindings
-        uses: actions/download-artifact@v5
-        with:
-          name: bindings-8.17.3
-          path: vips817
-
-      - name: Download vips bindings
-        uses: actions/download-artifact@v5
-        with:
-          name: bindings-8.18.6
-          path: vips
+          pattern: vips*
+          path: .
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v8
