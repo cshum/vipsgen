@@ -1645,13 +1645,13 @@ int vipsgen_heifload(const char* filename, VipsImage** out) {
     return vips_heifload(filename, out, NULL);
 }
 
-int vipsgen_heifload_with_options(const char* filename, VipsImage** out, gint page, gint n, int n_set, gboolean thumbnail, gboolean unlimited, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
+int vipsgen_heifload_with_options(const char* filename, VipsImage** out, gint page, gint n, gboolean thumbnail, gboolean unlimited, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
     VipsOperation *operation = vips_operation_new("heifload");
     if (!operation) return 1;
     if (
         vips_object_set(VIPS_OBJECT(operation), "filename", filename, NULL) ||
         vipsgen_set_int(operation, "page", page) ||
-        (n_set && vips_object_set(VIPS_OBJECT(operation), "n", n, NULL)) ||
+        vipsgen_set_int(operation, "n", n) ||
         vipsgen_set_bool(operation, "thumbnail", thumbnail) ||
         vipsgen_set_bool(operation, "unlimited", unlimited) ||
         vipsgen_set_bool(operation, "memory", memory) ||
@@ -1670,7 +1670,7 @@ int vipsgen_heifload_buffer(void* buf, size_t len, VipsImage** out) {
     return vips_heifload_buffer(buf, len, out, NULL);
 }
 
-int vipsgen_heifload_buffer_with_options(void* buf, size_t len, VipsImage** out, gint page, gint n, int n_set, gboolean thumbnail, gboolean unlimited, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
+int vipsgen_heifload_buffer_with_options(void* buf, size_t len, VipsImage** out, gint page, gint n, gboolean thumbnail, gboolean unlimited, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
     VipsOperation *operation = vips_operation_new("heifload_buffer");
     if (!operation) return 1;
     VipsBlob *blob = vips_blob_new(NULL, buf, len);
@@ -1678,7 +1678,7 @@ int vipsgen_heifload_buffer_with_options(void* buf, size_t len, VipsImage** out,
     if (
         vips_object_set(VIPS_OBJECT(operation), "buffer", blob, NULL) ||
         vipsgen_set_int(operation, "page", page) ||
-        (n_set && vips_object_set(VIPS_OBJECT(operation), "n", n, NULL)) ||
+        vipsgen_set_int(operation, "n", n) ||
         vipsgen_set_bool(operation, "thumbnail", thumbnail) ||
         vipsgen_set_bool(operation, "unlimited", unlimited) ||
         vipsgen_set_bool(operation, "memory", memory) ||
@@ -1699,13 +1699,13 @@ int vipsgen_heifload_source(VipsSourceCustom* source, VipsImage** out) {
     return vips_heifload_source((VipsSource*) source, out, NULL);
 }
 
-int vipsgen_heifload_source_with_options(VipsSourceCustom* source, VipsImage** out, gint page, gint n, int n_set, gboolean thumbnail, gboolean unlimited, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
+int vipsgen_heifload_source_with_options(VipsSourceCustom* source, VipsImage** out, gint page, gint n, gboolean thumbnail, gboolean unlimited, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
     VipsOperation *operation = vips_operation_new("heifload_source");
     if (!operation) return 1;
     if (
         vips_object_set(VIPS_OBJECT(operation), "source", (VipsSource*)source, NULL) ||
         vipsgen_set_int(operation, "page", page) ||
-        (n_set && vips_object_set(VIPS_OBJECT(operation), "n", n, NULL)) ||
+        vipsgen_set_int(operation, "n", n) ||
         vipsgen_set_bool(operation, "thumbnail", thumbnail) ||
         vipsgen_set_bool(operation, "unlimited", unlimited) ||
         vipsgen_set_bool(operation, "memory", memory) ||
@@ -3678,7 +3678,7 @@ int vipsgen_pdfload(const char* filename, VipsImage** out) {
     return vips_pdfload(filename, out, NULL);
 }
 
-int vipsgen_pdfload_with_options(const char* filename, VipsImage** out, gint page, gint n, int n_set, double dpi, double scale, int scale_set, double* background, int background_n, const char* password, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
+int vipsgen_pdfload_with_options(const char* filename, VipsImage** out, gint page, gint n, double dpi, double scale, int scale_set, double* background, int background_n, const char* password, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
     VipsOperation *operation = vips_operation_new("pdfload");
     if (!operation) return 1;
     VipsArrayDouble *background_array = NULL;
@@ -3686,7 +3686,7 @@ int vipsgen_pdfload_with_options(const char* filename, VipsImage** out, gint pag
     if (
         vips_object_set(VIPS_OBJECT(operation), "filename", filename, NULL) ||
         vipsgen_set_int(operation, "page", page) ||
-        (n_set && vips_object_set(VIPS_OBJECT(operation), "n", n, NULL)) ||
+        vipsgen_set_int(operation, "n", n) ||
         vipsgen_set_double(operation, "dpi", dpi) ||
         (scale_set && vips_object_set(VIPS_OBJECT(operation), "scale", scale, NULL)) ||
         vipsgen_set_array_double(operation, "background", background_array) ||
@@ -3709,7 +3709,7 @@ int vipsgen_pdfload_buffer(void* buf, size_t len, VipsImage** out) {
     return vips_pdfload_buffer(buf, len, out, NULL);
 }
 
-int vipsgen_pdfload_buffer_with_options(void* buf, size_t len, VipsImage** out, gint page, gint n, int n_set, double dpi, double scale, int scale_set, double* background, int background_n, const char* password, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
+int vipsgen_pdfload_buffer_with_options(void* buf, size_t len, VipsImage** out, gint page, gint n, double dpi, double scale, int scale_set, double* background, int background_n, const char* password, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
     VipsOperation *operation = vips_operation_new("pdfload_buffer");
     if (!operation) return 1;
     VipsBlob *blob = vips_blob_new(NULL, buf, len);
@@ -3719,7 +3719,7 @@ int vipsgen_pdfload_buffer_with_options(void* buf, size_t len, VipsImage** out, 
     if (
         vips_object_set(VIPS_OBJECT(operation), "buffer", blob, NULL) ||
         vipsgen_set_int(operation, "page", page) ||
-        (n_set && vips_object_set(VIPS_OBJECT(operation), "n", n, NULL)) ||
+        vipsgen_set_int(operation, "n", n) ||
         vipsgen_set_double(operation, "dpi", dpi) ||
         (scale_set && vips_object_set(VIPS_OBJECT(operation), "scale", scale, NULL)) ||
         vipsgen_set_array_double(operation, "background", background_array) ||
@@ -3744,7 +3744,7 @@ int vipsgen_pdfload_source(VipsSourceCustom* source, VipsImage** out) {
     return vips_pdfload_source((VipsSource*) source, out, NULL);
 }
 
-int vipsgen_pdfload_source_with_options(VipsSourceCustom* source, VipsImage** out, gint page, gint n, int n_set, double dpi, double scale, int scale_set, double* background, int background_n, const char* password, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
+int vipsgen_pdfload_source_with_options(VipsSourceCustom* source, VipsImage** out, gint page, gint n, double dpi, double scale, int scale_set, double* background, int background_n, const char* password, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
     VipsOperation *operation = vips_operation_new("pdfload_source");
     if (!operation) return 1;
     VipsArrayDouble *background_array = NULL;
@@ -3752,7 +3752,7 @@ int vipsgen_pdfload_source_with_options(VipsSourceCustom* source, VipsImage** ou
     if (
         vips_object_set(VIPS_OBJECT(operation), "source", (VipsSource*)source, NULL) ||
         vipsgen_set_int(operation, "page", page) ||
-        (n_set && vips_object_set(VIPS_OBJECT(operation), "n", n, NULL)) ||
+        vipsgen_set_int(operation, "n", n) ||
         vipsgen_set_double(operation, "dpi", dpi) ||
         (scale_set && vips_object_set(VIPS_OBJECT(operation), "scale", scale, NULL)) ||
         vipsgen_set_array_double(operation, "background", background_array) ||

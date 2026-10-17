@@ -313,13 +313,13 @@ int vipsgen_grey_with_options(VipsImage** out, gint width, gint height, gboolean
 int vipsgen_grid(VipsImage* in, VipsImage** out, gint tile_height, gint across, gint down);
 
 int vipsgen_heifload(const char* filename, VipsImage** out);
-int vipsgen_heifload_with_options(const char* filename, VipsImage** out, gint page, gint n, int n_set, gboolean thumbnail, gboolean unlimited, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
+int vipsgen_heifload_with_options(const char* filename, VipsImage** out, gint page, gint n, gboolean thumbnail, gboolean unlimited, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
 
 int vipsgen_heifload_buffer(void* buf, size_t len, VipsImage** out);
-int vipsgen_heifload_buffer_with_options(void* buf, size_t len, VipsImage** out, gint page, gint n, int n_set, gboolean thumbnail, gboolean unlimited, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
+int vipsgen_heifload_buffer_with_options(void* buf, size_t len, VipsImage** out, gint page, gint n, gboolean thumbnail, gboolean unlimited, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
 
 int vipsgen_heifload_source(VipsSourceCustom* source, VipsImage** out);
-int vipsgen_heifload_source_with_options(VipsSourceCustom* source, VipsImage** out, gint page, gint n, int n_set, gboolean thumbnail, gboolean unlimited, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
+int vipsgen_heifload_source_with_options(VipsSourceCustom* source, VipsImage** out, gint page, gint n, gboolean thumbnail, gboolean unlimited, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
 
 int vipsgen_heifsave(VipsImage* in, const char* filename);
 int vipsgen_heifsave_with_options(VipsImage* in, const char* filename, gint Q, gint bitdepth, gboolean lossless, VipsForeignHeifCompression compression, gint effort, int effort_set, VipsForeignSubsample subsample_mode, VipsForeignHeifEncoder encoder, const char* tune, VipsForeignKeep keep, int keep_set, double* background, int background_n, gint page_height, const char* profile);
@@ -588,13 +588,13 @@ int vipsgen_openslideload_source(VipsSourceCustom* source, VipsImage** out);
 int vipsgen_openslideload_source_with_options(VipsSourceCustom* source, VipsImage** out, gint level, gboolean autocrop, const char* associated, gboolean attach_associated, gboolean rgb, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
 
 int vipsgen_pdfload(const char* filename, VipsImage** out);
-int vipsgen_pdfload_with_options(const char* filename, VipsImage** out, gint page, gint n, int n_set, double dpi, double scale, int scale_set, double* background, int background_n, const char* password, VipsForeignPdfPageBox page_box, int page_box_set, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
+int vipsgen_pdfload_with_options(const char* filename, VipsImage** out, gint page, gint n, double dpi, double scale, int scale_set, double* background, int background_n, const char* password, VipsForeignPdfPageBox page_box, int page_box_set, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
 
 int vipsgen_pdfload_buffer(void* buf, size_t len, VipsImage** out);
-int vipsgen_pdfload_buffer_with_options(void* buf, size_t len, VipsImage** out, gint page, gint n, int n_set, double dpi, double scale, int scale_set, double* background, int background_n, const char* password, VipsForeignPdfPageBox page_box, int page_box_set, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
+int vipsgen_pdfload_buffer_with_options(void* buf, size_t len, VipsImage** out, gint page, gint n, double dpi, double scale, int scale_set, double* background, int background_n, const char* password, VipsForeignPdfPageBox page_box, int page_box_set, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
 
 int vipsgen_pdfload_source(VipsSourceCustom* source, VipsImage** out);
-int vipsgen_pdfload_source_with_options(VipsSourceCustom* source, VipsImage** out, gint page, gint n, int n_set, double dpi, double scale, int scale_set, double* background, int background_n, const char* password, VipsForeignPdfPageBox page_box, int page_box_set, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
+int vipsgen_pdfload_source_with_options(VipsSourceCustom* source, VipsImage** out, gint page, gint n, double dpi, double scale, int scale_set, double* background, int background_n, const char* password, VipsForeignPdfPageBox page_box, int page_box_set, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
 
 int vipsgen_percent(VipsImage* in, double percent, gint* threshold);
 

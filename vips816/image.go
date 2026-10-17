@@ -636,7 +636,7 @@ type HeifloadOptions struct {
 	// Page First page to load (range 0-100000)
 	Page int
 	// N Number of pages to load, -1 for all (range -1-100000, default 1)
-	N *int
+	N int
 	// Thumbnail Fetch thumbnail image
 	Thumbnail bool
 	// Unlimited Remove all denial of service limits
@@ -654,7 +654,7 @@ type HeifloadOptions struct {
 // DefaultHeifloadOptions creates default value for vips_heifload optional arguments
 func DefaultHeifloadOptions() *HeifloadOptions {
 	return &HeifloadOptions{
-		N: Ptr(1),
+		N: 1,
 	}
 }
 
@@ -682,7 +682,7 @@ type HeifloadBufferOptions struct {
 	// Page First page to load (range 0-100000)
 	Page int
 	// N Number of pages to load, -1 for all (range -1-100000, default 1)
-	N *int
+	N int
 	// Thumbnail Fetch thumbnail image
 	Thumbnail bool
 	// Unlimited Remove all denial of service limits
@@ -700,7 +700,7 @@ type HeifloadBufferOptions struct {
 // DefaultHeifloadBufferOptions creates default value for vips_heifload_buffer optional arguments
 func DefaultHeifloadBufferOptions() *HeifloadBufferOptions {
 	return &HeifloadBufferOptions{
-		N: Ptr(1),
+		N: 1,
 	}
 }
 
@@ -729,7 +729,7 @@ type HeifloadSourceOptions struct {
 	// Page First page to load (range 0-100000)
 	Page int
 	// N Number of pages to load, -1 for all (range -1-100000, default 1)
-	N *int
+	N int
 	// Thumbnail Fetch thumbnail image
 	Thumbnail bool
 	// Unlimited Remove all denial of service limits
@@ -747,7 +747,7 @@ type HeifloadSourceOptions struct {
 // DefaultHeifloadSourceOptions creates default value for vips_heifload_source optional arguments
 func DefaultHeifloadSourceOptions() *HeifloadSourceOptions {
 	return &HeifloadSourceOptions{
-		N: Ptr(1),
+		N: 1,
 	}
 }
 
@@ -2013,7 +2013,7 @@ type PdfloadOptions struct {
 	// Page First page to load (range 0-100000)
 	Page int
 	// N Number of pages to load, -1 for all (range -1-100000, default 1)
-	N *int
+	N int
 	// Dpi DPI to render at (range 0.001-100000, default 72)
 	Dpi float64
 	// Scale Factor to scale by (range 0-100000, default 1)
@@ -2035,7 +2035,7 @@ type PdfloadOptions struct {
 // DefaultPdfloadOptions creates default value for vips_pdfload optional arguments
 func DefaultPdfloadOptions() *PdfloadOptions {
 	return &PdfloadOptions{
-		N:     Ptr(1),
+		N:     1,
 		Dpi:   72.0,
 		Scale: Ptr(1.0),
 	}
@@ -2065,7 +2065,7 @@ type PdfloadBufferOptions struct {
 	// Page First page to load (range 0-100000)
 	Page int
 	// N Number of pages to load, -1 for all (range -1-100000, default 1)
-	N *int
+	N int
 	// Dpi DPI to render at (range 0.001-100000, default 72)
 	Dpi float64
 	// Scale Factor to scale by (range 0-100000, default 1)
@@ -2087,7 +2087,7 @@ type PdfloadBufferOptions struct {
 // DefaultPdfloadBufferOptions creates default value for vips_pdfload_buffer optional arguments
 func DefaultPdfloadBufferOptions() *PdfloadBufferOptions {
 	return &PdfloadBufferOptions{
-		N:     Ptr(1),
+		N:     1,
 		Dpi:   72.0,
 		Scale: Ptr(1.0),
 	}
@@ -2118,7 +2118,7 @@ type PdfloadSourceOptions struct {
 	// Page First page to load (range 0-100000)
 	Page int
 	// N Number of pages to load, -1 for all (range -1-100000, default 1)
-	N *int
+	N int
 	// Dpi DPI to render at (range 0.001-100000, default 72)
 	Dpi float64
 	// Scale Factor to scale by (range 0-100000, default 1)
@@ -2140,7 +2140,7 @@ type PdfloadSourceOptions struct {
 // DefaultPdfloadSourceOptions creates default value for vips_pdfload_source optional arguments
 func DefaultPdfloadSourceOptions() *PdfloadSourceOptions {
 	return &PdfloadSourceOptions{
-		N:     Ptr(1),
+		N:     1,
 		Dpi:   72.0,
 		Scale: Ptr(1.0),
 	}

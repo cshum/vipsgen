@@ -2117,12 +2117,11 @@ func vipsgenHeifload(filename string) (*C.VipsImage, error) {
 }
 
 // vipsgenHeifloadWithOptions vips_heifload load a HEIF image with optional arguments
-func vipsgenHeifloadWithOptions(filename string, page int, n *int, thumbnail bool, unlimited bool, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
+func vipsgenHeifloadWithOptions(filename string, page int, n int, thumbnail bool, unlimited bool, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
 	var out *C.VipsImage
 	cfilename := C.CString(filename)
 	defer freeCString(cfilename)
-	cn, nSet := optionInt(n)
-	if err := C.vipsgen_heifload_with_options(cfilename, &out, C.gint(page), C.gint(cn), nSet, C.int(boolToInt(thumbnail)), C.int(boolToInt(unlimited)), C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
+	if err := C.vipsgen_heifload_with_options(cfilename, &out, C.gint(page), C.gint(n), C.int(boolToInt(thumbnail)), C.int(boolToInt(unlimited)), C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
@@ -2141,13 +2140,12 @@ func vipsgenHeifloadBuffer(buf []byte) (*C.VipsImage, error) {
 }
 
 // vipsgenHeifloadBufferWithOptions vips_heifload_buffer load a HEIF image with optional arguments
-func vipsgenHeifloadBufferWithOptions(buf []byte, page int, n *int, thumbnail bool, unlimited bool, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
+func vipsgenHeifloadBufferWithOptions(buf []byte, page int, n int, thumbnail bool, unlimited bool, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
 	src := buf
 	// Reference src here so it's not garbage collected during image initialization.
 	defer runtime.KeepAlive(src)
 	var out *C.VipsImage
-	cn, nSet := optionInt(n)
-	if err := C.vipsgen_heifload_buffer_with_options(unsafe.Pointer(&src[0]), C.size_t(len(src)), &out, C.gint(page), C.gint(cn), nSet, C.int(boolToInt(thumbnail)), C.int(boolToInt(unlimited)), C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
+	if err := C.vipsgen_heifload_buffer_with_options(unsafe.Pointer(&src[0]), C.size_t(len(src)), &out, C.gint(page), C.gint(n), C.int(boolToInt(thumbnail)), C.int(boolToInt(unlimited)), C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
@@ -2163,10 +2161,9 @@ func vipsgenHeifloadSource(source *C.VipsSourceCustom) (*C.VipsImage, error) {
 }
 
 // vipsgenHeifloadSourceWithOptions vips_heifload_source load a HEIF image with optional arguments
-func vipsgenHeifloadSourceWithOptions(source *C.VipsSourceCustom, page int, n *int, thumbnail bool, unlimited bool, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
+func vipsgenHeifloadSourceWithOptions(source *C.VipsSourceCustom, page int, n int, thumbnail bool, unlimited bool, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
 	var out *C.VipsImage
-	cn, nSet := optionInt(n)
-	if err := C.vipsgen_heifload_source_with_options(source, &out, C.gint(page), C.gint(cn), nSet, C.int(boolToInt(thumbnail)), C.int(boolToInt(unlimited)), C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
+	if err := C.vipsgen_heifload_source_with_options(source, &out, C.gint(page), C.gint(n), C.int(boolToInt(thumbnail)), C.int(boolToInt(unlimited)), C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
@@ -4227,7 +4224,7 @@ func vipsgenPdfload(filename string) (*C.VipsImage, error) {
 }
 
 // vipsgenPdfloadWithOptions vips_pdfload load PDF from file (poppler) with optional arguments
-func vipsgenPdfloadWithOptions(filename string, page int, n *int, dpi float64, scale *float64, background []float64, password string, pageBox *PdfPageBox, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
+func vipsgenPdfloadWithOptions(filename string, page int, n int, dpi float64, scale *float64, background []float64, password string, pageBox *PdfPageBox, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
 	var out *C.VipsImage
 	cfilename := C.CString(filename)
 	defer freeCString(cfilename)
@@ -4238,12 +4235,11 @@ func vipsgenPdfloadWithOptions(filename string, page int, n *int, dpi float64, s
 	if cbackground != nil {
 		defer freeDoubleArray(cbackground)
 	}
-	cn, nSet := optionInt(n)
 	cscale, scaleSet := optionFloat(scale)
 	cpageBox, pageBoxSet := optionInt(pageBox)
 	cpassword := C.CString(password)
 	defer freeCString(cpassword)
-	if err := C.vipsgen_pdfload_with_options(cfilename, &out, C.gint(page), C.gint(cn), nSet, C.double(dpi), C.double(cscale), scaleSet, cbackground, cbackgroundLength, cpassword, C.VipsForeignPdfPageBox(cpageBox), pageBoxSet, C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
+	if err := C.vipsgen_pdfload_with_options(cfilename, &out, C.gint(page), C.gint(n), C.double(dpi), C.double(cscale), scaleSet, cbackground, cbackgroundLength, cpassword, C.VipsForeignPdfPageBox(cpageBox), pageBoxSet, C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
@@ -4262,7 +4258,7 @@ func vipsgenPdfloadBuffer(buf []byte) (*C.VipsImage, error) {
 }
 
 // vipsgenPdfloadBufferWithOptions vips_pdfload_buffer load PDF from buffer (poppler) with optional arguments
-func vipsgenPdfloadBufferWithOptions(buf []byte, page int, n *int, dpi float64, scale *float64, background []float64, password string, pageBox *PdfPageBox, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
+func vipsgenPdfloadBufferWithOptions(buf []byte, page int, n int, dpi float64, scale *float64, background []float64, password string, pageBox *PdfPageBox, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
 	src := buf
 	// Reference src here so it's not garbage collected during image initialization.
 	defer runtime.KeepAlive(src)
@@ -4274,12 +4270,11 @@ func vipsgenPdfloadBufferWithOptions(buf []byte, page int, n *int, dpi float64, 
 	if cbackground != nil {
 		defer freeDoubleArray(cbackground)
 	}
-	cn, nSet := optionInt(n)
 	cscale, scaleSet := optionFloat(scale)
 	cpageBox, pageBoxSet := optionInt(pageBox)
 	cpassword := C.CString(password)
 	defer freeCString(cpassword)
-	if err := C.vipsgen_pdfload_buffer_with_options(unsafe.Pointer(&src[0]), C.size_t(len(src)), &out, C.gint(page), C.gint(cn), nSet, C.double(dpi), C.double(cscale), scaleSet, cbackground, cbackgroundLength, cpassword, C.VipsForeignPdfPageBox(cpageBox), pageBoxSet, C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
+	if err := C.vipsgen_pdfload_buffer_with_options(unsafe.Pointer(&src[0]), C.size_t(len(src)), &out, C.gint(page), C.gint(n), C.double(dpi), C.double(cscale), scaleSet, cbackground, cbackgroundLength, cpassword, C.VipsForeignPdfPageBox(cpageBox), pageBoxSet, C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
@@ -4295,7 +4290,7 @@ func vipsgenPdfloadSource(source *C.VipsSourceCustom) (*C.VipsImage, error) {
 }
 
 // vipsgenPdfloadSourceWithOptions vips_pdfload_source load PDF from source (poppler) with optional arguments
-func vipsgenPdfloadSourceWithOptions(source *C.VipsSourceCustom, page int, n *int, dpi float64, scale *float64, background []float64, password string, pageBox *PdfPageBox, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
+func vipsgenPdfloadSourceWithOptions(source *C.VipsSourceCustom, page int, n int, dpi float64, scale *float64, background []float64, password string, pageBox *PdfPageBox, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
 	var out *C.VipsImage
 	cbackground, cbackgroundLength, err := convertToDoubleArray(background)
 	if err != nil {
@@ -4304,12 +4299,11 @@ func vipsgenPdfloadSourceWithOptions(source *C.VipsSourceCustom, page int, n *in
 	if cbackground != nil {
 		defer freeDoubleArray(cbackground)
 	}
-	cn, nSet := optionInt(n)
 	cscale, scaleSet := optionFloat(scale)
 	cpageBox, pageBoxSet := optionInt(pageBox)
 	cpassword := C.CString(password)
 	defer freeCString(cpassword)
-	if err := C.vipsgen_pdfload_source_with_options(source, &out, C.gint(page), C.gint(cn), nSet, C.double(dpi), C.double(cscale), scaleSet, cbackground, cbackgroundLength, cpassword, C.VipsForeignPdfPageBox(cpageBox), pageBoxSet, C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
+	if err := C.vipsgen_pdfload_source_with_options(source, &out, C.gint(page), C.gint(n), C.double(dpi), C.double(cscale), scaleSet, cbackground, cbackgroundLength, cpassword, C.VipsForeignPdfPageBox(cpageBox), pageBoxSet, C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
