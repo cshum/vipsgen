@@ -1,10 +1,6 @@
-// Command option_presence shows how a vipsgen options struct says "not supplied".
-//
-// An optional argument is a pointer when libvips accepts its zero value and that zero
-// differs from the option's default. nil means "let libvips decide", vips.Ptr(0) means
-// "supplied, and the value is zero". Every other field stays a plain value, because
-// there the zero value is either not a value libvips accepts or is what libvips would
-// have used anyway.
+// Command option_presence shows what a vipsgen options struct means by "not supplied":
+// nil lets libvips decide, vips.Ptr(0) supplies a zero. Fields that stay plain need no
+// Ptr, because there the zero is either not a value libvips accepts or is the default.
 package main
 
 import (
@@ -50,8 +46,9 @@ func main() {
 		fmt.Printf("compression %-8s %8d bytes\n", tc.label, len(buf))
 	}
 
-	// The generated constructor and the field comments both state the defaults, so
-	// neither has to be looked up in libvips' documentation:
+	// The generated constructor and the field comments both state the defaults. Read it,
+	// do not build payloads with it: it pins the defaults of the libvips it was generated
+	// against, where omitting a field takes whatever the installed libvips uses.
 	//
 	//	// Compression Compression factor (range 0-9, default 6)
 	//	Compression *int

@@ -19,6 +19,7 @@ field stays a plain value, because there the zero is either not a value libvips 
 is what it would have used anyway.
 
 ```go
+// examples/option_presence runs this and prints the resulting sizes
 &vips.PngsaveOptions{}                          // libvips default, compression 6
 &vips.PngsaveOptions{Compression: vips.Ptr(0)}  // store uncompressed
 &vips.PngsaveOptions{Compression: vips.Ptr(6)}  // same output as the default
