@@ -60,23 +60,13 @@ them. The list keys on operation and argument, not on the argument name.
 
 ## What is still there
 
-`Default<Op>Options` stays, and fills in libvips' own defaults, with `Ptr` on the fields
-that carry presence:
+`Default<Op>Options` survives, but its fields are pointers now, so reading one takes a deref
+where v1 returned a value. It fills them from the defaults of the libvips it was generated
+against, which makes it a description rather than something to build payloads with: omitting
+a field takes whatever the installed libvips uses.
 
-```go
-options := vips.DefaultPngsaveBufferOptions()
-// &PngsaveBufferOptions{Compression: Ptr(6), Filter: PngFilterNone, Q: Ptr(100), ...}
-```
-
-You never have to call it: omitting a field already means "use the default". It is there
-to show what those defaults are. The field comments say the same where you read them:
-
-```go
-	// Compression Compression factor (range 0-9, default 6)
-	Compression *int
-	// Bitdepth Number of bits per pixel (range 8-16, default 8)
-	Bitdepth int
-```
+Generated field comments now state the accepted range and the default, so neither has to be
+looked up in libvips' documentation.
 
 ## Why the change
 
