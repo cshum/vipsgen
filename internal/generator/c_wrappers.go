@@ -7,30 +7,6 @@ import (
 	"github.com/cshum/vipsgen/internal/introspection"
 )
 
-func shouldIntAllowZero(op introspection.Operation, opt introspection.Argument) bool {
-	if opt.IsEnum {
-		return opt.EnumType == "Intent"
-	}
-	if opt.GoType != "int" {
-		return false
-	}
-
-	switch opt.Name {
-	case "effort":
-		switch op.Name {
-		case "heifsave", "heifsave_buffer", "heifsave_target",
-			"webpsave", "webpsave_buffer", "webpsave_mime", "webpsave_target":
-			return true
-		}
-	case "compression":
-		switch op.Name {
-		case "pngsave", "pngsave_buffer", "pngsave_target":
-			return true
-		}
-	}
-	return false
-}
-
 // generateCFunctionSignature generates just the function signature for vips operations
 func generateCFunctionSignature(op introspection.Operation, includeParamNames bool) string {
 	var result strings.Builder
@@ -257,7 +233,7 @@ func generateCFunctionImplementation(op introspection.Operation) string {
 						fmt.Sprintf("vipsgen_set_keep(operation, %s)", opt.Name))
 				} else {
 					helper := "vipsgen_set_int"
-					if shouldIntAllowZero(op, opt) {
+					if argPresence(op, opt) == PresenceZeroAllowed {
 						helper = "vipsgen_set_int_allow_zero"
 					}
 					allParamsList = append(allParamsList,
@@ -277,7 +253,7 @@ func generateCFunctionImplementation(op introspection.Operation) string {
 					fmt.Sprintf("vipsgen_set_target(operation, \"%s\", %s)", opt.Name, opt.Name))
 			} else if opt.GoType == "int" {
 				helper := "vipsgen_set_int"
-				if shouldIntAllowZero(op, opt) {
+				if argPresence(op, opt) == PresenceZeroAllowed {
 					helper = "vipsgen_set_int_allow_zero"
 				}
 				allParamsList = append(allParamsList,
