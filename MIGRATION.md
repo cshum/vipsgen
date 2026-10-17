@@ -10,6 +10,12 @@ import "github.com/cshum/vipsgen/v2/vips"
 
 v1 stays consumable at its existing import paths, so v1 code keeps building while you move.
 
+## What did not become a pointer
+
+The loader shim's own arguments (`LoadOptions`) are hand-written rather than classified, so they were checked against their use cases and are plain values: the booleans (`Thumbnail`, `Unlimited`, `Memory`, `Autorotate`, `FailOnError`), `Shrink`, `Access`, `Dpi`, `Page` and `N`. A pointer is needed only where a caller must be able to supply a zero *and* libvips' default differs from it — here the zero is either the default, outside the argument's range, or, for `n`, an error (`gifload: bad page number`).
+
+Generated option fields follow the metadata rule without exceptions, and it errs toward pointers: where the metadata says zero is a legal value the field is a pointer, even if passing a zero would be odd. An unnecessary `vips.Ptr(0)` is visible and rejected by libvips; a dropped explicit zero is not.
+
 ## When a field is a pointer
 
 A field is a **pointer** when libvips accepts its zero value and that zero differs from the option's default, so the two cases stay distinguishable: `nil` means "not supplied", and libvips uses its own default; `Ptr(v)` means "supplied", a zero included. Every other field stays a plain value, since there the zero value is either not a value libvips accepts or is what it would have used anyway.
