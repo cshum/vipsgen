@@ -19,12 +19,14 @@ Two things pin that model:
 The matrix in `.github/workflows/ci.yml` pins the supported versions; nothing moves
 until you edit it. When you do:
 
-1. Upgrade libvips locally (`brew upgrade vips`) and **clear the Go build cache**:
-   cgo caches the pkg-config output, so builds and tests otherwise fail with
-   `ld: library 'vips' not found` naming the deleted Cellar path.
+1. Upgrade libvips locally and **clear the Go build cache**: cgo caches the
+   pkg-config output, so builds and tests otherwise fail with `ld: library 'vips'
+   not found` naming the *deleted* install path, while `pkg-config --modversion vips`
+   already reports the new one.
 
    ```bash
-   brew upgrade vips && go clean -cache && pkg-config --modversion vips
+   go clean -cache
+   pkg-config --modversion vips   # must report the version you just installed
    ```
 
 2. Point the matrix leg at the new version in `.github/workflows/ci.yml`
@@ -46,16 +48,13 @@ until you edit it. When you do:
    bound that became finite. A golden for a version the matrix no longer runs can be
    deleted; keep it only while that line is still supported.
 
-4. Re-derive the option-presence classification, which is a pure function of this
-   metadata:
-
-   ```bash
-   python3 ~/Developer/vipsgen-v2/probes/classify.py ~/Developer/vipsgen <version>
-   ```
-
-   Fields flipping between pointer and value across versions is expected — it is why
-   the rule must run at generation time rather than be pinned in vipsgen. Record the
-   new counts where the v2 design refers to them.
+4. Read the golden for option-presence consequences. Nothing consumes this metadata
+   yet: the v2 options rule is still a proposal, so no classification step applies
+   until it is implemented, and then the classifier will live beside this metadata
+   rather than in a scratch directory. What to watch for in the diff either way is a
+   default moving across zero, a bound becoming finite, or a new flags bit — those
+   are the changes that will flip a field between pointer and value, and they are why
+   the rule has to be derived at generation time rather than pinned in vipsgen.
 
 5. Expect the `commit`/`commit-manual` jobs to add `build: update generated vips
    packages`: regenerated bindings plus the matrix versions' goldens. Review that
