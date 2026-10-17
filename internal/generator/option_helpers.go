@@ -58,7 +58,7 @@ func generateOptionalInputsStruct(op introspection.Operation) string {
 		}
 		result.WriteString(fmt.Sprintf("\t\t%s: %s,\n", strings.Title(opt.GoName), literal))
 	}
-	result.WriteString("\t}\n}\n\n")
+	result.WriteString("\t}\n}\n")
 
 	return result.String()
 }
