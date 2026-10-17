@@ -41,11 +41,11 @@ go get -u github.com/cshum/vipsgen/v2/vips
 ```
 
 All operations support parameters and optional arguments through structs, maintaining direct equivalence with the [libvips API](https://www.libvips.org/API/current/). 
-Pass `nil` for libvips' own default, or `vips.Ptr(v)` to supply a value explicitly, a zero
-included. The field type says which: a `*int` or `*string` field takes `vips.Ptr(v)`, a plain
-one does not, and each field comment gives its range and default. See [examples](https://github.com/cshum/vipsgen/tree/main/examples) for usage
-patterns, [`examples/option_presence`](https://github.com/cshum/vipsgen/tree/main/examples/option_presence)
-for the difference, and [MIGRATION.md](MIGRATION.md) if you are upgrading from v1.
+- The field type says how to supply an optional argument: a `*int` or `*string` field takes
+  `vips.Ptr(v)`, a plain one does not. Each field comment gives its range and default.
+- `nil` leaves the option to libvips; `vips.Ptr(v)` supplies it explicitly, a zero included.
+- See [examples](https://github.com/cshum/vipsgen/tree/main/examples) for usage patterns, and
+  [MIGRATION.md](MIGRATION.md) if you are upgrading from v1.
 
 
 ```go
