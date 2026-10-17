@@ -39,7 +39,46 @@ const (
 //
 // Anything else stays a plain value: the parts of libvips' semantics that
 // GParamSpec does not describe are not guessed here.
+// zeroRejectedArguments are optional arguments where an explicit zero is an error
+// rather than a value, measured by probing each numeric pointer argument with and
+// without a zero (internal/zeroprobe). The metadata rule cannot see this: gifload.n and
+// webpload.n have identical range and default, and only the first rejects a zero.
+var zeroRejectedArguments = map[[2]string]bool{
+	{"gifload", "n"}:              true,
+	{"gifload_buffer", "n"}:       true,
+	{"gifload_source", "n"}:       true,
+	{"tiffload", "n"}:             true,
+	{"tiffload_buffer", "n"}:      true,
+	{"tiffload_source", "n"}:      true,
+	{"tiffload", "subifd"}:        true,
+	{"tiffload_buffer", "subifd"}: true,
+	{"tiffload_source", "subifd"}: true,
+	{"webpload", "scale"}:         true,
+	{"webpload_buffer", "scale"}:  true,
+	{"webpload_source", "scale"}:  true,
+	{"svgload", "scale"}:          true,
+	{"svgload_buffer", "scale"}:   true,
+	{"svgload_source", "scale"}:   true,
+}
+
+// ApplyMeasuredZeroPolicy marks the arguments above so argPresence returns a plain
+// field for them. Re-measure with internal/zeroprobe before changing this table: the
+// verdicts are libvips behaviour, not vocabulary.
+func ApplyMeasuredZeroPolicy(ops []introspection.Operation) {
+	for oi := range ops {
+		for ai := range ops[oi].Arguments {
+			a := &ops[oi].Arguments[ai]
+			if zeroRejectedArguments[[2]string{ops[oi].Name, a.Name}] {
+				a.ZeroRejected = true
+			}
+		}
+	}
+}
+
 func argPresence(opt introspection.Argument) Presence {
+	if opt.ZeroRejected {
+		return PresenceValue
+	}
 	if opt.IsRequired || opt.IsOutput || opt.IsArray || opt.IsImage || opt.IsSource || opt.IsTarget {
 		return PresenceValue
 	}

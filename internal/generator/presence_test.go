@@ -144,22 +144,22 @@ func TestDescribeOptionDefault(t *testing.T) {
 		},
 		{
 			name: "unbounded numeric",
-			arg: introspection.Argument{Name: "effort", GoType: "int", CType: "int", DefaultValue: 4},
+			arg:  introspection.Argument{Name: "effort", GoType: "int", CType: "int", DefaultValue: 4},
 			want: " (default 4)",
 		},
 		{
 			name: "plain field whose zero is the default",
-			arg: introspection.Argument{Name: "page_height", GoType: "int", CType: "int", DefaultValue: 0},
+			arg:  introspection.Argument{Name: "page_height", GoType: "int", CType: "int", DefaultValue: 0},
 			want: "",
 		},
 		{
 			name: "string default",
-			arg: introspection.Argument{Name: "separator", GoType: "string", CType: "char*", DefaultValue: ";"},
+			arg:  introspection.Argument{Name: "separator", GoType: "string", CType: "char*", DefaultValue: ";"},
 			want: ` (default ";")`,
 		},
 		{
 			name: "output capture",
-			arg: introspection.Argument{Name: "x", GoType: "int", CType: "int*", IsOutput: true},
+			arg:  introspection.Argument{Name: "x", GoType: "int", CType: "int*", IsOutput: true},
 			want: "",
 		},
 	}
@@ -393,5 +393,25 @@ func TestNoPlainOptionDropsAMeaningfulZero(t *testing.T) {
 	t.Logf("plain options checked against their default: %d", checked)
 	if unknownDefault > 0 {
 		t.Logf("plain options with no recorded default, so skipping zero is a guess: %d (%v)", unknownDefault, unknown)
+	}
+}
+
+// The exception is per operation, which is the whole reason it cannot be derived: the
+// same argument name with the same range and default behaves differently between loaders.
+func TestMeasuredZeroPolicyIsKeyedPerOperation(t *testing.T) {
+	numeric := introspection.Argument{
+		Name: "n", Type: "gint", GoType: "int", IsInput: true,
+		HasRange: true, HasMinimum: true, HasMaximum: true,
+		Minimum: -1, Maximum: 100000, DefaultValue: float64(1),
+	}
+	gif := introspection.Operation{Name: "gifload", Arguments: []introspection.Argument{numeric}}
+	webp := introspection.Operation{Name: "webpload", Arguments: []introspection.Argument{numeric}}
+	ApplyMeasuredZeroPolicy([]introspection.Operation{gif, webp})
+
+	if got := argPresence(gif.Arguments[0]); got != PresenceValue {
+		t.Errorf("gifload.n: got %v, want a plain field", got)
+	}
+	if got := argPresence(webp.Arguments[0]); got != PresencePointer {
+		t.Errorf("webpload.n: got %v, want a pointer - zero is accepted there", got)
 	}
 }

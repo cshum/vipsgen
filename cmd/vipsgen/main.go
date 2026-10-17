@@ -68,6 +68,7 @@ func main() {
 
 	// Convert GIR data to vipsgen.Operation format
 	operations := vipsIntrospection.DiscoverOperations()
+	generator.ApplyMeasuredZeroPolicy(operations)
 	log.Printf("Extracted %d operations from GObject Introspection\n", len(operations))
 
 	// Get enum types

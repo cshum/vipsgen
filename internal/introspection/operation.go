@@ -59,6 +59,10 @@ type Argument struct {
 	HasMaximum   bool
 	NInputFrom   string
 	DefaultValue interface{}
+	// ZeroRejected marks an argument where libvips rejects an explicit zero. It is
+	// measured, not introspected: a pspec range cannot tell an accepted zero from a
+	// meaningful one. Set by the generator's policy table.
+	ZeroRejected bool
 }
 
 // DiscoverOperations uses GObject introspection to discover all available operations
