@@ -40,10 +40,10 @@ Use the package directly:
 go get -u github.com/cshum/vipsgen/v2/vips
 ```
 
-All operations support parameters and optional arguments through structs, maintaining direct equivalence with the [libvips API](https://www.libvips.org/API/current/). 
-- The field type says how to supply an optional argument: a `*int` or `*string` field takes
-  `vips.Ptr(v)`, a plain one does not. Each field comment gives its range and default.
-- `nil` leaves the option to libvips; `vips.Ptr(v)` supplies it explicitly, a zero included.
+All operations take their required arguments directly as Go arguments, and their optional arguments through an options struct, maintaining direct equivalence with the [libvips API](https://www.libvips.org/API/current/).
+- A pointer field, such as `*int`, `*string` or `*vips.Kernel`, takes `vips.Ptr(v)`; any other
+  field takes the value itself. Each field comment gives its range and default.
+- `nil` leaves the option to libvips; `vips.Ptr(v)` passes it explicitly, a zero included.
 - See [examples](https://github.com/cshum/vipsgen/tree/main/examples) for usage patterns, and
   [MIGRATION.md](MIGRATION.md) if you are upgrading from v1.
 
