@@ -319,6 +319,13 @@ func TestGeneratePresenceDeclarationShape(t *testing.T) {
 			opt:  introspection.Argument{Name: "profile", GoName: "Profile", GoType: "string", CType: "const char*"},
 			want: "cProfile, ProfileSet := optionString(Profile)\n\tdefer freeCString(cProfile)",
 		},
+		{
+			// no libvips option is a pointer boolean today, so this is the fallback the
+			// helpers do not cover - a case that must still generate correct code
+			name: "boolean falls back to the explicit form",
+			opt:  introspection.Argument{Name: "linear", GoName: "Linear", GoType: "bool", CType: "gboolean"},
+			want: "var cLinear C.gboolean\n\tLinearSet := C.int(0)\n\tif Linear != nil {\n\t\tcLinear = C.gboolean(boolToInt(*Linear))\n\t\tLinearSet = 1\n\t}",
+		},
 	}
 	for _, tc := range cases {
 		if got := generatePresenceDeclaration(tc.opt); got != tc.want {
