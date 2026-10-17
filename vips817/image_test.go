@@ -184,6 +184,14 @@ func TestLoadOptionsOptionString(t *testing.T) {
 		assert.NotContains(t, s, "fail=TRUE")
 	}
 
+	// 3b. A boolean that is explicit but false is left out: the option string reaches
+	// whichever loader the format picks, and a loader that does not know the option
+	// fails the whole load, so a default-valued boolean is not spelled out.
+	opts = &LoadOptions{Autorotate: Ptr(false), Unlimited: Ptr(false)}
+	assert.NotContains(t, opts.OptionString(), "autorotate")
+	assert.NotContains(t, opts.OptionString(), "unlimited")
+	assert.Contains(t, (&LoadOptions{Autorotate: Ptr(true)}).OptionString(), "autorotate=TRUE")
+
 	// 4. Unset: neither fail nor fail_on is emitted
 	assert.NotContains(t, (&LoadOptions{}).OptionString(), "fail")
 }

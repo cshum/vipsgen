@@ -10298,24 +10298,23 @@ func DefaultLoadOptions() *LoadOptions {
 	}
 }
 
-// OptionString convert import params to option_string. A nil field is left out, so
-// libvips applies its own default; a field carrying a value is passed as that value,
-// zero or not.
+// OptionString convert import params to option_string. Only values that differ from
+// libvips' defaults are sent: the string goes to whichever loader the format picks, and
+// a loader that does not know an option rejects the whole load, so a false or a zero is
+// left out here rather than spelled out.
 func (i *LoadOptions) OptionString() string {
 	var values []string
-	if v := i.N; v != nil {
+	if v := i.N; v != nil && *v != 0 {
 		values = append(values, "n="+strconv.Itoa(*v))
 	}
-	if v := i.Page; v != nil {
+	if v := i.Page; v != nil && *v != 0 {
 		values = append(values, "page="+strconv.Itoa(*v))
 	}
-	if v := i.Dpi; v != nil {
+	if v := i.Dpi; v != nil && *v != 0 {
 		values = append(values, "dpi="+strconv.Itoa(*v))
 	}
-	if v := i.FailOn; v != nil {
+	if v := i.FailOn; v != nil && *v != FailOnNone {
 		switch *v {
-		case FailOnNone:
-			values = append(values, "fail_on=none")
 		case FailOnTruncated:
 			values = append(values, "fail_on=truncated")
 		case FailOnError:
@@ -10324,25 +10323,25 @@ func (i *LoadOptions) OptionString() string {
 			values = append(values, "fail_on=warning")
 		}
 	}
-	if v := i.FailOnError; v != nil {
+	if v := i.FailOnError; v != nil && *v {
 		values = append(values, "fail="+boolToStr(*v))
 	}
-	if v := i.Shrink; v != nil {
+	if v := i.Shrink; v != nil && *v != 0 {
 		values = append(values, "shrink="+strconv.Itoa(*v))
 	}
-	if v := i.Autorotate; v != nil {
+	if v := i.Autorotate; v != nil && *v {
 		values = append(values, "autorotate="+boolToStr(*v))
 	}
-	if v := i.Unlimited; v != nil {
+	if v := i.Unlimited; v != nil && *v {
 		values = append(values, "unlimited="+boolToStr(*v))
 	}
-	if v := i.Thumbnail; v != nil {
+	if v := i.Thumbnail; v != nil && *v {
 		values = append(values, "thumbnail="+boolToStr(*v))
 	}
-	if v := i.Memory; v != nil {
+	if v := i.Memory; v != nil && *v {
 		values = append(values, "memory="+boolToStr(*v))
 	}
-	if access := i.Access; access != nil {
+	if access := i.Access; access != nil && *access != 0 {
 		switch *access {
 		case AccessSequential:
 			values = append(values, "access=sequential")
