@@ -39,10 +39,9 @@ const (
 //
 // Anything else stays a plain value: the parts of libvips' semantics that
 // GParamSpec does not describe are not guessed here.
-// zeroRejectedArguments are optional arguments where an explicit zero is an error
-// rather than a value, measured by probing each numeric pointer argument with and
-// without a zero (internal/zeroprobe). The metadata rule cannot see this: gifload.n and
-// webpload.n have identical range and default, and only the first rejects a zero.
+// zeroRejectedArguments are optional arguments where libvips rejects an explicit zero.
+// Measured, not derived - webpload.n and gifload.n have the same range and default, and
+// only the second rejects a zero. vips/zero_pins_test.go holds the classification.
 var zeroRejectedArguments = map[[2]string]bool{
 	{"gifload", "n"}:              true,
 	{"gifload_buffer", "n"}:       true,
@@ -59,11 +58,6 @@ var zeroRejectedArguments = map[[2]string]bool{
 	{"svgload", "scale"}:          true,
 	{"svgload_buffer", "scale"}:   true,
 	{"svgload_source", "scale"}:   true,
-	// Found after the first pass, by probing the page-taking loaders the first sweep could
-	// not feed: heifload answers a zero with "bad seek" and pdfload with "pages out of
-	// range". webpload and jxlload take the same argument and accept a zero, so this list
-	// cannot be derived from the argument shape - it is only as complete as the formats that
-	// have been probed.
 	{"heifload", "n"}:        true,
 	{"heifload_buffer", "n"}: true,
 	{"heifload_source", "n"}: true,
