@@ -46,12 +46,6 @@ Every saver argument was measured too and accepts an explicit zero -
 them. The list keys on operation and argument, not on the argument name, because the
 verdicts differ between loaders that share one.
 
-## The loader shim's own arguments
-
-`LoadOptions` is hand-written rather than classified, so its fields were checked against
-their use cases and are all plain values: the booleans (`Thumbnail`, `Unlimited`,
-`Memory`, `Autorotate`, `FailOnError`), `FailOn`, `Shrink`, `Access`, `Dpi`, `Page` and `N`.
-
 ## What is still there
 
 `Default<Op>Options` stays, and fills in libvips' own defaults, with `Ptr` on the fields
