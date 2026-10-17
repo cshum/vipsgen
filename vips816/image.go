@@ -9929,30 +9929,30 @@ type LoadOptions struct {
 	// Dpi Resolution in DPI
 	Dpi *int
 	// Autorotate Rotate image using exif orientation
-	Autorotate *bool
+	Autorotate bool
 	// FailOn is the error level to fail on (none/truncated/error/warning).
 	// When both FailOn and FailOnError are set, libvips ignores the
 	// deprecated "fail" boolean and uses fail_on.
 	FailOn *FailOn
 	// FailOnError Fail on first error. Deprecated: maps to the libvips
 	// "fail" boolean, which libvips remaps to fail_on=warning. Prefer FailOn.
-	FailOnError *bool
+	FailOnError bool
 	// Shrink Shrink factor for jpeg load
-	Shrink *int
+	Shrink int
 	// Thumbnail Load the thumbnail instead of main image (for HEIF)
-	Thumbnail *bool
+	Thumbnail bool
 	// Unlimited Allow without size restrictions
-	Unlimited *bool
+	Unlimited bool
 	// Memory Force open via memory
-	Memory *bool
+	Memory bool
 	// Access Required access pattern for this file
-	Access *Access
+	Access Access
 }
 
 // DefaultLoadOptions creates default LoadOptions
 func DefaultLoadOptions() *LoadOptions {
 	return &LoadOptions{
-		FailOnError: Ptr(true),
+		FailOnError: true,
 	}
 }
 
@@ -9981,26 +9981,26 @@ func (i *LoadOptions) OptionString() string {
 			values = append(values, "fail_on=warning")
 		}
 	}
-	if v := i.FailOnError; v != nil && *v {
-		values = append(values, "fail="+boolToStr(*v))
+	if i.FailOnError {
+		values = append(values, "fail="+boolToStr(i.FailOnError))
 	}
-	if v := i.Shrink; v != nil && *v != 0 {
-		values = append(values, "shrink="+strconv.Itoa(*v))
+	if i.Shrink != 0 {
+		values = append(values, "shrink="+strconv.Itoa(i.Shrink))
 	}
-	if v := i.Autorotate; v != nil && *v {
-		values = append(values, "autorotate="+boolToStr(*v))
+	if i.Autorotate {
+		values = append(values, "autorotate="+boolToStr(i.Autorotate))
 	}
-	if v := i.Unlimited; v != nil && *v {
-		values = append(values, "unlimited="+boolToStr(*v))
+	if i.Unlimited {
+		values = append(values, "unlimited="+boolToStr(i.Unlimited))
 	}
-	if v := i.Thumbnail; v != nil && *v {
-		values = append(values, "thumbnail="+boolToStr(*v))
+	if i.Thumbnail {
+		values = append(values, "thumbnail="+boolToStr(i.Thumbnail))
 	}
-	if v := i.Memory; v != nil && *v {
-		values = append(values, "memory="+boolToStr(*v))
+	if i.Memory {
+		values = append(values, "memory="+boolToStr(i.Memory))
 	}
-	if access := i.Access; access != nil && *access != 0 {
-		switch *access {
+	if i.Access != 0 {
+		switch i.Access {
 		case AccessSequential:
 			values = append(values, "access=sequential")
 		case AccessRandom:

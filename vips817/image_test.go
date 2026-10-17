@@ -158,13 +158,13 @@ func createBlackImage(width, height int) (*Image, error) {
 func TestLoadOptionsOptionString(t *testing.T) {
 	// 1. Both set: both are emitted; libvips ignores the deprecated "fail"
 	// when fail_on is set
-	opts := &LoadOptions{FailOn: Ptr(FailOnError), FailOnError: Ptr(true)}
+	opts := &LoadOptions{FailOn: Ptr(FailOnError), FailOnError: true}
 	s := opts.OptionString()
 	assert.Contains(t, s, "fail_on=error")
 	assert.Contains(t, s, "fail=TRUE")
 
 	// 2. Legacy FailOnError only: maps to the deprecated "fail" boolean
-	opts = &LoadOptions{FailOnError: Ptr(true)}
+	opts = &LoadOptions{FailOnError: true}
 	s = opts.OptionString()
 	assert.Contains(t, s, "fail=TRUE")
 	assert.NotContains(t, s, "fail_on=")
@@ -187,10 +187,10 @@ func TestLoadOptionsOptionString(t *testing.T) {
 	// 3b. A boolean that is explicit but false is left out: the option string reaches
 	// whichever loader the format picks, and a loader that does not know the option
 	// fails the whole load, so a default-valued boolean is not spelled out.
-	opts = &LoadOptions{Autorotate: Ptr(false), Unlimited: Ptr(false)}
+	opts = &LoadOptions{Autorotate: false, Unlimited: false}
 	assert.NotContains(t, opts.OptionString(), "autorotate")
 	assert.NotContains(t, opts.OptionString(), "unlimited")
-	assert.Contains(t, (&LoadOptions{Autorotate: Ptr(true)}).OptionString(), "autorotate=TRUE")
+	assert.Contains(t, (&LoadOptions{Autorotate: true}).OptionString(), "autorotate=TRUE")
 
 	// 4. Unset: neither fail nor fail_on is emitted
 	assert.NotContains(t, (&LoadOptions{}).OptionString(), "fail")
@@ -1722,7 +1722,7 @@ func TestLoadOptions(t *testing.T) {
 
 	// 3.3. With custom options
 	gen3, err := NewImageFromBuffer(pngData, &LoadOptions{
-		FailOnError: Ptr(true)})
+		FailOnError: true})
 	require.NoError(t, err)
 	defer gen3.Close()
 	t.Logf("Generic load with custom options: %dx%d", gen3.Width(), gen3.Height())
@@ -3201,9 +3201,9 @@ func TestSourceWithOptions(t *testing.T) {
 
 	// Test loading from source with options
 	img, err := NewImageFromSource(source, &LoadOptions{
-		Shrink:      Ptr(2),
-		Autorotate:  Ptr(true),
-		FailOnError: Ptr(true)})
+		Shrink:      2,
+		Autorotate:  true,
+		FailOnError: true})
 	require.NoError(t, err)
 	defer img.Close()
 
@@ -4241,7 +4241,7 @@ func TestImageFromFileWithSpecialCharsInName(t *testing.T) {
 			assert.Equal(t, 10, img.Height(), "height should be 10")
 
 			// Test loading with options (exercises the with_option C function path)
-			img2, err := NewImageFromFile(filePath, &LoadOptions{FailOnError: Ptr(true)})
+			img2, err := NewImageFromFile(filePath, &LoadOptions{FailOnError: true})
 			require.NoError(t, err, "NewImageFromFile with options should load file with special chars: %s", tc.filename)
 			defer img2.Close()
 
