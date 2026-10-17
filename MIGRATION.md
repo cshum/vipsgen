@@ -24,6 +24,16 @@ is what it would have used anyway.
 &vips.PngsaveOptions{Compression: vips.Ptr(6)}  // same output as the default
 ```
 
+The same applies to strings, where the default is what decides: `dzsave`'s `id` defaults to
+`https://example.com/iiif` and is the prefix written into IIIF tile references, so clearing
+it is a real request - and one v1 could not express, because it dropped the empty string and
+applied the default instead.
+
+```go
+&vips.DzsaveOptions{}                 // id defaults to "https://example.com/iiif"
+&vips.DzsaveOptions{Id: vips.Ptr("")} // no URL prefix, so tiles are referenced relatively
+```
+
 | v1 | v2 |
 |----|----|
 | `&vips.PngsaveOptions{}` — compression skipped | unchanged: libvips default |
