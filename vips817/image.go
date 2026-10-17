@@ -1228,7 +1228,7 @@ type MagickloadOptions struct {
 	// Page First page to load (range 0-100000)
 	Page int
 	// N Number of pages to load, -1 for all (range -1-100000, default 1)
-	N *int
+	N int
 	// Memory Force open via memory
 	Memory bool
 	// Access Required access pattern for this file
@@ -1242,7 +1242,7 @@ type MagickloadOptions struct {
 // DefaultMagickloadOptions creates default value for vips_magickload optional arguments
 func DefaultMagickloadOptions() *MagickloadOptions {
 	return &MagickloadOptions{
-		N: Ptr(1),
+		N: 1,
 	}
 }
 
@@ -1272,7 +1272,7 @@ type MagickloadBufferOptions struct {
 	// Page First page to load (range 0-100000)
 	Page int
 	// N Number of pages to load, -1 for all (range -1-100000, default 1)
-	N *int
+	N int
 	// Memory Force open via memory
 	Memory bool
 	// Access Required access pattern for this file
@@ -1286,7 +1286,7 @@ type MagickloadBufferOptions struct {
 // DefaultMagickloadBufferOptions creates default value for vips_magickload_buffer optional arguments
 func DefaultMagickloadBufferOptions() *MagickloadBufferOptions {
 	return &MagickloadBufferOptions{
-		N: Ptr(1),
+		N: 1,
 	}
 }
 
@@ -4914,7 +4914,7 @@ type DzsaveOptions struct {
 	// Layout Directory layout
 	Layout DzLayout
 	// Suffix Filename suffix for tiles (default ".jpeg")
-	Suffix *string
+	Suffix string
 	// Overlap Tile overlap in pixels (range 0-8192, default 1)
 	Overlap *int
 	// TileSize Tile size in pixels (range 1-8192, default 254)
@@ -4950,7 +4950,7 @@ type DzsaveOptions struct {
 // DefaultDzsaveOptions creates default value for vips_dzsave optional arguments
 func DefaultDzsaveOptions() *DzsaveOptions {
 	return &DzsaveOptions{
-		Suffix:     Ptr(".jpeg"),
+		Suffix:     ".jpeg",
 		Overlap:    Ptr(1),
 		TileSize:   254,
 		SkipBlanks: Ptr(-1),
@@ -4985,7 +4985,7 @@ type DzsaveBufferOptions struct {
 	// Layout Directory layout
 	Layout DzLayout
 	// Suffix Filename suffix for tiles (default ".jpeg")
-	Suffix *string
+	Suffix string
 	// Overlap Tile overlap in pixels (range 0-8192, default 1)
 	Overlap *int
 	// TileSize Tile size in pixels (range 1-8192, default 254)
@@ -5021,7 +5021,7 @@ type DzsaveBufferOptions struct {
 // DefaultDzsaveBufferOptions creates default value for vips_dzsave_buffer optional arguments
 func DefaultDzsaveBufferOptions() *DzsaveBufferOptions {
 	return &DzsaveBufferOptions{
-		Suffix:     Ptr(".jpeg"),
+		Suffix:     ".jpeg",
 		Overlap:    Ptr(1),
 		TileSize:   254,
 		SkipBlanks: Ptr(-1),
@@ -5054,7 +5054,7 @@ type DzsaveTargetOptions struct {
 	// Layout Directory layout
 	Layout DzLayout
 	// Suffix Filename suffix for tiles (default ".jpeg")
-	Suffix *string
+	Suffix string
 	// Overlap Tile overlap in pixels (range 0-8192, default 1)
 	Overlap *int
 	// TileSize Tile size in pixels (range 1-8192, default 254)
@@ -5090,7 +5090,7 @@ type DzsaveTargetOptions struct {
 // DefaultDzsaveTargetOptions creates default value for vips_dzsave_target optional arguments
 func DefaultDzsaveTargetOptions() *DzsaveTargetOptions {
 	return &DzsaveTargetOptions{
-		Suffix:     Ptr(".jpeg"),
+		Suffix:     ".jpeg",
 		Overlap:    Ptr(1),
 		TileSize:   254,
 		SkipBlanks: Ptr(-1),
@@ -9060,7 +9060,7 @@ func (r *Image) Sign() error {
 // SimilarityOptions optional arguments for vips_similarity
 type SimilarityOptions struct {
 	// Scale Scale by this factor (range 0-10000000, default 1)
-	Scale *float64
+	Scale float64
 	// Angle Rotate clockwise by this many degrees (range -10000000-10000000)
 	Angle float64
 	// Interpolate Interpolate pixels with this
@@ -9080,7 +9080,7 @@ type SimilarityOptions struct {
 // DefaultSimilarityOptions creates default value for vips_similarity optional arguments
 func DefaultSimilarityOptions() *SimilarityOptions {
 	return &SimilarityOptions{
-		Scale: Ptr(1.0),
+		Scale: 1.0,
 	}
 }
 

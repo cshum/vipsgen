@@ -992,7 +992,7 @@ int vipsgen_dzsave(VipsImage* in, const char* filename) {
     return vips_dzsave(in, filename, NULL);
 }
 
-int vipsgen_dzsave_with_options(VipsImage* in, const char* filename, const char* imagename, VipsForeignDzLayout layout, const char* suffix, int suffix_set, gint overlap, int overlap_set, gint tile_size, gboolean centre, VipsForeignDzDepth depth, VipsAngle angle, VipsForeignDzContainer container, gint compression, VipsRegionShrink region_shrink, gint skip_blanks, int skip_blanks_set, const char* id, int id_set, gint Q, VipsForeignKeep keep, int keep_set, double* background, int background_n, gint page_height, const char* profile) {
+int vipsgen_dzsave_with_options(VipsImage* in, const char* filename, const char* imagename, VipsForeignDzLayout layout, const char* suffix, gint overlap, int overlap_set, gint tile_size, gboolean centre, VipsForeignDzDepth depth, VipsAngle angle, VipsForeignDzContainer container, gint compression, VipsRegionShrink region_shrink, gint skip_blanks, int skip_blanks_set, const char* id, int id_set, gint Q, VipsForeignKeep keep, int keep_set, double* background, int background_n, gint page_height, const char* profile) {
     VipsOperation *operation = vips_operation_new("dzsave");
     if (!operation) return 1;
     VipsArrayDouble *background_array = NULL;
@@ -1002,7 +1002,7 @@ int vipsgen_dzsave_with_options(VipsImage* in, const char* filename, const char*
         vips_object_set(VIPS_OBJECT(operation), "filename", filename, NULL) ||
         vipsgen_set_string(operation, "imagename", imagename) ||
         vipsgen_set_int(operation, "layout", layout) ||
-        (suffix_set && vips_object_set(VIPS_OBJECT(operation), "suffix", suffix, NULL)) ||
+        vipsgen_set_string(operation, "suffix", suffix) ||
         (overlap_set && vips_object_set(VIPS_OBJECT(operation), "overlap", overlap, NULL)) ||
         vipsgen_set_int(operation, "tile_size", tile_size) ||
         vipsgen_set_bool(operation, "centre", centre) ||
@@ -1032,7 +1032,7 @@ int vipsgen_dzsave_buffer(VipsImage* in, void** buf, size_t* len) {
     return vips_dzsave_buffer(in, buf, len, NULL);
 }
 
-int vipsgen_dzsave_buffer_with_options(VipsImage* in, void** buf, size_t* len, const char* imagename, VipsForeignDzLayout layout, const char* suffix, int suffix_set, gint overlap, int overlap_set, gint tile_size, gboolean centre, VipsForeignDzDepth depth, VipsAngle angle, VipsForeignDzContainer container, gint compression, VipsRegionShrink region_shrink, gint skip_blanks, int skip_blanks_set, const char* id, int id_set, gint Q, VipsForeignKeep keep, int keep_set, double* background, int background_n, gint page_height, const char* profile) {
+int vipsgen_dzsave_buffer_with_options(VipsImage* in, void** buf, size_t* len, const char* imagename, VipsForeignDzLayout layout, const char* suffix, gint overlap, int overlap_set, gint tile_size, gboolean centre, VipsForeignDzDepth depth, VipsAngle angle, VipsForeignDzContainer container, gint compression, VipsRegionShrink region_shrink, gint skip_blanks, int skip_blanks_set, const char* id, int id_set, gint Q, VipsForeignKeep keep, int keep_set, double* background, int background_n, gint page_height, const char* profile) {
     VipsOperation *operation = vips_operation_new("dzsave_buffer");
     if (!operation) return 1;
     VipsArrayDouble *background_array = NULL;
@@ -1041,7 +1041,7 @@ int vipsgen_dzsave_buffer_with_options(VipsImage* in, void** buf, size_t* len, c
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
         vipsgen_set_string(operation, "imagename", imagename) ||
         vipsgen_set_int(operation, "layout", layout) ||
-        (suffix_set && vips_object_set(VIPS_OBJECT(operation), "suffix", suffix, NULL)) ||
+        vipsgen_set_string(operation, "suffix", suffix) ||
         (overlap_set && vips_object_set(VIPS_OBJECT(operation), "overlap", overlap, NULL)) ||
         vipsgen_set_int(operation, "tile_size", tile_size) ||
         vipsgen_set_bool(operation, "centre", centre) ||
@@ -1071,7 +1071,7 @@ int vipsgen_dzsave_target(VipsImage* in, VipsTargetCustom* target) {
     return vips_dzsave_target(in, (VipsTarget*) target, NULL);
 }
 
-int vipsgen_dzsave_target_with_options(VipsImage* in, VipsTargetCustom* target, const char* imagename, VipsForeignDzLayout layout, const char* suffix, int suffix_set, gint overlap, int overlap_set, gint tile_size, gboolean centre, VipsForeignDzDepth depth, VipsAngle angle, VipsForeignDzContainer container, gint compression, VipsRegionShrink region_shrink, gint skip_blanks, int skip_blanks_set, const char* id, int id_set, gint Q, VipsForeignKeep keep, int keep_set, double* background, int background_n, gint page_height, const char* profile) {
+int vipsgen_dzsave_target_with_options(VipsImage* in, VipsTargetCustom* target, const char* imagename, VipsForeignDzLayout layout, const char* suffix, gint overlap, int overlap_set, gint tile_size, gboolean centre, VipsForeignDzDepth depth, VipsAngle angle, VipsForeignDzContainer container, gint compression, VipsRegionShrink region_shrink, gint skip_blanks, int skip_blanks_set, const char* id, int id_set, gint Q, VipsForeignKeep keep, int keep_set, double* background, int background_n, gint page_height, const char* profile) {
     VipsOperation *operation = vips_operation_new("dzsave_target");
     if (!operation) return 1;
     VipsArrayDouble *background_array = NULL;
@@ -1081,7 +1081,7 @@ int vipsgen_dzsave_target_with_options(VipsImage* in, VipsTargetCustom* target, 
         vips_object_set(VIPS_OBJECT(operation), "target", (VipsTarget*)target, NULL) ||
         vipsgen_set_string(operation, "imagename", imagename) ||
         vipsgen_set_int(operation, "layout", layout) ||
-        (suffix_set && vips_object_set(VIPS_OBJECT(operation), "suffix", suffix, NULL)) ||
+        vipsgen_set_string(operation, "suffix", suffix) ||
         (overlap_set && vips_object_set(VIPS_OBJECT(operation), "overlap", overlap, NULL)) ||
         vipsgen_set_int(operation, "tile_size", tile_size) ||
         vipsgen_set_bool(operation, "centre", centre) ||
@@ -2777,14 +2777,14 @@ int vipsgen_magickload(const char* filename, VipsImage** out) {
     return vips_magickload(filename, out, NULL);
 }
 
-int vipsgen_magickload_with_options(const char* filename, VipsImage** out, const char* density, gint page, gint n, int n_set, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
+int vipsgen_magickload_with_options(const char* filename, VipsImage** out, const char* density, gint page, gint n, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
     VipsOperation *operation = vips_operation_new("magickload");
     if (!operation) return 1;
     if (
         vips_object_set(VIPS_OBJECT(operation), "filename", filename, NULL) ||
         vipsgen_set_string(operation, "density", density) ||
         vipsgen_set_int(operation, "page", page) ||
-        (n_set && vips_object_set(VIPS_OBJECT(operation), "n", n, NULL)) ||
+        vipsgen_set_int(operation, "n", n) ||
         vipsgen_set_bool(operation, "memory", memory) ||
         vipsgen_set_int(operation, "access", access) ||
         vipsgen_set_int(operation, "fail_on", fail_on) ||
@@ -2801,7 +2801,7 @@ int vipsgen_magickload_buffer(void* buf, size_t len, VipsImage** out) {
     return vips_magickload_buffer(buf, len, out, NULL);
 }
 
-int vipsgen_magickload_buffer_with_options(void* buf, size_t len, VipsImage** out, const char* density, gint page, gint n, int n_set, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
+int vipsgen_magickload_buffer_with_options(void* buf, size_t len, VipsImage** out, const char* density, gint page, gint n, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
     VipsOperation *operation = vips_operation_new("magickload_buffer");
     if (!operation) return 1;
     VipsBlob *blob = vips_blob_new(NULL, buf, len);
@@ -2810,7 +2810,7 @@ int vipsgen_magickload_buffer_with_options(void* buf, size_t len, VipsImage** ou
         vips_object_set(VIPS_OBJECT(operation), "buffer", blob, NULL) ||
         vipsgen_set_string(operation, "density", density) ||
         vipsgen_set_int(operation, "page", page) ||
-        (n_set && vips_object_set(VIPS_OBJECT(operation), "n", n, NULL)) ||
+        vipsgen_set_int(operation, "n", n) ||
         vipsgen_set_bool(operation, "memory", memory) ||
         vipsgen_set_int(operation, "access", access) ||
         vipsgen_set_int(operation, "fail_on", fail_on) ||
@@ -4792,14 +4792,14 @@ int vipsgen_similarity(VipsImage* in, VipsImage** out) {
     return vips_similarity(in, out, NULL);
 }
 
-int vipsgen_similarity_with_options(VipsImage* in, VipsImage** out, double scale, int scale_set, double angle, VipsInterpolate* interpolate, double* background, int background_n, double odx, double ody, double idx, double idy) {
+int vipsgen_similarity_with_options(VipsImage* in, VipsImage** out, double scale, double angle, VipsInterpolate* interpolate, double* background, int background_n, double odx, double ody, double idx, double idy) {
     VipsOperation *operation = vips_operation_new("similarity");
     if (!operation) return 1;
     VipsArrayDouble *background_array = NULL;
     if (background != NULL && background_n > 0) { background_array = vips_array_double_new(background, background_n); }
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
-        (scale_set && vips_object_set(VIPS_OBJECT(operation), "scale", scale, NULL)) ||
+        vipsgen_set_double(operation, "scale", scale) ||
         vipsgen_set_double(operation, "angle", angle) ||
         vipsgen_set_interpolate(operation, "interpolate", interpolate) ||
         vipsgen_set_array_double(operation, "background", background_array) ||

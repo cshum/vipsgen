@@ -1405,7 +1405,7 @@ func vipsgenDzsave(in *C.VipsImage, filename string) error {
 }
 
 // vipsgenDzsaveWithOptions vips_dzsave save image to deepzoom file with optional arguments
-func vipsgenDzsaveWithOptions(in *C.VipsImage, filename string, imagename string, layout DzLayout, suffix *string, overlap *int, tileSize int, centre bool, depth DzDepth, angle Angle, container DzContainer, compression int, regionShrink RegionShrink, skipBlanks *int, id *string, q int, keep *Keep, background []float64, pageHeight int, profile string) error {
+func vipsgenDzsaveWithOptions(in *C.VipsImage, filename string, imagename string, layout DzLayout, suffix string, overlap *int, tileSize int, centre bool, depth DzDepth, angle Angle, container DzContainer, compression int, regionShrink RegionShrink, skipBlanks *int, id *string, q int, keep *Keep, background []float64, pageHeight int, profile string) error {
 	cfilename := C.CString(filename)
 	defer freeCString(cfilename)
 	cbackground, cbackgroundLength, err := convertToDoubleArray(background)
@@ -1415,8 +1415,6 @@ func vipsgenDzsaveWithOptions(in *C.VipsImage, filename string, imagename string
 	if cbackground != nil {
 		defer freeDoubleArray(cbackground)
 	}
-	csuffix, suffixSet := optionString(suffix)
-	defer freeCString(csuffix)
 	coverlap, overlapSet := optionInt(overlap)
 	cskipBlanks, skipBlanksSet := optionInt(skipBlanks)
 	cid, idSet := optionString(id)
@@ -1424,9 +1422,11 @@ func vipsgenDzsaveWithOptions(in *C.VipsImage, filename string, imagename string
 	ckeep, keepSet := optionInt(keep)
 	cimagename := C.CString(imagename)
 	defer freeCString(cimagename)
+	csuffix := C.CString(suffix)
+	defer freeCString(csuffix)
 	cprofile := C.CString(profile)
 	defer freeCString(cprofile)
-	if err := C.vipsgen_dzsave_with_options(in, cfilename, cimagename, C.VipsForeignDzLayout(layout), csuffix, suffixSet, C.gint(coverlap), overlapSet, C.gint(tileSize), C.int(boolToInt(centre)), C.VipsForeignDzDepth(depth), C.VipsAngle(angle), C.VipsForeignDzContainer(container), C.gint(compression), C.VipsRegionShrink(regionShrink), C.gint(cskipBlanks), skipBlanksSet, cid, idSet, C.gint(q), C.VipsForeignKeep(ckeep), keepSet, cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
+	if err := C.vipsgen_dzsave_with_options(in, cfilename, cimagename, C.VipsForeignDzLayout(layout), csuffix, C.gint(coverlap), overlapSet, C.gint(tileSize), C.int(boolToInt(centre)), C.VipsForeignDzDepth(depth), C.VipsAngle(angle), C.VipsForeignDzContainer(container), C.gint(compression), C.VipsRegionShrink(regionShrink), C.gint(cskipBlanks), skipBlanksSet, cid, idSet, C.gint(q), C.VipsForeignKeep(ckeep), keepSet, cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
 		return handleVipsError()
 	}
 	return nil
@@ -1443,7 +1443,7 @@ func vipsgenDzsaveBuffer(in *C.VipsImage) ([]byte, error) {
 }
 
 // vipsgenDzsaveBufferWithOptions vips_dzsave_buffer save image to dz buffer with optional arguments
-func vipsgenDzsaveBufferWithOptions(in *C.VipsImage, imagename string, layout DzLayout, suffix *string, overlap *int, tileSize int, centre bool, depth DzDepth, angle Angle, container DzContainer, compression int, regionShrink RegionShrink, skipBlanks *int, id *string, q int, keep *Keep, background []float64, pageHeight int, profile string) ([]byte, error) {
+func vipsgenDzsaveBufferWithOptions(in *C.VipsImage, imagename string, layout DzLayout, suffix string, overlap *int, tileSize int, centre bool, depth DzDepth, angle Angle, container DzContainer, compression int, regionShrink RegionShrink, skipBlanks *int, id *string, q int, keep *Keep, background []float64, pageHeight int, profile string) ([]byte, error) {
 	var buf unsafe.Pointer
 	var length C.size_t
 	cbackground, cbackgroundLength, err := convertToDoubleArray(background)
@@ -1453,8 +1453,6 @@ func vipsgenDzsaveBufferWithOptions(in *C.VipsImage, imagename string, layout Dz
 	if cbackground != nil {
 		defer freeDoubleArray(cbackground)
 	}
-	csuffix, suffixSet := optionString(suffix)
-	defer freeCString(csuffix)
 	coverlap, overlapSet := optionInt(overlap)
 	cskipBlanks, skipBlanksSet := optionInt(skipBlanks)
 	cid, idSet := optionString(id)
@@ -1462,9 +1460,11 @@ func vipsgenDzsaveBufferWithOptions(in *C.VipsImage, imagename string, layout Dz
 	ckeep, keepSet := optionInt(keep)
 	cimagename := C.CString(imagename)
 	defer freeCString(cimagename)
+	csuffix := C.CString(suffix)
+	defer freeCString(csuffix)
 	cprofile := C.CString(profile)
 	defer freeCString(cprofile)
-	if err := C.vipsgen_dzsave_buffer_with_options(in, &buf, &length, cimagename, C.VipsForeignDzLayout(layout), csuffix, suffixSet, C.gint(coverlap), overlapSet, C.gint(tileSize), C.int(boolToInt(centre)), C.VipsForeignDzDepth(depth), C.VipsAngle(angle), C.VipsForeignDzContainer(container), C.gint(compression), C.VipsRegionShrink(regionShrink), C.gint(cskipBlanks), skipBlanksSet, cid, idSet, C.gint(q), C.VipsForeignKeep(ckeep), keepSet, cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
+	if err := C.vipsgen_dzsave_buffer_with_options(in, &buf, &length, cimagename, C.VipsForeignDzLayout(layout), csuffix, C.gint(coverlap), overlapSet, C.gint(tileSize), C.int(boolToInt(centre)), C.VipsForeignDzDepth(depth), C.VipsAngle(angle), C.VipsForeignDzContainer(container), C.gint(compression), C.VipsRegionShrink(regionShrink), C.gint(cskipBlanks), skipBlanksSet, cid, idSet, C.gint(q), C.VipsForeignKeep(ckeep), keepSet, cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
 		return nil, handleVipsError()
 	}
 	return bufferToBytes(buf, length), nil
@@ -1480,7 +1480,7 @@ func vipsgenDzsaveTarget(in *C.VipsImage, target *C.VipsTargetCustom) error {
 }
 
 // vipsgenDzsaveTargetWithOptions vips_dzsave_target save image to deepzoom target with optional arguments
-func vipsgenDzsaveTargetWithOptions(in *C.VipsImage, target *C.VipsTargetCustom, imagename string, layout DzLayout, suffix *string, overlap *int, tileSize int, centre bool, depth DzDepth, angle Angle, container DzContainer, compression int, regionShrink RegionShrink, skipBlanks *int, id *string, q int, keep *Keep, background []float64, pageHeight int, profile string) error {
+func vipsgenDzsaveTargetWithOptions(in *C.VipsImage, target *C.VipsTargetCustom, imagename string, layout DzLayout, suffix string, overlap *int, tileSize int, centre bool, depth DzDepth, angle Angle, container DzContainer, compression int, regionShrink RegionShrink, skipBlanks *int, id *string, q int, keep *Keep, background []float64, pageHeight int, profile string) error {
 	cbackground, cbackgroundLength, err := convertToDoubleArray(background)
 	if err != nil {
 		return err
@@ -1488,8 +1488,6 @@ func vipsgenDzsaveTargetWithOptions(in *C.VipsImage, target *C.VipsTargetCustom,
 	if cbackground != nil {
 		defer freeDoubleArray(cbackground)
 	}
-	csuffix, suffixSet := optionString(suffix)
-	defer freeCString(csuffix)
 	coverlap, overlapSet := optionInt(overlap)
 	cskipBlanks, skipBlanksSet := optionInt(skipBlanks)
 	cid, idSet := optionString(id)
@@ -1497,9 +1495,11 @@ func vipsgenDzsaveTargetWithOptions(in *C.VipsImage, target *C.VipsTargetCustom,
 	ckeep, keepSet := optionInt(keep)
 	cimagename := C.CString(imagename)
 	defer freeCString(cimagename)
+	csuffix := C.CString(suffix)
+	defer freeCString(csuffix)
 	cprofile := C.CString(profile)
 	defer freeCString(cprofile)
-	if err := C.vipsgen_dzsave_target_with_options(in, target, cimagename, C.VipsForeignDzLayout(layout), csuffix, suffixSet, C.gint(coverlap), overlapSet, C.gint(tileSize), C.int(boolToInt(centre)), C.VipsForeignDzDepth(depth), C.VipsAngle(angle), C.VipsForeignDzContainer(container), C.gint(compression), C.VipsRegionShrink(regionShrink), C.gint(cskipBlanks), skipBlanksSet, cid, idSet, C.gint(q), C.VipsForeignKeep(ckeep), keepSet, cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
+	if err := C.vipsgen_dzsave_target_with_options(in, target, cimagename, C.VipsForeignDzLayout(layout), csuffix, C.gint(coverlap), overlapSet, C.gint(tileSize), C.int(boolToInt(centre)), C.VipsForeignDzDepth(depth), C.VipsAngle(angle), C.VipsForeignDzContainer(container), C.gint(compression), C.VipsRegionShrink(regionShrink), C.gint(cskipBlanks), skipBlanksSet, cid, idSet, C.gint(q), C.VipsForeignKeep(ckeep), keepSet, cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
 		return handleVipsError()
 	}
 	return nil
@@ -3247,14 +3247,13 @@ func vipsgenMagickload(filename string) (*C.VipsImage, error) {
 }
 
 // vipsgenMagickloadWithOptions vips_magickload load file with ImageMagick with optional arguments
-func vipsgenMagickloadWithOptions(filename string, density string, page int, n *int, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
+func vipsgenMagickloadWithOptions(filename string, density string, page int, n int, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
 	var out *C.VipsImage
 	cfilename := C.CString(filename)
 	defer freeCString(cfilename)
-	cn, nSet := optionInt(n)
 	cdensity := C.CString(density)
 	defer freeCString(cdensity)
-	if err := C.vipsgen_magickload_with_options(cfilename, &out, cdensity, C.gint(page), C.gint(cn), nSet, C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
+	if err := C.vipsgen_magickload_with_options(cfilename, &out, cdensity, C.gint(page), C.gint(n), C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
@@ -3273,15 +3272,14 @@ func vipsgenMagickloadBuffer(buf []byte) (*C.VipsImage, error) {
 }
 
 // vipsgenMagickloadBufferWithOptions vips_magickload_buffer load buffer with ImageMagick with optional arguments
-func vipsgenMagickloadBufferWithOptions(buf []byte, density string, page int, n *int, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
+func vipsgenMagickloadBufferWithOptions(buf []byte, density string, page int, n int, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
 	src := buf
 	// Reference src here so it's not garbage collected during image initialization.
 	defer runtime.KeepAlive(src)
 	var out *C.VipsImage
-	cn, nSet := optionInt(n)
 	cdensity := C.CString(density)
 	defer freeCString(cdensity)
-	if err := C.vipsgen_magickload_buffer_with_options(unsafe.Pointer(&src[0]), C.size_t(len(src)), &out, cdensity, C.gint(page), C.gint(cn), nSet, C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
+	if err := C.vipsgen_magickload_buffer_with_options(unsafe.Pointer(&src[0]), C.size_t(len(src)), &out, cdensity, C.gint(page), C.gint(n), C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
@@ -3297,12 +3295,11 @@ func vipsgenMagickloadSource(source *C.VipsSourceCustom) (*C.VipsImage, error) {
 }
 
 // vipsgenMagickloadSourceWithOptions vips_magickload_source load source with ImageMagick with optional arguments
-func vipsgenMagickloadSourceWithOptions(source *C.VipsSourceCustom, density string, page int, n *int, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
+func vipsgenMagickloadSourceWithOptions(source *C.VipsSourceCustom, density string, page int, n int, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
 	var out *C.VipsImage
-	cn, nSet := optionInt(n)
 	cdensity := C.CString(density)
 	defer freeCString(cdensity)
-	if err := C.vipsgen_magickload_source_with_options(source, &out, cdensity, C.gint(page), C.gint(cn), nSet, C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
+	if err := C.vipsgen_magickload_source_with_options(source, &out, cdensity, C.gint(page), C.gint(n), C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
@@ -5454,7 +5451,7 @@ func vipsgenSimilarity(in *C.VipsImage) (*C.VipsImage, error) {
 }
 
 // vipsgenSimilarityWithOptions vips_similarity similarity transform of an image with optional arguments
-func vipsgenSimilarityWithOptions(in *C.VipsImage, scale *float64, angle float64, interpolate *Interpolate, background []float64, odx float64, ody float64, idx float64, idy float64) (*C.VipsImage, error) {
+func vipsgenSimilarityWithOptions(in *C.VipsImage, scale float64, angle float64, interpolate *Interpolate, background []float64, odx float64, ody float64, idx float64, idy float64) (*C.VipsImage, error) {
 	var out *C.VipsImage
 	cbackground, cbackgroundLength, err := convertToDoubleArray(background)
 	if err != nil {
@@ -5463,8 +5460,7 @@ func vipsgenSimilarityWithOptions(in *C.VipsImage, scale *float64, angle float64
 	if cbackground != nil {
 		defer freeDoubleArray(cbackground)
 	}
-	cscale, scaleSet := optionFloat(scale)
-	if err := C.vipsgen_similarity_with_options(in, &out, C.double(cscale), scaleSet, C.double(angle), vipsInterpolateToC(interpolate), cbackground, cbackgroundLength, C.double(odx), C.double(ody), C.double(idx), C.double(idy)); err != 0 {
+	if err := C.vipsgen_similarity_with_options(in, &out, C.double(scale), C.double(angle), vipsInterpolateToC(interpolate), cbackground, cbackgroundLength, C.double(odx), C.double(ody), C.double(idx), C.double(idy)); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
