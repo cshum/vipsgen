@@ -38,6 +38,14 @@ type AnalyzeloadOptions struct {
 	Revalidate bool
 }
 
+// DefaultAnalyzeloadOptions returns AnalyzeloadOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultAnalyzeloadOptions() *AnalyzeloadOptions {
+	return &AnalyzeloadOptions{
+	}
+}
+
 
 // NewAnalyzeload vips_analyzeload load an Analyze6 image
 //
@@ -60,9 +68,9 @@ func NewAnalyzeload(filename string, options *AnalyzeloadOptions) (*Image, error
 
 // ArrayjoinOptions optional arguments for vips_arrayjoin
 type ArrayjoinOptions struct {
-	// Across Number of images across grid
+	// Across Number of images across grid (range 1-1000000, default 1)
 	Across int
-	// Shim Pixels between images
+	// Shim Pixels between images (range 0-1000000)
 	Shim int
 	// Background Colour for new pixels
 	Background []float64
@@ -70,10 +78,21 @@ type ArrayjoinOptions struct {
 	Halign Align
 	// Valign Align on the top, centre or bottom
 	Valign Align
-	// Hspacing Horizontal spacing between images
+	// Hspacing Horizontal spacing between images (range 1-1000000, default 1)
 	Hspacing int
-	// Vspacing Vertical spacing between images
+	// Vspacing Vertical spacing between images (range 1-1000000, default 1)
 	Vspacing int
+}
+
+// DefaultArrayjoinOptions returns ArrayjoinOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultArrayjoinOptions() *ArrayjoinOptions {
+	return &ArrayjoinOptions{
+		Across: 1,
+		Hspacing: 1,
+		Vspacing: 1,
+	}
 }
 
 
@@ -111,8 +130,17 @@ func NewBandjoin(in []*Image) (*Image, error) {
 
 // BandrankOptions optional arguments for vips_bandrank
 type BandrankOptions struct {
-	// Index Select this band element from sorted list
+	// Index Select this band element from sorted list (range -1-1000000, default -1)
 	Index *int
+}
+
+// DefaultBandrankOptions returns BandrankOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultBandrankOptions() *BandrankOptions {
+	return &BandrankOptions{
+		Index: Ptr(-1),
+	}
 }
 
 
@@ -137,8 +165,17 @@ func NewBandrank(in []*Image, options *BandrankOptions) (*Image, error) {
 
 // BlackOptions optional arguments for vips_black
 type BlackOptions struct {
-	// Bands Number of bands in image
+	// Bands Number of bands in image (range 1-100000000, default 1)
 	Bands int
+}
+
+// DefaultBlackOptions returns BlackOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultBlackOptions() *BlackOptions {
+	return &BlackOptions{
+		Bands: 1,
+	}
 }
 
 
@@ -168,10 +205,19 @@ type CompositeOptions struct {
 	X []int
 	// Y Array of y coordinates to join at
 	Y []int
-	// CompositingSpace Composite images in this colour space
+	// CompositingSpace Composite images in this colour space (default InterpretationSrgb)
 	CompositingSpace *Interpretation
 	// Premultiplied Images have premultiplied alpha
 	Premultiplied bool
+}
+
+// DefaultCompositeOptions returns CompositeOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultCompositeOptions() *CompositeOptions {
+	return &CompositeOptions{
+		CompositingSpace: Ptr(InterpretationSrgb),
+	}
 }
 
 
@@ -197,13 +243,13 @@ func NewComposite(in []*Image, mode []BlendMode, options *CompositeOptions) (*Im
 
 // CsvloadOptions optional arguments for vips_csvload
 type CsvloadOptions struct {
-	// Skip Skip this many lines at the start of the file
+	// Skip Skip this many lines at the start of the file (range 0-10000000)
 	Skip int
-	// Lines Read this many lines from the file
+	// Lines Read this many lines from the file (range -1-10000000)
 	Lines int
-	// Whitespace Set of whitespace characters
+	// Whitespace Set of whitespace characters (default " ")
 	Whitespace *string
-	// Separator Set of separator characters
+	// Separator Set of separator characters (default ";,\t")
 	Separator *string
 	// Memory Force open via memory
 	Memory bool
@@ -213,6 +259,16 @@ type CsvloadOptions struct {
 	FailOn FailOn
 	// Revalidate Don't use a cached result for this operation
 	Revalidate bool
+}
+
+// DefaultCsvloadOptions returns CsvloadOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultCsvloadOptions() *CsvloadOptions {
+	return &CsvloadOptions{
+		Whitespace: Ptr(" "),
+		Separator: Ptr(";,\t"),
+	}
 }
 
 
@@ -237,13 +293,13 @@ func NewCsvload(filename string, options *CsvloadOptions) (*Image, error) {
 
 // CsvloadSourceOptions optional arguments for vips_csvload_source
 type CsvloadSourceOptions struct {
-	// Skip Skip this many lines at the start of the file
+	// Skip Skip this many lines at the start of the file (range 0-10000000)
 	Skip int
-	// Lines Read this many lines from the file
+	// Lines Read this many lines from the file (range -1-10000000)
 	Lines int
-	// Whitespace Set of whitespace characters
+	// Whitespace Set of whitespace characters (default " ")
 	Whitespace *string
-	// Separator Set of separator characters
+	// Separator Set of separator characters (default ";,\t")
 	Separator *string
 	// Memory Force open via memory
 	Memory bool
@@ -253,6 +309,16 @@ type CsvloadSourceOptions struct {
 	FailOn FailOn
 	// Revalidate Don't use a cached result for this operation
 	Revalidate bool
+}
+
+// DefaultCsvloadSourceOptions returns CsvloadSourceOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultCsvloadSourceOptions() *CsvloadSourceOptions {
+	return &CsvloadSourceOptions{
+		Whitespace: Ptr(" "),
+		Separator: Ptr(";,\t"),
+	}
 }
 
 
@@ -279,8 +345,17 @@ func NewCsvloadSource(source *Source, options *CsvloadSourceOptions) (*Image, er
 type EyeOptions struct {
 	// Uchar Output an unsigned char image
 	Uchar bool
-	// Factor Maximum spatial frequency
+	// Factor Maximum spatial frequency (range 0-1, default 0.5)
 	Factor *float64
+}
+
+// DefaultEyeOptions returns EyeOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultEyeOptions() *EyeOptions {
+	return &EyeOptions{
+		Factor: Ptr(0.5),
+	}
 }
 
 
@@ -314,6 +389,14 @@ type FitsloadOptions struct {
 	FailOn FailOn
 	// Revalidate Don't use a cached result for this operation
 	Revalidate bool
+}
+
+// DefaultFitsloadOptions returns FitsloadOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultFitsloadOptions() *FitsloadOptions {
+	return &FitsloadOptions{
+	}
 }
 
 
@@ -359,6 +442,14 @@ type GaussmatOptions struct {
 	Precision Precision
 }
 
+// DefaultGaussmatOptions returns GaussmatOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultGaussmatOptions() *GaussmatOptions {
+	return &GaussmatOptions{
+	}
+}
+
 
 // NewGaussmat vips_gaussmat make a gaussian image
 //
@@ -382,12 +473,22 @@ func NewGaussmat(sigma float64, minAmpl float64, options *GaussmatOptions) (*Ima
 
 // GaussnoiseOptions optional arguments for vips_gaussnoise
 type GaussnoiseOptions struct {
-	// Sigma Standard deviation of pixels in generated image
+	// Sigma Standard deviation of pixels in generated image (range 0-100000, default 30)
 	Sigma *float64
-	// Mean Mean of pixels in generated image
+	// Mean Mean of pixels in generated image (range -10000000-1000000, default 128)
 	Mean *float64
-	// Seed Random number seed
+	// Seed Random number seed (range -2147483648-2147483647)
 	Seed int
+}
+
+// DefaultGaussnoiseOptions returns GaussnoiseOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultGaussnoiseOptions() *GaussnoiseOptions {
+	return &GaussnoiseOptions{
+		Sigma: Ptr(30.0),
+		Mean: Ptr(128.0),
+	}
 }
 
 
@@ -413,9 +514,9 @@ func NewGaussnoise(width int, height int, options *GaussnoiseOptions) (*Image, e
 
 // GifloadOptions optional arguments for vips_gifload
 type GifloadOptions struct {
-	// N Number of pages to load, -1 for all
+	// N Number of pages to load, -1 for all (range -1-100000, default 1)
 	N *int
-	// Page First page to load
+	// Page First page to load (range 0-100000)
 	Page int
 	// Memory Force open via memory
 	Memory bool
@@ -425,6 +526,15 @@ type GifloadOptions struct {
 	FailOn FailOn
 	// Revalidate Don't use a cached result for this operation
 	Revalidate bool
+}
+
+// DefaultGifloadOptions returns GifloadOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultGifloadOptions() *GifloadOptions {
+	return &GifloadOptions{
+		N: Ptr(1),
+	}
 }
 
 
@@ -449,9 +559,9 @@ func NewGifload(filename string, options *GifloadOptions) (*Image, error) {
 
 // GifloadBufferOptions optional arguments for vips_gifload_buffer
 type GifloadBufferOptions struct {
-	// N Number of pages to load, -1 for all
+	// N Number of pages to load, -1 for all (range -1-100000, default 1)
 	N *int
-	// Page First page to load
+	// Page First page to load (range 0-100000)
 	Page int
 	// Memory Force open via memory
 	Memory bool
@@ -461,6 +571,15 @@ type GifloadBufferOptions struct {
 	FailOn FailOn
 	// Revalidate Don't use a cached result for this operation
 	Revalidate bool
+}
+
+// DefaultGifloadBufferOptions returns GifloadBufferOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultGifloadBufferOptions() *GifloadBufferOptions {
+	return &GifloadBufferOptions{
+		N: Ptr(1),
+	}
 }
 
 
@@ -486,9 +605,9 @@ func NewGifloadBuffer(buf []byte, options *GifloadBufferOptions) (*Image, error)
 
 // GifloadSourceOptions optional arguments for vips_gifload_source
 type GifloadSourceOptions struct {
-	// N Number of pages to load, -1 for all
+	// N Number of pages to load, -1 for all (range -1-100000, default 1)
 	N *int
-	// Page First page to load
+	// Page First page to load (range 0-100000)
 	Page int
 	// Memory Force open via memory
 	Memory bool
@@ -498,6 +617,15 @@ type GifloadSourceOptions struct {
 	FailOn FailOn
 	// Revalidate Don't use a cached result for this operation
 	Revalidate bool
+}
+
+// DefaultGifloadSourceOptions returns GifloadSourceOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultGifloadSourceOptions() *GifloadSourceOptions {
+	return &GifloadSourceOptions{
+		N: Ptr(1),
+	}
 }
 
 
@@ -526,6 +654,14 @@ type GreyOptions struct {
 	Uchar bool
 }
 
+// DefaultGreyOptions returns GreyOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultGreyOptions() *GreyOptions {
+	return &GreyOptions{
+	}
+}
+
 
 // NewGrey vips_grey make a grey ramp image
 //
@@ -549,9 +685,9 @@ func NewGrey(width int, height int, options *GreyOptions) (*Image, error) {
 
 // HeifloadOptions optional arguments for vips_heifload
 type HeifloadOptions struct {
-	// Page First page to load
+	// Page First page to load (range 0-100000)
 	Page int
-	// N Number of pages to load, -1 for all
+	// N Number of pages to load, -1 for all (range -1-100000, default 1)
 	N *int
 	// Thumbnail Fetch thumbnail image
 	Thumbnail bool
@@ -565,6 +701,15 @@ type HeifloadOptions struct {
 	FailOn FailOn
 	// Revalidate Don't use a cached result for this operation
 	Revalidate bool
+}
+
+// DefaultHeifloadOptions returns HeifloadOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultHeifloadOptions() *HeifloadOptions {
+	return &HeifloadOptions{
+		N: Ptr(1),
+	}
 }
 
 
@@ -589,9 +734,9 @@ func NewHeifload(filename string, options *HeifloadOptions) (*Image, error) {
 
 // HeifloadBufferOptions optional arguments for vips_heifload_buffer
 type HeifloadBufferOptions struct {
-	// Page First page to load
+	// Page First page to load (range 0-100000)
 	Page int
-	// N Number of pages to load, -1 for all
+	// N Number of pages to load, -1 for all (range -1-100000, default 1)
 	N *int
 	// Thumbnail Fetch thumbnail image
 	Thumbnail bool
@@ -605,6 +750,15 @@ type HeifloadBufferOptions struct {
 	FailOn FailOn
 	// Revalidate Don't use a cached result for this operation
 	Revalidate bool
+}
+
+// DefaultHeifloadBufferOptions returns HeifloadBufferOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultHeifloadBufferOptions() *HeifloadBufferOptions {
+	return &HeifloadBufferOptions{
+		N: Ptr(1),
+	}
 }
 
 
@@ -630,9 +784,9 @@ func NewHeifloadBuffer(buf []byte, options *HeifloadBufferOptions) (*Image, erro
 
 // HeifloadSourceOptions optional arguments for vips_heifload_source
 type HeifloadSourceOptions struct {
-	// Page First page to load
+	// Page First page to load (range 0-100000)
 	Page int
-	// N Number of pages to load, -1 for all
+	// N Number of pages to load, -1 for all (range -1-100000, default 1)
 	N *int
 	// Thumbnail Fetch thumbnail image
 	Thumbnail bool
@@ -646,6 +800,15 @@ type HeifloadSourceOptions struct {
 	FailOn FailOn
 	// Revalidate Don't use a cached result for this operation
 	Revalidate bool
+}
+
+// DefaultHeifloadSourceOptions returns HeifloadSourceOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultHeifloadSourceOptions() *HeifloadSourceOptions {
+	return &HeifloadSourceOptions{
+		N: Ptr(1),
+	}
 }
 
 
@@ -670,12 +833,22 @@ func NewHeifloadSource(source *Source, options *HeifloadSourceOptions) (*Image, 
 
 // IdentityOptions optional arguments for vips_identity
 type IdentityOptions struct {
-	// Bands Number of bands in LUT
+	// Bands Number of bands in LUT (range 1-100000, default 1)
 	Bands int
 	// Ushort Create a 16-bit LUT
 	Ushort bool
-	// Size Size of 16-bit LUT
+	// Size Size of 16-bit LUT (range 1-65536, default 65536)
 	Size int
+}
+
+// DefaultIdentityOptions returns IdentityOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultIdentityOptions() *IdentityOptions {
+	return &IdentityOptions{
+		Bands: 1,
+		Size: 65536,
+	}
 }
 
 
@@ -698,7 +871,7 @@ func NewIdentity(options *IdentityOptions) (*Image, error) {
 
 // Jp2kloadOptions optional arguments for vips_jp2kload
 type Jp2kloadOptions struct {
-	// Page Load this page from the image
+	// Page Load this page from the image (range 0-100000)
 	Page int
 	// Memory Force open via memory
 	Memory bool
@@ -708,6 +881,14 @@ type Jp2kloadOptions struct {
 	FailOn FailOn
 	// Revalidate Don't use a cached result for this operation
 	Revalidate bool
+}
+
+// DefaultJp2kloadOptions returns Jp2kloadOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultJp2kloadOptions() *Jp2kloadOptions {
+	return &Jp2kloadOptions{
+	}
 }
 
 
@@ -732,7 +913,7 @@ func NewJp2kload(filename string, options *Jp2kloadOptions) (*Image, error) {
 
 // Jp2kloadBufferOptions optional arguments for vips_jp2kload_buffer
 type Jp2kloadBufferOptions struct {
-	// Page Load this page from the image
+	// Page Load this page from the image (range 0-100000)
 	Page int
 	// Memory Force open via memory
 	Memory bool
@@ -742,6 +923,14 @@ type Jp2kloadBufferOptions struct {
 	FailOn FailOn
 	// Revalidate Don't use a cached result for this operation
 	Revalidate bool
+}
+
+// DefaultJp2kloadBufferOptions returns Jp2kloadBufferOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultJp2kloadBufferOptions() *Jp2kloadBufferOptions {
+	return &Jp2kloadBufferOptions{
+	}
 }
 
 
@@ -767,7 +956,7 @@ func NewJp2kloadBuffer(buf []byte, options *Jp2kloadBufferOptions) (*Image, erro
 
 // Jp2kloadSourceOptions optional arguments for vips_jp2kload_source
 type Jp2kloadSourceOptions struct {
-	// Page Load this page from the image
+	// Page Load this page from the image (range 0-100000)
 	Page int
 	// Memory Force open via memory
 	Memory bool
@@ -777,6 +966,14 @@ type Jp2kloadSourceOptions struct {
 	FailOn FailOn
 	// Revalidate Don't use a cached result for this operation
 	Revalidate bool
+}
+
+// DefaultJp2kloadSourceOptions returns Jp2kloadSourceOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultJp2kloadSourceOptions() *Jp2kloadSourceOptions {
+	return &Jp2kloadSourceOptions{
+	}
 }
 
 
@@ -801,7 +998,7 @@ func NewJp2kloadSource(source *Source, options *Jp2kloadSourceOptions) (*Image, 
 
 // JpegloadOptions optional arguments for vips_jpegload
 type JpegloadOptions struct {
-	// Shrink Shrink factor on load
+	// Shrink Shrink factor on load (range 1-8, default 1)
 	Shrink int
 	// Autorotate Rotate image using exif orientation
 	Autorotate bool
@@ -815,6 +1012,15 @@ type JpegloadOptions struct {
 	FailOn FailOn
 	// Revalidate Don't use a cached result for this operation
 	Revalidate bool
+}
+
+// DefaultJpegloadOptions returns JpegloadOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultJpegloadOptions() *JpegloadOptions {
+	return &JpegloadOptions{
+		Shrink: 1,
+	}
 }
 
 
@@ -839,7 +1045,7 @@ func NewJpegload(filename string, options *JpegloadOptions) (*Image, error) {
 
 // JpegloadBufferOptions optional arguments for vips_jpegload_buffer
 type JpegloadBufferOptions struct {
-	// Shrink Shrink factor on load
+	// Shrink Shrink factor on load (range 1-8, default 1)
 	Shrink int
 	// Autorotate Rotate image using exif orientation
 	Autorotate bool
@@ -853,6 +1059,15 @@ type JpegloadBufferOptions struct {
 	FailOn FailOn
 	// Revalidate Don't use a cached result for this operation
 	Revalidate bool
+}
+
+// DefaultJpegloadBufferOptions returns JpegloadBufferOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultJpegloadBufferOptions() *JpegloadBufferOptions {
+	return &JpegloadBufferOptions{
+		Shrink: 1,
+	}
 }
 
 
@@ -878,7 +1093,7 @@ func NewJpegloadBuffer(buf []byte, options *JpegloadBufferOptions) (*Image, erro
 
 // JpegloadSourceOptions optional arguments for vips_jpegload_source
 type JpegloadSourceOptions struct {
-	// Shrink Shrink factor on load
+	// Shrink Shrink factor on load (range 1-8, default 1)
 	Shrink int
 	// Autorotate Rotate image using exif orientation
 	Autorotate bool
@@ -892,6 +1107,15 @@ type JpegloadSourceOptions struct {
 	FailOn FailOn
 	// Revalidate Don't use a cached result for this operation
 	Revalidate bool
+}
+
+// DefaultJpegloadSourceOptions returns JpegloadSourceOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultJpegloadSourceOptions() *JpegloadSourceOptions {
+	return &JpegloadSourceOptions{
+		Shrink: 1,
+	}
 }
 
 
@@ -916,9 +1140,9 @@ func NewJpegloadSource(source *Source, options *JpegloadSourceOptions) (*Image, 
 
 // JxlloadOptions optional arguments for vips_jxlload
 type JxlloadOptions struct {
-	// Page First page to load
+	// Page First page to load (range 0-100000)
 	Page int
-	// N Number of pages to load, -1 for all
+	// N Number of pages to load, -1 for all (range -1-100000, default 1)
 	N *int
 	// Memory Force open via memory
 	Memory bool
@@ -928,6 +1152,15 @@ type JxlloadOptions struct {
 	FailOn FailOn
 	// Revalidate Don't use a cached result for this operation
 	Revalidate bool
+}
+
+// DefaultJxlloadOptions returns JxlloadOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultJxlloadOptions() *JxlloadOptions {
+	return &JxlloadOptions{
+		N: Ptr(1),
+	}
 }
 
 
@@ -952,9 +1185,9 @@ func NewJxlload(filename string, options *JxlloadOptions) (*Image, error) {
 
 // JxlloadBufferOptions optional arguments for vips_jxlload_buffer
 type JxlloadBufferOptions struct {
-	// Page First page to load
+	// Page First page to load (range 0-100000)
 	Page int
-	// N Number of pages to load, -1 for all
+	// N Number of pages to load, -1 for all (range -1-100000, default 1)
 	N *int
 	// Memory Force open via memory
 	Memory bool
@@ -964,6 +1197,15 @@ type JxlloadBufferOptions struct {
 	FailOn FailOn
 	// Revalidate Don't use a cached result for this operation
 	Revalidate bool
+}
+
+// DefaultJxlloadBufferOptions returns JxlloadBufferOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultJxlloadBufferOptions() *JxlloadBufferOptions {
+	return &JxlloadBufferOptions{
+		N: Ptr(1),
+	}
 }
 
 
@@ -989,9 +1231,9 @@ func NewJxlloadBuffer(buf []byte, options *JxlloadBufferOptions) (*Image, error)
 
 // JxlloadSourceOptions optional arguments for vips_jxlload_source
 type JxlloadSourceOptions struct {
-	// Page First page to load
+	// Page First page to load (range 0-100000)
 	Page int
-	// N Number of pages to load, -1 for all
+	// N Number of pages to load, -1 for all (range -1-100000, default 1)
 	N *int
 	// Memory Force open via memory
 	Memory bool
@@ -1001,6 +1243,15 @@ type JxlloadSourceOptions struct {
 	FailOn FailOn
 	// Revalidate Don't use a cached result for this operation
 	Revalidate bool
+}
+
+// DefaultJxlloadSourceOptions returns JxlloadSourceOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultJxlloadSourceOptions() *JxlloadSourceOptions {
+	return &JxlloadSourceOptions{
+		N: Ptr(1),
+	}
 }
 
 
@@ -1031,6 +1282,14 @@ type LogmatOptions struct {
 	Precision Precision
 }
 
+// DefaultLogmatOptions returns LogmatOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultLogmatOptions() *LogmatOptions {
+	return &LogmatOptions{
+	}
+}
+
 
 // NewLogmat vips_logmat make a Laplacian of Gaussian image
 //
@@ -1056,9 +1315,9 @@ func NewLogmat(sigma float64, minAmpl float64, options *LogmatOptions) (*Image, 
 type MagickloadOptions struct {
 	// Density Canvas resolution for rendering vector formats like SVG
 	Density string
-	// Page First page to load
+	// Page First page to load (range 0-100000)
 	Page int
-	// N Number of pages to load, -1 for all
+	// N Number of pages to load, -1 for all (range -1-100000, default 1)
 	N *int
 	// Memory Force open via memory
 	Memory bool
@@ -1068,6 +1327,15 @@ type MagickloadOptions struct {
 	FailOn FailOn
 	// Revalidate Don't use a cached result for this operation
 	Revalidate bool
+}
+
+// DefaultMagickloadOptions returns MagickloadOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultMagickloadOptions() *MagickloadOptions {
+	return &MagickloadOptions{
+		N: Ptr(1),
+	}
 }
 
 
@@ -1094,9 +1362,9 @@ func NewMagickload(filename string, options *MagickloadOptions) (*Image, error) 
 type MagickloadBufferOptions struct {
 	// Density Canvas resolution for rendering vector formats like SVG
 	Density string
-	// Page First page to load
+	// Page First page to load (range 0-100000)
 	Page int
-	// N Number of pages to load, -1 for all
+	// N Number of pages to load, -1 for all (range -1-100000, default 1)
 	N *int
 	// Memory Force open via memory
 	Memory bool
@@ -1106,6 +1374,15 @@ type MagickloadBufferOptions struct {
 	FailOn FailOn
 	// Revalidate Don't use a cached result for this operation
 	Revalidate bool
+}
+
+// DefaultMagickloadBufferOptions returns MagickloadBufferOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultMagickloadBufferOptions() *MagickloadBufferOptions {
+	return &MagickloadBufferOptions{
+		N: Ptr(1),
+	}
 }
 
 
@@ -1139,6 +1416,14 @@ type MaskButterworthOptions struct {
 	Reject bool
 	// Optical Rotate quadrants to optical space
 	Optical bool
+}
+
+// DefaultMaskButterworthOptions returns MaskButterworthOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultMaskButterworthOptions() *MaskButterworthOptions {
+	return &MaskButterworthOptions{
+	}
 }
 
 
@@ -1175,6 +1460,14 @@ type MaskButterworthBandOptions struct {
 	Reject bool
 	// Optical Rotate quadrants to optical space
 	Optical bool
+}
+
+// DefaultMaskButterworthBandOptions returns MaskButterworthBandOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultMaskButterworthBandOptions() *MaskButterworthBandOptions {
+	return &MaskButterworthBandOptions{
+	}
 }
 
 
@@ -1215,6 +1508,14 @@ type MaskButterworthRingOptions struct {
 	Optical bool
 }
 
+// DefaultMaskButterworthRingOptions returns MaskButterworthRingOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultMaskButterworthRingOptions() *MaskButterworthRingOptions {
+	return &MaskButterworthRingOptions{
+	}
+}
+
 
 // NewMaskButterworthRing vips_mask_butterworth_ring make a butterworth ring filter
 //
@@ -1252,6 +1553,14 @@ type MaskFractalOptions struct {
 	Optical bool
 }
 
+// DefaultMaskFractalOptions returns MaskFractalOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultMaskFractalOptions() *MaskFractalOptions {
+	return &MaskFractalOptions{
+	}
+}
+
 
 // NewMaskFractal vips_mask_fractal make fractal filter
 //
@@ -1284,6 +1593,14 @@ type MaskGaussianOptions struct {
 	Reject bool
 	// Optical Rotate quadrants to optical space
 	Optical bool
+}
+
+// DefaultMaskGaussianOptions returns MaskGaussianOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultMaskGaussianOptions() *MaskGaussianOptions {
+	return &MaskGaussianOptions{
+	}
 }
 
 
@@ -1319,6 +1636,14 @@ type MaskGaussianBandOptions struct {
 	Reject bool
 	// Optical Rotate quadrants to optical space
 	Optical bool
+}
+
+// DefaultMaskGaussianBandOptions returns MaskGaussianBandOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultMaskGaussianBandOptions() *MaskGaussianBandOptions {
+	return &MaskGaussianBandOptions{
+	}
 }
 
 
@@ -1358,6 +1683,14 @@ type MaskGaussianRingOptions struct {
 	Optical bool
 }
 
+// DefaultMaskGaussianRingOptions returns MaskGaussianRingOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultMaskGaussianRingOptions() *MaskGaussianRingOptions {
+	return &MaskGaussianRingOptions{
+	}
+}
+
 
 // NewMaskGaussianRing vips_mask_gaussian_ring make a gaussian ring filter
 //
@@ -1394,6 +1727,14 @@ type MaskIdealOptions struct {
 	Optical bool
 }
 
+// DefaultMaskIdealOptions returns MaskIdealOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultMaskIdealOptions() *MaskIdealOptions {
+	return &MaskIdealOptions{
+	}
+}
+
 
 // NewMaskIdeal vips_mask_ideal make an ideal filter
 //
@@ -1426,6 +1767,14 @@ type MaskIdealBandOptions struct {
 	Reject bool
 	// Optical Rotate quadrants to optical space
 	Optical bool
+}
+
+// DefaultMaskIdealBandOptions returns MaskIdealBandOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultMaskIdealBandOptions() *MaskIdealBandOptions {
+	return &MaskIdealBandOptions{
+	}
 }
 
 
@@ -1464,6 +1813,14 @@ type MaskIdealRingOptions struct {
 	Optical bool
 }
 
+// DefaultMaskIdealRingOptions returns MaskIdealRingOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultMaskIdealRingOptions() *MaskIdealRingOptions {
+	return &MaskIdealRingOptions{
+	}
+}
+
 
 // NewMaskIdealRing vips_mask_ideal_ring make an ideal ring filter
 //
@@ -1499,6 +1856,14 @@ type MatloadOptions struct {
 	Revalidate bool
 }
 
+// DefaultMatloadOptions returns MatloadOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultMatloadOptions() *MatloadOptions {
+	return &MatloadOptions{
+	}
+}
+
 
 // NewMatload vips_matload load mat from file
 //
@@ -1529,6 +1894,14 @@ type MatrixloadOptions struct {
 	FailOn FailOn
 	// Revalidate Don't use a cached result for this operation
 	Revalidate bool
+}
+
+// DefaultMatrixloadOptions returns MatrixloadOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultMatrixloadOptions() *MatrixloadOptions {
+	return &MatrixloadOptions{
+	}
 }
 
 
@@ -1563,6 +1936,14 @@ type MatrixloadSourceOptions struct {
 	Revalidate bool
 }
 
+// DefaultMatrixloadSourceOptions returns MatrixloadSourceOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultMatrixloadSourceOptions() *MatrixloadSourceOptions {
+	return &MatrixloadSourceOptions{
+	}
+}
+
 
 // NewMatrixloadSource vips_matrixload_source load matrix
 //
@@ -1593,6 +1974,14 @@ type NiftiloadOptions struct {
 	FailOn FailOn
 	// Revalidate Don't use a cached result for this operation
 	Revalidate bool
+}
+
+// DefaultNiftiloadOptions returns NiftiloadOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultNiftiloadOptions() *NiftiloadOptions {
+	return &NiftiloadOptions{
+	}
 }
 
 
@@ -1627,6 +2016,14 @@ type NiftiloadSourceOptions struct {
 	Revalidate bool
 }
 
+// DefaultNiftiloadSourceOptions returns NiftiloadSourceOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultNiftiloadSourceOptions() *NiftiloadSourceOptions {
+	return &NiftiloadSourceOptions{
+	}
+}
+
 
 // NewNiftiloadSource vips_niftiload_source load NIfTI volumes
 //
@@ -1659,6 +2056,14 @@ type OpenexrloadOptions struct {
 	Revalidate bool
 }
 
+// DefaultOpenexrloadOptions returns OpenexrloadOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultOpenexrloadOptions() *OpenexrloadOptions {
+	return &OpenexrloadOptions{
+	}
+}
+
 
 // NewOpenexrload vips_openexrload load an OpenEXR image
 //
@@ -1681,7 +2086,7 @@ func NewOpenexrload(filename string, options *OpenexrloadOptions) (*Image, error
 
 // OpenslideloadOptions optional arguments for vips_openslideload
 type OpenslideloadOptions struct {
-	// Level Load this level from the file
+	// Level Load this level from the file (range 0-100000)
 	Level int
 	// Autocrop Crop to image bounds
 	Autocrop bool
@@ -1699,6 +2104,14 @@ type OpenslideloadOptions struct {
 	FailOn FailOn
 	// Revalidate Don't use a cached result for this operation
 	Revalidate bool
+}
+
+// DefaultOpenslideloadOptions returns OpenslideloadOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultOpenslideloadOptions() *OpenslideloadOptions {
+	return &OpenslideloadOptions{
+	}
 }
 
 
@@ -1723,7 +2136,7 @@ func NewOpenslideload(filename string, options *OpenslideloadOptions) (*Image, e
 
 // OpenslideloadSourceOptions optional arguments for vips_openslideload_source
 type OpenslideloadSourceOptions struct {
-	// Level Load this level from the file
+	// Level Load this level from the file (range 0-100000)
 	Level int
 	// Autocrop Crop to image bounds
 	Autocrop bool
@@ -1741,6 +2154,14 @@ type OpenslideloadSourceOptions struct {
 	FailOn FailOn
 	// Revalidate Don't use a cached result for this operation
 	Revalidate bool
+}
+
+// DefaultOpenslideloadSourceOptions returns OpenslideloadSourceOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultOpenslideloadSourceOptions() *OpenslideloadSourceOptions {
+	return &OpenslideloadSourceOptions{
+	}
 }
 
 
@@ -1765,13 +2186,13 @@ func NewOpenslideloadSource(source *Source, options *OpenslideloadSourceOptions)
 
 // PdfloadOptions optional arguments for vips_pdfload
 type PdfloadOptions struct {
-	// Page First page to load
+	// Page First page to load (range 0-100000)
 	Page int
-	// N Number of pages to load, -1 for all
+	// N Number of pages to load, -1 for all (range -1-100000, default 1)
 	N *int
-	// Dpi DPI to render at
+	// Dpi DPI to render at (range 0.001-100000, default 72)
 	Dpi float64
-	// Scale Factor to scale by
+	// Scale Factor to scale by (range 0-100000, default 1)
 	Scale *float64
 	// Background Background colour
 	Background []float64
@@ -1785,6 +2206,17 @@ type PdfloadOptions struct {
 	FailOn FailOn
 	// Revalidate Don't use a cached result for this operation
 	Revalidate bool
+}
+
+// DefaultPdfloadOptions returns PdfloadOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultPdfloadOptions() *PdfloadOptions {
+	return &PdfloadOptions{
+		N: Ptr(1),
+		Dpi: 72.0,
+		Scale: Ptr(1.0),
+	}
 }
 
 
@@ -1809,13 +2241,13 @@ func NewPdfload(filename string, options *PdfloadOptions) (*Image, error) {
 
 // PdfloadBufferOptions optional arguments for vips_pdfload_buffer
 type PdfloadBufferOptions struct {
-	// Page First page to load
+	// Page First page to load (range 0-100000)
 	Page int
-	// N Number of pages to load, -1 for all
+	// N Number of pages to load, -1 for all (range -1-100000, default 1)
 	N *int
-	// Dpi DPI to render at
+	// Dpi DPI to render at (range 0.001-100000, default 72)
 	Dpi float64
-	// Scale Factor to scale by
+	// Scale Factor to scale by (range 0-100000, default 1)
 	Scale *float64
 	// Background Background colour
 	Background []float64
@@ -1829,6 +2261,17 @@ type PdfloadBufferOptions struct {
 	FailOn FailOn
 	// Revalidate Don't use a cached result for this operation
 	Revalidate bool
+}
+
+// DefaultPdfloadBufferOptions returns PdfloadBufferOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultPdfloadBufferOptions() *PdfloadBufferOptions {
+	return &PdfloadBufferOptions{
+		N: Ptr(1),
+		Dpi: 72.0,
+		Scale: Ptr(1.0),
+	}
 }
 
 
@@ -1854,13 +2297,13 @@ func NewPdfloadBuffer(buf []byte, options *PdfloadBufferOptions) (*Image, error)
 
 // PdfloadSourceOptions optional arguments for vips_pdfload_source
 type PdfloadSourceOptions struct {
-	// Page First page to load
+	// Page First page to load (range 0-100000)
 	Page int
-	// N Number of pages to load, -1 for all
+	// N Number of pages to load, -1 for all (range -1-100000, default 1)
 	N *int
-	// Dpi DPI to render at
+	// Dpi DPI to render at (range 0.001-100000, default 72)
 	Dpi float64
-	// Scale Factor to scale by
+	// Scale Factor to scale by (range 0-100000, default 1)
 	Scale *float64
 	// Background Background colour
 	Background []float64
@@ -1874,6 +2317,17 @@ type PdfloadSourceOptions struct {
 	FailOn FailOn
 	// Revalidate Don't use a cached result for this operation
 	Revalidate bool
+}
+
+// DefaultPdfloadSourceOptions returns PdfloadSourceOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultPdfloadSourceOptions() *PdfloadSourceOptions {
+	return &PdfloadSourceOptions{
+		N: Ptr(1),
+		Dpi: 72.0,
+		Scale: Ptr(1.0),
+	}
 }
 
 
@@ -1898,12 +2352,21 @@ func NewPdfloadSource(source *Source, options *PdfloadSourceOptions) (*Image, er
 
 // PerlinOptions optional arguments for vips_perlin
 type PerlinOptions struct {
-	// CellSize Size of Perlin cells
+	// CellSize Size of Perlin cells (range 1-100000000, default 256)
 	CellSize int
 	// Uchar Output an unsigned char image
 	Uchar bool
-	// Seed Random number seed
+	// Seed Random number seed (range -2147483648-2147483647)
 	Seed int
+}
+
+// DefaultPerlinOptions returns PerlinOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultPerlinOptions() *PerlinOptions {
+	return &PerlinOptions{
+		CellSize: 256,
+	}
 }
 
 
@@ -1941,6 +2404,14 @@ type PngloadOptions struct {
 	Revalidate bool
 }
 
+// DefaultPngloadOptions returns PngloadOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultPngloadOptions() *PngloadOptions {
+	return &PngloadOptions{
+	}
+}
+
 
 // NewPngload vips_pngload load png from file
 //
@@ -1973,6 +2444,14 @@ type PngloadBufferOptions struct {
 	FailOn FailOn
 	// Revalidate Don't use a cached result for this operation
 	Revalidate bool
+}
+
+// DefaultPngloadBufferOptions returns PngloadBufferOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultPngloadBufferOptions() *PngloadBufferOptions {
+	return &PngloadBufferOptions{
+	}
 }
 
 
@@ -2010,6 +2489,14 @@ type PngloadSourceOptions struct {
 	Revalidate bool
 }
 
+// DefaultPngloadSourceOptions returns PngloadSourceOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultPngloadSourceOptions() *PngloadSourceOptions {
+	return &PngloadSourceOptions{
+	}
+}
+
 
 // NewPngloadSource vips_pngload_source load png from source
 //
@@ -2040,6 +2527,14 @@ type PpmloadOptions struct {
 	FailOn FailOn
 	// Revalidate Don't use a cached result for this operation
 	Revalidate bool
+}
+
+// DefaultPpmloadOptions returns PpmloadOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultPpmloadOptions() *PpmloadOptions {
+	return &PpmloadOptions{
+	}
 }
 
 
@@ -2074,6 +2569,14 @@ type PpmloadSourceOptions struct {
 	Revalidate bool
 }
 
+// DefaultPpmloadSourceOptions returns PpmloadSourceOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultPpmloadSourceOptions() *PpmloadSourceOptions {
+	return &PpmloadSourceOptions{
+	}
+}
+
 
 // NewPpmloadSource vips_ppmload_source load ppm base class
 //
@@ -2106,6 +2609,14 @@ type RadloadOptions struct {
 	Revalidate bool
 }
 
+// DefaultRadloadOptions returns RadloadOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultRadloadOptions() *RadloadOptions {
+	return &RadloadOptions{
+	}
+}
+
 
 // NewRadload vips_radload load a Radiance image from a file
 //
@@ -2136,6 +2647,14 @@ type RadloadBufferOptions struct {
 	FailOn FailOn
 	// Revalidate Don't use a cached result for this operation
 	Revalidate bool
+}
+
+// DefaultRadloadBufferOptions returns RadloadBufferOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultRadloadBufferOptions() *RadloadBufferOptions {
+	return &RadloadBufferOptions{
+	}
 }
 
 
@@ -2171,6 +2690,14 @@ type RadloadSourceOptions struct {
 	Revalidate bool
 }
 
+// DefaultRadloadSourceOptions returns RadloadSourceOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultRadloadSourceOptions() *RadloadSourceOptions {
+	return &RadloadSourceOptions{
+	}
+}
+
 
 // NewRadloadSource vips_radload_source load rad from source
 //
@@ -2193,7 +2720,7 @@ func NewRadloadSource(source *Source, options *RadloadSourceOptions) (*Image, er
 
 // RawloadOptions optional arguments for vips_rawload
 type RawloadOptions struct {
-	// Offset Offset in bytes from start of file
+	// Offset Offset in bytes from start of file (range 0-100000000000)
 	Offset uint64
 	// Format Pixel format in image
 	Format BandFormat
@@ -2207,6 +2734,14 @@ type RawloadOptions struct {
 	FailOn FailOn
 	// Revalidate Don't use a cached result for this operation
 	Revalidate bool
+}
+
+// DefaultRawloadOptions returns RawloadOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultRawloadOptions() *RawloadOptions {
+	return &RawloadOptions{
+	}
 }
 
 
@@ -2234,7 +2769,7 @@ func NewRawload(filename string, width int, height int, bands int, options *Rawl
 
 // SdfOptions optional arguments for vips_sdf
 type SdfOptions struct {
-	// R Radius
+	// R Radius (range 0-100000000, default 50)
 	R *float64
 	// A Point a
 	A []float64
@@ -2242,6 +2777,15 @@ type SdfOptions struct {
 	B []float64
 	// Corners Corner radii
 	Corners []float64
+}
+
+// DefaultSdfOptions returns SdfOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultSdfOptions() *SdfOptions {
+	return &SdfOptions{
+		R: Ptr(50.0),
+	}
 }
 
 
@@ -2270,10 +2814,20 @@ func NewSdf(width int, height int, shape SdfShape, options *SdfOptions) (*Image,
 type SinesOptions struct {
 	// Uchar Output an unsigned char image
 	Uchar bool
-	// Hfreq Horizontal spatial frequency
+	// Hfreq Horizontal spatial frequency (range 0-10000, default 0.5)
 	Hfreq *float64
-	// Vfreq Vertical spatial frequency
+	// Vfreq Vertical spatial frequency (range 0-10000, default 0.5)
 	Vfreq *float64
+}
+
+// DefaultSinesOptions returns SinesOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultSinesOptions() *SinesOptions {
+	return &SinesOptions{
+		Hfreq: Ptr(0.5),
+		Vfreq: Ptr(0.5),
+	}
 }
 
 
@@ -2312,9 +2866,9 @@ func NewSum(in []*Image) (*Image, error) {
 
 // SvgloadOptions optional arguments for vips_svgload
 type SvgloadOptions struct {
-	// Dpi Render at this DPI
+	// Dpi Render at this DPI (range 0.001-100000, default 72)
 	Dpi float64
-	// Scale Scale output by this factor
+	// Scale Scale output by this factor (range 0-100000, default 1)
 	Scale *float64
 	// Unlimited Allow SVG of any size
 	Unlimited bool
@@ -2326,6 +2880,16 @@ type SvgloadOptions struct {
 	FailOn FailOn
 	// Revalidate Don't use a cached result for this operation
 	Revalidate bool
+}
+
+// DefaultSvgloadOptions returns SvgloadOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultSvgloadOptions() *SvgloadOptions {
+	return &SvgloadOptions{
+		Dpi: 72.0,
+		Scale: Ptr(1.0),
+	}
 }
 
 
@@ -2350,9 +2914,9 @@ func NewSvgload(filename string, options *SvgloadOptions) (*Image, error) {
 
 // SvgloadBufferOptions optional arguments for vips_svgload_buffer
 type SvgloadBufferOptions struct {
-	// Dpi Render at this DPI
+	// Dpi Render at this DPI (range 0.001-100000, default 72)
 	Dpi float64
-	// Scale Scale output by this factor
+	// Scale Scale output by this factor (range 0-100000, default 1)
 	Scale *float64
 	// Unlimited Allow SVG of any size
 	Unlimited bool
@@ -2364,6 +2928,16 @@ type SvgloadBufferOptions struct {
 	FailOn FailOn
 	// Revalidate Don't use a cached result for this operation
 	Revalidate bool
+}
+
+// DefaultSvgloadBufferOptions returns SvgloadBufferOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultSvgloadBufferOptions() *SvgloadBufferOptions {
+	return &SvgloadBufferOptions{
+		Dpi: 72.0,
+		Scale: Ptr(1.0),
+	}
 }
 
 
@@ -2389,9 +2963,9 @@ func NewSvgloadBuffer(buf []byte, options *SvgloadBufferOptions) (*Image, error)
 
 // SvgloadSourceOptions optional arguments for vips_svgload_source
 type SvgloadSourceOptions struct {
-	// Dpi Render at this DPI
+	// Dpi Render at this DPI (range 0.001-100000, default 72)
 	Dpi float64
-	// Scale Scale output by this factor
+	// Scale Scale output by this factor (range 0-100000, default 1)
 	Scale *float64
 	// Unlimited Allow SVG of any size
 	Unlimited bool
@@ -2403,6 +2977,16 @@ type SvgloadSourceOptions struct {
 	FailOn FailOn
 	// Revalidate Don't use a cached result for this operation
 	Revalidate bool
+}
+
+// DefaultSvgloadSourceOptions returns SvgloadSourceOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultSvgloadSourceOptions() *SvgloadSourceOptions {
+	return &SvgloadSourceOptions{
+		Dpi: 72.0,
+		Scale: Ptr(1.0),
+	}
 }
 
 
@@ -2448,6 +3032,14 @@ type SystemOptions struct {
 	InFormat string
 }
 
+// DefaultSystemOptions returns SystemOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultSystemOptions() *SystemOptions {
+	return &SystemOptions{
+	}
+}
+
 
 // NewSystem vips_system run an external command
 //
@@ -2472,17 +3064,17 @@ func NewSystem(cmdFormat string, options *SystemOptions) (*Image, error) {
 type TextOptions struct {
 	// Font Font to render with
 	Font string
-	// Width Maximum image width in pixels
+	// Width Maximum image width in pixels (range 0-100000000)
 	Width int
-	// Height Maximum image height in pixels
+	// Height Maximum image height in pixels (range 0-100000000)
 	Height int
 	// Align Align on the low, centre or high edge
 	Align Align
 	// Justify Justify lines
 	Justify bool
-	// Dpi DPI to render at
+	// Dpi DPI to render at (range 1-1000000, default 72)
 	Dpi int
-	// Spacing Line spacing
+	// Spacing Line spacing (range -1000000-1000000)
 	Spacing int
 	// Fontfile Load this font file
 	Fontfile string
@@ -2492,6 +3084,15 @@ type TextOptions struct {
 	Wrap TextWrap
 	// AutofitDpi Output, DPI selected by autofit
 	AutofitDpi int
+}
+
+// DefaultTextOptions returns TextOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultTextOptions() *TextOptions {
+	return &TextOptions{
+		Dpi: 72,
+	}
 }
 
 
@@ -2516,7 +3117,7 @@ func NewText(text string, options *TextOptions) (*Image, error) {
 
 // ThumbnailOptions optional arguments for vips_thumbnail
 type ThumbnailOptions struct {
-	// Height Size to this height
+	// Height Size to this height (range 1-100000000, default 1)
 	Height int
 	// Size Only upsize, only downsize, or both
 	Size Size
@@ -2530,10 +3131,20 @@ type ThumbnailOptions struct {
 	ImportProfile string
 	// ExportProfile Fallback export profile
 	ExportProfile string
-	// Intent Rendering intent
+	// Intent Rendering intent (default IntentRelative)
 	Intent *Intent
 	// FailOn Error level to fail on
 	FailOn FailOn
+}
+
+// DefaultThumbnailOptions returns ThumbnailOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultThumbnailOptions() *ThumbnailOptions {
+	return &ThumbnailOptions{
+		Height: 1,
+		Intent: Ptr(IntentRelative),
+	}
 }
 
 
@@ -2561,7 +3172,7 @@ func NewThumbnail(filename string, width int, options *ThumbnailOptions) (*Image
 type ThumbnailBufferOptions struct {
 	// OptionString Options that are passed on to the underlying loader
 	OptionString string
-	// Height Size to this height
+	// Height Size to this height (range 1-100000000, default 1)
 	Height int
 	// Size Only upsize, only downsize, or both
 	Size Size
@@ -2575,10 +3186,20 @@ type ThumbnailBufferOptions struct {
 	ImportProfile string
 	// ExportProfile Fallback export profile
 	ExportProfile string
-	// Intent Rendering intent
+	// Intent Rendering intent (default IntentRelative)
 	Intent *Intent
 	// FailOn Error level to fail on
 	FailOn FailOn
+}
+
+// DefaultThumbnailBufferOptions returns ThumbnailBufferOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultThumbnailBufferOptions() *ThumbnailBufferOptions {
+	return &ThumbnailBufferOptions{
+		Height: 1,
+		Intent: Ptr(IntentRelative),
+	}
 }
 
 
@@ -2608,7 +3229,7 @@ func NewThumbnailBuffer(buf []byte, width int, options *ThumbnailBufferOptions) 
 type ThumbnailSourceOptions struct {
 	// OptionString Options that are passed on to the underlying loader
 	OptionString string
-	// Height Size to this height
+	// Height Size to this height (range 1-100000000, default 1)
 	Height int
 	// Size Only upsize, only downsize, or both
 	Size Size
@@ -2622,10 +3243,20 @@ type ThumbnailSourceOptions struct {
 	ImportProfile string
 	// ExportProfile Fallback export profile
 	ExportProfile string
-	// Intent Rendering intent
+	// Intent Rendering intent (default IntentRelative)
 	Intent *Intent
 	// FailOn Error level to fail on
 	FailOn FailOn
+}
+
+// DefaultThumbnailSourceOptions returns ThumbnailSourceOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultThumbnailSourceOptions() *ThumbnailSourceOptions {
+	return &ThumbnailSourceOptions{
+		Height: 1,
+		Intent: Ptr(IntentRelative),
+	}
 }
 
 
@@ -2651,11 +3282,11 @@ func NewThumbnailSource(source *Source, width int, options *ThumbnailSourceOptio
 
 // TiffloadOptions optional arguments for vips_tiffload
 type TiffloadOptions struct {
-	// Page First page to load
+	// Page First page to load (range 0-100000)
 	Page int
-	// Subifd Subifd index
+	// Subifd Subifd index (range -1-100000, default -1)
 	Subifd *int
-	// N Number of pages to load, -1 for all
+	// N Number of pages to load, -1 for all (range -1-100000, default 1)
 	N *int
 	// Autorotate Rotate image using orientation tag
 	Autorotate bool
@@ -2667,6 +3298,16 @@ type TiffloadOptions struct {
 	FailOn FailOn
 	// Revalidate Don't use a cached result for this operation
 	Revalidate bool
+}
+
+// DefaultTiffloadOptions returns TiffloadOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultTiffloadOptions() *TiffloadOptions {
+	return &TiffloadOptions{
+		Subifd: Ptr(-1),
+		N: Ptr(1),
+	}
 }
 
 
@@ -2691,11 +3332,11 @@ func NewTiffload(filename string, options *TiffloadOptions) (*Image, error) {
 
 // TiffloadBufferOptions optional arguments for vips_tiffload_buffer
 type TiffloadBufferOptions struct {
-	// Page First page to load
+	// Page First page to load (range 0-100000)
 	Page int
-	// Subifd Subifd index
+	// Subifd Subifd index (range -1-100000, default -1)
 	Subifd *int
-	// N Number of pages to load, -1 for all
+	// N Number of pages to load, -1 for all (range -1-100000, default 1)
 	N *int
 	// Autorotate Rotate image using orientation tag
 	Autorotate bool
@@ -2707,6 +3348,16 @@ type TiffloadBufferOptions struct {
 	FailOn FailOn
 	// Revalidate Don't use a cached result for this operation
 	Revalidate bool
+}
+
+// DefaultTiffloadBufferOptions returns TiffloadBufferOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultTiffloadBufferOptions() *TiffloadBufferOptions {
+	return &TiffloadBufferOptions{
+		Subifd: Ptr(-1),
+		N: Ptr(1),
+	}
 }
 
 
@@ -2732,11 +3383,11 @@ func NewTiffloadBuffer(buf []byte, options *TiffloadBufferOptions) (*Image, erro
 
 // TiffloadSourceOptions optional arguments for vips_tiffload_source
 type TiffloadSourceOptions struct {
-	// Page First page to load
+	// Page First page to load (range 0-100000)
 	Page int
-	// Subifd Subifd index
+	// Subifd Subifd index (range -1-100000, default -1)
 	Subifd *int
-	// N Number of pages to load, -1 for all
+	// N Number of pages to load, -1 for all (range -1-100000, default 1)
 	N *int
 	// Autorotate Rotate image using orientation tag
 	Autorotate bool
@@ -2748,6 +3399,16 @@ type TiffloadSourceOptions struct {
 	FailOn FailOn
 	// Revalidate Don't use a cached result for this operation
 	Revalidate bool
+}
+
+// DefaultTiffloadSourceOptions returns TiffloadSourceOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultTiffloadSourceOptions() *TiffloadSourceOptions {
+	return &TiffloadSourceOptions{
+		Subifd: Ptr(-1),
+		N: Ptr(1),
+	}
 }
 
 
@@ -2772,26 +3433,40 @@ func NewTiffloadSource(source *Source, options *TiffloadSourceOptions) (*Image, 
 
 // TonelutOptions optional arguments for vips_tonelut
 type TonelutOptions struct {
-	// InMax Size of LUT to build
+	// InMax Size of LUT to build (range 1-65535, default 32767)
 	InMax int
-	// OutMax Maximum value in output LUT
+	// OutMax Maximum value in output LUT (range 1-65535, default 32767)
 	OutMax int
-	// Lb Lowest value in output
+	// Lb Lowest value in output (range 0-100)
 	Lb float64
-	// Lw Highest value in output
+	// Lw Highest value in output (range 0-100, default 100)
 	Lw *float64
-	// Ps Position of shadow
+	// Ps Position of shadow (range 0-1, default 0.2)
 	Ps *float64
-	// Pm Position of mid-tones
+	// Pm Position of mid-tones (range 0-1, default 0.5)
 	Pm *float64
-	// Ph Position of highlights
+	// Ph Position of highlights (range 0-1, default 0.8)
 	Ph *float64
-	// S Adjust shadows by this much
+	// S Adjust shadows by this much (range -30-30)
 	S float64
-	// M Adjust mid-tones by this much
+	// M Adjust mid-tones by this much (range -30-30)
 	M float64
-	// H Adjust highlights by this much
+	// H Adjust highlights by this much (range -30-30)
 	H float64
+}
+
+// DefaultTonelutOptions returns TonelutOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultTonelutOptions() *TonelutOptions {
+	return &TonelutOptions{
+		InMax: 32767,
+		OutMax: 32767,
+		Lw: Ptr(100.0),
+		Ps: Ptr(0.2),
+		Pm: Ptr(0.5),
+		Ph: Ptr(0.8),
+	}
 }
 
 
@@ -2822,6 +3497,14 @@ type VipsloadOptions struct {
 	FailOn FailOn
 	// Revalidate Don't use a cached result for this operation
 	Revalidate bool
+}
+
+// DefaultVipsloadOptions returns VipsloadOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultVipsloadOptions() *VipsloadOptions {
+	return &VipsloadOptions{
+	}
 }
 
 
@@ -2856,6 +3539,14 @@ type VipsloadSourceOptions struct {
 	Revalidate bool
 }
 
+// DefaultVipsloadSourceOptions returns VipsloadSourceOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultVipsloadSourceOptions() *VipsloadSourceOptions {
+	return &VipsloadSourceOptions{
+	}
+}
+
 
 // NewVipsloadSource vips_vipsload_source load vips from source
 //
@@ -2878,11 +3569,11 @@ func NewVipsloadSource(source *Source, options *VipsloadSourceOptions) (*Image, 
 
 // WebploadOptions optional arguments for vips_webpload
 type WebploadOptions struct {
-	// Page First page to load
+	// Page First page to load (range 0-100000)
 	Page int
-	// N Number of pages to load, -1 for all
+	// N Number of pages to load, -1 for all (range -1-100000, default 1)
 	N *int
-	// Scale Factor to scale by
+	// Scale Factor to scale by (range 0-1024, default 1)
 	Scale *float64
 	// Memory Force open via memory
 	Memory bool
@@ -2892,6 +3583,16 @@ type WebploadOptions struct {
 	FailOn FailOn
 	// Revalidate Don't use a cached result for this operation
 	Revalidate bool
+}
+
+// DefaultWebploadOptions returns WebploadOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultWebploadOptions() *WebploadOptions {
+	return &WebploadOptions{
+		N: Ptr(1),
+		Scale: Ptr(1.0),
+	}
 }
 
 
@@ -2916,11 +3617,11 @@ func NewWebpload(filename string, options *WebploadOptions) (*Image, error) {
 
 // WebploadBufferOptions optional arguments for vips_webpload_buffer
 type WebploadBufferOptions struct {
-	// Page First page to load
+	// Page First page to load (range 0-100000)
 	Page int
-	// N Number of pages to load, -1 for all
+	// N Number of pages to load, -1 for all (range -1-100000, default 1)
 	N *int
-	// Scale Factor to scale by
+	// Scale Factor to scale by (range 0-1024, default 1)
 	Scale *float64
 	// Memory Force open via memory
 	Memory bool
@@ -2930,6 +3631,16 @@ type WebploadBufferOptions struct {
 	FailOn FailOn
 	// Revalidate Don't use a cached result for this operation
 	Revalidate bool
+}
+
+// DefaultWebploadBufferOptions returns WebploadBufferOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultWebploadBufferOptions() *WebploadBufferOptions {
+	return &WebploadBufferOptions{
+		N: Ptr(1),
+		Scale: Ptr(1.0),
+	}
 }
 
 
@@ -2955,11 +3666,11 @@ func NewWebploadBuffer(buf []byte, options *WebploadBufferOptions) (*Image, erro
 
 // WebploadSourceOptions optional arguments for vips_webpload_source
 type WebploadSourceOptions struct {
-	// Page First page to load
+	// Page First page to load (range 0-100000)
 	Page int
-	// N Number of pages to load, -1 for all
+	// N Number of pages to load, -1 for all (range -1-100000, default 1)
 	N *int
-	// Scale Factor to scale by
+	// Scale Factor to scale by (range 0-1024, default 1)
 	Scale *float64
 	// Memory Force open via memory
 	Memory bool
@@ -2969,6 +3680,16 @@ type WebploadSourceOptions struct {
 	FailOn FailOn
 	// Revalidate Don't use a cached result for this operation
 	Revalidate bool
+}
+
+// DefaultWebploadSourceOptions returns WebploadSourceOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultWebploadSourceOptions() *WebploadSourceOptions {
+	return &WebploadSourceOptions{
+		N: Ptr(1),
+		Scale: Ptr(1.0),
+	}
 }
 
 
@@ -2993,10 +3714,19 @@ func NewWebploadSource(source *Source, options *WebploadSourceOptions) (*Image, 
 
 // WorleyOptions optional arguments for vips_worley
 type WorleyOptions struct {
-	// CellSize Size of Worley cells
+	// CellSize Size of Worley cells (range 1-100000000, default 256)
 	CellSize int
-	// Seed Random number seed
+	// Seed Random number seed (range -2147483648-2147483647)
 	Seed int
+}
+
+// DefaultWorleyOptions returns WorleyOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultWorleyOptions() *WorleyOptions {
+	return &WorleyOptions{
+		CellSize: 256,
+	}
 }
 
 
@@ -3022,12 +3752,23 @@ func NewWorley(width int, height int, options *WorleyOptions) (*Image, error) {
 
 // XyzOptions optional arguments for vips_xyz
 type XyzOptions struct {
-	// Csize Size of third dimension
+	// Csize Size of third dimension (range 1-100000000, default 1)
 	Csize int
-	// Dsize Size of fourth dimension
+	// Dsize Size of fourth dimension (range 1-100000000, default 1)
 	Dsize int
-	// Esize Size of fifth dimension
+	// Esize Size of fifth dimension (range 1-100000000, default 1)
 	Esize int
+}
+
+// DefaultXyzOptions returns XyzOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultXyzOptions() *XyzOptions {
+	return &XyzOptions{
+		Csize: 1,
+		Dsize: 1,
+		Esize: 1,
+	}
 }
 
 
@@ -3055,6 +3796,14 @@ func NewXyz(width int, height int, options *XyzOptions) (*Image, error) {
 type ZoneOptions struct {
 	// Uchar Output an unsigned char image
 	Uchar bool
+}
+
+// DefaultZoneOptions returns ZoneOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultZoneOptions() *ZoneOptions {
+	return &ZoneOptions{
+	}
 }
 
 
@@ -3174,6 +3923,14 @@ type Lab2XYZOptions struct {
 	Temp []float64
 }
 
+// DefaultLab2XYZOptions returns Lab2XYZOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultLab2XYZOptions() *Lab2XYZOptions {
+	return &Lab2XYZOptions{
+	}
+}
+
 
 // Lab2XYZ vips_Lab2XYZ transform CIELAB to XYZ
 func (r *Image) Lab2XYZ(options *Lab2XYZOptions) (error) {
@@ -3263,6 +4020,14 @@ func (r *Image) XYZ2CMYK() (error) {
 type XYZ2LabOptions struct {
 	// Temp Colour temperature
 	Temp []float64
+}
+
+// DefaultXYZ2LabOptions returns XYZ2LabOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultXYZ2LabOptions() *XYZ2LabOptions {
+	return &XYZ2LabOptions{
+	}
 }
 
 
@@ -3358,20 +4123,29 @@ type AffineOptions struct {
 	Interpolate *Interpolate
 	// Oarea Area of output to generate
 	Oarea []int
-	// Odx Horizontal output displacement
+	// Odx Horizontal output displacement (range -10000000-10000000)
 	Odx float64
-	// Ody Vertical output displacement
+	// Ody Vertical output displacement (range -10000000-10000000)
 	Ody float64
-	// Idx Horizontal input displacement
+	// Idx Horizontal input displacement (range -10000000-10000000)
 	Idx float64
-	// Idy Vertical input displacement
+	// Idy Vertical input displacement (range -10000000-10000000)
 	Idy float64
 	// Background Background value
 	Background []float64
 	// Premultiplied Images have premultiplied alpha
 	Premultiplied bool
-	// Extend How to generate the extra pixels
+	// Extend How to generate the extra pixels (default ExtendBackground)
 	Extend *Extend
+}
+
+// DefaultAffineOptions returns AffineOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultAffineOptions() *AffineOptions {
+	return &AffineOptions{
+		Extend: Ptr(ExtendBackground),
+	}
 }
 
 
@@ -3402,6 +4176,14 @@ func (r *Image) Affine(a float64, b float64, c float64, d float64, options *Affi
 type AutorotOptions struct {
 	// Flip Output, Whether the image was flipped or not
 	Flip bool
+}
+
+// DefaultAutorotOptions returns AutorotOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultAutorotOptions() *AutorotOptions {
+	return &AutorotOptions{
+	}
 }
 
 
@@ -3448,8 +4230,16 @@ func (r *Image) Bandbool(boolean OperationBoolean) (error) {
 
 // BandfoldOptions optional arguments for vips_bandfold
 type BandfoldOptions struct {
-	// Factor Fold by this factor
+	// Factor Fold by this factor (range 0-10000000)
 	Factor int
+}
+
+// DefaultBandfoldOptions returns BandfoldOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultBandfoldOptions() *BandfoldOptions {
+	return &BandfoldOptions{
+	}
 }
 
 
@@ -3497,8 +4287,16 @@ func (r *Image) Bandmean() (error) {
 
 // BandunfoldOptions optional arguments for vips_bandunfold
 type BandunfoldOptions struct {
-	// Factor Unfold by this factor
+	// Factor Unfold by this factor (range 0-10000000)
 	Factor int
+}
+
+// DefaultBandunfoldOptions returns BandunfoldOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultBandunfoldOptions() *BandunfoldOptions {
+	return &BandunfoldOptions{
+	}
 }
 
 
@@ -3572,10 +4370,20 @@ func (r *Image) Byteswap() (error) {
 
 // CannyOptions optional arguments for vips_canny
 type CannyOptions struct {
-	// Sigma Sigma of Gaussian
+	// Sigma Sigma of Gaussian (range 0.01-1000, default 1.4)
 	Sigma float64
-	// Precision Convolve with this precision
+	// Precision Convolve with this precision (default PrecisionFloat)
 	Precision *Precision
+}
+
+// DefaultCannyOptions returns CannyOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultCannyOptions() *CannyOptions {
+	return &CannyOptions{
+		Sigma: 1.4,
+		Precision: Ptr(PrecisionFloat),
+	}
 }
 
 
@@ -3616,6 +4424,14 @@ type CastOptions struct {
 	Shift bool
 }
 
+// DefaultCastOptions returns CastOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultCastOptions() *CastOptions {
+	return &CastOptions{
+	}
+}
+
 
 // Cast vips_cast cast an image
 //
@@ -3645,6 +4461,14 @@ type ClampOptions struct {
 	Max float64
 }
 
+// DefaultClampOptions returns ClampOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultClampOptions() *ClampOptions {
+	return &ClampOptions{
+	}
+}
+
 
 // Clamp vips_clamp clamp values of an image
 func (r *Image) Clamp(options *ClampOptions) (error) {
@@ -3666,8 +4490,17 @@ func (r *Image) Clamp(options *ClampOptions) (error) {
 
 // ColourspaceOptions optional arguments for vips_colourspace
 type ColourspaceOptions struct {
-	// SourceSpace Source color space
+	// SourceSpace Source color space (default InterpretationSrgb)
 	SourceSpace *Interpretation
+}
+
+// DefaultColourspaceOptions returns ColourspaceOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultColourspaceOptions() *ColourspaceOptions {
+	return &ColourspaceOptions{
+		SourceSpace: Ptr(InterpretationSrgb),
+	}
 }
 
 
@@ -3693,18 +4526,31 @@ func (r *Image) Colourspace(space Interpretation, options *ColourspaceOptions) (
 
 // CompassOptions optional arguments for vips_compass
 type CompassOptions struct {
-	// Times Rotate and convolve this many times
+	// Times Rotate and convolve this many times (range 1-1000, default 2)
 	Times int
-	// Angle Rotate mask by this much between convolutions
+	// Angle Rotate mask by this much between convolutions (default Angle45D90)
 	Angle *Angle45
 	// Combine Combine convolution results like this
 	Combine Combine
-	// Precision Convolve with this precision
+	// Precision Convolve with this precision (default PrecisionFloat)
 	Precision *Precision
-	// Layers Use this many layers in approximation
+	// Layers Use this many layers in approximation (range 1-1000, default 5)
 	Layers int
-	// Cluster Cluster lines closer than this in approximation
+	// Cluster Cluster lines closer than this in approximation (range 1-100, default 1)
 	Cluster int
+}
+
+// DefaultCompassOptions returns CompassOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultCompassOptions() *CompassOptions {
+	return &CompassOptions{
+		Times: 2,
+		Angle: Ptr(Angle45D90),
+		Precision: Ptr(PrecisionFloat),
+		Layers: 5,
+		Cluster: 1,
+	}
 }
 
 
@@ -3783,14 +4629,23 @@ func (r *Image) Complexget(get OperationComplexget) (error) {
 
 // Composite2Options optional arguments for vips_composite2
 type Composite2Options struct {
-	// X x position of overlay
+	// X x position of overlay (range -100000000-100000000)
 	X int
-	// Y y position of overlay
+	// Y y position of overlay (range -100000000-100000000)
 	Y int
-	// CompositingSpace Composite images in this colour space
+	// CompositingSpace Composite images in this colour space (default InterpretationSrgb)
 	CompositingSpace *Interpretation
 	// Premultiplied Images have premultiplied alpha
 	Premultiplied bool
+}
+
+// DefaultComposite2Options returns Composite2Options with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultComposite2Options() *Composite2Options {
+	return &Composite2Options{
+		CompositingSpace: Ptr(InterpretationSrgb),
+	}
 }
 
 
@@ -3817,12 +4672,23 @@ func (r *Image) Composite2(overlay *Image, mode BlendMode, options *Composite2Op
 
 // ConvOptions optional arguments for vips_conv
 type ConvOptions struct {
-	// Precision Convolve with this precision
+	// Precision Convolve with this precision (default PrecisionFloat)
 	Precision *Precision
-	// Layers Use this many layers in approximation
+	// Layers Use this many layers in approximation (range 1-1000, default 5)
 	Layers int
-	// Cluster Cluster lines closer than this in approximation
+	// Cluster Cluster lines closer than this in approximation (range 1-100, default 1)
 	Cluster int
+}
+
+// DefaultConvOptions returns ConvOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultConvOptions() *ConvOptions {
+	return &ConvOptions{
+		Precision: Ptr(PrecisionFloat),
+		Layers: 5,
+		Cluster: 1,
+	}
 }
 
 
@@ -3848,10 +4714,20 @@ func (r *Image) Conv(mask *Image, options *ConvOptions) (error) {
 
 // ConvaOptions optional arguments for vips_conva
 type ConvaOptions struct {
-	// Layers Use this many layers in approximation
+	// Layers Use this many layers in approximation (range 1-1000, default 5)
 	Layers int
-	// Cluster Cluster lines closer than this in approximation
+	// Cluster Cluster lines closer than this in approximation (range 1-100, default 1)
 	Cluster int
+}
+
+// DefaultConvaOptions returns ConvaOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultConvaOptions() *ConvaOptions {
+	return &ConvaOptions{
+		Layers: 5,
+		Cluster: 1,
+	}
 }
 
 
@@ -3877,8 +4753,17 @@ func (r *Image) Conva(mask *Image, options *ConvaOptions) (error) {
 
 // ConvasepOptions optional arguments for vips_convasep
 type ConvasepOptions struct {
-	// Layers Use this many layers in approximation
+	// Layers Use this many layers in approximation (range 1-1000, default 5)
 	Layers int
+}
+
+// DefaultConvasepOptions returns ConvasepOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultConvasepOptions() *ConvasepOptions {
+	return &ConvasepOptions{
+		Layers: 5,
+	}
 }
 
 
@@ -3930,12 +4815,23 @@ func (r *Image) Convi(mask *Image) (error) {
 
 // ConvsepOptions optional arguments for vips_convsep
 type ConvsepOptions struct {
-	// Precision Convolve with this precision
+	// Precision Convolve with this precision (default PrecisionFloat)
 	Precision *Precision
-	// Layers Use this many layers in approximation
+	// Layers Use this many layers in approximation (range 1-1000, default 5)
 	Layers int
-	// Cluster Cluster lines closer than this in approximation
+	// Cluster Cluster lines closer than this in approximation (range 1-100, default 1)
 	Cluster int
+}
+
+// DefaultConvsepOptions returns ConvsepOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultConvsepOptions() *ConvsepOptions {
+	return &ConvsepOptions{
+		Precision: Ptr(PrecisionFloat),
+		Layers: 5,
+		Cluster: 1,
+	}
 }
 
 
@@ -3961,11 +4857,11 @@ func (r *Image) Convsep(mask *Image, options *ConvsepOptions) (error) {
 
 // CopyOptions optional arguments for vips_copy
 type CopyOptions struct {
-	// Width Image width in pixels
+	// Width Image width in pixels (range 0-100000000)
 	Width int
-	// Height Image height in pixels
+	// Height Image height in pixels (range 0-100000000)
 	Height int
-	// Bands Number of bands in image
+	// Bands Number of bands in image (range 0-100000000)
 	Bands int
 	// Format Pixel format in image
 	Format BandFormat
@@ -3973,14 +4869,22 @@ type CopyOptions struct {
 	Coding Coding
 	// Interpretation Pixel interpretation
 	Interpretation Interpretation
-	// Xres Horizontal resolution in pixels/mm
+	// Xres Horizontal resolution in pixels/mm (range 0-1000000)
 	Xres float64
-	// Yres Vertical resolution in pixels/mm
+	// Yres Vertical resolution in pixels/mm (range 0-1000000)
 	Yres float64
-	// Xoffset Horizontal offset of origin
+	// Xoffset Horizontal offset of origin (range -100000000-100000000)
 	Xoffset int
-	// Yoffset Vertical offset of origin
+	// Yoffset Vertical offset of origin (range -100000000-100000000)
 	Yoffset int
+}
+
+// DefaultCopyOptions returns CopyOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultCopyOptions() *CopyOptions {
+	return &CopyOptions{
+	}
 }
 
 
@@ -4016,16 +4920,26 @@ func (r *Image) Countlines(direction Direction) (float64, error) {
 
 // CsvsaveOptions optional arguments for vips_csvsave
 type CsvsaveOptions struct {
-	// Separator Separator characters
+	// Separator Separator characters (default "\t")
 	Separator *string
-	// Keep Which metadata to retain
+	// Keep Which metadata to retain (default KeepAll)
 	Keep *Keep
 	// Background Background value
 	Background []float64
-	// PageHeight Set page height for multipage save
+	// PageHeight Set page height for multipage save (range 0-100000000)
 	PageHeight int
 	// Profile Filename of ICC profile to embed
 	Profile string
+}
+
+// DefaultCsvsaveOptions returns CsvsaveOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultCsvsaveOptions() *CsvsaveOptions {
+	return &CsvsaveOptions{
+		Separator: Ptr("\t"),
+		Keep: Ptr(KeepAll),
+	}
 }
 
 
@@ -4049,16 +4963,26 @@ func (r *Image) Csvsave(filename string, options *CsvsaveOptions) (error) {
 
 // CsvsaveTargetOptions optional arguments for vips_csvsave_target
 type CsvsaveTargetOptions struct {
-	// Separator Separator characters
+	// Separator Separator characters (default "\t")
 	Separator *string
-	// Keep Which metadata to retain
+	// Keep Which metadata to retain (default KeepAll)
 	Keep *Keep
 	// Background Background value
 	Background []float64
-	// PageHeight Set page height for multipage save
+	// PageHeight Set page height for multipage save (range 0-100000000)
 	PageHeight int
 	// Profile Filename of ICC profile to embed
 	Profile string
+}
+
+// DefaultCsvsaveTargetOptions returns CsvsaveTargetOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultCsvsaveTargetOptions() *CsvsaveTargetOptions {
+	return &CsvsaveTargetOptions{
+		Separator: Ptr("\t"),
+		Keep: Ptr(KeepAll),
+	}
 }
 
 
@@ -4148,6 +5072,14 @@ type DrawCircleOptions struct {
 	Fill bool
 }
 
+// DefaultDrawCircleOptions returns DrawCircleOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultDrawCircleOptions() *DrawCircleOptions {
+	return &DrawCircleOptions{
+	}
+}
+
 
 // DrawCircle vips_draw_circle draw a circle on an image
 //
@@ -4186,6 +5118,14 @@ type DrawFloodOptions struct {
 	Height int
 }
 
+// DefaultDrawFloodOptions returns DrawFloodOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultDrawFloodOptions() *DrawFloodOptions {
+	return &DrawFloodOptions{
+	}
+}
+
 
 // DrawFlood vips_draw_flood flood-fill an area
 //
@@ -4211,6 +5151,14 @@ func (r *Image) DrawFlood(ink []float64, x int, y int, options *DrawFloodOptions
 type DrawImageOptions struct {
 	// Mode Combining mode
 	Mode CombineMode
+}
+
+// DefaultDrawImageOptions returns DrawImageOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultDrawImageOptions() *DrawImageOptions {
+	return &DrawImageOptions{
+	}
 }
 
 
@@ -4271,6 +5219,14 @@ type DrawRectOptions struct {
 	Fill bool
 }
 
+// DefaultDrawRectOptions returns DrawRectOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultDrawRectOptions() *DrawRectOptions {
+	return &DrawRectOptions{
+	}
+}
+
 
 // DrawRect vips_draw_rect paint a rectangle on an image
 //
@@ -4315,11 +5271,11 @@ type DzsaveOptions struct {
 	Imagename string
 	// Layout Directory layout
 	Layout DzLayout
-	// Suffix Filename suffix for tiles
+	// Suffix Filename suffix for tiles (default ".jpeg")
 	Suffix *string
-	// Overlap Tile overlap in pixels
+	// Overlap Tile overlap in pixels (range 0-8192, default 1)
 	Overlap *int
-	// TileSize Tile size in pixels
+	// TileSize Tile size in pixels (range 1-8192, default 254)
 	TileSize int
 	// Centre Center image in tile
 	Centre bool
@@ -4329,24 +5285,39 @@ type DzsaveOptions struct {
 	Angle Angle
 	// Container Pyramid container type
 	Container DzContainer
-	// Compression ZIP deflate compression level
+	// Compression ZIP deflate compression level (range -1-9)
 	Compression int
 	// RegionShrink Method to shrink regions
 	RegionShrink RegionShrink
-	// SkipBlanks Skip tiles which are nearly equal to the background
+	// SkipBlanks Skip tiles which are nearly equal to the background (range -1-65535, default -1)
 	SkipBlanks *int
-	// Id Resource ID
+	// Id Resource ID (default "https://example.com/iiif")
 	Id *string
-	// Q Q factor
+	// Q Q factor (range 1-100, default 75)
 	Q int
-	// Keep Which metadata to retain
+	// Keep Which metadata to retain (default KeepAll)
 	Keep *Keep
 	// Background Background value
 	Background []float64
-	// PageHeight Set page height for multipage save
+	// PageHeight Set page height for multipage save (range 0-100000000)
 	PageHeight int
 	// Profile Filename of ICC profile to embed
 	Profile string
+}
+
+// DefaultDzsaveOptions returns DzsaveOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultDzsaveOptions() *DzsaveOptions {
+	return &DzsaveOptions{
+		Suffix: Ptr(".jpeg"),
+		Overlap: Ptr(1),
+		TileSize: 254,
+		SkipBlanks: Ptr(-1),
+		Id: Ptr("https://example.com/iiif"),
+		Q: 75,
+		Keep: Ptr(KeepAll),
+	}
 }
 
 
@@ -4374,11 +5345,11 @@ type DzsaveBufferOptions struct {
 	Imagename string
 	// Layout Directory layout
 	Layout DzLayout
-	// Suffix Filename suffix for tiles
+	// Suffix Filename suffix for tiles (default ".jpeg")
 	Suffix *string
-	// Overlap Tile overlap in pixels
+	// Overlap Tile overlap in pixels (range 0-8192, default 1)
 	Overlap *int
-	// TileSize Tile size in pixels
+	// TileSize Tile size in pixels (range 1-8192, default 254)
 	TileSize int
 	// Centre Center image in tile
 	Centre bool
@@ -4388,24 +5359,39 @@ type DzsaveBufferOptions struct {
 	Angle Angle
 	// Container Pyramid container type
 	Container DzContainer
-	// Compression ZIP deflate compression level
+	// Compression ZIP deflate compression level (range -1-9)
 	Compression int
 	// RegionShrink Method to shrink regions
 	RegionShrink RegionShrink
-	// SkipBlanks Skip tiles which are nearly equal to the background
+	// SkipBlanks Skip tiles which are nearly equal to the background (range -1-65535, default -1)
 	SkipBlanks *int
-	// Id Resource ID
+	// Id Resource ID (default "https://example.com/iiif")
 	Id *string
-	// Q Q factor
+	// Q Q factor (range 1-100, default 75)
 	Q int
-	// Keep Which metadata to retain
+	// Keep Which metadata to retain (default KeepAll)
 	Keep *Keep
 	// Background Background value
 	Background []float64
-	// PageHeight Set page height for multipage save
+	// PageHeight Set page height for multipage save (range 0-100000000)
 	PageHeight int
 	// Profile Filename of ICC profile to embed
 	Profile string
+}
+
+// DefaultDzsaveBufferOptions returns DzsaveBufferOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultDzsaveBufferOptions() *DzsaveBufferOptions {
+	return &DzsaveBufferOptions{
+		Suffix: Ptr(".jpeg"),
+		Overlap: Ptr(1),
+		TileSize: 254,
+		SkipBlanks: Ptr(-1),
+		Id: Ptr("https://example.com/iiif"),
+		Q: 75,
+		Keep: Ptr(KeepAll),
+	}
 }
 
 
@@ -4431,11 +5417,11 @@ type DzsaveTargetOptions struct {
 	Imagename string
 	// Layout Directory layout
 	Layout DzLayout
-	// Suffix Filename suffix for tiles
+	// Suffix Filename suffix for tiles (default ".jpeg")
 	Suffix *string
-	// Overlap Tile overlap in pixels
+	// Overlap Tile overlap in pixels (range 0-8192, default 1)
 	Overlap *int
-	// TileSize Tile size in pixels
+	// TileSize Tile size in pixels (range 1-8192, default 254)
 	TileSize int
 	// Centre Center image in tile
 	Centre bool
@@ -4445,24 +5431,39 @@ type DzsaveTargetOptions struct {
 	Angle Angle
 	// Container Pyramid container type
 	Container DzContainer
-	// Compression ZIP deflate compression level
+	// Compression ZIP deflate compression level (range -1-9)
 	Compression int
 	// RegionShrink Method to shrink regions
 	RegionShrink RegionShrink
-	// SkipBlanks Skip tiles which are nearly equal to the background
+	// SkipBlanks Skip tiles which are nearly equal to the background (range -1-65535, default -1)
 	SkipBlanks *int
-	// Id Resource ID
+	// Id Resource ID (default "https://example.com/iiif")
 	Id *string
-	// Q Q factor
+	// Q Q factor (range 1-100, default 75)
 	Q int
-	// Keep Which metadata to retain
+	// Keep Which metadata to retain (default KeepAll)
 	Keep *Keep
 	// Background Background value
 	Background []float64
-	// PageHeight Set page height for multipage save
+	// PageHeight Set page height for multipage save (range 0-100000000)
 	PageHeight int
 	// Profile Filename of ICC profile to embed
 	Profile string
+}
+
+// DefaultDzsaveTargetOptions returns DzsaveTargetOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultDzsaveTargetOptions() *DzsaveTargetOptions {
+	return &DzsaveTargetOptions{
+		Suffix: Ptr(".jpeg"),
+		Overlap: Ptr(1),
+		TileSize: 254,
+		SkipBlanks: Ptr(-1),
+		Id: Ptr("https://example.com/iiif"),
+		Q: 75,
+		Keep: Ptr(KeepAll),
+	}
 }
 
 
@@ -4490,6 +5491,14 @@ type EmbedOptions struct {
 	Extend Extend
 	// Background Color for background pixels
 	Background []float64
+}
+
+// DefaultEmbedOptions returns EmbedOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultEmbedOptions() *EmbedOptions {
+	return &EmbedOptions{
+	}
 }
 
 
@@ -4534,8 +5543,17 @@ func (r *Image) ExtractArea(left int, top int, width int, height int) (error) {
 
 // ExtractBandOptions optional arguments for vips_extract_band
 type ExtractBandOptions struct {
-	// N Number of bands to extract
+	// N Number of bands to extract (range 1-100000000, default 1)
 	N int
+}
+
+// DefaultExtractBandOptions returns ExtractBandOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultExtractBandOptions() *ExtractBandOptions {
+	return &ExtractBandOptions{
+		N: 1,
+	}
 }
 
 
@@ -4596,12 +5614,21 @@ func (r *Image) FillNearest() (*Image, error) {
 
 // FindTrimOptions optional arguments for vips_find_trim
 type FindTrimOptions struct {
-	// Threshold Object threshold
+	// Threshold Object threshold (min 0, default 10)
 	Threshold *float64
 	// Background Color for background pixels
 	Background []float64
 	// LineArt Enable line art mode
 	LineArt bool
+}
+
+// DefaultFindTrimOptions returns FindTrimOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultFindTrimOptions() *FindTrimOptions {
+	return &FindTrimOptions{
+		Threshold: Ptr(10.0),
+	}
 }
 
 
@@ -4623,14 +5650,23 @@ func (r *Image) FindTrim(options *FindTrimOptions) (int, int, int, int, error) {
 
 // FitssaveOptions optional arguments for vips_fitssave
 type FitssaveOptions struct {
-	// Keep Which metadata to retain
+	// Keep Which metadata to retain (default KeepAll)
 	Keep *Keep
 	// Background Background value
 	Background []float64
-	// PageHeight Set page height for multipage save
+	// PageHeight Set page height for multipage save (range 0-100000000)
 	PageHeight int
 	// Profile Filename of ICC profile to embed
 	Profile string
+}
+
+// DefaultFitssaveOptions returns FitssaveOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultFitssaveOptions() *FitssaveOptions {
+	return &FitssaveOptions{
+		Keep: Ptr(KeepAll),
+	}
 }
 
 
@@ -4656,8 +5692,17 @@ func (r *Image) Fitssave(filename string, options *FitssaveOptions) (error) {
 type FlattenOptions struct {
 	// Background Background value
 	Background []float64
-	// MaxAlpha Maximum value of alpha channel
+	// MaxAlpha Maximum value of alpha channel (range 0-100000000, default 255)
 	MaxAlpha *float64
+}
+
+// DefaultFlattenOptions returns FlattenOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultFlattenOptions() *FlattenOptions {
+	return &FlattenOptions{
+		MaxAlpha: Ptr(255.0),
+	}
 }
 
 
@@ -4729,8 +5774,17 @@ func (r *Image) Fwfft() (error) {
 
 // GammaOptions optional arguments for vips_gamma
 type GammaOptions struct {
-	// Exponent Gamma factor
+	// Exponent Gamma factor (range 1e-06-1000, default 2.4)
 	Exponent float64
+}
+
+// DefaultGammaOptions returns GammaOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultGammaOptions() *GammaOptions {
+	return &GammaOptions{
+		Exponent: 2.4,
+	}
 }
 
 
@@ -4754,10 +5808,19 @@ func (r *Image) Gamma(options *GammaOptions) (error) {
 
 // GaussblurOptions optional arguments for vips_gaussblur
 type GaussblurOptions struct {
-	// MinAmpl Minimum amplitude of Gaussian
+	// MinAmpl Minimum amplitude of Gaussian (range 0.001-1, default 0.2)
 	MinAmpl float64
 	// Precision Convolve with this precision
 	Precision Precision
+}
+
+// DefaultGaussblurOptions returns GaussblurOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultGaussblurOptions() *GaussblurOptions {
+	return &GaussblurOptions{
+		MinAmpl: 0.2,
+	}
 }
 
 
@@ -4787,6 +5850,14 @@ type GetpointOptions struct {
 	UnpackComplex bool
 }
 
+// DefaultGetpointOptions returns GetpointOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultGetpointOptions() *GetpointOptions {
+	return &GetpointOptions{
+	}
+}
+
 
 // Getpoint vips_getpoint read a point from an image
 //
@@ -4809,28 +5880,41 @@ func (r *Image) Getpoint(x int, y int, options *GetpointOptions) ([]float64, err
 
 // GifsaveOptions optional arguments for vips_gifsave
 type GifsaveOptions struct {
-	// Dither Amount of dithering
+	// Dither Amount of dithering (range 0-1, default 1)
 	Dither *float64
-	// Effort Quantisation effort
+	// Effort Quantisation effort (range 1-10, default 7)
 	Effort int
-	// Bitdepth Number of bits per pixel
+	// Bitdepth Number of bits per pixel (range 1-8, default 8)
 	Bitdepth int
-	// InterframeMaxerror Maximum inter-frame error for transparency
+	// InterframeMaxerror Maximum inter-frame error for transparency (range 0-32)
 	InterframeMaxerror float64
 	// Reuse Reuse palette from input
 	Reuse bool
-	// InterpaletteMaxerror Maximum inter-palette error for palette reusage
+	// InterpaletteMaxerror Maximum inter-palette error for palette reusage (range 0-256, default 3)
 	InterpaletteMaxerror *float64
 	// Interlace Generate an interlaced (progressive) GIF
 	Interlace bool
-	// Keep Which metadata to retain
+	// Keep Which metadata to retain (default KeepAll)
 	Keep *Keep
 	// Background Background value
 	Background []float64
-	// PageHeight Set page height for multipage save
+	// PageHeight Set page height for multipage save (range 0-100000000)
 	PageHeight int
 	// Profile Filename of ICC profile to embed
 	Profile string
+}
+
+// DefaultGifsaveOptions returns GifsaveOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultGifsaveOptions() *GifsaveOptions {
+	return &GifsaveOptions{
+		Dither: Ptr(1.0),
+		Effort: 7,
+		Bitdepth: 8,
+		InterpaletteMaxerror: Ptr(3.0),
+		Keep: Ptr(KeepAll),
+	}
 }
 
 
@@ -4854,28 +5938,41 @@ func (r *Image) Gifsave(filename string, options *GifsaveOptions) (error) {
 
 // GifsaveBufferOptions optional arguments for vips_gifsave_buffer
 type GifsaveBufferOptions struct {
-	// Dither Amount of dithering
+	// Dither Amount of dithering (range 0-1, default 1)
 	Dither *float64
-	// Effort Quantisation effort
+	// Effort Quantisation effort (range 1-10, default 7)
 	Effort int
-	// Bitdepth Number of bits per pixel
+	// Bitdepth Number of bits per pixel (range 1-8, default 8)
 	Bitdepth int
-	// InterframeMaxerror Maximum inter-frame error for transparency
+	// InterframeMaxerror Maximum inter-frame error for transparency (range 0-32)
 	InterframeMaxerror float64
 	// Reuse Reuse palette from input
 	Reuse bool
-	// InterpaletteMaxerror Maximum inter-palette error for palette reusage
+	// InterpaletteMaxerror Maximum inter-palette error for palette reusage (range 0-256, default 3)
 	InterpaletteMaxerror *float64
 	// Interlace Generate an interlaced (progressive) GIF
 	Interlace bool
-	// Keep Which metadata to retain
+	// Keep Which metadata to retain (default KeepAll)
 	Keep *Keep
 	// Background Background value
 	Background []float64
-	// PageHeight Set page height for multipage save
+	// PageHeight Set page height for multipage save (range 0-100000000)
 	PageHeight int
 	// Profile Filename of ICC profile to embed
 	Profile string
+}
+
+// DefaultGifsaveBufferOptions returns GifsaveBufferOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultGifsaveBufferOptions() *GifsaveBufferOptions {
+	return &GifsaveBufferOptions{
+		Dither: Ptr(1.0),
+		Effort: 7,
+		Bitdepth: 8,
+		InterpaletteMaxerror: Ptr(3.0),
+		Keep: Ptr(KeepAll),
+	}
 }
 
 
@@ -4897,28 +5994,41 @@ func (r *Image) GifsaveBuffer(options *GifsaveBufferOptions) ([]byte, error) {
 
 // GifsaveTargetOptions optional arguments for vips_gifsave_target
 type GifsaveTargetOptions struct {
-	// Dither Amount of dithering
+	// Dither Amount of dithering (range 0-1, default 1)
 	Dither *float64
-	// Effort Quantisation effort
+	// Effort Quantisation effort (range 1-10, default 7)
 	Effort int
-	// Bitdepth Number of bits per pixel
+	// Bitdepth Number of bits per pixel (range 1-8, default 8)
 	Bitdepth int
-	// InterframeMaxerror Maximum inter-frame error for transparency
+	// InterframeMaxerror Maximum inter-frame error for transparency (range 0-32)
 	InterframeMaxerror float64
 	// Reuse Reuse palette from input
 	Reuse bool
-	// InterpaletteMaxerror Maximum inter-palette error for palette reusage
+	// InterpaletteMaxerror Maximum inter-palette error for palette reusage (range 0-256, default 3)
 	InterpaletteMaxerror *float64
 	// Interlace Generate an interlaced (progressive) GIF
 	Interlace bool
-	// Keep Which metadata to retain
+	// Keep Which metadata to retain (default KeepAll)
 	Keep *Keep
 	// Background Background value
 	Background []float64
-	// PageHeight Set page height for multipage save
+	// PageHeight Set page height for multipage save (range 0-100000000)
 	PageHeight int
 	// Profile Filename of ICC profile to embed
 	Profile string
+}
+
+// DefaultGifsaveTargetOptions returns GifsaveTargetOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultGifsaveTargetOptions() *GifsaveTargetOptions {
+	return &GifsaveTargetOptions{
+		Dither: Ptr(1.0),
+		Effort: 7,
+		Bitdepth: 8,
+		InterpaletteMaxerror: Ptr(3.0),
+		Keep: Ptr(KeepAll),
+	}
 }
 
 
@@ -4942,10 +6052,19 @@ func (r *Image) GifsaveTarget(target *Target, options *GifsaveTargetOptions) (er
 
 // GlobalbalanceOptions optional arguments for vips_globalbalance
 type GlobalbalanceOptions struct {
-	// Gamma Image gamma
+	// Gamma Image gamma (range 1e-05-10, default 1.6)
 	Gamma float64
 	// IntOutput Integer output
 	IntOutput bool
+}
+
+// DefaultGlobalbalanceOptions returns GlobalbalanceOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultGlobalbalanceOptions() *GlobalbalanceOptions {
+	return &GlobalbalanceOptions{
+		Gamma: 1.6,
+	}
 }
 
 
@@ -4973,6 +6092,14 @@ type GravityOptions struct {
 	Extend Extend
 	// Background Color for background pixels
 	Background []float64
+}
+
+// DefaultGravityOptions returns GravityOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultGravityOptions() *GravityOptions {
+	return &GravityOptions{
+	}
 }
 
 
@@ -5015,28 +6142,41 @@ func (r *Image) Grid(tileHeight int, across int, down int) (error) {
 
 // HeifsaveOptions optional arguments for vips_heifsave
 type HeifsaveOptions struct {
-	// Q Q factor
+	// Q Q factor (range 1-100, default 50)
 	Q int
-	// Bitdepth Number of bits per pixel
+	// Bitdepth Number of bits per pixel (range 8-12, default 12)
 	Bitdepth int
 	// Lossless Enable lossless compression
 	Lossless bool
-	// Compression Compression format
+	// Compression Compression format (default HeifCompressionHevc)
 	Compression HeifCompression
-	// Effort CPU effort
+	// Effort CPU effort (range 0-9, default 4)
 	Effort *int
 	// SubsampleMode Select chroma subsample operation mode
 	SubsampleMode Subsample
 	// Encoder Select encoder to use
 	Encoder HeifEncoder
-	// Keep Which metadata to retain
+	// Keep Which metadata to retain (default KeepAll)
 	Keep *Keep
 	// Background Background value
 	Background []float64
-	// PageHeight Set page height for multipage save
+	// PageHeight Set page height for multipage save (range 0-100000000)
 	PageHeight int
 	// Profile Filename of ICC profile to embed
 	Profile string
+}
+
+// DefaultHeifsaveOptions returns HeifsaveOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultHeifsaveOptions() *HeifsaveOptions {
+	return &HeifsaveOptions{
+		Q: 50,
+		Bitdepth: 12,
+		Compression: HeifCompressionHevc,
+		Effort: Ptr(4),
+		Keep: Ptr(KeepAll),
+	}
 }
 
 
@@ -5060,28 +6200,41 @@ func (r *Image) Heifsave(filename string, options *HeifsaveOptions) (error) {
 
 // HeifsaveBufferOptions optional arguments for vips_heifsave_buffer
 type HeifsaveBufferOptions struct {
-	// Q Q factor
+	// Q Q factor (range 1-100, default 50)
 	Q int
-	// Bitdepth Number of bits per pixel
+	// Bitdepth Number of bits per pixel (range 8-12, default 12)
 	Bitdepth int
 	// Lossless Enable lossless compression
 	Lossless bool
-	// Compression Compression format
+	// Compression Compression format (default HeifCompressionHevc)
 	Compression HeifCompression
-	// Effort CPU effort
+	// Effort CPU effort (range 0-9, default 4)
 	Effort *int
 	// SubsampleMode Select chroma subsample operation mode
 	SubsampleMode Subsample
 	// Encoder Select encoder to use
 	Encoder HeifEncoder
-	// Keep Which metadata to retain
+	// Keep Which metadata to retain (default KeepAll)
 	Keep *Keep
 	// Background Background value
 	Background []float64
-	// PageHeight Set page height for multipage save
+	// PageHeight Set page height for multipage save (range 0-100000000)
 	PageHeight int
 	// Profile Filename of ICC profile to embed
 	Profile string
+}
+
+// DefaultHeifsaveBufferOptions returns HeifsaveBufferOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultHeifsaveBufferOptions() *HeifsaveBufferOptions {
+	return &HeifsaveBufferOptions{
+		Q: 50,
+		Bitdepth: 12,
+		Compression: HeifCompressionHevc,
+		Effort: Ptr(4),
+		Keep: Ptr(KeepAll),
+	}
 }
 
 
@@ -5103,28 +6256,41 @@ func (r *Image) HeifsaveBuffer(options *HeifsaveBufferOptions) ([]byte, error) {
 
 // HeifsaveTargetOptions optional arguments for vips_heifsave_target
 type HeifsaveTargetOptions struct {
-	// Q Q factor
+	// Q Q factor (range 1-100, default 50)
 	Q int
-	// Bitdepth Number of bits per pixel
+	// Bitdepth Number of bits per pixel (range 8-12, default 12)
 	Bitdepth int
 	// Lossless Enable lossless compression
 	Lossless bool
-	// Compression Compression format
+	// Compression Compression format (default HeifCompressionHevc)
 	Compression HeifCompression
-	// Effort CPU effort
+	// Effort CPU effort (range 0-9, default 4)
 	Effort *int
 	// SubsampleMode Select chroma subsample operation mode
 	SubsampleMode Subsample
 	// Encoder Select encoder to use
 	Encoder HeifEncoder
-	// Keep Which metadata to retain
+	// Keep Which metadata to retain (default KeepAll)
 	Keep *Keep
 	// Background Background value
 	Background []float64
-	// PageHeight Set page height for multipage save
+	// PageHeight Set page height for multipage save (range 0-100000000)
 	PageHeight int
 	// Profile Filename of ICC profile to embed
 	Profile string
+}
+
+// DefaultHeifsaveTargetOptions returns HeifsaveTargetOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultHeifsaveTargetOptions() *HeifsaveTargetOptions {
+	return &HeifsaveTargetOptions{
+		Q: 50,
+		Bitdepth: 12,
+		Compression: HeifCompressionHevc,
+		Effort: Ptr(4),
+		Keep: Ptr(KeepAll),
+	}
 }
 
 
@@ -5169,8 +6335,17 @@ func (r *Image) HistEntropy() (float64, error) {
 
 // HistEqualOptions optional arguments for vips_hist_equal
 type HistEqualOptions struct {
-	// Band Equalise with this band
+	// Band Equalise with this band (range -1-100000, default -1)
 	Band *int
+}
+
+// DefaultHistEqualOptions returns HistEqualOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultHistEqualOptions() *HistEqualOptions {
+	return &HistEqualOptions{
+		Band: Ptr(-1),
+	}
 }
 
 
@@ -5194,8 +6369,17 @@ func (r *Image) HistEqual(options *HistEqualOptions) (error) {
 
 // HistFindOptions optional arguments for vips_hist_find
 type HistFindOptions struct {
-	// Band Find histogram of band
+	// Band Find histogram of band (range -1-100000, default -1)
 	Band *int
+}
+
+// DefaultHistFindOptions returns HistFindOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultHistFindOptions() *HistFindOptions {
+	return &HistFindOptions{
+		Band: Ptr(-1),
+	}
 }
 
 
@@ -5219,8 +6403,17 @@ func (r *Image) HistFind(options *HistFindOptions) (error) {
 
 // HistFindIndexedOptions optional arguments for vips_hist_find_indexed
 type HistFindIndexedOptions struct {
-	// Combine Combine bins like this
+	// Combine Combine bins like this (default CombineSum)
 	Combine *Combine
+}
+
+// DefaultHistFindIndexedOptions returns HistFindIndexedOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultHistFindIndexedOptions() *HistFindIndexedOptions {
+	return &HistFindIndexedOptions{
+		Combine: Ptr(CombineSum),
+	}
 }
 
 
@@ -5246,8 +6439,17 @@ func (r *Image) HistFindIndexed(index *Image, options *HistFindIndexedOptions) (
 
 // HistFindNdimOptions optional arguments for vips_hist_find_ndim
 type HistFindNdimOptions struct {
-	// Bins Number of bins in each dimension
+	// Bins Number of bins in each dimension (range 1-65536, default 10)
 	Bins int
+}
+
+// DefaultHistFindNdimOptions returns HistFindNdimOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultHistFindNdimOptions() *HistFindNdimOptions {
+	return &HistFindNdimOptions{
+		Bins: 10,
+	}
 }
 
 
@@ -5281,8 +6483,16 @@ func (r *Image) HistIsmonotonic() (bool, error) {
 
 // HistLocalOptions optional arguments for vips_hist_local
 type HistLocalOptions struct {
-	// MaxSlope Maximum slope (CLAHE)
+	// MaxSlope Maximum slope (CLAHE) (range 0-100)
 	MaxSlope int
+}
+
+// DefaultHistLocalOptions returns HistLocalOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultHistLocalOptions() *HistLocalOptions {
+	return &HistLocalOptions{
+	}
 }
 
 
@@ -5344,12 +6554,23 @@ func (r *Image) HistPlot() (error) {
 
 // HoughCircleOptions optional arguments for vips_hough_circle
 type HoughCircleOptions struct {
-	// Scale Scale down dimensions by this factor
+	// Scale Scale down dimensions by this factor (range 1-100000, default 3)
 	Scale int
-	// MinRadius Smallest radius to search for
+	// MinRadius Smallest radius to search for (range 1-100000, default 10)
 	MinRadius int
-	// MaxRadius Largest radius to search for
+	// MaxRadius Largest radius to search for (range 1-100000, default 20)
 	MaxRadius int
+}
+
+// DefaultHoughCircleOptions returns HoughCircleOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultHoughCircleOptions() *HoughCircleOptions {
+	return &HoughCircleOptions{
+		Scale: 3,
+		MinRadius: 10,
+		MaxRadius: 20,
+	}
 }
 
 
@@ -5373,10 +6594,20 @@ func (r *Image) HoughCircle(options *HoughCircleOptions) (error) {
 
 // HoughLineOptions optional arguments for vips_hough_line
 type HoughLineOptions struct {
-	// Width Horizontal size of parameter space
+	// Width Horizontal size of parameter space (range 1-100000, default 256)
 	Width int
-	// Height Vertical size of parameter space
+	// Height Vertical size of parameter space (range 1-100000, default 256)
 	Height int
+}
+
+// DefaultHoughLineOptions returns HoughLineOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultHoughLineOptions() *HoughLineOptions {
+	return &HoughLineOptions{
+		Width: 256,
+		Height: 256,
+	}
 }
 
 
@@ -5402,14 +6633,24 @@ func (r *Image) HoughLine(options *HoughLineOptions) (error) {
 type IccExportOptions struct {
 	// Pcs Set Profile Connection Space
 	Pcs PCS
-	// Intent Rendering intent
+	// Intent Rendering intent (default IntentRelative)
 	Intent *Intent
 	// BlackPointCompensation Enable black point compensation
 	BlackPointCompensation bool
 	// OutputProfile Filename to load output profile from
 	OutputProfile string
-	// Depth Output device space depth in bits
+	// Depth Output device space depth in bits (range 8-16, default 8)
 	Depth int
+}
+
+// DefaultIccExportOptions returns IccExportOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultIccExportOptions() *IccExportOptions {
+	return &IccExportOptions{
+		Intent: Ptr(IntentRelative),
+		Depth: 8,
+	}
 }
 
 
@@ -5435,7 +6676,7 @@ func (r *Image) IccExport(options *IccExportOptions) (error) {
 type IccImportOptions struct {
 	// Pcs Set Profile Connection Space
 	Pcs PCS
-	// Intent Rendering intent
+	// Intent Rendering intent (default IntentRelative)
 	Intent *Intent
 	// BlackPointCompensation Enable black point compensation
 	BlackPointCompensation bool
@@ -5443,6 +6684,15 @@ type IccImportOptions struct {
 	Embedded bool
 	// InputProfile Filename to load input profile from
 	InputProfile string
+}
+
+// DefaultIccImportOptions returns IccImportOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultIccImportOptions() *IccImportOptions {
+	return &IccImportOptions{
+		Intent: Ptr(IntentRelative),
+	}
 }
 
 
@@ -5468,7 +6718,7 @@ func (r *Image) IccImport(options *IccImportOptions) (error) {
 type IccTransformOptions struct {
 	// Pcs Set Profile Connection Space
 	Pcs PCS
-	// Intent Rendering intent
+	// Intent Rendering intent (default IntentRelative)
 	Intent *Intent
 	// BlackPointCompensation Enable black point compensation
 	BlackPointCompensation bool
@@ -5476,8 +6726,18 @@ type IccTransformOptions struct {
 	Embedded bool
 	// InputProfile Filename to load input profile from
 	InputProfile string
-	// Depth Output device space depth in bits
+	// Depth Output device space depth in bits (range 8-16, default 8)
 	Depth int
+}
+
+// DefaultIccTransformOptions returns IccTransformOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultIccTransformOptions() *IccTransformOptions {
+	return &IccTransformOptions{
+		Intent: Ptr(IntentRelative),
+		Depth: 8,
+	}
 }
 
 
@@ -5505,6 +6765,14 @@ func (r *Image) IccTransform(outputProfile string, options *IccTransformOptions)
 type IfthenelseOptions struct {
 	// Blend Blend smoothly between then and else parts
 	Blend bool
+}
+
+// DefaultIfthenelseOptions returns IfthenelseOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultIfthenelseOptions() *IfthenelseOptions {
+	return &IfthenelseOptions{
+	}
 }
 
 
@@ -5535,6 +6803,14 @@ type InsertOptions struct {
 	Expand bool
 	// Background Color for new pixels
 	Background []float64
+}
+
+// DefaultInsertOptions returns InsertOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultInsertOptions() *InsertOptions {
+	return &InsertOptions{
+	}
 }
 
 
@@ -5573,8 +6849,17 @@ func (r *Image) Invert() (error) {
 
 // InvertlutOptions optional arguments for vips_invertlut
 type InvertlutOptions struct {
-	// Size LUT size to generate
+	// Size LUT size to generate (range 1-1000000, default 256)
 	Size int
+}
+
+// DefaultInvertlutOptions returns InvertlutOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultInvertlutOptions() *InvertlutOptions {
+	return &InvertlutOptions{
+		Size: 256,
+	}
 }
 
 
@@ -5602,6 +6887,14 @@ type InvfftOptions struct {
 	Real bool
 }
 
+// DefaultInvfftOptions returns InvfftOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultInvfftOptions() *InvfftOptions {
+	return &InvfftOptions{
+	}
+}
+
 
 // Invfft vips_invfft inverse FFT
 func (r *Image) Invfft(options *InvfftOptions) (error) {
@@ -5625,12 +6918,20 @@ func (r *Image) Invfft(options *InvfftOptions) (error) {
 type JoinOptions struct {
 	// Expand Expand output to hold all of both inputs
 	Expand bool
-	// Shim Pixels between images
+	// Shim Pixels between images (range 0-1000000)
 	Shim int
 	// Background Colour for new pixels
 	Background []float64
 	// Align Align on the low, centre or high coordinate edge
 	Align Align
+}
+
+// DefaultJoinOptions returns JoinOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultJoinOptions() *JoinOptions {
+	return &JoinOptions{
+	}
 }
 
 
@@ -5657,24 +6958,37 @@ func (r *Image) Join(in2 *Image, direction Direction, options *JoinOptions) (err
 
 // Jp2ksaveOptions optional arguments for vips_jp2ksave
 type Jp2ksaveOptions struct {
-	// TileWidth Tile width in pixels
+	// TileWidth Tile width in pixels (range 1-32768, default 512)
 	TileWidth int
-	// TileHeight Tile height in pixels
+	// TileHeight Tile height in pixels (range 1-32768, default 512)
 	TileHeight int
 	// Lossless Enable lossless compression
 	Lossless bool
-	// Q Q factor
+	// Q Q factor (range 1-100, default 48)
 	Q int
-	// SubsampleMode Select chroma subsample operation mode
+	// SubsampleMode Select chroma subsample operation mode (default SubsampleOff)
 	SubsampleMode *Subsample
-	// Keep Which metadata to retain
+	// Keep Which metadata to retain (default KeepAll)
 	Keep *Keep
 	// Background Background value
 	Background []float64
-	// PageHeight Set page height for multipage save
+	// PageHeight Set page height for multipage save (range 0-100000000)
 	PageHeight int
 	// Profile Filename of ICC profile to embed
 	Profile string
+}
+
+// DefaultJp2ksaveOptions returns Jp2ksaveOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultJp2ksaveOptions() *Jp2ksaveOptions {
+	return &Jp2ksaveOptions{
+		TileWidth: 512,
+		TileHeight: 512,
+		Q: 48,
+		SubsampleMode: Ptr(SubsampleOff),
+		Keep: Ptr(KeepAll),
+	}
 }
 
 
@@ -5698,24 +7012,37 @@ func (r *Image) Jp2ksave(filename string, options *Jp2ksaveOptions) (error) {
 
 // Jp2ksaveBufferOptions optional arguments for vips_jp2ksave_buffer
 type Jp2ksaveBufferOptions struct {
-	// TileWidth Tile width in pixels
+	// TileWidth Tile width in pixels (range 1-32768, default 512)
 	TileWidth int
-	// TileHeight Tile height in pixels
+	// TileHeight Tile height in pixels (range 1-32768, default 512)
 	TileHeight int
 	// Lossless Enable lossless compression
 	Lossless bool
-	// Q Q factor
+	// Q Q factor (range 1-100, default 48)
 	Q int
-	// SubsampleMode Select chroma subsample operation mode
+	// SubsampleMode Select chroma subsample operation mode (default SubsampleOff)
 	SubsampleMode *Subsample
-	// Keep Which metadata to retain
+	// Keep Which metadata to retain (default KeepAll)
 	Keep *Keep
 	// Background Background value
 	Background []float64
-	// PageHeight Set page height for multipage save
+	// PageHeight Set page height for multipage save (range 0-100000000)
 	PageHeight int
 	// Profile Filename of ICC profile to embed
 	Profile string
+}
+
+// DefaultJp2ksaveBufferOptions returns Jp2ksaveBufferOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultJp2ksaveBufferOptions() *Jp2ksaveBufferOptions {
+	return &Jp2ksaveBufferOptions{
+		TileWidth: 512,
+		TileHeight: 512,
+		Q: 48,
+		SubsampleMode: Ptr(SubsampleOff),
+		Keep: Ptr(KeepAll),
+	}
 }
 
 
@@ -5737,24 +7064,37 @@ func (r *Image) Jp2ksaveBuffer(options *Jp2ksaveBufferOptions) ([]byte, error) {
 
 // Jp2ksaveTargetOptions optional arguments for vips_jp2ksave_target
 type Jp2ksaveTargetOptions struct {
-	// TileWidth Tile width in pixels
+	// TileWidth Tile width in pixels (range 1-32768, default 512)
 	TileWidth int
-	// TileHeight Tile height in pixels
+	// TileHeight Tile height in pixels (range 1-32768, default 512)
 	TileHeight int
 	// Lossless Enable lossless compression
 	Lossless bool
-	// Q Q factor
+	// Q Q factor (range 1-100, default 48)
 	Q int
-	// SubsampleMode Select chroma subsample operation mode
+	// SubsampleMode Select chroma subsample operation mode (default SubsampleOff)
 	SubsampleMode *Subsample
-	// Keep Which metadata to retain
+	// Keep Which metadata to retain (default KeepAll)
 	Keep *Keep
 	// Background Background value
 	Background []float64
-	// PageHeight Set page height for multipage save
+	// PageHeight Set page height for multipage save (range 0-100000000)
 	PageHeight int
 	// Profile Filename of ICC profile to embed
 	Profile string
+}
+
+// DefaultJp2ksaveTargetOptions returns Jp2ksaveTargetOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultJp2ksaveTargetOptions() *Jp2ksaveTargetOptions {
+	return &Jp2ksaveTargetOptions{
+		TileWidth: 512,
+		TileHeight: 512,
+		Q: 48,
+		SubsampleMode: Ptr(SubsampleOff),
+		Keep: Ptr(KeepAll),
+	}
 }
 
 
@@ -5778,7 +7118,7 @@ func (r *Image) Jp2ksaveTarget(target *Target, options *Jp2ksaveTargetOptions) (
 
 // JpegsaveOptions optional arguments for vips_jpegsave
 type JpegsaveOptions struct {
-	// Q Q factor
+	// Q Q factor (range 1-100, default 75)
 	Q int
 	// OptimizeCoding Compute optimal Huffman coding tables
 	OptimizeCoding bool
@@ -5790,20 +7130,30 @@ type JpegsaveOptions struct {
 	OvershootDeringing bool
 	// OptimizeScans Split spectrum of DCT coefficients into separate scans
 	OptimizeScans bool
-	// QuantTable Use predefined quantization table with given index
+	// QuantTable Use predefined quantization table with given index (range 0-8)
 	QuantTable int
 	// SubsampleMode Select chroma subsample operation mode
 	SubsampleMode Subsample
-	// RestartInterval Add restart markers every specified number of mcu
+	// RestartInterval Add restart markers every specified number of mcu (range 0-2147483647)
 	RestartInterval int
-	// Keep Which metadata to retain
+	// Keep Which metadata to retain (default KeepAll)
 	Keep *Keep
 	// Background Background value
 	Background []float64
-	// PageHeight Set page height for multipage save
+	// PageHeight Set page height for multipage save (range 0-100000000)
 	PageHeight int
 	// Profile Filename of ICC profile to embed
 	Profile string
+}
+
+// DefaultJpegsaveOptions returns JpegsaveOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultJpegsaveOptions() *JpegsaveOptions {
+	return &JpegsaveOptions{
+		Q: 75,
+		Keep: Ptr(KeepAll),
+	}
 }
 
 
@@ -5827,7 +7177,7 @@ func (r *Image) Jpegsave(filename string, options *JpegsaveOptions) (error) {
 
 // JpegsaveBufferOptions optional arguments for vips_jpegsave_buffer
 type JpegsaveBufferOptions struct {
-	// Q Q factor
+	// Q Q factor (range 1-100, default 75)
 	Q int
 	// OptimizeCoding Compute optimal Huffman coding tables
 	OptimizeCoding bool
@@ -5839,20 +7189,30 @@ type JpegsaveBufferOptions struct {
 	OvershootDeringing bool
 	// OptimizeScans Split spectrum of DCT coefficients into separate scans
 	OptimizeScans bool
-	// QuantTable Use predefined quantization table with given index
+	// QuantTable Use predefined quantization table with given index (range 0-8)
 	QuantTable int
 	// SubsampleMode Select chroma subsample operation mode
 	SubsampleMode Subsample
-	// RestartInterval Add restart markers every specified number of mcu
+	// RestartInterval Add restart markers every specified number of mcu (range 0-2147483647)
 	RestartInterval int
-	// Keep Which metadata to retain
+	// Keep Which metadata to retain (default KeepAll)
 	Keep *Keep
 	// Background Background value
 	Background []float64
-	// PageHeight Set page height for multipage save
+	// PageHeight Set page height for multipage save (range 0-100000000)
 	PageHeight int
 	// Profile Filename of ICC profile to embed
 	Profile string
+}
+
+// DefaultJpegsaveBufferOptions returns JpegsaveBufferOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultJpegsaveBufferOptions() *JpegsaveBufferOptions {
+	return &JpegsaveBufferOptions{
+		Q: 75,
+		Keep: Ptr(KeepAll),
+	}
 }
 
 
@@ -5874,7 +7234,7 @@ func (r *Image) JpegsaveBuffer(options *JpegsaveBufferOptions) ([]byte, error) {
 
 // JpegsaveTargetOptions optional arguments for vips_jpegsave_target
 type JpegsaveTargetOptions struct {
-	// Q Q factor
+	// Q Q factor (range 1-100, default 75)
 	Q int
 	// OptimizeCoding Compute optimal Huffman coding tables
 	OptimizeCoding bool
@@ -5886,20 +7246,30 @@ type JpegsaveTargetOptions struct {
 	OvershootDeringing bool
 	// OptimizeScans Split spectrum of DCT coefficients into separate scans
 	OptimizeScans bool
-	// QuantTable Use predefined quantization table with given index
+	// QuantTable Use predefined quantization table with given index (range 0-8)
 	QuantTable int
 	// SubsampleMode Select chroma subsample operation mode
 	SubsampleMode Subsample
-	// RestartInterval Add restart markers every specified number of mcu
+	// RestartInterval Add restart markers every specified number of mcu (range 0-2147483647)
 	RestartInterval int
-	// Keep Which metadata to retain
+	// Keep Which metadata to retain (default KeepAll)
 	Keep *Keep
 	// Background Background value
 	Background []float64
-	// PageHeight Set page height for multipage save
+	// PageHeight Set page height for multipage save (range 0-100000000)
 	PageHeight int
 	// Profile Filename of ICC profile to embed
 	Profile string
+}
+
+// DefaultJpegsaveTargetOptions returns JpegsaveTargetOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultJpegsaveTargetOptions() *JpegsaveTargetOptions {
+	return &JpegsaveTargetOptions{
+		Q: 75,
+		Keep: Ptr(KeepAll),
+	}
 }
 
 
@@ -5923,24 +7293,36 @@ func (r *Image) JpegsaveTarget(target *Target, options *JpegsaveTargetOptions) (
 
 // JxlsaveOptions optional arguments for vips_jxlsave
 type JxlsaveOptions struct {
-	// Tier Decode speed tier
+	// Tier Decode speed tier (range 0-4)
 	Tier int
-	// Distance Target butteraugli distance
+	// Distance Target butteraugli distance (range 0-25, default 1)
 	Distance *float64
-	// Effort Encoding effort
+	// Effort Encoding effort (range 1-9, default 7)
 	Effort int
 	// Lossless Enable lossless compression
 	Lossless bool
-	// Q Quality factor
+	// Q Quality factor (range 0-100, default 75)
 	Q *int
-	// Keep Which metadata to retain
+	// Keep Which metadata to retain (default KeepAll)
 	Keep *Keep
 	// Background Background value
 	Background []float64
-	// PageHeight Set page height for multipage save
+	// PageHeight Set page height for multipage save (range 0-100000000)
 	PageHeight int
 	// Profile Filename of ICC profile to embed
 	Profile string
+}
+
+// DefaultJxlsaveOptions returns JxlsaveOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultJxlsaveOptions() *JxlsaveOptions {
+	return &JxlsaveOptions{
+		Distance: Ptr(1.0),
+		Effort: 7,
+		Q: Ptr(75),
+		Keep: Ptr(KeepAll),
+	}
 }
 
 
@@ -5964,24 +7346,36 @@ func (r *Image) Jxlsave(filename string, options *JxlsaveOptions) (error) {
 
 // JxlsaveBufferOptions optional arguments for vips_jxlsave_buffer
 type JxlsaveBufferOptions struct {
-	// Tier Decode speed tier
+	// Tier Decode speed tier (range 0-4)
 	Tier int
-	// Distance Target butteraugli distance
+	// Distance Target butteraugli distance (range 0-25, default 1)
 	Distance *float64
-	// Effort Encoding effort
+	// Effort Encoding effort (range 1-9, default 7)
 	Effort int
 	// Lossless Enable lossless compression
 	Lossless bool
-	// Q Quality factor
+	// Q Quality factor (range 0-100, default 75)
 	Q *int
-	// Keep Which metadata to retain
+	// Keep Which metadata to retain (default KeepAll)
 	Keep *Keep
 	// Background Background value
 	Background []float64
-	// PageHeight Set page height for multipage save
+	// PageHeight Set page height for multipage save (range 0-100000000)
 	PageHeight int
 	// Profile Filename of ICC profile to embed
 	Profile string
+}
+
+// DefaultJxlsaveBufferOptions returns JxlsaveBufferOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultJxlsaveBufferOptions() *JxlsaveBufferOptions {
+	return &JxlsaveBufferOptions{
+		Distance: Ptr(1.0),
+		Effort: 7,
+		Q: Ptr(75),
+		Keep: Ptr(KeepAll),
+	}
 }
 
 
@@ -6003,24 +7397,36 @@ func (r *Image) JxlsaveBuffer(options *JxlsaveBufferOptions) ([]byte, error) {
 
 // JxlsaveTargetOptions optional arguments for vips_jxlsave_target
 type JxlsaveTargetOptions struct {
-	// Tier Decode speed tier
+	// Tier Decode speed tier (range 0-4)
 	Tier int
-	// Distance Target butteraugli distance
+	// Distance Target butteraugli distance (range 0-25, default 1)
 	Distance *float64
-	// Effort Encoding effort
+	// Effort Encoding effort (range 1-9, default 7)
 	Effort int
 	// Lossless Enable lossless compression
 	Lossless bool
-	// Q Quality factor
+	// Q Quality factor (range 0-100, default 75)
 	Q *int
-	// Keep Which metadata to retain
+	// Keep Which metadata to retain (default KeepAll)
 	Keep *Keep
 	// Background Background value
 	Background []float64
-	// PageHeight Set page height for multipage save
+	// PageHeight Set page height for multipage save (range 0-100000000)
 	PageHeight int
 	// Profile Filename of ICC profile to embed
 	Profile string
+}
+
+// DefaultJxlsaveTargetOptions returns JxlsaveTargetOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultJxlsaveTargetOptions() *JxlsaveTargetOptions {
+	return &JxlsaveTargetOptions{
+		Distance: Ptr(1.0),
+		Effort: 7,
+		Q: Ptr(75),
+		Keep: Ptr(KeepAll),
+	}
 }
 
 
@@ -6048,6 +7454,14 @@ type LabelregionsOptions struct {
 	Segments int
 }
 
+// DefaultLabelregionsOptions returns LabelregionsOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultLabelregionsOptions() *LabelregionsOptions {
+	return &LabelregionsOptions{
+	}
+}
+
 
 // Labelregions vips_labelregions label regions in an image
 func (r *Image) Labelregions(options *LabelregionsOptions) (error) {
@@ -6071,6 +7485,14 @@ func (r *Image) Labelregions(options *LabelregionsOptions) (error) {
 type LinearOptions struct {
 	// Uchar Output should be uchar
 	Uchar bool
+}
+
+// DefaultLinearOptions returns LinearOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultLinearOptions() *LinearOptions {
+	return &LinearOptions{
+	}
 }
 
 
@@ -6097,7 +7519,7 @@ func (r *Image) Linear(a []float64, b []float64, options *LinearOptions) (error)
 
 // LinecacheOptions optional arguments for vips_linecache
 type LinecacheOptions struct {
-	// TileHeight Tile height in pixels
+	// TileHeight Tile height in pixels (range 1-1000000, default 128)
 	TileHeight int
 	// Access Expected access pattern
 	Access Access
@@ -6105,6 +7527,15 @@ type LinecacheOptions struct {
 	Threaded bool
 	// Persistent Keep cache between evaluations
 	Persistent bool
+}
+
+// DefaultLinecacheOptions returns LinecacheOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultLinecacheOptions() *LinecacheOptions {
+	return &LinecacheOptions{
+		TileHeight: 128,
+	}
 }
 
 
@@ -6130,22 +7561,31 @@ func (r *Image) Linecache(options *LinecacheOptions) (*Image, error) {
 type MagicksaveOptions struct {
 	// Format Format to save in
 	Format string
-	// Quality Quality to use
+	// Quality Quality to use (range 0-100)
 	Quality int
 	// OptimizeGifFrames Apply GIF frames optimization
 	OptimizeGifFrames bool
 	// OptimizeGifTransparency Apply GIF transparency optimization
 	OptimizeGifTransparency bool
-	// Bitdepth Number of bits per pixel
+	// Bitdepth Number of bits per pixel (range 0-8)
 	Bitdepth int
-	// Keep Which metadata to retain
+	// Keep Which metadata to retain (default KeepAll)
 	Keep *Keep
 	// Background Background value
 	Background []float64
-	// PageHeight Set page height for multipage save
+	// PageHeight Set page height for multipage save (range 0-100000000)
 	PageHeight int
 	// Profile Filename of ICC profile to embed
 	Profile string
+}
+
+// DefaultMagicksaveOptions returns MagicksaveOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultMagicksaveOptions() *MagicksaveOptions {
+	return &MagicksaveOptions{
+		Keep: Ptr(KeepAll),
+	}
 }
 
 
@@ -6171,22 +7611,31 @@ func (r *Image) Magicksave(filename string, options *MagicksaveOptions) (error) 
 type MagicksaveBufferOptions struct {
 	// Format Format to save in
 	Format string
-	// Quality Quality to use
+	// Quality Quality to use (range 0-100)
 	Quality int
 	// OptimizeGifFrames Apply GIF frames optimization
 	OptimizeGifFrames bool
 	// OptimizeGifTransparency Apply GIF transparency optimization
 	OptimizeGifTransparency bool
-	// Bitdepth Number of bits per pixel
+	// Bitdepth Number of bits per pixel (range 0-8)
 	Bitdepth int
-	// Keep Which metadata to retain
+	// Keep Which metadata to retain (default KeepAll)
 	Keep *Keep
 	// Background Background value
 	Background []float64
-	// PageHeight Set page height for multipage save
+	// PageHeight Set page height for multipage save (range 0-100000000)
 	PageHeight int
 	// Profile Filename of ICC profile to embed
 	Profile string
+}
+
+// DefaultMagicksaveBufferOptions returns MagicksaveBufferOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultMagicksaveBufferOptions() *MagicksaveBufferOptions {
+	return &MagicksaveBufferOptions{
+		Keep: Ptr(KeepAll),
+	}
 }
 
 
@@ -6214,8 +7663,17 @@ type MapimOptions struct {
 	Background []float64
 	// Premultiplied Images have premultiplied alpha
 	Premultiplied bool
-	// Extend How to generate the extra pixels
+	// Extend How to generate the extra pixels (default ExtendBackground)
 	Extend *Extend
+}
+
+// DefaultMapimOptions returns MapimOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultMapimOptions() *MapimOptions {
+	return &MapimOptions{
+		Extend: Ptr(ExtendBackground),
+	}
 }
 
 
@@ -6241,8 +7699,17 @@ func (r *Image) Mapim(index *Image, options *MapimOptions) (error) {
 
 // MaplutOptions optional arguments for vips_maplut
 type MaplutOptions struct {
-	// Band Apply one-band lut to this band of in
+	// Band Apply one-band lut to this band of in (range -1-10000, default -1)
 	Band *int
+}
+
+// DefaultMaplutOptions returns MaplutOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultMaplutOptions() *MaplutOptions {
+	return &MaplutOptions{
+		Band: Ptr(-1),
+	}
 }
 
 
@@ -6268,14 +7735,24 @@ func (r *Image) Maplut(lut *Image, options *MaplutOptions) (error) {
 
 // MatchOptions optional arguments for vips_match
 type MatchOptions struct {
-	// Hwindow Half window size
+	// Hwindow Half window size (range 0-1000000000, default 1)
 	Hwindow *int
-	// Harea Half area size
+	// Harea Half area size (range 0-1000000000, default 1)
 	Harea *int
 	// Search Search to improve tie-points
 	Search bool
 	// Interpolate Interpolate pixels with this
 	Interpolate *Interpolate
+}
+
+// DefaultMatchOptions returns MatchOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultMatchOptions() *MatchOptions {
+	return &MatchOptions{
+		Hwindow: Ptr(1),
+		Harea: Ptr(1),
+	}
 }
 
 
@@ -6361,14 +7838,23 @@ func (r *Image) Matrixinvert() (error) {
 
 // MatrixprintOptions optional arguments for vips_matrixprint
 type MatrixprintOptions struct {
-	// Keep Which metadata to retain
+	// Keep Which metadata to retain (default KeepAll)
 	Keep *Keep
 	// Background Background value
 	Background []float64
-	// PageHeight Set page height for multipage save
+	// PageHeight Set page height for multipage save (range 0-100000000)
 	PageHeight int
 	// Profile Filename of ICC profile to embed
 	Profile string
+}
+
+// DefaultMatrixprintOptions returns MatrixprintOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultMatrixprintOptions() *MatrixprintOptions {
+	return &MatrixprintOptions{
+		Keep: Ptr(KeepAll),
+	}
 }
 
 
@@ -6390,14 +7876,23 @@ func (r *Image) Matrixprint(options *MatrixprintOptions) (error) {
 
 // MatrixsaveOptions optional arguments for vips_matrixsave
 type MatrixsaveOptions struct {
-	// Keep Which metadata to retain
+	// Keep Which metadata to retain (default KeepAll)
 	Keep *Keep
 	// Background Background value
 	Background []float64
-	// PageHeight Set page height for multipage save
+	// PageHeight Set page height for multipage save (range 0-100000000)
 	PageHeight int
 	// Profile Filename of ICC profile to embed
 	Profile string
+}
+
+// DefaultMatrixsaveOptions returns MatrixsaveOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultMatrixsaveOptions() *MatrixsaveOptions {
+	return &MatrixsaveOptions{
+		Keep: Ptr(KeepAll),
+	}
 }
 
 
@@ -6421,14 +7916,23 @@ func (r *Image) Matrixsave(filename string, options *MatrixsaveOptions) (error) 
 
 // MatrixsaveTargetOptions optional arguments for vips_matrixsave_target
 type MatrixsaveTargetOptions struct {
-	// Keep Which metadata to retain
+	// Keep Which metadata to retain (default KeepAll)
 	Keep *Keep
 	// Background Background value
 	Background []float64
-	// PageHeight Set page height for multipage save
+	// PageHeight Set page height for multipage save (range 0-100000000)
 	PageHeight int
 	// Profile Filename of ICC profile to embed
 	Profile string
+}
+
+// DefaultMatrixsaveTargetOptions returns MatrixsaveTargetOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultMatrixsaveTargetOptions() *MatrixsaveTargetOptions {
+	return &MatrixsaveTargetOptions{
+		Keep: Ptr(KeepAll),
+	}
 }
 
 
@@ -6452,12 +7956,21 @@ func (r *Image) MatrixsaveTarget(target *Target, options *MatrixsaveTargetOption
 
 // MaxOptions optional arguments for vips_max
 type MaxOptions struct {
-	// Size Number of maximum values to find
+	// Size Number of maximum values to find (range 1-1000000, default 10)
 	Size int
 	// X Output, Horizontal position of maximum
 	X int
 	// Y Output, Vertical position of maximum
 	Y int
+}
+
+// DefaultMaxOptions returns MaxOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultMaxOptions() *MaxOptions {
+	return &MaxOptions{
+		Size: 10,
+	}
 }
 
 
@@ -6492,14 +8005,24 @@ func (r *Image) Maxpair(right *Image) (error) {
 
 // MeasureOptions optional arguments for vips_measure
 type MeasureOptions struct {
-	// Left Left edge of extract area
+	// Left Left edge of extract area (range 0-100000000)
 	Left int
-	// Top Top edge of extract area
+	// Top Top edge of extract area (range 0-100000000)
 	Top int
-	// Width Width of extract area
+	// Width Width of extract area (range 1-100000000, default 1)
 	Width int
-	// Height Height of extract area
+	// Height Height of extract area (range 1-100000000, default 1)
 	Height int
+}
+
+// DefaultMeasureOptions returns MeasureOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultMeasureOptions() *MeasureOptions {
+	return &MeasureOptions{
+		Width: 1,
+		Height: 1,
+	}
 }
 
 
@@ -6526,8 +8049,17 @@ func (r *Image) Measure(h int, v int, options *MeasureOptions) (error) {
 
 // MergeOptions optional arguments for vips_merge
 type MergeOptions struct {
-	// Mblend Maximum blend size
+	// Mblend Maximum blend size (range 0-10000, default 10)
 	Mblend *int
+}
+
+// DefaultMergeOptions returns MergeOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultMergeOptions() *MergeOptions {
+	return &MergeOptions{
+		Mblend: Ptr(10),
+	}
 }
 
 
@@ -6556,12 +8088,21 @@ func (r *Image) Merge(sec *Image, direction Direction, dx int, dy int, options *
 
 // MinOptions optional arguments for vips_min
 type MinOptions struct {
-	// Size Number of minimum values to find
+	// Size Number of minimum values to find (range 1-1000000, default 10)
 	Size int
 	// X Output, Horizontal position of minimum
 	X int
 	// Y Output, Vertical position of minimum
 	Y int
+}
+
+// DefaultMinOptions returns MinOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultMinOptions() *MinOptions {
+	return &MinOptions{
+		Size: 10,
+	}
 }
 
 
@@ -6610,13 +8151,13 @@ func (r *Image) Morph(mask *Image, morph OperationMorphology) (error) {
 
 // MosaicOptions optional arguments for vips_mosaic
 type MosaicOptions struct {
-	// Hwindow Half window size
+	// Hwindow Half window size (range 0-1000000000, default 5)
 	Hwindow *int
-	// Harea Half area size
+	// Harea Half area size (range 0-1000000000, default 15)
 	Harea *int
-	// Mblend Maximum blend size
+	// Mblend Maximum blend size (range 0-10000, default 10)
 	Mblend *int
-	// Bandno Band to search for features on
+	// Bandno Band to search for features on (range 0-10000)
 	Bandno int
 	// Dx0 Output, Detected integer offset
 	Dx0 int
@@ -6630,6 +8171,17 @@ type MosaicOptions struct {
 	Dy1 float64
 	// Dx1 Output, Detected first-order displacement
 	Dx1 float64
+}
+
+// DefaultMosaicOptions returns MosaicOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultMosaicOptions() *MosaicOptions {
+	return &MosaicOptions{
+		Hwindow: Ptr(5),
+		Harea: Ptr(15),
+		Mblend: Ptr(10),
+	}
 }
 
 
@@ -6660,16 +8212,27 @@ func (r *Image) Mosaic(sec *Image, direction Direction, xref int, yref int, xsec
 
 // Mosaic1Options optional arguments for vips_mosaic1
 type Mosaic1Options struct {
-	// Hwindow Half window size
+	// Hwindow Half window size (range 0-1000000000, default 5)
 	Hwindow *int
-	// Harea Half area size
+	// Harea Half area size (range 0-1000000000, default 15)
 	Harea *int
 	// Search Search to improve tie-points
 	Search bool
 	// Interpolate Interpolate pixels with this
 	Interpolate *Interpolate
-	// Mblend Maximum blend size
+	// Mblend Maximum blend size (range 0-10000, default 10)
 	Mblend *int
+}
+
+// DefaultMosaic1Options returns Mosaic1Options with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultMosaic1Options() *Mosaic1Options {
+	return &Mosaic1Options{
+		Hwindow: Ptr(5),
+		Harea: Ptr(15),
+		Mblend: Ptr(10),
+	}
 }
 
 
@@ -6704,8 +8267,16 @@ func (r *Image) Mosaic1(sec *Image, direction Direction, xr1 int, yr1 int, xs1 i
 
 // MsbOptions optional arguments for vips_msb
 type MsbOptions struct {
-	// Band Band to msb
+	// Band Band to msb (range 0-100000000)
 	Band int
+}
+
+// DefaultMsbOptions returns MsbOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultMsbOptions() *MsbOptions {
+	return &MsbOptions{
+	}
 }
 
 
@@ -6742,14 +8313,23 @@ func (r *Image) Multiply(right *Image) (error) {
 
 // NiftisaveOptions optional arguments for vips_niftisave
 type NiftisaveOptions struct {
-	// Keep Which metadata to retain
+	// Keep Which metadata to retain (default KeepAll)
 	Keep *Keep
 	// Background Background value
 	Background []float64
-	// PageHeight Set page height for multipage save
+	// PageHeight Set page height for multipage save (range 0-100000000)
 	PageHeight int
 	// Profile Filename of ICC profile to embed
 	Profile string
+}
+
+// DefaultNiftisaveOptions returns NiftisaveOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultNiftisaveOptions() *NiftisaveOptions {
+	return &NiftisaveOptions{
+		Keep: Ptr(KeepAll),
+	}
 }
 
 
@@ -6798,30 +8378,45 @@ func (r *Image) Phasecor(in2 *Image) (error) {
 
 // PngsaveOptions optional arguments for vips_pngsave
 type PngsaveOptions struct {
-	// Compression Compression factor
+	// Compression Compression factor (range 0-9, default 6)
 	Compression *int
 	// Interlace Interlace image
 	Interlace bool
-	// Filter libpng row filter flag(s)
+	// Filter libpng row filter flag(s) (default PngFilterNone)
 	Filter PngFilter
 	// Palette Quantise to 8bpp palette
 	Palette bool
-	// Q Quantisation quality
+	// Q Quantisation quality (range 0-100, default 100)
 	Q *int
-	// Dither Amount of dithering
+	// Dither Amount of dithering (range 0-1, default 1)
 	Dither *float64
-	// Bitdepth Write as a 1, 2, 4, 8 or 16 bit image
+	// Bitdepth Write as a 1, 2, 4, 8 or 16 bit image (range 1-16, default 8)
 	Bitdepth int
-	// Effort Quantisation CPU effort
+	// Effort Quantisation CPU effort (range 1-10, default 7)
 	Effort int
-	// Keep Which metadata to retain
+	// Keep Which metadata to retain (default KeepAll)
 	Keep *Keep
 	// Background Background value
 	Background []float64
-	// PageHeight Set page height for multipage save
+	// PageHeight Set page height for multipage save (range 0-100000000)
 	PageHeight int
 	// Profile Filename of ICC profile to embed
 	Profile string
+}
+
+// DefaultPngsaveOptions returns PngsaveOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultPngsaveOptions() *PngsaveOptions {
+	return &PngsaveOptions{
+		Compression: Ptr(6),
+		Filter: PngFilterNone,
+		Q: Ptr(100),
+		Dither: Ptr(1.0),
+		Bitdepth: 8,
+		Effort: 7,
+		Keep: Ptr(KeepAll),
+	}
 }
 
 
@@ -6845,30 +8440,45 @@ func (r *Image) Pngsave(filename string, options *PngsaveOptions) (error) {
 
 // PngsaveBufferOptions optional arguments for vips_pngsave_buffer
 type PngsaveBufferOptions struct {
-	// Compression Compression factor
+	// Compression Compression factor (range 0-9, default 6)
 	Compression *int
 	// Interlace Interlace image
 	Interlace bool
-	// Filter libpng row filter flag(s)
+	// Filter libpng row filter flag(s) (default PngFilterNone)
 	Filter PngFilter
 	// Palette Quantise to 8bpp palette
 	Palette bool
-	// Q Quantisation quality
+	// Q Quantisation quality (range 0-100, default 100)
 	Q *int
-	// Dither Amount of dithering
+	// Dither Amount of dithering (range 0-1, default 1)
 	Dither *float64
-	// Bitdepth Write as a 1, 2, 4, 8 or 16 bit image
+	// Bitdepth Write as a 1, 2, 4, 8 or 16 bit image (range 1-16, default 8)
 	Bitdepth int
-	// Effort Quantisation CPU effort
+	// Effort Quantisation CPU effort (range 1-10, default 7)
 	Effort int
-	// Keep Which metadata to retain
+	// Keep Which metadata to retain (default KeepAll)
 	Keep *Keep
 	// Background Background value
 	Background []float64
-	// PageHeight Set page height for multipage save
+	// PageHeight Set page height for multipage save (range 0-100000000)
 	PageHeight int
 	// Profile Filename of ICC profile to embed
 	Profile string
+}
+
+// DefaultPngsaveBufferOptions returns PngsaveBufferOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultPngsaveBufferOptions() *PngsaveBufferOptions {
+	return &PngsaveBufferOptions{
+		Compression: Ptr(6),
+		Filter: PngFilterNone,
+		Q: Ptr(100),
+		Dither: Ptr(1.0),
+		Bitdepth: 8,
+		Effort: 7,
+		Keep: Ptr(KeepAll),
+	}
 }
 
 
@@ -6890,30 +8500,45 @@ func (r *Image) PngsaveBuffer(options *PngsaveBufferOptions) ([]byte, error) {
 
 // PngsaveTargetOptions optional arguments for vips_pngsave_target
 type PngsaveTargetOptions struct {
-	// Compression Compression factor
+	// Compression Compression factor (range 0-9, default 6)
 	Compression *int
 	// Interlace Interlace image
 	Interlace bool
-	// Filter libpng row filter flag(s)
+	// Filter libpng row filter flag(s) (default PngFilterNone)
 	Filter PngFilter
 	// Palette Quantise to 8bpp palette
 	Palette bool
-	// Q Quantisation quality
+	// Q Quantisation quality (range 0-100, default 100)
 	Q *int
-	// Dither Amount of dithering
+	// Dither Amount of dithering (range 0-1, default 1)
 	Dither *float64
-	// Bitdepth Write as a 1, 2, 4, 8 or 16 bit image
+	// Bitdepth Write as a 1, 2, 4, 8 or 16 bit image (range 1-16, default 8)
 	Bitdepth int
-	// Effort Quantisation CPU effort
+	// Effort Quantisation CPU effort (range 1-10, default 7)
 	Effort int
-	// Keep Which metadata to retain
+	// Keep Which metadata to retain (default KeepAll)
 	Keep *Keep
 	// Background Background value
 	Background []float64
-	// PageHeight Set page height for multipage save
+	// PageHeight Set page height for multipage save (range 0-100000000)
 	PageHeight int
 	// Profile Filename of ICC profile to embed
 	Profile string
+}
+
+// DefaultPngsaveTargetOptions returns PngsaveTargetOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultPngsaveTargetOptions() *PngsaveTargetOptions {
+	return &PngsaveTargetOptions{
+		Compression: Ptr(6),
+		Filter: PngFilterNone,
+		Q: Ptr(100),
+		Dither: Ptr(1.0),
+		Bitdepth: 8,
+		Effort: 7,
+		Keep: Ptr(KeepAll),
+	}
 }
 
 
@@ -6937,20 +8562,30 @@ func (r *Image) PngsaveTarget(target *Target, options *PngsaveTargetOptions) (er
 
 // PpmsaveOptions optional arguments for vips_ppmsave
 type PpmsaveOptions struct {
-	// Format Format to save in
+	// Format Format to save in (default PpmFormatPpm)
 	Format *PpmFormat
 	// Ascii Save as ascii
 	Ascii bool
-	// Bitdepth Set to 1 to write as a 1 bit image
+	// Bitdepth Set to 1 to write as a 1 bit image (range 0-1)
 	Bitdepth int
-	// Keep Which metadata to retain
+	// Keep Which metadata to retain (default KeepAll)
 	Keep *Keep
 	// Background Background value
 	Background []float64
-	// PageHeight Set page height for multipage save
+	// PageHeight Set page height for multipage save (range 0-100000000)
 	PageHeight int
 	// Profile Filename of ICC profile to embed
 	Profile string
+}
+
+// DefaultPpmsaveOptions returns PpmsaveOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultPpmsaveOptions() *PpmsaveOptions {
+	return &PpmsaveOptions{
+		Format: Ptr(PpmFormatPpm),
+		Keep: Ptr(KeepAll),
+	}
 }
 
 
@@ -6974,20 +8609,30 @@ func (r *Image) Ppmsave(filename string, options *PpmsaveOptions) (error) {
 
 // PpmsaveTargetOptions optional arguments for vips_ppmsave_target
 type PpmsaveTargetOptions struct {
-	// Format Format to save in
+	// Format Format to save in (default PpmFormatPpm)
 	Format *PpmFormat
 	// Ascii Save as ascii
 	Ascii bool
-	// Bitdepth Set to 1 to write as a 1 bit image
+	// Bitdepth Set to 1 to write as a 1 bit image (range 0-1)
 	Bitdepth int
-	// Keep Which metadata to retain
+	// Keep Which metadata to retain (default KeepAll)
 	Keep *Keep
 	// Background Background value
 	Background []float64
-	// PageHeight Set page height for multipage save
+	// PageHeight Set page height for multipage save (range 0-100000000)
 	PageHeight int
 	// Profile Filename of ICC profile to embed
 	Profile string
+}
+
+// DefaultPpmsaveTargetOptions returns PpmsaveTargetOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultPpmsaveTargetOptions() *PpmsaveTargetOptions {
+	return &PpmsaveTargetOptions{
+		Format: Ptr(PpmFormatPpm),
+		Keep: Ptr(KeepAll),
+	}
 }
 
 
@@ -7011,8 +8656,17 @@ func (r *Image) PpmsaveTarget(target *Target, options *PpmsaveTargetOptions) (er
 
 // PremultiplyOptions optional arguments for vips_premultiply
 type PremultiplyOptions struct {
-	// MaxAlpha Maximum value of alpha channel
+	// MaxAlpha Maximum value of alpha channel (range 0-100000000, default 255)
 	MaxAlpha *float64
+}
+
+// DefaultPremultiplyOptions returns PremultiplyOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultPremultiplyOptions() *PremultiplyOptions {
+	return &PremultiplyOptions{
+		MaxAlpha: Ptr(255.0),
+	}
 }
 
 
@@ -7075,6 +8729,14 @@ type QuadraticOptions struct {
 	Interpolate *Interpolate
 }
 
+// DefaultQuadraticOptions returns QuadraticOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultQuadraticOptions() *QuadraticOptions {
+	return &QuadraticOptions{
+	}
+}
+
 
 // Quadratic vips_quadratic resample an image with a quadratic transform
 //
@@ -7109,14 +8771,23 @@ func (r *Image) Rad2float() (error) {
 
 // RadsaveOptions optional arguments for vips_radsave
 type RadsaveOptions struct {
-	// Keep Which metadata to retain
+	// Keep Which metadata to retain (default KeepAll)
 	Keep *Keep
 	// Background Background value
 	Background []float64
-	// PageHeight Set page height for multipage save
+	// PageHeight Set page height for multipage save (range 0-100000000)
 	PageHeight int
 	// Profile Filename of ICC profile to embed
 	Profile string
+}
+
+// DefaultRadsaveOptions returns RadsaveOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultRadsaveOptions() *RadsaveOptions {
+	return &RadsaveOptions{
+		Keep: Ptr(KeepAll),
+	}
 }
 
 
@@ -7140,14 +8811,23 @@ func (r *Image) Radsave(filename string, options *RadsaveOptions) (error) {
 
 // RadsaveBufferOptions optional arguments for vips_radsave_buffer
 type RadsaveBufferOptions struct {
-	// Keep Which metadata to retain
+	// Keep Which metadata to retain (default KeepAll)
 	Keep *Keep
 	// Background Background value
 	Background []float64
-	// PageHeight Set page height for multipage save
+	// PageHeight Set page height for multipage save (range 0-100000000)
 	PageHeight int
 	// Profile Filename of ICC profile to embed
 	Profile string
+}
+
+// DefaultRadsaveBufferOptions returns RadsaveBufferOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultRadsaveBufferOptions() *RadsaveBufferOptions {
+	return &RadsaveBufferOptions{
+		Keep: Ptr(KeepAll),
+	}
 }
 
 
@@ -7169,14 +8849,23 @@ func (r *Image) RadsaveBuffer(options *RadsaveBufferOptions) ([]byte, error) {
 
 // RadsaveTargetOptions optional arguments for vips_radsave_target
 type RadsaveTargetOptions struct {
-	// Keep Which metadata to retain
+	// Keep Which metadata to retain (default KeepAll)
 	Keep *Keep
 	// Background Background value
 	Background []float64
-	// PageHeight Set page height for multipage save
+	// PageHeight Set page height for multipage save (range 0-100000000)
 	PageHeight int
 	// Profile Filename of ICC profile to embed
 	Profile string
+}
+
+// DefaultRadsaveTargetOptions returns RadsaveTargetOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultRadsaveTargetOptions() *RadsaveTargetOptions {
+	return &RadsaveTargetOptions{
+		Keep: Ptr(KeepAll),
+	}
 }
 
 
@@ -7215,14 +8904,23 @@ func (r *Image) Rank(width int, height int, index int) (error) {
 
 // RawsaveOptions optional arguments for vips_rawsave
 type RawsaveOptions struct {
-	// Keep Which metadata to retain
+	// Keep Which metadata to retain (default KeepAll)
 	Keep *Keep
 	// Background Background value
 	Background []float64
-	// PageHeight Set page height for multipage save
+	// PageHeight Set page height for multipage save (range 0-100000000)
 	PageHeight int
 	// Profile Filename of ICC profile to embed
 	Profile string
+}
+
+// DefaultRawsaveOptions returns RawsaveOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultRawsaveOptions() *RawsaveOptions {
+	return &RawsaveOptions{
+		Keep: Ptr(KeepAll),
+	}
 }
 
 
@@ -7246,14 +8944,23 @@ func (r *Image) Rawsave(filename string, options *RawsaveOptions) (error) {
 
 // RawsaveBufferOptions optional arguments for vips_rawsave_buffer
 type RawsaveBufferOptions struct {
-	// Keep Which metadata to retain
+	// Keep Which metadata to retain (default KeepAll)
 	Keep *Keep
 	// Background Background value
 	Background []float64
-	// PageHeight Set page height for multipage save
+	// PageHeight Set page height for multipage save (range 0-100000000)
 	PageHeight int
 	// Profile Filename of ICC profile to embed
 	Profile string
+}
+
+// DefaultRawsaveBufferOptions returns RawsaveBufferOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultRawsaveBufferOptions() *RawsaveBufferOptions {
+	return &RawsaveBufferOptions{
+		Keep: Ptr(KeepAll),
+	}
 }
 
 
@@ -7275,14 +8982,23 @@ func (r *Image) RawsaveBuffer(options *RawsaveBufferOptions) ([]byte, error) {
 
 // RawsaveTargetOptions optional arguments for vips_rawsave_target
 type RawsaveTargetOptions struct {
-	// Keep Which metadata to retain
+	// Keep Which metadata to retain (default KeepAll)
 	Keep *Keep
 	// Background Background value
 	Background []float64
-	// PageHeight Set page height for multipage save
+	// PageHeight Set page height for multipage save (range 0-100000000)
 	PageHeight int
 	// Profile Filename of ICC profile to embed
 	Profile string
+}
+
+// DefaultRawsaveTargetOptions returns RawsaveTargetOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultRawsaveTargetOptions() *RawsaveTargetOptions {
+	return &RawsaveTargetOptions{
+		Keep: Ptr(KeepAll),
+	}
 }
 
 
@@ -7319,10 +9035,19 @@ func (r *Image) Recomb(m *Image) (error) {
 
 // ReduceOptions optional arguments for vips_reduce
 type ReduceOptions struct {
-	// Kernel Resampling kernel
+	// Kernel Resampling kernel (default KernelLanczos3)
 	Kernel *Kernel
-	// Gap Reducing gap
+	// Gap Reducing gap (range 0-1000000)
 	Gap float64
+}
+
+// DefaultReduceOptions returns ReduceOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultReduceOptions() *ReduceOptions {
+	return &ReduceOptions{
+		Kernel: Ptr(KernelLanczos3),
+	}
 }
 
 
@@ -7349,10 +9074,19 @@ func (r *Image) Reduce(hshrink float64, vshrink float64, options *ReduceOptions)
 
 // ReducehOptions optional arguments for vips_reduceh
 type ReducehOptions struct {
-	// Kernel Resampling kernel
+	// Kernel Resampling kernel (default KernelLanczos3)
 	Kernel *Kernel
-	// Gap Reducing gap
+	// Gap Reducing gap (range 0-1000000)
 	Gap float64
+}
+
+// DefaultReducehOptions returns ReducehOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultReducehOptions() *ReducehOptions {
+	return &ReducehOptions{
+		Kernel: Ptr(KernelLanczos3),
+	}
 }
 
 
@@ -7378,10 +9112,19 @@ func (r *Image) Reduceh(hshrink float64, options *ReducehOptions) (error) {
 
 // ReducevOptions optional arguments for vips_reducev
 type ReducevOptions struct {
-	// Kernel Resampling kernel
+	// Kernel Resampling kernel (default KernelLanczos3)
 	Kernel *Kernel
-	// Gap Reducing gap
+	// Gap Reducing gap (range 0-1000000)
 	Gap float64
+}
+
+// DefaultReducevOptions returns ReducevOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultReducevOptions() *ReducevOptions {
+	return &ReducevOptions{
+		Kernel: Ptr(KernelLanczos3),
+	}
 }
 
 
@@ -7475,12 +9218,22 @@ func (r *Image) Replicate(across int, down int) (error) {
 
 // ResizeOptions optional arguments for vips_resize
 type ResizeOptions struct {
-	// Kernel Resampling kernel
+	// Kernel Resampling kernel (default KernelLanczos3)
 	Kernel *Kernel
-	// Gap Reducing gap
+	// Gap Reducing gap (range 0-1000000, default 2)
 	Gap *float64
-	// Vscale Vertical scale image by this factor
+	// Vscale Vertical scale image by this factor (range 0-10000000)
 	Vscale float64
+}
+
+// DefaultResizeOptions returns ResizeOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultResizeOptions() *ResizeOptions {
+	return &ResizeOptions{
+		Kernel: Ptr(KernelLanczos3),
+		Gap: Ptr(2.0),
+	}
 }
 
 
@@ -7519,8 +9272,17 @@ func (r *Image) Rot(angle Angle) (error) {
 
 // Rot45Options optional arguments for vips_rot45
 type Rot45Options struct {
-	// Angle Angle to rotate image
+	// Angle Angle to rotate image (default Angle45D45)
 	Angle *Angle45
+}
+
+// DefaultRot45Options returns Rot45Options with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultRot45Options() *Rot45Options {
+	return &Rot45Options{
+		Angle: Ptr(Angle45D45),
+	}
 }
 
 
@@ -7548,14 +9310,22 @@ type RotateOptions struct {
 	Interpolate *Interpolate
 	// Background Background value
 	Background []float64
-	// Odx Horizontal output displacement
+	// Odx Horizontal output displacement (range -10000000-10000000)
 	Odx float64
-	// Ody Vertical output displacement
+	// Ody Vertical output displacement (range -10000000-10000000)
 	Ody float64
-	// Idx Horizontal input displacement
+	// Idx Horizontal input displacement (range -10000000-10000000)
 	Idx float64
-	// Idy Vertical input displacement
+	// Idy Vertical input displacement (range -10000000-10000000)
 	Idy float64
+}
+
+// DefaultRotateOptions returns RotateOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultRotateOptions() *RotateOptions {
+	return &RotateOptions{
+	}
 }
 
 
@@ -7616,8 +9386,17 @@ func (r *Image) SRGB2scRGB() (error) {
 
 // ScRGB2BWOptions optional arguments for vips_scRGB2BW
 type ScRGB2BWOptions struct {
-	// Depth Output device space depth in bits
+	// Depth Output device space depth in bits (range 8-16, default 8)
 	Depth int
+}
+
+// DefaultScRGB2BWOptions returns ScRGB2BWOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultScRGB2BWOptions() *ScRGB2BWOptions {
+	return &ScRGB2BWOptions{
+		Depth: 8,
+	}
 }
 
 
@@ -7652,8 +9431,17 @@ func (r *Image) ScRGB2XYZ() (error) {
 
 // ScRGB2sRGBOptions optional arguments for vips_scRGB2sRGB
 type ScRGB2sRGBOptions struct {
-	// Depth Output device space depth in bits
+	// Depth Output device space depth in bits (range 8-16, default 8)
 	Depth int
+}
+
+// DefaultScRGB2sRGBOptions returns ScRGB2sRGBOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultScRGB2sRGBOptions() *ScRGB2sRGBOptions {
+	return &ScRGB2sRGBOptions{
+		Depth: 8,
+	}
 }
 
 
@@ -7677,10 +9465,19 @@ func (r *Image) ScRGB2sRGB(options *ScRGB2sRGBOptions) (error) {
 
 // ScaleOptions optional arguments for vips_scale
 type ScaleOptions struct {
-	// Exp Exponent for log scale
+	// Exp Exponent for log scale (range 1e-05-10000, default 0.25)
 	Exp float64
 	// Log Log scale
 	Log bool
+}
+
+// DefaultScaleOptions returns ScaleOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultScaleOptions() *ScaleOptions {
+	return &ScaleOptions{
+		Exp: 0.25,
+	}
 }
 
 
@@ -7715,8 +9512,17 @@ func (r *Image) Scharr() (error) {
 
 // SequentialOptions optional arguments for vips_sequential
 type SequentialOptions struct {
-	// TileHeight Tile height in pixels
+	// TileHeight Tile height in pixels (range 1-1000000, default 1)
 	TileHeight int
+}
+
+// DefaultSequentialOptions returns SequentialOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultSequentialOptions() *SequentialOptions {
+	return &SequentialOptions{
+		TileHeight: 1,
+	}
 }
 
 
@@ -7740,18 +9546,31 @@ func (r *Image) Sequential(options *SequentialOptions) (*Image, error) {
 
 // SharpenOptions optional arguments for vips_sharpen
 type SharpenOptions struct {
-	// Sigma Sigma of Gaussian
+	// Sigma Sigma of Gaussian (range 1e-06-10, default 0.5)
 	Sigma float64
-	// X1 Flat/jaggy threshold
+	// X1 Flat/jaggy threshold (range 0-1000000, default 2)
 	X1 *float64
-	// Y2 Maximum brightening
+	// Y2 Maximum brightening (range 0-1000000, default 10)
 	Y2 *float64
-	// Y3 Maximum darkening
+	// Y3 Maximum darkening (range 0-1000000, default 20)
 	Y3 *float64
-	// M1 Slope for flat areas
+	// M1 Slope for flat areas (range 0-1000000)
 	M1 float64
-	// M2 Slope for jaggy areas
+	// M2 Slope for jaggy areas (range 0-1000000, default 3)
 	M2 *float64
+}
+
+// DefaultSharpenOptions returns SharpenOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultSharpenOptions() *SharpenOptions {
+	return &SharpenOptions{
+		Sigma: 0.5,
+		X1: Ptr(2.0),
+		Y2: Ptr(10.0),
+		Y3: Ptr(20.0),
+		M2: Ptr(3.0),
+	}
 }
 
 
@@ -7777,6 +9596,14 @@ func (r *Image) Sharpen(options *SharpenOptions) (error) {
 type ShrinkOptions struct {
 	// Ceil Round-up output dimensions
 	Ceil bool
+}
+
+// DefaultShrinkOptions returns ShrinkOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultShrinkOptions() *ShrinkOptions {
+	return &ShrinkOptions{
+	}
 }
 
 
@@ -7807,6 +9634,14 @@ type ShrinkhOptions struct {
 	Ceil bool
 }
 
+// DefaultShrinkhOptions returns ShrinkhOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultShrinkhOptions() *ShrinkhOptions {
+	return &ShrinkhOptions{
+	}
+}
+
 
 // Shrinkh vips_shrinkh shrink an image horizontally
 //
@@ -7832,6 +9667,14 @@ func (r *Image) Shrinkh(hshrink int, options *ShrinkhOptions) (error) {
 type ShrinkvOptions struct {
 	// Ceil Round-up output dimensions
 	Ceil bool
+}
+
+// DefaultShrinkvOptions returns ShrinkvOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultShrinkvOptions() *ShrinkvOptions {
+	return &ShrinkvOptions{
+	}
 }
 
 
@@ -7868,22 +9711,31 @@ func (r *Image) Sign() (error) {
 
 // SimilarityOptions optional arguments for vips_similarity
 type SimilarityOptions struct {
-	// Scale Scale by this factor
+	// Scale Scale by this factor (range 0-10000000, default 1)
 	Scale *float64
-	// Angle Rotate clockwise by this many degrees
+	// Angle Rotate clockwise by this many degrees (range -10000000-10000000)
 	Angle float64
 	// Interpolate Interpolate pixels with this
 	Interpolate *Interpolate
 	// Background Background value
 	Background []float64
-	// Odx Horizontal output displacement
+	// Odx Horizontal output displacement (range -10000000-10000000)
 	Odx float64
-	// Ody Vertical output displacement
+	// Ody Vertical output displacement (range -10000000-10000000)
 	Ody float64
-	// Idx Horizontal input displacement
+	// Idx Horizontal input displacement (range -10000000-10000000)
 	Idx float64
-	// Idy Vertical input displacement
+	// Idy Vertical input displacement (range -10000000-10000000)
 	Idy float64
+}
+
+// DefaultSimilarityOptions returns SimilarityOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultSimilarityOptions() *SimilarityOptions {
+	return &SimilarityOptions{
+		Scale: Ptr(1.0),
+	}
 }
 
 
@@ -7907,7 +9759,7 @@ func (r *Image) Similarity(options *SimilarityOptions) (error) {
 
 // SmartcropOptions optional arguments for vips_smartcrop
 type SmartcropOptions struct {
-	// Interesting How to measure interestingness
+	// Interesting How to measure interestingness (default InterestingAttention)
 	Interesting *Interesting
 	// Premultiplied Input image already has premultiplied alpha
 	Premultiplied bool
@@ -7915,6 +9767,15 @@ type SmartcropOptions struct {
 	AttentionX int
 	// AttentionY Output, Vertical position of attention centre
 	AttentionY int
+}
+
+// DefaultSmartcropOptions returns SmartcropOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultSmartcropOptions() *SmartcropOptions {
+	return &SmartcropOptions{
+		Interesting: Ptr(InterestingAttention),
+	}
 }
 
 
@@ -7987,14 +9848,26 @@ func (r *Image) Stats() (error) {
 
 // StdifOptions optional arguments for vips_stdif
 type StdifOptions struct {
-	// S0 New deviation
+	// S0 New deviation (default 50)
 	S0 *float64
-	// B Weight of new deviation
+	// B Weight of new deviation (range 0-2, default 0.5)
 	B *float64
-	// M0 New mean
+	// M0 New mean (default 128)
 	M0 *float64
-	// A Weight of new mean
+	// A Weight of new mean (range 0-1, default 0.5)
 	A *float64
+}
+
+// DefaultStdifOptions returns StdifOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultStdifOptions() *StdifOptions {
+	return &StdifOptions{
+		S0: Ptr(50.0),
+		B: Ptr(0.5),
+		M0: Ptr(128.0),
+		A: Ptr(0.5),
+	}
 }
 
 
@@ -8023,6 +9896,14 @@ func (r *Image) Stdif(width int, height int, options *StdifOptions) (error) {
 type SubsampleOptions struct {
 	// Point Point sample
 	Point bool
+}
+
+// DefaultSubsampleOptions returns SubsampleOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultSubsampleOptions() *SubsampleOptions {
+	return &SubsampleOptions{
+	}
 }
 
 
@@ -8062,7 +9943,7 @@ func (r *Image) Subtract(right *Image) (error) {
 
 // ThumbnailImageOptions optional arguments for vips_thumbnail_image
 type ThumbnailImageOptions struct {
-	// Height Size to this height
+	// Height Size to this height (range 1-100000000, default 1)
 	Height int
 	// Size Only upsize, only downsize, or both
 	Size Size
@@ -8076,10 +9957,20 @@ type ThumbnailImageOptions struct {
 	ImportProfile string
 	// ExportProfile Fallback export profile
 	ExportProfile string
-	// Intent Rendering intent
+	// Intent Rendering intent (default IntentRelative)
 	Intent *Intent
 	// FailOn Error level to fail on
 	FailOn FailOn
+}
+
+// DefaultThumbnailImageOptions returns ThumbnailImageOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultThumbnailImageOptions() *ThumbnailImageOptions {
+	return &ThumbnailImageOptions{
+		Height: 1,
+		Intent: Ptr(IntentRelative),
+	}
 }
 
 
@@ -8107,27 +9998,27 @@ func (r *Image) ThumbnailImage(width int, options *ThumbnailImageOptions) (error
 type TiffsaveOptions struct {
 	// Compression Compression for this file
 	Compression TiffCompression
-	// Q Q factor
+	// Q Q factor (range 1-100, default 75)
 	Q int
-	// Predictor Compression prediction
+	// Predictor Compression prediction (default TiffPredictorHorizontal)
 	Predictor TiffPredictor
 	// Tile Write a tiled tiff
 	Tile bool
-	// TileWidth Tile width in pixels
+	// TileWidth Tile width in pixels (range 1-32768, default 128)
 	TileWidth int
-	// TileHeight Tile height in pixels
+	// TileHeight Tile height in pixels (range 1-32768, default 128)
 	TileHeight int
 	// Pyramid Write a pyramidal tiff
 	Pyramid bool
 	// Miniswhite Use 0 for white in 1-bit images
 	Miniswhite bool
-	// Bitdepth Write as a 1, 2, 4 or 8 bit image
+	// Bitdepth Write as a 1, 2, 4 or 8 bit image (range 0-8)
 	Bitdepth int
 	// Resunit Resolution unit
 	Resunit TiffResunit
-	// Xres Horizontal resolution in pixels/mm
+	// Xres Horizontal resolution in pixels/mm (range 0.001-1000000, default 1)
 	Xres float64
-	// Yres Vertical resolution in pixels/mm
+	// Yres Vertical resolution in pixels/mm (range 0.001-1000000, default 1)
 	Yres float64
 	// Bigtiff Write a bigtiff image
 	Bigtiff bool
@@ -8135,24 +10026,41 @@ type TiffsaveOptions struct {
 	Properties bool
 	// RegionShrink Method to shrink regions
 	RegionShrink RegionShrink
-	// Level Deflate (1-9, default 6) or ZSTD (1-22, default 9) compression level
+	// Level Deflate (1-9, default 6) or ZSTD (1-22, default 9) compression level (range 1-22, default 6)
 	Level int
 	// Lossless Enable WEBP lossless mode
 	Lossless bool
-	// Depth Pyramid depth
+	// Depth Pyramid depth (default DzDepthOnetile)
 	Depth *DzDepth
 	// Subifd Save pyr layers as sub-IFDs
 	Subifd bool
 	// Premultiply Save with premultiplied alpha
 	Premultiply bool
-	// Keep Which metadata to retain
+	// Keep Which metadata to retain (default KeepAll)
 	Keep *Keep
 	// Background Background value
 	Background []float64
-	// PageHeight Set page height for multipage save
+	// PageHeight Set page height for multipage save (range 0-100000000)
 	PageHeight int
 	// Profile Filename of ICC profile to embed
 	Profile string
+}
+
+// DefaultTiffsaveOptions returns TiffsaveOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultTiffsaveOptions() *TiffsaveOptions {
+	return &TiffsaveOptions{
+		Q: 75,
+		Predictor: TiffPredictorHorizontal,
+		TileWidth: 128,
+		TileHeight: 128,
+		Xres: 1.0,
+		Yres: 1.0,
+		Level: 6,
+		Depth: Ptr(DzDepthOnetile),
+		Keep: Ptr(KeepAll),
+	}
 }
 
 
@@ -8178,27 +10086,27 @@ func (r *Image) Tiffsave(filename string, options *TiffsaveOptions) (error) {
 type TiffsaveBufferOptions struct {
 	// Compression Compression for this file
 	Compression TiffCompression
-	// Q Q factor
+	// Q Q factor (range 1-100, default 75)
 	Q int
-	// Predictor Compression prediction
+	// Predictor Compression prediction (default TiffPredictorHorizontal)
 	Predictor TiffPredictor
 	// Tile Write a tiled tiff
 	Tile bool
-	// TileWidth Tile width in pixels
+	// TileWidth Tile width in pixels (range 1-32768, default 128)
 	TileWidth int
-	// TileHeight Tile height in pixels
+	// TileHeight Tile height in pixels (range 1-32768, default 128)
 	TileHeight int
 	// Pyramid Write a pyramidal tiff
 	Pyramid bool
 	// Miniswhite Use 0 for white in 1-bit images
 	Miniswhite bool
-	// Bitdepth Write as a 1, 2, 4 or 8 bit image
+	// Bitdepth Write as a 1, 2, 4 or 8 bit image (range 0-8)
 	Bitdepth int
 	// Resunit Resolution unit
 	Resunit TiffResunit
-	// Xres Horizontal resolution in pixels/mm
+	// Xres Horizontal resolution in pixels/mm (range 0.001-1000000, default 1)
 	Xres float64
-	// Yres Vertical resolution in pixels/mm
+	// Yres Vertical resolution in pixels/mm (range 0.001-1000000, default 1)
 	Yres float64
 	// Bigtiff Write a bigtiff image
 	Bigtiff bool
@@ -8206,24 +10114,41 @@ type TiffsaveBufferOptions struct {
 	Properties bool
 	// RegionShrink Method to shrink regions
 	RegionShrink RegionShrink
-	// Level Deflate (1-9, default 6) or ZSTD (1-22, default 9) compression level
+	// Level Deflate (1-9, default 6) or ZSTD (1-22, default 9) compression level (range 1-22, default 6)
 	Level int
 	// Lossless Enable WEBP lossless mode
 	Lossless bool
-	// Depth Pyramid depth
+	// Depth Pyramid depth (default DzDepthOnetile)
 	Depth *DzDepth
 	// Subifd Save pyr layers as sub-IFDs
 	Subifd bool
 	// Premultiply Save with premultiplied alpha
 	Premultiply bool
-	// Keep Which metadata to retain
+	// Keep Which metadata to retain (default KeepAll)
 	Keep *Keep
 	// Background Background value
 	Background []float64
-	// PageHeight Set page height for multipage save
+	// PageHeight Set page height for multipage save (range 0-100000000)
 	PageHeight int
 	// Profile Filename of ICC profile to embed
 	Profile string
+}
+
+// DefaultTiffsaveBufferOptions returns TiffsaveBufferOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultTiffsaveBufferOptions() *TiffsaveBufferOptions {
+	return &TiffsaveBufferOptions{
+		Q: 75,
+		Predictor: TiffPredictorHorizontal,
+		TileWidth: 128,
+		TileHeight: 128,
+		Xres: 1.0,
+		Yres: 1.0,
+		Level: 6,
+		Depth: Ptr(DzDepthOnetile),
+		Keep: Ptr(KeepAll),
+	}
 }
 
 
@@ -8247,27 +10172,27 @@ func (r *Image) TiffsaveBuffer(options *TiffsaveBufferOptions) ([]byte, error) {
 type TiffsaveTargetOptions struct {
 	// Compression Compression for this file
 	Compression TiffCompression
-	// Q Q factor
+	// Q Q factor (range 1-100, default 75)
 	Q int
-	// Predictor Compression prediction
+	// Predictor Compression prediction (default TiffPredictorHorizontal)
 	Predictor TiffPredictor
 	// Tile Write a tiled tiff
 	Tile bool
-	// TileWidth Tile width in pixels
+	// TileWidth Tile width in pixels (range 1-32768, default 128)
 	TileWidth int
-	// TileHeight Tile height in pixels
+	// TileHeight Tile height in pixels (range 1-32768, default 128)
 	TileHeight int
 	// Pyramid Write a pyramidal tiff
 	Pyramid bool
 	// Miniswhite Use 0 for white in 1-bit images
 	Miniswhite bool
-	// Bitdepth Write as a 1, 2, 4 or 8 bit image
+	// Bitdepth Write as a 1, 2, 4 or 8 bit image (range 0-8)
 	Bitdepth int
 	// Resunit Resolution unit
 	Resunit TiffResunit
-	// Xres Horizontal resolution in pixels/mm
+	// Xres Horizontal resolution in pixels/mm (range 0.001-1000000, default 1)
 	Xres float64
-	// Yres Vertical resolution in pixels/mm
+	// Yres Vertical resolution in pixels/mm (range 0.001-1000000, default 1)
 	Yres float64
 	// Bigtiff Write a bigtiff image
 	Bigtiff bool
@@ -8275,24 +10200,41 @@ type TiffsaveTargetOptions struct {
 	Properties bool
 	// RegionShrink Method to shrink regions
 	RegionShrink RegionShrink
-	// Level Deflate (1-9, default 6) or ZSTD (1-22, default 9) compression level
+	// Level Deflate (1-9, default 6) or ZSTD (1-22, default 9) compression level (range 1-22, default 6)
 	Level int
 	// Lossless Enable WEBP lossless mode
 	Lossless bool
-	// Depth Pyramid depth
+	// Depth Pyramid depth (default DzDepthOnetile)
 	Depth *DzDepth
 	// Subifd Save pyr layers as sub-IFDs
 	Subifd bool
 	// Premultiply Save with premultiplied alpha
 	Premultiply bool
-	// Keep Which metadata to retain
+	// Keep Which metadata to retain (default KeepAll)
 	Keep *Keep
 	// Background Background value
 	Background []float64
-	// PageHeight Set page height for multipage save
+	// PageHeight Set page height for multipage save (range 0-100000000)
 	PageHeight int
 	// Profile Filename of ICC profile to embed
 	Profile string
+}
+
+// DefaultTiffsaveTargetOptions returns TiffsaveTargetOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultTiffsaveTargetOptions() *TiffsaveTargetOptions {
+	return &TiffsaveTargetOptions{
+		Q: 75,
+		Predictor: TiffPredictorHorizontal,
+		TileWidth: 128,
+		TileHeight: 128,
+		Xres: 1.0,
+		Yres: 1.0,
+		Level: 6,
+		Depth: Ptr(DzDepthOnetile),
+		Keep: Ptr(KeepAll),
+	}
 }
 
 
@@ -8316,11 +10258,11 @@ func (r *Image) TiffsaveTarget(target *Target, options *TiffsaveTargetOptions) (
 
 // TilecacheOptions optional arguments for vips_tilecache
 type TilecacheOptions struct {
-	// TileWidth Tile width in pixels
+	// TileWidth Tile width in pixels (range 1-1000000, default 128)
 	TileWidth int
-	// TileHeight Tile height in pixels
+	// TileHeight Tile height in pixels (range 1-1000000, default 128)
 	TileHeight int
-	// MaxTiles Maximum number of tiles to cache
+	// MaxTiles Maximum number of tiles to cache (range -1-1000000, default 1000)
 	MaxTiles *int
 	// Access Expected access pattern
 	Access Access
@@ -8328,6 +10270,17 @@ type TilecacheOptions struct {
 	Threaded bool
 	// Persistent Keep cache between evaluations
 	Persistent bool
+}
+
+// DefaultTilecacheOptions returns TilecacheOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultTilecacheOptions() *TilecacheOptions {
+	return &TilecacheOptions{
+		TileWidth: 128,
+		TileHeight: 128,
+		MaxTiles: Ptr(1000),
+	}
 }
 
 
@@ -8351,8 +10304,16 @@ func (r *Image) Tilecache(options *TilecacheOptions) (*Image, error) {
 
 // Transpose3dOptions optional arguments for vips_transpose3d
 type Transpose3dOptions struct {
-	// PageHeight Height of each input page
+	// PageHeight Height of each input page (range 0-10000000)
 	PageHeight int
+}
+
+// DefaultTranspose3dOptions returns Transpose3dOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultTranspose3dOptions() *Transpose3dOptions {
+	return &Transpose3dOptions{
+	}
 }
 
 
@@ -8376,10 +10337,20 @@ func (r *Image) Transpose3d(options *Transpose3dOptions) (error) {
 
 // UnpremultiplyOptions optional arguments for vips_unpremultiply
 type UnpremultiplyOptions struct {
-	// MaxAlpha Maximum value of alpha channel
+	// MaxAlpha Maximum value of alpha channel (range 0-100000000, default 255)
 	MaxAlpha *float64
-	// AlphaBand Unpremultiply with this alpha
+	// AlphaBand Unpremultiply with this alpha (range 0-100000000, default 3)
 	AlphaBand *int
+}
+
+// DefaultUnpremultiplyOptions returns UnpremultiplyOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultUnpremultiplyOptions() *UnpremultiplyOptions {
+	return &UnpremultiplyOptions{
+		MaxAlpha: Ptr(255.0),
+		AlphaBand: Ptr(3),
+	}
 }
 
 
@@ -8403,14 +10374,23 @@ func (r *Image) Unpremultiply(options *UnpremultiplyOptions) (error) {
 
 // VipssaveOptions optional arguments for vips_vipssave
 type VipssaveOptions struct {
-	// Keep Which metadata to retain
+	// Keep Which metadata to retain (default KeepAll)
 	Keep *Keep
 	// Background Background value
 	Background []float64
-	// PageHeight Set page height for multipage save
+	// PageHeight Set page height for multipage save (range 0-100000000)
 	PageHeight int
 	// Profile Filename of ICC profile to embed
 	Profile string
+}
+
+// DefaultVipssaveOptions returns VipssaveOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultVipssaveOptions() *VipssaveOptions {
+	return &VipssaveOptions{
+		Keep: Ptr(KeepAll),
+	}
 }
 
 
@@ -8434,14 +10414,23 @@ func (r *Image) Vipssave(filename string, options *VipssaveOptions) (error) {
 
 // VipssaveTargetOptions optional arguments for vips_vipssave_target
 type VipssaveTargetOptions struct {
-	// Keep Which metadata to retain
+	// Keep Which metadata to retain (default KeepAll)
 	Keep *Keep
 	// Background Background value
 	Background []float64
-	// PageHeight Set page height for multipage save
+	// PageHeight Set page height for multipage save (range 0-100000000)
 	PageHeight int
 	// Profile Filename of ICC profile to embed
 	Profile string
+}
+
+// DefaultVipssaveTargetOptions returns VipssaveTargetOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultVipssaveTargetOptions() *VipssaveTargetOptions {
+	return &VipssaveTargetOptions{
+		Keep: Ptr(KeepAll),
+	}
 }
 
 
@@ -8465,7 +10454,7 @@ func (r *Image) VipssaveTarget(target *Target, options *VipssaveTargetOptions) (
 
 // WebpsaveOptions optional arguments for vips_webpsave
 type WebpsaveOptions struct {
-	// Q Q factor
+	// Q Q factor (range 0-100, default 75)
 	Q *int
 	// Lossless Enable lossless compression
 	Lossless bool
@@ -8475,32 +10464,47 @@ type WebpsaveOptions struct {
 	SmartSubsample bool
 	// NearLossless Enable preprocessing in lossless mode (uses Q)
 	NearLossless bool
-	// AlphaQ Change alpha plane fidelity for lossy compression
+	// AlphaQ Change alpha plane fidelity for lossy compression (range 0-100, default 100)
 	AlphaQ *int
 	// MinSize Optimise for minimum size
 	MinSize bool
-	// Kmin Minimum number of frames between key frames
+	// Kmin Minimum number of frames between key frames (range 0-2147483647, default 2147483646)
 	Kmin *int
-	// Kmax Maximum number of frames between key frames
+	// Kmax Maximum number of frames between key frames (range 0-2147483647, default 2147483647)
 	Kmax *int
-	// Effort Level of CPU effort to reduce file size
+	// Effort Level of CPU effort to reduce file size (range 0-6, default 4)
 	Effort *int
-	// TargetSize Desired target size in bytes
+	// TargetSize Desired target size in bytes (range 0-2147483647)
 	TargetSize int
 	// Mixed Allow mixed encoding (might reduce file size)
 	Mixed bool
 	// SmartDeblock Enable auto-adjusting of the deblocking filter
 	SmartDeblock bool
-	// Passes Number of entropy-analysis passes (in [1..10])
+	// Passes Number of entropy-analysis passes (in [1..10]) (range 1-10, default 1)
 	Passes int
-	// Keep Which metadata to retain
+	// Keep Which metadata to retain (default KeepAll)
 	Keep *Keep
 	// Background Background value
 	Background []float64
-	// PageHeight Set page height for multipage save
+	// PageHeight Set page height for multipage save (range 0-100000000)
 	PageHeight int
 	// Profile Filename of ICC profile to embed
 	Profile string
+}
+
+// DefaultWebpsaveOptions returns WebpsaveOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultWebpsaveOptions() *WebpsaveOptions {
+	return &WebpsaveOptions{
+		Q: Ptr(75),
+		AlphaQ: Ptr(100),
+		Kmin: Ptr(2147483646),
+		Kmax: Ptr(2147483647),
+		Effort: Ptr(4),
+		Passes: 1,
+		Keep: Ptr(KeepAll),
+	}
 }
 
 
@@ -8524,7 +10528,7 @@ func (r *Image) Webpsave(filename string, options *WebpsaveOptions) (error) {
 
 // WebpsaveBufferOptions optional arguments for vips_webpsave_buffer
 type WebpsaveBufferOptions struct {
-	// Q Q factor
+	// Q Q factor (range 0-100, default 75)
 	Q *int
 	// Lossless Enable lossless compression
 	Lossless bool
@@ -8534,32 +10538,47 @@ type WebpsaveBufferOptions struct {
 	SmartSubsample bool
 	// NearLossless Enable preprocessing in lossless mode (uses Q)
 	NearLossless bool
-	// AlphaQ Change alpha plane fidelity for lossy compression
+	// AlphaQ Change alpha plane fidelity for lossy compression (range 0-100, default 100)
 	AlphaQ *int
 	// MinSize Optimise for minimum size
 	MinSize bool
-	// Kmin Minimum number of frames between key frames
+	// Kmin Minimum number of frames between key frames (range 0-2147483647, default 2147483646)
 	Kmin *int
-	// Kmax Maximum number of frames between key frames
+	// Kmax Maximum number of frames between key frames (range 0-2147483647, default 2147483647)
 	Kmax *int
-	// Effort Level of CPU effort to reduce file size
+	// Effort Level of CPU effort to reduce file size (range 0-6, default 4)
 	Effort *int
-	// TargetSize Desired target size in bytes
+	// TargetSize Desired target size in bytes (range 0-2147483647)
 	TargetSize int
 	// Mixed Allow mixed encoding (might reduce file size)
 	Mixed bool
 	// SmartDeblock Enable auto-adjusting of the deblocking filter
 	SmartDeblock bool
-	// Passes Number of entropy-analysis passes (in [1..10])
+	// Passes Number of entropy-analysis passes (in [1..10]) (range 1-10, default 1)
 	Passes int
-	// Keep Which metadata to retain
+	// Keep Which metadata to retain (default KeepAll)
 	Keep *Keep
 	// Background Background value
 	Background []float64
-	// PageHeight Set page height for multipage save
+	// PageHeight Set page height for multipage save (range 0-100000000)
 	PageHeight int
 	// Profile Filename of ICC profile to embed
 	Profile string
+}
+
+// DefaultWebpsaveBufferOptions returns WebpsaveBufferOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultWebpsaveBufferOptions() *WebpsaveBufferOptions {
+	return &WebpsaveBufferOptions{
+		Q: Ptr(75),
+		AlphaQ: Ptr(100),
+		Kmin: Ptr(2147483646),
+		Kmax: Ptr(2147483647),
+		Effort: Ptr(4),
+		Passes: 1,
+		Keep: Ptr(KeepAll),
+	}
 }
 
 
@@ -8581,7 +10600,7 @@ func (r *Image) WebpsaveBuffer(options *WebpsaveBufferOptions) ([]byte, error) {
 
 // WebpsaveTargetOptions optional arguments for vips_webpsave_target
 type WebpsaveTargetOptions struct {
-	// Q Q factor
+	// Q Q factor (range 0-100, default 75)
 	Q *int
 	// Lossless Enable lossless compression
 	Lossless bool
@@ -8591,32 +10610,47 @@ type WebpsaveTargetOptions struct {
 	SmartSubsample bool
 	// NearLossless Enable preprocessing in lossless mode (uses Q)
 	NearLossless bool
-	// AlphaQ Change alpha plane fidelity for lossy compression
+	// AlphaQ Change alpha plane fidelity for lossy compression (range 0-100, default 100)
 	AlphaQ *int
 	// MinSize Optimise for minimum size
 	MinSize bool
-	// Kmin Minimum number of frames between key frames
+	// Kmin Minimum number of frames between key frames (range 0-2147483647, default 2147483646)
 	Kmin *int
-	// Kmax Maximum number of frames between key frames
+	// Kmax Maximum number of frames between key frames (range 0-2147483647, default 2147483647)
 	Kmax *int
-	// Effort Level of CPU effort to reduce file size
+	// Effort Level of CPU effort to reduce file size (range 0-6, default 4)
 	Effort *int
-	// TargetSize Desired target size in bytes
+	// TargetSize Desired target size in bytes (range 0-2147483647)
 	TargetSize int
 	// Mixed Allow mixed encoding (might reduce file size)
 	Mixed bool
 	// SmartDeblock Enable auto-adjusting of the deblocking filter
 	SmartDeblock bool
-	// Passes Number of entropy-analysis passes (in [1..10])
+	// Passes Number of entropy-analysis passes (in [1..10]) (range 1-10, default 1)
 	Passes int
-	// Keep Which metadata to retain
+	// Keep Which metadata to retain (default KeepAll)
 	Keep *Keep
 	// Background Background value
 	Background []float64
-	// PageHeight Set page height for multipage save
+	// PageHeight Set page height for multipage save (range 0-100000000)
 	PageHeight int
 	// Profile Filename of ICC profile to embed
 	Profile string
+}
+
+// DefaultWebpsaveTargetOptions returns WebpsaveTargetOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultWebpsaveTargetOptions() *WebpsaveTargetOptions {
+	return &WebpsaveTargetOptions{
+		Q: Ptr(75),
+		AlphaQ: Ptr(100),
+		Kmin: Ptr(2147483646),
+		Kmax: Ptr(2147483647),
+		Effort: Ptr(4),
+		Passes: 1,
+		Keep: Ptr(KeepAll),
+	}
 }
 
 
@@ -8640,10 +10674,18 @@ func (r *Image) WebpsaveTarget(target *Target, options *WebpsaveTargetOptions) (
 
 // WrapOptions optional arguments for vips_wrap
 type WrapOptions struct {
-	// X Left edge of input in output
+	// X Left edge of input in output (range -100000000-100000000)
 	X int
-	// Y Top edge of input in output
+	// Y Top edge of input in output (range -100000000-100000000)
 	Y int
+}
+
+// DefaultWrapOptions returns WrapOptions with libvips' own defaults filled in.
+// Optional: omitting a field already means "use the default", so this exists to
+// show what those defaults are.
+func DefaultWrapOptions() *WrapOptions {
+	return &WrapOptions{
+	}
 }
 
 
