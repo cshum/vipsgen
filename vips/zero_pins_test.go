@@ -6,13 +6,14 @@ import (
 )
 
 // gifload.n and friends are plain fields because libvips rejects an explicit zero for
-// them, which was measured rather than inferred: a pspec range cannot tell an accepted
-// zero from a meaningful one, and webpload.n accepts a zero while gifload.n answers
-// "bad page number". The measurements that drove the table in
-// internal/generator/presence.go are reproducible with the probe harness recorded there.
+// them, which was measured rather than inferred: a pspec range cannot tell an accepted zero
+// from a meaningful one, and webpload.n accepts a zero while gifload.n answers "bad page
+// number". The table is internal/generator/presence.go, and AGENTS.md says how to re-measure
+// it.
 //
 // These are compile-time pins. If the rule or the table changes so that one of these
-// arguments is classified the other way, this file stops building.
+// arguments is classified the other way, this file stops building. Keep them hand-written:
+// generated pins would assert whatever the generator emitted and catch nothing.
 
 var (
 	_ = TiffloadOptions{N: 0}               // plain: n=0 is rejected
