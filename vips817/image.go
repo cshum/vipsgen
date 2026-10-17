@@ -478,7 +478,7 @@ func NewGaussnoise(width int, height int, options *GaussnoiseOptions) (*Image, e
 // GifloadOptions optional arguments for vips_gifload
 type GifloadOptions struct {
 	// N Number of pages to load, -1 for all (range -1-100000, default 1)
-	N *int
+	N int
 	// Page First page to load (range 0-100000)
 	Page int
 	// Memory Force open via memory
@@ -494,7 +494,7 @@ type GifloadOptions struct {
 // DefaultGifloadOptions creates default value for vips_gifload optional arguments
 func DefaultGifloadOptions() *GifloadOptions {
 	return &GifloadOptions{
-		N: Ptr(1),
+		N: 1,
 	}
 }
 
@@ -520,7 +520,7 @@ func NewGifload(filename string, options *GifloadOptions) (*Image, error) {
 // GifloadBufferOptions optional arguments for vips_gifload_buffer
 type GifloadBufferOptions struct {
 	// N Number of pages to load, -1 for all (range -1-100000, default 1)
-	N *int
+	N int
 	// Page First page to load (range 0-100000)
 	Page int
 	// Memory Force open via memory
@@ -536,7 +536,7 @@ type GifloadBufferOptions struct {
 // DefaultGifloadBufferOptions creates default value for vips_gifload_buffer optional arguments
 func DefaultGifloadBufferOptions() *GifloadBufferOptions {
 	return &GifloadBufferOptions{
-		N: Ptr(1),
+		N: 1,
 	}
 }
 
@@ -563,7 +563,7 @@ func NewGifloadBuffer(buf []byte, options *GifloadBufferOptions) (*Image, error)
 // GifloadSourceOptions optional arguments for vips_gifload_source
 type GifloadSourceOptions struct {
 	// N Number of pages to load, -1 for all (range -1-100000, default 1)
-	N *int
+	N int
 	// Page First page to load (range 0-100000)
 	Page int
 	// Memory Force open via memory
@@ -579,7 +579,7 @@ type GifloadSourceOptions struct {
 // DefaultGifloadSourceOptions creates default value for vips_gifload_source optional arguments
 func DefaultGifloadSourceOptions() *GifloadSourceOptions {
 	return &GifloadSourceOptions{
-		N: Ptr(1),
+		N: 1,
 	}
 }
 
@@ -2683,7 +2683,7 @@ type SvgloadOptions struct {
 	// Dpi Render at this DPI (range 0.001-100000, default 72)
 	Dpi float64
 	// Scale Scale output by this factor (range 0-100000, default 1)
-	Scale *float64
+	Scale float64
 	// Unlimited Allow SVG of any size
 	Unlimited bool
 	// Stylesheet Custom CSS
@@ -2704,7 +2704,7 @@ type SvgloadOptions struct {
 func DefaultSvgloadOptions() *SvgloadOptions {
 	return &SvgloadOptions{
 		Dpi:   72.0,
-		Scale: Ptr(1.0),
+		Scale: 1.0,
 	}
 }
 
@@ -2732,7 +2732,7 @@ type SvgloadBufferOptions struct {
 	// Dpi Render at this DPI (range 0.001-100000, default 72)
 	Dpi float64
 	// Scale Scale output by this factor (range 0-100000, default 1)
-	Scale *float64
+	Scale float64
 	// Unlimited Allow SVG of any size
 	Unlimited bool
 	// Stylesheet Custom CSS
@@ -2753,7 +2753,7 @@ type SvgloadBufferOptions struct {
 func DefaultSvgloadBufferOptions() *SvgloadBufferOptions {
 	return &SvgloadBufferOptions{
 		Dpi:   72.0,
-		Scale: Ptr(1.0),
+		Scale: 1.0,
 	}
 }
 
@@ -2782,7 +2782,7 @@ type SvgloadSourceOptions struct {
 	// Dpi Render at this DPI (range 0.001-100000, default 72)
 	Dpi float64
 	// Scale Scale output by this factor (range 0-100000, default 1)
-	Scale *float64
+	Scale float64
 	// Unlimited Allow SVG of any size
 	Unlimited bool
 	// Stylesheet Custom CSS
@@ -2803,7 +2803,7 @@ type SvgloadSourceOptions struct {
 func DefaultSvgloadSourceOptions() *SvgloadSourceOptions {
 	return &SvgloadSourceOptions{
 		Dpi:   72.0,
-		Scale: Ptr(1.0),
+		Scale: 1.0,
 	}
 }
 
@@ -3085,11 +3085,11 @@ type TiffloadOptions struct {
 	// Page First page to load (range 0-100000)
 	Page int
 	// N Number of pages to load, -1 for all (range -1-100000, default 1)
-	N *int
+	N int
 	// Autorotate Rotate image using orientation tag
 	Autorotate bool
 	// Subifd Subifd index (range -1-100000, default -1)
-	Subifd *int
+	Subifd int
 	// Unlimited Remove all denial of service limits
 	Unlimited bool
 	// Memory Force open via memory
@@ -3105,8 +3105,8 @@ type TiffloadOptions struct {
 // DefaultTiffloadOptions creates default value for vips_tiffload optional arguments
 func DefaultTiffloadOptions() *TiffloadOptions {
 	return &TiffloadOptions{
-		N:      Ptr(1),
-		Subifd: Ptr(-1),
+		N:      1,
+		Subifd: -1,
 	}
 }
 
@@ -3134,11 +3134,11 @@ type TiffloadBufferOptions struct {
 	// Page First page to load (range 0-100000)
 	Page int
 	// N Number of pages to load, -1 for all (range -1-100000, default 1)
-	N *int
+	N int
 	// Autorotate Rotate image using orientation tag
 	Autorotate bool
 	// Subifd Subifd index (range -1-100000, default -1)
-	Subifd *int
+	Subifd int
 	// Unlimited Remove all denial of service limits
 	Unlimited bool
 	// Memory Force open via memory
@@ -3154,8 +3154,8 @@ type TiffloadBufferOptions struct {
 // DefaultTiffloadBufferOptions creates default value for vips_tiffload_buffer optional arguments
 func DefaultTiffloadBufferOptions() *TiffloadBufferOptions {
 	return &TiffloadBufferOptions{
-		N:      Ptr(1),
-		Subifd: Ptr(-1),
+		N:      1,
+		Subifd: -1,
 	}
 }
 
@@ -3184,11 +3184,11 @@ type TiffloadSourceOptions struct {
 	// Page First page to load (range 0-100000)
 	Page int
 	// N Number of pages to load, -1 for all (range -1-100000, default 1)
-	N *int
+	N int
 	// Autorotate Rotate image using orientation tag
 	Autorotate bool
 	// Subifd Subifd index (range -1-100000, default -1)
-	Subifd *int
+	Subifd int
 	// Unlimited Remove all denial of service limits
 	Unlimited bool
 	// Memory Force open via memory
@@ -3204,8 +3204,8 @@ type TiffloadSourceOptions struct {
 // DefaultTiffloadSourceOptions creates default value for vips_tiffload_source optional arguments
 func DefaultTiffloadSourceOptions() *TiffloadSourceOptions {
 	return &TiffloadSourceOptions{
-		N:      Ptr(1),
-		Subifd: Ptr(-1),
+		N:      1,
+		Subifd: -1,
 	}
 }
 
@@ -3360,7 +3360,7 @@ type WebploadOptions struct {
 	// N Number of pages to load, -1 for all (range -1-100000, default 1)
 	N *int
 	// Scale Factor to scale by (range 0-1024, default 1)
-	Scale *float64
+	Scale float64
 	// Memory Force open via memory
 	Memory bool
 	// Access Required access pattern for this file
@@ -3375,7 +3375,7 @@ type WebploadOptions struct {
 func DefaultWebploadOptions() *WebploadOptions {
 	return &WebploadOptions{
 		N:     Ptr(1),
-		Scale: Ptr(1.0),
+		Scale: 1.0,
 	}
 }
 
@@ -3405,7 +3405,7 @@ type WebploadBufferOptions struct {
 	// N Number of pages to load, -1 for all (range -1-100000, default 1)
 	N *int
 	// Scale Factor to scale by (range 0-1024, default 1)
-	Scale *float64
+	Scale float64
 	// Memory Force open via memory
 	Memory bool
 	// Access Required access pattern for this file
@@ -3420,7 +3420,7 @@ type WebploadBufferOptions struct {
 func DefaultWebploadBufferOptions() *WebploadBufferOptions {
 	return &WebploadBufferOptions{
 		N:     Ptr(1),
-		Scale: Ptr(1.0),
+		Scale: 1.0,
 	}
 }
 
@@ -3451,7 +3451,7 @@ type WebploadSourceOptions struct {
 	// N Number of pages to load, -1 for all (range -1-100000, default 1)
 	N *int
 	// Scale Factor to scale by (range 0-1024, default 1)
-	Scale *float64
+	Scale float64
 	// Memory Force open via memory
 	Memory bool
 	// Access Required access pattern for this file
@@ -3466,7 +3466,7 @@ type WebploadSourceOptions struct {
 func DefaultWebploadSourceOptions() *WebploadSourceOptions {
 	return &WebploadSourceOptions{
 		N:     Ptr(1),
-		Scale: Ptr(1.0),
+		Scale: 1.0,
 	}
 }
 

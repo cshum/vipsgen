@@ -1406,12 +1406,12 @@ int vipsgen_gifload(const char* filename, VipsImage** out) {
     return vips_gifload(filename, out, NULL);
 }
 
-int vipsgen_gifload_with_options(const char* filename, VipsImage** out, gint n, int n_set, gint page, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
+int vipsgen_gifload_with_options(const char* filename, VipsImage** out, gint n, gint page, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
     VipsOperation *operation = vips_operation_new("gifload");
     if (!operation) return 1;
     if (
         vips_object_set(VIPS_OBJECT(operation), "filename", filename, NULL) ||
-        (n_set && vips_object_set(VIPS_OBJECT(operation), "n", n, NULL)) ||
+        vipsgen_set_int(operation, "n", n) ||
         vipsgen_set_int(operation, "page", page) ||
         vipsgen_set_bool(operation, "memory", memory) ||
         vipsgen_set_int(operation, "access", access) ||
@@ -1429,14 +1429,14 @@ int vipsgen_gifload_buffer(void* buf, size_t len, VipsImage** out) {
     return vips_gifload_buffer(buf, len, out, NULL);
 }
 
-int vipsgen_gifload_buffer_with_options(void* buf, size_t len, VipsImage** out, gint n, int n_set, gint page, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
+int vipsgen_gifload_buffer_with_options(void* buf, size_t len, VipsImage** out, gint n, gint page, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
     VipsOperation *operation = vips_operation_new("gifload_buffer");
     if (!operation) return 1;
     VipsBlob *blob = vips_blob_new(NULL, buf, len);
     if (!blob) { g_object_unref(operation); return 1; }
     if (
         vips_object_set(VIPS_OBJECT(operation), "buffer", blob, NULL) ||
-        (n_set && vips_object_set(VIPS_OBJECT(operation), "n", n, NULL)) ||
+        vipsgen_set_int(operation, "n", n) ||
         vipsgen_set_int(operation, "page", page) ||
         vipsgen_set_bool(operation, "memory", memory) ||
         vipsgen_set_int(operation, "access", access) ||
@@ -1456,12 +1456,12 @@ int vipsgen_gifload_source(VipsSourceCustom* source, VipsImage** out) {
     return vips_gifload_source((VipsSource*) source, out, NULL);
 }
 
-int vipsgen_gifload_source_with_options(VipsSourceCustom* source, VipsImage** out, gint n, int n_set, gint page, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
+int vipsgen_gifload_source_with_options(VipsSourceCustom* source, VipsImage** out, gint n, gint page, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
     VipsOperation *operation = vips_operation_new("gifload_source");
     if (!operation) return 1;
     if (
         vips_object_set(VIPS_OBJECT(operation), "source", (VipsSource*)source, NULL) ||
-        (n_set && vips_object_set(VIPS_OBJECT(operation), "n", n, NULL)) ||
+        vipsgen_set_int(operation, "n", n) ||
         vipsgen_set_int(operation, "page", page) ||
         vipsgen_set_bool(operation, "memory", memory) ||
         vipsgen_set_int(operation, "access", access) ||
@@ -4891,13 +4891,13 @@ int vipsgen_svgload(const char* filename, VipsImage** out) {
     return vips_svgload(filename, out, NULL);
 }
 
-int vipsgen_svgload_with_options(const char* filename, VipsImage** out, double dpi, double scale, int scale_set, gboolean unlimited, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
+int vipsgen_svgload_with_options(const char* filename, VipsImage** out, double dpi, double scale, gboolean unlimited, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
     VipsOperation *operation = vips_operation_new("svgload");
     if (!operation) return 1;
     if (
         vips_object_set(VIPS_OBJECT(operation), "filename", filename, NULL) ||
         vipsgen_set_double(operation, "dpi", dpi) ||
-        (scale_set && vips_object_set(VIPS_OBJECT(operation), "scale", scale, NULL)) ||
+        vipsgen_set_double(operation, "scale", scale) ||
         vipsgen_set_bool(operation, "unlimited", unlimited) ||
         vipsgen_set_bool(operation, "memory", memory) ||
         vipsgen_set_int(operation, "access", access) ||
@@ -4915,7 +4915,7 @@ int vipsgen_svgload_buffer(void* buf, size_t len, VipsImage** out) {
     return vips_svgload_buffer(buf, len, out, NULL);
 }
 
-int vipsgen_svgload_buffer_with_options(void* buf, size_t len, VipsImage** out, double dpi, double scale, int scale_set, gboolean unlimited, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
+int vipsgen_svgload_buffer_with_options(void* buf, size_t len, VipsImage** out, double dpi, double scale, gboolean unlimited, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
     VipsOperation *operation = vips_operation_new("svgload_buffer");
     if (!operation) return 1;
     VipsBlob *blob = vips_blob_new(NULL, buf, len);
@@ -4923,7 +4923,7 @@ int vipsgen_svgload_buffer_with_options(void* buf, size_t len, VipsImage** out, 
     if (
         vips_object_set(VIPS_OBJECT(operation), "buffer", blob, NULL) ||
         vipsgen_set_double(operation, "dpi", dpi) ||
-        (scale_set && vips_object_set(VIPS_OBJECT(operation), "scale", scale, NULL)) ||
+        vipsgen_set_double(operation, "scale", scale) ||
         vipsgen_set_bool(operation, "unlimited", unlimited) ||
         vipsgen_set_bool(operation, "memory", memory) ||
         vipsgen_set_int(operation, "access", access) ||
@@ -4943,13 +4943,13 @@ int vipsgen_svgload_source(VipsSourceCustom* source, VipsImage** out) {
     return vips_svgload_source((VipsSource*) source, out, NULL);
 }
 
-int vipsgen_svgload_source_with_options(VipsSourceCustom* source, VipsImage** out, double dpi, double scale, int scale_set, gboolean unlimited, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
+int vipsgen_svgload_source_with_options(VipsSourceCustom* source, VipsImage** out, double dpi, double scale, gboolean unlimited, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
     VipsOperation *operation = vips_operation_new("svgload_source");
     if (!operation) return 1;
     if (
         vips_object_set(VIPS_OBJECT(operation), "source", (VipsSource*)source, NULL) ||
         vipsgen_set_double(operation, "dpi", dpi) ||
-        (scale_set && vips_object_set(VIPS_OBJECT(operation), "scale", scale, NULL)) ||
+        vipsgen_set_double(operation, "scale", scale) ||
         vipsgen_set_bool(operation, "unlimited", unlimited) ||
         vipsgen_set_bool(operation, "memory", memory) ||
         vipsgen_set_int(operation, "access", access) ||
@@ -5136,14 +5136,14 @@ int vipsgen_tiffload(const char* filename, VipsImage** out) {
     return vips_tiffload(filename, out, NULL);
 }
 
-int vipsgen_tiffload_with_options(const char* filename, VipsImage** out, gint page, gint subifd, int subifd_set, gint n, int n_set, gboolean autorotate, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
+int vipsgen_tiffload_with_options(const char* filename, VipsImage** out, gint page, gint subifd, gint n, gboolean autorotate, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
     VipsOperation *operation = vips_operation_new("tiffload");
     if (!operation) return 1;
     if (
         vips_object_set(VIPS_OBJECT(operation), "filename", filename, NULL) ||
         vipsgen_set_int(operation, "page", page) ||
-        (subifd_set && vips_object_set(VIPS_OBJECT(operation), "subifd", subifd, NULL)) ||
-        (n_set && vips_object_set(VIPS_OBJECT(operation), "n", n, NULL)) ||
+        vipsgen_set_int(operation, "subifd", subifd) ||
+        vipsgen_set_int(operation, "n", n) ||
         vipsgen_set_bool(operation, "autorotate", autorotate) ||
         vipsgen_set_bool(operation, "memory", memory) ||
         vipsgen_set_int(operation, "access", access) ||
@@ -5161,7 +5161,7 @@ int vipsgen_tiffload_buffer(void* buf, size_t len, VipsImage** out) {
     return vips_tiffload_buffer(buf, len, out, NULL);
 }
 
-int vipsgen_tiffload_buffer_with_options(void* buf, size_t len, VipsImage** out, gint page, gint subifd, int subifd_set, gint n, int n_set, gboolean autorotate, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
+int vipsgen_tiffload_buffer_with_options(void* buf, size_t len, VipsImage** out, gint page, gint subifd, gint n, gboolean autorotate, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
     VipsOperation *operation = vips_operation_new("tiffload_buffer");
     if (!operation) return 1;
     VipsBlob *blob = vips_blob_new(NULL, buf, len);
@@ -5169,8 +5169,8 @@ int vipsgen_tiffload_buffer_with_options(void* buf, size_t len, VipsImage** out,
     if (
         vips_object_set(VIPS_OBJECT(operation), "buffer", blob, NULL) ||
         vipsgen_set_int(operation, "page", page) ||
-        (subifd_set && vips_object_set(VIPS_OBJECT(operation), "subifd", subifd, NULL)) ||
-        (n_set && vips_object_set(VIPS_OBJECT(operation), "n", n, NULL)) ||
+        vipsgen_set_int(operation, "subifd", subifd) ||
+        vipsgen_set_int(operation, "n", n) ||
         vipsgen_set_bool(operation, "autorotate", autorotate) ||
         vipsgen_set_bool(operation, "memory", memory) ||
         vipsgen_set_int(operation, "access", access) ||
@@ -5190,14 +5190,14 @@ int vipsgen_tiffload_source(VipsSourceCustom* source, VipsImage** out) {
     return vips_tiffload_source((VipsSource*) source, out, NULL);
 }
 
-int vipsgen_tiffload_source_with_options(VipsSourceCustom* source, VipsImage** out, gint page, gint subifd, int subifd_set, gint n, int n_set, gboolean autorotate, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
+int vipsgen_tiffload_source_with_options(VipsSourceCustom* source, VipsImage** out, gint page, gint subifd, gint n, gboolean autorotate, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
     VipsOperation *operation = vips_operation_new("tiffload_source");
     if (!operation) return 1;
     if (
         vips_object_set(VIPS_OBJECT(operation), "source", (VipsSource*)source, NULL) ||
         vipsgen_set_int(operation, "page", page) ||
-        (subifd_set && vips_object_set(VIPS_OBJECT(operation), "subifd", subifd, NULL)) ||
-        (n_set && vips_object_set(VIPS_OBJECT(operation), "n", n, NULL)) ||
+        vipsgen_set_int(operation, "subifd", subifd) ||
+        vipsgen_set_int(operation, "n", n) ||
         vipsgen_set_bool(operation, "autorotate", autorotate) ||
         vipsgen_set_bool(operation, "memory", memory) ||
         vipsgen_set_int(operation, "access", access) ||
@@ -5532,14 +5532,14 @@ int vipsgen_webpload(const char* filename, VipsImage** out) {
     return vips_webpload(filename, out, NULL);
 }
 
-int vipsgen_webpload_with_options(const char* filename, VipsImage** out, gint page, gint n, int n_set, double scale, int scale_set, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
+int vipsgen_webpload_with_options(const char* filename, VipsImage** out, gint page, gint n, int n_set, double scale, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
     VipsOperation *operation = vips_operation_new("webpload");
     if (!operation) return 1;
     if (
         vips_object_set(VIPS_OBJECT(operation), "filename", filename, NULL) ||
         vipsgen_set_int(operation, "page", page) ||
         (n_set && vips_object_set(VIPS_OBJECT(operation), "n", n, NULL)) ||
-        (scale_set && vips_object_set(VIPS_OBJECT(operation), "scale", scale, NULL)) ||
+        vipsgen_set_double(operation, "scale", scale) ||
         vipsgen_set_bool(operation, "memory", memory) ||
         vipsgen_set_int(operation, "access", access) ||
         vipsgen_set_int(operation, "fail_on", fail_on) ||
@@ -5556,7 +5556,7 @@ int vipsgen_webpload_buffer(void* buf, size_t len, VipsImage** out) {
     return vips_webpload_buffer(buf, len, out, NULL);
 }
 
-int vipsgen_webpload_buffer_with_options(void* buf, size_t len, VipsImage** out, gint page, gint n, int n_set, double scale, int scale_set, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
+int vipsgen_webpload_buffer_with_options(void* buf, size_t len, VipsImage** out, gint page, gint n, int n_set, double scale, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
     VipsOperation *operation = vips_operation_new("webpload_buffer");
     if (!operation) return 1;
     VipsBlob *blob = vips_blob_new(NULL, buf, len);
@@ -5565,7 +5565,7 @@ int vipsgen_webpload_buffer_with_options(void* buf, size_t len, VipsImage** out,
         vips_object_set(VIPS_OBJECT(operation), "buffer", blob, NULL) ||
         vipsgen_set_int(operation, "page", page) ||
         (n_set && vips_object_set(VIPS_OBJECT(operation), "n", n, NULL)) ||
-        (scale_set && vips_object_set(VIPS_OBJECT(operation), "scale", scale, NULL)) ||
+        vipsgen_set_double(operation, "scale", scale) ||
         vipsgen_set_bool(operation, "memory", memory) ||
         vipsgen_set_int(operation, "access", access) ||
         vipsgen_set_int(operation, "fail_on", fail_on) ||
@@ -5584,14 +5584,14 @@ int vipsgen_webpload_source(VipsSourceCustom* source, VipsImage** out) {
     return vips_webpload_source((VipsSource*) source, out, NULL);
 }
 
-int vipsgen_webpload_source_with_options(VipsSourceCustom* source, VipsImage** out, gint page, gint n, int n_set, double scale, int scale_set, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
+int vipsgen_webpload_source_with_options(VipsSourceCustom* source, VipsImage** out, gint page, gint n, int n_set, double scale, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
     VipsOperation *operation = vips_operation_new("webpload_source");
     if (!operation) return 1;
     if (
         vips_object_set(VIPS_OBJECT(operation), "source", (VipsSource*)source, NULL) ||
         vipsgen_set_int(operation, "page", page) ||
         (n_set && vips_object_set(VIPS_OBJECT(operation), "n", n, NULL)) ||
-        (scale_set && vips_object_set(VIPS_OBJECT(operation), "scale", scale, NULL)) ||
+        vipsgen_set_double(operation, "scale", scale) ||
         vipsgen_set_bool(operation, "memory", memory) ||
         vipsgen_set_int(operation, "access", access) ||
         vipsgen_set_int(operation, "fail_on", fail_on) ||
