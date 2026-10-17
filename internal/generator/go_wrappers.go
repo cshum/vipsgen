@@ -527,7 +527,7 @@ func generateFunctionCallArgs(op introspection.Operation, withOptions bool) stri
 			callArgs = append(callArgs, argStr)
 		} else {
 			if argPresence(arg) == PresencePointer {
-				callArgs = append(callArgs, "c"+arg.GoName, arg.GoName+"Set")
+				callArgs = append(callArgs, presenceCallValue(arg), arg.GoName+"Set")
 				continue
 			}
 			if arg.IsInputN && arg.NInputFrom != "" {

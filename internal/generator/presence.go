@@ -158,21 +158,51 @@ func cgoOptionType(opt introspection.Argument) string {
 	return "C.int"
 }
 
+// presenceHelper names the generated helper that turns an optional field into a C
+// value and a set flag. Anything it cannot carry falls back to the explicit form.
+func presenceHelper(opt introspection.Argument) (helper string, cast bool) {
+	if opt.GoType == "string" {
+		// the helper hands back a *C.char, so the C type is never spelled out
+		return "optionString", false
+	}
+	// a cast needs a C type that can be written as a cgo expression
+	if strings.Contains(strings.TrimSpace(opt.CType), " ") {
+		return "", false
+	}
+	switch {
+	case opt.GoType == "float64" || opt.GoType == "float32":
+		return "optionFloat", true
+	case opt.IsEnum || opt.IsFlags || isNumericOption(opt):
+		return "optionInt", true
+	}
+	return "", false
+}
+
 // generatePresenceDeclaration declares the C value and the set flag for a pointer
-// option, reading both from the options struct field.
+// option, reading both from the options struct field. The helpers keep this to the
+// one line an option deserves.
 func generatePresenceDeclaration(opt introspection.Argument) string {
 	goName := opt.GoName
 	cName := "c" + goName
 	setName := goName + "Set"
+
+	if helper, _ := presenceHelper(opt); helper != "" {
+		declaration := cName + ", " + setName + " := " + helper + "(" + goName + ")"
+		if helper == "optionString" {
+			// freeCString accepts nil, so the copy is always released.
+			return declaration + "\n\tdefer freeCString(" + cName + ")"
+		}
+		return declaration
+	}
 
 	if opt.GoType == "string" {
 		return strings.Join([]string{
 			"var " + cName + " *C.char",
 			setName + " := C.int(0)",
 			"if " + goName + " != nil {",
-			"	" + cName + " = C.CString(*" + goName + ")",
-			"	" + setName + " = 1",
-			"	defer freeCString(" + cName + ")",
+			"\t" + cName + " = C.CString(*" + goName + ")",
+			"\t" + setName + " = 1",
+			"\tdefer freeCString(" + cName + ")",
 			"}",
 		}, "\n\t")
 	}
@@ -187,10 +217,21 @@ func generatePresenceDeclaration(opt introspection.Argument) string {
 		"var " + cName + " " + cType,
 		setName + " := C.int(0)",
 		"if " + goName + " != nil {",
-		"	" + cName + " = " + value,
-		"	" + setName + " = 1",
+		"\t" + cName + " = " + value,
+		"\t" + setName + " = 1",
 		"}",
 	}, "\n\t")
+}
+
+// presenceCallValue renders the argument that carries a pointer option's value into
+// the C call. A helper hands back a Go number, so the call casts it; the explicit
+// form already holds the C type.
+func presenceCallValue(opt introspection.Argument) string {
+	cName := "c" + opt.GoName
+	if helper, cast := presenceHelper(opt); helper != "" && cast {
+		return "C." + strings.TrimSpace(opt.CType) + "(" + cName + ")"
+	}
+	return cName
 }
 
 // describeOptionDefault renders an option's accepted range and default for the

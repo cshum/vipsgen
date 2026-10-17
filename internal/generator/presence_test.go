@@ -1,6 +1,7 @@
 package generator
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/cshum/vipsgen/v2/internal/introspection"
@@ -241,5 +242,101 @@ func TestDefaultFieldLiteral(t *testing.T) {
 		if ok != tc.found || (ok && got != tc.want) {
 			t.Errorf("%s: got (%q, %v), want (%q, %v)", tc.name, got, ok, tc.want, tc.found)
 		}
+	}
+}
+
+// TestPointerOptionsFitTheHelpers pins the assumption the optionInt/optionFloat/
+// optionString helpers rest on: every pointer option is carried losslessly by an
+// int64, a float64 or a C string. A new libvips option outside that set fails here
+// rather than being truncated silently.
+func TestPointerOptionsFitTheHelpers(t *testing.T) {
+	i := introspection.NewIntrospection(false)
+	operations := i.DiscoverOperations()
+
+	var narrowed, explicit int
+	for _, op := range operations {
+		for _, opt := range op.OptionalInputs {
+			if argPresence(opt) != PresencePointer {
+				continue
+			}
+			helper, _ := presenceHelper(opt)
+			switch helper {
+			case "optionInt":
+				narrowed++
+				if !opt.IsEnum && !opt.IsFlags && !isNumericOption(opt) {
+					t.Errorf("%s.%s uses optionInt but its Go type is %s", op.Name, opt.Name, opt.GoType)
+				}
+				if strings.TrimSpace(opt.CType) != "gint" && !opt.IsEnum && !opt.IsFlags {
+					t.Errorf("%s.%s uses optionInt for C type %q, which may not fit an int64", op.Name, opt.Name, opt.CType)
+				}
+			case "optionFloat":
+				narrowed++
+				if opt.GoType != "float64" && opt.GoType != "float32" {
+					t.Errorf("%s.%s uses optionFloat but its Go type is %s", op.Name, opt.Name, opt.GoType)
+				}
+			case "optionString":
+				narrowed++
+				if opt.GoType != "string" {
+					t.Errorf("%s.%s uses optionString but its Go type is %s", op.Name, opt.Name, opt.GoType)
+				}
+			default:
+				explicit++
+				t.Logf("%s.%s falls back to the explicit form (C type %q, Go type %s)", op.Name, opt.Name, opt.CType, opt.GoType)
+			}
+		}
+	}
+	if narrowed == 0 {
+		t.Fatal("no pointer options used a helper")
+	}
+	t.Logf("pointer options: %d through helpers, %d explicit", narrowed, explicit)
+}
+
+// TestGeneratePresenceDeclarationShape checks that an option costs one line, and that
+// a string option also releases its C copy.
+func TestGeneratePresenceDeclarationShape(t *testing.T) {
+	cases := []struct {
+		name string
+		opt  introspection.Argument
+		want string
+	}{
+		{
+			name: "enum",
+			opt:  introspection.Argument{Name: "intent", GoName: "Intent", GoType: "Intent", CType: "VipsIntent", IsEnum: true},
+			want: "cIntent, IntentSet := optionInt(Intent)",
+		},
+		{
+			name: "integer",
+			opt:  introspection.Argument{Name: "effort", GoName: "Effort", GoType: "int", CType: "gint"},
+			want: "cEffort, EffortSet := optionInt(Effort)",
+		},
+		{
+			name: "float",
+			opt:  introspection.Argument{Name: "gap", GoName: "Gap", GoType: "float64", CType: "double"},
+			want: "cGap, GapSet := optionFloat(Gap)",
+		},
+		{
+			name: "string",
+			opt:  introspection.Argument{Name: "profile", GoName: "Profile", GoType: "string", CType: "const char*"},
+			want: "cProfile, ProfileSet := optionString(Profile)\n\tdefer freeCString(cProfile)",
+		},
+	}
+	for _, tc := range cases {
+		if got := generatePresenceDeclaration(tc.opt); got != tc.want {
+			t.Errorf("%s: got %q, want %q", tc.name, got, tc.want)
+		}
+	}
+}
+
+// TestPresenceCallValueCastsHelperResults checks that a helper's Go number is cast to
+// the option's C type at the call, while the explicit form already holds it.
+func TestPresenceCallValueCastsHelperResults(t *testing.T) {
+	if got := presenceCallValue(introspection.Argument{Name: "gap", GoName: "Gap", GoType: "float64", CType: "double"}); got != "C.double(cGap)" {
+		t.Errorf("float: got %q", got)
+	}
+	if got := presenceCallValue(introspection.Argument{Name: "profile", GoName: "Profile", GoType: "string", CType: "const char*"}); got != "cProfile" {
+		t.Errorf("string: got %q", got)
+	}
+	if got := presenceCallValue(introspection.Argument{Name: "flag", GoName: "Flag", GoType: "bool", CType: "gboolean"}); got != "cFlag" {
+		t.Errorf("explicit form: got %q", got)
 	}
 }

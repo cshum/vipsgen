@@ -351,26 +351,16 @@ func vipsgenResize(in *C.VipsImage, scale float64) (*C.VipsImage, error) {
 // vipsgenResizeWithOptions vips_resize resize an image with optional arguments
 func vipsgenResizeWithOptions(in *C.VipsImage, scale float64, kernel *Kernel, gap *float64, vscale float64) (*C.VipsImage, error) {
 	var out *C.VipsImage
-	var ckernel C.VipsKernel
-	kernelSet := C.int(0)
-	if kernel != nil {
-		ckernel = C.VipsKernel(*kernel)
-		kernelSet = 1
-	}
-	var cgap C.double
-	gapSet := C.int(0)
-	if gap != nil {
-		cgap = C.double(*gap)
-		gapSet = 1
-	}
-	if err := C.vipsgen_resize_with_options(in, &out, C.double(scale), ckernel, kernelSet, cgap, gapSet, C.double(vscale)); err != 0 {
+	ckernel, kernelSet := optionInt(kernel)
+	cgap, gapSet := optionFloat(gap)
+	if err := C.vipsgen_resize_with_options(in, &out, C.double(scale), C.VipsKernel(ckernel), kernelSet, C.double(cgap), gapSet, C.double(vscale)); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
 }
 ```
 
-This layer handles C array conversion, string conversion with cleanup, memory management, error handling, and type conversion between Go and C.
+This layer handles C array conversion, string conversion with cleanup, memory management, error handling, and type conversion between Go and C. `optionInt`, `optionFloat` and `optionString` turn a nil field into "not supplied", so a pointer option costs one line.
 
 **3. Go Method Layer (image.go)**
 
