@@ -44,15 +44,7 @@ All operations support parameters and optional arguments through structs, mainta
 Pass `nil` to use default behavior for optional arguments. 
 See [examples](https://github.com/cshum/vipsgen/tree/main/examples) for common usage patterns.
 
-An optional argument is a **pointer** when libvips accepts its zero value and that zero differs from the option's default, so the two cases stay distinguishable. Everything else stays a plain value, since there the zero value is either not a value libvips accepts or is what libvips would have used anyway.
-
-```go
-&vips.PngsaveOptions{}                          // libvips default, compression 6
-&vips.PngsaveOptions{Compression: vips.Ptr(0)}  // store uncompressed
-&vips.PngsaveOptions{Compression: vips.Ptr(6)}  // same output as the default
-```
-
-[`examples/option_presence`](https://github.com/cshum/vipsgen/tree/main/examples/option_presence) shows the four choices side by side. Each field comment states the accepted range and the default, and `Default<Op>Options` fills them in if you want to see them. Upgrading from v1? See [MIGRATION.md](MIGRATION.md).
+Optional arguments take `nil` for libvips' own default, or `vips.Ptr(v)` to supply a value explicitly, a zero included — see [`examples/option_presence`](https://github.com/cshum/vipsgen/tree/main/examples/option_presence). Upgrading from v1? See [MIGRATION.md](MIGRATION.md).
 
 
 ```go
@@ -259,7 +251,7 @@ The generation process involves multiple layers to provide a type-safe, idiomati
 
 2. **Multi-Layer Generation**: To create type-safe, idiomatic Go APIs from libvips dynamic parameter system, vipsgen creates a layered approach that handles both required and optional parameters.
 
-3. **Type-Safe Bindings**: The generated code is fully type-safe with proper Go types, structs, and enums based on centralized introspection data. Generated Go is gofmt-formatted before it is written, so a package reads like hand-written code.
+3. **Type-Safe Bindings**: The generated code is fully type-safe with proper Go types, structs, and enums based on centralized introspection data.
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -360,7 +352,7 @@ func vipsgenResizeWithOptions(in *C.VipsImage, scale float64, kernel *Kernel, ga
 }
 ```
 
-This layer handles C array conversion, string conversion with cleanup, memory management, error handling, and type conversion between Go and C. `optionInt`, `optionFloat` and `optionString` turn a nil field into "not supplied", so a pointer option costs one line.
+This layer handles C array conversion, string conversion with cleanup, memory management, error handling, and type conversion between Go and C. `optionInt`, `optionFloat` and `optionString` turn a nil field into "not supplied".
 
 **3. Go Method Layer (image.go)**
 

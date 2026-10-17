@@ -10,9 +10,16 @@ import "github.com/cshum/vipsgen/v2/vips"
 
 v1 stays consumable at its existing import paths, so v1 code keeps building while you move.
 
-## Option presence
+## When a field is a pointer
 
-A field is a **pointer** when libvips accepts its zero value and that zero differs from the option's default. `nil` means "not supplied" — the operation uses its own default. `Ptr` means "supplied", including a zero value. Every other field stays a plain value.
+A field is a **pointer** when libvips accepts its zero value and that zero differs from the option's default, so the two cases stay distinguishable: `nil` means "not supplied", and libvips uses its own default; `Ptr(v)` means "supplied", a zero included. Every other field stays a plain value, since there the zero value is either not a value libvips accepts or is what it would have used anyway.
+
+
+```go
+&vips.PngsaveOptions{}                          // libvips default, compression 6
+&vips.PngsaveOptions{Compression: vips.Ptr(0)}  // store uncompressed
+&vips.PngsaveOptions{Compression: vips.Ptr(6)}  // same output as the default
+```
 
 | v1 | v2 |
 |----|----|
