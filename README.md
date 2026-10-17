@@ -157,7 +157,7 @@ func main() {
 
 **Generic loaders** — [`NewImageFromFile`](https://pkg.go.dev/github.com/cshum/vipsgen/v2/vips#NewImageFromFile), [`NewImageFromBuffer`](https://pkg.go.dev/github.com/cshum/vipsgen/v2/vips#NewImageFromBuffer), [`NewImageFromSource`](https://pkg.go.dev/github.com/cshum/vipsgen/v2/vips#NewImageFromSource) — automatically detect the image format and accept `LoadOptions`, a generic options struct covering common options across formats. Since not every format supports every option, use the **format-specific loaders** — [`NewGifload`](https://pkg.go.dev/github.com/cshum/vipsgen/v2/vips#NewGifload), [`NewJpegloadBuffer`](https://pkg.go.dev/github.com/cshum/vipsgen/v2/vips#NewJpegloadBuffer), [`NewPngloadSource`](https://pkg.go.dev/github.com/cshum/vipsgen/v2/vips#NewPngloadSource), etc. — for precise, type-safe control. A few common examples:
 
-**Animated GIF** — `N: -1` loads all frames ([full example](https://github.com/cshum/vipsgen/tree/main/examples/from_file)):
+**Animated GIF** — `N: vips.Ptr(-1)` loads all frames ([full example](https://github.com/cshum/vipsgen/tree/main/examples/from_file)):
 
 ```go
 image, err := vips.NewGifload("animation.gif", &vips.GifloadOptions{

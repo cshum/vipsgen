@@ -340,3 +340,51 @@ func TestPresenceCallValueCastsHelperResults(t *testing.T) {
 		t.Errorf("explicit form: got %q", got)
 	}
 }
+
+// TestNoPlainOptionDropsAMeaningfulZero is the invariant the whole v2 change exists
+// to establish: a plain (non-pointer) option must be one where libvips' zero value is
+// either not a value it accepts, or is exactly the option's default. If some plain
+// option accepted zero and defaulted elsewhere, leaving the field out would silently
+// apply a different value than the caller asked for - the v1 bug class.
+//
+// Options whose metadata records no default are reported separately: for those the
+// generator cannot know, and they are the honest limit of a metadata-driven rule.
+func TestNoPlainOptionDropsAMeaningfulZero(t *testing.T) {
+	i := introspection.NewIntrospection(false)
+	operations := i.DiscoverOperations()
+
+	var checked, unknownDefault int
+	var unknown []string
+	for _, op := range operations {
+		for _, opt := range op.OptionalInputs {
+			if argPresence(opt) != PresenceValue {
+				continue
+			}
+			if opt.DefaultValue == nil {
+				if zeroValueAccepted(opt) {
+					unknownDefault++
+					unknown = append(unknown, op.Name+"."+opt.Name)
+					// A string with no recorded default is the empty string, which is
+					// what "not supplied" means anyway. Anything else would be a gap in
+					// the metadata the rule leans on.
+					if opt.GoType != "string" {
+						t.Errorf("%s.%s has no recorded default but is a %s: skipping zero would guess", op.Name, opt.Name, opt.GoType)
+					}
+				}
+				continue
+			}
+			checked++
+			if zeroValueAccepted(opt) && !isZeroDefault(opt.DefaultValue) {
+				t.Errorf("%s.%s is a plain option, libvips accepts zero, but its default is %v: an omitted zero would be dropped",
+					op.Name, opt.Name, opt.DefaultValue)
+			}
+		}
+	}
+	if checked == 0 {
+		t.Fatal("no plain options with a recorded default were checked")
+	}
+	t.Logf("plain options checked against their default: %d", checked)
+	if unknownDefault > 0 {
+		t.Logf("plain options with no recorded default, so skipping zero is a guess: %d (%v)", unknownDefault, unknown)
+	}
+}
