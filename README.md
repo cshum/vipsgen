@@ -389,9 +389,7 @@ type ResizeOptions struct {
     Vscale float64
 }
 
-// DefaultResizeOptions returns ResizeOptions with libvips' own defaults filled in.
-// Optional: omitting a field already means "use the default", so this exists to
-// show what those defaults are.
+// DefaultResizeOptions creates default value for vips_resize optional arguments
 func DefaultResizeOptions() *ResizeOptions {
     return &ResizeOptions{
         Kernel: Ptr(KernelLanczos3),

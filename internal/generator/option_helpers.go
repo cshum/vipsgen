@@ -47,10 +47,8 @@ func generateOptionalInputsStruct(op introspection.Operation) string {
 
 	result.WriteString("}\n\n")
 
-	result.WriteString(fmt.Sprintf("// Default%s returns %s with libvips' own defaults filled in.\n",
-		structName, structName))
-	result.WriteString("// Optional: omitting a field already means \"use the default\", so this exists to\n")
-	result.WriteString("// show what those defaults are.\n")
+	result.WriteString(fmt.Sprintf("// Default%s creates default value for vips_%s optional arguments\n",
+		structName, op.Name))
 	result.WriteString(fmt.Sprintf("func Default%s() *%s {\n", structName, structName))
 	result.WriteString(fmt.Sprintf("\treturn &%s{\n", structName))
 	for _, opt := range op.OptionalInputs {
