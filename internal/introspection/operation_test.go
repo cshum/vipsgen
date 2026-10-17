@@ -135,3 +135,83 @@ func TestOperationBoundsAreFiniteOrUnbounded(t *testing.T) {
 		t.Fatalf("marshalling operations for the -debug dump failed: %v", err)
 	}
 }
+
+// TestFlagsAnd64BitArgumentMetadata covers the two argument classes that used to
+// carry no metadata at all: GFlags bitmasks (keep, filter) and 64-bit integers.
+// Both are inputs to the option-presence rule, which cannot classify a field
+// without knowing its default.
+func TestFlagsAnd64BitArgumentMetadata(t *testing.T) {
+	introspection := NewIntrospection(false)
+
+	keepArgs, err := introspection.DiscoverOperationArguments("jpegsave")
+	if err != nil {
+		t.Fatal(err)
+	}
+	keep := findArgument(t, keepArgs, "keep")
+	if !keep.IsFlags || !keep.IsEnum {
+		t.Fatalf("keep: IsFlags=%v IsEnum=%v, want both", keep.IsFlags, keep.IsEnum)
+	}
+	if keep.HasRange {
+		t.Errorf("keep: HasRange=%v, want false (a flags mask has no numeric range)", keep.HasRange)
+	}
+	if keep.DefaultValue != int64(63) {
+		t.Errorf("keep: default = %#v, want int64(63) (all keep flags)", keep.DefaultValue)
+	}
+	if !containsInt(keep.EnumValues, 0) {
+		t.Errorf("keep: members = %v, want VIPS_FOREIGN_KEEP_NONE(0) among them", keep.EnumValues)
+	}
+
+	filterArgs, err := introspection.DiscoverOperationArguments("pngsave")
+	if err != nil {
+		t.Fatal(err)
+	}
+	filter := findArgument(t, filterArgs, "filter")
+	if !filter.IsFlags {
+		t.Fatalf("filter: IsFlags=%v, want true", filter.IsFlags)
+	}
+	if filter.DefaultValue != int64(8) {
+		t.Errorf("filter: default = %#v, want int64(8) (VIPS_FOREIGN_PNG_FILTER_NONE)", filter.DefaultValue)
+	}
+	if containsInt(filter.EnumValues, 0) {
+		t.Errorf("filter: members = %v, want no zero member", filter.EnumValues)
+	}
+
+	offsetArgs, err := introspection.DiscoverOperationArguments("rawload")
+	if err != nil {
+		t.Fatal(err)
+	}
+	offset := findArgument(t, offsetArgs, "offset")
+	if offset.GoType != "uint64" {
+		t.Fatalf("offset: GoType = %q, want uint64", offset.GoType)
+	}
+	if !offset.HasRange || !offset.HasMinimum || !offset.HasMaximum {
+		t.Errorf("offset: range metadata = %+v, want a bounded range", offset)
+	}
+	if offset.DefaultValue != int64(0) {
+		t.Errorf("offset: default = %#v, want int64(0)", offset.DefaultValue)
+	}
+
+	// Every flags argument must report a default: that is what lets the
+	// presence rule tell an explicit zero mask from an omitted one.
+	operations := introspection.DiscoverOperations()
+	flagsArgs := 0
+	for _, op := range operations {
+		args := append(append([]Argument{}, op.Arguments...), op.OptionalInputs...)
+		for _, arg := range args {
+			if !arg.IsFlags {
+				continue
+			}
+			flagsArgs++
+			if !arg.IsEnum {
+				t.Errorf("%s.%s: IsFlags but not IsEnum", op.Name, arg.Name)
+			}
+			if arg.DefaultValue == nil {
+				t.Errorf("%s.%s: flags argument without a default", op.Name, arg.Name)
+			}
+		}
+	}
+	if flagsArgs == 0 {
+		t.Fatal("no flags arguments discovered; the flags metadata branch is dead")
+	}
+	t.Logf("flags arguments reported: %d", flagsArgs)
+}

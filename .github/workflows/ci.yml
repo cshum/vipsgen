@@ -135,6 +135,9 @@ jobs:
           mkdir -p bin
           go build -o bin/vipsgen cmd/vipsgen/main.go
 
+      - name: Run generator unit tests
+        run: go test -count=1 ./internal/...
+
       - name: Generate vips package
         run: |
           mkdir -p ${{ matrix.output_dir }}
