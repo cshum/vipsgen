@@ -44,7 +44,6 @@ func DefaultAnalyzeloadOptions() *AnalyzeloadOptions {
 	}
 }
 
-
 // NewAnalyzeload vips_analyzeload load an Analyze6 image
 //
 // The filename specifies filename to load from.
@@ -91,7 +90,6 @@ func DefaultArrayjoinOptions() *ArrayjoinOptions {
 	}
 }
 
-
 // NewArrayjoin vips_arrayjoin join an array of images
 //
 // The in specifies array of input images.
@@ -137,7 +135,6 @@ func DefaultBandrankOptions() *BandrankOptions {
 	}
 }
 
-
 // NewBandrank vips_bandrank band-wise rank of a set of images
 //
 // The in specifies array of input images.
@@ -169,7 +166,6 @@ func DefaultBlackOptions() *BlackOptions {
 		Bands: 1,
 	}
 }
-
 
 // NewBlack vips_black make a black image
 //
@@ -209,7 +205,6 @@ func DefaultCompositeOptions() *CompositeOptions {
 		CompositingSpace: Ptr(InterpretationSrgb),
 	}
 }
-
 
 // NewComposite vips_composite blend an array of images with an array of blend modes
 //
@@ -260,7 +255,6 @@ func DefaultCsvloadOptions() *CsvloadOptions {
 	}
 }
 
-
 // NewCsvload vips_csvload load csv
 //
 // The filename specifies filename to load from.
@@ -309,7 +303,6 @@ func DefaultCsvloadSourceOptions() *CsvloadSourceOptions {
 	}
 }
 
-
 // NewCsvloadSource vips_csvload_source load csv
 //
 // The source specifies source to load from.
@@ -350,7 +343,6 @@ func DefaultDcrawloadOptions() *DcrawloadOptions {
 	}
 }
 
-
 // NewDcrawload vips_dcrawload load RAW camera files
 //
 // The filename specifies filename to load from.
@@ -390,7 +382,6 @@ func DefaultDcrawloadBufferOptions() *DcrawloadBufferOptions {
 		Bitdepth: 8,
 	}
 }
-
 
 // NewDcrawloadBuffer vips_dcrawload_buffer load RAW camera files
 func NewDcrawloadBuffer(buf []byte, options *DcrawloadBufferOptions) (*Image, error) {
@@ -433,7 +424,6 @@ func DefaultDcrawloadSourceOptions() *DcrawloadSourceOptions {
 	}
 }
 
-
 // NewDcrawloadSource vips_dcrawload_source load RAW camera files
 //
 // The source specifies source to load from.
@@ -467,7 +457,6 @@ func DefaultEyeOptions() *EyeOptions {
 		Factor: Ptr(0.5),
 	}
 }
-
 
 // NewEye vips_eye make an image showing the eye's spatial response
 //
@@ -506,7 +495,6 @@ func DefaultFitsloadOptions() *FitsloadOptions {
 	return &FitsloadOptions{
 	}
 }
-
 
 // NewFitsload vips_fitsload load a FITS image
 //
@@ -556,7 +544,6 @@ func DefaultGaussmatOptions() *GaussmatOptions {
 	}
 }
 
-
 // NewGaussmat vips_gaussmat make a gaussian image
 //
 // The sigma specifies sigma of Gaussian.
@@ -594,7 +581,6 @@ func DefaultGaussnoiseOptions() *GaussnoiseOptions {
 		Mean: Ptr(128.0),
 	}
 }
-
 
 // NewGaussnoise vips_gaussnoise make a gaussnoise image
 //
@@ -639,7 +625,6 @@ func DefaultGifloadOptions() *GifloadOptions {
 	}
 }
 
-
 // NewGifload vips_gifload load GIF with libnsgif
 //
 // The filename specifies filename to load from.
@@ -681,7 +666,6 @@ func DefaultGifloadBufferOptions() *GifloadBufferOptions {
 		N: Ptr(1),
 	}
 }
-
 
 // NewGifloadBuffer vips_gifload_buffer load GIF with libnsgif
 func NewGifloadBuffer(buf []byte, options *GifloadBufferOptions) (*Image, error) {
@@ -726,7 +710,6 @@ func DefaultGifloadSourceOptions() *GifloadSourceOptions {
 	}
 }
 
-
 // NewGifloadSource vips_gifload_source load gif from source
 //
 // The source specifies source to load from.
@@ -757,7 +740,6 @@ func DefaultGreyOptions() *GreyOptions {
 	return &GreyOptions{
 	}
 }
-
 
 // NewGrey vips_grey make a grey ramp image
 //
@@ -806,7 +788,6 @@ func DefaultHeifloadOptions() *HeifloadOptions {
 	}
 }
 
-
 // NewHeifload vips_heifload load a HEIF image
 //
 // The filename specifies filename to load from.
@@ -852,7 +833,6 @@ func DefaultHeifloadBufferOptions() *HeifloadBufferOptions {
 		N: Ptr(1),
 	}
 }
-
 
 // NewHeifloadBuffer vips_heifload_buffer load a HEIF image
 func NewHeifloadBuffer(buf []byte, options *HeifloadBufferOptions) (*Image, error) {
@@ -901,7 +881,6 @@ func DefaultHeifloadSourceOptions() *HeifloadSourceOptions {
 	}
 }
 
-
 // NewHeifloadSource vips_heifload_source load a HEIF image
 //
 // The source specifies source to load from.
@@ -938,7 +917,6 @@ func DefaultIdentityOptions() *IdentityOptions {
 		Size: 65536,
 	}
 }
-
 
 // NewIdentity vips_identity make a 1D image where pixel values are indexes
 func NewIdentity(options *IdentityOptions) (*Image, error) {
@@ -978,7 +956,6 @@ func DefaultJp2kloadOptions() *Jp2kloadOptions {
 	return &Jp2kloadOptions{
 	}
 }
-
 
 // NewJp2kload vips_jp2kload load JPEG2000 image
 //
@@ -1021,7 +998,6 @@ func DefaultJp2kloadBufferOptions() *Jp2kloadBufferOptions {
 	}
 }
 
-
 // NewJp2kloadBuffer vips_jp2kload_buffer load JPEG2000 image
 func NewJp2kloadBuffer(buf []byte, options *Jp2kloadBufferOptions) (*Image, error) {
 	Startup(nil)
@@ -1063,7 +1039,6 @@ func DefaultJp2kloadSourceOptions() *Jp2kloadSourceOptions {
 	return &Jp2kloadSourceOptions{
 	}
 }
-
 
 // NewJp2kloadSource vips_jp2kload_source load JPEG2000 image
 //
@@ -1109,7 +1084,6 @@ func DefaultJpegloadOptions() *JpegloadOptions {
 	}
 }
 
-
 // NewJpegload vips_jpegload load jpeg from file
 //
 // The filename specifies filename to load from.
@@ -1153,7 +1127,6 @@ func DefaultJpegloadBufferOptions() *JpegloadBufferOptions {
 		Shrink: 1,
 	}
 }
-
 
 // NewJpegloadBuffer vips_jpegload_buffer load jpeg from buffer
 func NewJpegloadBuffer(buf []byte, options *JpegloadBufferOptions) (*Image, error) {
@@ -1200,7 +1173,6 @@ func DefaultJpegloadSourceOptions() *JpegloadSourceOptions {
 	}
 }
 
-
 // NewJpegloadSource vips_jpegload_source load image from jpeg source
 //
 // The source specifies source to load from.
@@ -1243,7 +1215,6 @@ func DefaultJxlloadOptions() *JxlloadOptions {
 	}
 }
 
-
 // NewJxlload vips_jxlload load JPEG-XL image
 //
 // The filename specifies filename to load from.
@@ -1285,7 +1256,6 @@ func DefaultJxlloadBufferOptions() *JxlloadBufferOptions {
 		N: Ptr(1),
 	}
 }
-
 
 // NewJxlloadBuffer vips_jxlload_buffer load JPEG-XL image
 func NewJxlloadBuffer(buf []byte, options *JxlloadBufferOptions) (*Image, error) {
@@ -1330,7 +1300,6 @@ func DefaultJxlloadSourceOptions() *JxlloadSourceOptions {
 	}
 }
 
-
 // NewJxlloadSource vips_jxlload_source load JPEG-XL image
 //
 // The source specifies source to load from.
@@ -1363,7 +1332,6 @@ func DefaultLogmatOptions() *LogmatOptions {
 	return &LogmatOptions{
 	}
 }
-
 
 // NewLogmat vips_logmat make a Laplacian of Gaussian image
 //
@@ -1410,7 +1378,6 @@ func DefaultMagickloadOptions() *MagickloadOptions {
 	}
 }
 
-
 // NewMagickload vips_magickload load file with ImageMagick
 //
 // The filename specifies filename to load from.
@@ -1454,7 +1421,6 @@ func DefaultMagickloadBufferOptions() *MagickloadBufferOptions {
 		N: Ptr(1),
 	}
 }
-
 
 // NewMagickloadBuffer vips_magickload_buffer load buffer with ImageMagick
 func NewMagickloadBuffer(buf []byte, options *MagickloadBufferOptions) (*Image, error) {
@@ -1501,7 +1467,6 @@ func DefaultMagickloadSourceOptions() *MagickloadSourceOptions {
 	}
 }
 
-
 // NewMagickloadSource vips_magickload_source load source with ImageMagick
 //
 // The source specifies source to load from.
@@ -1538,7 +1503,6 @@ func DefaultMaskButterworthOptions() *MaskButterworthOptions {
 	return &MaskButterworthOptions{
 	}
 }
-
 
 // NewMaskButterworth vips_mask_butterworth make a butterworth filter
 //
@@ -1580,7 +1544,6 @@ func DefaultMaskButterworthBandOptions() *MaskButterworthBandOptions {
 	return &MaskButterworthBandOptions{
 	}
 }
-
 
 // NewMaskButterworthBand vips_mask_butterworth_band make a butterworth_band filter
 //
@@ -1625,7 +1588,6 @@ func DefaultMaskButterworthRingOptions() *MaskButterworthRingOptions {
 	}
 }
 
-
 // NewMaskButterworthRing vips_mask_butterworth_ring make a butterworth ring filter
 //
 // The width specifies image width in pixels.
@@ -1668,7 +1630,6 @@ func DefaultMaskFractalOptions() *MaskFractalOptions {
 	}
 }
 
-
 // NewMaskFractal vips_mask_fractal make fractal filter
 //
 // The width specifies image width in pixels.
@@ -1707,7 +1668,6 @@ func DefaultMaskGaussianOptions() *MaskGaussianOptions {
 	return &MaskGaussianOptions{
 	}
 }
-
 
 // NewMaskGaussian vips_mask_gaussian make a gaussian filter
 //
@@ -1748,7 +1708,6 @@ func DefaultMaskGaussianBandOptions() *MaskGaussianBandOptions {
 	return &MaskGaussianBandOptions{
 	}
 }
-
 
 // NewMaskGaussianBand vips_mask_gaussian_band make a gaussian filter
 //
@@ -1792,7 +1751,6 @@ func DefaultMaskGaussianRingOptions() *MaskGaussianRingOptions {
 	}
 }
 
-
 // NewMaskGaussianRing vips_mask_gaussian_ring make a gaussian ring filter
 //
 // The width specifies image width in pixels.
@@ -1834,7 +1792,6 @@ func DefaultMaskIdealOptions() *MaskIdealOptions {
 	}
 }
 
-
 // NewMaskIdeal vips_mask_ideal make an ideal filter
 //
 // The width specifies image width in pixels.
@@ -1873,7 +1830,6 @@ func DefaultMaskIdealBandOptions() *MaskIdealBandOptions {
 	return &MaskIdealBandOptions{
 	}
 }
-
 
 // NewMaskIdealBand vips_mask_ideal_band make an ideal band filter
 //
@@ -1916,7 +1872,6 @@ func DefaultMaskIdealRingOptions() *MaskIdealRingOptions {
 	}
 }
 
-
 // NewMaskIdealRing vips_mask_ideal_ring make an ideal ring filter
 //
 // The width specifies image width in pixels.
@@ -1957,7 +1912,6 @@ func DefaultMatloadOptions() *MatloadOptions {
 	}
 }
 
-
 // NewMatload vips_matload load mat from file
 //
 // The filename specifies filename to load from.
@@ -1994,7 +1948,6 @@ func DefaultMatrixloadOptions() *MatrixloadOptions {
 	return &MatrixloadOptions{
 	}
 }
-
 
 // NewMatrixload vips_matrixload load matrix
 //
@@ -2033,7 +1986,6 @@ func DefaultMatrixloadSourceOptions() *MatrixloadSourceOptions {
 	}
 }
 
-
 // NewMatrixloadSource vips_matrixload_source load matrix
 //
 // The source specifies source to load from.
@@ -2070,7 +2022,6 @@ func DefaultNiftiloadOptions() *NiftiloadOptions {
 	return &NiftiloadOptions{
 	}
 }
-
 
 // NewNiftiload vips_niftiload load NIfTI volume
 //
@@ -2109,7 +2060,6 @@ func DefaultNiftiloadSourceOptions() *NiftiloadSourceOptions {
 	}
 }
 
-
 // NewNiftiloadSource vips_niftiload_source load NIfTI volumes
 //
 // The source specifies source to load from.
@@ -2146,7 +2096,6 @@ func DefaultOpenexrloadOptions() *OpenexrloadOptions {
 	return &OpenexrloadOptions{
 	}
 }
-
 
 // NewOpenexrload vips_openexrload load an OpenEXR image
 //
@@ -2195,7 +2144,6 @@ func DefaultOpenslideloadOptions() *OpenslideloadOptions {
 	}
 }
 
-
 // NewOpenslideload vips_openslideload load file with OpenSlide
 //
 // The filename specifies filename to load from.
@@ -2242,7 +2190,6 @@ func DefaultOpenslideloadSourceOptions() *OpenslideloadSourceOptions {
 	return &OpenslideloadSourceOptions{
 	}
 }
-
 
 // NewOpenslideloadSource vips_openslideload_source load source with OpenSlide
 //
@@ -2299,7 +2246,6 @@ func DefaultPdfloadOptions() *PdfloadOptions {
 	}
 }
 
-
 // NewPdfload vips_pdfload load PDF from file (poppler)
 //
 // The filename specifies filename to load from.
@@ -2354,7 +2300,6 @@ func DefaultPdfloadBufferOptions() *PdfloadBufferOptions {
 		PageBox: Ptr(PdfPageBoxCrop),
 	}
 }
-
 
 // NewPdfloadBuffer vips_pdfload_buffer load PDF from buffer (poppler)
 func NewPdfloadBuffer(buf []byte, options *PdfloadBufferOptions) (*Image, error) {
@@ -2412,7 +2357,6 @@ func DefaultPdfloadSourceOptions() *PdfloadSourceOptions {
 	}
 }
 
-
 // NewPdfloadSource vips_pdfload_source load PDF from source (poppler)
 //
 // The source specifies source to load from.
@@ -2448,7 +2392,6 @@ func DefaultPerlinOptions() *PerlinOptions {
 		CellSize: 256,
 	}
 }
-
 
 // NewPerlin vips_perlin make a perlin noise image
 //
@@ -2490,7 +2433,6 @@ func DefaultPngloadOptions() *PngloadOptions {
 	}
 }
 
-
 // NewPngload vips_pngload load png from file
 //
 // The filename specifies filename to load from.
@@ -2529,7 +2471,6 @@ func DefaultPngloadBufferOptions() *PngloadBufferOptions {
 	return &PngloadBufferOptions{
 	}
 }
-
 
 // NewPngloadBuffer vips_pngload_buffer load png from buffer
 func NewPngloadBuffer(buf []byte, options *PngloadBufferOptions) (*Image, error) {
@@ -2571,7 +2512,6 @@ func DefaultPngloadSourceOptions() *PngloadSourceOptions {
 	}
 }
 
-
 // NewPngloadSource vips_pngload_source load png from source
 //
 // The source specifies source to load from.
@@ -2609,7 +2549,6 @@ func DefaultPpmloadOptions() *PpmloadOptions {
 	}
 }
 
-
 // NewPpmload vips_ppmload load ppm from file
 //
 // The filename specifies filename to load from.
@@ -2646,7 +2585,6 @@ func DefaultPpmloadBufferOptions() *PpmloadBufferOptions {
 	return &PpmloadBufferOptions{
 	}
 }
-
 
 // NewPpmloadBuffer vips_ppmload_buffer load ppm from buffer
 func NewPpmloadBuffer(buf []byte, options *PpmloadBufferOptions) (*Image, error) {
@@ -2686,7 +2624,6 @@ func DefaultPpmloadSourceOptions() *PpmloadSourceOptions {
 	}
 }
 
-
 // NewPpmloadSource vips_ppmload_source load ppm from source
 //
 // The source specifies source to load from.
@@ -2723,7 +2660,6 @@ func DefaultRadloadOptions() *RadloadOptions {
 	return &RadloadOptions{
 	}
 }
-
 
 // NewRadload vips_radload load a Radiance image from a file
 //
@@ -2762,7 +2698,6 @@ func DefaultRadloadBufferOptions() *RadloadBufferOptions {
 	}
 }
 
-
 // NewRadloadBuffer vips_radload_buffer load rad from buffer
 func NewRadloadBuffer(buf []byte, options *RadloadBufferOptions) (*Image, error) {
 	Startup(nil)
@@ -2800,7 +2735,6 @@ func DefaultRadloadSourceOptions() *RadloadSourceOptions {
 	return &RadloadSourceOptions{
 	}
 }
-
 
 // NewRadloadSource vips_radload_source load rad from source
 //
@@ -2845,7 +2779,6 @@ func DefaultRawloadOptions() *RawloadOptions {
 	}
 }
 
-
 // NewRawload vips_rawload load raw data from a file
 //
 // The filename specifies filename to load from.
@@ -2887,7 +2820,6 @@ func DefaultSdfOptions() *SdfOptions {
 	}
 }
 
-
 // NewSdf vips_sdf create an SDF image
 //
 // The width specifies image width in pixels.
@@ -2926,7 +2858,6 @@ func DefaultSinesOptions() *SinesOptions {
 		Vfreq: Ptr(0.5),
 	}
 }
-
 
 // NewSines vips_sines make a 2D sine wave
 //
@@ -2991,7 +2922,6 @@ func DefaultSvgloadOptions() *SvgloadOptions {
 	}
 }
 
-
 // NewSvgload vips_svgload load SVG with rsvg
 //
 // The filename specifies filename to load from.
@@ -3040,7 +2970,6 @@ func DefaultSvgloadBufferOptions() *SvgloadBufferOptions {
 		Scale: Ptr(1.0),
 	}
 }
-
 
 // NewSvgloadBuffer vips_svgload_buffer load SVG with rsvg
 func NewSvgloadBuffer(buf []byte, options *SvgloadBufferOptions) (*Image, error) {
@@ -3092,7 +3021,6 @@ func DefaultSvgloadSourceOptions() *SvgloadSourceOptions {
 	}
 }
 
-
 // NewSvgloadSource vips_svgload_source load svg from source
 //
 // The source specifies source to load from.
@@ -3142,7 +3070,6 @@ func DefaultSystemOptions() *SystemOptions {
 	return &SystemOptions{
 	}
 }
-
 
 // NewSystem vips_system run an external command
 //
@@ -3196,7 +3123,6 @@ func DefaultTextOptions() *TextOptions {
 	}
 }
 
-
 // NewText vips_text make a text image
 //
 // The text specifies text to render.
@@ -3245,7 +3171,6 @@ func DefaultThumbnailOptions() *ThumbnailOptions {
 		Intent: Ptr(IntentRelative),
 	}
 }
-
 
 // NewThumbnail vips_thumbnail generate thumbnail from file
 //
@@ -3298,7 +3223,6 @@ func DefaultThumbnailBufferOptions() *ThumbnailBufferOptions {
 		Intent: Ptr(IntentRelative),
 	}
 }
-
 
 // NewThumbnailBuffer vips_thumbnail_buffer generate thumbnail from buffer
 //
@@ -3354,7 +3278,6 @@ func DefaultThumbnailSourceOptions() *ThumbnailSourceOptions {
 	}
 }
 
-
 // NewThumbnailSource vips_thumbnail_source generate thumbnail from source
 //
 // The source specifies source to load from.
@@ -3405,7 +3328,6 @@ func DefaultTiffloadOptions() *TiffloadOptions {
 	}
 }
 
-
 // NewTiffload vips_tiffload load tiff from file
 //
 // The filename specifies filename to load from.
@@ -3454,7 +3376,6 @@ func DefaultTiffloadBufferOptions() *TiffloadBufferOptions {
 		Subifd: Ptr(-1),
 	}
 }
-
 
 // NewTiffloadBuffer vips_tiffload_buffer load tiff from buffer
 func NewTiffloadBuffer(buf []byte, options *TiffloadBufferOptions) (*Image, error) {
@@ -3505,7 +3426,6 @@ func DefaultTiffloadSourceOptions() *TiffloadSourceOptions {
 		Subifd: Ptr(-1),
 	}
 }
-
 
 // NewTiffloadSource vips_tiffload_source load tiff from source
 //
@@ -3562,7 +3482,6 @@ func DefaultTonelutOptions() *TonelutOptions {
 	}
 }
 
-
 // NewTonelut vips_tonelut build a look-up table
 func NewTonelut(options *TonelutOptions) (*Image, error) {
 	Startup(nil)
@@ -3597,7 +3516,6 @@ func DefaultVipsloadOptions() *VipsloadOptions {
 	return &VipsloadOptions{
 	}
 }
-
 
 // NewVipsload vips_vipsload load vips from file
 //
@@ -3635,7 +3553,6 @@ func DefaultVipsloadSourceOptions() *VipsloadSourceOptions {
 	return &VipsloadSourceOptions{
 	}
 }
-
 
 // NewVipsloadSource vips_vipsload_source load vips from source
 //
@@ -3682,7 +3599,6 @@ func DefaultWebploadOptions() *WebploadOptions {
 	}
 }
 
-
 // NewWebpload vips_webpload load webp from file
 //
 // The filename specifies filename to load from.
@@ -3727,7 +3643,6 @@ func DefaultWebploadBufferOptions() *WebploadBufferOptions {
 		Scale: Ptr(1.0),
 	}
 }
-
 
 // NewWebploadBuffer vips_webpload_buffer load webp from buffer
 func NewWebploadBuffer(buf []byte, options *WebploadBufferOptions) (*Image, error) {
@@ -3775,7 +3690,6 @@ func DefaultWebploadSourceOptions() *WebploadSourceOptions {
 	}
 }
 
-
 // NewWebploadSource vips_webpload_source load webp from source
 //
 // The source specifies source to load from.
@@ -3809,7 +3723,6 @@ func DefaultWorleyOptions() *WorleyOptions {
 		CellSize: 256,
 	}
 }
-
 
 // NewWorley vips_worley make a worley noise image
 //
@@ -3850,7 +3763,6 @@ func DefaultXyzOptions() *XyzOptions {
 	}
 }
 
-
 // NewXyz vips_xyz make an image where pixel values are coordinates
 //
 // The width specifies image width in pixels.
@@ -3882,7 +3794,6 @@ func DefaultZoneOptions() *ZoneOptions {
 	return &ZoneOptions{
 	}
 }
-
 
 // NewZone vips_zone make a zone plate
 //
@@ -4005,7 +3916,6 @@ func DefaultLab2XYZOptions() *Lab2XYZOptions {
 	return &Lab2XYZOptions{
 	}
 }
-
 
 // Lab2XYZ vips_Lab2XYZ transform CIELAB to XYZ
 func (r *Image) Lab2XYZ(options *Lab2XYZOptions) (error) {
@@ -4136,7 +4046,6 @@ func DefaultXYZ2LabOptions() *XYZ2LabOptions {
 	}
 }
 
-
 // XYZ2Lab vips_XYZ2Lab transform XYZ to Lab
 func (r *Image) XYZ2Lab(options *XYZ2LabOptions) (error) {
 	if options != nil {
@@ -4263,7 +4172,6 @@ func DefaultAffineOptions() *AffineOptions {
 	}
 }
 
-
 // Affine vips_affine affine transform of an image
 //
 // The a specifies coefficient a (horizontal scale).
@@ -4298,7 +4206,6 @@ func DefaultAutorotOptions() *AutorotOptions {
 	return &AutorotOptions{
 	}
 }
-
 
 // Autorot vips_autorot autorotate image by exif tag
 func (r *Image) Autorot(options *AutorotOptions) (error) {
@@ -4353,7 +4260,6 @@ func DefaultBandfoldOptions() *BandfoldOptions {
 	}
 }
 
-
 // Bandfold vips_bandfold fold up x axis into bands
 func (r *Image) Bandfold(options *BandfoldOptions) (error) {
 	if options != nil {
@@ -4407,7 +4313,6 @@ func DefaultBandunfoldOptions() *BandunfoldOptions {
 	return &BandunfoldOptions{
 	}
 }
-
 
 // Bandunfold vips_bandunfold unfold image bands into x axis
 func (r *Image) Bandunfold(options *BandunfoldOptions) (error) {
@@ -4493,7 +4398,6 @@ func DefaultCannyOptions() *CannyOptions {
 	}
 }
 
-
 // Canny vips_canny Canny edge detector
 func (r *Image) Canny(options *CannyOptions) (error) {
 	if options != nil {
@@ -4537,7 +4441,6 @@ func DefaultCastOptions() *CastOptions {
 	}
 }
 
-
 // Cast vips_cast cast an image
 //
 // The format specifies format to cast to.
@@ -4573,7 +4476,6 @@ func DefaultClampOptions() *ClampOptions {
 	}
 }
 
-
 // Clamp vips_clamp clamp values of an image
 func (r *Image) Clamp(options *ClampOptions) (error) {
 	if options != nil {
@@ -4604,7 +4506,6 @@ func DefaultColourspaceOptions() *ColourspaceOptions {
 		SourceSpace: Ptr(InterpretationSrgb),
 	}
 }
-
 
 // Colourspace vips_colourspace convert to a new colorspace
 //
@@ -4652,7 +4553,6 @@ func DefaultCompassOptions() *CompassOptions {
 		Cluster: 1,
 	}
 }
-
 
 // Compass vips_compass convolve with rotating mask
 //
@@ -4746,7 +4646,6 @@ func DefaultComposite2Options() *Composite2Options {
 	}
 }
 
-
 // Composite2 vips_composite2 blend a pair of images with a blend mode
 //
 // The overlay specifies overlay image.
@@ -4787,7 +4686,6 @@ func DefaultConvOptions() *ConvOptions {
 	}
 }
 
-
 // Conv vips_conv convolution operation
 //
 // The mask specifies input matrix image.
@@ -4824,7 +4722,6 @@ func DefaultConvaOptions() *ConvaOptions {
 	}
 }
 
-
 // Conva vips_conva approximate integer convolution
 //
 // The mask specifies input matrix image.
@@ -4857,7 +4754,6 @@ func DefaultConvasepOptions() *ConvasepOptions {
 		Layers: 5,
 	}
 }
-
 
 // Convasep vips_convasep approximate separable integer convolution
 //
@@ -4924,7 +4820,6 @@ func DefaultConvsepOptions() *ConvsepOptions {
 	}
 }
 
-
 // Convsep vips_convsep separable convolution operation
 //
 // The mask specifies input matrix image.
@@ -4974,7 +4869,6 @@ func DefaultCopyOptions() *CopyOptions {
 	return &CopyOptions{
 	}
 }
-
 
 // Copy vips_copy copy an image
 func (r *Image) Copy(options *CopyOptions) (*Image, error) {
@@ -5028,7 +4922,6 @@ func DefaultCsvsaveOptions() *CsvsaveOptions {
 	}
 }
 
-
 // Csvsave vips_csvsave save image to csv
 //
 // The filename specifies filename to save to.
@@ -5068,7 +4961,6 @@ func DefaultCsvsaveTargetOptions() *CsvsaveTargetOptions {
 		Keep: Ptr(KeepAll),
 	}
 }
-
 
 // CsvsaveTarget vips_csvsave_target save image to csv
 //
@@ -5162,7 +5054,6 @@ func DefaultDrawCircleOptions() *DrawCircleOptions {
 	}
 }
 
-
 // DrawCircle vips_draw_circle draw a circle on an image
 //
 // The ink specifies color for pixels.
@@ -5206,7 +5097,6 @@ func DefaultDrawFloodOptions() *DrawFloodOptions {
 	}
 }
 
-
 // DrawFlood vips_draw_flood flood-fill an area
 //
 // The ink specifies color for pixels.
@@ -5238,7 +5128,6 @@ func DefaultDrawImageOptions() *DrawImageOptions {
 	return &DrawImageOptions{
 	}
 }
-
 
 // DrawImage vips_draw_image paint an image into another image
 //
@@ -5302,7 +5191,6 @@ func DefaultDrawRectOptions() *DrawRectOptions {
 	return &DrawRectOptions{
 	}
 }
-
 
 // DrawRect vips_draw_rect paint a rectangle on an image
 //
@@ -5394,7 +5282,6 @@ func DefaultDzsaveOptions() *DzsaveOptions {
 	}
 }
 
-
 // Dzsave vips_dzsave save image to deepzoom file
 //
 // The filename specifies filename to save to.
@@ -5466,7 +5353,6 @@ func DefaultDzsaveBufferOptions() *DzsaveBufferOptions {
 	}
 }
 
-
 // DzsaveBuffer vips_dzsave_buffer save image to dz buffer
 func (r *Image) DzsaveBuffer(options *DzsaveBufferOptions) ([]byte, error) {
 	if options != nil {
@@ -5536,7 +5422,6 @@ func DefaultDzsaveTargetOptions() *DzsaveTargetOptions {
 	}
 }
 
-
 // DzsaveTarget vips_dzsave_target save image to deepzoom target
 //
 // The target specifies target to save to.
@@ -5568,7 +5453,6 @@ func DefaultEmbedOptions() *EmbedOptions {
 	return &EmbedOptions{
 	}
 }
-
 
 // Embed vips_embed embed an image in a larger image
 //
@@ -5621,7 +5505,6 @@ func DefaultExtractBandOptions() *ExtractBandOptions {
 		N: 1,
 	}
 }
-
 
 // ExtractBand vips_extract_band extract band from an image
 //
@@ -5695,7 +5578,6 @@ func DefaultFindTrimOptions() *FindTrimOptions {
 	}
 }
 
-
 // FindTrim vips_find_trim search an image for non-edge areas
 func (r *Image) FindTrim(options *FindTrimOptions) (int, int, int, int, error) {
 	if options != nil {
@@ -5731,7 +5613,6 @@ func DefaultFitssaveOptions() *FitssaveOptions {
 	}
 }
 
-
 // Fitssave vips_fitssave save image to fits file
 //
 // The filename specifies filename to save to.
@@ -5764,7 +5645,6 @@ func DefaultFlattenOptions() *FlattenOptions {
 		MaxAlpha: Ptr(255.0),
 	}
 }
-
 
 // Flatten vips_flatten flatten alpha out of an image
 func (r *Image) Flatten(options *FlattenOptions) (error) {
@@ -5845,7 +5725,6 @@ func DefaultGammaOptions() *GammaOptions {
 	}
 }
 
-
 // Gamma vips_gamma gamma an image
 func (r *Image) Gamma(options *GammaOptions) (error) {
 	if options != nil {
@@ -5879,7 +5758,6 @@ func DefaultGaussblurOptions() *GaussblurOptions {
 	}
 }
 
-
 // Gaussblur vips_gaussblur gaussian blur
 //
 // The sigma specifies sigma of Gaussian.
@@ -5911,7 +5789,6 @@ func DefaultGetpointOptions() *GetpointOptions {
 	return &GetpointOptions{
 	}
 }
-
 
 // Getpoint vips_getpoint read a point from an image
 //
@@ -5971,7 +5848,6 @@ func DefaultGifsaveOptions() *GifsaveOptions {
 	}
 }
 
-
 // Gifsave vips_gifsave save as gif
 //
 // The filename specifies filename to save to.
@@ -6029,7 +5905,6 @@ func DefaultGifsaveBufferOptions() *GifsaveBufferOptions {
 	}
 }
 
-
 // GifsaveBuffer vips_gifsave_buffer save as gif
 func (r *Image) GifsaveBuffer(options *GifsaveBufferOptions) ([]byte, error) {
 	if options != nil {
@@ -6085,7 +5960,6 @@ func DefaultGifsaveTargetOptions() *GifsaveTargetOptions {
 	}
 }
 
-
 // GifsaveTarget vips_gifsave_target save as gif
 //
 // The target specifies target to save to.
@@ -6119,7 +5993,6 @@ func DefaultGlobalbalanceOptions() *GlobalbalanceOptions {
 	}
 }
 
-
 // Globalbalance vips_globalbalance global balance an image mosaic
 func (r *Image) Globalbalance(options *GlobalbalanceOptions) (error) {
 	if options != nil {
@@ -6151,7 +6024,6 @@ func DefaultGravityOptions() *GravityOptions {
 	return &GravityOptions{
 	}
 }
-
 
 // Gravity vips_gravity place an image within a larger image with a certain gravity
 //
@@ -6229,7 +6101,6 @@ func DefaultHeifsaveOptions() *HeifsaveOptions {
 	}
 }
 
-
 // Heifsave vips_heifsave save image in HEIF format
 //
 // The filename specifies filename to save to.
@@ -6287,7 +6158,6 @@ func DefaultHeifsaveBufferOptions() *HeifsaveBufferOptions {
 	}
 }
 
-
 // HeifsaveBuffer vips_heifsave_buffer save image in HEIF format
 func (r *Image) HeifsaveBuffer(options *HeifsaveBufferOptions) ([]byte, error) {
 	if options != nil {
@@ -6343,7 +6213,6 @@ func DefaultHeifsaveTargetOptions() *HeifsaveTargetOptions {
 	}
 }
 
-
 // HeifsaveTarget vips_heifsave_target save image in HEIF format
 //
 // The target specifies target to save to.
@@ -6396,7 +6265,6 @@ func DefaultHistEqualOptions() *HistEqualOptions {
 	}
 }
 
-
 // HistEqual vips_hist_equal histogram equalisation
 func (r *Image) HistEqual(options *HistEqualOptions) (error) {
 	if options != nil {
@@ -6428,7 +6296,6 @@ func DefaultHistFindOptions() *HistFindOptions {
 	}
 }
 
-
 // HistFind vips_hist_find find image histogram
 func (r *Image) HistFind(options *HistFindOptions) (error) {
 	if options != nil {
@@ -6459,7 +6326,6 @@ func DefaultHistFindIndexedOptions() *HistFindIndexedOptions {
 		Combine: Ptr(CombineSum),
 	}
 }
-
 
 // HistFindIndexed vips_hist_find_indexed find indexed image histogram
 //
@@ -6493,7 +6359,6 @@ func DefaultHistFindNdimOptions() *HistFindNdimOptions {
 		Bins: 10,
 	}
 }
-
 
 // HistFindNdim vips_hist_find_ndim find n-dimensional image histogram
 func (r *Image) HistFindNdim(options *HistFindNdimOptions) (error) {
@@ -6534,7 +6399,6 @@ func DefaultHistLocalOptions() *HistLocalOptions {
 	return &HistLocalOptions{
 	}
 }
-
 
 // HistLocal vips_hist_local local histogram equalisation
 //
@@ -6611,7 +6475,6 @@ func DefaultHoughCircleOptions() *HoughCircleOptions {
 	}
 }
 
-
 // HoughCircle vips_hough_circle find hough circle transform
 func (r *Image) HoughCircle(options *HoughCircleOptions) (error) {
 	if options != nil {
@@ -6645,7 +6508,6 @@ func DefaultHoughLineOptions() *HoughLineOptions {
 		Height: 256,
 	}
 }
-
 
 // HoughLine vips_hough_line find hough line transform
 func (r *Image) HoughLine(options *HoughLineOptions) (error) {
@@ -6687,7 +6549,6 @@ func DefaultIccExportOptions() *IccExportOptions {
 	}
 }
 
-
 // IccExport vips_icc_export output to device with ICC profile
 func (r *Image) IccExport(options *IccExportOptions) (error) {
 	if options != nil {
@@ -6726,7 +6587,6 @@ func DefaultIccImportOptions() *IccImportOptions {
 		Intent: Ptr(IntentRelative),
 	}
 }
-
 
 // IccImport vips_icc_import import from device with ICC profile
 func (r *Image) IccImport(options *IccImportOptions) (error) {
@@ -6770,7 +6630,6 @@ func DefaultIccTransformOptions() *IccTransformOptions {
 	}
 }
 
-
 // IccTransform vips_icc_transform transform between devices with ICC profiles
 //
 // The outputProfile specifies filename to load output profile from.
@@ -6802,7 +6661,6 @@ func DefaultIfthenelseOptions() *IfthenelseOptions {
 	return &IfthenelseOptions{
 	}
 }
-
 
 // Ifthenelse vips_ifthenelse ifthenelse an image
 //
@@ -6838,7 +6696,6 @@ func DefaultInsertOptions() *InsertOptions {
 	return &InsertOptions{
 	}
 }
-
 
 // Insert vips_insert insert image @sub into @main at @x, @y
 //
@@ -6886,7 +6743,6 @@ func DefaultInvertlutOptions() *InvertlutOptions {
 	}
 }
 
-
 // Invertlut vips_invertlut build an inverted look-up table
 func (r *Image) Invertlut(options *InvertlutOptions) (error) {
 	if options != nil {
@@ -6916,7 +6772,6 @@ func DefaultInvfftOptions() *InvfftOptions {
 	return &InvfftOptions{
 	}
 }
-
 
 // Invfft vips_invfft inverse FFT
 func (r *Image) Invfft(options *InvfftOptions) (error) {
@@ -6953,7 +6808,6 @@ func DefaultJoinOptions() *JoinOptions {
 	return &JoinOptions{
 	}
 }
-
 
 // Join vips_join join a pair of images
 //
@@ -7009,7 +6863,6 @@ func DefaultJp2ksaveOptions() *Jp2ksaveOptions {
 	}
 }
 
-
 // Jp2ksave vips_jp2ksave save image in JPEG2000 format
 //
 // The filename specifies filename to save to.
@@ -7061,7 +6914,6 @@ func DefaultJp2ksaveBufferOptions() *Jp2ksaveBufferOptions {
 	}
 }
 
-
 // Jp2ksaveBuffer vips_jp2ksave_buffer save image in JPEG2000 format
 func (r *Image) Jp2ksaveBuffer(options *Jp2ksaveBufferOptions) ([]byte, error) {
 	if options != nil {
@@ -7110,7 +6962,6 @@ func DefaultJp2ksaveTargetOptions() *Jp2ksaveTargetOptions {
 		Keep: Ptr(KeepAll),
 	}
 }
-
 
 // Jp2ksaveTarget vips_jp2ksave_target save image in JPEG2000 format
 //
@@ -7168,7 +7019,6 @@ func DefaultJpegsaveOptions() *JpegsaveOptions {
 	}
 }
 
-
 // Jpegsave vips_jpegsave save as jpeg
 //
 // The filename specifies filename to save to.
@@ -7225,7 +7075,6 @@ func DefaultJpegsaveBufferOptions() *JpegsaveBufferOptions {
 	}
 }
 
-
 // JpegsaveBuffer vips_jpegsave_buffer save as jpeg
 func (r *Image) JpegsaveBuffer(options *JpegsaveBufferOptions) ([]byte, error) {
 	if options != nil {
@@ -7280,7 +7129,6 @@ func DefaultJpegsaveTargetOptions() *JpegsaveTargetOptions {
 	}
 }
 
-
 // JpegsaveTarget vips_jpegsave_target save as jpeg
 //
 // The target specifies target to save to.
@@ -7333,7 +7181,6 @@ func DefaultJxlsaveOptions() *JxlsaveOptions {
 		Keep: Ptr(KeepAll),
 	}
 }
-
 
 // Jxlsave vips_jxlsave save image in JPEG-XL format
 //
@@ -7388,7 +7235,6 @@ func DefaultJxlsaveBufferOptions() *JxlsaveBufferOptions {
 	}
 }
 
-
 // JxlsaveBuffer vips_jxlsave_buffer save image in JPEG-XL format
 func (r *Image) JxlsaveBuffer(options *JxlsaveBufferOptions) ([]byte, error) {
 	if options != nil {
@@ -7440,7 +7286,6 @@ func DefaultJxlsaveTargetOptions() *JxlsaveTargetOptions {
 	}
 }
 
-
 // JxlsaveTarget vips_jxlsave_target save image in JPEG-XL format
 //
 // The target specifies target to save to.
@@ -7471,7 +7316,6 @@ func DefaultLabelregionsOptions() *LabelregionsOptions {
 	}
 }
 
-
 // Labelregions vips_labelregions label regions in an image
 func (r *Image) Labelregions(options *LabelregionsOptions) (error) {
 	if options != nil {
@@ -7501,7 +7345,6 @@ func DefaultLinearOptions() *LinearOptions {
 	return &LinearOptions{
 	}
 }
-
 
 // Linear vips_linear calculate (a * in + b)
 //
@@ -7542,7 +7385,6 @@ func DefaultLinecacheOptions() *LinecacheOptions {
 		TileHeight: 128,
 	}
 }
-
 
 // Linecache vips_linecache cache an image as a set of lines
 func (r *Image) Linecache(options *LinecacheOptions) (*Image, error) {
@@ -7591,7 +7433,6 @@ func DefaultMagicksaveOptions() *MagicksaveOptions {
 	}
 }
 
-
 // Magicksave vips_magicksave save file with ImageMagick
 //
 // The filename specifies filename to save to.
@@ -7639,7 +7480,6 @@ func DefaultMagicksaveBufferOptions() *MagicksaveBufferOptions {
 	}
 }
 
-
 // MagicksaveBuffer vips_magicksave_buffer save image to magick buffer
 func (r *Image) MagicksaveBuffer(options *MagicksaveBufferOptions) ([]byte, error) {
 	if options != nil {
@@ -7675,7 +7515,6 @@ func DefaultMapimOptions() *MapimOptions {
 	}
 }
 
-
 // Mapim vips_mapim resample with a map image
 //
 // The index specifies index pixels with this.
@@ -7708,7 +7547,6 @@ func DefaultMaplutOptions() *MaplutOptions {
 		Band: Ptr(-1),
 	}
 }
-
 
 // Maplut vips_maplut map an image though a lut
 //
@@ -7749,7 +7587,6 @@ func DefaultMatchOptions() *MatchOptions {
 		Harea: Ptr(15),
 	}
 }
-
 
 // Match vips_match first-order match of two images
 //
@@ -7863,7 +7700,6 @@ func DefaultMatrixprintOptions() *MatrixprintOptions {
 	}
 }
 
-
 // Matrixprint vips_matrixprint print matrix
 func (r *Image) Matrixprint(options *MatrixprintOptions) (error) {
 	if options != nil {
@@ -7898,7 +7734,6 @@ func DefaultMatrixsaveOptions() *MatrixsaveOptions {
 		Keep: Ptr(KeepAll),
 	}
 }
-
 
 // Matrixsave vips_matrixsave save image to matrix
 //
@@ -7937,7 +7772,6 @@ func DefaultMatrixsaveTargetOptions() *MatrixsaveTargetOptions {
 	}
 }
 
-
 // MatrixsaveTarget vips_matrixsave_target save image to matrix
 //
 // The target specifies target to save to.
@@ -7972,7 +7806,6 @@ func DefaultMaxOptions() *MaxOptions {
 		Size: 1,
 	}
 }
-
 
 // Max vips_max find image maximum
 func (r *Image) Max(options *MaxOptions) (float64, error) {
@@ -8023,7 +7856,6 @@ func DefaultMeasureOptions() *MeasureOptions {
 	}
 }
 
-
 // Measure vips_measure measure a set of patches on a color chart
 //
 // The h specifies number of patches across chart.
@@ -8057,7 +7889,6 @@ func DefaultMergeOptions() *MergeOptions {
 		Mblend: Ptr(10),
 	}
 }
-
 
 // Merge vips_merge merge two images
 //
@@ -8098,7 +7929,6 @@ func DefaultMinOptions() *MinOptions {
 		Size: 1,
 	}
 }
-
 
 // Min vips_min find image minimum
 func (r *Image) Min(options *MinOptions) (float64, error) {
@@ -8176,7 +8006,6 @@ func DefaultMosaicOptions() *MosaicOptions {
 	}
 }
 
-
 // Mosaic vips_mosaic mosaic two images
 //
 // The sec specifies secondary image.
@@ -8225,7 +8054,6 @@ func DefaultMosaic1Options() *Mosaic1Options {
 	}
 }
 
-
 // Mosaic1 vips_mosaic1 first-order mosaic of two images
 //
 // The sec specifies secondary image.
@@ -8267,7 +8095,6 @@ func DefaultMsbOptions() *MsbOptions {
 		Band: Ptr(-1),
 	}
 }
-
 
 // Msb vips_msb pick most-significant byte from an image
 func (r *Image) Msb(options *MsbOptions) (error) {
@@ -8318,7 +8145,6 @@ func DefaultNiftisaveOptions() *NiftisaveOptions {
 		Keep: Ptr(KeepAll),
 	}
 }
-
 
 // Niftisave vips_niftisave save image to nifti file
 //
@@ -8404,7 +8230,6 @@ func DefaultPngsaveOptions() *PngsaveOptions {
 	}
 }
 
-
 // Pngsave vips_pngsave save image to file as png
 //
 // The filename specifies filename to save to.
@@ -8464,7 +8289,6 @@ func DefaultPngsaveBufferOptions() *PngsaveBufferOptions {
 	}
 }
 
-
 // PngsaveBuffer vips_pngsave_buffer save image to buffer as png
 func (r *Image) PngsaveBuffer(options *PngsaveBufferOptions) ([]byte, error) {
 	if options != nil {
@@ -8522,7 +8346,6 @@ func DefaultPngsaveTargetOptions() *PngsaveTargetOptions {
 	}
 }
 
-
 // PngsaveTarget vips_pngsave_target save image to target as PNG
 //
 // The target specifies target to save to.
@@ -8566,7 +8389,6 @@ func DefaultPpmsaveOptions() *PpmsaveOptions {
 		Keep: Ptr(KeepAll),
 	}
 }
-
 
 // Ppmsave vips_ppmsave save image to ppm file
 //
@@ -8612,7 +8434,6 @@ func DefaultPpmsaveTargetOptions() *PpmsaveTargetOptions {
 	}
 }
 
-
 // PpmsaveTarget vips_ppmsave_target save to ppm
 //
 // The target specifies target to save to.
@@ -8643,7 +8464,6 @@ func DefaultPremultiplyOptions() *PremultiplyOptions {
 		MaxAlpha: Ptr(255.0),
 	}
 }
-
 
 // Premultiply vips_premultiply premultiply image alpha
 func (r *Image) Premultiply(options *PremultiplyOptions) (error) {
@@ -8710,7 +8530,6 @@ func DefaultQuadraticOptions() *QuadraticOptions {
 	}
 }
 
-
 // Quadratic vips_quadratic resample an image with a quadratic transform
 //
 // The coeff specifies coefficient matrix.
@@ -8761,7 +8580,6 @@ func DefaultRadsaveOptions() *RadsaveOptions {
 	}
 }
 
-
 // Radsave vips_radsave save image to Radiance file
 //
 // The filename specifies filename to save to.
@@ -8799,7 +8617,6 @@ func DefaultRadsaveBufferOptions() *RadsaveBufferOptions {
 	}
 }
 
-
 // RadsaveBuffer vips_radsave_buffer save image to Radiance buffer
 func (r *Image) RadsaveBuffer(options *RadsaveBufferOptions) ([]byte, error) {
 	if options != nil {
@@ -8834,7 +8651,6 @@ func DefaultRadsaveTargetOptions() *RadsaveTargetOptions {
 		Keep: Ptr(KeepAll),
 	}
 }
-
 
 // RadsaveTarget vips_radsave_target save image to Radiance target
 //
@@ -8888,7 +8704,6 @@ func DefaultRawsaveOptions() *RawsaveOptions {
 	}
 }
 
-
 // Rawsave vips_rawsave save image to raw file
 //
 // The filename specifies filename to save to.
@@ -8926,7 +8741,6 @@ func DefaultRawsaveBufferOptions() *RawsaveBufferOptions {
 	}
 }
 
-
 // RawsaveBuffer vips_rawsave_buffer write raw image to buffer
 func (r *Image) RawsaveBuffer(options *RawsaveBufferOptions) ([]byte, error) {
 	if options != nil {
@@ -8961,7 +8775,6 @@ func DefaultRawsaveTargetOptions() *RawsaveTargetOptions {
 		Keep: Ptr(KeepAll),
 	}
 }
-
 
 // RawsaveTarget vips_rawsave_target write raw image to target
 //
@@ -9009,7 +8822,6 @@ func DefaultReduceOptions() *ReduceOptions {
 	}
 }
 
-
 // Reduce vips_reduce reduce an image
 //
 // The hshrink specifies horizontal shrink factor.
@@ -9046,7 +8858,6 @@ func DefaultReducehOptions() *ReducehOptions {
 	}
 }
 
-
 // Reduceh vips_reduceh shrink an image horizontally
 //
 // The hshrink specifies horizontal shrink factor.
@@ -9081,7 +8892,6 @@ func DefaultReducevOptions() *ReducevOptions {
 		Kernel: Ptr(KernelLanczos3),
 	}
 }
-
 
 // Reducev vips_reducev shrink an image vertically
 //
@@ -9203,7 +9013,6 @@ func DefaultResizeOptions() *ResizeOptions {
 	}
 }
 
-
 // Resize vips_resize resize an image
 //
 // The scale specifies scale image by this factor.
@@ -9250,7 +9059,6 @@ func DefaultRot45Options() *Rot45Options {
 	}
 }
 
-
 // Rot45 vips_rot45 rotate an image
 func (r *Image) Rot45(options *Rot45Options) (error) {
 	if options != nil {
@@ -9290,7 +9098,6 @@ func DefaultRotateOptions() *RotateOptions {
 	return &RotateOptions{
 	}
 }
-
 
 // Rotate vips_rotate rotate an image by a number of degrees
 //
@@ -9360,7 +9167,6 @@ func DefaultScRGB2BWOptions() *ScRGB2BWOptions {
 	}
 }
 
-
 // ScRGB2BW vips_scRGB2BW convert scRGB to BW
 func (r *Image) ScRGB2BW(options *ScRGB2BWOptions) (error) {
 	if options != nil {
@@ -9403,7 +9209,6 @@ func DefaultScRGB2sRGBOptions() *ScRGB2sRGBOptions {
 	}
 }
 
-
 // ScRGB2sRGB vips_scRGB2sRGB convert scRGB to sRGB
 func (r *Image) ScRGB2sRGB(options *ScRGB2sRGBOptions) (error) {
 	if options != nil {
@@ -9436,7 +9241,6 @@ func DefaultScaleOptions() *ScaleOptions {
 		Exp: 0.25,
 	}
 }
-
 
 // Scale vips_scale scale an image to uchar
 func (r *Image) Scale(options *ScaleOptions) (error) {
@@ -9479,7 +9283,6 @@ func DefaultSequentialOptions() *SequentialOptions {
 		TileHeight: 1,
 	}
 }
-
 
 // Sequential vips_sequential check sequential access
 func (r *Image) Sequential(options *SequentialOptions) (*Image, error) {
@@ -9526,7 +9329,6 @@ func DefaultSharpenOptions() *SharpenOptions {
 	}
 }
 
-
 // Sharpen vips_sharpen unsharp masking for print
 func (r *Image) Sharpen(options *SharpenOptions) (error) {
 	if options != nil {
@@ -9556,7 +9358,6 @@ func DefaultShrinkOptions() *ShrinkOptions {
 	return &ShrinkOptions{
 	}
 }
-
 
 // Shrink vips_shrink shrink an image
 //
@@ -9591,7 +9392,6 @@ func DefaultShrinkhOptions() *ShrinkhOptions {
 	}
 }
 
-
 // Shrinkh vips_shrinkh shrink an image horizontally
 //
 // The hshrink specifies horizontal shrink factor.
@@ -9623,7 +9423,6 @@ func DefaultShrinkvOptions() *ShrinkvOptions {
 	return &ShrinkvOptions{
 	}
 }
-
 
 // Shrinkv vips_shrinkv shrink an image vertically
 //
@@ -9683,7 +9482,6 @@ func DefaultSimilarityOptions() *SimilarityOptions {
 	}
 }
 
-
 // Similarity vips_similarity similarity transform of an image
 func (r *Image) Similarity(options *SimilarityOptions) (error) {
 	if options != nil {
@@ -9720,7 +9518,6 @@ func DefaultSmartcropOptions() *SmartcropOptions {
 		Interesting: Ptr(InterestingAttention),
 	}
 }
-
 
 // Smartcrop vips_smartcrop extract an area from an image
 //
@@ -9811,7 +9608,6 @@ func DefaultStdifOptions() *StdifOptions {
 	}
 }
 
-
 // Stdif vips_stdif statistical difference
 //
 // The width specifies window width in pixels.
@@ -9844,7 +9640,6 @@ func DefaultSubsampleOptions() *SubsampleOptions {
 	return &SubsampleOptions{
 	}
 }
-
 
 // Subsample vips_subsample subsample an image
 //
@@ -9909,7 +9704,6 @@ func DefaultThumbnailImageOptions() *ThumbnailImageOptions {
 		Intent: Ptr(IntentRelative),
 	}
 }
-
 
 // ThumbnailImage vips_thumbnail_image generate thumbnail from image
 //
@@ -9997,7 +9791,6 @@ func DefaultTiffsaveOptions() *TiffsaveOptions {
 	}
 }
 
-
 // Tiffsave vips_tiffsave save image to tiff file
 //
 // The filename specifies filename to save to.
@@ -10082,7 +9875,6 @@ func DefaultTiffsaveBufferOptions() *TiffsaveBufferOptions {
 	}
 }
 
-
 // TiffsaveBuffer vips_tiffsave_buffer save image to tiff buffer
 func (r *Image) TiffsaveBuffer(options *TiffsaveBufferOptions) ([]byte, error) {
 	if options != nil {
@@ -10165,7 +9957,6 @@ func DefaultTiffsaveTargetOptions() *TiffsaveTargetOptions {
 	}
 }
 
-
 // TiffsaveTarget vips_tiffsave_target save image to tiff target
 //
 // The target specifies target to save to.
@@ -10209,7 +10000,6 @@ func DefaultTilecacheOptions() *TilecacheOptions {
 	}
 }
 
-
 // Tilecache vips_tilecache cache an image as a set of tiles
 func (r *Image) Tilecache(options *TilecacheOptions) (*Image, error) {
 	if options != nil {
@@ -10239,7 +10029,6 @@ func DefaultTranspose3dOptions() *Transpose3dOptions {
 	return &Transpose3dOptions{
 	}
 }
-
 
 // Transpose3d vips_transpose3d transpose3d an image
 func (r *Image) Transpose3d(options *Transpose3dOptions) (error) {
@@ -10286,7 +10075,6 @@ func DefaultUnpremultiplyOptions() *UnpremultiplyOptions {
 	}
 }
 
-
 // Unpremultiply vips_unpremultiply unpremultiply image alpha
 func (r *Image) Unpremultiply(options *UnpremultiplyOptions) (error) {
 	if options != nil {
@@ -10324,7 +10112,6 @@ func DefaultVipssaveOptions() *VipssaveOptions {
 	}
 }
 
-
 // Vipssave vips_vipssave save image to file in vips format
 //
 // The filename specifies filename to save to.
@@ -10361,7 +10148,6 @@ func DefaultVipssaveTargetOptions() *VipssaveTargetOptions {
 		Keep: Ptr(KeepAll),
 	}
 }
-
 
 // VipssaveTarget vips_vipssave_target save image to target in vips format
 //
@@ -10436,7 +10222,6 @@ func DefaultWebpsaveOptions() *WebpsaveOptions {
 	}
 }
 
-
 // Webpsave vips_webpsave save as WebP
 //
 // The filename specifies filename to save to.
@@ -10510,7 +10295,6 @@ func DefaultWebpsaveBufferOptions() *WebpsaveBufferOptions {
 	}
 }
 
-
 // WebpsaveBuffer vips_webpsave_buffer save as WebP
 func (r *Image) WebpsaveBuffer(options *WebpsaveBufferOptions) ([]byte, error) {
 	if options != nil {
@@ -10582,7 +10366,6 @@ func DefaultWebpsaveTargetOptions() *WebpsaveTargetOptions {
 	}
 }
 
-
 // WebpsaveTarget vips_webpsave_target save as WebP
 //
 // The target specifies target to save to.
@@ -10614,7 +10397,6 @@ func DefaultWrapOptions() *WrapOptions {
 	return &WrapOptions{
 	}
 }
-
 
 // Wrap vips_wrap wrap image origin
 func (r *Image) Wrap(options *WrapOptions) (error) {
