@@ -151,9 +151,6 @@ jobs:
         uses: actions/upload-artifact@v5
         if: (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository) || github.event_name == 'workflow_dispatch'
         with:
-          # Named after the output directory it holds, so the commit jobs restore
-          # it with one pattern download and a new libvips version needs no change
-          # outside the matrix.
           name: ${{ matrix.output_dir }}
           path: ${{ matrix.output_dir }}
           retention-days: 1
@@ -173,6 +170,7 @@ jobs:
       - name: Download generated bindings
         uses: actions/download-artifact@v5
         with:
+          # one artifact per package, named after its output dir: vips* restores vips/, vips816/, vips817/
           pattern: vips*
           path: .
 
