@@ -158,7 +158,7 @@ func createBlackImage(width, height int) (*Image, error) {
 func TestLoadOptionsOptionString(t *testing.T) {
 	// 1. Both set: both are emitted; libvips ignores the deprecated "fail"
 	// when fail_on is set
-	opts := &LoadOptions{FailOn: Ptr(FailOnError), FailOnError: true}
+	opts := &LoadOptions{FailOn: FailOnError, FailOnError: true}
 	s := opts.OptionString()
 	assert.Contains(t, s, "fail_on=error")
 	assert.Contains(t, s, "fail=TRUE")
@@ -179,7 +179,7 @@ func TestLoadOptionsOptionString(t *testing.T) {
 		{level: FailOnWarning, nick: "warning"},
 	}
 	for _, tt := range tests {
-		s := (&LoadOptions{FailOn: Ptr(tt.level)}).OptionString()
+		s := (&LoadOptions{FailOn: tt.level}).OptionString()
 		assert.Contains(t, s, "fail_on="+tt.nick)
 		assert.NotContains(t, s, "fail=TRUE")
 	}
