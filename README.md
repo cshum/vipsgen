@@ -44,6 +44,16 @@ All operations support parameters and optional arguments through structs, mainta
 Pass `nil` to use default behavior for optional arguments. 
 See [examples](https://github.com/cshum/vipsgen/tree/main/examples) for common usage patterns.
 
+An optional argument is a **pointer** when libvips accepts its zero value and that zero differs from the option's default, so the two cases stay distinguishable. Everything else stays a plain value, since there the zero value is either not a value libvips accepts or is what libvips would have used anyway.
+
+```go
+&vips.PngsaveOptions{}                          // libvips default, compression 6
+&vips.PngsaveOptions{Compression: vips.Ptr(0)}  // store uncompressed
+&vips.PngsaveOptions{Compression: vips.Ptr(6)}  // same output as the default
+```
+
+Upgrading from v1? See [MIGRATION.md](MIGRATION.md).
+
 
 ```go
 package main
@@ -95,9 +105,9 @@ func main() {
 
 	// Save the result as WebP file with options
 	err = image.Webpsave("resized-gopher.webp", &vips.WebpsaveOptions{
-		Q:              85,   // Quality factor (0-100)
-		Effort:         4,    // Compression effort (0-6)
-		SmartSubsample: true, // Better chroma subsampling
+		Q:              vips.Ptr(85), // Quality factor (0-100)
+		Effort:         vips.Ptr(4),  // Compression effort (0-6)
+		SmartSubsample: true,         // Better chroma subsampling
 	})
 	if err != nil {
 		log.Fatalf("Failed to save image as WebP: %v", err)
@@ -151,7 +161,7 @@ func main() {
 
 ```go
 image, err := vips.NewGifload("animation.gif", &vips.GifloadOptions{
-    N: -1, // -1 = load all frames
+    N: vips.Ptr(-1), // -1 = load all frames
 })
 ```
 
@@ -297,16 +307,19 @@ int vipsgen_resize(VipsImage* in, VipsImage** out, double scale) {
     return vips_resize(in, out, scale, NULL);
 }
 
-// With options - uses VipsOperation for optional parameters  
-int vipsgen_resize_with_options(VipsImage* in, VipsImage** out, double scale, 
-                               VipsKernel kernel, double gap, double vscale) {
+// With options - uses VipsOperation for optional parameters. An option that libvips
+// could read as zero carries a set flag, so an explicit zero is passed on instead of
+// being mistaken for "not supplied".
+int vipsgen_resize_with_options(VipsImage* in, VipsImage** out, double scale,
+                               VipsKernel kernel, int kernel_set, double gap, int gap_set,
+                               double vscale) {
     VipsOperation *operation = vips_operation_new("resize");
     if (!operation) return 1;
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
         vips_object_set(VIPS_OBJECT(operation), "scale", scale, NULL) ||
-        vipsgen_set_int(operation, "kernel", kernel) ||
-        vipsgen_set_double(operation, "gap", gap) ||
+        (kernel_set && vips_object_set(VIPS_OBJECT(operation), "kernel", kernel, NULL)) ||
+        (gap_set && vips_object_set(VIPS_OBJECT(operation), "gap", gap, NULL)) ||
         vipsgen_set_double(operation, "vscale", vscale)
     ) {
         g_object_unref(operation);
@@ -336,15 +349,24 @@ func vipsgenResize(in *C.VipsImage, scale float64) (*C.VipsImage, error) {
 }
 
 // vipsgenResizeWithOptions vips_resize resize an image with optional arguments
-func vipsgenResizeWithOptions(in *C.VipsImage, scale float64, kernel Kernel, 
-                             gap float64, vscale float64) (*C.VipsImage, error) {
-    var out *C.VipsImage
-    if err := C.vipsgen_resize_with_options(in, &out, C.double(scale), 
-                                           C.VipsKernel(kernel), C.double(gap), 
-                                           C.double(vscale)); err != 0 {
-        return nil, handleImageError(out)
-    }
-    return out, nil
+func vipsgenResizeWithOptions(in *C.VipsImage, scale float64, kernel *Kernel, gap *float64, vscale float64) (*C.VipsImage, error) {
+	var out *C.VipsImage
+	var ckernel C.VipsKernel
+	kernelSet := C.int(0)
+	if kernel != nil {
+		ckernel = C.VipsKernel(*kernel)
+		kernelSet = 1
+	}
+	var cgap C.double
+	gapSet := C.int(0)
+	if gap != nil {
+		cgap = C.double(*gap)
+		gapSet = 1
+	}
+	if err := C.vipsgen_resize_with_options(in, &out, C.double(scale), ckernel, kernelSet, cgap, gapSet, C.double(vscale)); err != 0 {
+		return nil, handleImageError(out)
+	}
+	return out, nil
 }
 ```
 
@@ -360,27 +382,18 @@ This layer handles C array conversion, string conversion with cleanup, memory ma
 // ResizeOptions optional arguments for vips_resize
 type ResizeOptions struct {
     // Kernel Resampling kernel
-    Kernel Kernel
+    Kernel *Kernel
     // Gap Reducing gap
-    Gap float64
+    Gap *float64
     // Vscale Vertical scale image by this factor
     Vscale float64
 }
 
-// DefaultResizeOptions creates default value for vips_resize optional arguments
-func DefaultResizeOptions() *ResizeOptions {
-    return &ResizeOptions{
-        Kernel: Kernel(5),
-        Gap: 2,
-    }
-}
-
 // Resize vips_resize resize an image
-func (r *Image) Resize(scale float64, options *ResizeOptions) error {
+func (r *Image) Resize(scale float64, options *ResizeOptions) (error) {
     if options != nil {
         // Use the WithOptions variant when options are provided
-        out, err := vipsgenResizeWithOptions(r.image, scale, 
-                                           options.Kernel, options.Gap, options.Vscale)
+        out, err := vipsgenResizeWithOptions(r.image, scale, options.Kernel, options.Gap, options.Vscale)
         if err != nil {
             return err
         }
