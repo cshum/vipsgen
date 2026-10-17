@@ -145,7 +145,7 @@ jobs:
 
       - name: Run tests
         run: |
-          $(CGO_CFLAGS_ALLOW="-Xpreprocessor") go test -v ${{ matrix.output_dir }}/...
+          $(CGO_CFLAGS_ALLOW="-Xpreprocessor") go test -v ./${{ matrix.output_dir }}/...
 
       - name: Upload generated bindings
         uses: actions/upload-artifact@v5
