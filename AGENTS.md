@@ -21,8 +21,9 @@ anyone changing the generator.
   GParamSpec, so it tracks the libvips you build against — the three packages are not
   interchangeable.
 - `internal/generator/presence.go` holds the rule and one measured exception list. The list
-  cannot be derived: `gifload.n` and `webpload.n` have the same range and the same default,
-  and only the first rejects a zero.
+  cannot be derived: `gifload.n` and `webpload.n` share a range that contains zero, and both
+  reject it. Probe with a fixture where the argument can have an effect — `n` looks accepted on
+  a single-page file and rejects zero once there is a second page.
 - `vips/zero_pins_test.go` pins the classification; `internal/generator/presence_test.go`
   pins the policy, including that the policy reaches `OptionalInputs` — that slice holds
   copies, so flagging `Arguments` alone silently does nothing.

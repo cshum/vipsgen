@@ -5,11 +5,13 @@ import (
 	"testing"
 )
 
-// gifload.n and friends are plain fields because libvips rejects an explicit zero for
-// them, which was measured rather than inferred: a pspec range cannot tell an accepted zero
-// from a meaningful one, and webpload.n accepts a zero while gifload.n answers "bad page
-// number". The table is internal/generator/presence.go, and AGENTS.md says how to re-measure
-// it.
+// gifload.n and friends are plain fields because libvips rejects an explicit zero for them,
+// which was measured rather than inferred: a pspec range cannot tell an accepted zero from a
+// meaningful one, and a saver's compression accepts zero as "uncompressed" while a loader's
+// page number answers "bad page number". The verdict can also depend on the fixture: n accepts
+// zero on a single-page file and rejects it once there is a second page to ask about, so probe
+// with a file where the argument can matter. The table is internal/generator/presence.go, and
+// AGENTS.md says how to re-measure it.
 //
 // These are compile-time pins. If the rule or the table changes so that one of these
 // arguments is classified the other way, this file stops building. Keep them hand-written:

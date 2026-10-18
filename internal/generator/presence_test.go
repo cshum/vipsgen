@@ -406,18 +406,26 @@ func TestMeasuredZeroPolicyIsKeyedPerOperation(t *testing.T) {
 	}
 	gif := introspection.Operation{Name: "gifload", Arguments: []introspection.Argument{numeric}}
 	webp := introspection.Operation{Name: "webpload", Arguments: []introspection.Argument{numeric}}
-	ApplyMeasuredZeroPolicy([]introspection.Operation{gif, webp})
-
-	if got := argPresence(gif.Arguments[0]); got != PresenceValue {
-		t.Errorf("gifload.n: got %v, want a plain field", got)
+	compression := introspection.Argument{
+		Name: "compression", Type: "gint", GoType: "int", IsInput: true,
+		HasRange: true, HasMinimum: true, HasMaximum: true,
+		Minimum: 0, Maximum: 9, DefaultValue: float64(6),
 	}
-	if got := argPresence(webp.Arguments[0]); got != PresencePointer {
-		t.Errorf("webpload.n: got %v, want a pointer - zero is accepted there", got)
+	png := introspection.Operation{Name: "pngsave", Arguments: []introspection.Argument{compression}}
+	ApplyMeasuredZeroPolicy([]introspection.Operation{gif, webp, png})
+
+	// Same name and same metadata as each other; both reject a zero, so both stay plain.
+	for _, op := range []introspection.Operation{gif, webp} {
+		if got := argPresence(op.Arguments[0]); got != PresenceValue {
+			t.Errorf("%s.n: got %v, want a plain field", op.Name, got)
+		}
+	}
+	// The same metadata shape elsewhere still earns a pointer, because zero is a real
+	// request there. The policy is keyed per (operation, argument), not per shape.
+	if got := argPresence(png.Arguments[0]); got != PresencePointer {
+		t.Errorf("pngsave.compression: got %v, want a pointer - zero is accepted there", got)
 	}
 }
-
-// OptionalInputs is built by appending copies of each Argument, so a policy applied only
-// to Arguments silently does nothing: mark both, and check the slice the classifiers use.
 func TestMeasuredZeroPolicyReachesOptionalInputs(t *testing.T) {
 	numeric := introspection.Argument{
 		Name: "n", Type: "gint", GoType: "int", IsInput: true,
