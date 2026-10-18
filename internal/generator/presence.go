@@ -40,8 +40,11 @@ const (
 // Anything else stays a plain value: the parts of libvips' semantics that
 // GParamSpec does not describe are not guessed here.
 // zeroRejectedArguments are optional arguments where libvips rejects an explicit zero.
-// Measured, not derived - webpload.n and gifload.n have the same range and default, and
-// only the second rejects a zero. vips/zero_pins_test.go holds the classification.
+// Measured, not derived - a saver's compression accepts zero as "uncompressed" while a
+// loader's page number answers "bad page number". Some verdicts depend on the fixture:
+// webpload.n and csvload.lines accept zero on a single-page or single-line file and reject
+// it once there is a second page or line to ask about. vips/zero_pins_test.go holds the
+// classification.
 var zeroRejectedArguments = map[[2]string]bool{
 	{"gifload", "n"}:              true,
 	{"gifload_buffer", "n"}:       true,
@@ -58,19 +61,24 @@ var zeroRejectedArguments = map[[2]string]bool{
 	{"svgload", "scale"}:          true,
 	{"svgload_buffer", "scale"}:   true,
 	{"svgload_source", "scale"}:   true,
-	{"heifload", "n"}:        true,
-	{"heifload_buffer", "n"}: true,
-	{"heifload_source", "n"}: true,
-	{"pdfload", "n"}:         true,
-	{"pdfload_buffer", "n"}:  true,
-	{"pdfload_source", "n"}:  true,
-	{"magickload", "n"}:        true,
-	{"magickload_buffer", "n"}: true,
-	{"magickload_source", "n"}: true,
-	{"dzsave", "suffix"}:       true,
-	{"dzsave_buffer", "suffix"}: true,
-	{"dzsave_target", "suffix"}: true,
-	{"similarity", "scale"}:    true,
+	{"heifload", "n"}:             true,
+	{"heifload_buffer", "n"}:      true,
+	{"heifload_source", "n"}:      true,
+	{"pdfload", "n"}:              true,
+	{"pdfload_buffer", "n"}:       true,
+	{"pdfload_source", "n"}:       true,
+	{"magickload", "n"}:           true,
+	{"magickload_buffer", "n"}:    true,
+	{"magickload_source", "n"}:    true,
+	{"dzsave", "suffix"}:          true,
+	{"dzsave_buffer", "suffix"}:   true,
+	{"dzsave_target", "suffix"}:   true,
+	{"similarity", "scale"}:       true,
+	{"webpload", "n"}:             true,
+	{"webpload_buffer", "n"}:      true,
+	{"webpload_source", "n"}:      true,
+	{"csvload", "lines"}:          true,
+	{"csvload_source", "lines"}:   true,
 }
 
 // ApplyMeasuredZeroPolicy marks the arguments above so argPresence returns a plain
