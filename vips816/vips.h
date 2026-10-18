@@ -829,13 +829,13 @@ int vipsgen_vipssave_target(VipsImage* in, VipsTargetCustom* target);
 int vipsgen_vipssave_target_with_options(VipsImage* in, VipsTargetCustom* target, VipsForeignKeep keep, int keep_set, double* background, int background_n, gint page_height, const char* profile);
 
 int vipsgen_webpload(const char* filename, VipsImage** out);
-int vipsgen_webpload_with_options(const char* filename, VipsImage** out, gint page, gint n, int n_set, double scale, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
+int vipsgen_webpload_with_options(const char* filename, VipsImage** out, gint page, gint n, double scale, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
 
 int vipsgen_webpload_buffer(void* buf, size_t len, VipsImage** out);
-int vipsgen_webpload_buffer_with_options(void* buf, size_t len, VipsImage** out, gint page, gint n, int n_set, double scale, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
+int vipsgen_webpload_buffer_with_options(void* buf, size_t len, VipsImage** out, gint page, gint n, double scale, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
 
 int vipsgen_webpload_source(VipsSourceCustom* source, VipsImage** out);
-int vipsgen_webpload_source_with_options(VipsSourceCustom* source, VipsImage** out, gint page, gint n, int n_set, double scale, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
+int vipsgen_webpload_source_with_options(VipsSourceCustom* source, VipsImage** out, gint page, gint n, double scale, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
 
 int vipsgen_webpsave(VipsImage* in, const char* filename);
 int vipsgen_webpsave_with_options(VipsImage* in, const char* filename, gint Q, int Q_set, gboolean lossless, VipsForeignWebpPreset preset, gboolean smart_subsample, gboolean near_lossless, gint alpha_q, int alpha_q_set, gboolean min_size, gint kmin, int kmin_set, gint kmax, int kmax_set, gint effort, int effort_set, gint target_size, gboolean mixed, gboolean smart_deblock, gint passes, VipsForeignKeep keep, int keep_set, double* background, int background_n, gint page_height, const char* profile);

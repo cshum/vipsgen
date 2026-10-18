@@ -55,12 +55,13 @@ compiles clean and changes meaning, so check for a hardcoded -1.
 ## The one exception
 
 The rule above reads GParamSpec metadata, which cannot tell a zero that libvips accepts from a
-zero it makes sense to pass. `gifload.n` and `webpload.n` have the same range (-1 to 100000)
-and the same default (1), and only the first rejects a zero (`gifload: bad page number`).
-Measured, those arguments are plain values anyway:
+zero it makes sense to pass. `gifload.n` and `webpload.n` have the same range (-1 to 100000) and
+the same default (1), and both reject a zero — `gifload: bad page number`, `webp: bad page
+number` — which the range cannot show. Measured, those arguments are plain values anyway:
 
-    gifload.n   tiffload.n   tiffload.subifd   webpload.scale   svgload.scale
-    heifload.n  pdfload.n   magickload.n   similarity.scale   dzsave.suffix
+    gifload.n    webpload.n   tiffload.n   tiffload.subifd   webpload.scale
+    svgload.scale   heifload.n   pdfload.n   magickload.n   csvload.lines
+    similarity.scale   dzsave.suffix
 
 Every saver argument was measured too and accepts an explicit zero (`pngsave.compression = 0`
 stores uncompressed), which is why the rule stays in place for them. The list keys on

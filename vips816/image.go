@@ -3295,7 +3295,7 @@ type WebploadOptions struct {
 	// Page First page to load (range 0-100000)
 	Page int
 	// N Number of pages to load, -1 for all (range -1-100000, default 1)
-	N *int
+	N int
 	// Scale Factor to scale by (range 0-1024, default 1)
 	Scale float64
 	// Memory Force open via memory
@@ -3311,7 +3311,7 @@ type WebploadOptions struct {
 // DefaultWebploadOptions creates default value for vips_webpload optional arguments
 func DefaultWebploadOptions() *WebploadOptions {
 	return &WebploadOptions{
-		N:     Ptr(1),
+		N:     1,
 		Scale: 1.0,
 	}
 }
@@ -3340,7 +3340,7 @@ type WebploadBufferOptions struct {
 	// Page First page to load (range 0-100000)
 	Page int
 	// N Number of pages to load, -1 for all (range -1-100000, default 1)
-	N *int
+	N int
 	// Scale Factor to scale by (range 0-1024, default 1)
 	Scale float64
 	// Memory Force open via memory
@@ -3356,7 +3356,7 @@ type WebploadBufferOptions struct {
 // DefaultWebploadBufferOptions creates default value for vips_webpload_buffer optional arguments
 func DefaultWebploadBufferOptions() *WebploadBufferOptions {
 	return &WebploadBufferOptions{
-		N:     Ptr(1),
+		N:     1,
 		Scale: 1.0,
 	}
 }
@@ -3386,7 +3386,7 @@ type WebploadSourceOptions struct {
 	// Page First page to load (range 0-100000)
 	Page int
 	// N Number of pages to load, -1 for all (range -1-100000, default 1)
-	N *int
+	N int
 	// Scale Factor to scale by (range 0-1024, default 1)
 	Scale float64
 	// Memory Force open via memory
@@ -3402,7 +3402,7 @@ type WebploadSourceOptions struct {
 // DefaultWebploadSourceOptions creates default value for vips_webpload_source optional arguments
 func DefaultWebploadSourceOptions() *WebploadSourceOptions {
 	return &WebploadSourceOptions{
-		N:     Ptr(1),
+		N:     1,
 		Scale: 1.0,
 	}
 }
