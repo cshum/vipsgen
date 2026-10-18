@@ -6044,12 +6044,11 @@ func vipsgenWebpload(filename string) (*C.VipsImage, error) {
 }
 
 // vipsgenWebploadWithOptions vips_webpload load webp from file with optional arguments
-func vipsgenWebploadWithOptions(filename string, page int, n *int, scale float64, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
+func vipsgenWebploadWithOptions(filename string, page int, n int, scale float64, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
 	var out *C.VipsImage
 	cfilename := C.CString(filename)
 	defer freeCString(cfilename)
-	cn, nSet := optionInt(n)
-	if err := C.vipsgen_webpload_with_options(cfilename, &out, C.gint(page), C.gint(cn), nSet, C.double(scale), C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
+	if err := C.vipsgen_webpload_with_options(cfilename, &out, C.gint(page), C.gint(n), C.double(scale), C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
@@ -6068,13 +6067,12 @@ func vipsgenWebploadBuffer(buf []byte) (*C.VipsImage, error) {
 }
 
 // vipsgenWebploadBufferWithOptions vips_webpload_buffer load webp from buffer with optional arguments
-func vipsgenWebploadBufferWithOptions(buf []byte, page int, n *int, scale float64, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
+func vipsgenWebploadBufferWithOptions(buf []byte, page int, n int, scale float64, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
 	src := buf
 	// Reference src here so it's not garbage collected during image initialization.
 	defer runtime.KeepAlive(src)
 	var out *C.VipsImage
-	cn, nSet := optionInt(n)
-	if err := C.vipsgen_webpload_buffer_with_options(unsafe.Pointer(&src[0]), C.size_t(len(src)), &out, C.gint(page), C.gint(cn), nSet, C.double(scale), C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
+	if err := C.vipsgen_webpload_buffer_with_options(unsafe.Pointer(&src[0]), C.size_t(len(src)), &out, C.gint(page), C.gint(n), C.double(scale), C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
@@ -6090,10 +6088,9 @@ func vipsgenWebploadSource(source *C.VipsSourceCustom) (*C.VipsImage, error) {
 }
 
 // vipsgenWebploadSourceWithOptions vips_webpload_source load webp from source with optional arguments
-func vipsgenWebploadSourceWithOptions(source *C.VipsSourceCustom, page int, n *int, scale float64, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
+func vipsgenWebploadSourceWithOptions(source *C.VipsSourceCustom, page int, n int, scale float64, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
 	var out *C.VipsImage
-	cn, nSet := optionInt(n)
-	if err := C.vipsgen_webpload_source_with_options(source, &out, C.gint(page), C.gint(cn), nSet, C.double(scale), C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
+	if err := C.vipsgen_webpload_source_with_options(source, &out, C.gint(page), C.gint(n), C.double(scale), C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil

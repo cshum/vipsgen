@@ -5532,13 +5532,13 @@ int vipsgen_webpload(const char* filename, VipsImage** out) {
     return vips_webpload(filename, out, NULL);
 }
 
-int vipsgen_webpload_with_options(const char* filename, VipsImage** out, gint page, gint n, int n_set, double scale, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
+int vipsgen_webpload_with_options(const char* filename, VipsImage** out, gint page, gint n, double scale, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
     VipsOperation *operation = vips_operation_new("webpload");
     if (!operation) return 1;
     if (
         vips_object_set(VIPS_OBJECT(operation), "filename", filename, NULL) ||
         vipsgen_set_int(operation, "page", page) ||
-        (n_set && vips_object_set(VIPS_OBJECT(operation), "n", n, NULL)) ||
+        vipsgen_set_int(operation, "n", n) ||
         vipsgen_set_double(operation, "scale", scale) ||
         vipsgen_set_bool(operation, "memory", memory) ||
         vipsgen_set_int(operation, "access", access) ||
@@ -5556,7 +5556,7 @@ int vipsgen_webpload_buffer(void* buf, size_t len, VipsImage** out) {
     return vips_webpload_buffer(buf, len, out, NULL);
 }
 
-int vipsgen_webpload_buffer_with_options(void* buf, size_t len, VipsImage** out, gint page, gint n, int n_set, double scale, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
+int vipsgen_webpload_buffer_with_options(void* buf, size_t len, VipsImage** out, gint page, gint n, double scale, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
     VipsOperation *operation = vips_operation_new("webpload_buffer");
     if (!operation) return 1;
     VipsBlob *blob = vips_blob_new(NULL, buf, len);
@@ -5564,7 +5564,7 @@ int vipsgen_webpload_buffer_with_options(void* buf, size_t len, VipsImage** out,
     if (
         vips_object_set(VIPS_OBJECT(operation), "buffer", blob, NULL) ||
         vipsgen_set_int(operation, "page", page) ||
-        (n_set && vips_object_set(VIPS_OBJECT(operation), "n", n, NULL)) ||
+        vipsgen_set_int(operation, "n", n) ||
         vipsgen_set_double(operation, "scale", scale) ||
         vipsgen_set_bool(operation, "memory", memory) ||
         vipsgen_set_int(operation, "access", access) ||
@@ -5584,13 +5584,13 @@ int vipsgen_webpload_source(VipsSourceCustom* source, VipsImage** out) {
     return vips_webpload_source((VipsSource*) source, out, NULL);
 }
 
-int vipsgen_webpload_source_with_options(VipsSourceCustom* source, VipsImage** out, gint page, gint n, int n_set, double scale, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
+int vipsgen_webpload_source_with_options(VipsSourceCustom* source, VipsImage** out, gint page, gint n, double scale, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate) {
     VipsOperation *operation = vips_operation_new("webpload_source");
     if (!operation) return 1;
     if (
         vips_object_set(VIPS_OBJECT(operation), "source", (VipsSource*)source, NULL) ||
         vipsgen_set_int(operation, "page", page) ||
-        (n_set && vips_object_set(VIPS_OBJECT(operation), "n", n, NULL)) ||
+        vipsgen_set_int(operation, "n", n) ||
         vipsgen_set_double(operation, "scale", scale) ||
         vipsgen_set_bool(operation, "memory", memory) ||
         vipsgen_set_int(operation, "access", access) ||
