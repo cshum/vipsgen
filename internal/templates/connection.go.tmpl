@@ -21,6 +21,9 @@ type Source struct {
 	handle cgo.Handle
 	deleted atomic.Uint32
 	lock   sync.Mutex
+	// err is the first read error the underlying reader returned, other than
+	// io.EOF. libvips surfaces a failed read to the loader as end of file.
+	err error
 }
 
 func newSourceHandle(source *Source) cgo.Handle {
@@ -98,6 +101,21 @@ func (s *Source) Close() {
 		_ = reader.Close()
 	}
 	log("vipsgen", LogLevelDebug, fmt.Sprintf("closing source %p", s))
+}
+
+// Err returns the first error the underlying reader returned, other than io.EOF,
+// or nil if the source was read to its end. A load can succeed despite one: a
+// loader that only warns on a short read - jpegload with the default
+// fail_on=none, for instance - treats the missing data as end of file and
+// renders what it has. Callers that need a complete image have to check this
+// after rendering.
+func (s *Source) Err() error {
+	if s == nil {
+		return nil
+	}
+	s.lock.Lock()
+	defer s.lock.Unlock()
+	return s.err
 }
 
 // Target contains a libvips VipsTargetCustom and manages its lifecycle.
