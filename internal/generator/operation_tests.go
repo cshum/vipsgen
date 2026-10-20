@@ -60,6 +60,7 @@ var coverageSkip = map[string]string{
 	"maplut":            "needs a histogram: width or height 1",
 	"mapim":             "needs a two-band or complex index image",
 	"magicksave_buffer": "needs an output format",
+	"heifsave_buffer":   "needs a heif encoder for its default compression",
 }
 
 // BuildOperationCoverage selects the operations a generated test can call with
