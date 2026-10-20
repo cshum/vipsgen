@@ -61,6 +61,13 @@ The templates also carry hand-written API beside the generated operations - the 
 helpers, `Pages`, `Loop`, the metadata accessors. That is v1 API: change it only for a stated
 reason.
 
+`LoadOptions` is the exception: its fields come from `loadOptionSpecs` in
+`internal/generator/load_options.go`, resolved against the loader operations. Add a load option
+by adding a row there, not by editing `image.go.tmpl`. The row holds the policy (which option,
+its field doc, and the position in the option string); the Go type, the omission guard and an
+enum's spelling come from introspection. A row whose option libvips no longer reports stops the
+build, so a libvips rename cannot silently drop an option.
+
 ## Tests
 
 - `./internal/...` runs on every leg, but each leg tests only its own output directory

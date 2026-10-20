@@ -16,6 +16,10 @@ type TemplateData struct {
 	EnumTypes   []introspection.EnumTypeInfo
 	ImageTypes  []introspection.ImageTypeInfo
 	IncludeTest bool
+	LoadOptions *LoadOptionsTemplate
+	// loadOptionsErr holds why the LoadOptions policy did not resolve. Generate
+	// reports it before rendering, so the templates never see a partial policy.
+	loadOptionsErr error
 }
 
 // NewTemplateData creates a new TemplateData structure with all needed information
@@ -35,11 +39,15 @@ func NewTemplateData(
 		enumValueNames[et.GoName] = values
 	}
 
+	loadOptions, loadOptionsErr := BuildLoadOptions(operations, enumTypes)
+
 	return &TemplateData{
-		VipsVersion: vipsVersion,
-		Operations:  operations,
-		EnumTypes:   enumTypes,
-		ImageTypes:  imageTypes,
-		IncludeTest: includeTest,
+		VipsVersion:    vipsVersion,
+		Operations:     operations,
+		EnumTypes:      enumTypes,
+		ImageTypes:     imageTypes,
+		IncludeTest:    includeTest,
+		LoadOptions:    loadOptions,
+		loadOptionsErr: loadOptionsErr,
 	}
 }

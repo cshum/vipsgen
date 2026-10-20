@@ -25,6 +25,10 @@ func Generate(
 	templateData *TemplateData,
 	outputDir string,
 ) error {
+	if templateData.loadOptionsErr != nil {
+		return fmt.Errorf("failed to resolve load options: %v", templateData.loadOptionsErr)
+	}
+
 	plan, err := BuildGenerationPlan(templateLoader, templateData, outputDir)
 	if err != nil {
 		return err
