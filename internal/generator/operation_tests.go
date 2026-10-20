@@ -41,7 +41,6 @@ var coverageSkip = map[string]string{
 	"rad2float":         "needs a Radiance-coded input",
 	"icc_import":        "needs an embedded or supplied input profile",
 	"icc_export":        "needs an embedded profile",
-	"icc_transform":     "needs an output profile",
 	"autorot":           "needs an EXIF orientation tag",
 	"transpose3d":       "needs a page-height header field",
 	"uhdrsave_buffer":   "needs gainmap header fields",
@@ -61,11 +60,20 @@ var coverageSkip = map[string]string{
 	"mapim":             "needs a two-band or complex index image",
 	"magicksave_buffer": "needs an output format",
 	"heifsave_buffer":   "needs a heif encoder for its default compression",
+	"grid":              "needs an image that is a multiple of the tile size",
+	"match":             "needs an invertible matrix image",
+	"morph":             "needs a matrix-interpretation mask",
+	"mosaic":            "needs two overlapping images",
+	"mosaic1":           "needs two overlapping images",
+	"sdf":               "needs its shape options set",
+	"switch":            "needs one-band test images",
 }
 
-// BuildOperationCoverage selects the operations a generated test can call with
-// images alone and renders one subtest per operation. Operations that need a
-// value in a range, a filename or a target are out of scope here.
+// BuildOperationCoverage selects the operations a generated test can call and
+// renders one subtest per operation. Selection is the argument list: an
+// operation qualifies when every required argument is an image or a value this
+// generator can make up - a number, a flag, an enum member or an array of
+// numbers. Anything that needs a filename, a source or a target is out of scope.
 func BuildOperationCoverage(operations []introspection.Operation) []CoverageCase {
 	var cases []CoverageCase
 	for _, op := range operations {
@@ -80,34 +88,84 @@ func BuildOperationCoverage(operations []introspection.Operation) []CoverageCase
 	return cases
 }
 
-// coverableOperation is the selection rule: every required input is an image,
-// and the operation hands back either one image or a buffer.
+// coverableOperation is the selection rule.
 func coverableOperation(op introspection.Operation) bool {
+	if !op.HasOneImageOutput && !op.HasBufferOutput {
+		return false
+	}
+	// A required buffer is a loader's formatted bytes, which a generated test
+	// cannot make up: the format is the operation's whole subject.
 	for _, arg := range op.RequiredInputs {
-		if arg.IsInput && !arg.IsImage {
+		if arg.IsBuffer {
 			return false
 		}
 	}
-	return op.HasOneImageOutput || op.HasBufferOutput
+	for _, arg := range callArguments(op) {
+		switch arg.GoType {
+		case "*C.VipsImage", "[]*C.VipsImage", "int", "float64", "bool", "[]float64", "[]int":
+		default:
+			if !arg.IsEnum {
+				return false
+			}
+		}
+	}
+	return true
+}
+
+// callArguments is the argument list of the generated call, in signature order
+// and without the options struct: the receiver is skipped for a method, as are
+// the input length libvips derives from a buffer and the array length vipsgen
+// derives from a slice.
+func callArguments(op introspection.Operation) []introspection.Argument {
+	if op.HasThisImageInput {
+		return detectMethodArguments(op)
+	}
+	var args []introspection.Argument
+	for _, arg := range op.RequiredInputs {
+		if arg.IsInputN || arg.IsBuffer || arg.Name == "len" {
+			continue
+		}
+		args = append(args, arg)
+	}
+	return args
 }
 
 // coverageBody renders the call and its assertions for one operation.
 func coverageBody(op introspection.Operation) string {
 	skipReason := coverageSkip[op.Name]
-	extraImages := extraImageArgs(op)
 	hasOptions := len(op.OptionalInputs) > 0 || len(getSupportedOptionalOutputs(op)) > 0
 
-	var callArgs []string
-	callArgs = append(callArgs, extraImages...)
-	if hasOptions {
-		callArgs = append(callArgs, "nil")
+	var exprs []string
+	var imageArgs []string
+	for _, arg := range callArguments(op) {
+		switch arg.GoType {
+		case "*C.VipsImage":
+			name := imageName(len(imageArgs))
+			imageArgs = append(imageArgs, name)
+			exprs = append(exprs, name)
+		case "[]*C.VipsImage":
+			first := imageName(len(imageArgs))
+			second := imageName(len(imageArgs) + 1)
+			imageArgs = append(imageArgs, first, second)
+			exprs = append(exprs, fmt.Sprintf("[]*Image{%s, %s}", first, second))
+		default:
+			value, ok := scalarValue(arg)
+			if !ok {
+				return ""
+			}
+			exprs = append(exprs, value)
+		}
 	}
-	args := strings.Join(callArgs, ", ")
+	if hasOptions {
+		exprs = append(exprs, "nil")
+	}
+	argsExpr := strings.Join(exprs, ", ")
 
 	var body strings.Builder
 	if !op.HasThisImageInput {
-		// A creator: NewIdentity(nil), NewTonelut(nil).
-		body.WriteString(fmt.Sprintf("\t\tout, err := New%s(%s)\n", op.GoName, args))
+		// A creator: NewIdentity(nil), NewBandjoin([]*Image{...}).
+		body.WriteString(declareImages(imageArgs, "coverageImage", false, 2))
+		body.WriteString(fmt.Sprintf("\t\tout, err := New%s(%s)\n", op.GoName, argsExpr))
 		body.WriteString("\t\tif err != nil {\n")
 		body.WriteString(errorLine(skipReason))
 		body.WriteString("\t\t}\n")
@@ -118,8 +176,8 @@ func coverageBody(op introspection.Operation) string {
 		return body.String()
 	}
 
-	body.WriteString(declareImages("coverageImage", extraImages, false, 2))
-	body.WriteString(callLine(op, args, false, 2))
+	body.WriteString(declareImages(append([]string{"img"}, imageArgs...), "coverageImage", false, 2))
+	body.WriteString(callLine(op, argsExpr, false, 2))
 
 	if skipReason != "" {
 		body.WriteString("\t\tif err != nil {\n")
@@ -137,8 +195,8 @@ func coverageBody(op introspection.Operation) string {
 	body.WriteString("\t\t\tfirstErr := err\n")
 	// Reuse the same locals: the assertions after the retry read them, so they
 	// must not be shadowed by the second call.
-	body.WriteString(declareImages("coverageMonoImage", extraImages, true, 3))
-	body.WriteString(callLine(op, args, true, 3))
+	body.WriteString(declareImages(append([]string{"img"}, imageArgs...), "coverageMonoImage", true, 3))
+	body.WriteString(callLine(op, argsExpr, true, 3))
 	body.WriteString("\t\t\tif err != nil {\n")
 	body.WriteString(fmt.Sprintf("\t\t\t\tt.Fatalf(%q, firstErr, err)\n", op.Name+": wrapper failed for a three-band and a one-band image: %v / %v"))
 	body.WriteString("\t\t\t}\n")
@@ -147,19 +205,151 @@ func coverageBody(op introspection.Operation) string {
 	return body.String()
 }
 
-// declareImages renders the image locals a call needs: the receiver and one
-// image per extra image argument.
-func declareImages(helper string, extraImages []string, assign bool, depth int) string {
+// scalarValue renders a value for a required argument from its metadata, and
+// reports whether this generator can make one up.
+//
+// The rules are name-aware where libvips demands a particular kind of number (a
+// size, a coordinate) and range-clamped everywhere else, because a value outside
+// its range is a call libvips rejects for a reason the test would report as a
+// wrapper failure.
+func scalarValue(arg introspection.Argument) (string, bool) {
+	if arg.IsEnum {
+		if strings.HasPrefix(arg.GoType, "[]") {
+			return fmt.Sprintf("[]%s{%s}", strings.TrimPrefix(arg.GoType, "[]"), enumValue(arg)), true
+		}
+		return enumValue(arg), true
+	}
+	switch arg.GoType {
+	case "bool":
+		return "true", true
+	case "int":
+		return intValue(arg), true
+	case "float64":
+		return floatValue(arg), true
+	case "[]float64":
+		return floatArrayValue(arg), true
+	case "[]int":
+		return "[]int{1}", true
+	}
+	return "", false
+}
+
+// intValue picks a small integer that respects the argument's range.
+func intValue(arg introspection.Argument) string {
+	value := 1
+	switch arg.Name {
+	case "width", "height", "tile_width", "tile_height":
+		value = 8
+	case "left", "top", "x", "y", "xoffset", "yoffset", "xr1", "xr2", "yr1", "yr2":
+		value = 0
+	case "xfac", "yfac", "across", "down", "n", "bands", "depth", "page", "index":
+		value = 1
+	}
+	return fmt.Sprintf("%d", clampInt(value, arg))
+}
+
+// floatValue picks a small positive float that respects the argument's range.
+func floatValue(arg introspection.Argument) string {
+	value := 1.0
+	switch arg.Name {
+	case "fractal_dimension":
+		value = 2.0
+	case "b", "c":
+		// The off-diagonal coefficients of affine() and the like: one on the
+		// diagonal, zero beside it, or the matrix inverts to nothing.
+		value = 0
+	}
+	return trimFloat(clampFloat(value, arg))
+}
+
+// floatArrayValue supplies the number array an argument takes. The ink of a draw
+// operation is a colour, the coefficients of linear() are the identity, and the
+// rest are constants the operation scales by.
+func floatArrayValue(arg introspection.Argument) string {
+	switch arg.Name {
+	case "ink":
+		return "[]float64{255}"
+	case "a":
+		return "[]float64{1}"
+	case "b":
+		return "[]float64{0}"
+	}
+	return "[]float64{1}"
+}
+
+// enumValue names the first member of the argument's enum: the value libvips
+// documents as the default for every argument this generator selects.
+// enumFallback names the member to use where value zero is a sentinel rather
+// than something libvips accepts: Interpretation starts with ERROR.
+var enumFallback = map[string]string{
+	"Interpretation": "InterpretationSrgb",
+}
+
+func enumValue(arg introspection.Argument) string {
+	if name, ok := enumFallback[arg.EnumType]; ok {
+		return name
+	}
+	if len(arg.EnumValues) > 0 {
+		if name, ok := enumValueNames[arg.EnumType][arg.EnumValues[0]]; ok {
+			return name
+		}
+	}
+	if name, ok := enumValueNames[arg.EnumType][0]; ok {
+		return name
+	}
+	return "0"
+}
+
+func clampInt(value int, arg introspection.Argument) int {
+	if arg.HasMinimum && float64(value) < arg.Minimum {
+		value = int(arg.Minimum)
+	}
+	if arg.HasMaximum && float64(value) > arg.Maximum {
+		value = int(arg.Maximum)
+	}
+	return value
+}
+
+func clampFloat(value float64, arg introspection.Argument) float64 {
+	if arg.HasMinimum && value < arg.Minimum {
+		value = arg.Minimum
+	}
+	if arg.HasMaximum && value > arg.Maximum {
+		value = arg.Maximum
+	}
+	return value
+}
+
+// trimFloat renders a whole float without a trailing ".0", so the generated call
+// reads like one a caller would write.
+func trimFloat(value float64) string {
+	if value == float64(int64(value)) {
+		return fmt.Sprintf("%d", int64(value))
+	}
+	return fmt.Sprintf("%g", value)
+}
+
+// imageName names the n-th image argument: other, other2, other3.
+func imageName(n int) string {
+	if n == 0 {
+		return "other"
+	}
+	return fmt.Sprintf("other%d", n+1)
+}
+
+// declareImages renders the image locals a call needs. The first name is always
+// the receiver's img for a method.
+func declareImages(names []string, helper string, assign bool, depth int) string {
 	op := " := "
 	if assign {
 		op = " = "
 	}
 	tabs := strings.Repeat("\t", depth)
-	code := tabs + "img" + op + helper + "(t)\n"
-	for _, name := range extraImages {
-		code += tabs + name + op + helper + "(t)\n"
+	var code strings.Builder
+	for _, name := range names {
+		code.WriteString(tabs + name + op + helper + "(t)\n")
 	}
-	return code
+	return code.String()
 }
 
 // callLine renders the call itself: a buffer-producing operation fills buf, any
@@ -186,30 +376,6 @@ func assertions(op introspection.Operation) string {
 	return "\t\tif img.Width() <= 0 || img.Height() <= 0 {\n" +
 		fmt.Sprintf("\t\t\tt.Fatalf(%q, img.Width(), img.Height())\n", op.Name+": produced an empty image %dx%d") +
 		"\t\t}\n"
-}
-
-// extraImageArgs names the image arguments that follow the receiver: other,
-// other2, other3. They take their own image so an operation that combines two
-// inputs is not handed the same pointer twice.
-func extraImageArgs(op introspection.Operation) []string {
-	var images []introspection.Argument
-	for _, arg := range op.RequiredInputs {
-		if arg.IsImage && !arg.IsInputN {
-			images = append(images, arg)
-		}
-	}
-	if op.HasThisImageInput && len(images) > 0 {
-		images = images[1:]
-	}
-	names := make([]string, 0, len(images))
-	for i := range images {
-		if i == 0 {
-			names = append(names, "other")
-			continue
-		}
-		names = append(names, fmt.Sprintf("other%d", i+1))
-	}
-	return names
 }
 
 // errorLine renders what to do when the call reports an error: a skip carrying

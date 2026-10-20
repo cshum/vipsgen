@@ -493,6 +493,13 @@ func getImagePointer(img *Image) *C.VipsImage {
 	return img.image
 }
 
+// Ptr returns a pointer to value, for the option fields whose zero value is a
+// value libvips accepts. A nil field means "not supplied", so the operation uses
+// its own default; Ptr(0) means "supplied, and the value is zero".
+func Ptr[T any](value T) *T {
+	return &value
+}
+
 // optionInt returns an optional enum, flags or integer argument's value and whether
 // the caller supplied it. nil means "not supplied", so libvips keeps its own default;
 // a supplied value is passed on even when it is zero.
