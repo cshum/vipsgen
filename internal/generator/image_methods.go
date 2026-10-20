@@ -101,6 +101,19 @@ func generateImageMethodSuccessLine(resultVars []string) string {
 	return "return " + strings.Join(resultVars, ", ") + ", nil"
 }
 
+// targetErrCheck returns the statement that surfaces a write error the
+// operation dropped, indented for the block it lands in.
+func targetErrCheck(methodArgs []introspection.Argument, indent string) string {
+	for _, arg := range methodArgs {
+		if arg.IsTarget {
+			return indent + "if err := " + arg.GoName + ".Err(); err != nil {\n" +
+				indent + "	return err\n" +
+				indent + "}\n"
+		}
+	}
+	return ""
+}
+
 func generateOptionsMultiOutputBody(resultVars []string, funcName string, callArgs []string, errorLine, conversionCode, successLine string) string {
 	return fmt.Sprintf(`if options != nil {
 		%s, err := %s(%s)
@@ -317,18 +330,19 @@ func generateImageMethodBody(op introspection.Operation) string {
 		if err != nil {
 			return err
 		}
-		return nil
+%s		return nil
 	}
-	`, goFuncNameWithOptions, strings.Join(optionsCallArgs, ", "))
+	`, goFuncNameWithOptions, strings.Join(optionsCallArgs, ", "), targetErrCheck(methodArgs, "		"))
 		}
 
 		body += fmt.Sprintf(`err := %s(%s)
 	if err != nil {
 		return err
 	}
-	return nil`,
+%s	return nil`,
 			goFuncName,
-			strings.Join(callArgs, ", "))
+			strings.Join(callArgs, ", "),
+			targetErrCheck(methodArgs, "	"))
 		return body
 	}
 }

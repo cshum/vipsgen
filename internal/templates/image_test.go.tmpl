@@ -456,6 +456,41 @@ func (f *failingReader) Seek(offset int64, whence int) (int64, error) {
 
 func (f *failingReader) Close() error { return nil }
 
+type failingWriter struct{ writes int }
+
+func (w *failingWriter) Write(p []byte) (int, error) {
+	w.writes++
+	return 0, io.ErrClosedPipe
+}
+
+func (w *failingWriter) Close() error { return nil }
+
+func TestTargetWriteError(t *testing.T) {
+	// A small image keeps every write buffered until close, where the failure is
+	// dropped. The save has to report it regardless.
+	img, err := NewBlack(32, 32, &BlackOptions{Bands: 3})
+	require.NoError(t, err)
+	defer img.Close()
+
+	w := &failingWriter{}
+	target := NewTarget(w)
+	assert.ErrorIs(t, img.DzsaveTarget(target, nil), io.ErrClosedPipe)
+	assert.Positive(t, w.writes)
+	target.Close()
+
+	// A save that completes leaves the target without an error.
+	okImg, err := NewBlack(32, 32, &BlackOptions{Bands: 3})
+	require.NoError(t, err)
+	defer okImg.Close()
+
+	var buf bytes.Buffer
+	okTarget := NewTarget(&writeCloser{&buf})
+	require.NoError(t, okImg.DzsaveTarget(okTarget, nil))
+	assert.NoError(t, okTarget.Err())
+	assert.Positive(t, buf.Len())
+	okTarget.Close()
+}
+
 func TestImageTransformations(t *testing.T) {
 	// Create a test image
 	width, height := 100, 80
