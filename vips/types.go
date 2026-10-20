@@ -790,10 +790,3 @@ func (i *Interpolate) Close() {
 		i.interp = nil
 	}
 }
-
-// Ptr returns a pointer to value, for the option fields whose zero value is a
-// value libvips accepts. A nil field means "not supplied", so the operation uses
-// its own default; Ptr(0) means "supplied, and the value is zero".
-func Ptr[T any](value T) *T {
-	return &value
-}
