@@ -243,6 +243,9 @@ func resolveLoadOptions(specs []loadOptionSpec, operations []introspection.Opera
 					field.ZeroName = value.GoName
 					continue
 				}
+				if isEnumSentinel(value) {
+					continue
+				}
 				if value.Description == "" {
 					return nil, fmt.Errorf("enum %s value %s has no libvips nick", goType, value.GoName)
 				}
@@ -257,6 +260,16 @@ func resolveLoadOptions(specs []loadOptionSpec, operations []introspection.Opera
 	}
 
 	return &LoadOptionsTemplate{Fields: fields}, nil
+}
+
+// isEnumSentinel reports the terminal marker libvips registers on some enum
+// classes (VIPS_ACCESS_LAST, VIPS_FAIL_ON_LAST). It ends the enum rather than
+// naming a value a loader accepts, and whether a version registers it differs:
+// 8.16 and 8.17 do, 8.18 does not. Spelling it would make the option string
+// version-dependent, and sending it makes the whole load fail where v1 left the
+// value out.
+func isEnumSentinel(value introspection.EnumValueInfo) bool {
+	return strings.HasSuffix(value.CName, "_LAST")
 }
 
 // generateLoadOptionsFields emits the body of the LoadOptions struct.

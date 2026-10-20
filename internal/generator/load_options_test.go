@@ -54,6 +54,8 @@ func loadTestEnums() []introspection.EnumTypeInfo {
 				{CName: "VIPS_FAIL_ON_TRUNCATED", GoName: "FailOnTruncated", Value: 1, Description: "truncated"},
 				{CName: "VIPS_FAIL_ON_ERROR", GoName: "FailOnError", Value: 2, Description: "error"},
 				{CName: "VIPS_FAIL_ON_WARNING", GoName: "FailOnWarning", Value: 3, Description: "warning"},
+				// 8.16 and 8.17 register the terminal marker, 8.18 does not.
+				{CName: "VIPS_FAIL_ON_LAST", GoName: "FailOnLast", Value: 4, Description: "last"},
 			},
 		},
 		{
@@ -63,6 +65,7 @@ func loadTestEnums() []introspection.EnumTypeInfo {
 				{CName: "VIPS_ACCESS_RANDOM", GoName: "AccessRandom", Value: 0, Description: "random"},
 				{CName: "VIPS_ACCESS_SEQUENTIAL", GoName: "AccessSequential", Value: 1, Description: "sequential"},
 				{CName: "VIPS_ACCESS_SEQUENTIAL_UNBUFFERED", GoName: "AccessSequentialUnbuffered", Value: 2, Description: "sequential-unbuffered"},
+				{CName: "VIPS_ACCESS_LAST", GoName: "AccessLast", Value: 3, Description: "last"},
 			},
 		},
 	}
@@ -104,6 +107,16 @@ func TestBuildLoadOptionsResolvesTypes(t *testing.T) {
 	}
 	if _, ok := byName["Strip"]; ok {
 		t.Error("a saver option reached LoadOptions")
+	}
+	// The _LAST marker is registered on 8.16 and 8.17 but not 8.18: spelling it
+	// would make the option string depend on the libvips the package was built
+	// from, and no loader accepts it.
+	for _, field := range loadOptions.Fields {
+		for _, enumCase := range field.Cases {
+			if enumCase.GoName == "FailOnLast" || enumCase.GoName == "AccessLast" {
+				t.Errorf("%s: the %s sentinel reached the option string", field.GoName, enumCase.GoName)
+			}
+		}
 	}
 	for _, field := range loadOptions.Fields {
 		if field.Emit == 0 {
