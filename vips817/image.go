@@ -4661,10 +4661,16 @@ func (r *Image) CsvsaveTarget(target *Target, options *CsvsaveTargetOptions) err
 		if err != nil {
 			return err
 		}
+		if err := target.Err(); err != nil {
+			return err
+		}
 		return nil
 	}
 	err := vipsgenCsvsaveTarget(r.image, target.target)
 	if err != nil {
+		return err
+	}
+	if err := target.Err(); err != nil {
 		return err
 	}
 	return nil
@@ -5109,10 +5115,16 @@ func (r *Image) DzsaveTarget(target *Target, options *DzsaveTargetOptions) error
 		if err != nil {
 			return err
 		}
+		if err := target.Err(); err != nil {
+			return err
+		}
 		return nil
 	}
 	err := vipsgenDzsaveTarget(r.image, target.target)
 	if err != nil {
+		return err
+	}
+	if err := target.Err(); err != nil {
 		return err
 	}
 	return nil
@@ -5637,10 +5649,16 @@ func (r *Image) GifsaveTarget(target *Target, options *GifsaveTargetOptions) err
 		if err != nil {
 			return err
 		}
+		if err := target.Err(); err != nil {
+			return err
+		}
 		return nil
 	}
 	err := vipsgenGifsaveTarget(r.image, target.target)
 	if err != nil {
+		return err
+	}
+	if err := target.Err(); err != nil {
 		return err
 	}
 	return nil
@@ -5882,10 +5900,16 @@ func (r *Image) HeifsaveTarget(target *Target, options *HeifsaveTargetOptions) e
 		if err != nil {
 			return err
 		}
+		if err := target.Err(); err != nil {
+			return err
+		}
 		return nil
 	}
 	err := vipsgenHeifsaveTarget(r.image, target.target)
 	if err != nil {
+		return err
+	}
+	if err := target.Err(); err != nil {
 		return err
 	}
 	return nil
@@ -6620,10 +6644,16 @@ func (r *Image) Jp2ksaveTarget(target *Target, options *Jp2ksaveTargetOptions) e
 		if err != nil {
 			return err
 		}
+		if err := target.Err(); err != nil {
+			return err
+		}
 		return nil
 	}
 	err := vipsgenJp2ksaveTarget(r.image, target.target)
 	if err != nil {
+		return err
+	}
+	if err := target.Err(); err != nil {
 		return err
 	}
 	return nil
@@ -6786,10 +6816,16 @@ func (r *Image) JpegsaveTarget(target *Target, options *JpegsaveTargetOptions) e
 		if err != nil {
 			return err
 		}
+		if err := target.Err(); err != nil {
+			return err
+		}
 		return nil
 	}
 	err := vipsgenJpegsaveTarget(r.image, target.target)
 	if err != nil {
+		return err
+	}
+	if err := target.Err(); err != nil {
 		return err
 	}
 	return nil
@@ -6934,10 +6970,16 @@ func (r *Image) JxlsaveTarget(target *Target, options *JxlsaveTargetOptions) err
 		if err != nil {
 			return err
 		}
+		if err := target.Err(); err != nil {
+			return err
+		}
 		return nil
 	}
 	err := vipsgenJxlsaveTarget(r.image, target.target)
 	if err != nil {
+		return err
+	}
+	if err := target.Err(); err != nil {
 		return err
 	}
 	return nil
@@ -7413,10 +7455,16 @@ func (r *Image) MatrixsaveTarget(target *Target, options *MatrixsaveTargetOption
 		if err != nil {
 			return err
 		}
+		if err := target.Err(); err != nil {
+			return err
+		}
 		return nil
 	}
 	err := vipsgenMatrixsaveTarget(r.image, target.target)
 	if err != nil {
+		return err
+	}
+	if err := target.Err(); err != nil {
 		return err
 	}
 	return nil
@@ -7981,10 +8029,16 @@ func (r *Image) PngsaveTarget(target *Target, options *PngsaveTargetOptions) err
 		if err != nil {
 			return err
 		}
+		if err := target.Err(); err != nil {
+			return err
+		}
 		return nil
 	}
 	err := vipsgenPngsaveTarget(r.image, target.target)
 	if err != nil {
+		return err
+	}
+	if err := target.Err(); err != nil {
 		return err
 	}
 	return nil
@@ -8069,10 +8123,16 @@ func (r *Image) PpmsaveTarget(target *Target, options *PpmsaveTargetOptions) err
 		if err != nil {
 			return err
 		}
+		if err := target.Err(); err != nil {
+			return err
+		}
 		return nil
 	}
 	err := vipsgenPpmsaveTarget(r.image, target.target)
 	if err != nil {
+		return err
+	}
+	if err := target.Err(); err != nil {
 		return err
 	}
 	return nil
@@ -8282,10 +8342,16 @@ func (r *Image) RadsaveTarget(target *Target, options *RadsaveTargetOptions) err
 		if err != nil {
 			return err
 		}
+		if err := target.Err(); err != nil {
+			return err
+		}
 		return nil
 	}
 	err := vipsgenRadsaveTarget(r.image, target.target)
 	if err != nil {
+		return err
+	}
+	if err := target.Err(); err != nil {
 		return err
 	}
 	return nil
@@ -8405,10 +8471,16 @@ func (r *Image) RawsaveTarget(target *Target, options *RawsaveTargetOptions) err
 		if err != nil {
 			return err
 		}
+		if err := target.Err(); err != nil {
+			return err
+		}
 		return nil
 	}
 	err := vipsgenRawsaveTarget(r.image, target.target)
 	if err != nil {
+		return err
+	}
+	if err := target.Err(); err != nil {
 		return err
 	}
 	return nil
@@ -9562,10 +9634,16 @@ func (r *Image) TiffsaveTarget(target *Target, options *TiffsaveTargetOptions) e
 		if err != nil {
 			return err
 		}
+		if err := target.Err(); err != nil {
+			return err
+		}
 		return nil
 	}
 	err := vipsgenTiffsaveTarget(r.image, target.target)
 	if err != nil {
+		return err
+	}
+	if err := target.Err(); err != nil {
 		return err
 	}
 	return nil
@@ -9742,10 +9820,16 @@ func (r *Image) VipssaveTarget(target *Target, options *VipssaveTargetOptions) e
 		if err != nil {
 			return err
 		}
+		if err := target.Err(); err != nil {
+			return err
+		}
 		return nil
 	}
 	err := vipsgenVipssaveTarget(r.image, target.target)
 	if err != nil {
+		return err
+	}
+	if err := target.Err(); err != nil {
 		return err
 	}
 	return nil
@@ -9953,10 +10037,16 @@ func (r *Image) WebpsaveTarget(target *Target, options *WebpsaveTargetOptions) e
 		if err != nil {
 			return err
 		}
+		if err := target.Err(); err != nil {
+			return err
+		}
 		return nil
 	}
 	err := vipsgenWebpsaveTarget(r.image, target.target)
 	if err != nil {
+		return err
+	}
+	if err := target.Err(); err != nil {
 		return err
 	}
 	return nil

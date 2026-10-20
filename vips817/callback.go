@@ -92,6 +92,9 @@ func goTargetWrite(
 	buf := *(*[]byte)(unsafe.Pointer(sh))
 	n, err := target.writer.Write(buf)
 	if err != nil {
+		if target.err == nil {
+			target.err = err
+		}
 		return -1
 	}
 	return C.longlong(n)

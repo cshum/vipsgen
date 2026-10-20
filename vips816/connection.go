@@ -125,6 +125,9 @@ type Target struct {
 	handle  cgo.Handle
 	deleted atomic.Uint32
 	lock    sync.Mutex
+	// err is the first write error the writer returned. A save can drop one, so
+	// it is kept for Err.
+	err error
 }
 
 func newTargetHandle(target *Target) cgo.Handle {
@@ -190,4 +193,16 @@ func (t *Target) Close() {
 		_ = writer.Close()
 	}
 	log("vipsgen", LogLevelDebug, fmt.Sprintf("closing target %p", t))
+}
+
+// Err returns the first error the underlying writer returned, or nil if every
+// write succeeded. A save can return nil after dropping one, so check it when a
+// save succeeds. It survives Close.
+func (t *Target) Err() error {
+	if t == nil {
+		return nil
+	}
+	t.lock.Lock()
+	defer t.lock.Unlock()
+	return t.err
 }
