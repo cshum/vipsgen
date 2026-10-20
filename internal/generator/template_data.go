@@ -16,6 +16,7 @@ type TemplateData struct {
 	EnumTypes   []introspection.EnumTypeInfo
 	ImageTypes  []introspection.ImageTypeInfo
 	IncludeTest bool
+	Coverage    []CoverageCase
 }
 
 // NewTemplateData creates a new TemplateData structure with all needed information
@@ -41,5 +42,6 @@ func NewTemplateData(
 		EnumTypes:   enumTypes,
 		ImageTypes:  imageTypes,
 		IncludeTest: includeTest,
+		Coverage:    BuildOperationCoverage(operations),
 	}
 }
