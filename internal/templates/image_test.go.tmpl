@@ -399,6 +399,63 @@ func TestSource(t *testing.T) {
 	assert.Equal(t, 50, imgFromSource.Height())
 }
 
+func TestSourceReadError(t *testing.T) {
+	// A source that fails partway through is not an error to libvips: a loader
+	// that only warns, such as jpegload with the default fail_on=none, renders
+	// what it has and succeeds. Source.Err is what tells that apart from a
+	// complete read.
+	jpegData := createTestJpegBuffer(t, 200, 200)
+	source := NewSource(&failingReader{
+		r:   bytes.NewReader(jpegData[:len(jpegData)/2]),
+		err: io.ErrUnexpectedEOF,
+	})
+	assert.NoError(t, source.Err())
+
+	img, err := NewImageFromSource(source, DefaultLoadOptions())
+	require.NoError(t, err)
+	if img != nil {
+		_, _ = img.JpegsaveBuffer(nil)
+		img.Close()
+	}
+	assert.ErrorIs(t, source.Err(), io.ErrUnexpectedEOF)
+	source.Close()
+	assert.ErrorIs(t, source.Err(), io.ErrUnexpectedEOF, "Err survives Close")
+
+	// A source read to its end reports nothing.
+	cleanSource := NewSource(io.NopCloser(bytes.NewReader(jpegData)))
+	cleanImg, err := NewImageFromSource(cleanSource, DefaultLoadOptions())
+	require.NoError(t, err)
+	if cleanImg != nil {
+		_, _ = cleanImg.JpegsaveBuffer(nil)
+		cleanImg.Close()
+	}
+	cleanSource.Close()
+	assert.NoError(t, cleanSource.Err())
+}
+
+// failingReader returns err instead of io.EOF at the end of its data. It is
+// seekable like the readers imagor hands to a source, which is the case this
+// covers: with a seekable source the load succeeds and the failure only shows
+// up in Source.Err.
+type failingReader struct {
+	r   *bytes.Reader
+	err error
+}
+
+func (f *failingReader) Read(p []byte) (int, error) {
+	n, err := f.r.Read(p)
+	if err == io.EOF {
+		return 0, f.err
+	}
+	return n, err
+}
+
+func (f *failingReader) Seek(offset int64, whence int) (int64, error) {
+	return f.r.Seek(offset, whence)
+}
+
+func (f *failingReader) Close() error { return nil }
+
 func TestImageTransformations(t *testing.T) {
 	// Create a test image
 	width, height := 100, 80

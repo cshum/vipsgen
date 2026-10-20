@@ -38,6 +38,11 @@ func goSourceRead(
 	if err == io.EOF {
 		return C.longlong(n)
 	} else if err != nil {
+		// libvips only sees a failed read as end of file, so remember it here
+		// for Source.Err. goSourceRead holds the source lock.
+		if source.err == nil {
+			source.err = err
+		}
 		return -1
 	}
 	return C.longlong(n)
