@@ -10069,8 +10069,6 @@ func (i *LoadOptions) OptionString() string {
 			values = append(values, "fail_on=error")
 		case FailOnWarning:
 			values = append(values, "fail_on=warning")
-		case FailOnLast:
-			values = append(values, "fail_on=last")
 		}
 	}
 	if i.FailOnError {
@@ -10097,8 +10095,6 @@ func (i *LoadOptions) OptionString() string {
 			values = append(values, "access=sequential")
 		case AccessSequentialUnbuffered:
 			values = append(values, "access=sequential-unbuffered")
-		case AccessLast:
-			values = append(values, "access=last")
 		}
 	}
 	return strings.Join(values, ",")
