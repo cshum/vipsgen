@@ -10069,6 +10069,8 @@ func (i *LoadOptions) OptionString() string {
 			values = append(values, "fail_on=error")
 		case FailOnWarning:
 			values = append(values, "fail_on=warning")
+		case FailOnLast:
+			values = append(values, "fail_on=last")
 		}
 	}
 	if i.FailOnError {
@@ -10089,14 +10091,14 @@ func (i *LoadOptions) OptionString() string {
 	if i.Memory {
 		values = append(values, "memory="+boolToStr(i.Memory))
 	}
-	if i.Access != 0 {
+	if i.Access != AccessRandom {
 		switch i.Access {
 		case AccessSequential:
 			values = append(values, "access=sequential")
-		case AccessRandom:
-			values = append(values, "access=random")
 		case AccessSequentialUnbuffered:
 			values = append(values, "access=sequential-unbuffered")
+		case AccessLast:
+			values = append(values, "access=last")
 		}
 	}
 	return strings.Join(values, ",")

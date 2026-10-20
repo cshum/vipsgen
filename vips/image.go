@@ -10431,12 +10431,10 @@ func (i *LoadOptions) OptionString() string {
 	if i.Memory {
 		values = append(values, "memory="+boolToStr(i.Memory))
 	}
-	if i.Access != 0 {
+	if i.Access != AccessRandom {
 		switch i.Access {
 		case AccessSequential:
 			values = append(values, "access=sequential")
-		case AccessRandom:
-			values = append(values, "access=random")
 		case AccessSequentialUnbuffered:
 			values = append(values, "access=sequential-unbuffered")
 		}
