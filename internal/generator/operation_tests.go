@@ -60,6 +60,8 @@ var coverageSkip = map[string]string{
 	"mapim":             "needs a two-band or complex index image",
 	"magicksave_buffer": "needs an output format",
 	"heifsave_buffer":   "needs a heif encoder for its default compression",
+	"uhdrsave":          "needs gainmap header fields",
+	"heifsave":          "needs a heif encoder for its default compression",
 	"grid":              "needs an image that is a multiple of the tile size",
 	"match":             "needs an invertible matrix image",
 	"morph":             "needs a matrix-interpretation mask",
@@ -75,17 +77,29 @@ var coverageSkip = map[string]string{
 // generator can make up - a number, a flag, an enum member or an array of
 // numbers. Anything that needs a filename, a source or a target is out of scope.
 func BuildOperationCoverage(operations []introspection.Operation) []CoverageCase {
+	formats := newCoverageFormats(operations)
 	var cases []CoverageCase
 	for _, op := range operations {
-		if !coverableOperation(op) {
-			continue
+		if body, ok := coverageCaseBody(op, formats); ok {
+			cases = append(cases, CoverageCase{Name: op.Name, Body: body})
 		}
-		cases = append(cases, CoverageCase{
-			Name: op.Name,
-			Body: coverageBody(op),
-		})
 	}
 	return cases
+}
+
+// coverageCaseBody picks the kind of subtest an operation gets: a round trip for a
+// format libvips both writes and reads, otherwise a call with made-up arguments.
+func coverageCaseBody(op introspection.Operation, formats coverageFormats) (string, bool) {
+	if kind, ext, saver, ok := formats.foreignKind(op); ok {
+		if kind == "saver" {
+			return saverCoverageBody(op, ext), true
+		}
+		return loaderCoverageBody(op, ext, saver), true
+	}
+	if !coverableOperation(op) {
+		return "", false
+	}
+	return coverageBody(op), true
 }
 
 // coverableOperation is the selection rule.
