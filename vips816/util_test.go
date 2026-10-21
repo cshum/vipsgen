@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"testing"
 )
 
@@ -132,5 +133,26 @@ func TestImageType(t *testing.T) {
 	img := coverageImage(t)
 	if got := img.Format(); got != ImageTypeUnknown {
 		t.Fatalf("an image built in memory is %q, want %q", got, ImageTypeUnknown)
+	}
+}
+
+// TestLoadFilenameWithPunctuation opens names libvips' option-string parser splits.
+func TestLoadFilenameWithPunctuation(t *testing.T) {
+	for _, name := range []string{",comma.png", "a,b c'd=e&f.png"} {
+		path := filepath.Join(t.TempDir(), name)
+		img := coverageImage(t)
+		if err := img.Pngsave(path, nil); err != nil {
+			t.Skipf("fixture unavailable: the saver could not write it: %v", err)
+		}
+		for _, options := range []*LoadOptions{nil, DefaultLoadOptions()} {
+			loaded, err := NewImageFromFile(path, options)
+			if err != nil {
+				t.Fatalf("opening %q (options set: %v): %v", name, options != nil, err)
+			}
+			if loaded.Width() != img.Width() || loaded.Height() != img.Height() {
+				t.Fatalf("%q loaded as %dx%d from a %dx%d file", name, loaded.Width(), loaded.Height(), img.Width(), img.Height())
+			}
+			loaded.Close()
+		}
 	}
 }
