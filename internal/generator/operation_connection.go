@@ -35,6 +35,71 @@ func (f coverageFormats) connectionKind(op introspection.Operation) (kind, produ
 	return "", "", false
 }
 
+// bufferKind classifies a loader that takes the image's bytes directly: the same
+// fixture as a source loader, handed over as a slice instead of a stream.
+func (f coverageFormats) bufferKind(op introspection.Operation) (producer string, ok bool) {
+	if op.HasThisImageInput || !op.HasOneImageOutput || !strings.HasSuffix(op.Name, "_buffer") {
+		return "", false
+	}
+	for _, arg := range op.RequiredInputs {
+		// The bytes are the argument the test supplies, and `len` is the synthetic
+		// pair introspection adds for the C wrapper - the Go call takes the slice
+		// alone. Anything else required is a value the test cannot invent.
+		if arg.IsBuffer || arg.IsImage || arg.IsSource || arg.IsTarget || arg.IsOutput {
+			continue
+		}
+		if arg.Name == "len" && arg.GoType == "int" {
+			continue
+		}
+		return "", false
+	}
+	producer, exists := f.bytes[formatToken(op.Name)]
+	if !exists {
+		return "", false
+	}
+	return producer, true
+}
+
+// bufferLoaderCoverageBody writes the fixture and reads it back from a slice.
+func bufferLoaderCoverageBody(op introspection.Operation, producer string, co coverageOptions) string {
+	skipReason := co.skipReason(op.Name)
+	hasOptions := len(op.OptionalInputs) > 0 || len(getSupportedOptionalOutputs(op)) > 0
+	callArgs := "data"
+	if hasOptions {
+		callArgs += ", " + co.Expr
+	}
+
+	var body strings.Builder
+	body.WriteString("\t\timg := coverageImage(t)\n")
+	if strings.HasSuffix(producer, "Target") {
+		body.WriteString("\t\ttarget, buf := coverageTarget(t)\n")
+		body.WriteString(fmt.Sprintf("\t\tif err := img.%s(target, nil); err != nil {\n", producer))
+		body.WriteString("\t\t\tt.Skipf(\"fixture unavailable: the saver could not write it: %v\", err)\n")
+		body.WriteString("\t\t}\n")
+		body.WriteString("\t\tdata := buf.Bytes()\n")
+	} else {
+		body.WriteString(fmt.Sprintf("\t\tdata, err := img.%s(nil)\n", producer))
+		body.WriteString("\t\tif err != nil {\n")
+		body.WriteString("\t\t\tt.Skipf(\"fixture unavailable: the saver could not write it: %v\", err)\n")
+		body.WriteString("\t\t}\n")
+	}
+	body.WriteString(co.Decl)
+	body.WriteString(fmt.Sprintf("\t\tloaded, err := New%s(%s)\n", op.GoName, callArgs))
+	body.WriteString("\t\tif err != nil {\n")
+	body.WriteString(errorLine(skipReason))
+	body.WriteString("\t\t}\n\t\tdefer loaded.Close()\n")
+	if co.Expr == "nil" {
+		body.WriteString("\t\tif loaded.Width() != img.Width() || loaded.Height() != img.Height() {\n")
+		body.WriteString(fmt.Sprintf("\t\t\tt.Fatalf(%q, loaded.Width(), loaded.Height(), img.Width(), img.Height())\n", op.Name+": loaded %dx%d from a %dx%d buffer"))
+		body.WriteString("\t\t}\n")
+	} else {
+		body.WriteString("\t\tif loaded.Width() <= 0 || loaded.Height() <= 0 {\n")
+		body.WriteString(fmt.Sprintf("\t\t\tt.Fatalf(%q, loaded.Width(), loaded.Height())\n", op.Name+": loaded an empty image %dx%d"))
+		body.WriteString("\t\t}\n")
+	}
+	return body.String()
+}
+
 // sourceLoaderCoverageBody writes the image to bytes with the paired saver, reads
 // those bytes back through a Source, and compares the geometry.
 func sourceLoaderCoverageBody(op introspection.Operation, producer string, co coverageOptions) string {

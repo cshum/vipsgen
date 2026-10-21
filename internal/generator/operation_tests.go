@@ -90,6 +90,7 @@ var coverageSkipOptions = map[string]string{
 	"copy":            "changing the pel size is not a copy",
 	"getpoint":        "unpacking a real image as complex yields no values",
 	"tiffload_source": "its subifd option needs a file that has one",
+	"tiffload_buffer": "its subifd option needs a file that has one",
 	"tiffsave_target": "its layout options need a seekable directory a target cannot offer",
 }
 
@@ -138,11 +139,17 @@ func coverageCaseBody(op introspection.Operation, formats coverageFormats, co co
 		}
 		return loaderCoverageBody(op, ext, saver, co), true
 	}
+	if producer, ok := formats.bufferKind(op); ok {
+		return bufferLoaderCoverageBody(op, producer, co), true
+	}
 	if kind, producer, ok := formats.connectionKind(op); ok {
 		if kind == "targetSaver" {
 			return targetSaverCoverageBody(op, co), true
 		}
 		return sourceLoaderCoverageBody(op, producer, co), true
+	}
+	if producer, ok := formats.bufferKind(op); ok {
+		return bufferLoaderCoverageBody(op, producer, co), true
 	}
 	if kind, producer, ok := formats.connectionKind(op); ok {
 		if kind == "targetSaver" {
