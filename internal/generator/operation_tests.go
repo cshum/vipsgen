@@ -266,6 +266,13 @@ func coverageBody(op introspection.Operation, co coverageOptions) string {
 	}
 	argsExpr := strings.Join(exprs, ", ")
 
+	// Only the plain call has a predictable size: an options variant may legitimately
+	// change it (resize's vscale, embed's extend).
+	geometry, geometryNeedsDims, hasGeometry := "", false, false
+	if co.Expr == "nil" && op.HasThisImageInput {
+		geometry, geometryNeedsDims, hasGeometry = geometryCheck(op)
+	}
+
 	var body strings.Builder
 	if !op.HasThisImageInput {
 		// A creator: NewIdentity(nil), NewBandjoin([]*Image{...}).
@@ -283,6 +290,9 @@ func coverageBody(op introspection.Operation, co coverageOptions) string {
 	}
 
 	body.WriteString(declareImages(append([]string{"img"}, imageArgs...), "coverageImage", false, 2))
+	if hasGeometry && geometryNeedsDims {
+		body.WriteString("\t\tw, h := img.Width(), img.Height()\n")
+	}
 	body.WriteString(co.Decl)
 	body.WriteString(callLine(op, argsExpr, false, 2))
 
@@ -290,7 +300,7 @@ func coverageBody(op introspection.Operation, co coverageOptions) string {
 		body.WriteString("\t\tif err != nil {\n")
 		body.WriteString(errorLine(skipReason))
 		body.WriteString("\t\t}\n")
-		body.WriteString(assertions(op))
+		body.WriteString(assertions(op, geometry, hasGeometry))
 		return body.String()
 	}
 
@@ -308,7 +318,7 @@ func coverageBody(op introspection.Operation, co coverageOptions) string {
 	body.WriteString(fmt.Sprintf("\t\t\t\tt.Fatalf(%q, firstErr, err)\n", op.Name+": wrapper failed for a three-band and a one-band image: %v / %v"))
 	body.WriteString("\t\t\t}\n")
 	body.WriteString("\t\t}\n")
-	body.WriteString(assertions(op))
+	body.WriteString(assertions(op, geometry, hasGeometry))
 	return body.String()
 }
 
@@ -349,15 +359,21 @@ func scalarValue(arg introspection.Argument) (string, bool) {
 func intValue(arg introspection.Argument) string {
 	value := 1
 	switch arg.Name {
-	case "width", "height":
+	case "width":
 		value = 8
+	case "height":
+		value = 4
 	case "tile_width", "tile_height":
 		// tiff requires a tile that is a multiple of 16.
 		value = 16
 	case "left", "top", "x", "y", "xoffset", "yoffset", "xr1", "xr2", "yr1", "yr2", "page":
 		// page is a zero-based index: 1 asks for a page a one-page fixture lacks.
 		value = 0
-	case "xfac", "yfac", "across", "down", "n", "bands", "depth", "index":
+	case "xfac":
+		value = 2
+	case "yfac":
+		value = 3
+	case "across", "down", "n", "bands", "depth", "index":
 		value = 1
 	}
 	return fmt.Sprintf("%d", clampInt(value, arg))
@@ -482,15 +498,80 @@ func callLine(op introspection.Operation, args string, assign bool, depth int) s
 }
 
 // assertions checks that the call produced something usable.
-func assertions(op introspection.Operation) string {
+func assertions(op introspection.Operation, geometry string, hasGeometry bool) string {
 	if op.HasBufferOutput {
 		return "\t\tif len(buf) == 0 {\n" +
 			fmt.Sprintf("\t\t\tt.Fatalf(%q, len(buf))\n", op.Name+": wrote an empty buffer: %d bytes") +
 			"\t\t}\n"
 	}
+	if hasGeometry {
+		return geometry
+	}
 	return "\t\tif img.Width() <= 0 || img.Height() <= 0 {\n" +
 		fmt.Sprintf("\t\t\tt.Fatalf(%q, img.Width(), img.Height())\n", op.Name+": produced an empty image %dx%d") +
 		"\t\t}\n"
+}
+
+// geometryByOperation lists the operations whose result size follows from their
+// arguments. It cannot be derived from the argument names alone: rank, stdif and
+// hist_local also take a width and a height, but those are the window they filter
+// over, not the size they return - a name-based rule flags all three as wrong.
+// Each entry is verified by the assertion it emits.
+var geometryByOperation = map[string]string{
+	"extract_area": "box",
+	"embed":        "box",
+	"gravity":      "box",
+	"zoom":         "up",
+	"subsample":    "down",
+}
+
+// geometryCheck renders the assertion for an operation whose size is predictable,
+// and reports whether the code reads w and h, the input's dimensions taken before
+// the call. A swap or a factor on the wrong axis still produces a valid image of the
+// wrong size, which nothing else here would notice.
+func geometryCheck(op introspection.Operation) (code string, needsDims bool, ok bool) {
+	kind, listed := geometryByOperation[op.Name]
+	if !listed {
+		return "", false, false
+	}
+	args := map[string]introspection.Argument{}
+	for _, arg := range callArguments(op) {
+		args[arg.Name] = arg
+	}
+
+	switch kind {
+	case "box":
+		width, hasWidth := args["width"]
+		height, hasHeight := args["height"]
+		if !hasWidth || !hasHeight {
+			return "", false, false
+		}
+		w, h := intValue(width), intValue(height)
+		return "\t\tif img.Width() != " + w + " || img.Height() != " + h + " {\n" +
+			fmt.Sprintf("\t\t\tt.Fatalf(%q, img.Width(), img.Height())\n", op.Name+": asked for "+w+"x"+h+", got %dx%d") +
+			"\t\t}\n", false, true
+
+	case "up", "down":
+		xfac, hasX := args["xfac"]
+		yfac, hasY := args["yfac"]
+		if !hasX || !hasY {
+			return "", false, false
+		}
+		x, y := intValue(xfac), intValue(yfac)
+		widthExpr, heightExpr := x+"*w", y+"*h"
+		detail := op.Name + ": scaled by " + x + "," + y + ", got %dx%d from %dx%d"
+		if kind == "down" {
+			// subsample divides: the result is the input divided by the factor.
+			widthExpr, heightExpr = "w/"+x, "h/"+y
+		}
+		return "\t\tif d := img.Width() - " + widthExpr + "; d < -1 || d > 1 {\n" +
+			fmt.Sprintf("\t\t\tt.Fatalf(%q, img.Width(), img.Height(), w, h)\n", detail) +
+			"\t\t}\n" +
+			"\t\tif d := img.Height() - " + heightExpr + "; d < -1 || d > 1 {\n" +
+			fmt.Sprintf("\t\t\tt.Fatalf(%q, img.Width(), img.Height(), w, h)\n", detail) +
+			"\t\t}\n", true, true
+	}
+	return "", false, false
 }
 
 // errorLine renders what to do when the call reports an error: a skip carrying
