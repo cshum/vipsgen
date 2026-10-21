@@ -320,10 +320,15 @@ func TestGeneratedOperations(t *testing.T) {
 	})
 	t.Run("affine_options", func(t *testing.T) {
 		img := coverageImage(t)
-		opts := &AffineOptions{Oarea: []int{1}, Odx: 1, Ody: 1, Idx: 1, Idy: 1, Background: []float64{1}, Premultiplied: true, Extend: Ptr(ExtendBlack)}
+		opts := &AffineOptions{Oarea: []int{0, 0, 8, 8}, Odx: 1, Ody: 1, Idx: 1, Idy: 1, Background: []float64{1}, Premultiplied: true, Extend: Ptr(ExtendBlack)}
 		err := img.Affine(1, 0, 0, 1, opts)
 		if err != nil {
-			t.Skipf("input precondition: the with-options path sets the matrix coefficients as separate properties libvips does not have: %v", err)
+			firstErr := err
+			img = coverageMonoImage(t)
+			err = img.Affine(1, 0, 0, 1, opts)
+			if err != nil {
+				t.Fatalf("affine: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
+			}
 		}
 		if img.Width() <= 0 || img.Height() <= 0 {
 			t.Fatalf("affine: produced an empty image %dx%d", img.Width(), img.Height())
