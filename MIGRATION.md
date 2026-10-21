@@ -57,14 +57,15 @@ hardcodes -1 still compiles and now means something else, so check for it.
 ## The exception
 
 The rule reads GParamSpec, which gives a range and a default but not what libvips does with a
-value. `gifload.n` and `webpload.n` have the range -1 to 100000 and the default 1, and both
-reject 0 with `bad page number`. No range or default shows that, so both stay plain values.
+value. `gifload.n`, `webpload.n` and `jxlload.n` have the range -1 to 100000 and the default
+1, and each rejects 0 with `bad page number`. No range or default shows that, so all three stay
+plain values.
 
 Measured and kept as plain values:
 
     gifload.n    webpload.n   tiffload.n   tiffload.subifd   webpload.scale
-    svgload.scale   heifload.n   pdfload.n   magickload.n   csvload.lines
-    similarity.scale   dzsave.suffix
+    svgload.scale   heifload.n   pdfload.n   magickload.n   jxlload.n
+    csvload.lines   similarity.scale   dzsave.suffix
 
 Every saver argument was measured too, and all accept an explicit zero
 (`pngsave.compression = 0` stores uncompressed), so the rule stays for them. The list is keyed

@@ -31,6 +31,7 @@ var (
 	_ = DzsaveOptions{Suffix: ""}           // plain: an empty suffix is rejected
 	_ = SimilarityOptions{Scale: 0.0}       // plain: scale=0 is rejected
 	_ = HeifloadOptions{N: 0}               // plain: n=0 is rejected ("bad seek")
+	_ = JxlloadOptions{N: 0}                // plain: n=0 is rejected ("bad page number")
 	_ = PdfloadOptions{N: 0}                // plain: n=0 is rejected ("pages out of range")
 	_ = GifloadOptions{N: 0}                // plain: n=0 is rejected
 )
