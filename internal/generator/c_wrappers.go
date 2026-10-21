@@ -103,6 +103,19 @@ func writeCArrayCleanups(result *strings.Builder, indent string, args []introspe
 	}
 }
 
+// matrixArgNames lists the coefficients vipsgen synthesised from a matrix
+// argument, in order: affine's a, b, c, d. libvips has no such properties - the
+// operation takes one `matrix` array - so the wrapper has to gather them back.
+func matrixArgNames(op introspection.Operation) []string {
+	var names []string
+	for _, arg := range op.Arguments {
+		if arg.SyntheticMatrix && !arg.IsOutput {
+			names = append(names, arg.Name)
+		}
+	}
+	return names
+}
+
 // presenceCSetter passes an option only when the caller supplied it. The set flag
 // decides, so a zero value reaches libvips as the value it is.
 func presenceCSetter(opt introspection.Argument) string {
@@ -182,6 +195,11 @@ func generateCFunctionImplementation(op introspection.Operation) string {
 				writeCArrayDeclaration(&result, op.Name, opt, fmt.Sprintf("%s_n", opt.Name))
 			}
 		}
+		matrixArgs := matrixArgNames(op)
+		if len(matrixArgs) > 0 {
+			result.WriteString(fmt.Sprintf("    double matrix_values[%d] = {%s};\n", len(matrixArgs), strings.Join(matrixArgs, ", ")))
+			result.WriteString(fmt.Sprintf("    VipsArrayDouble *matrix_array = vips_array_double_new(matrix_values, %d);\n", len(matrixArgs)))
+		}
 
 		var allParamsList []string
 
@@ -189,7 +207,7 @@ func generateCFunctionImplementation(op introspection.Operation) string {
 			if arg.IsOutput {
 				continue
 			}
-			if arg.IsInputN {
+			if arg.IsInputN || arg.SyntheticMatrix {
 				continue
 			}
 
@@ -217,6 +235,11 @@ func generateCFunctionImplementation(op introspection.Operation) string {
 				allParamsList = append(allParamsList,
 					fmt.Sprintf("vips_object_set(VIPS_OBJECT(operation), \"%s\", %s, NULL)", arg.Name, arg.Name))
 			}
+		}
+
+		if len(matrixArgs) > 0 {
+			allParamsList = append(allParamsList,
+				"vips_object_set(VIPS_OBJECT(operation), \"matrix\", matrix_array, NULL)")
 		}
 
 		for _, opt := range op.OptionalInputs {
@@ -287,6 +310,9 @@ func generateCFunctionImplementation(op introspection.Operation) string {
 				result.WriteString("        vips_area_unref((VipsArea *)blob);\n")
 			}
 
+			if len(matrixArgs) > 0 {
+				result.WriteString("        if (matrix_array != NULL) { vips_area_unref(VIPS_AREA(matrix_array)); }\n")
+			}
 			result.WriteString("        g_object_unref(operation);\n")
 			writeCArrayCleanups(&result, "        ", op.RequiredInputs)
 			writeCArrayCleanups(&result, "        ", op.OptionalInputs)
@@ -296,6 +322,9 @@ func generateCFunctionImplementation(op introspection.Operation) string {
 
 		if isBufferLoadOperation {
 			result.WriteString("    vips_area_unref((VipsArea *)blob);\n")
+		}
+		if len(matrixArgs) > 0 {
+			result.WriteString("    if (matrix_array != NULL) { vips_area_unref(VIPS_AREA(matrix_array)); }\n")
 		}
 
 		if isBufferSaveOperation {

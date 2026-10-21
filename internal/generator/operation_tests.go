@@ -80,7 +80,6 @@ var coverageSkipOptions = map[string]string{
 	"hough_circle": "its radius bounds must not collapse to one value",
 	"jp2kload":     "its decode options are not independent",
 	"heifload":     "its loader options are not independent",
-	"affine":       "the with-options path sets the matrix coefficients as separate properties libvips does not have",
 	"tiffload":     "its subifd option needs a file that has one",
 }
 
@@ -278,6 +277,10 @@ func scalarValue(arg introspection.Argument) (string, bool) {
 	case "[]float64":
 		return floatArrayValue(arg), true
 	case "[]int":
+		if arg.Name == "oarea" {
+			// affine's output bounding box: four numbers, not one.
+			return "[]int{0, 0, 8, 8}", true
+		}
 		return "[]int{1}", true
 	}
 	return "", false

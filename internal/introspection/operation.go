@@ -59,6 +59,10 @@ type Argument struct {
 	HasMaximum   bool
 	NInputFrom   string
 	DefaultValue interface{}
+	// SyntheticMatrix marks one coefficient of an argument libvips takes as a
+	// matrix but vipsgen exposes as its component numbers (affine's a, b, c, d).
+	// The generated C wrapper has to gather them back into the matrix property.
+	SyntheticMatrix bool
 	// ZeroRejected marks an argument where libvips rejects an explicit zero. It is
 	// measured, not introspected: a pspec range cannot tell an accepted zero from a
 	// meaningful one. Set by the generator's policy table.
@@ -284,52 +288,56 @@ func (v *Introspection) DiscoverOperationArguments(opName string) ([]Argument, e
 		// special case: affine operation to use individual parameters
 		if isAffineMatrix {
 			aArg := Argument{
-				Name:        "a",
-				GoName:      "a",
-				Type:        "gdouble",
-				GoType:      "float64",
-				CType:       "double",
-				Description: "Coefficient a (horizontal scale)",
-				IsRequired:  true,
-				IsInput:     true,
-				IsOutput:    false,
-				Flags:       19, // VIPS_ARGUMENT_REQUIRED | VIPS_ARGUMENT_INPUT
+				Name:            "a",
+				SyntheticMatrix: true,
+				GoName:          "a",
+				Type:            "gdouble",
+				GoType:          "float64",
+				CType:           "double",
+				Description:     "Coefficient a (horizontal scale)",
+				IsRequired:      true,
+				IsInput:         true,
+				IsOutput:        false,
+				Flags:           19, // VIPS_ARGUMENT_REQUIRED | VIPS_ARGUMENT_INPUT
 			}
 			bArg := Argument{
-				Name:        "b",
-				GoName:      "b",
-				Type:        "gdouble",
-				GoType:      "float64",
-				CType:       "double",
-				Description: "Coefficient b (horizontal shear)",
-				IsRequired:  true,
-				IsInput:     true,
-				IsOutput:    false,
-				Flags:       19,
+				Name:            "b",
+				SyntheticMatrix: true,
+				GoName:          "b",
+				Type:            "gdouble",
+				GoType:          "float64",
+				CType:           "double",
+				Description:     "Coefficient b (horizontal shear)",
+				IsRequired:      true,
+				IsInput:         true,
+				IsOutput:        false,
+				Flags:           19,
 			}
 			cArg := Argument{
-				Name:        "c",
-				GoName:      "c",
-				Type:        "gdouble",
-				GoType:      "float64",
-				CType:       "double",
-				Description: "Coefficient c (vertical shear)",
-				IsRequired:  true,
-				IsInput:     true,
-				IsOutput:    false,
-				Flags:       19,
+				Name:            "c",
+				SyntheticMatrix: true,
+				GoName:          "c",
+				Type:            "gdouble",
+				GoType:          "float64",
+				CType:           "double",
+				Description:     "Coefficient c (vertical shear)",
+				IsRequired:      true,
+				IsInput:         true,
+				IsOutput:        false,
+				Flags:           19,
 			}
 			dArg := Argument{
-				Name:        "d",
-				GoName:      "d",
-				Type:        "gdouble",
-				GoType:      "float64",
-				CType:       "double",
-				Description: "Coefficient d (vertical scale)",
-				IsRequired:  true,
-				IsInput:     true,
-				IsOutput:    false,
-				Flags:       19,
+				Name:            "d",
+				SyntheticMatrix: true,
+				GoName:          "d",
+				Type:            "gdouble",
+				GoType:          "float64",
+				CType:           "double",
+				Description:     "Coefficient d (vertical scale)",
+				IsRequired:      true,
+				IsInput:         true,
+				IsOutput:        false,
+				Flags:           19,
 			}
 			goArgs = append(goArgs, aArg, bArg, cArg, dArg)
 			continue

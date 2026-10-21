@@ -296,3 +296,35 @@ func TestGenerateCFunctionImplementationFlagPointerSnapshot(t *testing.T) {
 		t.Fatalf("unexpected webpsave_buffer C function implementation\n got: %q\nwant: %q", got, want)
 	}
 }
+
+// TestGenerateCFunctionImplementationMatrixSnapshot pins affine's with-options
+// wrapper. libvips takes one `matrix` array, while vipsgen exposes the four
+// coefficients, so the wrapper has to gather them back into a VipsArrayDouble.
+// Setting them as separate properties - the behaviour this replaced - fails at
+// runtime with "no property named `a'".
+func TestGenerateCFunctionImplementationMatrixSnapshot(t *testing.T) {
+	imageIn := introspection.Argument{Name: "in", CType: "VipsImage*", GoType: "*C.VipsImage", IsInput: true, IsImage: true}
+	imageOut := introspection.Argument{Name: "out", CType: "VipsImage**", GoType: "*C.VipsImage", IsOutput: true, IsImage: true}
+	coefficient := func(name string) introspection.Argument {
+		return introspection.Argument{Name: name, GoType: "float64", CType: "double", IsInput: true, SyntheticMatrix: true}
+	}
+
+	op := introspection.Operation{
+		Name:              "affine",
+		GoName:            "Affine",
+		HasThisImageInput: true,
+		HasOneImageOutput: true,
+		Arguments:         []introspection.Argument{imageIn, imageOut, coefficient("a"), coefficient("b"), coefficient("c"), coefficient("d")},
+		RequiredInputs:    []introspection.Argument{imageIn, coefficient("a"), coefficient("b"), coefficient("c"), coefficient("d")},
+		OptionalInputs: []introspection.Argument{
+			{Name: "odx", GoType: "float64", CType: "double"},
+		},
+	}
+
+	got := generateCFunctionImplementation(op)
+	want := "int vipsgen_affine(VipsImage* in, VipsImage** out, double a, double b, double c, double d) {\n    return vips_affine(in, out, a, b, c, d, NULL);\n}\n\nint vipsgen_affine_with_options(VipsImage* in, VipsImage** out, double a, double b, double c, double d, double odx) {\n    VipsOperation *operation = vips_operation_new(\"affine\");\n    if (!operation) return 1;\n    double matrix_values[4] = {a, b, c, d};\n    VipsArrayDouble *matrix_array = vips_array_double_new(matrix_values, 4);\n    if (\n        vips_object_set(VIPS_OBJECT(operation), \"in\", in, NULL) ||\n        vips_object_set(VIPS_OBJECT(operation), \"matrix\", matrix_array, NULL) ||\n        vipsgen_set_double(operation, \"odx\", odx)\n    ) {\n        if (matrix_array != NULL) { vips_area_unref(VIPS_AREA(matrix_array)); }\n        g_object_unref(operation);\n        return 1;\n    }\n    if (matrix_array != NULL) { vips_area_unref(VIPS_AREA(matrix_array)); }\n    int result = vipsgen_operation_execute(operation, \"out\", out, NULL);\n    return result;\n}"
+
+	if got != want {
+		t.Fatalf("unexpected affine C implementation\n got: %q\nwant: %q", got, want)
+	}
+}
