@@ -205,7 +205,7 @@ These methods automatically fall through to the equivalent single-frame operatio
 
 vipsgen is a Go binding: each method does what its libvips operation does. On a stacked image, then, `Flip`, `Rot` and `ExtractArea` act across frame boundaries and `Resize` leaves `PageHeight` as it was.
 
-For per-frame work on an operation with no MultiPage helper, [examples/animated_gif](https://github.com/cshum/vipsgen/tree/main/examples/animated_gif) shows the pattern: copy the image, cut each page out, transform it, join the frames back, set the page height.
+For per-frame work on an operation with no MultiPage helper, [examples/animated_gif/main.go](https://github.com/cshum/vipsgen/blob/main/examples/animated_gif/main.go) shows the pattern: copy the image, cut each page out, transform it, join the frames back, set the page height.
 
 ## Code Generation
 

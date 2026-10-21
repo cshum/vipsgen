@@ -21,75 +21,6 @@ const (
 	block   = 10
 )
 
-// pixelate averages blocks of pixels and scales each block back up.
-func pixelate(img *vips.Image, block int) error {
-	if block <= 1 {
-		return nil
-	}
-	if err := img.Shrink(float64(block), float64(block), nil); err != nil {
-		return err
-	}
-	return img.Zoom(block, block)
-}
-
-// transformFrames applies op to each page of a stacked image and returns the restacked
-// result, with a single-frame image passed through as a copy.
-func transformFrames(img *vips.Image, op func(*vips.Image) error) (*vips.Image, error) {
-	pageHeight := img.PageHeight()
-	if pageHeight <= 0 || img.Height() <= pageHeight {
-		frame, err := img.Copy(nil)
-		if err != nil {
-			return nil, err
-		}
-		if err := op(frame); err != nil {
-			frame.Close()
-			return nil, err
-		}
-		return frame, nil
-	}
-
-	var frames []*vips.Image
-	defer func() {
-		for _, f := range frames {
-			f.Close()
-		}
-	}()
-	for top := 0; top+pageHeight <= img.Height(); top += pageHeight {
-		frame, err := img.Copy(nil)
-		if err != nil {
-			return nil, err
-		}
-		// ExtractArea works in place, so each frame is cut from its own copy.
-		if err := frame.ExtractArea(0, top, img.Width(), pageHeight); err != nil {
-			frame.Close()
-			return nil, err
-		}
-		if err := op(frame); err != nil {
-			frame.Close()
-			return nil, err
-		}
-		frames = append(frames, frame)
-	}
-
-	out, err := vips.NewArrayjoin(frames, &vips.ArrayjoinOptions{Across: 1})
-	if err != nil {
-		return nil, err
-	}
-	// The frames may have changed size, so the page height comes from the result.
-	if err := out.SetPageHeight(out.Height() / len(frames)); err != nil {
-		out.Close()
-		return nil, err
-	}
-	// Restacking builds a new image, so the frame timings have to be carried over.
-	if delays, err := img.PageDelay(); err == nil {
-		if err := out.SetArrayInt("delay", delays); err != nil {
-			out.Close()
-			return nil, err
-		}
-	}
-	return out, nil
-}
-
 func main() {
 	data, err := fetch(url)
 	if err != nil {
@@ -102,23 +33,65 @@ func main() {
 		log.Fatalf("Failed to load image: %v", err)
 	}
 	defer img.Close()
-	log.Printf("Loaded %d frames of %d rows", img.Height()/img.PageHeight(), img.PageHeight())
 
-	// The same call on the stacked image would pixelate across the frame boundary and
-	// leave one page where there were several.
-	result, err := transformFrames(img, func(frame *vips.Image) error {
-		return pixelate(frame, block)
-	})
+	pageHeight := img.PageHeight()
+	pages := img.Height() / pageHeight
+	log.Printf("Loaded %d frames of %d rows", pages, pageHeight)
+
+	// The frames are cut from a copy: the image itself is rebuilt from them below.
+	src, err := img.Copy(nil)
 	if err != nil {
-		log.Fatalf("Failed to transform frames: %v", err)
+		log.Fatalf("Failed to copy image: %v", err)
 	}
-	defer result.Close()
+	defer src.Close()
 
-	if err := result.Gifsave(outPath, nil); err != nil {
+	// The first frame becomes the image, and each remaining frame is joined onto it.
+	if err := img.ExtractArea(0, 0, src.Width(), pageHeight); err != nil {
+		log.Fatalf("Failed to extract frame 0: %v", err)
+	}
+	if err := img.Shrink(block, block, nil); err != nil {
+		log.Fatalf("Failed to shrink frame 0: %v", err)
+	}
+	if err := img.Zoom(block, block); err != nil {
+		log.Fatalf("Failed to zoom frame 0: %v", err)
+	}
+
+	for page := 1; page < pages; page++ {
+		frame, err := src.Copy(nil)
+		if err != nil {
+			log.Fatalf("Failed to copy frame %d: %v", page, err)
+		}
+		if err := frame.ExtractArea(0, page*pageHeight, src.Width(), pageHeight); err != nil {
+			frame.Close()
+			log.Fatalf("Failed to extract frame %d: %v", page, err)
+		}
+		if err := frame.Shrink(block, block, nil); err != nil {
+			frame.Close()
+			log.Fatalf("Failed to shrink frame %d: %v", page, err)
+		}
+		if err := frame.Zoom(block, block); err != nil {
+			frame.Close()
+			log.Fatalf("Failed to zoom frame %d: %v", page, err)
+		}
+		// Join appends the frame below the ones already in the image, so the order and
+		// the page delays the image already carries are kept.
+		if err := img.Join(frame, vips.DirectionVertical, nil); err != nil {
+			frame.Close()
+			log.Fatalf("Failed to join frame %d: %v", page, err)
+		}
+		frame.Close()
+	}
+	if err := img.SetPageHeight(img.Height() / pages); err != nil {
+		log.Fatalf("Failed to set page height: %v", err)
+	}
+	if err := img.SetPages(pages); err != nil {
+		log.Fatalf("Failed to set pages: %v", err)
+	}
+
+	if err := img.Gifsave(outPath, nil); err != nil {
 		log.Fatalf("Failed to save image: %v", err)
 	}
-	log.Printf("Saved %s: %d frames of %d rows", outPath,
-		result.Height()/result.PageHeight(), result.PageHeight())
+	log.Printf("Saved %s: %d frames of %d rows", outPath, img.Height()/img.PageHeight(), img.PageHeight())
 }
 
 func fetch(url string) ([]byte, error) {
