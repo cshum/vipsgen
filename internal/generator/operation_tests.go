@@ -61,6 +61,7 @@ var coverageSkip = map[string]string{
 	"magicksave_buffer": "needs an output format",
 	"heifsave_buffer":   "needs a heif encoder for its default compression",
 	"uhdrsave":          "needs gainmap header fields",
+	"heifsave":          "needs a heif encoder for its default compression",
 	"grid":              "needs an image that is a multiple of the tile size",
 	"match":             "needs an invertible matrix image",
 	"morph":             "needs a matrix-interpretation mask",
