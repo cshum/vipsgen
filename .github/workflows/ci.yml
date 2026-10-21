@@ -175,9 +175,6 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v5
         with:
-          # The branch itself, not the pull request's merge ref: this job commits the
-          # regenerated files back to it, and a commit on the merge ref cannot be
-          # pushed to the branch.
           ref: ${{ github.event.pull_request.head.ref }}
 
       - name: Download generated bindings
