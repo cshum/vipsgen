@@ -593,3 +593,56 @@ func TestBuildOptionDefaults(t *testing.T) {
 		t.Fatalf("default constructors %q, want %q", got, want)
 	}
 }
+
+// TestThumbnailCaseBodySnapshots pins the three thumbnail shapes: they take a width
+// beside the image, which is why the generic selection never reached them.
+func TestThumbnailCaseBodySnapshots(t *testing.T) {
+	file := introspection.Operation{
+		Name: "thumbnail", GoName: "Thumbnail", HasOneImageOutput: true,
+		RequiredInputs: []introspection.Argument{
+			{Name: "filename", GoName: "filename", GoType: "string", IsInput: true},
+			{Name: "width", GoName: "width", GoType: "int", IsInput: true},
+		},
+	}
+	source := introspection.Operation{
+		Name: "thumbnail_source", GoName: "ThumbnailSource", HasOneImageOutput: true,
+		RequiredInputs: []introspection.Argument{
+			{Name: "source", GoName: "source", GoType: "*C.VipsSourceCustom", IsInput: true, IsSource: true},
+			{Name: "width", GoName: "width", GoType: "int", IsInput: true},
+		},
+	}
+
+	tail := "" +
+		"\t\tif err != nil {\n" +
+		"\t\t\tt.Fatalf(\"wrapper reported an error: %v\", err)\n" +
+		"\t\t}\n" +
+		"\t\tdefer thumb.Close()\n" +
+		"\t\tif thumb.Width() <= 0 || thumb.Width() > 32 {\n" +
+		"\t\t\tt.Fatalf(\"%s: asked for 32 and got %dx%d\", thumb.Width(), thumb.Height())\n" +
+		"\t\t}\n"
+
+	wantFile := "\t\timg := coverageImage(t)\n" +
+		"\t\tpath := coveragePath(t, \"png\")\n" +
+		"\t\tif err := img.Pngsave(path, nil); err != nil {\n" +
+		"\t\t\tt.Skipf(\"fixture unavailable: the saver could not write it: %v\", err)\n" +
+		"\t\t}\n" +
+		"\t\tthumb, err := NewThumbnail(path, 32, nil)\n" +
+		strings.Replace(tail, "%s", "thumbnail", 1)
+
+	if got, ok := thumbnailCoverageBody(file, nilCoverageOptions()); !ok || got != wantFile {
+		t.Errorf("unexpected file thumbnail body\n got: %q\nwant: %q", got, wantFile)
+	}
+
+	wantSource := "\t\timg := coverageImage(t)\n" +
+		"\t\tdata, err := img.PngsaveBuffer(nil)\n" +
+		"\t\tif err != nil {\n" +
+		"\t\t\tt.Skipf(\"fixture unavailable: the saver could not write it: %v\", err)\n" +
+		"\t\t}\n" +
+		"\t\tsource := coverageSource(t, data)\n" +
+		"\t\tthumb, err := NewThumbnailSource(source, 32, nil)\n" +
+		strings.Replace(tail, "%s", "thumbnail_source", 1)
+
+	if got, ok := thumbnailCoverageBody(source, nilCoverageOptions()); !ok || got != wantSource {
+		t.Errorf("unexpected source thumbnail body\n got: %q\nwant: %q", got, wantSource)
+	}
+}

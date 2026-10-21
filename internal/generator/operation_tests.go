@@ -156,6 +156,9 @@ func coverageCaseBody(op introspection.Operation, formats coverageFormats, co co
 		}
 		return loaderCoverageBody(op, ext, saver, co), true
 	}
+	if body, ok := thumbnailCoverageBody(op, co); ok {
+		return body, true
+	}
 	if producer, ok := formats.bufferKind(op); ok {
 		return bufferLoaderCoverageBody(op, producer, co), true
 	}
@@ -164,6 +167,9 @@ func coverageCaseBody(op introspection.Operation, formats coverageFormats, co co
 			return targetSaverCoverageBody(op, co), true
 		}
 		return sourceLoaderCoverageBody(op, producer, co), true
+	}
+	if body, ok := thumbnailCoverageBody(op, co); ok {
+		return body, true
 	}
 	if producer, ok := formats.bufferKind(op); ok {
 		return bufferLoaderCoverageBody(op, producer, co), true

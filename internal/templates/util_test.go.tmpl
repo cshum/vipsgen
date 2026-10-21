@@ -9,19 +9,13 @@ import (
 	"testing"
 )
 
-// The helpers below sit under every generated call, so the generated operation
-// tests never reach them: they are the paths a caller takes when something goes
-// wrong, or when the library is being configured. cgo is not available in a test
-// file, so each one is reached through the public API rather than an internal
-// pointer.
-
 func TestLoggingHandler(t *testing.T) {
 	var lines []string
 	SetLogging(func(_ string, level LogLevel, message string) {
 		lines = append(lines, fmt.Sprintf("%d:%s", level, message))
 	}, LogLevelInfo)
 	defer func() {
-		// Back to the default handler, and through it once so the no-op path runs.
+		// Back to the default handler, through it once.
 		SetLogging(noopLoggingHandler, LogLevelError)
 		log("vipsgen", LogLevelError, "restored")
 	}()
@@ -42,8 +36,7 @@ func TestLoggingHandler(t *testing.T) {
 }
 
 func TestLoggingToggle(t *testing.T) {
-	// Install and remove the handler libvips reports its own messages through. The
-	// guard is that the library still works once it is installed again.
+	// The library still works with the handler installed again.
 	disableLogging()
 	enableLogging()
 
@@ -55,8 +48,7 @@ func TestLoggingToggle(t *testing.T) {
 }
 
 func TestProfileLoad(t *testing.T) {
-	// A named profile is the one operation returning a VipsBlob, so this is what
-	// reaches the conversion from a blob to bytes.
+	// ProfileLoad is the one operation returning a VipsBlob.
 	profile, err := ProfileLoad("srgb")
 	if err != nil {
 		t.Skipf("fixture unavailable: no named srgb profile: %v", err)
@@ -67,8 +59,7 @@ func TestProfileLoad(t *testing.T) {
 }
 
 func TestShutdown(t *testing.T) {
-	// Shutdown makes the library unusable for the rest of the process, so it runs in
-	// a child and the parent's leak accounting stays meaningful.
+	// In a child: Shutdown leaves the library unusable for the rest of the process.
 	if os.Getenv("VIPSGEN_SHUTDOWN_CHILD") == "1" {
 		img, err := NewEye(8, 8, nil)
 		if err != nil {
@@ -92,10 +83,7 @@ func TestShutdown(t *testing.T) {
 	}
 }
 
-// TestImageType checks what a caller gets back from Format(): the loader the file
-// was opened with decides it, and callers pick an encoder from that answer. Each
-// format is written by its own saver and reopened by name, which is also the only
-// path that sets the loader metadata this reads.
+// TestImageType checks the loader Format() reports for each format.
 func TestImageType(t *testing.T) {
 	cases := []struct {
 		name string
