@@ -4,26 +4,31 @@
 
 static gint64 go_read(VipsSourceCustom *source_custom, void *buffer, gint64 length, uintptr_t handle)
 {
+  (void) source_custom;
   return goSourceRead(handle, buffer, length);
 }
 
 static gint64 go_source_seek(VipsSourceCustom *source_custom, gint64 offset, int whence, uintptr_t handle)
 {
+  (void) source_custom;
   return goSourceSeek(handle, offset, whence);
 }
 
 static gint64 go_write(VipsTargetCustom *target_custom, void *buffer, gint64 length, uintptr_t handle)
 {
+  (void) target_custom;
   return goTargetWrite(handle, buffer, length);
 }
 
 static gint64 go_target_seek(VipsTargetCustom *target_custom, gint64 offset, int whence, uintptr_t handle)
 {
+  (void) target_custom;
   return goTargetSeek(handle, offset, whence);
 }
 
 static void go_handle_weak_notify(gpointer data, GObject *where_the_object_was)
 {
+  (void) where_the_object_was;
   goHandleDelete((uintptr_t) data);
 }
 
