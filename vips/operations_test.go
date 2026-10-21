@@ -124,6 +124,17 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("Lab2XYZ: produced an empty image %dx%d", img.Width(), img.Height())
 		}
 	})
+	t.Run("Lab2XYZ_options", func(t *testing.T) {
+		img := coverageImage(t)
+		opts := &Lab2XYZOptions{Temp: []float64{1}}
+		err := img.Lab2XYZ(opts)
+		if err != nil {
+			t.Skipf("input precondition: its vector option needs three elements: %v", err)
+		}
+		if img.Width() <= 0 || img.Height() <= 0 {
+			t.Fatalf("Lab2XYZ: produced an empty image %dx%d", img.Width(), img.Height())
+		}
+	})
 	t.Run("LabQ2Lab", func(t *testing.T) {
 		img := coverageImage(t)
 		err := img.LabQ2Lab()
@@ -229,6 +240,17 @@ func TestGeneratedOperations(t *testing.T) {
 			if err != nil {
 				t.Fatalf("XYZ2Lab: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
 			}
+		}
+		if img.Width() <= 0 || img.Height() <= 0 {
+			t.Fatalf("XYZ2Lab: produced an empty image %dx%d", img.Width(), img.Height())
+		}
+	})
+	t.Run("XYZ2Lab_options", func(t *testing.T) {
+		img := coverageImage(t)
+		opts := &XYZ2LabOptions{Temp: []float64{1}}
+		err := img.XYZ2Lab(opts)
+		if err != nil {
+			t.Skipf("input precondition: its vector option needs three elements: %v", err)
 		}
 		if img.Width() <= 0 || img.Height() <= 0 {
 			t.Fatalf("XYZ2Lab: produced an empty image %dx%d", img.Width(), img.Height())
@@ -346,10 +368,34 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("affine: produced an empty image %dx%d", img.Width(), img.Height())
 		}
 	})
+	t.Run("affine_options", func(t *testing.T) {
+		img := coverageImage(t)
+		opts := &AffineOptions{Oarea: []int{1}, Odx: 1, Ody: 1, Idx: 1, Idy: 1, Background: []float64{1}, Premultiplied: true, Extend: Ptr(ExtendBlack)}
+		err := img.Affine(1, 0, 0, 1, opts)
+		if err != nil {
+			t.Skipf("input precondition: the with-options path sets the matrix coefficients as separate properties libvips does not have: %v", err)
+		}
+		if img.Width() <= 0 || img.Height() <= 0 {
+			t.Fatalf("affine: produced an empty image %dx%d", img.Width(), img.Height())
+		}
+	})
 	t.Run("arrayjoin", func(t *testing.T) {
 		other := coverageImage(t)
 		other2 := coverageImage(t)
 		out, err := NewArrayjoin([]*Image{other, other2}, nil)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer out.Close()
+		if out.Width() <= 0 || out.Height() <= 0 {
+			t.Fatalf("arrayjoin: produced an empty image %dx%d", out.Width(), out.Height())
+		}
+	})
+	t.Run("arrayjoin_options", func(t *testing.T) {
+		other := coverageImage(t)
+		other2 := coverageImage(t)
+		opts := &ArrayjoinOptions{Across: 1, Shim: 1, Background: []float64{1}, Halign: AlignLow, Valign: AlignLow, Hspacing: 1, Vspacing: 1}
+		out, err := NewArrayjoin([]*Image{other, other2}, opts)
 		if err != nil {
 			t.Fatalf("wrapper reported an error: %v", err)
 		}
@@ -390,6 +436,22 @@ func TestGeneratedOperations(t *testing.T) {
 			firstErr := err
 			img = coverageMonoImage(t)
 			err = img.Bandfold(nil)
+			if err != nil {
+				t.Fatalf("bandfold: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
+			}
+		}
+		if img.Width() <= 0 || img.Height() <= 0 {
+			t.Fatalf("bandfold: produced an empty image %dx%d", img.Width(), img.Height())
+		}
+	})
+	t.Run("bandfold_options", func(t *testing.T) {
+		img := coverageImage(t)
+		opts := &BandfoldOptions{Factor: 1}
+		err := img.Bandfold(opts)
+		if err != nil {
+			firstErr := err
+			img = coverageMonoImage(t)
+			err = img.Bandfold(opts)
 			if err != nil {
 				t.Fatalf("bandfold: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
 			}
@@ -452,6 +514,19 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("bandrank: produced an empty image %dx%d", out.Width(), out.Height())
 		}
 	})
+	t.Run("bandrank_options", func(t *testing.T) {
+		other := coverageImage(t)
+		other2 := coverageImage(t)
+		opts := &BandrankOptions{Index: Ptr(1)}
+		out, err := NewBandrank([]*Image{other, other2}, opts)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer out.Close()
+		if out.Width() <= 0 || out.Height() <= 0 {
+			t.Fatalf("bandrank: produced an empty image %dx%d", out.Width(), out.Height())
+		}
+	})
 	t.Run("bandunfold", func(t *testing.T) {
 		img := coverageImage(t)
 		err := img.Bandunfold(nil)
@@ -467,8 +542,35 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("bandunfold: produced an empty image %dx%d", img.Width(), img.Height())
 		}
 	})
+	t.Run("bandunfold_options", func(t *testing.T) {
+		img := coverageImage(t)
+		opts := &BandunfoldOptions{Factor: 1}
+		err := img.Bandunfold(opts)
+		if err != nil {
+			firstErr := err
+			img = coverageMonoImage(t)
+			err = img.Bandunfold(opts)
+			if err != nil {
+				t.Fatalf("bandunfold: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
+			}
+		}
+		if img.Width() <= 0 || img.Height() <= 0 {
+			t.Fatalf("bandunfold: produced an empty image %dx%d", img.Width(), img.Height())
+		}
+	})
 	t.Run("black", func(t *testing.T) {
 		out, err := NewBlack(8, 8, nil)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer out.Close()
+		if out.Width() <= 0 || out.Height() <= 0 {
+			t.Fatalf("black: produced an empty image %dx%d", out.Width(), out.Height())
+		}
+	})
+	t.Run("black_options", func(t *testing.T) {
+		opts := &BlackOptions{Bands: 1}
+		out, err := NewBlack(8, 8, opts)
 		if err != nil {
 			t.Fatalf("wrapper reported an error: %v", err)
 		}
@@ -549,6 +651,22 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("canny: produced an empty image %dx%d", img.Width(), img.Height())
 		}
 	})
+	t.Run("canny_options", func(t *testing.T) {
+		img := coverageImage(t)
+		opts := &CannyOptions{Sigma: 1, Precision: Ptr(PrecisionInteger)}
+		err := img.Canny(opts)
+		if err != nil {
+			firstErr := err
+			img = coverageMonoImage(t)
+			err = img.Canny(opts)
+			if err != nil {
+				t.Fatalf("canny: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
+			}
+		}
+		if img.Width() <= 0 || img.Height() <= 0 {
+			t.Fatalf("canny: produced an empty image %dx%d", img.Width(), img.Height())
+		}
+	})
 	t.Run("case", func(t *testing.T) {
 		img := coverageImage(t)
 		other := coverageImage(t)
@@ -583,6 +701,22 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("cast: produced an empty image %dx%d", img.Width(), img.Height())
 		}
 	})
+	t.Run("cast_options", func(t *testing.T) {
+		img := coverageImage(t)
+		opts := &CastOptions{Shift: true}
+		err := img.Cast(BandFormatNotset, opts)
+		if err != nil {
+			firstErr := err
+			img = coverageMonoImage(t)
+			err = img.Cast(BandFormatNotset, opts)
+			if err != nil {
+				t.Fatalf("cast: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
+			}
+		}
+		if img.Width() <= 0 || img.Height() <= 0 {
+			t.Fatalf("cast: produced an empty image %dx%d", img.Width(), img.Height())
+		}
+	})
 	t.Run("clamp", func(t *testing.T) {
 		img := coverageImage(t)
 		err := img.Clamp(nil)
@@ -590,6 +724,22 @@ func TestGeneratedOperations(t *testing.T) {
 			firstErr := err
 			img = coverageMonoImage(t)
 			err = img.Clamp(nil)
+			if err != nil {
+				t.Fatalf("clamp: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
+			}
+		}
+		if img.Width() <= 0 || img.Height() <= 0 {
+			t.Fatalf("clamp: produced an empty image %dx%d", img.Width(), img.Height())
+		}
+	})
+	t.Run("clamp_options", func(t *testing.T) {
+		img := coverageImage(t)
+		opts := &ClampOptions{Min: 1, Max: Ptr(1.0)}
+		err := img.Clamp(opts)
+		if err != nil {
+			firstErr := err
+			img = coverageMonoImage(t)
+			err = img.Clamp(opts)
 			if err != nil {
 				t.Fatalf("clamp: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
 			}
@@ -613,6 +763,22 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("colourspace: produced an empty image %dx%d", img.Width(), img.Height())
 		}
 	})
+	t.Run("colourspace_options", func(t *testing.T) {
+		img := coverageImage(t)
+		opts := &ColourspaceOptions{SourceSpace: Ptr(InterpretationSrgb)}
+		err := img.Colourspace(InterpretationSrgb, opts)
+		if err != nil {
+			firstErr := err
+			img = coverageMonoImage(t)
+			err = img.Colourspace(InterpretationSrgb, opts)
+			if err != nil {
+				t.Fatalf("colourspace: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
+			}
+		}
+		if img.Width() <= 0 || img.Height() <= 0 {
+			t.Fatalf("colourspace: produced an empty image %dx%d", img.Width(), img.Height())
+		}
+	})
 	t.Run("compass", func(t *testing.T) {
 		img := coverageImage(t)
 		other := coverageImage(t)
@@ -622,6 +788,24 @@ func TestGeneratedOperations(t *testing.T) {
 			img = coverageMonoImage(t)
 			other = coverageMonoImage(t)
 			err = img.Compass(other, nil)
+			if err != nil {
+				t.Fatalf("compass: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
+			}
+		}
+		if img.Width() <= 0 || img.Height() <= 0 {
+			t.Fatalf("compass: produced an empty image %dx%d", img.Width(), img.Height())
+		}
+	})
+	t.Run("compass_options", func(t *testing.T) {
+		img := coverageImage(t)
+		other := coverageImage(t)
+		opts := &CompassOptions{Times: 1, Angle: Ptr(Angle45D0), Combine: CombineMax, Precision: Ptr(PrecisionInteger), Layers: 1, Cluster: 1}
+		err := img.Compass(other, opts)
+		if err != nil {
+			firstErr := err
+			img = coverageMonoImage(t)
+			other = coverageMonoImage(t)
+			err = img.Compass(other, opts)
 			if err != nil {
 				t.Fatalf("compass: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
 			}
@@ -706,6 +890,19 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("composite: produced an empty image %dx%d", out.Width(), out.Height())
 		}
 	})
+	t.Run("composite_options", func(t *testing.T) {
+		other := coverageImage(t)
+		other2 := coverageImage(t)
+		opts := &CompositeOptions{X: []int{1}, Y: []int{1}, CompositingSpace: Ptr(InterpretationSrgb), Premultiplied: true}
+		out, err := NewComposite([]*Image{other, other2}, []BlendMode{BlendModeClear}, opts)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer out.Close()
+		if out.Width() <= 0 || out.Height() <= 0 {
+			t.Fatalf("composite: produced an empty image %dx%d", out.Width(), out.Height())
+		}
+	})
 	t.Run("composite2", func(t *testing.T) {
 		img := coverageImage(t)
 		other := coverageImage(t)
@@ -715,6 +912,24 @@ func TestGeneratedOperations(t *testing.T) {
 			img = coverageMonoImage(t)
 			other = coverageMonoImage(t)
 			err = img.Composite2(other, BlendModeClear, nil)
+			if err != nil {
+				t.Fatalf("composite2: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
+			}
+		}
+		if img.Width() <= 0 || img.Height() <= 0 {
+			t.Fatalf("composite2: produced an empty image %dx%d", img.Width(), img.Height())
+		}
+	})
+	t.Run("composite2_options", func(t *testing.T) {
+		img := coverageImage(t)
+		other := coverageImage(t)
+		opts := &Composite2Options{X: 0, Y: 0, CompositingSpace: Ptr(InterpretationSrgb), Premultiplied: true}
+		err := img.Composite2(other, BlendModeClear, opts)
+		if err != nil {
+			firstErr := err
+			img = coverageMonoImage(t)
+			other = coverageMonoImage(t)
+			err = img.Composite2(other, BlendModeClear, opts)
 			if err != nil {
 				t.Fatalf("composite2: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
 			}
@@ -740,6 +955,24 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("conv: produced an empty image %dx%d", img.Width(), img.Height())
 		}
 	})
+	t.Run("conv_options", func(t *testing.T) {
+		img := coverageImage(t)
+		other := coverageImage(t)
+		opts := &ConvOptions{Precision: Ptr(PrecisionInteger), Layers: 1, Cluster: 1}
+		err := img.Conv(other, opts)
+		if err != nil {
+			firstErr := err
+			img = coverageMonoImage(t)
+			other = coverageMonoImage(t)
+			err = img.Conv(other, opts)
+			if err != nil {
+				t.Fatalf("conv: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
+			}
+		}
+		if img.Width() <= 0 || img.Height() <= 0 {
+			t.Fatalf("conv: produced an empty image %dx%d", img.Width(), img.Height())
+		}
+	})
 	t.Run("conva", func(t *testing.T) {
 		img := coverageImage(t)
 		other := coverageImage(t)
@@ -757,10 +990,40 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("conva: produced an empty image %dx%d", img.Width(), img.Height())
 		}
 	})
+	t.Run("conva_options", func(t *testing.T) {
+		img := coverageImage(t)
+		other := coverageImage(t)
+		opts := &ConvaOptions{Layers: 1, Cluster: 1}
+		err := img.Conva(other, opts)
+		if err != nil {
+			firstErr := err
+			img = coverageMonoImage(t)
+			other = coverageMonoImage(t)
+			err = img.Conva(other, opts)
+			if err != nil {
+				t.Fatalf("conva: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
+			}
+		}
+		if img.Width() <= 0 || img.Height() <= 0 {
+			t.Fatalf("conva: produced an empty image %dx%d", img.Width(), img.Height())
+		}
+	})
 	t.Run("convasep", func(t *testing.T) {
 		img := coverageImage(t)
 		other := coverageImage(t)
 		err := img.Convasep(other, nil)
+		if err != nil {
+			t.Skipf("input precondition: needs a one-band image and a matrix mask: %v", err)
+		}
+		if img.Width() <= 0 || img.Height() <= 0 {
+			t.Fatalf("convasep: produced an empty image %dx%d", img.Width(), img.Height())
+		}
+	})
+	t.Run("convasep_options", func(t *testing.T) {
+		img := coverageImage(t)
+		other := coverageImage(t)
+		opts := &ConvasepOptions{Layers: 1}
+		err := img.Convasep(other, opts)
 		if err != nil {
 			t.Skipf("input precondition: needs a one-band image and a matrix mask: %v", err)
 		}
@@ -813,6 +1076,18 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("convsep: produced an empty image %dx%d", img.Width(), img.Height())
 		}
 	})
+	t.Run("convsep_options", func(t *testing.T) {
+		img := coverageImage(t)
+		other := coverageImage(t)
+		opts := &ConvsepOptions{Precision: Ptr(PrecisionInteger), Layers: 1, Cluster: 1}
+		err := img.Convsep(other, opts)
+		if err != nil {
+			t.Skipf("input precondition: needs a one-band image and a matrix mask: %v", err)
+		}
+		if img.Width() <= 0 || img.Height() <= 0 {
+			t.Fatalf("convsep: produced an empty image %dx%d", img.Width(), img.Height())
+		}
+	})
 	t.Run("csvload", func(t *testing.T) {
 		img := coverageImage(t)
 		path := coveragePath(t, "csv")
@@ -828,6 +1103,22 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("csvload: loaded %dx%d from a %dx%d file", loaded.Width(), loaded.Height(), img.Width(), img.Height())
 		}
 	})
+	t.Run("csvload_options", func(t *testing.T) {
+		img := coverageImage(t)
+		path := coveragePath(t, "csv")
+		if err := img.Csvsave(path, nil); err != nil {
+			t.Skipf("fixture unavailable: the saver could not write it: %v", err)
+		}
+		opts := &CsvloadOptions{Skip: 1, Lines: 1, Memory: true, Access: AccessRandom, FailOn: FailOnNone, Revalidate: true}
+		loaded, err := NewCsvload(path, opts)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer loaded.Close()
+		if loaded.Width() <= 0 || loaded.Height() <= 0 {
+			t.Fatalf("csvload: loaded an empty image %dx%d", loaded.Width(), loaded.Height())
+		}
+	})
 	t.Run("csvsave", func(t *testing.T) {
 		img := coverageImage(t)
 		path := coveragePath(t, "csv")
@@ -836,6 +1127,23 @@ func TestGeneratedOperations(t *testing.T) {
 			firstErr := err
 			img = coverageMonoImage(t)
 			err = img.Csvsave(path, nil)
+			if err != nil {
+				t.Fatalf("csvsave: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
+			}
+		}
+		if info, statErr := os.Stat(path); statErr != nil || info.Size() == 0 {
+			t.Fatalf("csvsave: wrote no file at %s", path)
+		}
+	})
+	t.Run("csvsave_options", func(t *testing.T) {
+		img := coverageImage(t)
+		path := coveragePath(t, "csv")
+		opts := &CsvsaveOptions{Keep: Ptr(KeepNone), Background: []float64{1}, PageHeight: 1}
+		err := img.Csvsave(path, opts)
+		if err != nil {
+			firstErr := err
+			img = coverageMonoImage(t)
+			err = img.Csvsave(path, opts)
 			if err != nil {
 				t.Fatalf("csvsave: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
 			}
@@ -927,6 +1235,22 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("dzsave_buffer: wrote an empty buffer: %d bytes", len(buf))
 		}
 	})
+	t.Run("dzsave_buffer_options", func(t *testing.T) {
+		img := coverageImage(t)
+		opts := &DzsaveBufferOptions{Layout: DzLayoutDz, Overlap: Ptr(1), TileSize: 1, Centre: true, Depth: DzDepthOnepixel, Angle: AngleD0, Container: DzContainerFs, Compression: 1, RegionShrink: RegionShrinkMean, SkipBlanks: Ptr(1), Q: 1, Keep: Ptr(KeepNone), Background: []float64{1}, PageHeight: 1}
+		buf, err := img.DzsaveBuffer(opts)
+		if err != nil {
+			firstErr := err
+			img = coverageMonoImage(t)
+			buf, err = img.DzsaveBuffer(opts)
+			if err != nil {
+				t.Fatalf("dzsave_buffer: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
+			}
+		}
+		if len(buf) == 0 {
+			t.Fatalf("dzsave_buffer: wrote an empty buffer: %d bytes", len(buf))
+		}
+	})
 	t.Run("embed", func(t *testing.T) {
 		img := coverageImage(t)
 		err := img.Embed(0, 0, 8, 8, nil)
@@ -934,6 +1258,22 @@ func TestGeneratedOperations(t *testing.T) {
 			firstErr := err
 			img = coverageMonoImage(t)
 			err = img.Embed(0, 0, 8, 8, nil)
+			if err != nil {
+				t.Fatalf("embed: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
+			}
+		}
+		if img.Width() <= 0 || img.Height() <= 0 {
+			t.Fatalf("embed: produced an empty image %dx%d", img.Width(), img.Height())
+		}
+	})
+	t.Run("embed_options", func(t *testing.T) {
+		img := coverageImage(t)
+		opts := &EmbedOptions{Extend: ExtendBlack, Background: []float64{1}}
+		err := img.Embed(0, 0, 8, 8, opts)
+		if err != nil {
+			firstErr := err
+			img = coverageMonoImage(t)
+			err = img.Embed(0, 0, 8, 8, opts)
 			if err != nil {
 				t.Fatalf("embed: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
 			}
@@ -972,8 +1312,35 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("extract_band: produced an empty image %dx%d", img.Width(), img.Height())
 		}
 	})
+	t.Run("extract_band_options", func(t *testing.T) {
+		img := coverageImage(t)
+		opts := &ExtractBandOptions{N: 1}
+		err := img.ExtractBand(1, opts)
+		if err != nil {
+			firstErr := err
+			img = coverageMonoImage(t)
+			err = img.ExtractBand(1, opts)
+			if err != nil {
+				t.Fatalf("extract_band: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
+			}
+		}
+		if img.Width() <= 0 || img.Height() <= 0 {
+			t.Fatalf("extract_band: produced an empty image %dx%d", img.Width(), img.Height())
+		}
+	})
 	t.Run("eye", func(t *testing.T) {
 		out, err := NewEye(8, 8, nil)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer out.Close()
+		if out.Width() <= 0 || out.Height() <= 0 {
+			t.Fatalf("eye: produced an empty image %dx%d", out.Width(), out.Height())
+		}
+	})
+	t.Run("eye_options", func(t *testing.T) {
+		opts := &EyeOptions{Uchar: true, Factor: Ptr(1.0)}
+		out, err := NewEye(8, 8, opts)
 		if err != nil {
 			t.Fatalf("wrapper reported an error: %v", err)
 		}
@@ -1029,6 +1396,22 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("fitsload: loaded %dx%d from a %dx%d file", loaded.Width(), loaded.Height(), img.Width(), img.Height())
 		}
 	})
+	t.Run("fitsload_options", func(t *testing.T) {
+		img := coverageImage(t)
+		path := coveragePath(t, "fits")
+		if err := img.Fitssave(path, nil); err != nil {
+			t.Skipf("fixture unavailable: the saver could not write it: %v", err)
+		}
+		opts := &FitsloadOptions{Memory: true, Access: AccessRandom, FailOn: FailOnNone, Revalidate: true}
+		loaded, err := NewFitsload(path, opts)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer loaded.Close()
+		if loaded.Width() <= 0 || loaded.Height() <= 0 {
+			t.Fatalf("fitsload: loaded an empty image %dx%d", loaded.Width(), loaded.Height())
+		}
+	})
 	t.Run("fitssave", func(t *testing.T) {
 		img := coverageImage(t)
 		path := coveragePath(t, "fits")
@@ -1045,6 +1428,23 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("fitssave: wrote no file at %s", path)
 		}
 	})
+	t.Run("fitssave_options", func(t *testing.T) {
+		img := coverageImage(t)
+		path := coveragePath(t, "fits")
+		opts := &FitssaveOptions{Keep: Ptr(KeepNone), Background: []float64{1}, PageHeight: 1}
+		err := img.Fitssave(path, opts)
+		if err != nil {
+			firstErr := err
+			img = coverageMonoImage(t)
+			err = img.Fitssave(path, opts)
+			if err != nil {
+				t.Fatalf("fitssave: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
+			}
+		}
+		if info, statErr := os.Stat(path); statErr != nil || info.Size() == 0 {
+			t.Fatalf("fitssave: wrote no file at %s", path)
+		}
+	})
 	t.Run("flatten", func(t *testing.T) {
 		img := coverageImage(t)
 		err := img.Flatten(nil)
@@ -1052,6 +1452,22 @@ func TestGeneratedOperations(t *testing.T) {
 			firstErr := err
 			img = coverageMonoImage(t)
 			err = img.Flatten(nil)
+			if err != nil {
+				t.Fatalf("flatten: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
+			}
+		}
+		if img.Width() <= 0 || img.Height() <= 0 {
+			t.Fatalf("flatten: produced an empty image %dx%d", img.Width(), img.Height())
+		}
+	})
+	t.Run("flatten_options", func(t *testing.T) {
+		img := coverageImage(t)
+		opts := &FlattenOptions{Background: []float64{1}, MaxAlpha: Ptr(1.0)}
+		err := img.Flatten(opts)
+		if err != nil {
+			firstErr := err
+			img = coverageMonoImage(t)
+			err = img.Flatten(opts)
 			if err != nil {
 				t.Fatalf("flatten: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
 			}
@@ -1142,6 +1558,22 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("gamma: produced an empty image %dx%d", img.Width(), img.Height())
 		}
 	})
+	t.Run("gamma_options", func(t *testing.T) {
+		img := coverageImage(t)
+		opts := &GammaOptions{Exponent: 1}
+		err := img.Gamma(opts)
+		if err != nil {
+			firstErr := err
+			img = coverageMonoImage(t)
+			err = img.Gamma(opts)
+			if err != nil {
+				t.Fatalf("gamma: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
+			}
+		}
+		if img.Width() <= 0 || img.Height() <= 0 {
+			t.Fatalf("gamma: produced an empty image %dx%d", img.Width(), img.Height())
+		}
+	})
 	t.Run("gaussblur", func(t *testing.T) {
 		img := coverageImage(t)
 		err := img.Gaussblur(1, nil)
@@ -1149,6 +1581,22 @@ func TestGeneratedOperations(t *testing.T) {
 			firstErr := err
 			img = coverageMonoImage(t)
 			err = img.Gaussblur(1, nil)
+			if err != nil {
+				t.Fatalf("gaussblur: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
+			}
+		}
+		if img.Width() <= 0 || img.Height() <= 0 {
+			t.Fatalf("gaussblur: produced an empty image %dx%d", img.Width(), img.Height())
+		}
+	})
+	t.Run("gaussblur_options", func(t *testing.T) {
+		img := coverageImage(t)
+		opts := &GaussblurOptions{MinAmpl: 1, Precision: PrecisionInteger}
+		err := img.Gaussblur(1, opts)
+		if err != nil {
+			firstErr := err
+			img = coverageMonoImage(t)
+			err = img.Gaussblur(1, opts)
 			if err != nil {
 				t.Fatalf("gaussblur: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
 			}
@@ -1167,8 +1615,30 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("gaussmat: produced an empty image %dx%d", out.Width(), out.Height())
 		}
 	})
+	t.Run("gaussmat_options", func(t *testing.T) {
+		opts := &GaussmatOptions{Separable: true, Precision: PrecisionInteger}
+		out, err := NewGaussmat(1, 1, opts)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer out.Close()
+		if out.Width() <= 0 || out.Height() <= 0 {
+			t.Fatalf("gaussmat: produced an empty image %dx%d", out.Width(), out.Height())
+		}
+	})
 	t.Run("gaussnoise", func(t *testing.T) {
 		out, err := NewGaussnoise(8, 8, nil)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer out.Close()
+		if out.Width() <= 0 || out.Height() <= 0 {
+			t.Fatalf("gaussnoise: produced an empty image %dx%d", out.Width(), out.Height())
+		}
+	})
+	t.Run("gaussnoise_options", func(t *testing.T) {
+		opts := &GaussnoiseOptions{Sigma: Ptr(1.0), Mean: Ptr(1.0), Seed: 1}
+		out, err := NewGaussnoise(8, 8, opts)
 		if err != nil {
 			t.Fatalf("wrapper reported an error: %v", err)
 		}
@@ -1192,6 +1662,22 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("gifload: loaded %dx%d from a %dx%d file", loaded.Width(), loaded.Height(), img.Width(), img.Height())
 		}
 	})
+	t.Run("gifload_options", func(t *testing.T) {
+		img := coverageImage(t)
+		path := coveragePath(t, "gif")
+		if err := img.Gifsave(path, nil); err != nil {
+			t.Skipf("fixture unavailable: the saver could not write it: %v", err)
+		}
+		opts := &GifloadOptions{N: 1, Page: 0, Memory: true, Access: AccessRandom, FailOn: FailOnNone, Revalidate: true}
+		loaded, err := NewGifload(path, opts)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer loaded.Close()
+		if loaded.Width() <= 0 || loaded.Height() <= 0 {
+			t.Fatalf("gifload: loaded an empty image %dx%d", loaded.Width(), loaded.Height())
+		}
+	})
 	t.Run("gifsave", func(t *testing.T) {
 		img := coverageImage(t)
 		path := coveragePath(t, "gif")
@@ -1200,6 +1686,23 @@ func TestGeneratedOperations(t *testing.T) {
 			firstErr := err
 			img = coverageMonoImage(t)
 			err = img.Gifsave(path, nil)
+			if err != nil {
+				t.Fatalf("gifsave: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
+			}
+		}
+		if info, statErr := os.Stat(path); statErr != nil || info.Size() == 0 {
+			t.Fatalf("gifsave: wrote no file at %s", path)
+		}
+	})
+	t.Run("gifsave_options", func(t *testing.T) {
+		img := coverageImage(t)
+		path := coveragePath(t, "gif")
+		opts := &GifsaveOptions{Dither: Ptr(1.0), Effort: 1, Bitdepth: 1, InterframeMaxerror: 1, Reuse: true, InterpaletteMaxerror: Ptr(1.0), Interlace: true, KeepDuplicateFrames: true, Keep: Ptr(KeepNone), Background: []float64{1}, PageHeight: 1}
+		err := img.Gifsave(path, opts)
+		if err != nil {
+			firstErr := err
+			img = coverageMonoImage(t)
+			err = img.Gifsave(path, opts)
 			if err != nil {
 				t.Fatalf("gifsave: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
 			}
@@ -1223,9 +1726,36 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("gifsave_buffer: wrote an empty buffer: %d bytes", len(buf))
 		}
 	})
+	t.Run("gifsave_buffer_options", func(t *testing.T) {
+		img := coverageImage(t)
+		opts := &GifsaveBufferOptions{Dither: Ptr(1.0), Effort: 1, Bitdepth: 1, InterframeMaxerror: 1, Reuse: true, InterpaletteMaxerror: Ptr(1.0), Interlace: true, KeepDuplicateFrames: true, Keep: Ptr(KeepNone), Background: []float64{1}, PageHeight: 1}
+		buf, err := img.GifsaveBuffer(opts)
+		if err != nil {
+			firstErr := err
+			img = coverageMonoImage(t)
+			buf, err = img.GifsaveBuffer(opts)
+			if err != nil {
+				t.Fatalf("gifsave_buffer: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
+			}
+		}
+		if len(buf) == 0 {
+			t.Fatalf("gifsave_buffer: wrote an empty buffer: %d bytes", len(buf))
+		}
+	})
 	t.Run("globalbalance", func(t *testing.T) {
 		img := coverageImage(t)
 		err := img.Globalbalance(nil)
+		if err != nil {
+			t.Skipf("input precondition: needs an alpha band: %v", err)
+		}
+		if img.Width() <= 0 || img.Height() <= 0 {
+			t.Fatalf("globalbalance: produced an empty image %dx%d", img.Width(), img.Height())
+		}
+	})
+	t.Run("globalbalance_options", func(t *testing.T) {
+		img := coverageImage(t)
+		opts := &GlobalbalanceOptions{Gamma: 1, IntOutput: true}
+		err := img.Globalbalance(opts)
 		if err != nil {
 			t.Skipf("input precondition: needs an alpha band: %v", err)
 		}
@@ -1248,6 +1778,22 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("gravity: produced an empty image %dx%d", img.Width(), img.Height())
 		}
 	})
+	t.Run("gravity_options", func(t *testing.T) {
+		img := coverageImage(t)
+		opts := &GravityOptions{Extend: ExtendBlack, Background: []float64{1}}
+		err := img.Gravity(CompassDirectionCentre, 8, 8, opts)
+		if err != nil {
+			firstErr := err
+			img = coverageMonoImage(t)
+			err = img.Gravity(CompassDirectionCentre, 8, 8, opts)
+			if err != nil {
+				t.Fatalf("gravity: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
+			}
+		}
+		if img.Width() <= 0 || img.Height() <= 0 {
+			t.Fatalf("gravity: produced an empty image %dx%d", img.Width(), img.Height())
+		}
+	})
 	t.Run("grey", func(t *testing.T) {
 		out, err := NewGrey(8, 8, nil)
 		if err != nil {
@@ -1258,9 +1804,20 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("grey: produced an empty image %dx%d", out.Width(), out.Height())
 		}
 	})
+	t.Run("grey_options", func(t *testing.T) {
+		opts := &GreyOptions{Uchar: true}
+		out, err := NewGrey(8, 8, opts)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer out.Close()
+		if out.Width() <= 0 || out.Height() <= 0 {
+			t.Fatalf("grey: produced an empty image %dx%d", out.Width(), out.Height())
+		}
+	})
 	t.Run("grid", func(t *testing.T) {
 		img := coverageImage(t)
-		err := img.Grid(8, 1, 1)
+		err := img.Grid(16, 1, 1)
 		if err != nil {
 			t.Skipf("input precondition: needs an image that is a multiple of the tile size: %v", err)
 		}
@@ -1283,6 +1840,22 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("heifload: loaded %dx%d from a %dx%d file", loaded.Width(), loaded.Height(), img.Width(), img.Height())
 		}
 	})
+	t.Run("heifload_options", func(t *testing.T) {
+		img := coverageImage(t)
+		path := coveragePath(t, "heic")
+		if err := img.Heifsave(path, nil); err != nil {
+			t.Skipf("fixture unavailable: the saver could not write it: %v", err)
+		}
+		opts := &HeifloadOptions{Page: 0, N: 1, Thumbnail: true, Unlimited: true, Memory: true, Access: AccessRandom, FailOn: FailOnNone, Revalidate: true}
+		loaded, err := NewHeifload(path, opts)
+		if err != nil {
+			t.Skipf("input precondition: its loader options are not independent: %v", err)
+		}
+		defer loaded.Close()
+		if loaded.Width() <= 0 || loaded.Height() <= 0 {
+			t.Fatalf("heifload: loaded an empty image %dx%d", loaded.Width(), loaded.Height())
+		}
+	})
 	t.Run("heifsave", func(t *testing.T) {
 		img := coverageImage(t)
 		path := coveragePath(t, "heic")
@@ -1294,9 +1867,32 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("heifsave: wrote no file at %s", path)
 		}
 	})
+	t.Run("heifsave_options", func(t *testing.T) {
+		img := coverageImage(t)
+		path := coveragePath(t, "heic")
+		opts := &HeifsaveOptions{Q: 1, Bitdepth: 8, Lossless: true, Compression: HeifCompressionHevc, Effort: Ptr(1), SubsampleMode: SubsampleAuto, Encoder: HeifEncoderAuto, Keep: Ptr(KeepNone), Background: []float64{1}, PageHeight: 1}
+		err := img.Heifsave(path, opts)
+		if err != nil {
+			t.Skipf("input precondition: needs a heif encoder for its default compression: %v", err)
+		}
+		if info, statErr := os.Stat(path); statErr != nil || info.Size() == 0 {
+			t.Fatalf("heifsave: wrote no file at %s", path)
+		}
+	})
 	t.Run("heifsave_buffer", func(t *testing.T) {
 		img := coverageImage(t)
 		buf, err := img.HeifsaveBuffer(nil)
+		if err != nil {
+			t.Skipf("input precondition: needs a heif encoder for its default compression: %v", err)
+		}
+		if len(buf) == 0 {
+			t.Fatalf("heifsave_buffer: wrote an empty buffer: %d bytes", len(buf))
+		}
+	})
+	t.Run("heifsave_buffer_options", func(t *testing.T) {
+		img := coverageImage(t)
+		opts := &HeifsaveBufferOptions{Q: 1, Bitdepth: 8, Lossless: true, Compression: HeifCompressionHevc, Effort: Ptr(1), SubsampleMode: SubsampleAuto, Encoder: HeifEncoderAuto, Keep: Ptr(KeepNone), Background: []float64{1}, PageHeight: 1}
+		buf, err := img.HeifsaveBuffer(opts)
 		if err != nil {
 			t.Skipf("input precondition: needs a heif encoder for its default compression: %v", err)
 		}
@@ -1329,6 +1925,22 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("hist_equal: produced an empty image %dx%d", img.Width(), img.Height())
 		}
 	})
+	t.Run("hist_equal_options", func(t *testing.T) {
+		img := coverageImage(t)
+		opts := &HistEqualOptions{Band: Ptr(1)}
+		err := img.HistEqual(opts)
+		if err != nil {
+			firstErr := err
+			img = coverageMonoImage(t)
+			err = img.HistEqual(opts)
+			if err != nil {
+				t.Fatalf("hist_equal: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
+			}
+		}
+		if img.Width() <= 0 || img.Height() <= 0 {
+			t.Fatalf("hist_equal: produced an empty image %dx%d", img.Width(), img.Height())
+		}
+	})
 	t.Run("hist_find", func(t *testing.T) {
 		img := coverageImage(t)
 		err := img.HistFind(nil)
@@ -1336,6 +1948,22 @@ func TestGeneratedOperations(t *testing.T) {
 			firstErr := err
 			img = coverageMonoImage(t)
 			err = img.HistFind(nil)
+			if err != nil {
+				t.Fatalf("hist_find: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
+			}
+		}
+		if img.Width() <= 0 || img.Height() <= 0 {
+			t.Fatalf("hist_find: produced an empty image %dx%d", img.Width(), img.Height())
+		}
+	})
+	t.Run("hist_find_options", func(t *testing.T) {
+		img := coverageImage(t)
+		opts := &HistFindOptions{Band: Ptr(1)}
+		err := img.HistFind(opts)
+		if err != nil {
+			firstErr := err
+			img = coverageMonoImage(t)
+			err = img.HistFind(opts)
 			if err != nil {
 				t.Fatalf("hist_find: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
 			}
@@ -1361,6 +1989,24 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("hist_find_indexed: produced an empty image %dx%d", img.Width(), img.Height())
 		}
 	})
+	t.Run("hist_find_indexed_options", func(t *testing.T) {
+		img := coverageImage(t)
+		other := coverageImage(t)
+		opts := &HistFindIndexedOptions{Combine: Ptr(CombineMax)}
+		err := img.HistFindIndexed(other, opts)
+		if err != nil {
+			firstErr := err
+			img = coverageMonoImage(t)
+			other = coverageMonoImage(t)
+			err = img.HistFindIndexed(other, opts)
+			if err != nil {
+				t.Fatalf("hist_find_indexed: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
+			}
+		}
+		if img.Width() <= 0 || img.Height() <= 0 {
+			t.Fatalf("hist_find_indexed: produced an empty image %dx%d", img.Width(), img.Height())
+		}
+	})
 	t.Run("hist_find_ndim", func(t *testing.T) {
 		img := coverageImage(t)
 		err := img.HistFindNdim(nil)
@@ -1376,6 +2022,22 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("hist_find_ndim: produced an empty image %dx%d", img.Width(), img.Height())
 		}
 	})
+	t.Run("hist_find_ndim_options", func(t *testing.T) {
+		img := coverageImage(t)
+		opts := &HistFindNdimOptions{Bins: 1}
+		err := img.HistFindNdim(opts)
+		if err != nil {
+			firstErr := err
+			img = coverageMonoImage(t)
+			err = img.HistFindNdim(opts)
+			if err != nil {
+				t.Fatalf("hist_find_ndim: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
+			}
+		}
+		if img.Width() <= 0 || img.Height() <= 0 {
+			t.Fatalf("hist_find_ndim: produced an empty image %dx%d", img.Width(), img.Height())
+		}
+	})
 	t.Run("hist_local", func(t *testing.T) {
 		img := coverageImage(t)
 		err := img.HistLocal(8, 8, nil)
@@ -1383,6 +2045,22 @@ func TestGeneratedOperations(t *testing.T) {
 			firstErr := err
 			img = coverageMonoImage(t)
 			err = img.HistLocal(8, 8, nil)
+			if err != nil {
+				t.Fatalf("hist_local: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
+			}
+		}
+		if img.Width() <= 0 || img.Height() <= 0 {
+			t.Fatalf("hist_local: produced an empty image %dx%d", img.Width(), img.Height())
+		}
+	})
+	t.Run("hist_local_options", func(t *testing.T) {
+		img := coverageImage(t)
+		opts := &HistLocalOptions{MaxSlope: 1}
+		err := img.HistLocal(8, 8, opts)
+		if err != nil {
+			firstErr := err
+			img = coverageMonoImage(t)
+			err = img.HistLocal(8, 8, opts)
 			if err != nil {
 				t.Fatalf("hist_local: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
 			}
@@ -1442,6 +2120,17 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("hough_circle: produced an empty image %dx%d", img.Width(), img.Height())
 		}
 	})
+	t.Run("hough_circle_options", func(t *testing.T) {
+		img := coverageImage(t)
+		opts := &HoughCircleOptions{Scale: 1, MinRadius: 1, MaxRadius: 1}
+		err := img.HoughCircle(opts)
+		if err != nil {
+			t.Skipf("input precondition: its radius bounds must not collapse to one value: %v", err)
+		}
+		if img.Width() <= 0 || img.Height() <= 0 {
+			t.Fatalf("hough_circle: produced an empty image %dx%d", img.Width(), img.Height())
+		}
+	})
 	t.Run("hough_line", func(t *testing.T) {
 		img := coverageImage(t)
 		err := img.HoughLine(nil)
@@ -1449,6 +2138,22 @@ func TestGeneratedOperations(t *testing.T) {
 			firstErr := err
 			img = coverageMonoImage(t)
 			err = img.HoughLine(nil)
+			if err != nil {
+				t.Fatalf("hough_line: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
+			}
+		}
+		if img.Width() <= 0 || img.Height() <= 0 {
+			t.Fatalf("hough_line: produced an empty image %dx%d", img.Width(), img.Height())
+		}
+	})
+	t.Run("hough_line_options", func(t *testing.T) {
+		img := coverageImage(t)
+		opts := &HoughLineOptions{Width: 8, Height: 8}
+		err := img.HoughLine(opts)
+		if err != nil {
+			firstErr := err
+			img = coverageMonoImage(t)
+			err = img.HoughLine(opts)
 			if err != nil {
 				t.Fatalf("hough_line: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
 			}
@@ -1467,6 +2172,17 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("icc_export: produced an empty image %dx%d", img.Width(), img.Height())
 		}
 	})
+	t.Run("icc_export_options", func(t *testing.T) {
+		img := coverageImage(t)
+		opts := &IccExportOptions{Pcs: PcsLab, Intent: Ptr(IntentPerceptual), BlackPointCompensation: true, Depth: 8}
+		err := img.IccExport(opts)
+		if err != nil {
+			t.Skipf("input precondition: needs an embedded profile: %v", err)
+		}
+		if img.Width() <= 0 || img.Height() <= 0 {
+			t.Fatalf("icc_export: produced an empty image %dx%d", img.Width(), img.Height())
+		}
+	})
 	t.Run("icc_import", func(t *testing.T) {
 		img := coverageImage(t)
 		err := img.IccImport(nil)
@@ -1477,8 +2193,30 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("icc_import: produced an empty image %dx%d", img.Width(), img.Height())
 		}
 	})
+	t.Run("icc_import_options", func(t *testing.T) {
+		img := coverageImage(t)
+		opts := &IccImportOptions{Pcs: PcsLab, Intent: Ptr(IntentPerceptual), BlackPointCompensation: true, Embedded: true}
+		err := img.IccImport(opts)
+		if err != nil {
+			t.Skipf("input precondition: needs an embedded or supplied input profile: %v", err)
+		}
+		if img.Width() <= 0 || img.Height() <= 0 {
+			t.Fatalf("icc_import: produced an empty image %dx%d", img.Width(), img.Height())
+		}
+	})
 	t.Run("identity", func(t *testing.T) {
 		out, err := NewIdentity(nil)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer out.Close()
+		if out.Width() <= 0 || out.Height() <= 0 {
+			t.Fatalf("identity: produced an empty image %dx%d", out.Width(), out.Height())
+		}
+	})
+	t.Run("identity_options", func(t *testing.T) {
+		opts := &IdentityOptions{Bands: 1, Ushort: true, Size: 1}
+		out, err := NewIdentity(opts)
 		if err != nil {
 			t.Fatalf("wrapper reported an error: %v", err)
 		}
@@ -1506,6 +2244,26 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("ifthenelse: produced an empty image %dx%d", img.Width(), img.Height())
 		}
 	})
+	t.Run("ifthenelse_options", func(t *testing.T) {
+		img := coverageImage(t)
+		other := coverageImage(t)
+		other2 := coverageImage(t)
+		opts := &IfthenelseOptions{Blend: true}
+		err := img.Ifthenelse(other, other2, opts)
+		if err != nil {
+			firstErr := err
+			img = coverageMonoImage(t)
+			other = coverageMonoImage(t)
+			other2 = coverageMonoImage(t)
+			err = img.Ifthenelse(other, other2, opts)
+			if err != nil {
+				t.Fatalf("ifthenelse: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
+			}
+		}
+		if img.Width() <= 0 || img.Height() <= 0 {
+			t.Fatalf("ifthenelse: produced an empty image %dx%d", img.Width(), img.Height())
+		}
+	})
 	t.Run("insert", func(t *testing.T) {
 		img := coverageImage(t)
 		other := coverageImage(t)
@@ -1515,6 +2273,24 @@ func TestGeneratedOperations(t *testing.T) {
 			img = coverageMonoImage(t)
 			other = coverageMonoImage(t)
 			err = img.Insert(other, 0, 0, nil)
+			if err != nil {
+				t.Fatalf("insert: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
+			}
+		}
+		if img.Width() <= 0 || img.Height() <= 0 {
+			t.Fatalf("insert: produced an empty image %dx%d", img.Width(), img.Height())
+		}
+	})
+	t.Run("insert_options", func(t *testing.T) {
+		img := coverageImage(t)
+		other := coverageImage(t)
+		opts := &InsertOptions{Expand: true, Background: []float64{1}}
+		err := img.Insert(other, 0, 0, opts)
+		if err != nil {
+			firstErr := err
+			img = coverageMonoImage(t)
+			other = coverageMonoImage(t)
+			err = img.Insert(other, 0, 0, opts)
 			if err != nil {
 				t.Fatalf("insert: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
 			}
@@ -1548,6 +2324,17 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("invertlut: produced an empty image %dx%d", img.Width(), img.Height())
 		}
 	})
+	t.Run("invertlut_options", func(t *testing.T) {
+		img := coverageImage(t)
+		opts := &InvertlutOptions{Size: 1}
+		err := img.Invertlut(opts)
+		if err != nil {
+			t.Skipf("input precondition: needs a matrix-interpretation input: %v", err)
+		}
+		if img.Width() <= 0 || img.Height() <= 0 {
+			t.Fatalf("invertlut: produced an empty image %dx%d", img.Width(), img.Height())
+		}
+	})
 	t.Run("invfft", func(t *testing.T) {
 		img := coverageImage(t)
 		err := img.Invfft(nil)
@@ -1555,6 +2342,22 @@ func TestGeneratedOperations(t *testing.T) {
 			firstErr := err
 			img = coverageMonoImage(t)
 			err = img.Invfft(nil)
+			if err != nil {
+				t.Fatalf("invfft: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
+			}
+		}
+		if img.Width() <= 0 || img.Height() <= 0 {
+			t.Fatalf("invfft: produced an empty image %dx%d", img.Width(), img.Height())
+		}
+	})
+	t.Run("invfft_options", func(t *testing.T) {
+		img := coverageImage(t)
+		opts := &InvfftOptions{Real: true}
+		err := img.Invfft(opts)
+		if err != nil {
+			firstErr := err
+			img = coverageMonoImage(t)
+			err = img.Invfft(opts)
 			if err != nil {
 				t.Fatalf("invfft: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
 			}
@@ -1580,6 +2383,24 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("join: produced an empty image %dx%d", img.Width(), img.Height())
 		}
 	})
+	t.Run("join_options", func(t *testing.T) {
+		img := coverageImage(t)
+		other := coverageImage(t)
+		opts := &JoinOptions{Expand: true, Shim: 1, Background: []float64{1}, Align: AlignLow}
+		err := img.Join(other, DirectionHorizontal, opts)
+		if err != nil {
+			firstErr := err
+			img = coverageMonoImage(t)
+			other = coverageMonoImage(t)
+			err = img.Join(other, DirectionHorizontal, opts)
+			if err != nil {
+				t.Fatalf("join: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
+			}
+		}
+		if img.Width() <= 0 || img.Height() <= 0 {
+			t.Fatalf("join: produced an empty image %dx%d", img.Width(), img.Height())
+		}
+	})
 	t.Run("jp2kload", func(t *testing.T) {
 		img := coverageImage(t)
 		path := coveragePath(t, "jp2")
@@ -1595,6 +2416,22 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("jp2kload: loaded %dx%d from a %dx%d file", loaded.Width(), loaded.Height(), img.Width(), img.Height())
 		}
 	})
+	t.Run("jp2kload_options", func(t *testing.T) {
+		img := coverageImage(t)
+		path := coveragePath(t, "jp2")
+		if err := img.Jp2ksave(path, nil); err != nil {
+			t.Skipf("fixture unavailable: the saver could not write it: %v", err)
+		}
+		opts := &Jp2kloadOptions{Page: 0, Oneshot: true, Memory: true, Access: AccessRandom, FailOn: FailOnNone, Revalidate: true}
+		loaded, err := NewJp2kload(path, opts)
+		if err != nil {
+			t.Skipf("input precondition: its decode options are not independent: %v", err)
+		}
+		defer loaded.Close()
+		if loaded.Width() <= 0 || loaded.Height() <= 0 {
+			t.Fatalf("jp2kload: loaded an empty image %dx%d", loaded.Width(), loaded.Height())
+		}
+	})
 	t.Run("jp2ksave", func(t *testing.T) {
 		img := coverageImage(t)
 		path := coveragePath(t, "jp2")
@@ -1603,6 +2440,23 @@ func TestGeneratedOperations(t *testing.T) {
 			firstErr := err
 			img = coverageMonoImage(t)
 			err = img.Jp2ksave(path, nil)
+			if err != nil {
+				t.Fatalf("jp2ksave: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
+			}
+		}
+		if info, statErr := os.Stat(path); statErr != nil || info.Size() == 0 {
+			t.Fatalf("jp2ksave: wrote no file at %s", path)
+		}
+	})
+	t.Run("jp2ksave_options", func(t *testing.T) {
+		img := coverageImage(t)
+		path := coveragePath(t, "jp2")
+		opts := &Jp2ksaveOptions{TileWidth: 16, TileHeight: 16, Lossless: true, Q: 1, SubsampleMode: Ptr(SubsampleAuto), Keep: Ptr(KeepNone), Background: []float64{1}, PageHeight: 1}
+		err := img.Jp2ksave(path, opts)
+		if err != nil {
+			firstErr := err
+			img = coverageMonoImage(t)
+			err = img.Jp2ksave(path, opts)
 			if err != nil {
 				t.Fatalf("jp2ksave: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
 			}
@@ -1626,6 +2480,22 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("jp2ksave_buffer: wrote an empty buffer: %d bytes", len(buf))
 		}
 	})
+	t.Run("jp2ksave_buffer_options", func(t *testing.T) {
+		img := coverageImage(t)
+		opts := &Jp2ksaveBufferOptions{TileWidth: 16, TileHeight: 16, Lossless: true, Q: 1, SubsampleMode: Ptr(SubsampleAuto), Keep: Ptr(KeepNone), Background: []float64{1}, PageHeight: 1}
+		buf, err := img.Jp2ksaveBuffer(opts)
+		if err != nil {
+			firstErr := err
+			img = coverageMonoImage(t)
+			buf, err = img.Jp2ksaveBuffer(opts)
+			if err != nil {
+				t.Fatalf("jp2ksave_buffer: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
+			}
+		}
+		if len(buf) == 0 {
+			t.Fatalf("jp2ksave_buffer: wrote an empty buffer: %d bytes", len(buf))
+		}
+	})
 	t.Run("jpegload", func(t *testing.T) {
 		img := coverageImage(t)
 		path := coveragePath(t, "jpg")
@@ -1641,6 +2511,22 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("jpegload: loaded %dx%d from a %dx%d file", loaded.Width(), loaded.Height(), img.Width(), img.Height())
 		}
 	})
+	t.Run("jpegload_options", func(t *testing.T) {
+		img := coverageImage(t)
+		path := coveragePath(t, "jpg")
+		if err := img.Jpegsave(path, nil); err != nil {
+			t.Skipf("fixture unavailable: the saver could not write it: %v", err)
+		}
+		opts := &JpegloadOptions{Shrink: 1, Autorotate: true, Unlimited: true, Memory: true, Access: AccessRandom, FailOn: FailOnNone, Revalidate: true}
+		loaded, err := NewJpegload(path, opts)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer loaded.Close()
+		if loaded.Width() <= 0 || loaded.Height() <= 0 {
+			t.Fatalf("jpegload: loaded an empty image %dx%d", loaded.Width(), loaded.Height())
+		}
+	})
 	t.Run("jpegsave", func(t *testing.T) {
 		img := coverageImage(t)
 		path := coveragePath(t, "jpg")
@@ -1649,6 +2535,23 @@ func TestGeneratedOperations(t *testing.T) {
 			firstErr := err
 			img = coverageMonoImage(t)
 			err = img.Jpegsave(path, nil)
+			if err != nil {
+				t.Fatalf("jpegsave: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
+			}
+		}
+		if info, statErr := os.Stat(path); statErr != nil || info.Size() == 0 {
+			t.Fatalf("jpegsave: wrote no file at %s", path)
+		}
+	})
+	t.Run("jpegsave_options", func(t *testing.T) {
+		img := coverageImage(t)
+		path := coveragePath(t, "jpg")
+		opts := &JpegsaveOptions{Q: 1, OptimizeCoding: true, Interlace: true, TrellisQuant: true, OvershootDeringing: true, OptimizeScans: true, QuantTable: 1, SubsampleMode: SubsampleAuto, RestartInterval: 1, Keep: Ptr(KeepNone), Background: []float64{1}, PageHeight: 1}
+		err := img.Jpegsave(path, opts)
+		if err != nil {
+			firstErr := err
+			img = coverageMonoImage(t)
+			err = img.Jpegsave(path, opts)
 			if err != nil {
 				t.Fatalf("jpegsave: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
 			}
@@ -1672,6 +2575,22 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("jpegsave_buffer: wrote an empty buffer: %d bytes", len(buf))
 		}
 	})
+	t.Run("jpegsave_buffer_options", func(t *testing.T) {
+		img := coverageImage(t)
+		opts := &JpegsaveBufferOptions{Q: 1, OptimizeCoding: true, Interlace: true, TrellisQuant: true, OvershootDeringing: true, OptimizeScans: true, QuantTable: 1, SubsampleMode: SubsampleAuto, RestartInterval: 1, Keep: Ptr(KeepNone), Background: []float64{1}, PageHeight: 1}
+		buf, err := img.JpegsaveBuffer(opts)
+		if err != nil {
+			firstErr := err
+			img = coverageMonoImage(t)
+			buf, err = img.JpegsaveBuffer(opts)
+			if err != nil {
+				t.Fatalf("jpegsave_buffer: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
+			}
+		}
+		if len(buf) == 0 {
+			t.Fatalf("jpegsave_buffer: wrote an empty buffer: %d bytes", len(buf))
+		}
+	})
 	t.Run("jxlload", func(t *testing.T) {
 		img := coverageImage(t)
 		path := coveragePath(t, "jxl")
@@ -1685,6 +2604,22 @@ func TestGeneratedOperations(t *testing.T) {
 		defer loaded.Close()
 		if loaded.Width() != img.Width() || loaded.Height() != img.Height() {
 			t.Fatalf("jxlload: loaded %dx%d from a %dx%d file", loaded.Width(), loaded.Height(), img.Width(), img.Height())
+		}
+	})
+	t.Run("jxlload_options", func(t *testing.T) {
+		img := coverageImage(t)
+		path := coveragePath(t, "jxl")
+		if err := img.Jxlsave(path, nil); err != nil {
+			t.Skipf("fixture unavailable: the saver could not write it: %v", err)
+		}
+		opts := &JxlloadOptions{Page: 0, N: Ptr(1), Memory: true, Access: AccessRandom, FailOn: FailOnNone, Revalidate: true}
+		loaded, err := NewJxlload(path, opts)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer loaded.Close()
+		if loaded.Width() <= 0 || loaded.Height() <= 0 {
+			t.Fatalf("jxlload: loaded an empty image %dx%d", loaded.Width(), loaded.Height())
 		}
 	})
 	t.Run("jxlsave", func(t *testing.T) {
@@ -1703,6 +2638,23 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("jxlsave: wrote no file at %s", path)
 		}
 	})
+	t.Run("jxlsave_options", func(t *testing.T) {
+		img := coverageImage(t)
+		path := coveragePath(t, "jxl")
+		opts := &JxlsaveOptions{Tier: 1, Distance: Ptr(1.0), Effort: 1, Lossless: true, Q: Ptr(1), Bitdepth: 1, Keep: Ptr(KeepNone), Background: []float64{1}, PageHeight: 1}
+		err := img.Jxlsave(path, opts)
+		if err != nil {
+			firstErr := err
+			img = coverageMonoImage(t)
+			err = img.Jxlsave(path, opts)
+			if err != nil {
+				t.Fatalf("jxlsave: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
+			}
+		}
+		if info, statErr := os.Stat(path); statErr != nil || info.Size() == 0 {
+			t.Fatalf("jxlsave: wrote no file at %s", path)
+		}
+	})
 	t.Run("jxlsave_buffer", func(t *testing.T) {
 		img := coverageImage(t)
 		buf, err := img.JxlsaveBuffer(nil)
@@ -1710,6 +2662,22 @@ func TestGeneratedOperations(t *testing.T) {
 			firstErr := err
 			img = coverageMonoImage(t)
 			buf, err = img.JxlsaveBuffer(nil)
+			if err != nil {
+				t.Fatalf("jxlsave_buffer: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
+			}
+		}
+		if len(buf) == 0 {
+			t.Fatalf("jxlsave_buffer: wrote an empty buffer: %d bytes", len(buf))
+		}
+	})
+	t.Run("jxlsave_buffer_options", func(t *testing.T) {
+		img := coverageImage(t)
+		opts := &JxlsaveBufferOptions{Tier: 1, Distance: Ptr(1.0), Effort: 1, Lossless: true, Q: Ptr(1), Bitdepth: 1, Keep: Ptr(KeepNone), Background: []float64{1}, PageHeight: 1}
+		buf, err := img.JxlsaveBuffer(opts)
+		if err != nil {
+			firstErr := err
+			img = coverageMonoImage(t)
+			buf, err = img.JxlsaveBuffer(opts)
 			if err != nil {
 				t.Fatalf("jxlsave_buffer: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
 			}
@@ -1748,8 +2716,35 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("linear: produced an empty image %dx%d", img.Width(), img.Height())
 		}
 	})
+	t.Run("linear_options", func(t *testing.T) {
+		img := coverageImage(t)
+		opts := &LinearOptions{Uchar: true}
+		err := img.Linear([]float64{1}, []float64{0}, opts)
+		if err != nil {
+			firstErr := err
+			img = coverageMonoImage(t)
+			err = img.Linear([]float64{1}, []float64{0}, opts)
+			if err != nil {
+				t.Fatalf("linear: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
+			}
+		}
+		if img.Width() <= 0 || img.Height() <= 0 {
+			t.Fatalf("linear: produced an empty image %dx%d", img.Width(), img.Height())
+		}
+	})
 	t.Run("logmat", func(t *testing.T) {
 		out, err := NewLogmat(1, 1, nil)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer out.Close()
+		if out.Width() <= 0 || out.Height() <= 0 {
+			t.Fatalf("logmat: produced an empty image %dx%d", out.Width(), out.Height())
+		}
+	})
+	t.Run("logmat_options", func(t *testing.T) {
+		opts := &LogmatOptions{Separable: true, Precision: PrecisionInteger}
+		out, err := NewLogmat(1, 1, opts)
 		if err != nil {
 			t.Fatalf("wrapper reported an error: %v", err)
 		}
@@ -1773,6 +2768,22 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("magickload: loaded %dx%d from a %dx%d file", loaded.Width(), loaded.Height(), img.Width(), img.Height())
 		}
 	})
+	t.Run("magickload_options", func(t *testing.T) {
+		img := coverageImage(t)
+		path := coveragePath(t, "miff")
+		if err := img.Magicksave(path, nil); err != nil {
+			t.Skipf("fixture unavailable: the saver could not write it: %v", err)
+		}
+		opts := &MagickloadOptions{Page: 0, N: 1, Memory: true, Access: AccessRandom, FailOn: FailOnNone, Revalidate: true}
+		loaded, err := NewMagickload(path, opts)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer loaded.Close()
+		if loaded.Width() <= 0 || loaded.Height() <= 0 {
+			t.Fatalf("magickload: loaded an empty image %dx%d", loaded.Width(), loaded.Height())
+		}
+	})
 	t.Run("magicksave", func(t *testing.T) {
 		img := coverageImage(t)
 		path := coveragePath(t, "miff")
@@ -1781,6 +2792,23 @@ func TestGeneratedOperations(t *testing.T) {
 			firstErr := err
 			img = coverageMonoImage(t)
 			err = img.Magicksave(path, nil)
+			if err != nil {
+				t.Fatalf("magicksave: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
+			}
+		}
+		if info, statErr := os.Stat(path); statErr != nil || info.Size() == 0 {
+			t.Fatalf("magicksave: wrote no file at %s", path)
+		}
+	})
+	t.Run("magicksave_options", func(t *testing.T) {
+		img := coverageImage(t)
+		path := coveragePath(t, "miff")
+		opts := &MagicksaveOptions{Quality: 1, OptimizeGifFrames: true, OptimizeGifTransparency: true, Bitdepth: 1, Keep: Ptr(KeepNone), Background: []float64{1}, PageHeight: 1}
+		err := img.Magicksave(path, opts)
+		if err != nil {
+			firstErr := err
+			img = coverageMonoImage(t)
+			err = img.Magicksave(path, opts)
 			if err != nil {
 				t.Fatalf("magicksave: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
 			}
@@ -1799,10 +2827,33 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("magicksave_buffer: wrote an empty buffer: %d bytes", len(buf))
 		}
 	})
+	t.Run("magicksave_buffer_options", func(t *testing.T) {
+		img := coverageImage(t)
+		opts := &MagicksaveBufferOptions{Quality: 1, OptimizeGifFrames: true, OptimizeGifTransparency: true, Bitdepth: 1, Keep: Ptr(KeepNone), Background: []float64{1}, PageHeight: 1}
+		buf, err := img.MagicksaveBuffer(opts)
+		if err != nil {
+			t.Skipf("input precondition: needs an output format: %v", err)
+		}
+		if len(buf) == 0 {
+			t.Fatalf("magicksave_buffer: wrote an empty buffer: %d bytes", len(buf))
+		}
+	})
 	t.Run("mapim", func(t *testing.T) {
 		img := coverageImage(t)
 		other := coverageImage(t)
 		err := img.Mapim(other, nil)
+		if err != nil {
+			t.Skipf("input precondition: needs a two-band or complex index image: %v", err)
+		}
+		if img.Width() <= 0 || img.Height() <= 0 {
+			t.Fatalf("mapim: produced an empty image %dx%d", img.Width(), img.Height())
+		}
+	})
+	t.Run("mapim_options", func(t *testing.T) {
+		img := coverageImage(t)
+		other := coverageImage(t)
+		opts := &MapimOptions{Background: []float64{1}, Premultiplied: true, Extend: Ptr(ExtendBlack)}
+		err := img.Mapim(other, opts)
 		if err != nil {
 			t.Skipf("input precondition: needs a two-band or complex index image: %v", err)
 		}
@@ -1821,8 +2872,31 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("maplut: produced an empty image %dx%d", img.Width(), img.Height())
 		}
 	})
+	t.Run("maplut_options", func(t *testing.T) {
+		img := coverageImage(t)
+		other := coverageImage(t)
+		opts := &MaplutOptions{Band: Ptr(1)}
+		err := img.Maplut(other, opts)
+		if err != nil {
+			t.Skipf("input precondition: needs a histogram: width or height 1: %v", err)
+		}
+		if img.Width() <= 0 || img.Height() <= 0 {
+			t.Fatalf("maplut: produced an empty image %dx%d", img.Width(), img.Height())
+		}
+	})
 	t.Run("mask_butterworth", func(t *testing.T) {
 		out, err := NewMaskButterworth(8, 8, 1, 1, 1, nil)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer out.Close()
+		if out.Width() <= 0 || out.Height() <= 0 {
+			t.Fatalf("mask_butterworth: produced an empty image %dx%d", out.Width(), out.Height())
+		}
+	})
+	t.Run("mask_butterworth_options", func(t *testing.T) {
+		opts := &MaskButterworthOptions{Uchar: true, Nodc: true, Reject: true, Optical: true}
+		out, err := NewMaskButterworth(8, 8, 1, 1, 1, opts)
 		if err != nil {
 			t.Fatalf("wrapper reported an error: %v", err)
 		}
@@ -1841,8 +2915,30 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("mask_butterworth_band: produced an empty image %dx%d", out.Width(), out.Height())
 		}
 	})
+	t.Run("mask_butterworth_band_options", func(t *testing.T) {
+		opts := &MaskButterworthBandOptions{Uchar: true, Nodc: true, Reject: true, Optical: true}
+		out, err := NewMaskButterworthBand(8, 8, 1, 1, 1, 1, 1, opts)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer out.Close()
+		if out.Width() <= 0 || out.Height() <= 0 {
+			t.Fatalf("mask_butterworth_band: produced an empty image %dx%d", out.Width(), out.Height())
+		}
+	})
 	t.Run("mask_butterworth_ring", func(t *testing.T) {
 		out, err := NewMaskButterworthRing(8, 8, 1, 1, 1, 1, nil)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer out.Close()
+		if out.Width() <= 0 || out.Height() <= 0 {
+			t.Fatalf("mask_butterworth_ring: produced an empty image %dx%d", out.Width(), out.Height())
+		}
+	})
+	t.Run("mask_butterworth_ring_options", func(t *testing.T) {
+		opts := &MaskButterworthRingOptions{Uchar: true, Nodc: true, Reject: true, Optical: true}
+		out, err := NewMaskButterworthRing(8, 8, 1, 1, 1, 1, opts)
 		if err != nil {
 			t.Fatalf("wrapper reported an error: %v", err)
 		}
@@ -1861,8 +2957,30 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("mask_fractal: produced an empty image %dx%d", out.Width(), out.Height())
 		}
 	})
+	t.Run("mask_fractal_options", func(t *testing.T) {
+		opts := &MaskFractalOptions{Uchar: true, Nodc: true, Reject: true, Optical: true}
+		out, err := NewMaskFractal(8, 8, 2, opts)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer out.Close()
+		if out.Width() <= 0 || out.Height() <= 0 {
+			t.Fatalf("mask_fractal: produced an empty image %dx%d", out.Width(), out.Height())
+		}
+	})
 	t.Run("mask_gaussian", func(t *testing.T) {
 		out, err := NewMaskGaussian(8, 8, 1, 1, nil)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer out.Close()
+		if out.Width() <= 0 || out.Height() <= 0 {
+			t.Fatalf("mask_gaussian: produced an empty image %dx%d", out.Width(), out.Height())
+		}
+	})
+	t.Run("mask_gaussian_options", func(t *testing.T) {
+		opts := &MaskGaussianOptions{Uchar: true, Nodc: true, Reject: true, Optical: true}
+		out, err := NewMaskGaussian(8, 8, 1, 1, opts)
 		if err != nil {
 			t.Fatalf("wrapper reported an error: %v", err)
 		}
@@ -1881,8 +2999,30 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("mask_gaussian_band: produced an empty image %dx%d", out.Width(), out.Height())
 		}
 	})
+	t.Run("mask_gaussian_band_options", func(t *testing.T) {
+		opts := &MaskGaussianBandOptions{Uchar: true, Nodc: true, Reject: true, Optical: true}
+		out, err := NewMaskGaussianBand(8, 8, 1, 1, 1, 1, opts)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer out.Close()
+		if out.Width() <= 0 || out.Height() <= 0 {
+			t.Fatalf("mask_gaussian_band: produced an empty image %dx%d", out.Width(), out.Height())
+		}
+	})
 	t.Run("mask_gaussian_ring", func(t *testing.T) {
 		out, err := NewMaskGaussianRing(8, 8, 1, 1, 1, nil)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer out.Close()
+		if out.Width() <= 0 || out.Height() <= 0 {
+			t.Fatalf("mask_gaussian_ring: produced an empty image %dx%d", out.Width(), out.Height())
+		}
+	})
+	t.Run("mask_gaussian_ring_options", func(t *testing.T) {
+		opts := &MaskGaussianRingOptions{Uchar: true, Nodc: true, Reject: true, Optical: true}
+		out, err := NewMaskGaussianRing(8, 8, 1, 1, 1, opts)
 		if err != nil {
 			t.Fatalf("wrapper reported an error: %v", err)
 		}
@@ -1901,8 +3041,30 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("mask_ideal: produced an empty image %dx%d", out.Width(), out.Height())
 		}
 	})
+	t.Run("mask_ideal_options", func(t *testing.T) {
+		opts := &MaskIdealOptions{Uchar: true, Nodc: true, Reject: true, Optical: true}
+		out, err := NewMaskIdeal(8, 8, 1, opts)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer out.Close()
+		if out.Width() <= 0 || out.Height() <= 0 {
+			t.Fatalf("mask_ideal: produced an empty image %dx%d", out.Width(), out.Height())
+		}
+	})
 	t.Run("mask_ideal_band", func(t *testing.T) {
 		out, err := NewMaskIdealBand(8, 8, 1, 1, 1, nil)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer out.Close()
+		if out.Width() <= 0 || out.Height() <= 0 {
+			t.Fatalf("mask_ideal_band: produced an empty image %dx%d", out.Width(), out.Height())
+		}
+	})
+	t.Run("mask_ideal_band_options", func(t *testing.T) {
+		opts := &MaskIdealBandOptions{Uchar: true, Nodc: true, Reject: true, Optical: true}
+		out, err := NewMaskIdealBand(8, 8, 1, 1, 1, opts)
 		if err != nil {
 			t.Fatalf("wrapper reported an error: %v", err)
 		}
@@ -1921,10 +3083,33 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("mask_ideal_ring: produced an empty image %dx%d", out.Width(), out.Height())
 		}
 	})
+	t.Run("mask_ideal_ring_options", func(t *testing.T) {
+		opts := &MaskIdealRingOptions{Uchar: true, Nodc: true, Reject: true, Optical: true}
+		out, err := NewMaskIdealRing(8, 8, 1, 1, opts)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer out.Close()
+		if out.Width() <= 0 || out.Height() <= 0 {
+			t.Fatalf("mask_ideal_ring: produced an empty image %dx%d", out.Width(), out.Height())
+		}
+	})
 	t.Run("match", func(t *testing.T) {
 		img := coverageImage(t)
 		other := coverageImage(t)
 		err := img.Match(other, 0, 0, 1, 1, 0, 0, 1, 1, nil)
+		if err != nil {
+			t.Skipf("input precondition: needs an invertible matrix image: %v", err)
+		}
+		if img.Width() <= 0 || img.Height() <= 0 {
+			t.Fatalf("match: produced an empty image %dx%d", img.Width(), img.Height())
+		}
+	})
+	t.Run("match_options", func(t *testing.T) {
+		img := coverageImage(t)
+		other := coverageImage(t)
+		opts := &MatchOptions{Hwindow: Ptr(1), Harea: Ptr(1), Search: true}
+		err := img.Match(other, 0, 0, 1, 1, 0, 0, 1, 1, opts)
 		if err != nil {
 			t.Skipf("input precondition: needs an invertible matrix image: %v", err)
 		}
@@ -2004,6 +3189,22 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("matrixload: loaded %dx%d from a %dx%d file", loaded.Width(), loaded.Height(), img.Width(), img.Height())
 		}
 	})
+	t.Run("matrixload_options", func(t *testing.T) {
+		img := coverageImage(t)
+		path := coveragePath(t, "mat")
+		if err := img.Matrixsave(path, nil); err != nil {
+			t.Skipf("fixture unavailable: the saver could not write it: %v", err)
+		}
+		opts := &MatrixloadOptions{Memory: true, Access: AccessRandom, FailOn: FailOnNone, Revalidate: true}
+		loaded, err := NewMatrixload(path, opts)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer loaded.Close()
+		if loaded.Width() <= 0 || loaded.Height() <= 0 {
+			t.Fatalf("matrixload: loaded an empty image %dx%d", loaded.Width(), loaded.Height())
+		}
+	})
 	t.Run("matrixmultiply", func(t *testing.T) {
 		img := coverageImage(t)
 		other := coverageImage(t)
@@ -2029,6 +3230,23 @@ func TestGeneratedOperations(t *testing.T) {
 			firstErr := err
 			img = coverageMonoImage(t)
 			err = img.Matrixsave(path, nil)
+			if err != nil {
+				t.Fatalf("matrixsave: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
+			}
+		}
+		if info, statErr := os.Stat(path); statErr != nil || info.Size() == 0 {
+			t.Fatalf("matrixsave: wrote no file at %s", path)
+		}
+	})
+	t.Run("matrixsave_options", func(t *testing.T) {
+		img := coverageImage(t)
+		path := coveragePath(t, "mat")
+		opts := &MatrixsaveOptions{Keep: Ptr(KeepNone), Background: []float64{1}, PageHeight: 1}
+		err := img.Matrixsave(path, opts)
+		if err != nil {
+			firstErr := err
+			img = coverageMonoImage(t)
+			err = img.Matrixsave(path, opts)
 			if err != nil {
 				t.Fatalf("matrixsave: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
 			}
@@ -2069,6 +3287,22 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("measure: produced an empty image %dx%d", img.Width(), img.Height())
 		}
 	})
+	t.Run("measure_options", func(t *testing.T) {
+		img := coverageImage(t)
+		opts := &MeasureOptions{Left: 0, Top: 0, Width: 8, Height: 8}
+		err := img.Measure(1, 1, opts)
+		if err != nil {
+			firstErr := err
+			img = coverageMonoImage(t)
+			err = img.Measure(1, 1, opts)
+			if err != nil {
+				t.Fatalf("measure: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
+			}
+		}
+		if img.Width() <= 0 || img.Height() <= 0 {
+			t.Fatalf("measure: produced an empty image %dx%d", img.Width(), img.Height())
+		}
+	})
 	t.Run("merge", func(t *testing.T) {
 		img := coverageImage(t)
 		other := coverageImage(t)
@@ -2078,6 +3312,24 @@ func TestGeneratedOperations(t *testing.T) {
 			img = coverageMonoImage(t)
 			other = coverageMonoImage(t)
 			err = img.Merge(other, DirectionHorizontal, 1, 1, nil)
+			if err != nil {
+				t.Fatalf("merge: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
+			}
+		}
+		if img.Width() <= 0 || img.Height() <= 0 {
+			t.Fatalf("merge: produced an empty image %dx%d", img.Width(), img.Height())
+		}
+	})
+	t.Run("merge_options", func(t *testing.T) {
+		img := coverageImage(t)
+		other := coverageImage(t)
+		opts := &MergeOptions{Mblend: Ptr(1)}
+		err := img.Merge(other, DirectionHorizontal, 1, 1, opts)
+		if err != nil {
+			firstErr := err
+			img = coverageMonoImage(t)
+			other = coverageMonoImage(t)
+			err = img.Merge(other, DirectionHorizontal, 1, 1, opts)
 			if err != nil {
 				t.Fatalf("merge: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
 			}
@@ -2125,10 +3377,34 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("mosaic: produced an empty image %dx%d", img.Width(), img.Height())
 		}
 	})
+	t.Run("mosaic_options", func(t *testing.T) {
+		img := coverageImage(t)
+		other := coverageImage(t)
+		opts := &MosaicOptions{Hwindow: Ptr(1), Harea: Ptr(1), Mblend: Ptr(1), Bandno: 1}
+		err := img.Mosaic(other, DirectionHorizontal, 1, 1, 1, 1, opts)
+		if err != nil {
+			t.Skipf("input precondition: needs two overlapping images: %v", err)
+		}
+		if img.Width() <= 0 || img.Height() <= 0 {
+			t.Fatalf("mosaic: produced an empty image %dx%d", img.Width(), img.Height())
+		}
+	})
 	t.Run("mosaic1", func(t *testing.T) {
 		img := coverageImage(t)
 		other := coverageImage(t)
 		err := img.Mosaic1(other, DirectionHorizontal, 0, 0, 1, 1, 0, 0, 1, 1, nil)
+		if err != nil {
+			t.Skipf("input precondition: needs two overlapping images: %v", err)
+		}
+		if img.Width() <= 0 || img.Height() <= 0 {
+			t.Fatalf("mosaic1: produced an empty image %dx%d", img.Width(), img.Height())
+		}
+	})
+	t.Run("mosaic1_options", func(t *testing.T) {
+		img := coverageImage(t)
+		other := coverageImage(t)
+		opts := &Mosaic1Options{Hwindow: Ptr(1), Harea: Ptr(1), Search: true, Mblend: Ptr(1)}
+		err := img.Mosaic1(other, DirectionHorizontal, 0, 0, 1, 1, 0, 0, 1, 1, opts)
 		if err != nil {
 			t.Skipf("input precondition: needs two overlapping images: %v", err)
 		}
@@ -2143,6 +3419,22 @@ func TestGeneratedOperations(t *testing.T) {
 			firstErr := err
 			img = coverageMonoImage(t)
 			err = img.Msb(nil)
+			if err != nil {
+				t.Fatalf("msb: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
+			}
+		}
+		if img.Width() <= 0 || img.Height() <= 0 {
+			t.Fatalf("msb: produced an empty image %dx%d", img.Width(), img.Height())
+		}
+	})
+	t.Run("msb_options", func(t *testing.T) {
+		img := coverageImage(t)
+		opts := &MsbOptions{Band: Ptr(1)}
+		err := img.Msb(opts)
+		if err != nil {
+			firstErr := err
+			img = coverageMonoImage(t)
+			err = img.Msb(opts)
 			if err != nil {
 				t.Fatalf("msb: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
 			}
@@ -2170,6 +3462,17 @@ func TestGeneratedOperations(t *testing.T) {
 	})
 	t.Run("perlin", func(t *testing.T) {
 		out, err := NewPerlin(8, 8, nil)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer out.Close()
+		if out.Width() <= 0 || out.Height() <= 0 {
+			t.Fatalf("perlin: produced an empty image %dx%d", out.Width(), out.Height())
+		}
+	})
+	t.Run("perlin_options", func(t *testing.T) {
+		opts := &PerlinOptions{CellSize: 1, Uchar: true, Seed: 1}
+		out, err := NewPerlin(8, 8, opts)
 		if err != nil {
 			t.Fatalf("wrapper reported an error: %v", err)
 		}
@@ -2210,6 +3513,22 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("pngload: loaded %dx%d from a %dx%d file", loaded.Width(), loaded.Height(), img.Width(), img.Height())
 		}
 	})
+	t.Run("pngload_options", func(t *testing.T) {
+		img := coverageImage(t)
+		path := coveragePath(t, "png")
+		if err := img.Pngsave(path, nil); err != nil {
+			t.Skipf("fixture unavailable: the saver could not write it: %v", err)
+		}
+		opts := &PngloadOptions{Unlimited: true, Memory: true, Access: AccessRandom, FailOn: FailOnNone, Revalidate: true}
+		loaded, err := NewPngload(path, opts)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer loaded.Close()
+		if loaded.Width() <= 0 || loaded.Height() <= 0 {
+			t.Fatalf("pngload: loaded an empty image %dx%d", loaded.Width(), loaded.Height())
+		}
+	})
 	t.Run("pngsave", func(t *testing.T) {
 		img := coverageImage(t)
 		path := coveragePath(t, "png")
@@ -2218,6 +3537,23 @@ func TestGeneratedOperations(t *testing.T) {
 			firstErr := err
 			img = coverageMonoImage(t)
 			err = img.Pngsave(path, nil)
+			if err != nil {
+				t.Fatalf("pngsave: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
+			}
+		}
+		if info, statErr := os.Stat(path); statErr != nil || info.Size() == 0 {
+			t.Fatalf("pngsave: wrote no file at %s", path)
+		}
+	})
+	t.Run("pngsave_options", func(t *testing.T) {
+		img := coverageImage(t)
+		path := coveragePath(t, "png")
+		opts := &PngsaveOptions{Compression: Ptr(1), Interlace: true, Filter: PngFilterNone, Palette: true, Q: Ptr(1), Dither: Ptr(1.0), Bitdepth: 1, Effort: 1, Keep: Ptr(KeepNone), Background: []float64{1}, PageHeight: 1}
+		err := img.Pngsave(path, opts)
+		if err != nil {
+			firstErr := err
+			img = coverageMonoImage(t)
+			err = img.Pngsave(path, opts)
 			if err != nil {
 				t.Fatalf("pngsave: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
 			}
@@ -2241,6 +3577,22 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("pngsave_buffer: wrote an empty buffer: %d bytes", len(buf))
 		}
 	})
+	t.Run("pngsave_buffer_options", func(t *testing.T) {
+		img := coverageImage(t)
+		opts := &PngsaveBufferOptions{Compression: Ptr(1), Interlace: true, Filter: PngFilterNone, Palette: true, Q: Ptr(1), Dither: Ptr(1.0), Bitdepth: 1, Effort: 1, Keep: Ptr(KeepNone), Background: []float64{1}, PageHeight: 1}
+		buf, err := img.PngsaveBuffer(opts)
+		if err != nil {
+			firstErr := err
+			img = coverageMonoImage(t)
+			buf, err = img.PngsaveBuffer(opts)
+			if err != nil {
+				t.Fatalf("pngsave_buffer: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
+			}
+		}
+		if len(buf) == 0 {
+			t.Fatalf("pngsave_buffer: wrote an empty buffer: %d bytes", len(buf))
+		}
+	})
 	t.Run("ppmload", func(t *testing.T) {
 		img := coverageImage(t)
 		path := coveragePath(t, "ppm")
@@ -2254,6 +3606,22 @@ func TestGeneratedOperations(t *testing.T) {
 		defer loaded.Close()
 		if loaded.Width() != img.Width() || loaded.Height() != img.Height() {
 			t.Fatalf("ppmload: loaded %dx%d from a %dx%d file", loaded.Width(), loaded.Height(), img.Width(), img.Height())
+		}
+	})
+	t.Run("ppmload_options", func(t *testing.T) {
+		img := coverageImage(t)
+		path := coveragePath(t, "ppm")
+		if err := img.Ppmsave(path, nil); err != nil {
+			t.Skipf("fixture unavailable: the saver could not write it: %v", err)
+		}
+		opts := &PpmloadOptions{Memory: true, Access: AccessRandom, FailOn: FailOnNone, Revalidate: true}
+		loaded, err := NewPpmload(path, opts)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer loaded.Close()
+		if loaded.Width() <= 0 || loaded.Height() <= 0 {
+			t.Fatalf("ppmload: loaded an empty image %dx%d", loaded.Width(), loaded.Height())
 		}
 	})
 	t.Run("ppmsave", func(t *testing.T) {
@@ -2272,6 +3640,23 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("ppmsave: wrote no file at %s", path)
 		}
 	})
+	t.Run("ppmsave_options", func(t *testing.T) {
+		img := coverageImage(t)
+		path := coveragePath(t, "ppm")
+		opts := &PpmsaveOptions{Format: Ptr(PpmFormatPbm), Ascii: true, Bitdepth: 1, Keep: Ptr(KeepNone), Background: []float64{1}, PageHeight: 1}
+		err := img.Ppmsave(path, opts)
+		if err != nil {
+			firstErr := err
+			img = coverageMonoImage(t)
+			err = img.Ppmsave(path, opts)
+			if err != nil {
+				t.Fatalf("ppmsave: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
+			}
+		}
+		if info, statErr := os.Stat(path); statErr != nil || info.Size() == 0 {
+			t.Fatalf("ppmsave: wrote no file at %s", path)
+		}
+	})
 	t.Run("premultiply", func(t *testing.T) {
 		img := coverageImage(t)
 		err := img.Premultiply(nil)
@@ -2279,6 +3664,22 @@ func TestGeneratedOperations(t *testing.T) {
 			firstErr := err
 			img = coverageMonoImage(t)
 			err = img.Premultiply(nil)
+			if err != nil {
+				t.Fatalf("premultiply: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
+			}
+		}
+		if img.Width() <= 0 || img.Height() <= 0 {
+			t.Fatalf("premultiply: produced an empty image %dx%d", img.Width(), img.Height())
+		}
+	})
+	t.Run("premultiply_options", func(t *testing.T) {
+		img := coverageImage(t)
+		opts := &PremultiplyOptions{MaxAlpha: Ptr(1.0)}
+		err := img.Premultiply(opts)
+		if err != nil {
+			firstErr := err
+			img = coverageMonoImage(t)
+			err = img.Premultiply(opts)
 			if err != nil {
 				t.Fatalf("premultiply: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
 			}
@@ -2338,6 +3739,22 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("radload: loaded %dx%d from a %dx%d file", loaded.Width(), loaded.Height(), img.Width(), img.Height())
 		}
 	})
+	t.Run("radload_options", func(t *testing.T) {
+		img := coverageImage(t)
+		path := coveragePath(t, "hdr")
+		if err := img.Radsave(path, nil); err != nil {
+			t.Skipf("fixture unavailable: the saver could not write it: %v", err)
+		}
+		opts := &RadloadOptions{Memory: true, Access: AccessRandom, FailOn: FailOnNone, Revalidate: true}
+		loaded, err := NewRadload(path, opts)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer loaded.Close()
+		if loaded.Width() <= 0 || loaded.Height() <= 0 {
+			t.Fatalf("radload: loaded an empty image %dx%d", loaded.Width(), loaded.Height())
+		}
+	})
 	t.Run("radsave", func(t *testing.T) {
 		img := coverageImage(t)
 		path := coveragePath(t, "hdr")
@@ -2354,6 +3771,23 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("radsave: wrote no file at %s", path)
 		}
 	})
+	t.Run("radsave_options", func(t *testing.T) {
+		img := coverageImage(t)
+		path := coveragePath(t, "hdr")
+		opts := &RadsaveOptions{Keep: Ptr(KeepNone), Background: []float64{1}, PageHeight: 1}
+		err := img.Radsave(path, opts)
+		if err != nil {
+			firstErr := err
+			img = coverageMonoImage(t)
+			err = img.Radsave(path, opts)
+			if err != nil {
+				t.Fatalf("radsave: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
+			}
+		}
+		if info, statErr := os.Stat(path); statErr != nil || info.Size() == 0 {
+			t.Fatalf("radsave: wrote no file at %s", path)
+		}
+	})
 	t.Run("radsave_buffer", func(t *testing.T) {
 		img := coverageImage(t)
 		buf, err := img.RadsaveBuffer(nil)
@@ -2361,6 +3795,22 @@ func TestGeneratedOperations(t *testing.T) {
 			firstErr := err
 			img = coverageMonoImage(t)
 			buf, err = img.RadsaveBuffer(nil)
+			if err != nil {
+				t.Fatalf("radsave_buffer: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
+			}
+		}
+		if len(buf) == 0 {
+			t.Fatalf("radsave_buffer: wrote an empty buffer: %d bytes", len(buf))
+		}
+	})
+	t.Run("radsave_buffer_options", func(t *testing.T) {
+		img := coverageImage(t)
+		opts := &RadsaveBufferOptions{Keep: Ptr(KeepNone), Background: []float64{1}, PageHeight: 1}
+		buf, err := img.RadsaveBuffer(opts)
+		if err != nil {
+			firstErr := err
+			img = coverageMonoImage(t)
+			buf, err = img.RadsaveBuffer(opts)
 			if err != nil {
 				t.Fatalf("radsave_buffer: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
 			}
@@ -2400,6 +3850,23 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("rawsave: wrote no file at %s", path)
 		}
 	})
+	t.Run("rawsave_options", func(t *testing.T) {
+		img := coverageImage(t)
+		path := coveragePath(t, "raw")
+		opts := &RawsaveOptions{Keep: Ptr(KeepNone), Background: []float64{1}, PageHeight: 1}
+		err := img.Rawsave(path, opts)
+		if err != nil {
+			firstErr := err
+			img = coverageMonoImage(t)
+			err = img.Rawsave(path, opts)
+			if err != nil {
+				t.Fatalf("rawsave: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
+			}
+		}
+		if info, statErr := os.Stat(path); statErr != nil || info.Size() == 0 {
+			t.Fatalf("rawsave: wrote no file at %s", path)
+		}
+	})
 	t.Run("rawsave_buffer", func(t *testing.T) {
 		img := coverageImage(t)
 		buf, err := img.RawsaveBuffer(nil)
@@ -2407,6 +3874,22 @@ func TestGeneratedOperations(t *testing.T) {
 			firstErr := err
 			img = coverageMonoImage(t)
 			buf, err = img.RawsaveBuffer(nil)
+			if err != nil {
+				t.Fatalf("rawsave_buffer: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
+			}
+		}
+		if len(buf) == 0 {
+			t.Fatalf("rawsave_buffer: wrote an empty buffer: %d bytes", len(buf))
+		}
+	})
+	t.Run("rawsave_buffer_options", func(t *testing.T) {
+		img := coverageImage(t)
+		opts := &RawsaveBufferOptions{Keep: Ptr(KeepNone), Background: []float64{1}, PageHeight: 1}
+		buf, err := img.RawsaveBuffer(opts)
+		if err != nil {
+			firstErr := err
+			img = coverageMonoImage(t)
+			buf, err = img.RawsaveBuffer(opts)
 			if err != nil {
 				t.Fatalf("rawsave_buffer: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
 			}
@@ -2441,6 +3924,22 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("reduce: produced an empty image %dx%d", img.Width(), img.Height())
 		}
 	})
+	t.Run("reduce_options", func(t *testing.T) {
+		img := coverageImage(t)
+		opts := &ReduceOptions{Kernel: Ptr(KernelNearest), Gap: 1}
+		err := img.Reduce(1, 1, opts)
+		if err != nil {
+			firstErr := err
+			img = coverageMonoImage(t)
+			err = img.Reduce(1, 1, opts)
+			if err != nil {
+				t.Fatalf("reduce: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
+			}
+		}
+		if img.Width() <= 0 || img.Height() <= 0 {
+			t.Fatalf("reduce: produced an empty image %dx%d", img.Width(), img.Height())
+		}
+	})
 	t.Run("reduceh", func(t *testing.T) {
 		img := coverageImage(t)
 		err := img.Reduceh(1, nil)
@@ -2456,6 +3955,22 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("reduceh: produced an empty image %dx%d", img.Width(), img.Height())
 		}
 	})
+	t.Run("reduceh_options", func(t *testing.T) {
+		img := coverageImage(t)
+		opts := &ReducehOptions{Kernel: Ptr(KernelNearest), Gap: 1}
+		err := img.Reduceh(1, opts)
+		if err != nil {
+			firstErr := err
+			img = coverageMonoImage(t)
+			err = img.Reduceh(1, opts)
+			if err != nil {
+				t.Fatalf("reduceh: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
+			}
+		}
+		if img.Width() <= 0 || img.Height() <= 0 {
+			t.Fatalf("reduceh: produced an empty image %dx%d", img.Width(), img.Height())
+		}
+	})
 	t.Run("reducev", func(t *testing.T) {
 		img := coverageImage(t)
 		err := img.Reducev(1, nil)
@@ -2463,6 +3978,22 @@ func TestGeneratedOperations(t *testing.T) {
 			firstErr := err
 			img = coverageMonoImage(t)
 			err = img.Reducev(1, nil)
+			if err != nil {
+				t.Fatalf("reducev: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
+			}
+		}
+		if img.Width() <= 0 || img.Height() <= 0 {
+			t.Fatalf("reducev: produced an empty image %dx%d", img.Width(), img.Height())
+		}
+	})
+	t.Run("reducev_options", func(t *testing.T) {
+		img := coverageImage(t)
+		opts := &ReducevOptions{Kernel: Ptr(KernelNearest), Gap: 1}
+		err := img.Reducev(1, opts)
+		if err != nil {
+			firstErr := err
+			img = coverageMonoImage(t)
+			err = img.Reducev(1, opts)
 			if err != nil {
 				t.Fatalf("reducev: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
 			}
@@ -2565,6 +4096,22 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("resize: produced an empty image %dx%d", img.Width(), img.Height())
 		}
 	})
+	t.Run("resize_options", func(t *testing.T) {
+		img := coverageImage(t)
+		opts := &ResizeOptions{Kernel: Ptr(KernelNearest), Gap: Ptr(1.0), Vscale: 1}
+		err := img.Resize(1, opts)
+		if err != nil {
+			firstErr := err
+			img = coverageMonoImage(t)
+			err = img.Resize(1, opts)
+			if err != nil {
+				t.Fatalf("resize: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
+			}
+		}
+		if img.Width() <= 0 || img.Height() <= 0 {
+			t.Fatalf("resize: produced an empty image %dx%d", img.Width(), img.Height())
+		}
+	})
 	t.Run("rot", func(t *testing.T) {
 		img := coverageImage(t)
 		err := img.Rot(AngleD0)
@@ -2595,6 +4142,22 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("rot45: produced an empty image %dx%d", img.Width(), img.Height())
 		}
 	})
+	t.Run("rot45_options", func(t *testing.T) {
+		img := coverageImage(t)
+		opts := &Rot45Options{Angle: Ptr(Angle45D0)}
+		err := img.Rot45(opts)
+		if err != nil {
+			firstErr := err
+			img = coverageMonoImage(t)
+			err = img.Rot45(opts)
+			if err != nil {
+				t.Fatalf("rot45: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
+			}
+		}
+		if img.Width() <= 0 || img.Height() <= 0 {
+			t.Fatalf("rot45: produced an empty image %dx%d", img.Width(), img.Height())
+		}
+	})
 	t.Run("rotate", func(t *testing.T) {
 		img := coverageImage(t)
 		err := img.Rotate(1, nil)
@@ -2602,6 +4165,22 @@ func TestGeneratedOperations(t *testing.T) {
 			firstErr := err
 			img = coverageMonoImage(t)
 			err = img.Rotate(1, nil)
+			if err != nil {
+				t.Fatalf("rotate: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
+			}
+		}
+		if img.Width() <= 0 || img.Height() <= 0 {
+			t.Fatalf("rotate: produced an empty image %dx%d", img.Width(), img.Height())
+		}
+	})
+	t.Run("rotate_options", func(t *testing.T) {
+		img := coverageImage(t)
+		opts := &RotateOptions{Background: []float64{1}, Odx: 1, Ody: 1, Idx: 1, Idy: 1}
+		err := img.Rotate(1, opts)
+		if err != nil {
+			firstErr := err
+			img = coverageMonoImage(t)
+			err = img.Rotate(1, opts)
 			if err != nil {
 				t.Fatalf("rotate: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
 			}
@@ -2670,6 +4249,22 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("scRGB2BW: produced an empty image %dx%d", img.Width(), img.Height())
 		}
 	})
+	t.Run("scRGB2BW_options", func(t *testing.T) {
+		img := coverageImage(t)
+		opts := &ScRGB2BWOptions{Depth: 8}
+		err := img.ScRGB2BW(opts)
+		if err != nil {
+			firstErr := err
+			img = coverageMonoImage(t)
+			err = img.ScRGB2BW(opts)
+			if err != nil {
+				t.Fatalf("scRGB2BW: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
+			}
+		}
+		if img.Width() <= 0 || img.Height() <= 0 {
+			t.Fatalf("scRGB2BW: produced an empty image %dx%d", img.Width(), img.Height())
+		}
+	})
 	t.Run("scRGB2XYZ", func(t *testing.T) {
 		img := coverageImage(t)
 		err := img.ScRGB2XYZ()
@@ -2700,6 +4295,22 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("scRGB2sRGB: produced an empty image %dx%d", img.Width(), img.Height())
 		}
 	})
+	t.Run("scRGB2sRGB_options", func(t *testing.T) {
+		img := coverageImage(t)
+		opts := &ScRGB2sRGBOptions{Depth: 8}
+		err := img.ScRGB2sRGB(opts)
+		if err != nil {
+			firstErr := err
+			img = coverageMonoImage(t)
+			err = img.ScRGB2sRGB(opts)
+			if err != nil {
+				t.Fatalf("scRGB2sRGB: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
+			}
+		}
+		if img.Width() <= 0 || img.Height() <= 0 {
+			t.Fatalf("scRGB2sRGB: produced an empty image %dx%d", img.Width(), img.Height())
+		}
+	})
 	t.Run("scale", func(t *testing.T) {
 		img := coverageImage(t)
 		err := img.Scale(nil)
@@ -2707,6 +4318,22 @@ func TestGeneratedOperations(t *testing.T) {
 			firstErr := err
 			img = coverageMonoImage(t)
 			err = img.Scale(nil)
+			if err != nil {
+				t.Fatalf("scale: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
+			}
+		}
+		if img.Width() <= 0 || img.Height() <= 0 {
+			t.Fatalf("scale: produced an empty image %dx%d", img.Width(), img.Height())
+		}
+	})
+	t.Run("scale_options", func(t *testing.T) {
+		img := coverageImage(t)
+		opts := &ScaleOptions{Exp: 1, Log: true}
+		err := img.Scale(opts)
+		if err != nil {
+			firstErr := err
+			img = coverageMonoImage(t)
+			err = img.Scale(opts)
 			if err != nil {
 				t.Fatalf("scale: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
 			}
@@ -2740,6 +4367,17 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("sdf: produced an empty image %dx%d", out.Width(), out.Height())
 		}
 	})
+	t.Run("sdf_options", func(t *testing.T) {
+		opts := &SdfOptions{R: Ptr(1.0), A: []float64{1}, B: []float64{0}, Corners: []float64{1}}
+		out, err := NewSdf(8, 8, SdfShapeCircle, opts)
+		if err != nil {
+			t.Skipf("input precondition: needs its shape options set: %v", err)
+		}
+		defer out.Close()
+		if out.Width() <= 0 || out.Height() <= 0 {
+			t.Fatalf("sdf: produced an empty image %dx%d", out.Width(), out.Height())
+		}
+	})
 	t.Run("sharpen", func(t *testing.T) {
 		img := coverageImage(t)
 		err := img.Sharpen(nil)
@@ -2747,6 +4385,22 @@ func TestGeneratedOperations(t *testing.T) {
 			firstErr := err
 			img = coverageMonoImage(t)
 			err = img.Sharpen(nil)
+			if err != nil {
+				t.Fatalf("sharpen: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
+			}
+		}
+		if img.Width() <= 0 || img.Height() <= 0 {
+			t.Fatalf("sharpen: produced an empty image %dx%d", img.Width(), img.Height())
+		}
+	})
+	t.Run("sharpen_options", func(t *testing.T) {
+		img := coverageImage(t)
+		opts := &SharpenOptions{Sigma: 1, X1: Ptr(1.0), Y2: Ptr(1.0), Y3: Ptr(1.0), M1: 1, M2: Ptr(1.0)}
+		err := img.Sharpen(opts)
+		if err != nil {
+			firstErr := err
+			img = coverageMonoImage(t)
+			err = img.Sharpen(opts)
 			if err != nil {
 				t.Fatalf("sharpen: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
 			}
@@ -2770,6 +4424,22 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("shrink: produced an empty image %dx%d", img.Width(), img.Height())
 		}
 	})
+	t.Run("shrink_options", func(t *testing.T) {
+		img := coverageImage(t)
+		opts := &ShrinkOptions{Ceil: true}
+		err := img.Shrink(1, 1, opts)
+		if err != nil {
+			firstErr := err
+			img = coverageMonoImage(t)
+			err = img.Shrink(1, 1, opts)
+			if err != nil {
+				t.Fatalf("shrink: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
+			}
+		}
+		if img.Width() <= 0 || img.Height() <= 0 {
+			t.Fatalf("shrink: produced an empty image %dx%d", img.Width(), img.Height())
+		}
+	})
 	t.Run("shrinkh", func(t *testing.T) {
 		img := coverageImage(t)
 		err := img.Shrinkh(1, nil)
@@ -2785,6 +4455,22 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("shrinkh: produced an empty image %dx%d", img.Width(), img.Height())
 		}
 	})
+	t.Run("shrinkh_options", func(t *testing.T) {
+		img := coverageImage(t)
+		opts := &ShrinkhOptions{Ceil: true}
+		err := img.Shrinkh(1, opts)
+		if err != nil {
+			firstErr := err
+			img = coverageMonoImage(t)
+			err = img.Shrinkh(1, opts)
+			if err != nil {
+				t.Fatalf("shrinkh: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
+			}
+		}
+		if img.Width() <= 0 || img.Height() <= 0 {
+			t.Fatalf("shrinkh: produced an empty image %dx%d", img.Width(), img.Height())
+		}
+	})
 	t.Run("shrinkv", func(t *testing.T) {
 		img := coverageImage(t)
 		err := img.Shrinkv(1, nil)
@@ -2792,6 +4478,22 @@ func TestGeneratedOperations(t *testing.T) {
 			firstErr := err
 			img = coverageMonoImage(t)
 			err = img.Shrinkv(1, nil)
+			if err != nil {
+				t.Fatalf("shrinkv: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
+			}
+		}
+		if img.Width() <= 0 || img.Height() <= 0 {
+			t.Fatalf("shrinkv: produced an empty image %dx%d", img.Width(), img.Height())
+		}
+	})
+	t.Run("shrinkv_options", func(t *testing.T) {
+		img := coverageImage(t)
+		opts := &ShrinkvOptions{Ceil: true}
+		err := img.Shrinkv(1, opts)
+		if err != nil {
+			firstErr := err
+			img = coverageMonoImage(t)
+			err = img.Shrinkv(1, opts)
 			if err != nil {
 				t.Fatalf("shrinkv: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
 			}
@@ -2830,8 +4532,35 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("similarity: produced an empty image %dx%d", img.Width(), img.Height())
 		}
 	})
+	t.Run("similarity_options", func(t *testing.T) {
+		img := coverageImage(t)
+		opts := &SimilarityOptions{Scale: 1, Angle: 1, Background: []float64{1}, Odx: 1, Ody: 1, Idx: 1, Idy: 1}
+		err := img.Similarity(opts)
+		if err != nil {
+			firstErr := err
+			img = coverageMonoImage(t)
+			err = img.Similarity(opts)
+			if err != nil {
+				t.Fatalf("similarity: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
+			}
+		}
+		if img.Width() <= 0 || img.Height() <= 0 {
+			t.Fatalf("similarity: produced an empty image %dx%d", img.Width(), img.Height())
+		}
+	})
 	t.Run("sines", func(t *testing.T) {
 		out, err := NewSines(8, 8, nil)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer out.Close()
+		if out.Width() <= 0 || out.Height() <= 0 {
+			t.Fatalf("sines: produced an empty image %dx%d", out.Width(), out.Height())
+		}
+	})
+	t.Run("sines_options", func(t *testing.T) {
+		opts := &SinesOptions{Uchar: true, Hfreq: Ptr(1.0), Vfreq: Ptr(1.0)}
+		out, err := NewSines(8, 8, opts)
 		if err != nil {
 			t.Fatalf("wrapper reported an error: %v", err)
 		}
@@ -2847,6 +4576,22 @@ func TestGeneratedOperations(t *testing.T) {
 			firstErr := err
 			img = coverageMonoImage(t)
 			err = img.Smartcrop(8, 8, nil)
+			if err != nil {
+				t.Fatalf("smartcrop: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
+			}
+		}
+		if img.Width() <= 0 || img.Height() <= 0 {
+			t.Fatalf("smartcrop: produced an empty image %dx%d", img.Width(), img.Height())
+		}
+	})
+	t.Run("smartcrop_options", func(t *testing.T) {
+		img := coverageImage(t)
+		opts := &SmartcropOptions{Interesting: Ptr(InterestingNone), Premultiplied: true}
+		err := img.Smartcrop(8, 8, opts)
+		if err != nil {
+			firstErr := err
+			img = coverageMonoImage(t)
+			err = img.Smartcrop(8, 8, opts)
 			if err != nil {
 				t.Fatalf("smartcrop: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
 			}
@@ -2932,6 +4677,22 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("stdif: produced an empty image %dx%d", img.Width(), img.Height())
 		}
 	})
+	t.Run("stdif_options", func(t *testing.T) {
+		img := coverageImage(t)
+		opts := &StdifOptions{S0: Ptr(1.0), B: Ptr(0.0), M0: Ptr(1.0), A: Ptr(1.0)}
+		err := img.Stdif(8, 8, opts)
+		if err != nil {
+			firstErr := err
+			img = coverageMonoImage(t)
+			err = img.Stdif(8, 8, opts)
+			if err != nil {
+				t.Fatalf("stdif: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
+			}
+		}
+		if img.Width() <= 0 || img.Height() <= 0 {
+			t.Fatalf("stdif: produced an empty image %dx%d", img.Width(), img.Height())
+		}
+	})
 	t.Run("subsample", func(t *testing.T) {
 		img := coverageImage(t)
 		err := img.Subsample(1, 1, nil)
@@ -2939,6 +4700,22 @@ func TestGeneratedOperations(t *testing.T) {
 			firstErr := err
 			img = coverageMonoImage(t)
 			err = img.Subsample(1, 1, nil)
+			if err != nil {
+				t.Fatalf("subsample: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
+			}
+		}
+		if img.Width() <= 0 || img.Height() <= 0 {
+			t.Fatalf("subsample: produced an empty image %dx%d", img.Width(), img.Height())
+		}
+	})
+	t.Run("subsample_options", func(t *testing.T) {
+		img := coverageImage(t)
+		opts := &SubsampleOptions{Point: true}
+		err := img.Subsample(1, 1, opts)
+		if err != nil {
+			firstErr := err
+			img = coverageMonoImage(t)
+			err = img.Subsample(1, 1, opts)
 			if err != nil {
 				t.Fatalf("subsample: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
 			}
@@ -3003,6 +4780,22 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("thumbnail_image: produced an empty image %dx%d", img.Width(), img.Height())
 		}
 	})
+	t.Run("thumbnail_image_options", func(t *testing.T) {
+		img := coverageImage(t)
+		opts := &ThumbnailImageOptions{Height: 8, Size: SizeBoth, NoRotate: true, Crop: InterestingNone, Linear: true, Intent: Ptr(IntentPerceptual), FailOn: FailOnNone}
+		err := img.ThumbnailImage(8, opts)
+		if err != nil {
+			firstErr := err
+			img = coverageMonoImage(t)
+			err = img.ThumbnailImage(8, opts)
+			if err != nil {
+				t.Fatalf("thumbnail_image: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
+			}
+		}
+		if img.Width() <= 0 || img.Height() <= 0 {
+			t.Fatalf("thumbnail_image: produced an empty image %dx%d", img.Width(), img.Height())
+		}
+	})
 	t.Run("tiffload", func(t *testing.T) {
 		img := coverageImage(t)
 		path := coveragePath(t, "tif")
@@ -3018,6 +4811,22 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("tiffload: loaded %dx%d from a %dx%d file", loaded.Width(), loaded.Height(), img.Width(), img.Height())
 		}
 	})
+	t.Run("tiffload_options", func(t *testing.T) {
+		img := coverageImage(t)
+		path := coveragePath(t, "tif")
+		if err := img.Tiffsave(path, nil); err != nil {
+			t.Skipf("fixture unavailable: the saver could not write it: %v", err)
+		}
+		opts := &TiffloadOptions{Page: 0, N: 1, Autorotate: true, Subifd: 1, Unlimited: true, Memory: true, Access: AccessRandom, FailOn: FailOnNone, Revalidate: true}
+		loaded, err := NewTiffload(path, opts)
+		if err != nil {
+			t.Skipf("input precondition: its subifd option needs a file that has one: %v", err)
+		}
+		defer loaded.Close()
+		if loaded.Width() <= 0 || loaded.Height() <= 0 {
+			t.Fatalf("tiffload: loaded an empty image %dx%d", loaded.Width(), loaded.Height())
+		}
+	})
 	t.Run("tiffsave", func(t *testing.T) {
 		img := coverageImage(t)
 		path := coveragePath(t, "tif")
@@ -3026,6 +4835,23 @@ func TestGeneratedOperations(t *testing.T) {
 			firstErr := err
 			img = coverageMonoImage(t)
 			err = img.Tiffsave(path, nil)
+			if err != nil {
+				t.Fatalf("tiffsave: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
+			}
+		}
+		if info, statErr := os.Stat(path); statErr != nil || info.Size() == 0 {
+			t.Fatalf("tiffsave: wrote no file at %s", path)
+		}
+	})
+	t.Run("tiffsave_options", func(t *testing.T) {
+		img := coverageImage(t)
+		path := coveragePath(t, "tif")
+		opts := &TiffsaveOptions{Compression: TiffCompressionNone, Q: 1, Predictor: TiffPredictorNone, Tile: true, TileWidth: 16, TileHeight: 16, Pyramid: true, Miniswhite: true, Bitdepth: 1, Resunit: TiffResunitCm, Xres: 1, Yres: 1, Bigtiff: true, Properties: true, RegionShrink: RegionShrinkMean, Level: 1, Lossless: true, Depth: Ptr(DzDepthOnepixel), Subifd: true, Premultiply: true, Keep: Ptr(KeepNone), Background: []float64{1}, PageHeight: 1}
+		err := img.Tiffsave(path, opts)
+		if err != nil {
+			firstErr := err
+			img = coverageMonoImage(t)
+			err = img.Tiffsave(path, opts)
 			if err != nil {
 				t.Fatalf("tiffsave: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
 			}
@@ -3049,8 +4875,35 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("tiffsave_buffer: wrote an empty buffer: %d bytes", len(buf))
 		}
 	})
+	t.Run("tiffsave_buffer_options", func(t *testing.T) {
+		img := coverageImage(t)
+		opts := &TiffsaveBufferOptions{Compression: TiffCompressionNone, Q: 1, Predictor: TiffPredictorNone, Tile: true, TileWidth: 16, TileHeight: 16, Pyramid: true, Miniswhite: true, Bitdepth: 1, Resunit: TiffResunitCm, Xres: 1, Yres: 1, Bigtiff: true, Properties: true, RegionShrink: RegionShrinkMean, Level: 1, Lossless: true, Depth: Ptr(DzDepthOnepixel), Subifd: true, Premultiply: true, Keep: Ptr(KeepNone), Background: []float64{1}, PageHeight: 1}
+		buf, err := img.TiffsaveBuffer(opts)
+		if err != nil {
+			firstErr := err
+			img = coverageMonoImage(t)
+			buf, err = img.TiffsaveBuffer(opts)
+			if err != nil {
+				t.Fatalf("tiffsave_buffer: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
+			}
+		}
+		if len(buf) == 0 {
+			t.Fatalf("tiffsave_buffer: wrote an empty buffer: %d bytes", len(buf))
+		}
+	})
 	t.Run("tonelut", func(t *testing.T) {
 		out, err := NewTonelut(nil)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer out.Close()
+		if out.Width() <= 0 || out.Height() <= 0 {
+			t.Fatalf("tonelut: produced an empty image %dx%d", out.Width(), out.Height())
+		}
+	})
+	t.Run("tonelut_options", func(t *testing.T) {
+		opts := &TonelutOptions{InMax: 1, OutMax: 1, Lb: 1, Lw: Ptr(1.0), Ps: Ptr(1.0), Pm: Ptr(1.0), Ph: Ptr(1.0), S: 1, M: 1, H: 1}
+		out, err := NewTonelut(opts)
 		if err != nil {
 			t.Fatalf("wrapper reported an error: %v", err)
 		}
@@ -3062,6 +4915,17 @@ func TestGeneratedOperations(t *testing.T) {
 	t.Run("transpose3d", func(t *testing.T) {
 		img := coverageImage(t)
 		err := img.Transpose3d(nil)
+		if err != nil {
+			t.Skipf("input precondition: needs a page-height header field: %v", err)
+		}
+		if img.Width() <= 0 || img.Height() <= 0 {
+			t.Fatalf("transpose3d: produced an empty image %dx%d", img.Width(), img.Height())
+		}
+	})
+	t.Run("transpose3d_options", func(t *testing.T) {
+		img := coverageImage(t)
+		opts := &Transpose3dOptions{PageHeight: 1}
+		err := img.Transpose3d(opts)
 		if err != nil {
 			t.Skipf("input precondition: needs a page-height header field: %v", err)
 		}
@@ -3094,6 +4958,22 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("unpremultiply: produced an empty image %dx%d", img.Width(), img.Height())
 		}
 	})
+	t.Run("unpremultiply_options", func(t *testing.T) {
+		img := coverageImage(t)
+		opts := &UnpremultiplyOptions{MaxAlpha: Ptr(1.0), AlphaBand: Ptr(1)}
+		err := img.Unpremultiply(opts)
+		if err != nil {
+			firstErr := err
+			img = coverageMonoImage(t)
+			err = img.Unpremultiply(opts)
+			if err != nil {
+				t.Fatalf("unpremultiply: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
+			}
+		}
+		if img.Width() <= 0 || img.Height() <= 0 {
+			t.Fatalf("unpremultiply: produced an empty image %dx%d", img.Width(), img.Height())
+		}
+	})
 	t.Run("vipsload", func(t *testing.T) {
 		img := coverageImage(t)
 		path := coveragePath(t, "v")
@@ -3109,6 +4989,22 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("vipsload: loaded %dx%d from a %dx%d file", loaded.Width(), loaded.Height(), img.Width(), img.Height())
 		}
 	})
+	t.Run("vipsload_options", func(t *testing.T) {
+		img := coverageImage(t)
+		path := coveragePath(t, "v")
+		if err := img.Vipssave(path, nil); err != nil {
+			t.Skipf("fixture unavailable: the saver could not write it: %v", err)
+		}
+		opts := &VipsloadOptions{Memory: true, Access: AccessRandom, FailOn: FailOnNone, Revalidate: true}
+		loaded, err := NewVipsload(path, opts)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer loaded.Close()
+		if loaded.Width() <= 0 || loaded.Height() <= 0 {
+			t.Fatalf("vipsload: loaded an empty image %dx%d", loaded.Width(), loaded.Height())
+		}
+	})
 	t.Run("vipssave", func(t *testing.T) {
 		img := coverageImage(t)
 		path := coveragePath(t, "v")
@@ -3117,6 +5013,23 @@ func TestGeneratedOperations(t *testing.T) {
 			firstErr := err
 			img = coverageMonoImage(t)
 			err = img.Vipssave(path, nil)
+			if err != nil {
+				t.Fatalf("vipssave: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
+			}
+		}
+		if info, statErr := os.Stat(path); statErr != nil || info.Size() == 0 {
+			t.Fatalf("vipssave: wrote no file at %s", path)
+		}
+	})
+	t.Run("vipssave_options", func(t *testing.T) {
+		img := coverageImage(t)
+		path := coveragePath(t, "v")
+		opts := &VipssaveOptions{Keep: Ptr(KeepNone), Background: []float64{1}, PageHeight: 1}
+		err := img.Vipssave(path, opts)
+		if err != nil {
+			firstErr := err
+			img = coverageMonoImage(t)
+			err = img.Vipssave(path, opts)
 			if err != nil {
 				t.Fatalf("vipssave: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
 			}
@@ -3140,6 +5053,22 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("webpload: loaded %dx%d from a %dx%d file", loaded.Width(), loaded.Height(), img.Width(), img.Height())
 		}
 	})
+	t.Run("webpload_options", func(t *testing.T) {
+		img := coverageImage(t)
+		path := coveragePath(t, "webp")
+		if err := img.Webpsave(path, nil); err != nil {
+			t.Skipf("fixture unavailable: the saver could not write it: %v", err)
+		}
+		opts := &WebploadOptions{Page: 0, N: 1, Scale: 1, Memory: true, Access: AccessRandom, FailOn: FailOnNone, Revalidate: true}
+		loaded, err := NewWebpload(path, opts)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer loaded.Close()
+		if loaded.Width() <= 0 || loaded.Height() <= 0 {
+			t.Fatalf("webpload: loaded an empty image %dx%d", loaded.Width(), loaded.Height())
+		}
+	})
 	t.Run("webpsave", func(t *testing.T) {
 		img := coverageImage(t)
 		path := coveragePath(t, "webp")
@@ -3148,6 +5077,23 @@ func TestGeneratedOperations(t *testing.T) {
 			firstErr := err
 			img = coverageMonoImage(t)
 			err = img.Webpsave(path, nil)
+			if err != nil {
+				t.Fatalf("webpsave: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
+			}
+		}
+		if info, statErr := os.Stat(path); statErr != nil || info.Size() == 0 {
+			t.Fatalf("webpsave: wrote no file at %s", path)
+		}
+	})
+	t.Run("webpsave_options", func(t *testing.T) {
+		img := coverageImage(t)
+		path := coveragePath(t, "webp")
+		opts := &WebpsaveOptions{Q: Ptr(1), Lossless: true, Exact: true, Preset: WebpPresetDefault, SmartSubsample: true, NearLossless: true, AlphaQ: Ptr(1), MinSize: true, Kmin: Ptr(1), Kmax: Ptr(1), Effort: Ptr(1), TargetSize: 1, Mixed: true, SmartDeblock: true, Passes: 1, Keep: Ptr(KeepNone), Background: []float64{1}, PageHeight: 1}
+		err := img.Webpsave(path, opts)
+		if err != nil {
+			firstErr := err
+			img = coverageMonoImage(t)
+			err = img.Webpsave(path, opts)
 			if err != nil {
 				t.Fatalf("webpsave: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
 			}
@@ -3171,8 +5117,35 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("webpsave_buffer: wrote an empty buffer: %d bytes", len(buf))
 		}
 	})
+	t.Run("webpsave_buffer_options", func(t *testing.T) {
+		img := coverageImage(t)
+		opts := &WebpsaveBufferOptions{Q: Ptr(1), Lossless: true, Exact: true, Preset: WebpPresetDefault, SmartSubsample: true, NearLossless: true, AlphaQ: Ptr(1), MinSize: true, Kmin: Ptr(1), Kmax: Ptr(1), Effort: Ptr(1), TargetSize: 1, Mixed: true, SmartDeblock: true, Passes: 1, Keep: Ptr(KeepNone), Background: []float64{1}, PageHeight: 1}
+		buf, err := img.WebpsaveBuffer(opts)
+		if err != nil {
+			firstErr := err
+			img = coverageMonoImage(t)
+			buf, err = img.WebpsaveBuffer(opts)
+			if err != nil {
+				t.Fatalf("webpsave_buffer: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
+			}
+		}
+		if len(buf) == 0 {
+			t.Fatalf("webpsave_buffer: wrote an empty buffer: %d bytes", len(buf))
+		}
+	})
 	t.Run("worley", func(t *testing.T) {
 		out, err := NewWorley(8, 8, nil)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer out.Close()
+		if out.Width() <= 0 || out.Height() <= 0 {
+			t.Fatalf("worley: produced an empty image %dx%d", out.Width(), out.Height())
+		}
+	})
+	t.Run("worley_options", func(t *testing.T) {
+		opts := &WorleyOptions{CellSize: 1, Seed: 1}
+		out, err := NewWorley(8, 8, opts)
 		if err != nil {
 			t.Fatalf("wrapper reported an error: %v", err)
 		}
@@ -3196,6 +5169,22 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("wrap: produced an empty image %dx%d", img.Width(), img.Height())
 		}
 	})
+	t.Run("wrap_options", func(t *testing.T) {
+		img := coverageImage(t)
+		opts := &WrapOptions{X: 0, Y: 0}
+		err := img.Wrap(opts)
+		if err != nil {
+			firstErr := err
+			img = coverageMonoImage(t)
+			err = img.Wrap(opts)
+			if err != nil {
+				t.Fatalf("wrap: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
+			}
+		}
+		if img.Width() <= 0 || img.Height() <= 0 {
+			t.Fatalf("wrap: produced an empty image %dx%d", img.Width(), img.Height())
+		}
+	})
 	t.Run("xyz", func(t *testing.T) {
 		out, err := NewXyz(8, 8, nil)
 		if err != nil {
@@ -3206,8 +5195,30 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("xyz: produced an empty image %dx%d", out.Width(), out.Height())
 		}
 	})
+	t.Run("xyz_options", func(t *testing.T) {
+		opts := &XyzOptions{Csize: 1, Dsize: 1, Esize: 1}
+		out, err := NewXyz(8, 8, opts)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer out.Close()
+		if out.Width() <= 0 || out.Height() <= 0 {
+			t.Fatalf("xyz: produced an empty image %dx%d", out.Width(), out.Height())
+		}
+	})
 	t.Run("zone", func(t *testing.T) {
 		out, err := NewZone(8, 8, nil)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer out.Close()
+		if out.Width() <= 0 || out.Height() <= 0 {
+			t.Fatalf("zone: produced an empty image %dx%d", out.Width(), out.Height())
+		}
+	})
+	t.Run("zone_options", func(t *testing.T) {
+		opts := &ZoneOptions{Uchar: true}
+		out, err := NewZone(8, 8, opts)
 		if err != nil {
 			t.Fatalf("wrapper reported an error: %v", err)
 		}
