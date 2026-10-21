@@ -3,6 +3,8 @@
 package vips
 
 import (
+	"os"
+	"path/filepath"
 	"testing"
 )
 
@@ -15,6 +17,13 @@ func TestGeneratedOperations(t *testing.T) {
 {{range .Coverage}}	t.Run("{{.Name}}", func(t *testing.T) {
 {{.Body}}	})
 {{end}}}
+
+// coveragePath is a path a subtest may write: its own temporary directory, with
+// the extension the format's loader expects.
+func coveragePath(t *testing.T, ext string) string {
+	t.Helper()
+	return filepath.Join(t.TempDir(), "coverage."+ext)
+}
 
 // coverageMonoImage returns a small deterministic one-band pattern, the same on
 // every libvips version. The masks, matrices and histograms take an input of

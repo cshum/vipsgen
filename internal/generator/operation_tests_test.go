@@ -176,3 +176,133 @@ func TestCoverageSkipEntriesAreReasons(t *testing.T) {
 		}
 	}
 }
+
+// TestFormatToken pins how an operation name becomes a format token: the
+// direction and the connection suffix go, the format stays.
+func TestFormatToken(t *testing.T) {
+	tests := map[string]string{
+		"jpegsave":        "jpeg",
+		"jpegsave_buffer": "jpeg",
+		"gifload_source":  "gif",
+		"tiffload":        "tiff",
+		"dzsave":          "dz",
+		"pngsave_target":  "png",
+	}
+	for name, want := range tests {
+		if got := formatToken(name); got != want {
+			t.Errorf("formatToken(%q) = %q, want %q", name, got, want)
+		}
+	}
+}
+
+// TestForeignKindSelection pins which filename operations get a round trip: a
+// saver that writes a file, and a loader whose format has a saver to write the
+// fixture. Everything else stays out.
+func TestForeignKindSelection(t *testing.T) {
+	filenameArg := introspection.Argument{Name: "filename", GoName: "filename", GoType: "string", IsInput: true}
+
+	// Arguments is what the generator's call-signature logic reads, so a fixture
+	// has to populate it as introspection does: required inputs first.
+	save := coverageOp("pngsave", "Pngsave")
+	save.HasThisImageInput = true
+	save.RequiredInputs = []introspection.Argument{imageArg("in"), filenameArg}
+	save.Arguments = save.RequiredInputs
+
+	load := coverageOp("pngload", "Pngload")
+	load.HasOneImageOutput = true
+	load.RequiredInputs = []introspection.Argument{filenameArg}
+	load.Arguments = load.RequiredInputs
+
+	raw := coverageOp("rawload", "Rawload")
+	raw.HasOneImageOutput = true
+	raw.RequiredInputs = []introspection.Argument{
+		filenameArg,
+		{Name: "width", GoName: "width", GoType: "int", IsInput: true},
+		{Name: "height", GoName: "height", GoType: "int", IsInput: true},
+		{Name: "bands", GoName: "bands", GoType: "int", IsInput: true},
+	}
+	raw.Arguments = raw.RequiredInputs
+
+	dz := coverageOp("dzsave", "Dzsave")
+	dz.HasThisImageInput = true
+	dz.RequiredInputs = []introspection.Argument{imageArg("in"), filenameArg}
+	dz.Arguments = dz.RequiredInputs
+
+	pdf := coverageOp("pdfload", "Pdfload")
+	pdf.HasOneImageOutput = true
+	pdf.RequiredInputs = []introspection.Argument{filenameArg}
+	pdf.Arguments = pdf.RequiredInputs
+
+	formats := newCoverageFormats([]introspection.Operation{save, load, raw, dz, pdf})
+
+	if kind, ext, saver, ok := formats.foreignKind(save); !ok || kind != "saver" || ext != "png" {
+		t.Errorf("pngsave: got %q/%q/%q/%v, want saver/png", kind, ext, saver, ok)
+	}
+	if kind, ext, saver, ok := formats.foreignKind(load); !ok || kind != "loader" || ext != "png" || saver != "Pngsave" {
+		t.Errorf("pngload: got %q/%q/%q/%v, want loader/png/Pngsave", kind, ext, saver, ok)
+	}
+	if _, _, _, ok := formats.foreignKind(raw); ok {
+		t.Error("rawload needs the dimensions of the bytes, so it cannot round-trip")
+	}
+	if _, _, _, ok := formats.foreignKind(dz); ok {
+		t.Error("dzsave writes a directory, not a file")
+	}
+	if _, _, _, ok := formats.foreignKind(pdf); ok {
+		t.Error("pdfload has no saver to write its fixture")
+	}
+}
+
+// TestRoundTripBodySnapshots pins the two generated shapes: a saver writing a
+// file, and a loader that uses that saver for its fixture and compares geometry.
+func TestRoundTripBodySnapshots(t *testing.T) {
+	filenameArg := introspection.Argument{Name: "filename", GoName: "filename", GoType: "string", IsInput: true}
+
+	save := coverageOp("pngsave", "Pngsave")
+	save.HasThisImageInput = true
+	save.RequiredInputs = []introspection.Argument{imageArg("in"), filenameArg}
+	save.OptionalInputs = []introspection.Argument{{Name: "compression", GoName: "Compression", GoType: "int"}}
+
+	wantSaver := "" +
+		"\t\timg := coverageImage(t)\n" +
+		"\t\tpath := coveragePath(t, \"png\")\n" +
+		"\t\terr := img.Pngsave(path, nil)\n" +
+		"\t\tif err != nil {\n" +
+		"\t\t\tfirstErr := err\n" +
+		"\t\t\timg = coverageMonoImage(t)\n" +
+		"\t\t\terr = img.Pngsave(path, nil)\n" +
+		"\t\t\tif err != nil {\n" +
+		"\t\t\t\tt.Fatalf(\"pngsave: wrapper failed for a three-band and a one-band image: %v / %v\", firstErr, err)\n" +
+		"\t\t\t}\n" +
+		"\t\t}\n" +
+		"\t\tif info, statErr := os.Stat(path); statErr != nil || info.Size() == 0 {\n" +
+		"\t\t\tt.Fatalf(\"pngsave: wrote no file at %s\", path)\n" +
+		"\t\t}\n"
+
+	if got := saverCoverageBody(save, "png"); got != wantSaver {
+		t.Errorf("unexpected saver body\n got: %q\nwant: %q", got, wantSaver)
+	}
+
+	load := coverageOp("pngload", "Pngload")
+	load.HasOneImageOutput = true
+	load.RequiredInputs = []introspection.Argument{filenameArg}
+	load.OptionalInputs = []introspection.Argument{{Name: "unlimited", GoName: "Unlimited", GoType: "bool"}}
+
+	wantLoader := "" +
+		"\t\timg := coverageImage(t)\n" +
+		"\t\tpath := coveragePath(t, \"png\")\n" +
+		"\t\tif err := img.Pngsave(path, nil); err != nil {\n" +
+		"\t\t\tt.Skipf(\"fixture unavailable: the saver could not write it: %v\", err)\n" +
+		"\t\t}\n" +
+		"\t\tloaded, err := NewPngload(path, nil)\n" +
+		"\t\tif err != nil {\n" +
+		"\t\t\tt.Fatalf(\"wrapper reported an error: %v\", err)\n" +
+		"\t\t}\n" +
+		"\t\tdefer loaded.Close()\n" +
+		"\t\tif loaded.Width() != img.Width() || loaded.Height() != img.Height() {\n" +
+		"\t\t\tt.Fatalf(\"pngload: loaded %dx%d from a %dx%d file\", loaded.Width(), loaded.Height(), img.Width(), img.Height())\n" +
+		"\t\t}\n"
+
+	if got := loaderCoverageBody(load, "png", "Pngsave"); got != wantLoader {
+		t.Errorf("unexpected loader body\n got: %q\nwant: %q", got, wantLoader)
+	}
+}
