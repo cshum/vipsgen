@@ -3,6 +3,7 @@
 package vips
 
 import (
+	"math"
 	"os"
 	"path/filepath"
 	"testing"
@@ -367,6 +368,16 @@ func TestGeneratedOperations(t *testing.T) {
 		}
 		if img.Width() <= 0 || img.Height() <= 0 {
 			t.Fatalf("autorot: produced an empty image %dx%d", img.Width(), img.Height())
+		}
+	})
+	t.Run("avg", func(t *testing.T) {
+		img := coverageImage(t)
+		v0, err := img.Avg()
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		if math.IsNaN(v0) || v0 < 0 || v0 > 255 {
+			t.Fatalf("avg: %v is outside the range of a uchar image", v0)
 		}
 	})
 	t.Run("bandbool", func(t *testing.T) {
@@ -1043,6 +1054,36 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("convsep: produced an empty image %dx%d", img.Width(), img.Height())
 		}
 	})
+	t.Run("copy", func(t *testing.T) {
+		img := coverageImage(t)
+		out0, err := img.Copy(nil)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer out0.Close()
+		if out0.Width() <= 0 || out0.Height() <= 0 {
+			t.Fatalf("copy: produced an empty image %dx%d", out0.Width(), out0.Height())
+		}
+	})
+	t.Run("copy_options", func(t *testing.T) {
+		img := coverageImage(t)
+		opts := &CopyOptions{Width: 8, Height: 8, Bands: 1, Format: BandFormatNotset, Coding: CodingError, Interpretation: InterpretationSrgb, Xres: 1, Yres: 1, Xoffset: 0, Yoffset: 0}
+		out0, err := img.Copy(opts)
+		if err != nil {
+			t.Skipf("input precondition: changing the pel size is not a copy: %v", err)
+		}
+		defer out0.Close()
+	})
+	t.Run("countlines", func(t *testing.T) {
+		img := coverageImage(t)
+		v0, err := img.Countlines(DirectionHorizontal)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		if math.IsNaN(v0) || v0 < 0 || v0 > 255 {
+			t.Fatalf("countlines: %v is outside the range of a uchar image", v0)
+		}
+	})
 	t.Run("csvload", func(t *testing.T) {
 		img := coverageImage(t)
 		path := coveragePath(t, "csv")
@@ -1158,6 +1199,16 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("dECMC: produced an empty image %dx%d", img.Width(), img.Height())
 		}
 	})
+	t.Run("deviate", func(t *testing.T) {
+		img := coverageImage(t)
+		v0, err := img.Deviate()
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		if math.IsNaN(v0) || v0 < 0 || v0 > 255 {
+			t.Fatalf("deviate: %v is outside the range of a uchar image", v0)
+		}
+	})
 	t.Run("divide", func(t *testing.T) {
 		img := coverageImage(t)
 		other := coverageImage(t)
@@ -1173,6 +1224,90 @@ func TestGeneratedOperations(t *testing.T) {
 		}
 		if img.Width() <= 0 || img.Height() <= 0 {
 			t.Fatalf("divide: produced an empty image %dx%d", img.Width(), img.Height())
+		}
+	})
+	t.Run("draw_circle", func(t *testing.T) {
+		img := coverageImage(t)
+		err := img.DrawCircle([]float64{255}, 1, 1, 1, nil)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+	})
+	t.Run("draw_circle_options", func(t *testing.T) {
+		img := coverageImage(t)
+		opts := &DrawCircleOptions{Fill: true}
+		err := img.DrawCircle([]float64{255}, 1, 1, 1, opts)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+	})
+	t.Run("draw_flood", func(t *testing.T) {
+		img := coverageImage(t)
+		err := img.DrawFlood([]float64{255}, 0, 0, nil)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+	})
+	t.Run("draw_flood_options", func(t *testing.T) {
+		img := coverageImage(t)
+		opts := &DrawFloodOptions{Equal: true}
+		err := img.DrawFlood([]float64{255}, 0, 0, opts)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+	})
+	t.Run("draw_image", func(t *testing.T) {
+		img := coverageImage(t)
+		other := coverageImage(t)
+		err := img.DrawImage(other, 0, 0, nil)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+	})
+	t.Run("draw_image_options", func(t *testing.T) {
+		img := coverageImage(t)
+		other := coverageImage(t)
+		opts := &DrawImageOptions{Mode: CombineModeSet}
+		err := img.DrawImage(other, 0, 0, opts)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+	})
+	t.Run("draw_line", func(t *testing.T) {
+		img := coverageImage(t)
+		err := img.DrawLine([]float64{255}, 1, 1, 1, 1)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+	})
+	t.Run("draw_mask", func(t *testing.T) {
+		img := coverageImage(t)
+		other := coverageImage(t)
+		err := img.DrawMask([]float64{255}, other, 0, 0)
+		if err != nil {
+			t.Skipf("input precondition: needs a one-band image: %v", err)
+		}
+	})
+	t.Run("draw_rect", func(t *testing.T) {
+		img := coverageImage(t)
+		err := img.DrawRect([]float64{255}, 0, 0, 8, 8, nil)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+	})
+	t.Run("draw_rect_options", func(t *testing.T) {
+		img := coverageImage(t)
+		opts := &DrawRectOptions{Fill: true}
+		err := img.DrawRect([]float64{255}, 0, 0, 8, 8, opts)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+	})
+	t.Run("draw_smudge", func(t *testing.T) {
+		img := coverageImage(t)
+		err := img.DrawSmudge(0, 0, 8, 8)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
 		}
 	})
 	t.Run("dzsave_buffer", func(t *testing.T) {
@@ -1334,6 +1469,45 @@ func TestGeneratedOperations(t *testing.T) {
 		}
 		if img.Width() <= 0 || img.Height() <= 0 {
 			t.Fatalf("fastcor: produced an empty image %dx%d", img.Width(), img.Height())
+		}
+	})
+	t.Run("find_trim", func(t *testing.T) {
+		img := coverageImage(t)
+		v0, v1, v2, v3, err := img.FindTrim(nil)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		if v0 < 0 {
+			t.Fatalf("find_trim: %d is negative", v0)
+		}
+		if v1 < 0 {
+			t.Fatalf("find_trim: %d is negative", v1)
+		}
+		if v2 < 0 {
+			t.Fatalf("find_trim: %d is negative", v2)
+		}
+		if v3 < 0 {
+			t.Fatalf("find_trim: %d is negative", v3)
+		}
+	})
+	t.Run("find_trim_options", func(t *testing.T) {
+		img := coverageImage(t)
+		opts := &FindTrimOptions{Threshold: Ptr(1.0), Background: []float64{1}, LineArt: true}
+		v0, v1, v2, v3, err := img.FindTrim(opts)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		if v0 < 0 {
+			t.Fatalf("find_trim: %d is negative", v0)
+		}
+		if v1 < 0 {
+			t.Fatalf("find_trim: %d is negative", v1)
+		}
+		if v2 < 0 {
+			t.Fatalf("find_trim: %d is negative", v2)
+		}
+		if v3 < 0 {
+			t.Fatalf("find_trim: %d is negative", v3)
 		}
 	})
 	t.Run("fitsload", func(t *testing.T) {
@@ -1602,6 +1776,24 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("gaussnoise: produced an empty image %dx%d", out.Width(), out.Height())
 		}
 	})
+	t.Run("getpoint", func(t *testing.T) {
+		img := coverageImage(t)
+		v0, err := img.Getpoint(0, 0, nil)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		if len(v0) == 0 {
+			t.Fatalf("getpoint: returned no values")
+		}
+	})
+	t.Run("getpoint_options", func(t *testing.T) {
+		img := coverageImage(t)
+		opts := &GetpointOptions{UnpackComplex: true}
+		_, err := img.Getpoint(0, 0, opts)
+		if err != nil {
+			t.Skipf("input precondition: unpacking a real image as complex yields no values: %v", err)
+		}
+	})
 	t.Run("gifload", func(t *testing.T) {
 		img := coverageImage(t)
 		path := coveragePath(t, "gif")
@@ -1865,6 +2057,13 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("hist_cum: produced an empty image %dx%d", img.Width(), img.Height())
 		}
 	})
+	t.Run("hist_entropy", func(t *testing.T) {
+		img := coverageImage(t)
+		_, err := img.HistEntropy()
+		if err != nil {
+			t.Skipf("input precondition: needs a histogram: width or height 1: %v", err)
+		}
+	})
 	t.Run("hist_equal", func(t *testing.T) {
 		img := coverageImage(t)
 		err := img.HistEqual(nil)
@@ -1991,6 +2190,13 @@ func TestGeneratedOperations(t *testing.T) {
 		}
 		if img.Width() <= 0 || img.Height() <= 0 {
 			t.Fatalf("hist_find_ndim: produced an empty image %dx%d", img.Width(), img.Height())
+		}
+	})
+	t.Run("hist_ismonotonic", func(t *testing.T) {
+		img := coverageImage(t)
+		_, err := img.HistIsmonotonic()
+		if err != nil {
+			t.Skipf("input precondition: needs a histogram: width or height 1: %v", err)
 		}
 	})
 	t.Run("hist_local", func(t *testing.T) {
@@ -2687,6 +2893,29 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("linear: produced an empty image %dx%d", img.Width(), img.Height())
 		}
 	})
+	t.Run("linecache", func(t *testing.T) {
+		img := coverageImage(t)
+		out0, err := img.Linecache(nil)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer out0.Close()
+		if out0.Width() <= 0 || out0.Height() <= 0 {
+			t.Fatalf("linecache: produced an empty image %dx%d", out0.Width(), out0.Height())
+		}
+	})
+	t.Run("linecache_options", func(t *testing.T) {
+		img := coverageImage(t)
+		opts := &LinecacheOptions{TileHeight: 16, Access: AccessRandom, Threaded: true, Persistent: true}
+		out0, err := img.Linecache(opts)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer out0.Close()
+		if out0.Width() <= 0 || out0.Height() <= 0 {
+			t.Fatalf("linecache: produced an empty image %dx%d", out0.Width(), out0.Height())
+		}
+	})
 	t.Run("logmat", func(t *testing.T) {
 		out, err := NewLogmat(1, 1, nil)
 		if err != nil {
@@ -3210,6 +3439,27 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("matrixsave: wrote no file at %s", path)
 		}
 	})
+	t.Run("max", func(t *testing.T) {
+		img := coverageImage(t)
+		v0, err := img.Max(nil)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		if math.IsNaN(v0) || v0 < 0 || v0 > 255 {
+			t.Fatalf("max: %v is outside the range of a uchar image", v0)
+		}
+	})
+	t.Run("max_options", func(t *testing.T) {
+		img := coverageImage(t)
+		opts := &MaxOptions{Size: 1}
+		v0, err := img.Max(opts)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		if math.IsNaN(v0) || v0 < 0 || v0 > 255 {
+			t.Fatalf("max: %v is outside the range of a uchar image", v0)
+		}
+	})
 	t.Run("maxpair", func(t *testing.T) {
 		img := coverageImage(t)
 		other := coverageImage(t)
@@ -3291,6 +3541,27 @@ func TestGeneratedOperations(t *testing.T) {
 		}
 		if img.Width() <= 0 || img.Height() <= 0 {
 			t.Fatalf("merge: produced an empty image %dx%d", img.Width(), img.Height())
+		}
+	})
+	t.Run("min", func(t *testing.T) {
+		img := coverageImage(t)
+		v0, err := img.Min(nil)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		if math.IsNaN(v0) || v0 < 0 || v0 > 255 {
+			t.Fatalf("min: %v is outside the range of a uchar image", v0)
+		}
+	})
+	t.Run("min_options", func(t *testing.T) {
+		img := coverageImage(t)
+		opts := &MinOptions{Size: 1}
+		v0, err := img.Min(opts)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		if math.IsNaN(v0) || v0 < 0 || v0 > 255 {
+			t.Fatalf("min: %v is outside the range of a uchar image", v0)
 		}
 	})
 	t.Run("minpair", func(t *testing.T) {
@@ -3413,6 +3684,16 @@ func TestGeneratedOperations(t *testing.T) {
 		}
 		if img.Width() <= 0 || img.Height() <= 0 {
 			t.Fatalf("multiply: produced an empty image %dx%d", img.Width(), img.Height())
+		}
+	})
+	t.Run("percent", func(t *testing.T) {
+		img := coverageImage(t)
+		v0, err := img.Percent(1)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		if v0 < 0 {
+			t.Fatalf("percent: %d is negative", v0)
 		}
 	})
 	t.Run("perlin", func(t *testing.T) {
@@ -3656,6 +3937,36 @@ func TestGeneratedOperations(t *testing.T) {
 		}
 		if img.Width() <= 0 || img.Height() <= 0 {
 			t.Fatalf("prewitt: produced an empty image %dx%d", img.Width(), img.Height())
+		}
+	})
+	t.Run("profile", func(t *testing.T) {
+		img := coverageImage(t)
+		out0, out1, err := img.Profile()
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer out0.Close()
+		if out0.Width() <= 0 || out0.Height() <= 0 {
+			t.Fatalf("profile: produced an empty image %dx%d", out0.Width(), out0.Height())
+		}
+		defer out1.Close()
+		if out1.Width() <= 0 || out1.Height() <= 0 {
+			t.Fatalf("profile: produced an empty image %dx%d", out1.Width(), out1.Height())
+		}
+	})
+	t.Run("project", func(t *testing.T) {
+		img := coverageImage(t)
+		out0, out1, err := img.Project()
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer out0.Close()
+		if out0.Width() <= 0 || out0.Height() <= 0 {
+			t.Fatalf("project: produced an empty image %dx%d", out0.Width(), out0.Height())
+		}
+		defer out1.Close()
+		if out1.Width() <= 0 || out1.Height() <= 0 {
+			t.Fatalf("project: produced an empty image %dx%d", out1.Width(), out1.Height())
 		}
 	})
 	t.Run("quadratic", func(t *testing.T) {
@@ -4333,6 +4644,29 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("sdf: produced an empty image %dx%d", out.Width(), out.Height())
 		}
 	})
+	t.Run("sequential", func(t *testing.T) {
+		img := coverageImage(t)
+		out0, err := img.Sequential(nil)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer out0.Close()
+		if out0.Width() <= 0 || out0.Height() <= 0 {
+			t.Fatalf("sequential: produced an empty image %dx%d", out0.Width(), out0.Height())
+		}
+	})
+	t.Run("sequential_options", func(t *testing.T) {
+		img := coverageImage(t)
+		opts := &SequentialOptions{TileHeight: 16}
+		out0, err := img.Sequential(opts)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer out0.Close()
+		if out0.Width() <= 0 || out0.Height() <= 0 {
+			t.Fatalf("sequential: produced an empty image %dx%d", out0.Width(), out0.Height())
+		}
+	})
 	t.Run("sharpen", func(t *testing.T) {
 		img := coverageImage(t)
 		err := img.Sharpen(nil)
@@ -4844,6 +5178,29 @@ func TestGeneratedOperations(t *testing.T) {
 		}
 		if len(buf) == 0 {
 			t.Fatalf("tiffsave_buffer: wrote an empty buffer: %d bytes", len(buf))
+		}
+	})
+	t.Run("tilecache", func(t *testing.T) {
+		img := coverageImage(t)
+		out0, err := img.Tilecache(nil)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer out0.Close()
+		if out0.Width() <= 0 || out0.Height() <= 0 {
+			t.Fatalf("tilecache: produced an empty image %dx%d", out0.Width(), out0.Height())
+		}
+	})
+	t.Run("tilecache_options", func(t *testing.T) {
+		img := coverageImage(t)
+		opts := &TilecacheOptions{TileWidth: 16, TileHeight: 16, MaxTiles: Ptr(1), Access: AccessRandom, Threaded: true, Persistent: true}
+		out0, err := img.Tilecache(opts)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer out0.Close()
+		if out0.Width() <= 0 || out0.Height() <= 0 {
+			t.Fatalf("tilecache: produced an empty image %dx%d", out0.Width(), out0.Height())
 		}
 	})
 	t.Run("tonelut", func(t *testing.T) {
