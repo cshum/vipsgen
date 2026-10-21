@@ -121,6 +121,23 @@ func BuildOperationCoverage(operations []introspection.Operation) []CoverageCase
 
 // coverageCaseBody picks the kind of subtest an operation gets: a round trip for a
 // format libvips both writes and reads, otherwise a call with made-up arguments.
+// BuildOptionDefaults lists the operations whose generated options struct comes
+// with a Default<Name>Options constructor: every caller starts there, so a
+// constructor that stopped returning a struct would break all of them at once.
+func BuildOptionDefaults(operations []introspection.Operation) []string {
+	var names []string
+	for _, op := range operations {
+		if !op.HasThisImageInput && !op.HasImageOutput {
+			continue // a utility function is generated without an options struct
+		}
+		if len(op.OptionalInputs) == 0 && len(getSupportedOptionalOutputs(op)) == 0 {
+			continue
+		}
+		names = append(names, op.GoName+"Options")
+	}
+	return names
+}
+
 // coverageCaseBody picks the kind of subtest an operation gets: a round trip for a
 // format libvips both writes and reads, otherwise a call with made-up arguments. A
 // nil co means "no options variant", so the caller can ask whether one exists.

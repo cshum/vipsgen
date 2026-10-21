@@ -22,6 +22,18 @@ func TestGeneratedOperations(t *testing.T) {
 {{.Body}}	})
 {{end}}}
 
+// TestGeneratedOptionDefaults calls every operation's default options
+// constructor. The options structs are built by the generator, so the risk is a
+// constructor that returns nil or a struct whose fields no longer match the call
+// it feeds - the first is checked here, the second by the options subtests above.
+func TestGeneratedOptionDefaults(t *testing.T) {
+{{range .OptionDefaults}}	t.Run("{{.}}", func(t *testing.T) {
+		if opts := Default{{.}}(); opts == nil {
+			t.Fatal("Default{{.}} returned nil")
+		}
+	})
+{{end}}}
+
 // coveragePath is a path a subtest may write: its own temporary directory, with
 // the extension the format's loader expects.
 func coveragePath(t *testing.T, ext string) string {
