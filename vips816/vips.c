@@ -241,12 +241,11 @@ int vipsgen_affine_with_options(VipsImage* in, VipsImage** out, double a, double
     if (oarea != NULL && oarea_n > 0) { oarea_array = vips_array_int_new(oarea, oarea_n); }
     VipsArrayDouble *background_array = NULL;
     if (background != NULL && background_n > 0) { background_array = vips_array_double_new(background, background_n); }
+    double matrix_values[4] = {a, b, c, d};
+    VipsArrayDouble *matrix_array = vips_array_double_new(matrix_values, 4);
     if (
         vips_object_set(VIPS_OBJECT(operation), "in", in, NULL) ||
-        vips_object_set(VIPS_OBJECT(operation), "a", a, NULL) ||
-        vips_object_set(VIPS_OBJECT(operation), "b", b, NULL) ||
-        vips_object_set(VIPS_OBJECT(operation), "c", c, NULL) ||
-        vips_object_set(VIPS_OBJECT(operation), "d", d, NULL) ||
+        vips_object_set(VIPS_OBJECT(operation), "matrix", matrix_array, NULL) ||
         vipsgen_set_interpolate(operation, "interpolate", interpolate) ||
         vipsgen_set_array_int(operation, "oarea", oarea_array) ||
         vipsgen_set_double(operation, "odx", odx) ||
@@ -257,11 +256,13 @@ int vipsgen_affine_with_options(VipsImage* in, VipsImage** out, double a, double
         vipsgen_set_bool(operation, "premultiplied", premultiplied) ||
         (extend_set && vips_object_set(VIPS_OBJECT(operation), "extend", extend, NULL))
     ) {
+        if (matrix_array != NULL) { vips_area_unref(VIPS_AREA(matrix_array)); }
         g_object_unref(operation);
         if (oarea_array != NULL) { vips_area_unref(VIPS_AREA(oarea_array)); }
         if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
         return 1;
     }
+    if (matrix_array != NULL) { vips_area_unref(VIPS_AREA(matrix_array)); }
     int result = vipsgen_operation_execute(operation, "out", out, NULL);
     if (oarea_array != NULL) { vips_area_unref(VIPS_AREA(oarea_array)); }
     if (background_array != NULL) { vips_area_unref(VIPS_AREA(background_array)); }
