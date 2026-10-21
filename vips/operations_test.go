@@ -6165,6 +6165,68 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("switch: produced an empty image %dx%d", out.Width(), out.Height())
 		}
 	})
+	t.Run("thumbnail", func(t *testing.T) {
+		img := coverageImage(t)
+		path := coveragePath(t, "png")
+		if err := img.Pngsave(path, nil); err != nil {
+			t.Skipf("fixture unavailable: the saver could not write it: %v", err)
+		}
+		thumb, err := NewThumbnail(path, 32, nil)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer thumb.Close()
+		if thumb.Width() <= 0 || thumb.Width() > 32 {
+			t.Fatalf("thumbnail: asked for 32 and got %dx%d", thumb.Width(), thumb.Height())
+		}
+	})
+	t.Run("thumbnail_options", func(t *testing.T) {
+		img := coverageImage(t)
+		path := coveragePath(t, "png")
+		if err := img.Pngsave(path, nil); err != nil {
+			t.Skipf("fixture unavailable: the saver could not write it: %v", err)
+		}
+		opts := &ThumbnailOptions{Height: 8, Size: SizeBoth, NoRotate: true, Crop: InterestingNone, Linear: true, Intent: Ptr(IntentPerceptual), FailOn: FailOnNone}
+		thumb, err := NewThumbnail(path, 32, opts)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer thumb.Close()
+		if thumb.Width() <= 0 || thumb.Width() > 32 {
+			t.Fatalf("thumbnail: asked for 32 and got %dx%d", thumb.Width(), thumb.Height())
+		}
+	})
+	t.Run("thumbnail_buffer", func(t *testing.T) {
+		img := coverageImage(t)
+		data, err := img.PngsaveBuffer(nil)
+		if err != nil {
+			t.Skipf("fixture unavailable: the saver could not write it: %v", err)
+		}
+		thumb, err := NewThumbnailBuffer(data, 32, nil)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer thumb.Close()
+		if thumb.Width() <= 0 || thumb.Width() > 32 {
+			t.Fatalf("thumbnail_buffer: asked for 32 and got %dx%d", thumb.Width(), thumb.Height())
+		}
+	})
+	t.Run("thumbnail_buffer_options", func(t *testing.T) {
+		img := coverageImage(t)
+		data, err := img.PngsaveBuffer(nil)
+		if err != nil {
+			t.Skipf("fixture unavailable: the saver could not write it: %v", err)
+		}
+		opts := &ThumbnailBufferOptions{Height: 8, Size: SizeBoth, NoRotate: true, Crop: InterestingNone, Linear: true, Intent: Ptr(IntentPerceptual), FailOn: FailOnNone}
+		thumb, err := NewThumbnailBuffer(data, 32, opts)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer thumb.Close()
+		if thumb.Width() <= 0 || thumb.Width() > 32 {
+			t.Fatalf("thumbnail_buffer: asked for 32 and got %dx%d", thumb.Width(), thumb.Height())
+		}
+	})
 	t.Run("thumbnail_image", func(t *testing.T) {
 		img := coverageImage(t)
 		err := img.ThumbnailImage(8, nil)
@@ -6194,6 +6256,39 @@ func TestGeneratedOperations(t *testing.T) {
 		}
 		if img.Width() <= 0 || img.Height() <= 0 {
 			t.Fatalf("thumbnail_image: produced an empty image %dx%d", img.Width(), img.Height())
+		}
+	})
+	t.Run("thumbnail_source", func(t *testing.T) {
+		img := coverageImage(t)
+		data, err := img.PngsaveBuffer(nil)
+		if err != nil {
+			t.Skipf("fixture unavailable: the saver could not write it: %v", err)
+		}
+		source := coverageSource(t, data)
+		thumb, err := NewThumbnailSource(source, 32, nil)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer thumb.Close()
+		if thumb.Width() <= 0 || thumb.Width() > 32 {
+			t.Fatalf("thumbnail_source: asked for 32 and got %dx%d", thumb.Width(), thumb.Height())
+		}
+	})
+	t.Run("thumbnail_source_options", func(t *testing.T) {
+		img := coverageImage(t)
+		data, err := img.PngsaveBuffer(nil)
+		if err != nil {
+			t.Skipf("fixture unavailable: the saver could not write it: %v", err)
+		}
+		source := coverageSource(t, data)
+		opts := &ThumbnailSourceOptions{Height: 8, Size: SizeBoth, NoRotate: true, Crop: InterestingNone, Linear: true, Intent: Ptr(IntentPerceptual), FailOn: FailOnNone}
+		thumb, err := NewThumbnailSource(source, 32, opts)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer thumb.Close()
+		if thumb.Width() <= 0 || thumb.Width() > 32 {
+			t.Fatalf("thumbnail_source: asked for 32 and got %dx%d", thumb.Width(), thumb.Height())
 		}
 	})
 	t.Run("tiffload", func(t *testing.T) {
@@ -6917,10 +7012,7 @@ func TestGeneratedOperations(t *testing.T) {
 	})
 }
 
-// TestGeneratedOptionDefaults calls every operation's default options
-// constructor. The options structs are built by the generator, so the risk is a
-// constructor that returns nil or a struct whose fields no longer match the call
-// it feeds - the first is checked here, the second by the options subtests above.
+// TestGeneratedOptionDefaults calls every constructor: a nil one breaks every caller.
 func TestGeneratedOptionDefaults(t *testing.T) {
 	t.Run("Lab2XYZOptions", func(t *testing.T) {
 		if opts := DefaultLab2XYZOptions(); opts == nil {
