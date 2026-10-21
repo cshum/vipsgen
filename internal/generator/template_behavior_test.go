@@ -328,3 +328,22 @@ func TestGenerateCFunctionImplementationMatrixSnapshot(t *testing.T) {
 		t.Fatalf("unexpected affine C implementation\n got: %q\nwant: %q", got, want)
 	}
 }
+
+// TestLongestNameFirstOrdersLoaderPrefixes pins the fix for a loader named after
+// another: "matrixload" starts with both "matrix" and "mat", so the longer name has
+// to be tested first or every matrix file reports as a Matlab one.
+func TestLongestNameFirstOrdersLoaderPrefixes(t *testing.T) {
+	types := []introspection.ImageTypeInfo{
+		{TypeName: "mat", EnumName: "ImageTypeMat"},
+		{TypeName: "matrix", EnumName: "ImageTypeMatrix"},
+		{TypeName: "jpeg", EnumName: "ImageTypeJpeg"},
+	}
+
+	ordered := longestNameFirst(types)
+	if len(ordered) != 3 || ordered[0].TypeName != "matrix" || ordered[1].TypeName != "jpeg" || ordered[2].TypeName != "mat" {
+		t.Fatalf("loader types ordered %v, want matrix, jpeg, mat", ordered)
+	}
+	if types[0].TypeName != "mat" {
+		t.Error("the input slice was reordered")
+	}
+}

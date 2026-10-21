@@ -672,14 +672,23 @@ func (imageType ImageType) MimeType() (mime string, ok bool) {
 func vipsDetermineImageType(in *C.VipsImage) ImageType {
 	if in != nil {
 		if vipsLoader, ok := vipsImageGetMetaLoader(in); ok {
+			if strings.HasPrefix(vipsLoader, "openslide") {
+				return ImageTypeOpenslide
+			}
+			if strings.HasPrefix(vipsLoader, "analyze") {
+				return ImageTypeAnalyze
+			}
+			if strings.HasPrefix(vipsLoader, "openexr") {
+				return ImageTypeOpenexr
+			}
+			if strings.HasPrefix(vipsLoader, "matrix") {
+				return ImageTypeMatrix
+			}
+			if strings.HasPrefix(vipsLoader, "dcraw") {
+				return ImageTypeDcraw
+			}
 			if strings.HasPrefix(vipsLoader, "jpeg") {
 				return ImageTypeJpeg
-			}
-			if strings.HasPrefix(vipsLoader, "gif") {
-				return ImageTypeGif
-			}
-			if strings.HasPrefix(vipsLoader, "png") {
-				return ImageTypePng
 			}
 			if strings.HasPrefix(vipsLoader, "webp") {
 				return ImageTypeWebp
@@ -687,44 +696,38 @@ func vipsDetermineImageType(in *C.VipsImage) ImageType {
 			if strings.HasPrefix(vipsLoader, "heif") {
 				return ImageTypeHeif
 			}
-			if strings.HasPrefix(vipsLoader, "svg") {
-				return ImageTypeSvg
-			}
 			if strings.HasPrefix(vipsLoader, "tiff") {
 				return ImageTypeTiff
 			}
 			if strings.HasPrefix(vipsLoader, "jp2k") {
 				return ImageTypeJp2k
 			}
+			if strings.HasPrefix(vipsLoader, "fits") {
+				return ImageTypeFits
+			}
+			if strings.HasPrefix(vipsLoader, "vips") {
+				return ImageTypeVips
+			}
+			if strings.HasPrefix(vipsLoader, "gif") {
+				return ImageTypeGif
+			}
+			if strings.HasPrefix(vipsLoader, "png") {
+				return ImageTypePng
+			}
+			if strings.HasPrefix(vipsLoader, "svg") {
+				return ImageTypeSvg
+			}
 			if strings.HasPrefix(vipsLoader, "pdf") {
 				return ImageTypePdf
 			}
-			if strings.HasPrefix(vipsLoader, "analyze") {
-				return ImageTypeAnalyze
-			}
 			if strings.HasPrefix(vipsLoader, "csv") {
 				return ImageTypeCsv
-			}
-			if strings.HasPrefix(vipsLoader, "dcraw") {
-				return ImageTypeDcraw
-			}
-			if strings.HasPrefix(vipsLoader, "fits") {
-				return ImageTypeFits
 			}
 			if strings.HasPrefix(vipsLoader, "jxl") {
 				return ImageTypeJxl
 			}
 			if strings.HasPrefix(vipsLoader, "mat") {
 				return ImageTypeMat
-			}
-			if strings.HasPrefix(vipsLoader, "matrix") {
-				return ImageTypeMatrix
-			}
-			if strings.HasPrefix(vipsLoader, "openexr") {
-				return ImageTypeOpenexr
-			}
-			if strings.HasPrefix(vipsLoader, "openslide") {
-				return ImageTypeOpenslide
 			}
 			if strings.HasPrefix(vipsLoader, "ppm") {
 				return ImageTypePpm
@@ -734,9 +737,6 @@ func vipsDetermineImageType(in *C.VipsImage) ImageType {
 			}
 			if strings.HasPrefix(vipsLoader, "raw") {
 				return ImageTypeRaw
-			}
-			if strings.HasPrefix(vipsLoader, "vips") {
-				return ImageTypeVips
 			}
 			if strings.HasPrefix(vipsLoader, "magick") {
 				return ImageTypeMagick

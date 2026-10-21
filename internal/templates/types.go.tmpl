@@ -42,7 +42,7 @@ func (imageType ImageType) MimeType() (mime string, ok bool) {
 func vipsDetermineImageType(in *C.VipsImage) ImageType {
 	if in != nil {
 		if vipsLoader, ok := vipsImageGetMetaLoader(in); ok {
-			{{range .ImageTypes}}{{if and (ne .TypeName "unknown") (ne .TypeName "magick") .HasLoader}}if strings.HasPrefix(vipsLoader, "{{.TypeName}}") {
+			{{range .LoaderImageTypes}}{{if and (ne .TypeName "unknown") (ne .TypeName "magick") .HasLoader}}if strings.HasPrefix(vipsLoader, "{{.TypeName}}") {
 				return {{.EnumName}}
 			}
 			{{end}}{{end}}{{range .ImageTypes}}{{if and (eq .TypeName "magick") .HasLoader}}if strings.HasPrefix(vipsLoader, "magick") {

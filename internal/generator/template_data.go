@@ -1,6 +1,8 @@
 package generator
 
 import (
+	"sort"
+
 	"github.com/cshum/vipsgen/v2/internal/introspection"
 )
 
@@ -18,6 +20,20 @@ type TemplateData struct {
 	IncludeTest    bool
 	Coverage       []CoverageCase
 	OptionDefaults []string
+	// LoaderImageTypes is ImageTypes ordered longest name first, for the loader
+	// prefix match: "matrixload" starts with both "matrix" and "mat", and only the
+	// longer name is the truth.
+	LoaderImageTypes []introspection.ImageTypeInfo
+}
+
+// longestNameFirst orders image types so that a loader name matches the most
+// specific type before any type whose name is a prefix of it.
+func longestNameFirst(types []introspection.ImageTypeInfo) []introspection.ImageTypeInfo {
+	ordered := append([]introspection.ImageTypeInfo(nil), types...)
+	sort.SliceStable(ordered, func(i, j int) bool {
+		return len(ordered[i].TypeName) > len(ordered[j].TypeName)
+	})
+	return ordered
 }
 
 // NewTemplateData creates a new TemplateData structure with all needed information
@@ -38,12 +54,13 @@ func NewTemplateData(
 	}
 
 	return &TemplateData{
-		VipsVersion:    vipsVersion,
-		Operations:     operations,
-		EnumTypes:      enumTypes,
-		ImageTypes:     imageTypes,
-		IncludeTest:    includeTest,
-		Coverage:       BuildOperationCoverage(operations),
-		OptionDefaults: BuildOptionDefaults(operations),
+		VipsVersion:      vipsVersion,
+		Operations:       operations,
+		EnumTypes:        enumTypes,
+		ImageTypes:       imageTypes,
+		IncludeTest:      includeTest,
+		Coverage:         BuildOperationCoverage(operations),
+		OptionDefaults:   BuildOptionDefaults(operations),
+		LoaderImageTypes: longestNameFirst(imageTypes),
 	}
 }
