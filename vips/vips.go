@@ -2965,12 +2965,11 @@ func vipsgenJxlload(filename string) (*C.VipsImage, error) {
 }
 
 // vipsgenJxlloadWithOptions vips_jxlload load JPEG-XL image with optional arguments
-func vipsgenJxlloadWithOptions(filename string, page int, n *int, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
+func vipsgenJxlloadWithOptions(filename string, page int, n int, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
 	var out *C.VipsImage
 	cfilename := C.CString(filename)
 	defer freeCString(cfilename)
-	cn, nSet := optionInt(n)
-	if err := C.vipsgen_jxlload_with_options(cfilename, &out, C.gint(page), C.gint(cn), nSet, C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
+	if err := C.vipsgen_jxlload_with_options(cfilename, &out, C.gint(page), C.gint(n), C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
@@ -2989,13 +2988,12 @@ func vipsgenJxlloadBuffer(buf []byte) (*C.VipsImage, error) {
 }
 
 // vipsgenJxlloadBufferWithOptions vips_jxlload_buffer load JPEG-XL image with optional arguments
-func vipsgenJxlloadBufferWithOptions(buf []byte, page int, n *int, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
+func vipsgenJxlloadBufferWithOptions(buf []byte, page int, n int, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
 	src := buf
 	// Reference src here so it's not garbage collected during image initialization.
 	defer runtime.KeepAlive(src)
 	var out *C.VipsImage
-	cn, nSet := optionInt(n)
-	if err := C.vipsgen_jxlload_buffer_with_options(unsafe.Pointer(&src[0]), C.size_t(len(src)), &out, C.gint(page), C.gint(cn), nSet, C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
+	if err := C.vipsgen_jxlload_buffer_with_options(unsafe.Pointer(&src[0]), C.size_t(len(src)), &out, C.gint(page), C.gint(n), C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
@@ -3011,10 +3009,9 @@ func vipsgenJxlloadSource(source *C.VipsSourceCustom) (*C.VipsImage, error) {
 }
 
 // vipsgenJxlloadSourceWithOptions vips_jxlload_source load JPEG-XL image with optional arguments
-func vipsgenJxlloadSourceWithOptions(source *C.VipsSourceCustom, page int, n *int, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
+func vipsgenJxlloadSourceWithOptions(source *C.VipsSourceCustom, page int, n int, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
 	var out *C.VipsImage
-	cn, nSet := optionInt(n)
-	if err := C.vipsgen_jxlload_source_with_options(source, &out, C.gint(page), C.gint(cn), nSet, C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
+	if err := C.vipsgen_jxlload_source_with_options(source, &out, C.gint(page), C.gint(n), C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
 		return nil, handleImageError(out)
 	}
 	return out, nil
