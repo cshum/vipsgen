@@ -646,3 +646,44 @@ func TestThumbnailCaseBodySnapshots(t *testing.T) {
 		t.Errorf("unexpected source thumbnail body\n got: %q\nwant: %q", got, wantSource)
 	}
 }
+
+// TestGeometryCheck pins which operations get a size assertion, and the trap that
+// keeps the list explicit: rank, stdif and hist_local take a width and a height that
+// are the window they filter over, not the size they return.
+func TestGeometryCheck(t *testing.T) {
+	method := func(name, goName string, args ...introspection.Argument) introspection.Operation {
+		op := coverageOp(name, goName)
+		op.HasThisImageInput = true
+		op.Arguments = append([]introspection.Argument{imageArg("in")}, args...)
+		op.RequiredInputs = args
+		return op
+	}
+	boxArgs := []introspection.Argument{
+		{Name: "left", GoName: "left", GoType: "int", IsInput: true},
+		{Name: "width", GoName: "width", GoType: "int", IsInput: true},
+		{Name: "height", GoName: "height", GoType: "int", IsInput: true},
+	}
+	facArgs := []introspection.Argument{
+		{Name: "xfac", GoName: "xfac", GoType: "int", IsInput: true},
+		{Name: "yfac", GoName: "yfac", GoType: "int", IsInput: true},
+	}
+
+	code, needsDims, ok := geometryCheck(method("extract_area", "ExtractArea", boxArgs...))
+	if !ok || needsDims || !strings.Contains(code, "img.Width() != 8 || img.Height() != 4") {
+		t.Errorf("a box operation should ask for 8x4, got %q (dims %v, ok %v)", code, needsDims, ok)
+	}
+
+	if code, needsDims, ok := geometryCheck(method("zoom", "Zoom", facArgs...)); !ok || !needsDims || !strings.Contains(code, "2*w") || !strings.Contains(code, "3*h") {
+		t.Errorf("zoom should scale the input, got %q", code)
+	}
+
+	if code, _, ok := geometryCheck(method("subsample", "Subsample", facArgs...)); !ok || !strings.Contains(code, "w/2") || !strings.Contains(code, "h/3") {
+		t.Errorf("subsample should divide the input, got %q", code)
+	}
+
+	for _, name := range []string{"rank", "stdif", "hist_local"} {
+		if code, _, ok := geometryCheck(method(name, strings.Title(name), boxArgs...)); ok {
+			t.Errorf("%s takes a filter window, not an output size: %q", name, code)
+		}
+	}
+}

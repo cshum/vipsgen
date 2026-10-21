@@ -578,7 +578,7 @@ func TestGeneratedOperations(t *testing.T) {
 		}
 	})
 	t.Run("black", func(t *testing.T) {
-		out, err := NewBlack(8, 8, nil)
+		out, err := NewBlack(8, 4, nil)
 		if err != nil {
 			t.Fatalf("wrapper reported an error: %v", err)
 		}
@@ -589,7 +589,7 @@ func TestGeneratedOperations(t *testing.T) {
 	})
 	t.Run("black_options", func(t *testing.T) {
 		opts := &BlackOptions{Bands: 1}
-		out, err := NewBlack(8, 8, opts)
+		out, err := NewBlack(8, 4, opts)
 		if err != nil {
 			t.Fatalf("wrapper reported an error: %v", err)
 		}
@@ -1120,7 +1120,7 @@ func TestGeneratedOperations(t *testing.T) {
 	})
 	t.Run("copy_options", func(t *testing.T) {
 		img := coverageImage(t)
-		opts := &CopyOptions{Width: 8, Height: 8, Bands: 1, Format: BandFormatNotset, Coding: CodingError, Interpretation: InterpretationSrgb, Xres: 1, Yres: 1, Xoffset: 0, Yoffset: 0}
+		opts := &CopyOptions{Width: 8, Height: 4, Bands: 1, Format: BandFormatNotset, Coding: CodingError, Interpretation: InterpretationSrgb, Xres: 1, Yres: 1, Xoffset: 0, Yoffset: 0}
 		out0, err := img.Copy(opts)
 		if err != nil {
 			t.Skipf("input precondition: changing the pel size is not a copy: %v", err)
@@ -1413,7 +1413,7 @@ func TestGeneratedOperations(t *testing.T) {
 	})
 	t.Run("draw_rect", func(t *testing.T) {
 		img := coverageImage(t)
-		err := img.DrawRect([]float64{255}, 0, 0, 8, 8, nil)
+		err := img.DrawRect([]float64{255}, 0, 0, 8, 4, nil)
 		if err != nil {
 			t.Fatalf("wrapper reported an error: %v", err)
 		}
@@ -1421,14 +1421,14 @@ func TestGeneratedOperations(t *testing.T) {
 	t.Run("draw_rect_options", func(t *testing.T) {
 		img := coverageImage(t)
 		opts := &DrawRectOptions{Fill: true}
-		err := img.DrawRect([]float64{255}, 0, 0, 8, 8, opts)
+		err := img.DrawRect([]float64{255}, 0, 0, 8, 4, opts)
 		if err != nil {
 			t.Fatalf("wrapper reported an error: %v", err)
 		}
 	})
 	t.Run("draw_smudge", func(t *testing.T) {
 		img := coverageImage(t)
-		err := img.DrawSmudge(0, 0, 8, 8)
+		err := img.DrawSmudge(0, 0, 8, 4)
 		if err != nil {
 			t.Fatalf("wrapper reported an error: %v", err)
 		}
@@ -1501,27 +1501,27 @@ func TestGeneratedOperations(t *testing.T) {
 	})
 	t.Run("embed", func(t *testing.T) {
 		img := coverageImage(t)
-		err := img.Embed(0, 0, 8, 8, nil)
+		err := img.Embed(0, 0, 8, 4, nil)
 		if err != nil {
 			firstErr := err
 			img = coverageMonoImage(t)
-			err = img.Embed(0, 0, 8, 8, nil)
+			err = img.Embed(0, 0, 8, 4, nil)
 			if err != nil {
 				t.Fatalf("embed: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
 			}
 		}
-		if img.Width() <= 0 || img.Height() <= 0 {
-			t.Fatalf("embed: produced an empty image %dx%d", img.Width(), img.Height())
+		if img.Width() != 8 || img.Height() != 4 {
+			t.Fatalf("embed: asked for 8x4, got %dx%d", img.Width(), img.Height())
 		}
 	})
 	t.Run("embed_options", func(t *testing.T) {
 		img := coverageImage(t)
 		opts := &EmbedOptions{Extend: ExtendBlack, Background: []float64{1}}
-		err := img.Embed(0, 0, 8, 8, opts)
+		err := img.Embed(0, 0, 8, 4, opts)
 		if err != nil {
 			firstErr := err
 			img = coverageMonoImage(t)
-			err = img.Embed(0, 0, 8, 8, opts)
+			err = img.Embed(0, 0, 8, 4, opts)
 			if err != nil {
 				t.Fatalf("embed: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
 			}
@@ -1532,17 +1532,17 @@ func TestGeneratedOperations(t *testing.T) {
 	})
 	t.Run("extract_area", func(t *testing.T) {
 		img := coverageImage(t)
-		err := img.ExtractArea(0, 0, 8, 8)
+		err := img.ExtractArea(0, 0, 8, 4)
 		if err != nil {
 			firstErr := err
 			img = coverageMonoImage(t)
-			err = img.ExtractArea(0, 0, 8, 8)
+			err = img.ExtractArea(0, 0, 8, 4)
 			if err != nil {
 				t.Fatalf("extract_area: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
 			}
 		}
-		if img.Width() <= 0 || img.Height() <= 0 {
-			t.Fatalf("extract_area: produced an empty image %dx%d", img.Width(), img.Height())
+		if img.Width() != 8 || img.Height() != 4 {
+			t.Fatalf("extract_area: asked for 8x4, got %dx%d", img.Width(), img.Height())
 		}
 	})
 	t.Run("extract_band", func(t *testing.T) {
@@ -1577,7 +1577,7 @@ func TestGeneratedOperations(t *testing.T) {
 		}
 	})
 	t.Run("eye", func(t *testing.T) {
-		out, err := NewEye(8, 8, nil)
+		out, err := NewEye(8, 4, nil)
 		if err != nil {
 			t.Fatalf("wrapper reported an error: %v", err)
 		}
@@ -1588,7 +1588,7 @@ func TestGeneratedOperations(t *testing.T) {
 	})
 	t.Run("eye_options", func(t *testing.T) {
 		opts := &EyeOptions{Uchar: true, Factor: Ptr(1.0)}
-		out, err := NewEye(8, 8, opts)
+		out, err := NewEye(8, 4, opts)
 		if err != nil {
 			t.Fatalf("wrapper reported an error: %v", err)
 		}
@@ -1789,7 +1789,7 @@ func TestGeneratedOperations(t *testing.T) {
 		}
 	})
 	t.Run("fractsurf", func(t *testing.T) {
-		out, err := NewFractsurf(8, 8, 2)
+		out, err := NewFractsurf(8, 4, 2)
 		if err != nil {
 			t.Fatalf("wrapper reported an error: %v", err)
 		}
@@ -1914,7 +1914,7 @@ func TestGeneratedOperations(t *testing.T) {
 		}
 	})
 	t.Run("gaussnoise", func(t *testing.T) {
-		out, err := NewGaussnoise(8, 8, nil)
+		out, err := NewGaussnoise(8, 4, nil)
 		if err != nil {
 			t.Fatalf("wrapper reported an error: %v", err)
 		}
@@ -1925,7 +1925,7 @@ func TestGeneratedOperations(t *testing.T) {
 	})
 	t.Run("gaussnoise_options", func(t *testing.T) {
 		opts := &GaussnoiseOptions{Sigma: Ptr(1.0), Mean: Ptr(1.0), Seed: 1}
-		out, err := NewGaussnoise(8, 8, opts)
+		out, err := NewGaussnoise(8, 4, opts)
 		if err != nil {
 			t.Fatalf("wrapper reported an error: %v", err)
 		}
@@ -2169,27 +2169,27 @@ func TestGeneratedOperations(t *testing.T) {
 	})
 	t.Run("gravity", func(t *testing.T) {
 		img := coverageImage(t)
-		err := img.Gravity(CompassDirectionCentre, 8, 8, nil)
+		err := img.Gravity(CompassDirectionCentre, 8, 4, nil)
 		if err != nil {
 			firstErr := err
 			img = coverageMonoImage(t)
-			err = img.Gravity(CompassDirectionCentre, 8, 8, nil)
+			err = img.Gravity(CompassDirectionCentre, 8, 4, nil)
 			if err != nil {
 				t.Fatalf("gravity: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
 			}
 		}
-		if img.Width() <= 0 || img.Height() <= 0 {
-			t.Fatalf("gravity: produced an empty image %dx%d", img.Width(), img.Height())
+		if img.Width() != 8 || img.Height() != 4 {
+			t.Fatalf("gravity: asked for 8x4, got %dx%d", img.Width(), img.Height())
 		}
 	})
 	t.Run("gravity_options", func(t *testing.T) {
 		img := coverageImage(t)
 		opts := &GravityOptions{Extend: ExtendBlack, Background: []float64{1}}
-		err := img.Gravity(CompassDirectionCentre, 8, 8, opts)
+		err := img.Gravity(CompassDirectionCentre, 8, 4, opts)
 		if err != nil {
 			firstErr := err
 			img = coverageMonoImage(t)
-			err = img.Gravity(CompassDirectionCentre, 8, 8, opts)
+			err = img.Gravity(CompassDirectionCentre, 8, 4, opts)
 			if err != nil {
 				t.Fatalf("gravity: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
 			}
@@ -2199,7 +2199,7 @@ func TestGeneratedOperations(t *testing.T) {
 		}
 	})
 	t.Run("grey", func(t *testing.T) {
-		out, err := NewGrey(8, 8, nil)
+		out, err := NewGrey(8, 4, nil)
 		if err != nil {
 			t.Fatalf("wrapper reported an error: %v", err)
 		}
@@ -2210,7 +2210,7 @@ func TestGeneratedOperations(t *testing.T) {
 	})
 	t.Run("grey_options", func(t *testing.T) {
 		opts := &GreyOptions{Uchar: true}
-		out, err := NewGrey(8, 8, opts)
+		out, err := NewGrey(8, 4, opts)
 		if err != nil {
 			t.Fatalf("wrapper reported an error: %v", err)
 		}
@@ -2545,11 +2545,11 @@ func TestGeneratedOperations(t *testing.T) {
 	})
 	t.Run("hist_local", func(t *testing.T) {
 		img := coverageImage(t)
-		err := img.HistLocal(8, 8, nil)
+		err := img.HistLocal(8, 4, nil)
 		if err != nil {
 			firstErr := err
 			img = coverageMonoImage(t)
-			err = img.HistLocal(8, 8, nil)
+			err = img.HistLocal(8, 4, nil)
 			if err != nil {
 				t.Fatalf("hist_local: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
 			}
@@ -2561,11 +2561,11 @@ func TestGeneratedOperations(t *testing.T) {
 	t.Run("hist_local_options", func(t *testing.T) {
 		img := coverageImage(t)
 		opts := &HistLocalOptions{MaxSlope: 1}
-		err := img.HistLocal(8, 8, opts)
+		err := img.HistLocal(8, 4, opts)
 		if err != nil {
 			firstErr := err
 			img = coverageMonoImage(t)
-			err = img.HistLocal(8, 8, opts)
+			err = img.HistLocal(8, 4, opts)
 			if err != nil {
 				t.Fatalf("hist_local: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
 			}
@@ -2653,7 +2653,7 @@ func TestGeneratedOperations(t *testing.T) {
 	})
 	t.Run("hough_line_options", func(t *testing.T) {
 		img := coverageImage(t)
-		opts := &HoughLineOptions{Width: 8, Height: 8}
+		opts := &HoughLineOptions{Width: 8, Height: 4}
 		err := img.HoughLine(opts)
 		if err != nil {
 			firstErr := err
@@ -3774,7 +3774,7 @@ func TestGeneratedOperations(t *testing.T) {
 		}
 	})
 	t.Run("mask_butterworth", func(t *testing.T) {
-		out, err := NewMaskButterworth(8, 8, 1, 1, 1, nil)
+		out, err := NewMaskButterworth(8, 4, 1, 1, 1, nil)
 		if err != nil {
 			t.Fatalf("wrapper reported an error: %v", err)
 		}
@@ -3785,7 +3785,7 @@ func TestGeneratedOperations(t *testing.T) {
 	})
 	t.Run("mask_butterworth_options", func(t *testing.T) {
 		opts := &MaskButterworthOptions{Uchar: true, Nodc: true, Reject: true, Optical: true}
-		out, err := NewMaskButterworth(8, 8, 1, 1, 1, opts)
+		out, err := NewMaskButterworth(8, 4, 1, 1, 1, opts)
 		if err != nil {
 			t.Fatalf("wrapper reported an error: %v", err)
 		}
@@ -3795,7 +3795,7 @@ func TestGeneratedOperations(t *testing.T) {
 		}
 	})
 	t.Run("mask_butterworth_band", func(t *testing.T) {
-		out, err := NewMaskButterworthBand(8, 8, 1, 1, 1, 1, 1, nil)
+		out, err := NewMaskButterworthBand(8, 4, 1, 1, 1, 1, 1, nil)
 		if err != nil {
 			t.Fatalf("wrapper reported an error: %v", err)
 		}
@@ -3806,7 +3806,7 @@ func TestGeneratedOperations(t *testing.T) {
 	})
 	t.Run("mask_butterworth_band_options", func(t *testing.T) {
 		opts := &MaskButterworthBandOptions{Uchar: true, Nodc: true, Reject: true, Optical: true}
-		out, err := NewMaskButterworthBand(8, 8, 1, 1, 1, 1, 1, opts)
+		out, err := NewMaskButterworthBand(8, 4, 1, 1, 1, 1, 1, opts)
 		if err != nil {
 			t.Fatalf("wrapper reported an error: %v", err)
 		}
@@ -3816,7 +3816,7 @@ func TestGeneratedOperations(t *testing.T) {
 		}
 	})
 	t.Run("mask_butterworth_ring", func(t *testing.T) {
-		out, err := NewMaskButterworthRing(8, 8, 1, 1, 1, 1, nil)
+		out, err := NewMaskButterworthRing(8, 4, 1, 1, 1, 1, nil)
 		if err != nil {
 			t.Fatalf("wrapper reported an error: %v", err)
 		}
@@ -3827,7 +3827,7 @@ func TestGeneratedOperations(t *testing.T) {
 	})
 	t.Run("mask_butterworth_ring_options", func(t *testing.T) {
 		opts := &MaskButterworthRingOptions{Uchar: true, Nodc: true, Reject: true, Optical: true}
-		out, err := NewMaskButterworthRing(8, 8, 1, 1, 1, 1, opts)
+		out, err := NewMaskButterworthRing(8, 4, 1, 1, 1, 1, opts)
 		if err != nil {
 			t.Fatalf("wrapper reported an error: %v", err)
 		}
@@ -3837,7 +3837,7 @@ func TestGeneratedOperations(t *testing.T) {
 		}
 	})
 	t.Run("mask_fractal", func(t *testing.T) {
-		out, err := NewMaskFractal(8, 8, 2, nil)
+		out, err := NewMaskFractal(8, 4, 2, nil)
 		if err != nil {
 			t.Fatalf("wrapper reported an error: %v", err)
 		}
@@ -3848,7 +3848,7 @@ func TestGeneratedOperations(t *testing.T) {
 	})
 	t.Run("mask_fractal_options", func(t *testing.T) {
 		opts := &MaskFractalOptions{Uchar: true, Nodc: true, Reject: true, Optical: true}
-		out, err := NewMaskFractal(8, 8, 2, opts)
+		out, err := NewMaskFractal(8, 4, 2, opts)
 		if err != nil {
 			t.Fatalf("wrapper reported an error: %v", err)
 		}
@@ -3858,7 +3858,7 @@ func TestGeneratedOperations(t *testing.T) {
 		}
 	})
 	t.Run("mask_gaussian", func(t *testing.T) {
-		out, err := NewMaskGaussian(8, 8, 1, 1, nil)
+		out, err := NewMaskGaussian(8, 4, 1, 1, nil)
 		if err != nil {
 			t.Fatalf("wrapper reported an error: %v", err)
 		}
@@ -3869,7 +3869,7 @@ func TestGeneratedOperations(t *testing.T) {
 	})
 	t.Run("mask_gaussian_options", func(t *testing.T) {
 		opts := &MaskGaussianOptions{Uchar: true, Nodc: true, Reject: true, Optical: true}
-		out, err := NewMaskGaussian(8, 8, 1, 1, opts)
+		out, err := NewMaskGaussian(8, 4, 1, 1, opts)
 		if err != nil {
 			t.Fatalf("wrapper reported an error: %v", err)
 		}
@@ -3879,7 +3879,7 @@ func TestGeneratedOperations(t *testing.T) {
 		}
 	})
 	t.Run("mask_gaussian_band", func(t *testing.T) {
-		out, err := NewMaskGaussianBand(8, 8, 1, 1, 1, 1, nil)
+		out, err := NewMaskGaussianBand(8, 4, 1, 1, 1, 1, nil)
 		if err != nil {
 			t.Fatalf("wrapper reported an error: %v", err)
 		}
@@ -3890,7 +3890,7 @@ func TestGeneratedOperations(t *testing.T) {
 	})
 	t.Run("mask_gaussian_band_options", func(t *testing.T) {
 		opts := &MaskGaussianBandOptions{Uchar: true, Nodc: true, Reject: true, Optical: true}
-		out, err := NewMaskGaussianBand(8, 8, 1, 1, 1, 1, opts)
+		out, err := NewMaskGaussianBand(8, 4, 1, 1, 1, 1, opts)
 		if err != nil {
 			t.Fatalf("wrapper reported an error: %v", err)
 		}
@@ -3900,7 +3900,7 @@ func TestGeneratedOperations(t *testing.T) {
 		}
 	})
 	t.Run("mask_gaussian_ring", func(t *testing.T) {
-		out, err := NewMaskGaussianRing(8, 8, 1, 1, 1, nil)
+		out, err := NewMaskGaussianRing(8, 4, 1, 1, 1, nil)
 		if err != nil {
 			t.Fatalf("wrapper reported an error: %v", err)
 		}
@@ -3911,7 +3911,7 @@ func TestGeneratedOperations(t *testing.T) {
 	})
 	t.Run("mask_gaussian_ring_options", func(t *testing.T) {
 		opts := &MaskGaussianRingOptions{Uchar: true, Nodc: true, Reject: true, Optical: true}
-		out, err := NewMaskGaussianRing(8, 8, 1, 1, 1, opts)
+		out, err := NewMaskGaussianRing(8, 4, 1, 1, 1, opts)
 		if err != nil {
 			t.Fatalf("wrapper reported an error: %v", err)
 		}
@@ -3921,7 +3921,7 @@ func TestGeneratedOperations(t *testing.T) {
 		}
 	})
 	t.Run("mask_ideal", func(t *testing.T) {
-		out, err := NewMaskIdeal(8, 8, 1, nil)
+		out, err := NewMaskIdeal(8, 4, 1, nil)
 		if err != nil {
 			t.Fatalf("wrapper reported an error: %v", err)
 		}
@@ -3932,7 +3932,7 @@ func TestGeneratedOperations(t *testing.T) {
 	})
 	t.Run("mask_ideal_options", func(t *testing.T) {
 		opts := &MaskIdealOptions{Uchar: true, Nodc: true, Reject: true, Optical: true}
-		out, err := NewMaskIdeal(8, 8, 1, opts)
+		out, err := NewMaskIdeal(8, 4, 1, opts)
 		if err != nil {
 			t.Fatalf("wrapper reported an error: %v", err)
 		}
@@ -3942,7 +3942,7 @@ func TestGeneratedOperations(t *testing.T) {
 		}
 	})
 	t.Run("mask_ideal_band", func(t *testing.T) {
-		out, err := NewMaskIdealBand(8, 8, 1, 1, 1, nil)
+		out, err := NewMaskIdealBand(8, 4, 1, 1, 1, nil)
 		if err != nil {
 			t.Fatalf("wrapper reported an error: %v", err)
 		}
@@ -3953,7 +3953,7 @@ func TestGeneratedOperations(t *testing.T) {
 	})
 	t.Run("mask_ideal_band_options", func(t *testing.T) {
 		opts := &MaskIdealBandOptions{Uchar: true, Nodc: true, Reject: true, Optical: true}
-		out, err := NewMaskIdealBand(8, 8, 1, 1, 1, opts)
+		out, err := NewMaskIdealBand(8, 4, 1, 1, 1, opts)
 		if err != nil {
 			t.Fatalf("wrapper reported an error: %v", err)
 		}
@@ -3963,7 +3963,7 @@ func TestGeneratedOperations(t *testing.T) {
 		}
 	})
 	t.Run("mask_ideal_ring", func(t *testing.T) {
-		out, err := NewMaskIdealRing(8, 8, 1, 1, nil)
+		out, err := NewMaskIdealRing(8, 4, 1, 1, nil)
 		if err != nil {
 			t.Fatalf("wrapper reported an error: %v", err)
 		}
@@ -3974,7 +3974,7 @@ func TestGeneratedOperations(t *testing.T) {
 	})
 	t.Run("mask_ideal_ring_options", func(t *testing.T) {
 		opts := &MaskIdealRingOptions{Uchar: true, Nodc: true, Reject: true, Optical: true}
-		out, err := NewMaskIdealRing(8, 8, 1, 1, opts)
+		out, err := NewMaskIdealRing(8, 4, 1, 1, opts)
 		if err != nil {
 			t.Fatalf("wrapper reported an error: %v", err)
 		}
@@ -4269,7 +4269,7 @@ func TestGeneratedOperations(t *testing.T) {
 	})
 	t.Run("measure_options", func(t *testing.T) {
 		img := coverageImage(t)
-		opts := &MeasureOptions{Left: 0, Top: 0, Width: 8, Height: 8}
+		opts := &MeasureOptions{Left: 0, Top: 0, Width: 8, Height: 4}
 		err := img.Measure(1, 1, opts)
 		if err != nil {
 			firstErr := err
@@ -4472,7 +4472,7 @@ func TestGeneratedOperations(t *testing.T) {
 		}
 	})
 	t.Run("perlin", func(t *testing.T) {
-		out, err := NewPerlin(8, 8, nil)
+		out, err := NewPerlin(8, 4, nil)
 		if err != nil {
 			t.Fatalf("wrapper reported an error: %v", err)
 		}
@@ -4483,7 +4483,7 @@ func TestGeneratedOperations(t *testing.T) {
 	})
 	t.Run("perlin_options", func(t *testing.T) {
 		opts := &PerlinOptions{CellSize: 1, Uchar: true, Seed: 1}
-		out, err := NewPerlin(8, 8, opts)
+		out, err := NewPerlin(8, 4, opts)
 		if err != nil {
 			t.Fatalf("wrapper reported an error: %v", err)
 		}
@@ -5163,11 +5163,11 @@ func TestGeneratedOperations(t *testing.T) {
 	})
 	t.Run("rank", func(t *testing.T) {
 		img := coverageImage(t)
-		err := img.Rank(8, 8, 1)
+		err := img.Rank(8, 4, 1)
 		if err != nil {
 			firstErr := err
 			img = coverageMonoImage(t)
-			err = img.Rank(8, 8, 1)
+			err = img.Rank(8, 4, 1)
 			if err != nil {
 				t.Fatalf("rank: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
 			}
@@ -5735,7 +5735,7 @@ func TestGeneratedOperations(t *testing.T) {
 		}
 	})
 	t.Run("sdf", func(t *testing.T) {
-		out, err := NewSdf(8, 8, SdfShapeCircle, nil)
+		out, err := NewSdf(8, 4, SdfShapeCircle, nil)
 		if err != nil {
 			t.Skipf("input precondition: needs its shape options set: %v", err)
 		}
@@ -5746,7 +5746,7 @@ func TestGeneratedOperations(t *testing.T) {
 	})
 	t.Run("sdf_options", func(t *testing.T) {
 		opts := &SdfOptions{R: Ptr(1.0), A: []float64{1}, B: []float64{0}, Corners: []float64{1}}
-		out, err := NewSdf(8, 8, SdfShapeCircle, opts)
+		out, err := NewSdf(8, 4, SdfShapeCircle, opts)
 		if err != nil {
 			t.Skipf("input precondition: needs its shape options set: %v", err)
 		}
@@ -5949,7 +5949,7 @@ func TestGeneratedOperations(t *testing.T) {
 		}
 	})
 	t.Run("sines", func(t *testing.T) {
-		out, err := NewSines(8, 8, nil)
+		out, err := NewSines(8, 4, nil)
 		if err != nil {
 			t.Fatalf("wrapper reported an error: %v", err)
 		}
@@ -5960,7 +5960,7 @@ func TestGeneratedOperations(t *testing.T) {
 	})
 	t.Run("sines_options", func(t *testing.T) {
 		opts := &SinesOptions{Uchar: true, Hfreq: Ptr(1.0), Vfreq: Ptr(1.0)}
-		out, err := NewSines(8, 8, opts)
+		out, err := NewSines(8, 4, opts)
 		if err != nil {
 			t.Fatalf("wrapper reported an error: %v", err)
 		}
@@ -5971,11 +5971,11 @@ func TestGeneratedOperations(t *testing.T) {
 	})
 	t.Run("smartcrop", func(t *testing.T) {
 		img := coverageImage(t)
-		err := img.Smartcrop(8, 8, nil)
+		err := img.Smartcrop(8, 4, nil)
 		if err != nil {
 			firstErr := err
 			img = coverageMonoImage(t)
-			err = img.Smartcrop(8, 8, nil)
+			err = img.Smartcrop(8, 4, nil)
 			if err != nil {
 				t.Fatalf("smartcrop: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
 			}
@@ -5987,11 +5987,11 @@ func TestGeneratedOperations(t *testing.T) {
 	t.Run("smartcrop_options", func(t *testing.T) {
 		img := coverageImage(t)
 		opts := &SmartcropOptions{Interesting: Ptr(InterestingNone), Premultiplied: true}
-		err := img.Smartcrop(8, 8, opts)
+		err := img.Smartcrop(8, 4, opts)
 		if err != nil {
 			firstErr := err
 			img = coverageMonoImage(t)
-			err = img.Smartcrop(8, 8, opts)
+			err = img.Smartcrop(8, 4, opts)
 			if err != nil {
 				t.Fatalf("smartcrop: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
 			}
@@ -6064,11 +6064,11 @@ func TestGeneratedOperations(t *testing.T) {
 	})
 	t.Run("stdif", func(t *testing.T) {
 		img := coverageImage(t)
-		err := img.Stdif(8, 8, nil)
+		err := img.Stdif(8, 4, nil)
 		if err != nil {
 			firstErr := err
 			img = coverageMonoImage(t)
-			err = img.Stdif(8, 8, nil)
+			err = img.Stdif(8, 4, nil)
 			if err != nil {
 				t.Fatalf("stdif: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
 			}
@@ -6080,11 +6080,11 @@ func TestGeneratedOperations(t *testing.T) {
 	t.Run("stdif_options", func(t *testing.T) {
 		img := coverageImage(t)
 		opts := &StdifOptions{S0: Ptr(1.0), B: Ptr(0.0), M0: Ptr(1.0), A: Ptr(1.0)}
-		err := img.Stdif(8, 8, opts)
+		err := img.Stdif(8, 4, opts)
 		if err != nil {
 			firstErr := err
 			img = coverageMonoImage(t)
-			err = img.Stdif(8, 8, opts)
+			err = img.Stdif(8, 4, opts)
 			if err != nil {
 				t.Fatalf("stdif: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
 			}
@@ -6095,27 +6095,31 @@ func TestGeneratedOperations(t *testing.T) {
 	})
 	t.Run("subsample", func(t *testing.T) {
 		img := coverageImage(t)
-		err := img.Subsample(1, 1, nil)
+		w, h := img.Width(), img.Height()
+		err := img.Subsample(2, 3, nil)
 		if err != nil {
 			firstErr := err
 			img = coverageMonoImage(t)
-			err = img.Subsample(1, 1, nil)
+			err = img.Subsample(2, 3, nil)
 			if err != nil {
 				t.Fatalf("subsample: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
 			}
 		}
-		if img.Width() <= 0 || img.Height() <= 0 {
-			t.Fatalf("subsample: produced an empty image %dx%d", img.Width(), img.Height())
+		if d := img.Width() - w/2; d < -1 || d > 1 {
+			t.Fatalf("subsample: scaled by 2,3, got %dx%d from %dx%d", img.Width(), img.Height(), w, h)
+		}
+		if d := img.Height() - h/3; d < -1 || d > 1 {
+			t.Fatalf("subsample: scaled by 2,3, got %dx%d from %dx%d", img.Width(), img.Height(), w, h)
 		}
 	})
 	t.Run("subsample_options", func(t *testing.T) {
 		img := coverageImage(t)
 		opts := &SubsampleOptions{Point: true}
-		err := img.Subsample(1, 1, opts)
+		err := img.Subsample(2, 3, opts)
 		if err != nil {
 			firstErr := err
 			img = coverageMonoImage(t)
-			err = img.Subsample(1, 1, opts)
+			err = img.Subsample(2, 3, opts)
 			if err != nil {
 				t.Fatalf("subsample: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
 			}
@@ -6186,7 +6190,7 @@ func TestGeneratedOperations(t *testing.T) {
 		if err := img.Pngsave(path, nil); err != nil {
 			t.Skipf("fixture unavailable: the saver could not write it: %v", err)
 		}
-		opts := &ThumbnailOptions{Height: 8, Size: SizeBoth, NoRotate: true, Crop: InterestingNone, Linear: true, Intent: Ptr(IntentPerceptual), FailOn: FailOnNone}
+		opts := &ThumbnailOptions{Height: 4, Size: SizeBoth, NoRotate: true, Crop: InterestingNone, Linear: true, Intent: Ptr(IntentPerceptual), FailOn: FailOnNone}
 		thumb, err := NewThumbnail(path, 32, opts)
 		if err != nil {
 			t.Fatalf("wrapper reported an error: %v", err)
@@ -6217,7 +6221,7 @@ func TestGeneratedOperations(t *testing.T) {
 		if err != nil {
 			t.Skipf("fixture unavailable: the saver could not write it: %v", err)
 		}
-		opts := &ThumbnailBufferOptions{Height: 8, Size: SizeBoth, NoRotate: true, Crop: InterestingNone, Linear: true, Intent: Ptr(IntentPerceptual), FailOn: FailOnNone}
+		opts := &ThumbnailBufferOptions{Height: 4, Size: SizeBoth, NoRotate: true, Crop: InterestingNone, Linear: true, Intent: Ptr(IntentPerceptual), FailOn: FailOnNone}
 		thumb, err := NewThumbnailBuffer(data, 32, opts)
 		if err != nil {
 			t.Fatalf("wrapper reported an error: %v", err)
@@ -6244,7 +6248,7 @@ func TestGeneratedOperations(t *testing.T) {
 	})
 	t.Run("thumbnail_image_options", func(t *testing.T) {
 		img := coverageImage(t)
-		opts := &ThumbnailImageOptions{Height: 8, Size: SizeBoth, NoRotate: true, Crop: InterestingNone, Linear: true, Intent: Ptr(IntentPerceptual), FailOn: FailOnNone}
+		opts := &ThumbnailImageOptions{Height: 4, Size: SizeBoth, NoRotate: true, Crop: InterestingNone, Linear: true, Intent: Ptr(IntentPerceptual), FailOn: FailOnNone}
 		err := img.ThumbnailImage(8, opts)
 		if err != nil {
 			firstErr := err
@@ -6281,7 +6285,7 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Skipf("fixture unavailable: the saver could not write it: %v", err)
 		}
 		source := coverageSource(t, data)
-		opts := &ThumbnailSourceOptions{Height: 8, Size: SizeBoth, NoRotate: true, Crop: InterestingNone, Linear: true, Intent: Ptr(IntentPerceptual), FailOn: FailOnNone}
+		opts := &ThumbnailSourceOptions{Height: 4, Size: SizeBoth, NoRotate: true, Crop: InterestingNone, Linear: true, Intent: Ptr(IntentPerceptual), FailOn: FailOnNone}
 		thumb, err := NewThumbnailSource(source, 32, opts)
 		if err != nil {
 			t.Fatalf("wrapper reported an error: %v", err)
@@ -6902,7 +6906,7 @@ func TestGeneratedOperations(t *testing.T) {
 		}
 	})
 	t.Run("worley", func(t *testing.T) {
-		out, err := NewWorley(8, 8, nil)
+		out, err := NewWorley(8, 4, nil)
 		if err != nil {
 			t.Fatalf("wrapper reported an error: %v", err)
 		}
@@ -6913,7 +6917,7 @@ func TestGeneratedOperations(t *testing.T) {
 	})
 	t.Run("worley_options", func(t *testing.T) {
 		opts := &WorleyOptions{CellSize: 1, Seed: 1}
-		out, err := NewWorley(8, 8, opts)
+		out, err := NewWorley(8, 4, opts)
 		if err != nil {
 			t.Fatalf("wrapper reported an error: %v", err)
 		}
@@ -6954,7 +6958,7 @@ func TestGeneratedOperations(t *testing.T) {
 		}
 	})
 	t.Run("xyz", func(t *testing.T) {
-		out, err := NewXyz(8, 8, nil)
+		out, err := NewXyz(8, 4, nil)
 		if err != nil {
 			t.Fatalf("wrapper reported an error: %v", err)
 		}
@@ -6965,7 +6969,7 @@ func TestGeneratedOperations(t *testing.T) {
 	})
 	t.Run("xyz_options", func(t *testing.T) {
 		opts := &XyzOptions{Csize: 1, Dsize: 1, Esize: 1}
-		out, err := NewXyz(8, 8, opts)
+		out, err := NewXyz(8, 4, opts)
 		if err != nil {
 			t.Fatalf("wrapper reported an error: %v", err)
 		}
@@ -6975,7 +6979,7 @@ func TestGeneratedOperations(t *testing.T) {
 		}
 	})
 	t.Run("zone", func(t *testing.T) {
-		out, err := NewZone(8, 8, nil)
+		out, err := NewZone(8, 4, nil)
 		if err != nil {
 			t.Fatalf("wrapper reported an error: %v", err)
 		}
@@ -6986,7 +6990,7 @@ func TestGeneratedOperations(t *testing.T) {
 	})
 	t.Run("zone_options", func(t *testing.T) {
 		opts := &ZoneOptions{Uchar: true}
-		out, err := NewZone(8, 8, opts)
+		out, err := NewZone(8, 4, opts)
 		if err != nil {
 			t.Fatalf("wrapper reported an error: %v", err)
 		}
@@ -6997,17 +7001,21 @@ func TestGeneratedOperations(t *testing.T) {
 	})
 	t.Run("zoom", func(t *testing.T) {
 		img := coverageImage(t)
-		err := img.Zoom(1, 1)
+		w, h := img.Width(), img.Height()
+		err := img.Zoom(2, 3)
 		if err != nil {
 			firstErr := err
 			img = coverageMonoImage(t)
-			err = img.Zoom(1, 1)
+			err = img.Zoom(2, 3)
 			if err != nil {
 				t.Fatalf("zoom: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
 			}
 		}
-		if img.Width() <= 0 || img.Height() <= 0 {
-			t.Fatalf("zoom: produced an empty image %dx%d", img.Width(), img.Height())
+		if d := img.Width() - 2*w; d < -1 || d > 1 {
+			t.Fatalf("zoom: scaled by 2,3, got %dx%d from %dx%d", img.Width(), img.Height(), w, h)
+		}
+		if d := img.Height() - 3*h; d < -1 || d > 1 {
+			t.Fatalf("zoom: scaled by 2,3, got %dx%d from %dx%d", img.Width(), img.Height(), w, h)
 		}
 	})
 }
