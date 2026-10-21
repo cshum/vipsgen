@@ -144,9 +144,6 @@ jobs:
           ./bin/vipsgen -out ${{ matrix.output_dir }} --include-test
 
       - name: Compile the generated C with warnings
-        # Nothing else reads the C: go test compiles it with cgo's default flags, so a
-        # wrapper can pass every Go test and still be wrong - which is how an affine
-        # operation ended up setting properties that do not exist.
         run: |
           for src in ${{ matrix.output_dir }}/*.c; do
             cc -fsyntax-only -Werror \
