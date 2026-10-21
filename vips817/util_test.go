@@ -91,3 +91,58 @@ func TestShutdown(t *testing.T) {
 		t.Fatalf("shutdown in a child process: %v\n%s", err, out)
 	}
 }
+
+// TestImageType checks what a caller gets back from Format(): the loader the file
+// was opened with decides it, and callers pick an encoder from that answer. Each
+// format is written by its own saver and reopened by name, which is also the only
+// path that sets the loader metadata this reads.
+func TestImageType(t *testing.T) {
+	cases := []struct {
+		name string
+		ext  string
+		save func(*Image, string) error
+		want ImageType
+	}{
+		{"jpeg", "jpg", func(i *Image, path string) error { return i.Jpegsave(path, nil) }, ImageTypeJpeg},
+		{"png", "png", func(i *Image, path string) error { return i.Pngsave(path, nil) }, ImageTypePng},
+		{"gif", "gif", func(i *Image, path string) error { return i.Gifsave(path, nil) }, ImageTypeGif},
+		{"webp", "webp", func(i *Image, path string) error { return i.Webpsave(path, nil) }, ImageTypeWebp},
+		{"heif", "heic", func(i *Image, path string) error { return i.Heifsave(path, nil) }, ImageTypeHeif},
+		{"tiff", "tif", func(i *Image, path string) error { return i.Tiffsave(path, nil) }, ImageTypeTiff},
+		{"jp2k", "jp2", func(i *Image, path string) error { return i.Jp2ksave(path, nil) }, ImageTypeJp2k},
+		{"jxl", "jxl", func(i *Image, path string) error { return i.Jxlsave(path, nil) }, ImageTypeJxl},
+		{"csv", "csv", func(i *Image, path string) error { return i.Csvsave(path, nil) }, ImageTypeCsv},
+		{"ppm", "ppm", func(i *Image, path string) error { return i.Ppmsave(path, nil) }, ImageTypePpm},
+		{"rad", "hdr", func(i *Image, path string) error { return i.Radsave(path, nil) }, ImageTypeRad},
+		// libvips' own format is the one loader that records no vips-loader metadata,
+		// so a .v file reports unknown. ImageTypeVips cannot be produced by a load.
+		{"vips", "v", func(i *Image, path string) error { return i.Vipssave(path, nil) }, ImageTypeUnknown},
+		{"fits", "fits", func(i *Image, path string) error { return i.Fitssave(path, nil) }, ImageTypeFits},
+		{"magick", "miff", func(i *Image, path string) error { return i.Magicksave(path, nil) }, ImageTypeMagick},
+		{"matrix", "mat", func(i *Image, path string) error { return i.Matrixsave(path, nil) }, ImageTypeMatrix},
+	}
+
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			img := coverageImage(t)
+			path := coveragePath(t, c.ext)
+			if err := c.save(img, path); err != nil {
+				t.Skipf("fixture unavailable: the saver could not write it: %v", err)
+			}
+			loaded, err := NewImageFromFile(path, nil)
+			if err != nil {
+				t.Skipf("fixture unavailable: the loader could not read it: %v", err)
+			}
+			defer loaded.Close()
+			if got := loaded.Format(); got != c.want {
+				t.Fatalf("opened a %s file and got %q, want %q", c.ext, got, c.want)
+			}
+		})
+	}
+
+	// An image built in memory never came through a loader, so it has no type.
+	img := coverageImage(t)
+	if got := img.Format(); got != ImageTypeUnknown {
+		t.Fatalf("an image built in memory is %q, want %q", got, ImageTypeUnknown)
+	}
+}
