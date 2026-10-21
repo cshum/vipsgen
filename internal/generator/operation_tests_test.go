@@ -513,3 +513,58 @@ func TestConnectionCaseBodySnapshots(t *testing.T) {
 		t.Errorf("unexpected target saver body\n got: %q\nwant: %q", got, wantSave)
 	}
 }
+
+// TestBufferCaseBodySnapshots pins the buffer loader shapes: the fixture written to
+// bytes by the format's own saver, or - where the format has no buffer saver -
+// caught on its way to a target.
+func TestBufferCaseBodySnapshots(t *testing.T) {
+	load := introspection.Operation{
+		Name:              "pngload_buffer",
+		GoName:            "PngloadBuffer",
+		HasOneImageOutput: true,
+		Arguments: []introspection.Argument{
+			{Name: "buf", GoName: "buf", GoType: "[]byte", IsInput: true, IsBuffer: true},
+			{Name: "len", GoName: "len", GoType: "int", IsInput: true},
+			{Name: "out", GoName: "out", GoType: "*C.VipsImage", IsOutput: true},
+		},
+		RequiredInputs: []introspection.Argument{
+			{Name: "buf", GoName: "buf", GoType: "[]byte", IsInput: true, IsBuffer: true},
+			{Name: "len", GoName: "len", GoType: "int", IsInput: true},
+		},
+	}
+
+	tail := "" +
+		"\t\tloaded, err := NewPngloadBuffer(data)\n" +
+		"\t\tif err != nil {\n" +
+		"\t\t\tt.Fatalf(\"wrapper reported an error: %v\", err)\n" +
+		"\t\t}\n" +
+		"\t\tdefer loaded.Close()\n" +
+		"\t\tif loaded.Width() != img.Width() || loaded.Height() != img.Height() {\n" +
+		"\t\t\tt.Fatalf(\"pngload_buffer: loaded %dx%d from a %dx%d buffer\", loaded.Width(), loaded.Height(), img.Width(), img.Height())\n" +
+		"\t\t}\n"
+
+	wantBytes := "" +
+		"\t\timg := coverageImage(t)\n" +
+		"\t\tdata, err := img.PngsaveBuffer(nil)\n" +
+		"\t\tif err != nil {\n" +
+		"\t\t\tt.Skipf(\"fixture unavailable: the saver could not write it: %v\", err)\n" +
+		"\t\t}\n" +
+		tail
+
+	if got := bufferLoaderCoverageBody(load, "PngsaveBuffer", nilCoverageOptions()); got != wantBytes {
+		t.Errorf("unexpected buffer loader body\n got: %q\nwant: %q", got, wantBytes)
+	}
+
+	wantTarget := "" +
+		"\t\timg := coverageImage(t)\n" +
+		"\t\ttarget, buf := coverageTarget(t)\n" +
+		"\t\tif err := img.VipssaveTarget(target, nil); err != nil {\n" +
+		"\t\t\tt.Skipf(\"fixture unavailable: the saver could not write it: %v\", err)\n" +
+		"\t\t}\n" +
+		"\t\tdata := buf.Bytes()\n" +
+		tail
+
+	if got := bufferLoaderCoverageBody(load, "VipssaveTarget", nilCoverageOptions()); got != wantTarget {
+		t.Errorf("unexpected target-fixture buffer body\n got: %q\nwant: %q", got, wantTarget)
+	}
+}

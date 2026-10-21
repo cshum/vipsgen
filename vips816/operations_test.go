@@ -1933,6 +1933,37 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("gifload: loaded an empty image %dx%d", loaded.Width(), loaded.Height())
 		}
 	})
+	t.Run("gifload_buffer", func(t *testing.T) {
+		img := coverageImage(t)
+		data, err := img.GifsaveBuffer(nil)
+		if err != nil {
+			t.Skipf("fixture unavailable: the saver could not write it: %v", err)
+		}
+		loaded, err := NewGifloadBuffer(data, nil)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer loaded.Close()
+		if loaded.Width() != img.Width() || loaded.Height() != img.Height() {
+			t.Fatalf("gifload_buffer: loaded %dx%d from a %dx%d buffer", loaded.Width(), loaded.Height(), img.Width(), img.Height())
+		}
+	})
+	t.Run("gifload_buffer_options", func(t *testing.T) {
+		img := coverageImage(t)
+		data, err := img.GifsaveBuffer(nil)
+		if err != nil {
+			t.Skipf("fixture unavailable: the saver could not write it: %v", err)
+		}
+		opts := &GifloadBufferOptions{N: 1, Page: 0, Memory: true, Access: AccessRandom, FailOn: FailOnNone, Revalidate: true}
+		loaded, err := NewGifloadBuffer(data, opts)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer loaded.Close()
+		if loaded.Width() <= 0 || loaded.Height() <= 0 {
+			t.Fatalf("gifload_buffer: loaded an empty image %dx%d", loaded.Width(), loaded.Height())
+		}
+	})
 	t.Run("gifload_source", func(t *testing.T) {
 		img := coverageImage(t)
 		data, err := img.GifsaveBuffer(nil)
@@ -2177,6 +2208,37 @@ func TestGeneratedOperations(t *testing.T) {
 		defer loaded.Close()
 		if loaded.Width() <= 0 || loaded.Height() <= 0 {
 			t.Fatalf("heifload: loaded an empty image %dx%d", loaded.Width(), loaded.Height())
+		}
+	})
+	t.Run("heifload_buffer", func(t *testing.T) {
+		img := coverageImage(t)
+		data, err := img.HeifsaveBuffer(nil)
+		if err != nil {
+			t.Skipf("fixture unavailable: the saver could not write it: %v", err)
+		}
+		loaded, err := NewHeifloadBuffer(data, nil)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer loaded.Close()
+		if loaded.Width() != img.Width() || loaded.Height() != img.Height() {
+			t.Fatalf("heifload_buffer: loaded %dx%d from a %dx%d buffer", loaded.Width(), loaded.Height(), img.Width(), img.Height())
+		}
+	})
+	t.Run("heifload_buffer_options", func(t *testing.T) {
+		img := coverageImage(t)
+		data, err := img.HeifsaveBuffer(nil)
+		if err != nil {
+			t.Skipf("fixture unavailable: the saver could not write it: %v", err)
+		}
+		opts := &HeifloadBufferOptions{Page: 0, N: 1, Thumbnail: true, Unlimited: true, Memory: true, Access: AccessRandom, FailOn: FailOnNone, Revalidate: true}
+		loaded, err := NewHeifloadBuffer(data, opts)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer loaded.Close()
+		if loaded.Width() <= 0 || loaded.Height() <= 0 {
+			t.Fatalf("heifload_buffer: loaded an empty image %dx%d", loaded.Width(), loaded.Height())
 		}
 	})
 	t.Run("heifload_source", func(t *testing.T) {
@@ -2825,6 +2887,37 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("jp2kload: loaded an empty image %dx%d", loaded.Width(), loaded.Height())
 		}
 	})
+	t.Run("jp2kload_buffer", func(t *testing.T) {
+		img := coverageImage(t)
+		data, err := img.Jp2ksaveBuffer(nil)
+		if err != nil {
+			t.Skipf("fixture unavailable: the saver could not write it: %v", err)
+		}
+		loaded, err := NewJp2kloadBuffer(data, nil)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer loaded.Close()
+		if loaded.Width() != img.Width() || loaded.Height() != img.Height() {
+			t.Fatalf("jp2kload_buffer: loaded %dx%d from a %dx%d buffer", loaded.Width(), loaded.Height(), img.Width(), img.Height())
+		}
+	})
+	t.Run("jp2kload_buffer_options", func(t *testing.T) {
+		img := coverageImage(t)
+		data, err := img.Jp2ksaveBuffer(nil)
+		if err != nil {
+			t.Skipf("fixture unavailable: the saver could not write it: %v", err)
+		}
+		opts := &Jp2kloadBufferOptions{Page: 0, Memory: true, Access: AccessRandom, FailOn: FailOnNone, Revalidate: true}
+		loaded, err := NewJp2kloadBuffer(data, opts)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer loaded.Close()
+		if loaded.Width() <= 0 || loaded.Height() <= 0 {
+			t.Fatalf("jp2kload_buffer: loaded an empty image %dx%d", loaded.Width(), loaded.Height())
+		}
+	})
 	t.Run("jp2kload_source", func(t *testing.T) {
 		img := coverageImage(t)
 		data, err := img.Jp2ksaveBuffer(nil)
@@ -2988,6 +3081,37 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("jpegload: loaded an empty image %dx%d", loaded.Width(), loaded.Height())
 		}
 	})
+	t.Run("jpegload_buffer", func(t *testing.T) {
+		img := coverageImage(t)
+		data, err := img.JpegsaveBuffer(nil)
+		if err != nil {
+			t.Skipf("fixture unavailable: the saver could not write it: %v", err)
+		}
+		loaded, err := NewJpegloadBuffer(data, nil)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer loaded.Close()
+		if loaded.Width() != img.Width() || loaded.Height() != img.Height() {
+			t.Fatalf("jpegload_buffer: loaded %dx%d from a %dx%d buffer", loaded.Width(), loaded.Height(), img.Width(), img.Height())
+		}
+	})
+	t.Run("jpegload_buffer_options", func(t *testing.T) {
+		img := coverageImage(t)
+		data, err := img.JpegsaveBuffer(nil)
+		if err != nil {
+			t.Skipf("fixture unavailable: the saver could not write it: %v", err)
+		}
+		opts := &JpegloadBufferOptions{Shrink: 1, Autorotate: true, Unlimited: true, Memory: true, Access: AccessRandom, FailOn: FailOnNone, Revalidate: true}
+		loaded, err := NewJpegloadBuffer(data, opts)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer loaded.Close()
+		if loaded.Width() <= 0 || loaded.Height() <= 0 {
+			t.Fatalf("jpegload_buffer: loaded an empty image %dx%d", loaded.Width(), loaded.Height())
+		}
+	})
 	t.Run("jpegload_source", func(t *testing.T) {
 		img := coverageImage(t)
 		data, err := img.JpegsaveBuffer(nil)
@@ -3149,6 +3273,37 @@ func TestGeneratedOperations(t *testing.T) {
 		defer loaded.Close()
 		if loaded.Width() <= 0 || loaded.Height() <= 0 {
 			t.Fatalf("jxlload: loaded an empty image %dx%d", loaded.Width(), loaded.Height())
+		}
+	})
+	t.Run("jxlload_buffer", func(t *testing.T) {
+		img := coverageImage(t)
+		data, err := img.JxlsaveBuffer(nil)
+		if err != nil {
+			t.Skipf("fixture unavailable: the saver could not write it: %v", err)
+		}
+		loaded, err := NewJxlloadBuffer(data, nil)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer loaded.Close()
+		if loaded.Width() != img.Width() || loaded.Height() != img.Height() {
+			t.Fatalf("jxlload_buffer: loaded %dx%d from a %dx%d buffer", loaded.Width(), loaded.Height(), img.Width(), img.Height())
+		}
+	})
+	t.Run("jxlload_buffer_options", func(t *testing.T) {
+		img := coverageImage(t)
+		data, err := img.JxlsaveBuffer(nil)
+		if err != nil {
+			t.Skipf("fixture unavailable: the saver could not write it: %v", err)
+		}
+		opts := &JxlloadBufferOptions{Page: 0, N: 1, Memory: true, Access: AccessRandom, FailOn: FailOnNone, Revalidate: true}
+		loaded, err := NewJxlloadBuffer(data, opts)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer loaded.Close()
+		if loaded.Width() <= 0 || loaded.Height() <= 0 {
+			t.Fatalf("jxlload_buffer: loaded an empty image %dx%d", loaded.Width(), loaded.Height())
 		}
 	})
 	t.Run("jxlload_source", func(t *testing.T) {
@@ -3402,6 +3557,37 @@ func TestGeneratedOperations(t *testing.T) {
 		defer loaded.Close()
 		if loaded.Width() <= 0 || loaded.Height() <= 0 {
 			t.Fatalf("magickload: loaded an empty image %dx%d", loaded.Width(), loaded.Height())
+		}
+	})
+	t.Run("magickload_buffer", func(t *testing.T) {
+		img := coverageImage(t)
+		data, err := img.MagicksaveBuffer(nil)
+		if err != nil {
+			t.Skipf("fixture unavailable: the saver could not write it: %v", err)
+		}
+		loaded, err := NewMagickloadBuffer(data, nil)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer loaded.Close()
+		if loaded.Width() != img.Width() || loaded.Height() != img.Height() {
+			t.Fatalf("magickload_buffer: loaded %dx%d from a %dx%d buffer", loaded.Width(), loaded.Height(), img.Width(), img.Height())
+		}
+	})
+	t.Run("magickload_buffer_options", func(t *testing.T) {
+		img := coverageImage(t)
+		data, err := img.MagicksaveBuffer(nil)
+		if err != nil {
+			t.Skipf("fixture unavailable: the saver could not write it: %v", err)
+		}
+		opts := &MagickloadBufferOptions{Page: 0, N: 1, Memory: true, Access: AccessRandom, FailOn: FailOnNone, Revalidate: true}
+		loaded, err := NewMagickloadBuffer(data, opts)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer loaded.Close()
+		if loaded.Width() <= 0 || loaded.Height() <= 0 {
+			t.Fatalf("magickload_buffer: loaded an empty image %dx%d", loaded.Width(), loaded.Height())
 		}
 	})
 	t.Run("magicksave", func(t *testing.T) {
@@ -4254,6 +4440,37 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("pngload: loaded an empty image %dx%d", loaded.Width(), loaded.Height())
 		}
 	})
+	t.Run("pngload_buffer", func(t *testing.T) {
+		img := coverageImage(t)
+		data, err := img.PngsaveBuffer(nil)
+		if err != nil {
+			t.Skipf("fixture unavailable: the saver could not write it: %v", err)
+		}
+		loaded, err := NewPngloadBuffer(data, nil)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer loaded.Close()
+		if loaded.Width() != img.Width() || loaded.Height() != img.Height() {
+			t.Fatalf("pngload_buffer: loaded %dx%d from a %dx%d buffer", loaded.Width(), loaded.Height(), img.Width(), img.Height())
+		}
+	})
+	t.Run("pngload_buffer_options", func(t *testing.T) {
+		img := coverageImage(t)
+		data, err := img.PngsaveBuffer(nil)
+		if err != nil {
+			t.Skipf("fixture unavailable: the saver could not write it: %v", err)
+		}
+		opts := &PngloadBufferOptions{Unlimited: true, Memory: true, Access: AccessRandom, FailOn: FailOnNone, Revalidate: true}
+		loaded, err := NewPngloadBuffer(data, opts)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer loaded.Close()
+		if loaded.Width() <= 0 || loaded.Height() <= 0 {
+			t.Fatalf("pngload_buffer: loaded an empty image %dx%d", loaded.Width(), loaded.Height())
+		}
+	})
 	t.Run("pngload_source", func(t *testing.T) {
 		img := coverageImage(t)
 		data, err := img.PngsaveBuffer(nil)
@@ -4646,6 +4863,37 @@ func TestGeneratedOperations(t *testing.T) {
 		defer loaded.Close()
 		if loaded.Width() <= 0 || loaded.Height() <= 0 {
 			t.Fatalf("radload: loaded an empty image %dx%d", loaded.Width(), loaded.Height())
+		}
+	})
+	t.Run("radload_buffer", func(t *testing.T) {
+		img := coverageImage(t)
+		data, err := img.RadsaveBuffer(nil)
+		if err != nil {
+			t.Skipf("fixture unavailable: the saver could not write it: %v", err)
+		}
+		loaded, err := NewRadloadBuffer(data, nil)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer loaded.Close()
+		if loaded.Width() != img.Width() || loaded.Height() != img.Height() {
+			t.Fatalf("radload_buffer: loaded %dx%d from a %dx%d buffer", loaded.Width(), loaded.Height(), img.Width(), img.Height())
+		}
+	})
+	t.Run("radload_buffer_options", func(t *testing.T) {
+		img := coverageImage(t)
+		data, err := img.RadsaveBuffer(nil)
+		if err != nil {
+			t.Skipf("fixture unavailable: the saver could not write it: %v", err)
+		}
+		opts := &RadloadBufferOptions{Memory: true, Access: AccessRandom, FailOn: FailOnNone, Revalidate: true}
+		loaded, err := NewRadloadBuffer(data, opts)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer loaded.Close()
+		if loaded.Width() <= 0 || loaded.Height() <= 0 {
+			t.Fatalf("radload_buffer: loaded an empty image %dx%d", loaded.Width(), loaded.Height())
 		}
 	})
 	t.Run("radload_source", func(t *testing.T) {
@@ -5846,6 +6094,37 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("tiffload: loaded an empty image %dx%d", loaded.Width(), loaded.Height())
 		}
 	})
+	t.Run("tiffload_buffer", func(t *testing.T) {
+		img := coverageImage(t)
+		data, err := img.TiffsaveBuffer(nil)
+		if err != nil {
+			t.Skipf("fixture unavailable: the saver could not write it: %v", err)
+		}
+		loaded, err := NewTiffloadBuffer(data, nil)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer loaded.Close()
+		if loaded.Width() != img.Width() || loaded.Height() != img.Height() {
+			t.Fatalf("tiffload_buffer: loaded %dx%d from a %dx%d buffer", loaded.Width(), loaded.Height(), img.Width(), img.Height())
+		}
+	})
+	t.Run("tiffload_buffer_options", func(t *testing.T) {
+		img := coverageImage(t)
+		data, err := img.TiffsaveBuffer(nil)
+		if err != nil {
+			t.Skipf("fixture unavailable: the saver could not write it: %v", err)
+		}
+		opts := &TiffloadBufferOptions{Page: 0, Subifd: 1, N: 1, Autorotate: true, Memory: true, Access: AccessRandom, FailOn: FailOnNone, Revalidate: true}
+		loaded, err := NewTiffloadBuffer(data, opts)
+		if err != nil {
+			t.Skipf("input precondition: its subifd option needs a file that has one: %v", err)
+		}
+		defer loaded.Close()
+		if loaded.Width() <= 0 || loaded.Height() <= 0 {
+			t.Fatalf("tiffload_buffer: loaded an empty image %dx%d", loaded.Width(), loaded.Height())
+		}
+	})
 	t.Run("tiffload_source", func(t *testing.T) {
 		img := coverageImage(t)
 		data, err := img.TiffsaveBuffer(nil)
@@ -6219,6 +6498,37 @@ func TestGeneratedOperations(t *testing.T) {
 		defer loaded.Close()
 		if loaded.Width() <= 0 || loaded.Height() <= 0 {
 			t.Fatalf("webpload: loaded an empty image %dx%d", loaded.Width(), loaded.Height())
+		}
+	})
+	t.Run("webpload_buffer", func(t *testing.T) {
+		img := coverageImage(t)
+		data, err := img.WebpsaveBuffer(nil)
+		if err != nil {
+			t.Skipf("fixture unavailable: the saver could not write it: %v", err)
+		}
+		loaded, err := NewWebploadBuffer(data, nil)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer loaded.Close()
+		if loaded.Width() != img.Width() || loaded.Height() != img.Height() {
+			t.Fatalf("webpload_buffer: loaded %dx%d from a %dx%d buffer", loaded.Width(), loaded.Height(), img.Width(), img.Height())
+		}
+	})
+	t.Run("webpload_buffer_options", func(t *testing.T) {
+		img := coverageImage(t)
+		data, err := img.WebpsaveBuffer(nil)
+		if err != nil {
+			t.Skipf("fixture unavailable: the saver could not write it: %v", err)
+		}
+		opts := &WebploadBufferOptions{Page: 0, N: 1, Scale: 1, Memory: true, Access: AccessRandom, FailOn: FailOnNone, Revalidate: true}
+		loaded, err := NewWebploadBuffer(data, opts)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer loaded.Close()
+		if loaded.Width() <= 0 || loaded.Height() <= 0 {
+			t.Fatalf("webpload_buffer: loaded an empty image %dx%d", loaded.Width(), loaded.Height())
 		}
 	})
 	t.Run("webpload_source", func(t *testing.T) {
