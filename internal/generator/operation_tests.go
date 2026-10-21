@@ -71,6 +71,19 @@ var coverageSkip = map[string]string{
 	"switch":            "needs one-band test images",
 }
 
+// coverageSkipOptions holds operations whose nil-options call works but whose
+// populated options struct cannot be given sensible values, with the reason. The
+// base case stays strict; only the options variant reports a skip.
+var coverageSkipOptions = map[string]string{
+	"Lab2XYZ":      "its vector option needs three elements",
+	"XYZ2Lab":      "its vector option needs three elements",
+	"hough_circle": "its radius bounds must not collapse to one value",
+	"jp2kload":     "its decode options are not independent",
+	"heifload":     "its loader options are not independent",
+	"affine":       "the with-options path sets the matrix coefficients as separate properties libvips does not have",
+	"tiffload":     "its subifd option needs a file that has one",
+}
+
 // BuildOperationCoverage selects the operations a generated test can call and
 // renders one subtest per operation. Selection is the argument list: an
 // operation qualifies when every required argument is an image or a value this
@@ -80,8 +93,17 @@ func BuildOperationCoverage(operations []introspection.Operation) []CoverageCase
 	formats := newCoverageFormats(operations)
 	var cases []CoverageCase
 	for _, op := range operations {
-		if body, ok := coverageCaseBody(op, formats); ok {
-			cases = append(cases, CoverageCase{Name: op.Name, Body: body})
+		body, ok := coverageCaseBody(op, formats, nilCoverageOptions())
+		if !ok {
+			continue
+		}
+		cases = append(cases, CoverageCase{Name: op.Name, Body: body})
+		// The same operation again, with every optional field this generator can
+		// give a value to: that is what exercises the presence rule and the
+		// per-type setters, which a nil options argument never reaches.
+		optionsVariant := coverageOptions{Skip: coverageSkipOptions[op.Name]}
+		if withOptions, ok := coverageCaseBody(op, formats, optionsVariant); ok {
+			cases = append(cases, CoverageCase{Name: op.Name + "_options", Body: withOptions})
 		}
 	}
 	return cases
@@ -89,17 +111,28 @@ func BuildOperationCoverage(operations []introspection.Operation) []CoverageCase
 
 // coverageCaseBody picks the kind of subtest an operation gets: a round trip for a
 // format libvips both writes and reads, otherwise a call with made-up arguments.
-func coverageCaseBody(op introspection.Operation, formats coverageFormats) (string, bool) {
+// coverageCaseBody picks the kind of subtest an operation gets: a round trip for a
+// format libvips both writes and reads, otherwise a call with made-up arguments. A
+// nil co means "no options variant", so the caller can ask whether one exists.
+func coverageCaseBody(op introspection.Operation, formats coverageFormats, co coverageOptions) (string, bool) {
+	if co.Expr == "" {
+		built, ok := coverageOptionsLiteral(op)
+		if !ok {
+			return "", false
+		}
+		built.Skip = co.Skip // the variant's reason survives the literal
+		co = built
+	}
 	if kind, ext, saver, ok := formats.foreignKind(op); ok {
 		if kind == "saver" {
-			return saverCoverageBody(op, ext), true
+			return saverCoverageBody(op, ext, co), true
 		}
-		return loaderCoverageBody(op, ext, saver), true
+		return loaderCoverageBody(op, ext, saver, co), true
 	}
 	if !coverableOperation(op) {
 		return "", false
 	}
-	return coverageBody(op), true
+	return coverageBody(op, co), true
 }
 
 // coverableOperation is the selection rule.
@@ -145,8 +178,8 @@ func callArguments(op introspection.Operation) []introspection.Argument {
 }
 
 // coverageBody renders the call and its assertions for one operation.
-func coverageBody(op introspection.Operation) string {
-	skipReason := coverageSkip[op.Name]
+func coverageBody(op introspection.Operation, co coverageOptions) string {
+	skipReason := co.skipReason(op.Name)
 	hasOptions := len(op.OptionalInputs) > 0 || len(getSupportedOptionalOutputs(op)) > 0
 
 	var exprs []string
@@ -171,7 +204,7 @@ func coverageBody(op introspection.Operation) string {
 		}
 	}
 	if hasOptions {
-		exprs = append(exprs, "nil")
+		exprs = append(exprs, co.Expr)
 	}
 	argsExpr := strings.Join(exprs, ", ")
 
@@ -179,6 +212,7 @@ func coverageBody(op introspection.Operation) string {
 	if !op.HasThisImageInput {
 		// A creator: NewIdentity(nil), NewBandjoin([]*Image{...}).
 		body.WriteString(declareImages(imageArgs, "coverageImage", false, 2))
+		body.WriteString(co.Decl)
 		body.WriteString(fmt.Sprintf("\t\tout, err := New%s(%s)\n", op.GoName, argsExpr))
 		body.WriteString("\t\tif err != nil {\n")
 		body.WriteString(errorLine(skipReason))
@@ -191,6 +225,7 @@ func coverageBody(op introspection.Operation) string {
 	}
 
 	body.WriteString(declareImages(append([]string{"img"}, imageArgs...), "coverageImage", false, 2))
+	body.WriteString(co.Decl)
 	body.WriteString(callLine(op, argsExpr, false, 2))
 
 	if skipReason != "" {
@@ -252,11 +287,15 @@ func scalarValue(arg introspection.Argument) (string, bool) {
 func intValue(arg introspection.Argument) string {
 	value := 1
 	switch arg.Name {
-	case "width", "height", "tile_width", "tile_height":
+	case "width", "height":
 		value = 8
-	case "left", "top", "x", "y", "xoffset", "yoffset", "xr1", "xr2", "yr1", "yr2":
+	case "tile_width", "tile_height":
+		// tiff requires a tile that is a multiple of 16.
+		value = 16
+	case "left", "top", "x", "y", "xoffset", "yoffset", "xr1", "xr2", "yr1", "yr2", "page":
+		// page is a zero-based index: 1 asks for a page a one-page fixture lacks.
 		value = 0
-	case "xfac", "yfac", "across", "down", "n", "bands", "depth", "page", "index":
+	case "xfac", "yfac", "across", "down", "n", "bands", "depth", "index":
 		value = 1
 	}
 	return fmt.Sprintf("%d", clampInt(value, arg))
