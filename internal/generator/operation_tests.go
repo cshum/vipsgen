@@ -62,6 +62,7 @@ var coverageSkip = map[string]string{
 	"heifsave_buffer":   "needs a heif encoder for its default compression",
 	"uhdrsave":          "needs gainmap header fields",
 	"heifsave":          "needs a heif encoder for its default compression",
+	"heifsave_target":   "needs a heif encoder for its default compression",
 	"hist_entropy":      "needs a histogram: width or height 1",
 	"hist_ismonotonic":  "needs a histogram: width or height 1",
 	"draw_mask":         "needs a one-band image",
