@@ -203,7 +203,9 @@ err = img.EmbedMultiPage(left, top, newWidth, newHeight, &vips.EmbedMultiPageOpt
 
 These methods automatically fall through to the equivalent single-frame operation when the image has only one page.
 
-A direct call runs on the stacked image, as libvips defines it: `Flip`, `Rot` and `ExtractArea` reach across frame boundaries, and `Resize` leaves `PageHeight` alone. The helpers above answer a different question — apply this to each frame, then restack — which the strip cannot express. Any other per-frame transform is yours to write, with the frame arithmetic in sight.
+vipsgen is a Go binding: each method does what its libvips operation does. On a stacked image, then, `Flip`, `Rot` and `ExtractArea` act across frame boundaries and `Resize` leaves `PageHeight` as it was.
+
+For per-frame work on an operation with no MultiPage helper, [examples/animated_gif](https://github.com/cshum/vipsgen/tree/main/examples/animated_gif) shows the pattern: copy the image, cut each page out, transform it, join the frames back, set the page height.
 
 ## Code Generation
 
