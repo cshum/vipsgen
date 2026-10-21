@@ -71,6 +71,15 @@ reason.
 - The consequence is that those pins run on one leg only, against the libvips the exception
   list was measured on. Behaviour on the other legs is not pinned.
 - The generated tests count open images, so close what you open.
+- The operation subtests are generated from the same introspection data as the operations: one
+  per operation, one per options variant, one per default constructor. They are regenerated,
+  so add a shape in `internal/generator/operation_*.go` rather than editing them.
+- `go test ./vips/ -cover` measures the package, and most of what is missing is not effort:
+  the operations left out need a real document as their fixture - pdf, svg, slide decks,
+  camera raw - so the ceiling without test data is far below 100%.
+- `go test` never sees the C, and the flags cannot ride on `CGO_CFLAGS`: `-Werror` there fails
+  on cgo's own prolog and on `runtime/cgo`, which is not warning-clean. So CI compiles the
+  generated `.c` files directly. That is where the wrappers broke before.
 
 ## Docs
 
