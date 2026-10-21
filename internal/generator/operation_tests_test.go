@@ -421,3 +421,95 @@ func TestValuesCaseBodySnapshots(t *testing.T) {
 		t.Errorf("unexpected void body\n got: %q\nwant: %q", got, wantVoid)
 	}
 }
+
+// TestConnectionCaseBodySnapshots pins the two connection shapes: a loader that
+// reads a Source - with the fixture written either to bytes or through a Target -
+// and a saver that writes a Target.
+func TestConnectionCaseBodySnapshots(t *testing.T) {
+	load := introspection.Operation{
+		Name:              "jpegload_source",
+		GoName:            "JpegloadSource",
+		HasOneImageOutput: true,
+		Arguments: []introspection.Argument{
+			{Name: "source", GoType: "*C.VipsSourceCustom", IsInput: true, IsSource: true},
+			{Name: "out", GoName: "out", GoType: "*C.VipsImage", IsOutput: true},
+		},
+		RequiredInputs: []introspection.Argument{
+			{Name: "source", GoType: "*C.VipsSourceCustom", IsInput: true, IsSource: true},
+		},
+	}
+
+	loadTail := "" +
+		"\t\tloaded, err := NewJpegloadSource(source)\n" +
+		"\t\tif err != nil {\n" +
+		"\t\t\tt.Fatalf(\"wrapper reported an error: %v\", err)\n" +
+		"\t\t}\n" +
+		"\t\tdefer loaded.Close()\n" +
+		"\t\tif loaded.Width() != img.Width() || loaded.Height() != img.Height() {\n" +
+		"\t\t\tt.Fatalf(\"jpegload_source: loaded %dx%d from a %dx%d stream\", loaded.Width(), loaded.Height(), img.Width(), img.Height())\n" +
+		"\t\t}\n"
+
+	wantBytes := "" +
+		"\t\timg := coverageImage(t)\n" +
+		"\t\tdata, err := img.JpegsaveBuffer(nil)\n" +
+		"\t\tif err != nil {\n" +
+		"\t\t\tt.Skipf(\"fixture unavailable: the saver could not write it: %v\", err)\n" +
+		"\t\t}\n" +
+		"\t\tsource := coverageSource(t, data)\n" +
+		loadTail
+
+	if got := sourceLoaderCoverageBody(load, "JpegsaveBuffer", nilCoverageOptions()); got != wantBytes {
+		t.Errorf("unexpected source loader body\n got: %q\nwant: %q", got, wantBytes)
+	}
+
+	// A format whose only byte-producing saver writes to a connection: the fixture
+	// is caught on the way to the target.
+	wantTarget := "" +
+		"\t\timg := coverageImage(t)\n" +
+		"\t\ttarget, buf := coverageTarget(t)\n" +
+		"\t\tif err := img.VipssaveTarget(target, nil); err != nil {\n" +
+		"\t\t\tt.Skipf(\"fixture unavailable: the saver could not write it: %v\", err)\n" +
+		"\t\t}\n" +
+		"\t\tdata := buf.Bytes()\n" +
+		"\t\tsource := coverageSource(t, data)\n" +
+		loadTail
+
+	if got := sourceLoaderCoverageBody(load, "VipssaveTarget", nilCoverageOptions()); got != wantTarget {
+		t.Errorf("unexpected target-fixture body\n got: %q\nwant: %q", got, wantTarget)
+	}
+
+	save := introspection.Operation{
+		Name:              "jpegsave_target",
+		GoName:            "JpegsaveTarget",
+		HasThisImageInput: true,
+		Arguments: []introspection.Argument{
+			imageArg("in"),
+			{Name: "target", GoType: "*C.VipsTargetCustom", IsInput: true, IsTarget: true},
+		},
+		RequiredInputs: []introspection.Argument{
+			imageArg("in"),
+			{Name: "target", GoType: "*C.VipsTargetCustom", IsInput: true, IsTarget: true},
+		},
+	}
+
+	wantSave := "" +
+		"\t\timg := coverageImage(t)\n" +
+		"\t\ttarget, buf := coverageTarget(t)\n" +
+		"\t\terr := img.JpegsaveTarget(target)\n" +
+		"\t\tif err != nil {\n" +
+		"\t\t\tfirstErr := err\n" +
+		"\t\t\timg = coverageMonoImage(t)\n" +
+		"\t\t\ttarget, buf = coverageTarget(t)\n" +
+		"\t\t\terr = img.JpegsaveTarget(target)\n" +
+		"\t\t\tif err != nil {\n" +
+		"\t\t\t\tt.Fatalf(\"jpegsave_target: wrapper failed for a three-band and a one-band image: %v / %v\", firstErr, err)\n" +
+		"\t\t\t}\n" +
+		"\t\t}\n" +
+		"\t\tif buf.Len() == 0 {\n" +
+		"\t\t\tt.Fatalf(\"jpegsave_target: wrote nothing to the target\")\n" +
+		"\t\t}\n"
+
+	if got := targetSaverCoverageBody(save, nilCoverageOptions()); got != wantSave {
+		t.Errorf("unexpected target saver body\n got: %q\nwant: %q", got, wantSave)
+	}
+}

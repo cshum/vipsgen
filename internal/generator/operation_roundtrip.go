@@ -40,11 +40,12 @@ var coverageFormatExt = map[string]string{
 // coverageFormats indexes the savers by format token, so a loader can find the
 // operation that writes its fixture.
 type coverageFormats struct {
-	saver map[string]string // token -> saver GoName
+	saver map[string]string // token -> saver GoName that writes a file
+	bytes map[string]string // token -> saver GoName that returns bytes
 }
 
 func newCoverageFormats(operations []introspection.Operation) coverageFormats {
-	formats := coverageFormats{saver: map[string]string{}}
+	formats := coverageFormats{saver: map[string]string{}, bytes: coverageByteSavers(operations)}
 	for _, op := range operations {
 		if !strings.HasSuffix(op.Name, "save") || !op.HasThisImageInput {
 			continue
