@@ -20,7 +20,11 @@ func TestLoggingHandler(t *testing.T) {
 	SetLogging(func(_ string, level LogLevel, message string) {
 		lines = append(lines, fmt.Sprintf("%d:%s", level, message))
 	}, LogLevelInfo)
-	defer SetLogging(noopLoggingHandler, LogLevelError)
+	defer func() {
+		// Back to the default handler, and through it once so the no-op path runs.
+		SetLogging(noopLoggingHandler, LogLevelError)
+		log("vipsgen", LogLevelError, "restored")
+	}()
 
 	log("vipsgen", LogLevelError, "error line")
 	log("vipsgen", LogLevelInfo, "info line")
