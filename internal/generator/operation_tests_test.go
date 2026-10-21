@@ -568,3 +568,28 @@ func TestBufferCaseBodySnapshots(t *testing.T) {
 		t.Errorf("unexpected target-fixture buffer body\n got: %q\nwant: %q", got, wantTarget)
 	}
 }
+
+// TestBuildOptionDefaults pins which operations get a default constructor test:
+// the ones the generator emits an options struct for, and no others - a name
+// listed here that image.go does not emit is a compile error in the generated
+// test file.
+func TestBuildOptionDefaults(t *testing.T) {
+	method := introspection.Operation{
+		Name: "avg", GoName: "Avg", HasThisImageInput: true,
+		OptionalInputs: []introspection.Argument{{Name: "x", GoName: "x", GoType: "int"}},
+	}
+	creator := introspection.Operation{
+		Name: "black", GoName: "Black", HasImageOutput: true,
+		OptionalInputs: []introspection.Argument{{Name: "y", GoName: "y", GoType: "int"}},
+	}
+	bare := introspection.Operation{Name: "eye", GoName: "Eye", HasImageOutput: true}
+	utility := introspection.Operation{
+		Name: "profile_load", GoName: "ProfileLoad",
+		OptionalInputs: []introspection.Argument{{Name: "z", GoName: "z", GoType: "int"}},
+	}
+
+	got := strings.Join(BuildOptionDefaults([]introspection.Operation{method, creator, bare, utility}), ",")
+	if want := "AvgOptions,BlackOptions"; got != want {
+		t.Fatalf("default constructors %q, want %q", got, want)
+	}
+}

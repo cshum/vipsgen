@@ -6917,6 +6917,1103 @@ func TestGeneratedOperations(t *testing.T) {
 	})
 }
 
+// TestGeneratedOptionDefaults calls every operation's default options
+// constructor. The options structs are built by the generator, so the risk is a
+// constructor that returns nil or a struct whose fields no longer match the call
+// it feeds - the first is checked here, the second by the options subtests above.
+func TestGeneratedOptionDefaults(t *testing.T) {
+	t.Run("Lab2XYZOptions", func(t *testing.T) {
+		if opts := DefaultLab2XYZOptions(); opts == nil {
+			t.Fatal("DefaultLab2XYZOptions returned nil")
+		}
+	})
+	t.Run("XYZ2LabOptions", func(t *testing.T) {
+		if opts := DefaultXYZ2LabOptions(); opts == nil {
+			t.Fatal("DefaultXYZ2LabOptions returned nil")
+		}
+	})
+	t.Run("AffineOptions", func(t *testing.T) {
+		if opts := DefaultAffineOptions(); opts == nil {
+			t.Fatal("DefaultAffineOptions returned nil")
+		}
+	})
+	t.Run("AnalyzeloadOptions", func(t *testing.T) {
+		if opts := DefaultAnalyzeloadOptions(); opts == nil {
+			t.Fatal("DefaultAnalyzeloadOptions returned nil")
+		}
+	})
+	t.Run("ArrayjoinOptions", func(t *testing.T) {
+		if opts := DefaultArrayjoinOptions(); opts == nil {
+			t.Fatal("DefaultArrayjoinOptions returned nil")
+		}
+	})
+	t.Run("AutorotOptions", func(t *testing.T) {
+		if opts := DefaultAutorotOptions(); opts == nil {
+			t.Fatal("DefaultAutorotOptions returned nil")
+		}
+	})
+	t.Run("BandfoldOptions", func(t *testing.T) {
+		if opts := DefaultBandfoldOptions(); opts == nil {
+			t.Fatal("DefaultBandfoldOptions returned nil")
+		}
+	})
+	t.Run("BandrankOptions", func(t *testing.T) {
+		if opts := DefaultBandrankOptions(); opts == nil {
+			t.Fatal("DefaultBandrankOptions returned nil")
+		}
+	})
+	t.Run("BandunfoldOptions", func(t *testing.T) {
+		if opts := DefaultBandunfoldOptions(); opts == nil {
+			t.Fatal("DefaultBandunfoldOptions returned nil")
+		}
+	})
+	t.Run("BlackOptions", func(t *testing.T) {
+		if opts := DefaultBlackOptions(); opts == nil {
+			t.Fatal("DefaultBlackOptions returned nil")
+		}
+	})
+	t.Run("CannyOptions", func(t *testing.T) {
+		if opts := DefaultCannyOptions(); opts == nil {
+			t.Fatal("DefaultCannyOptions returned nil")
+		}
+	})
+	t.Run("CastOptions", func(t *testing.T) {
+		if opts := DefaultCastOptions(); opts == nil {
+			t.Fatal("DefaultCastOptions returned nil")
+		}
+	})
+	t.Run("ClampOptions", func(t *testing.T) {
+		if opts := DefaultClampOptions(); opts == nil {
+			t.Fatal("DefaultClampOptions returned nil")
+		}
+	})
+	t.Run("ColourspaceOptions", func(t *testing.T) {
+		if opts := DefaultColourspaceOptions(); opts == nil {
+			t.Fatal("DefaultColourspaceOptions returned nil")
+		}
+	})
+	t.Run("CompassOptions", func(t *testing.T) {
+		if opts := DefaultCompassOptions(); opts == nil {
+			t.Fatal("DefaultCompassOptions returned nil")
+		}
+	})
+	t.Run("CompositeOptions", func(t *testing.T) {
+		if opts := DefaultCompositeOptions(); opts == nil {
+			t.Fatal("DefaultCompositeOptions returned nil")
+		}
+	})
+	t.Run("Composite2Options", func(t *testing.T) {
+		if opts := DefaultComposite2Options(); opts == nil {
+			t.Fatal("DefaultComposite2Options returned nil")
+		}
+	})
+	t.Run("ConvOptions", func(t *testing.T) {
+		if opts := DefaultConvOptions(); opts == nil {
+			t.Fatal("DefaultConvOptions returned nil")
+		}
+	})
+	t.Run("ConvaOptions", func(t *testing.T) {
+		if opts := DefaultConvaOptions(); opts == nil {
+			t.Fatal("DefaultConvaOptions returned nil")
+		}
+	})
+	t.Run("ConvasepOptions", func(t *testing.T) {
+		if opts := DefaultConvasepOptions(); opts == nil {
+			t.Fatal("DefaultConvasepOptions returned nil")
+		}
+	})
+	t.Run("ConvsepOptions", func(t *testing.T) {
+		if opts := DefaultConvsepOptions(); opts == nil {
+			t.Fatal("DefaultConvsepOptions returned nil")
+		}
+	})
+	t.Run("CopyOptions", func(t *testing.T) {
+		if opts := DefaultCopyOptions(); opts == nil {
+			t.Fatal("DefaultCopyOptions returned nil")
+		}
+	})
+	t.Run("CsvloadOptions", func(t *testing.T) {
+		if opts := DefaultCsvloadOptions(); opts == nil {
+			t.Fatal("DefaultCsvloadOptions returned nil")
+		}
+	})
+	t.Run("CsvloadSourceOptions", func(t *testing.T) {
+		if opts := DefaultCsvloadSourceOptions(); opts == nil {
+			t.Fatal("DefaultCsvloadSourceOptions returned nil")
+		}
+	})
+	t.Run("CsvsaveOptions", func(t *testing.T) {
+		if opts := DefaultCsvsaveOptions(); opts == nil {
+			t.Fatal("DefaultCsvsaveOptions returned nil")
+		}
+	})
+	t.Run("CsvsaveTargetOptions", func(t *testing.T) {
+		if opts := DefaultCsvsaveTargetOptions(); opts == nil {
+			t.Fatal("DefaultCsvsaveTargetOptions returned nil")
+		}
+	})
+	t.Run("DcrawloadOptions", func(t *testing.T) {
+		if opts := DefaultDcrawloadOptions(); opts == nil {
+			t.Fatal("DefaultDcrawloadOptions returned nil")
+		}
+	})
+	t.Run("DcrawloadBufferOptions", func(t *testing.T) {
+		if opts := DefaultDcrawloadBufferOptions(); opts == nil {
+			t.Fatal("DefaultDcrawloadBufferOptions returned nil")
+		}
+	})
+	t.Run("DcrawloadSourceOptions", func(t *testing.T) {
+		if opts := DefaultDcrawloadSourceOptions(); opts == nil {
+			t.Fatal("DefaultDcrawloadSourceOptions returned nil")
+		}
+	})
+	t.Run("DrawCircleOptions", func(t *testing.T) {
+		if opts := DefaultDrawCircleOptions(); opts == nil {
+			t.Fatal("DefaultDrawCircleOptions returned nil")
+		}
+	})
+	t.Run("DrawFloodOptions", func(t *testing.T) {
+		if opts := DefaultDrawFloodOptions(); opts == nil {
+			t.Fatal("DefaultDrawFloodOptions returned nil")
+		}
+	})
+	t.Run("DrawImageOptions", func(t *testing.T) {
+		if opts := DefaultDrawImageOptions(); opts == nil {
+			t.Fatal("DefaultDrawImageOptions returned nil")
+		}
+	})
+	t.Run("DrawRectOptions", func(t *testing.T) {
+		if opts := DefaultDrawRectOptions(); opts == nil {
+			t.Fatal("DefaultDrawRectOptions returned nil")
+		}
+	})
+	t.Run("DzsaveOptions", func(t *testing.T) {
+		if opts := DefaultDzsaveOptions(); opts == nil {
+			t.Fatal("DefaultDzsaveOptions returned nil")
+		}
+	})
+	t.Run("DzsaveBufferOptions", func(t *testing.T) {
+		if opts := DefaultDzsaveBufferOptions(); opts == nil {
+			t.Fatal("DefaultDzsaveBufferOptions returned nil")
+		}
+	})
+	t.Run("DzsaveTargetOptions", func(t *testing.T) {
+		if opts := DefaultDzsaveTargetOptions(); opts == nil {
+			t.Fatal("DefaultDzsaveTargetOptions returned nil")
+		}
+	})
+	t.Run("EmbedOptions", func(t *testing.T) {
+		if opts := DefaultEmbedOptions(); opts == nil {
+			t.Fatal("DefaultEmbedOptions returned nil")
+		}
+	})
+	t.Run("ExtractBandOptions", func(t *testing.T) {
+		if opts := DefaultExtractBandOptions(); opts == nil {
+			t.Fatal("DefaultExtractBandOptions returned nil")
+		}
+	})
+	t.Run("EyeOptions", func(t *testing.T) {
+		if opts := DefaultEyeOptions(); opts == nil {
+			t.Fatal("DefaultEyeOptions returned nil")
+		}
+	})
+	t.Run("FindTrimOptions", func(t *testing.T) {
+		if opts := DefaultFindTrimOptions(); opts == nil {
+			t.Fatal("DefaultFindTrimOptions returned nil")
+		}
+	})
+	t.Run("FitsloadOptions", func(t *testing.T) {
+		if opts := DefaultFitsloadOptions(); opts == nil {
+			t.Fatal("DefaultFitsloadOptions returned nil")
+		}
+	})
+	t.Run("FitssaveOptions", func(t *testing.T) {
+		if opts := DefaultFitssaveOptions(); opts == nil {
+			t.Fatal("DefaultFitssaveOptions returned nil")
+		}
+	})
+	t.Run("FlattenOptions", func(t *testing.T) {
+		if opts := DefaultFlattenOptions(); opts == nil {
+			t.Fatal("DefaultFlattenOptions returned nil")
+		}
+	})
+	t.Run("GammaOptions", func(t *testing.T) {
+		if opts := DefaultGammaOptions(); opts == nil {
+			t.Fatal("DefaultGammaOptions returned nil")
+		}
+	})
+	t.Run("GaussblurOptions", func(t *testing.T) {
+		if opts := DefaultGaussblurOptions(); opts == nil {
+			t.Fatal("DefaultGaussblurOptions returned nil")
+		}
+	})
+	t.Run("GaussmatOptions", func(t *testing.T) {
+		if opts := DefaultGaussmatOptions(); opts == nil {
+			t.Fatal("DefaultGaussmatOptions returned nil")
+		}
+	})
+	t.Run("GaussnoiseOptions", func(t *testing.T) {
+		if opts := DefaultGaussnoiseOptions(); opts == nil {
+			t.Fatal("DefaultGaussnoiseOptions returned nil")
+		}
+	})
+	t.Run("GetpointOptions", func(t *testing.T) {
+		if opts := DefaultGetpointOptions(); opts == nil {
+			t.Fatal("DefaultGetpointOptions returned nil")
+		}
+	})
+	t.Run("GifloadOptions", func(t *testing.T) {
+		if opts := DefaultGifloadOptions(); opts == nil {
+			t.Fatal("DefaultGifloadOptions returned nil")
+		}
+	})
+	t.Run("GifloadBufferOptions", func(t *testing.T) {
+		if opts := DefaultGifloadBufferOptions(); opts == nil {
+			t.Fatal("DefaultGifloadBufferOptions returned nil")
+		}
+	})
+	t.Run("GifloadSourceOptions", func(t *testing.T) {
+		if opts := DefaultGifloadSourceOptions(); opts == nil {
+			t.Fatal("DefaultGifloadSourceOptions returned nil")
+		}
+	})
+	t.Run("GifsaveOptions", func(t *testing.T) {
+		if opts := DefaultGifsaveOptions(); opts == nil {
+			t.Fatal("DefaultGifsaveOptions returned nil")
+		}
+	})
+	t.Run("GifsaveBufferOptions", func(t *testing.T) {
+		if opts := DefaultGifsaveBufferOptions(); opts == nil {
+			t.Fatal("DefaultGifsaveBufferOptions returned nil")
+		}
+	})
+	t.Run("GifsaveTargetOptions", func(t *testing.T) {
+		if opts := DefaultGifsaveTargetOptions(); opts == nil {
+			t.Fatal("DefaultGifsaveTargetOptions returned nil")
+		}
+	})
+	t.Run("GlobalbalanceOptions", func(t *testing.T) {
+		if opts := DefaultGlobalbalanceOptions(); opts == nil {
+			t.Fatal("DefaultGlobalbalanceOptions returned nil")
+		}
+	})
+	t.Run("GravityOptions", func(t *testing.T) {
+		if opts := DefaultGravityOptions(); opts == nil {
+			t.Fatal("DefaultGravityOptions returned nil")
+		}
+	})
+	t.Run("GreyOptions", func(t *testing.T) {
+		if opts := DefaultGreyOptions(); opts == nil {
+			t.Fatal("DefaultGreyOptions returned nil")
+		}
+	})
+	t.Run("HeifloadOptions", func(t *testing.T) {
+		if opts := DefaultHeifloadOptions(); opts == nil {
+			t.Fatal("DefaultHeifloadOptions returned nil")
+		}
+	})
+	t.Run("HeifloadBufferOptions", func(t *testing.T) {
+		if opts := DefaultHeifloadBufferOptions(); opts == nil {
+			t.Fatal("DefaultHeifloadBufferOptions returned nil")
+		}
+	})
+	t.Run("HeifloadSourceOptions", func(t *testing.T) {
+		if opts := DefaultHeifloadSourceOptions(); opts == nil {
+			t.Fatal("DefaultHeifloadSourceOptions returned nil")
+		}
+	})
+	t.Run("HeifsaveOptions", func(t *testing.T) {
+		if opts := DefaultHeifsaveOptions(); opts == nil {
+			t.Fatal("DefaultHeifsaveOptions returned nil")
+		}
+	})
+	t.Run("HeifsaveBufferOptions", func(t *testing.T) {
+		if opts := DefaultHeifsaveBufferOptions(); opts == nil {
+			t.Fatal("DefaultHeifsaveBufferOptions returned nil")
+		}
+	})
+	t.Run("HeifsaveTargetOptions", func(t *testing.T) {
+		if opts := DefaultHeifsaveTargetOptions(); opts == nil {
+			t.Fatal("DefaultHeifsaveTargetOptions returned nil")
+		}
+	})
+	t.Run("HistEqualOptions", func(t *testing.T) {
+		if opts := DefaultHistEqualOptions(); opts == nil {
+			t.Fatal("DefaultHistEqualOptions returned nil")
+		}
+	})
+	t.Run("HistFindOptions", func(t *testing.T) {
+		if opts := DefaultHistFindOptions(); opts == nil {
+			t.Fatal("DefaultHistFindOptions returned nil")
+		}
+	})
+	t.Run("HistFindIndexedOptions", func(t *testing.T) {
+		if opts := DefaultHistFindIndexedOptions(); opts == nil {
+			t.Fatal("DefaultHistFindIndexedOptions returned nil")
+		}
+	})
+	t.Run("HistFindNdimOptions", func(t *testing.T) {
+		if opts := DefaultHistFindNdimOptions(); opts == nil {
+			t.Fatal("DefaultHistFindNdimOptions returned nil")
+		}
+	})
+	t.Run("HistLocalOptions", func(t *testing.T) {
+		if opts := DefaultHistLocalOptions(); opts == nil {
+			t.Fatal("DefaultHistLocalOptions returned nil")
+		}
+	})
+	t.Run("HoughCircleOptions", func(t *testing.T) {
+		if opts := DefaultHoughCircleOptions(); opts == nil {
+			t.Fatal("DefaultHoughCircleOptions returned nil")
+		}
+	})
+	t.Run("HoughLineOptions", func(t *testing.T) {
+		if opts := DefaultHoughLineOptions(); opts == nil {
+			t.Fatal("DefaultHoughLineOptions returned nil")
+		}
+	})
+	t.Run("IccExportOptions", func(t *testing.T) {
+		if opts := DefaultIccExportOptions(); opts == nil {
+			t.Fatal("DefaultIccExportOptions returned nil")
+		}
+	})
+	t.Run("IccImportOptions", func(t *testing.T) {
+		if opts := DefaultIccImportOptions(); opts == nil {
+			t.Fatal("DefaultIccImportOptions returned nil")
+		}
+	})
+	t.Run("IccTransformOptions", func(t *testing.T) {
+		if opts := DefaultIccTransformOptions(); opts == nil {
+			t.Fatal("DefaultIccTransformOptions returned nil")
+		}
+	})
+	t.Run("IdentityOptions", func(t *testing.T) {
+		if opts := DefaultIdentityOptions(); opts == nil {
+			t.Fatal("DefaultIdentityOptions returned nil")
+		}
+	})
+	t.Run("IfthenelseOptions", func(t *testing.T) {
+		if opts := DefaultIfthenelseOptions(); opts == nil {
+			t.Fatal("DefaultIfthenelseOptions returned nil")
+		}
+	})
+	t.Run("InsertOptions", func(t *testing.T) {
+		if opts := DefaultInsertOptions(); opts == nil {
+			t.Fatal("DefaultInsertOptions returned nil")
+		}
+	})
+	t.Run("InvertlutOptions", func(t *testing.T) {
+		if opts := DefaultInvertlutOptions(); opts == nil {
+			t.Fatal("DefaultInvertlutOptions returned nil")
+		}
+	})
+	t.Run("InvfftOptions", func(t *testing.T) {
+		if opts := DefaultInvfftOptions(); opts == nil {
+			t.Fatal("DefaultInvfftOptions returned nil")
+		}
+	})
+	t.Run("JoinOptions", func(t *testing.T) {
+		if opts := DefaultJoinOptions(); opts == nil {
+			t.Fatal("DefaultJoinOptions returned nil")
+		}
+	})
+	t.Run("Jp2kloadOptions", func(t *testing.T) {
+		if opts := DefaultJp2kloadOptions(); opts == nil {
+			t.Fatal("DefaultJp2kloadOptions returned nil")
+		}
+	})
+	t.Run("Jp2kloadBufferOptions", func(t *testing.T) {
+		if opts := DefaultJp2kloadBufferOptions(); opts == nil {
+			t.Fatal("DefaultJp2kloadBufferOptions returned nil")
+		}
+	})
+	t.Run("Jp2kloadSourceOptions", func(t *testing.T) {
+		if opts := DefaultJp2kloadSourceOptions(); opts == nil {
+			t.Fatal("DefaultJp2kloadSourceOptions returned nil")
+		}
+	})
+	t.Run("Jp2ksaveOptions", func(t *testing.T) {
+		if opts := DefaultJp2ksaveOptions(); opts == nil {
+			t.Fatal("DefaultJp2ksaveOptions returned nil")
+		}
+	})
+	t.Run("Jp2ksaveBufferOptions", func(t *testing.T) {
+		if opts := DefaultJp2ksaveBufferOptions(); opts == nil {
+			t.Fatal("DefaultJp2ksaveBufferOptions returned nil")
+		}
+	})
+	t.Run("Jp2ksaveTargetOptions", func(t *testing.T) {
+		if opts := DefaultJp2ksaveTargetOptions(); opts == nil {
+			t.Fatal("DefaultJp2ksaveTargetOptions returned nil")
+		}
+	})
+	t.Run("JpegloadOptions", func(t *testing.T) {
+		if opts := DefaultJpegloadOptions(); opts == nil {
+			t.Fatal("DefaultJpegloadOptions returned nil")
+		}
+	})
+	t.Run("JpegloadBufferOptions", func(t *testing.T) {
+		if opts := DefaultJpegloadBufferOptions(); opts == nil {
+			t.Fatal("DefaultJpegloadBufferOptions returned nil")
+		}
+	})
+	t.Run("JpegloadSourceOptions", func(t *testing.T) {
+		if opts := DefaultJpegloadSourceOptions(); opts == nil {
+			t.Fatal("DefaultJpegloadSourceOptions returned nil")
+		}
+	})
+	t.Run("JpegsaveOptions", func(t *testing.T) {
+		if opts := DefaultJpegsaveOptions(); opts == nil {
+			t.Fatal("DefaultJpegsaveOptions returned nil")
+		}
+	})
+	t.Run("JpegsaveBufferOptions", func(t *testing.T) {
+		if opts := DefaultJpegsaveBufferOptions(); opts == nil {
+			t.Fatal("DefaultJpegsaveBufferOptions returned nil")
+		}
+	})
+	t.Run("JpegsaveTargetOptions", func(t *testing.T) {
+		if opts := DefaultJpegsaveTargetOptions(); opts == nil {
+			t.Fatal("DefaultJpegsaveTargetOptions returned nil")
+		}
+	})
+	t.Run("JxlloadOptions", func(t *testing.T) {
+		if opts := DefaultJxlloadOptions(); opts == nil {
+			t.Fatal("DefaultJxlloadOptions returned nil")
+		}
+	})
+	t.Run("JxlloadBufferOptions", func(t *testing.T) {
+		if opts := DefaultJxlloadBufferOptions(); opts == nil {
+			t.Fatal("DefaultJxlloadBufferOptions returned nil")
+		}
+	})
+	t.Run("JxlloadSourceOptions", func(t *testing.T) {
+		if opts := DefaultJxlloadSourceOptions(); opts == nil {
+			t.Fatal("DefaultJxlloadSourceOptions returned nil")
+		}
+	})
+	t.Run("JxlsaveOptions", func(t *testing.T) {
+		if opts := DefaultJxlsaveOptions(); opts == nil {
+			t.Fatal("DefaultJxlsaveOptions returned nil")
+		}
+	})
+	t.Run("JxlsaveBufferOptions", func(t *testing.T) {
+		if opts := DefaultJxlsaveBufferOptions(); opts == nil {
+			t.Fatal("DefaultJxlsaveBufferOptions returned nil")
+		}
+	})
+	t.Run("JxlsaveTargetOptions", func(t *testing.T) {
+		if opts := DefaultJxlsaveTargetOptions(); opts == nil {
+			t.Fatal("DefaultJxlsaveTargetOptions returned nil")
+		}
+	})
+	t.Run("LabelregionsOptions", func(t *testing.T) {
+		if opts := DefaultLabelregionsOptions(); opts == nil {
+			t.Fatal("DefaultLabelregionsOptions returned nil")
+		}
+	})
+	t.Run("LinearOptions", func(t *testing.T) {
+		if opts := DefaultLinearOptions(); opts == nil {
+			t.Fatal("DefaultLinearOptions returned nil")
+		}
+	})
+	t.Run("LinecacheOptions", func(t *testing.T) {
+		if opts := DefaultLinecacheOptions(); opts == nil {
+			t.Fatal("DefaultLinecacheOptions returned nil")
+		}
+	})
+	t.Run("LogmatOptions", func(t *testing.T) {
+		if opts := DefaultLogmatOptions(); opts == nil {
+			t.Fatal("DefaultLogmatOptions returned nil")
+		}
+	})
+	t.Run("MagickloadOptions", func(t *testing.T) {
+		if opts := DefaultMagickloadOptions(); opts == nil {
+			t.Fatal("DefaultMagickloadOptions returned nil")
+		}
+	})
+	t.Run("MagickloadBufferOptions", func(t *testing.T) {
+		if opts := DefaultMagickloadBufferOptions(); opts == nil {
+			t.Fatal("DefaultMagickloadBufferOptions returned nil")
+		}
+	})
+	t.Run("MagickloadSourceOptions", func(t *testing.T) {
+		if opts := DefaultMagickloadSourceOptions(); opts == nil {
+			t.Fatal("DefaultMagickloadSourceOptions returned nil")
+		}
+	})
+	t.Run("MagicksaveOptions", func(t *testing.T) {
+		if opts := DefaultMagicksaveOptions(); opts == nil {
+			t.Fatal("DefaultMagicksaveOptions returned nil")
+		}
+	})
+	t.Run("MagicksaveBufferOptions", func(t *testing.T) {
+		if opts := DefaultMagicksaveBufferOptions(); opts == nil {
+			t.Fatal("DefaultMagicksaveBufferOptions returned nil")
+		}
+	})
+	t.Run("MapimOptions", func(t *testing.T) {
+		if opts := DefaultMapimOptions(); opts == nil {
+			t.Fatal("DefaultMapimOptions returned nil")
+		}
+	})
+	t.Run("MaplutOptions", func(t *testing.T) {
+		if opts := DefaultMaplutOptions(); opts == nil {
+			t.Fatal("DefaultMaplutOptions returned nil")
+		}
+	})
+	t.Run("MaskButterworthOptions", func(t *testing.T) {
+		if opts := DefaultMaskButterworthOptions(); opts == nil {
+			t.Fatal("DefaultMaskButterworthOptions returned nil")
+		}
+	})
+	t.Run("MaskButterworthBandOptions", func(t *testing.T) {
+		if opts := DefaultMaskButterworthBandOptions(); opts == nil {
+			t.Fatal("DefaultMaskButterworthBandOptions returned nil")
+		}
+	})
+	t.Run("MaskButterworthRingOptions", func(t *testing.T) {
+		if opts := DefaultMaskButterworthRingOptions(); opts == nil {
+			t.Fatal("DefaultMaskButterworthRingOptions returned nil")
+		}
+	})
+	t.Run("MaskFractalOptions", func(t *testing.T) {
+		if opts := DefaultMaskFractalOptions(); opts == nil {
+			t.Fatal("DefaultMaskFractalOptions returned nil")
+		}
+	})
+	t.Run("MaskGaussianOptions", func(t *testing.T) {
+		if opts := DefaultMaskGaussianOptions(); opts == nil {
+			t.Fatal("DefaultMaskGaussianOptions returned nil")
+		}
+	})
+	t.Run("MaskGaussianBandOptions", func(t *testing.T) {
+		if opts := DefaultMaskGaussianBandOptions(); opts == nil {
+			t.Fatal("DefaultMaskGaussianBandOptions returned nil")
+		}
+	})
+	t.Run("MaskGaussianRingOptions", func(t *testing.T) {
+		if opts := DefaultMaskGaussianRingOptions(); opts == nil {
+			t.Fatal("DefaultMaskGaussianRingOptions returned nil")
+		}
+	})
+	t.Run("MaskIdealOptions", func(t *testing.T) {
+		if opts := DefaultMaskIdealOptions(); opts == nil {
+			t.Fatal("DefaultMaskIdealOptions returned nil")
+		}
+	})
+	t.Run("MaskIdealBandOptions", func(t *testing.T) {
+		if opts := DefaultMaskIdealBandOptions(); opts == nil {
+			t.Fatal("DefaultMaskIdealBandOptions returned nil")
+		}
+	})
+	t.Run("MaskIdealRingOptions", func(t *testing.T) {
+		if opts := DefaultMaskIdealRingOptions(); opts == nil {
+			t.Fatal("DefaultMaskIdealRingOptions returned nil")
+		}
+	})
+	t.Run("MatchOptions", func(t *testing.T) {
+		if opts := DefaultMatchOptions(); opts == nil {
+			t.Fatal("DefaultMatchOptions returned nil")
+		}
+	})
+	t.Run("MatloadOptions", func(t *testing.T) {
+		if opts := DefaultMatloadOptions(); opts == nil {
+			t.Fatal("DefaultMatloadOptions returned nil")
+		}
+	})
+	t.Run("MatrixloadOptions", func(t *testing.T) {
+		if opts := DefaultMatrixloadOptions(); opts == nil {
+			t.Fatal("DefaultMatrixloadOptions returned nil")
+		}
+	})
+	t.Run("MatrixloadSourceOptions", func(t *testing.T) {
+		if opts := DefaultMatrixloadSourceOptions(); opts == nil {
+			t.Fatal("DefaultMatrixloadSourceOptions returned nil")
+		}
+	})
+	t.Run("MatrixprintOptions", func(t *testing.T) {
+		if opts := DefaultMatrixprintOptions(); opts == nil {
+			t.Fatal("DefaultMatrixprintOptions returned nil")
+		}
+	})
+	t.Run("MatrixsaveOptions", func(t *testing.T) {
+		if opts := DefaultMatrixsaveOptions(); opts == nil {
+			t.Fatal("DefaultMatrixsaveOptions returned nil")
+		}
+	})
+	t.Run("MatrixsaveTargetOptions", func(t *testing.T) {
+		if opts := DefaultMatrixsaveTargetOptions(); opts == nil {
+			t.Fatal("DefaultMatrixsaveTargetOptions returned nil")
+		}
+	})
+	t.Run("MaxOptions", func(t *testing.T) {
+		if opts := DefaultMaxOptions(); opts == nil {
+			t.Fatal("DefaultMaxOptions returned nil")
+		}
+	})
+	t.Run("MeasureOptions", func(t *testing.T) {
+		if opts := DefaultMeasureOptions(); opts == nil {
+			t.Fatal("DefaultMeasureOptions returned nil")
+		}
+	})
+	t.Run("MergeOptions", func(t *testing.T) {
+		if opts := DefaultMergeOptions(); opts == nil {
+			t.Fatal("DefaultMergeOptions returned nil")
+		}
+	})
+	t.Run("MinOptions", func(t *testing.T) {
+		if opts := DefaultMinOptions(); opts == nil {
+			t.Fatal("DefaultMinOptions returned nil")
+		}
+	})
+	t.Run("MosaicOptions", func(t *testing.T) {
+		if opts := DefaultMosaicOptions(); opts == nil {
+			t.Fatal("DefaultMosaicOptions returned nil")
+		}
+	})
+	t.Run("Mosaic1Options", func(t *testing.T) {
+		if opts := DefaultMosaic1Options(); opts == nil {
+			t.Fatal("DefaultMosaic1Options returned nil")
+		}
+	})
+	t.Run("MsbOptions", func(t *testing.T) {
+		if opts := DefaultMsbOptions(); opts == nil {
+			t.Fatal("DefaultMsbOptions returned nil")
+		}
+	})
+	t.Run("NiftiloadOptions", func(t *testing.T) {
+		if opts := DefaultNiftiloadOptions(); opts == nil {
+			t.Fatal("DefaultNiftiloadOptions returned nil")
+		}
+	})
+	t.Run("NiftiloadSourceOptions", func(t *testing.T) {
+		if opts := DefaultNiftiloadSourceOptions(); opts == nil {
+			t.Fatal("DefaultNiftiloadSourceOptions returned nil")
+		}
+	})
+	t.Run("NiftisaveOptions", func(t *testing.T) {
+		if opts := DefaultNiftisaveOptions(); opts == nil {
+			t.Fatal("DefaultNiftisaveOptions returned nil")
+		}
+	})
+	t.Run("OpenexrloadOptions", func(t *testing.T) {
+		if opts := DefaultOpenexrloadOptions(); opts == nil {
+			t.Fatal("DefaultOpenexrloadOptions returned nil")
+		}
+	})
+	t.Run("OpenslideloadOptions", func(t *testing.T) {
+		if opts := DefaultOpenslideloadOptions(); opts == nil {
+			t.Fatal("DefaultOpenslideloadOptions returned nil")
+		}
+	})
+	t.Run("OpenslideloadSourceOptions", func(t *testing.T) {
+		if opts := DefaultOpenslideloadSourceOptions(); opts == nil {
+			t.Fatal("DefaultOpenslideloadSourceOptions returned nil")
+		}
+	})
+	t.Run("PdfloadOptions", func(t *testing.T) {
+		if opts := DefaultPdfloadOptions(); opts == nil {
+			t.Fatal("DefaultPdfloadOptions returned nil")
+		}
+	})
+	t.Run("PdfloadBufferOptions", func(t *testing.T) {
+		if opts := DefaultPdfloadBufferOptions(); opts == nil {
+			t.Fatal("DefaultPdfloadBufferOptions returned nil")
+		}
+	})
+	t.Run("PdfloadSourceOptions", func(t *testing.T) {
+		if opts := DefaultPdfloadSourceOptions(); opts == nil {
+			t.Fatal("DefaultPdfloadSourceOptions returned nil")
+		}
+	})
+	t.Run("PerlinOptions", func(t *testing.T) {
+		if opts := DefaultPerlinOptions(); opts == nil {
+			t.Fatal("DefaultPerlinOptions returned nil")
+		}
+	})
+	t.Run("PngloadOptions", func(t *testing.T) {
+		if opts := DefaultPngloadOptions(); opts == nil {
+			t.Fatal("DefaultPngloadOptions returned nil")
+		}
+	})
+	t.Run("PngloadBufferOptions", func(t *testing.T) {
+		if opts := DefaultPngloadBufferOptions(); opts == nil {
+			t.Fatal("DefaultPngloadBufferOptions returned nil")
+		}
+	})
+	t.Run("PngloadSourceOptions", func(t *testing.T) {
+		if opts := DefaultPngloadSourceOptions(); opts == nil {
+			t.Fatal("DefaultPngloadSourceOptions returned nil")
+		}
+	})
+	t.Run("PngsaveOptions", func(t *testing.T) {
+		if opts := DefaultPngsaveOptions(); opts == nil {
+			t.Fatal("DefaultPngsaveOptions returned nil")
+		}
+	})
+	t.Run("PngsaveBufferOptions", func(t *testing.T) {
+		if opts := DefaultPngsaveBufferOptions(); opts == nil {
+			t.Fatal("DefaultPngsaveBufferOptions returned nil")
+		}
+	})
+	t.Run("PngsaveTargetOptions", func(t *testing.T) {
+		if opts := DefaultPngsaveTargetOptions(); opts == nil {
+			t.Fatal("DefaultPngsaveTargetOptions returned nil")
+		}
+	})
+	t.Run("PpmloadOptions", func(t *testing.T) {
+		if opts := DefaultPpmloadOptions(); opts == nil {
+			t.Fatal("DefaultPpmloadOptions returned nil")
+		}
+	})
+	t.Run("PpmloadBufferOptions", func(t *testing.T) {
+		if opts := DefaultPpmloadBufferOptions(); opts == nil {
+			t.Fatal("DefaultPpmloadBufferOptions returned nil")
+		}
+	})
+	t.Run("PpmloadSourceOptions", func(t *testing.T) {
+		if opts := DefaultPpmloadSourceOptions(); opts == nil {
+			t.Fatal("DefaultPpmloadSourceOptions returned nil")
+		}
+	})
+	t.Run("PpmsaveOptions", func(t *testing.T) {
+		if opts := DefaultPpmsaveOptions(); opts == nil {
+			t.Fatal("DefaultPpmsaveOptions returned nil")
+		}
+	})
+	t.Run("PpmsaveTargetOptions", func(t *testing.T) {
+		if opts := DefaultPpmsaveTargetOptions(); opts == nil {
+			t.Fatal("DefaultPpmsaveTargetOptions returned nil")
+		}
+	})
+	t.Run("PremultiplyOptions", func(t *testing.T) {
+		if opts := DefaultPremultiplyOptions(); opts == nil {
+			t.Fatal("DefaultPremultiplyOptions returned nil")
+		}
+	})
+	t.Run("QuadraticOptions", func(t *testing.T) {
+		if opts := DefaultQuadraticOptions(); opts == nil {
+			t.Fatal("DefaultQuadraticOptions returned nil")
+		}
+	})
+	t.Run("RadloadOptions", func(t *testing.T) {
+		if opts := DefaultRadloadOptions(); opts == nil {
+			t.Fatal("DefaultRadloadOptions returned nil")
+		}
+	})
+	t.Run("RadloadBufferOptions", func(t *testing.T) {
+		if opts := DefaultRadloadBufferOptions(); opts == nil {
+			t.Fatal("DefaultRadloadBufferOptions returned nil")
+		}
+	})
+	t.Run("RadloadSourceOptions", func(t *testing.T) {
+		if opts := DefaultRadloadSourceOptions(); opts == nil {
+			t.Fatal("DefaultRadloadSourceOptions returned nil")
+		}
+	})
+	t.Run("RadsaveOptions", func(t *testing.T) {
+		if opts := DefaultRadsaveOptions(); opts == nil {
+			t.Fatal("DefaultRadsaveOptions returned nil")
+		}
+	})
+	t.Run("RadsaveBufferOptions", func(t *testing.T) {
+		if opts := DefaultRadsaveBufferOptions(); opts == nil {
+			t.Fatal("DefaultRadsaveBufferOptions returned nil")
+		}
+	})
+	t.Run("RadsaveTargetOptions", func(t *testing.T) {
+		if opts := DefaultRadsaveTargetOptions(); opts == nil {
+			t.Fatal("DefaultRadsaveTargetOptions returned nil")
+		}
+	})
+	t.Run("RawloadOptions", func(t *testing.T) {
+		if opts := DefaultRawloadOptions(); opts == nil {
+			t.Fatal("DefaultRawloadOptions returned nil")
+		}
+	})
+	t.Run("RawsaveOptions", func(t *testing.T) {
+		if opts := DefaultRawsaveOptions(); opts == nil {
+			t.Fatal("DefaultRawsaveOptions returned nil")
+		}
+	})
+	t.Run("RawsaveBufferOptions", func(t *testing.T) {
+		if opts := DefaultRawsaveBufferOptions(); opts == nil {
+			t.Fatal("DefaultRawsaveBufferOptions returned nil")
+		}
+	})
+	t.Run("RawsaveTargetOptions", func(t *testing.T) {
+		if opts := DefaultRawsaveTargetOptions(); opts == nil {
+			t.Fatal("DefaultRawsaveTargetOptions returned nil")
+		}
+	})
+	t.Run("ReduceOptions", func(t *testing.T) {
+		if opts := DefaultReduceOptions(); opts == nil {
+			t.Fatal("DefaultReduceOptions returned nil")
+		}
+	})
+	t.Run("ReducehOptions", func(t *testing.T) {
+		if opts := DefaultReducehOptions(); opts == nil {
+			t.Fatal("DefaultReducehOptions returned nil")
+		}
+	})
+	t.Run("ReducevOptions", func(t *testing.T) {
+		if opts := DefaultReducevOptions(); opts == nil {
+			t.Fatal("DefaultReducevOptions returned nil")
+		}
+	})
+	t.Run("ResizeOptions", func(t *testing.T) {
+		if opts := DefaultResizeOptions(); opts == nil {
+			t.Fatal("DefaultResizeOptions returned nil")
+		}
+	})
+	t.Run("Rot45Options", func(t *testing.T) {
+		if opts := DefaultRot45Options(); opts == nil {
+			t.Fatal("DefaultRot45Options returned nil")
+		}
+	})
+	t.Run("RotateOptions", func(t *testing.T) {
+		if opts := DefaultRotateOptions(); opts == nil {
+			t.Fatal("DefaultRotateOptions returned nil")
+		}
+	})
+	t.Run("ScRGB2BWOptions", func(t *testing.T) {
+		if opts := DefaultScRGB2BWOptions(); opts == nil {
+			t.Fatal("DefaultScRGB2BWOptions returned nil")
+		}
+	})
+	t.Run("ScRGB2sRGBOptions", func(t *testing.T) {
+		if opts := DefaultScRGB2sRGBOptions(); opts == nil {
+			t.Fatal("DefaultScRGB2sRGBOptions returned nil")
+		}
+	})
+	t.Run("ScaleOptions", func(t *testing.T) {
+		if opts := DefaultScaleOptions(); opts == nil {
+			t.Fatal("DefaultScaleOptions returned nil")
+		}
+	})
+	t.Run("SdfOptions", func(t *testing.T) {
+		if opts := DefaultSdfOptions(); opts == nil {
+			t.Fatal("DefaultSdfOptions returned nil")
+		}
+	})
+	t.Run("SequentialOptions", func(t *testing.T) {
+		if opts := DefaultSequentialOptions(); opts == nil {
+			t.Fatal("DefaultSequentialOptions returned nil")
+		}
+	})
+	t.Run("SharpenOptions", func(t *testing.T) {
+		if opts := DefaultSharpenOptions(); opts == nil {
+			t.Fatal("DefaultSharpenOptions returned nil")
+		}
+	})
+	t.Run("ShrinkOptions", func(t *testing.T) {
+		if opts := DefaultShrinkOptions(); opts == nil {
+			t.Fatal("DefaultShrinkOptions returned nil")
+		}
+	})
+	t.Run("ShrinkhOptions", func(t *testing.T) {
+		if opts := DefaultShrinkhOptions(); opts == nil {
+			t.Fatal("DefaultShrinkhOptions returned nil")
+		}
+	})
+	t.Run("ShrinkvOptions", func(t *testing.T) {
+		if opts := DefaultShrinkvOptions(); opts == nil {
+			t.Fatal("DefaultShrinkvOptions returned nil")
+		}
+	})
+	t.Run("SimilarityOptions", func(t *testing.T) {
+		if opts := DefaultSimilarityOptions(); opts == nil {
+			t.Fatal("DefaultSimilarityOptions returned nil")
+		}
+	})
+	t.Run("SinesOptions", func(t *testing.T) {
+		if opts := DefaultSinesOptions(); opts == nil {
+			t.Fatal("DefaultSinesOptions returned nil")
+		}
+	})
+	t.Run("SmartcropOptions", func(t *testing.T) {
+		if opts := DefaultSmartcropOptions(); opts == nil {
+			t.Fatal("DefaultSmartcropOptions returned nil")
+		}
+	})
+	t.Run("StdifOptions", func(t *testing.T) {
+		if opts := DefaultStdifOptions(); opts == nil {
+			t.Fatal("DefaultStdifOptions returned nil")
+		}
+	})
+	t.Run("SubsampleOptions", func(t *testing.T) {
+		if opts := DefaultSubsampleOptions(); opts == nil {
+			t.Fatal("DefaultSubsampleOptions returned nil")
+		}
+	})
+	t.Run("SvgloadOptions", func(t *testing.T) {
+		if opts := DefaultSvgloadOptions(); opts == nil {
+			t.Fatal("DefaultSvgloadOptions returned nil")
+		}
+	})
+	t.Run("SvgloadBufferOptions", func(t *testing.T) {
+		if opts := DefaultSvgloadBufferOptions(); opts == nil {
+			t.Fatal("DefaultSvgloadBufferOptions returned nil")
+		}
+	})
+	t.Run("SvgloadSourceOptions", func(t *testing.T) {
+		if opts := DefaultSvgloadSourceOptions(); opts == nil {
+			t.Fatal("DefaultSvgloadSourceOptions returned nil")
+		}
+	})
+	t.Run("SystemOptions", func(t *testing.T) {
+		if opts := DefaultSystemOptions(); opts == nil {
+			t.Fatal("DefaultSystemOptions returned nil")
+		}
+	})
+	t.Run("TextOptions", func(t *testing.T) {
+		if opts := DefaultTextOptions(); opts == nil {
+			t.Fatal("DefaultTextOptions returned nil")
+		}
+	})
+	t.Run("ThumbnailOptions", func(t *testing.T) {
+		if opts := DefaultThumbnailOptions(); opts == nil {
+			t.Fatal("DefaultThumbnailOptions returned nil")
+		}
+	})
+	t.Run("ThumbnailBufferOptions", func(t *testing.T) {
+		if opts := DefaultThumbnailBufferOptions(); opts == nil {
+			t.Fatal("DefaultThumbnailBufferOptions returned nil")
+		}
+	})
+	t.Run("ThumbnailImageOptions", func(t *testing.T) {
+		if opts := DefaultThumbnailImageOptions(); opts == nil {
+			t.Fatal("DefaultThumbnailImageOptions returned nil")
+		}
+	})
+	t.Run("ThumbnailSourceOptions", func(t *testing.T) {
+		if opts := DefaultThumbnailSourceOptions(); opts == nil {
+			t.Fatal("DefaultThumbnailSourceOptions returned nil")
+		}
+	})
+	t.Run("TiffloadOptions", func(t *testing.T) {
+		if opts := DefaultTiffloadOptions(); opts == nil {
+			t.Fatal("DefaultTiffloadOptions returned nil")
+		}
+	})
+	t.Run("TiffloadBufferOptions", func(t *testing.T) {
+		if opts := DefaultTiffloadBufferOptions(); opts == nil {
+			t.Fatal("DefaultTiffloadBufferOptions returned nil")
+		}
+	})
+	t.Run("TiffloadSourceOptions", func(t *testing.T) {
+		if opts := DefaultTiffloadSourceOptions(); opts == nil {
+			t.Fatal("DefaultTiffloadSourceOptions returned nil")
+		}
+	})
+	t.Run("TiffsaveOptions", func(t *testing.T) {
+		if opts := DefaultTiffsaveOptions(); opts == nil {
+			t.Fatal("DefaultTiffsaveOptions returned nil")
+		}
+	})
+	t.Run("TiffsaveBufferOptions", func(t *testing.T) {
+		if opts := DefaultTiffsaveBufferOptions(); opts == nil {
+			t.Fatal("DefaultTiffsaveBufferOptions returned nil")
+		}
+	})
+	t.Run("TiffsaveTargetOptions", func(t *testing.T) {
+		if opts := DefaultTiffsaveTargetOptions(); opts == nil {
+			t.Fatal("DefaultTiffsaveTargetOptions returned nil")
+		}
+	})
+	t.Run("TilecacheOptions", func(t *testing.T) {
+		if opts := DefaultTilecacheOptions(); opts == nil {
+			t.Fatal("DefaultTilecacheOptions returned nil")
+		}
+	})
+	t.Run("TonelutOptions", func(t *testing.T) {
+		if opts := DefaultTonelutOptions(); opts == nil {
+			t.Fatal("DefaultTonelutOptions returned nil")
+		}
+	})
+	t.Run("Transpose3dOptions", func(t *testing.T) {
+		if opts := DefaultTranspose3dOptions(); opts == nil {
+			t.Fatal("DefaultTranspose3dOptions returned nil")
+		}
+	})
+	t.Run("UnpremultiplyOptions", func(t *testing.T) {
+		if opts := DefaultUnpremultiplyOptions(); opts == nil {
+			t.Fatal("DefaultUnpremultiplyOptions returned nil")
+		}
+	})
+	t.Run("VipsloadOptions", func(t *testing.T) {
+		if opts := DefaultVipsloadOptions(); opts == nil {
+			t.Fatal("DefaultVipsloadOptions returned nil")
+		}
+	})
+	t.Run("VipsloadSourceOptions", func(t *testing.T) {
+		if opts := DefaultVipsloadSourceOptions(); opts == nil {
+			t.Fatal("DefaultVipsloadSourceOptions returned nil")
+		}
+	})
+	t.Run("VipssaveOptions", func(t *testing.T) {
+		if opts := DefaultVipssaveOptions(); opts == nil {
+			t.Fatal("DefaultVipssaveOptions returned nil")
+		}
+	})
+	t.Run("VipssaveTargetOptions", func(t *testing.T) {
+		if opts := DefaultVipssaveTargetOptions(); opts == nil {
+			t.Fatal("DefaultVipssaveTargetOptions returned nil")
+		}
+	})
+	t.Run("WebploadOptions", func(t *testing.T) {
+		if opts := DefaultWebploadOptions(); opts == nil {
+			t.Fatal("DefaultWebploadOptions returned nil")
+		}
+	})
+	t.Run("WebploadBufferOptions", func(t *testing.T) {
+		if opts := DefaultWebploadBufferOptions(); opts == nil {
+			t.Fatal("DefaultWebploadBufferOptions returned nil")
+		}
+	})
+	t.Run("WebploadSourceOptions", func(t *testing.T) {
+		if opts := DefaultWebploadSourceOptions(); opts == nil {
+			t.Fatal("DefaultWebploadSourceOptions returned nil")
+		}
+	})
+	t.Run("WebpsaveOptions", func(t *testing.T) {
+		if opts := DefaultWebpsaveOptions(); opts == nil {
+			t.Fatal("DefaultWebpsaveOptions returned nil")
+		}
+	})
+	t.Run("WebpsaveBufferOptions", func(t *testing.T) {
+		if opts := DefaultWebpsaveBufferOptions(); opts == nil {
+			t.Fatal("DefaultWebpsaveBufferOptions returned nil")
+		}
+	})
+	t.Run("WebpsaveTargetOptions", func(t *testing.T) {
+		if opts := DefaultWebpsaveTargetOptions(); opts == nil {
+			t.Fatal("DefaultWebpsaveTargetOptions returned nil")
+		}
+	})
+	t.Run("WorleyOptions", func(t *testing.T) {
+		if opts := DefaultWorleyOptions(); opts == nil {
+			t.Fatal("DefaultWorleyOptions returned nil")
+		}
+	})
+	t.Run("WrapOptions", func(t *testing.T) {
+		if opts := DefaultWrapOptions(); opts == nil {
+			t.Fatal("DefaultWrapOptions returned nil")
+		}
+	})
+	t.Run("XyzOptions", func(t *testing.T) {
+		if opts := DefaultXyzOptions(); opts == nil {
+			t.Fatal("DefaultXyzOptions returned nil")
+		}
+	})
+	t.Run("ZoneOptions", func(t *testing.T) {
+		if opts := DefaultZoneOptions(); opts == nil {
+			t.Fatal("DefaultZoneOptions returned nil")
+		}
+	})
+}
+
 // coveragePath is a path a subtest may write: its own temporary directory, with
 // the extension the format's loader expects.
 func coveragePath(t *testing.T, ext string) string {

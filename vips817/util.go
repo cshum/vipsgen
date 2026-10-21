@@ -282,10 +282,6 @@ func toGboolean(b bool) C.gboolean {
 	return C.gboolean(0)
 }
 
-func fromGboolean(b C.gboolean) bool {
-	return b != 0
-}
-
 var cStringsCache sync.Map
 
 func cachedCString(str string) *C.char {
@@ -332,14 +328,6 @@ func vipsInterpolateToC(interp *Interpolate) *C.VipsInterpolate {
 		return nil
 	}
 	return interp.interp
-}
-
-// vipsInterpolateFromC converts a C VipsInterpolate pointer to a Go Interpolate
-func vipsInterpolateFromC(interp *C.VipsInterpolate) *Interpolate {
-	if interp == nil {
-		return nil
-	}
-	return &Interpolate{interp: interp}
 }
 
 // convertToDoubleArray converts a Go float64 slice to a C double array and returns the length
