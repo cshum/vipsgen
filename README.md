@@ -416,6 +416,8 @@ Do not commit generated code in `vips*/` directories. Generated bindings are cre
 
 **For maintainers:** After merging a fork PR, manually run the CI workflow from the Actions tab to regenerate bindings.
 
+A PR from a branch in this repository gets one extra commit, `build: update generated vips packages`, carrying what CI generated for the three libvips versions. Its checks start on their own when the repository has a `VIPSGEN_TOKEN` secret — a fine-grained token with `contents` and `pull-requests` write — and otherwise wait for one approval click, which `gh pr checks` shows as nothing at all for that head. Fork PRs get no such commit: their branches are not writable with this repository's token, so regeneration happens after merge.
+
 
 Generator conventions live in [AGENTS.md](AGENTS.md).
 

@@ -33,9 +33,15 @@ anyone changing the generator.
 - Three legs, one per libvips version, each regenerating its own package before it tests.
 - Examples are built only on the `vips` (8.18) leg, so a compile error an older libvips
   would hit does not show there — and one the newer one hits shows nowhere else.
-- When a change alters generated output, the last CI job commits it. That job's own run can
-  park at `action_required`, which is neither a pass nor a failure: the parent run already
-  built the content it committed.
+- When a change alters generated output, the last CI job commits it. That commit is pushed with
+  the workflow token, so its own `pull_request` run can park at `action_required` - neither a pass
+  nor a failure, and `gh pr checks` reports nothing for that head until it is approved.
+- Set a `VIPSGEN_TOKEN` secret (fine-grained token with `contents:write` and
+  `pull-requests:write`) to remove that click: the push is then attributed to the token's owner
+  and its run starts on its own. The workflows fall back to `github.token` when the secret is
+  absent, which is why the approval step still exists.
+- Fork PRs never get that commit: the job is gated on the head repository being this one. Their
+  output is regenerated after merge, by `workflow_dispatch`.
 - Same libvips in, same bytes out — regeneration is expected to be byte-identical, and a
   change that alters the output should be explainable operation by operation.
 
