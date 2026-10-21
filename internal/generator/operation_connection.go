@@ -207,3 +207,60 @@ func coverageByteSavers(operations []introspection.Operation) map[string]string 
 	}
 	return savers
 }
+
+// thumbnailCoverageBody covers the three thumbnail entry points. Unlike every other
+// generated call they take a width beside the image, and they are what most callers
+// start from: a file, a Source or a buffer, shrunk to fit.
+func thumbnailCoverageBody(op introspection.Operation, co coverageOptions) (string, bool) {
+	var variant string
+	switch {
+	case op.Name == "thumbnail":
+		variant = "file"
+	case op.Name == "thumbnail_source":
+		variant = "source"
+	case op.Name == "thumbnail_buffer":
+		variant = "buffer"
+	default:
+		return "", false
+	}
+
+	hasOptions := len(op.OptionalInputs) > 0 || len(getSupportedOptionalOutputs(op)) > 0
+	opts := "nil"
+	if hasOptions {
+		opts = co.Expr
+	}
+	skipReason := co.skipReason(op.Name)
+
+	var body strings.Builder
+	body.WriteString("\t\timg := coverageImage(t)\n")
+	switch variant {
+	case "file":
+		body.WriteString("\t\tpath := coveragePath(t, \"png\")\n")
+		body.WriteString("\t\tif err := img.Pngsave(path, nil); err != nil {\n")
+		body.WriteString("\t\t\tt.Skipf(\"fixture unavailable: the saver could not write it: %v\", err)\n")
+		body.WriteString("\t\t}\n")
+		body.WriteString(co.Decl)
+		body.WriteString(fmt.Sprintf("\t\tthumb, err := New%s(path, 32, %s)\n", op.GoName, opts))
+	case "source", "buffer":
+		body.WriteString("\t\tdata, err := img.PngsaveBuffer(nil)\n")
+		body.WriteString("\t\tif err != nil {\n")
+		body.WriteString("\t\t\tt.Skipf(\"fixture unavailable: the saver could not write it: %v\", err)\n")
+		body.WriteString("\t\t}\n")
+		if variant == "source" {
+			body.WriteString("\t\tsource := coverageSource(t, data)\n")
+		}
+		body.WriteString(co.Decl)
+		arg := "data"
+		if variant == "source" {
+			arg = "source"
+		}
+		body.WriteString(fmt.Sprintf("\t\tthumb, err := New%s(%s, 32, %s)\n", op.GoName, arg, opts))
+	}
+	body.WriteString("\t\tif err != nil {\n")
+	body.WriteString(errorLine(skipReason))
+	body.WriteString("\t\t}\n\t\tdefer thumb.Close()\n")
+	body.WriteString("\t\tif thumb.Width() <= 0 || thumb.Width() > 32 {\n")
+	body.WriteString(fmt.Sprintf("\t\t\tt.Fatalf(%q, thumb.Width(), thumb.Height())\n", op.Name+": asked for 32 and got %dx%d"))
+	body.WriteString("\t\t}\n")
+	return body.String(), true
+}
