@@ -3191,7 +3191,7 @@ func TestGeneratedOperations(t *testing.T) {
 		if err := img.Jxlsave(path, nil); err != nil {
 			t.Skipf("fixture unavailable: the saver could not write it: %v", err)
 		}
-		opts := &JxlloadOptions{Page: 0, N: Ptr(1), Memory: true, Access: AccessRandom, FailOn: FailOnNone, Revalidate: true}
+		opts := &JxlloadOptions{Page: 0, N: 1, Memory: true, Access: AccessRandom, FailOn: FailOnNone, Revalidate: true}
 		loaded, err := NewJxlload(path, opts)
 		if err != nil {
 			t.Fatalf("wrapper reported an error: %v", err)
@@ -3224,7 +3224,7 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Skipf("fixture unavailable: the saver could not write it: %v", err)
 		}
 		source := coverageSource(t, data)
-		opts := &JxlloadSourceOptions{Page: 0, N: Ptr(1), Memory: true, Access: AccessRandom, FailOn: FailOnNone, Revalidate: true}
+		opts := &JxlloadSourceOptions{Page: 0, N: 1, Memory: true, Access: AccessRandom, FailOn: FailOnNone, Revalidate: true}
 		loaded, err := NewJxlloadSource(source, opts)
 		if err != nil {
 			t.Fatalf("wrapper reported an error: %v", err)

@@ -429,13 +429,13 @@ int vipsgen_jpegsave_target(VipsImage* in, VipsTargetCustom* target);
 int vipsgen_jpegsave_target_with_options(VipsImage* in, VipsTargetCustom* target, gint Q, gboolean optimize_coding, gboolean interlace, gboolean trellis_quant, gboolean overshoot_deringing, gboolean optimize_scans, gint quant_table, VipsForeignSubsample subsample_mode, gint restart_interval, VipsForeignKeep keep, int keep_set, double* background, int background_n, gint page_height, const char* profile);
 
 int vipsgen_jxlload(const char* filename, VipsImage** out);
-int vipsgen_jxlload_with_options(const char* filename, VipsImage** out, gint page, gint n, int n_set, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
+int vipsgen_jxlload_with_options(const char* filename, VipsImage** out, gint page, gint n, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
 
 int vipsgen_jxlload_buffer(void* buf, size_t len, VipsImage** out);
-int vipsgen_jxlload_buffer_with_options(void* buf, size_t len, VipsImage** out, gint page, gint n, int n_set, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
+int vipsgen_jxlload_buffer_with_options(void* buf, size_t len, VipsImage** out, gint page, gint n, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
 
 int vipsgen_jxlload_source(VipsSourceCustom* source, VipsImage** out);
-int vipsgen_jxlload_source_with_options(VipsSourceCustom* source, VipsImage** out, gint page, gint n, int n_set, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
+int vipsgen_jxlload_source_with_options(VipsSourceCustom* source, VipsImage** out, gint page, gint n, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
 
 int vipsgen_jxlsave(VipsImage* in, const char* filename);
 int vipsgen_jxlsave_with_options(VipsImage* in, const char* filename, gint tier, double distance, int distance_set, gint effort, gboolean lossless, gint Q, int Q_set, gint bitdepth, VipsForeignKeep keep, int keep_set, double* background, int background_n, gint page_height, const char* profile);

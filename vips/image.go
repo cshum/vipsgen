@@ -1187,7 +1187,7 @@ type JxlloadOptions struct {
 	// Page First page to load (range 0-100000)
 	Page int
 	// N Number of pages to load, -1 for all (range -1-100000, default 1)
-	N *int
+	N int
 	// Memory Force open via memory
 	Memory bool
 	// Access Required access pattern for this file
@@ -1201,7 +1201,7 @@ type JxlloadOptions struct {
 // DefaultJxlloadOptions creates default value for vips_jxlload optional arguments
 func DefaultJxlloadOptions() *JxlloadOptions {
 	return &JxlloadOptions{
-		N: Ptr(1),
+		N: 1,
 	}
 }
 
@@ -1229,7 +1229,7 @@ type JxlloadBufferOptions struct {
 	// Page First page to load (range 0-100000)
 	Page int
 	// N Number of pages to load, -1 for all (range -1-100000, default 1)
-	N *int
+	N int
 	// Memory Force open via memory
 	Memory bool
 	// Access Required access pattern for this file
@@ -1243,7 +1243,7 @@ type JxlloadBufferOptions struct {
 // DefaultJxlloadBufferOptions creates default value for vips_jxlload_buffer optional arguments
 func DefaultJxlloadBufferOptions() *JxlloadBufferOptions {
 	return &JxlloadBufferOptions{
-		N: Ptr(1),
+		N: 1,
 	}
 }
 
@@ -1272,7 +1272,7 @@ type JxlloadSourceOptions struct {
 	// Page First page to load (range 0-100000)
 	Page int
 	// N Number of pages to load, -1 for all (range -1-100000, default 1)
-	N *int
+	N int
 	// Memory Force open via memory
 	Memory bool
 	// Access Required access pattern for this file
@@ -1286,7 +1286,7 @@ type JxlloadSourceOptions struct {
 // DefaultJxlloadSourceOptions creates default value for vips_jxlload_source optional arguments
 func DefaultJxlloadSourceOptions() *JxlloadSourceOptions {
 	return &JxlloadSourceOptions{
-		N: Ptr(1),
+		N: 1,
 	}
 }
 
