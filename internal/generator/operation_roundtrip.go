@@ -109,16 +109,17 @@ func formatToken(name string) string {
 }
 
 // saverCoverageBody writes the fixture and asserts something landed on disk.
-func saverCoverageBody(op introspection.Operation, ext string) string {
-	skipReason := coverageSkip[op.Name]
+func saverCoverageBody(op introspection.Operation, ext string, co coverageOptions) string {
+	skipReason := co.skipReason(op.Name)
 	hasOptions := len(op.OptionalInputs) > 0 || len(getSupportedOptionalOutputs(op)) > 0
 	callArgs := "path"
 	if hasOptions {
-		callArgs += ", nil"
+		callArgs += ", " + co.Expr
 	}
 
 	var body strings.Builder
 	body.WriteString(fmt.Sprintf("\t\timg := coverageImage(t)\n\t\tpath := coveragePath(t, %q)\n", ext))
+	body.WriteString(co.Decl)
 	body.WriteString(fmt.Sprintf("\t\terr := img.%s(%s)\n", op.GoName, callArgs))
 	body.WriteString("\t\tif err != nil {\n")
 	if skipReason != "" {
@@ -140,12 +141,12 @@ func saverCoverageBody(op introspection.Operation, ext string) string {
 // loaderCoverageBody writes the fixture with the paired saver, then loads it and
 // compares the geometry: a loader that hands back the wrong image is the failure
 // a signature check cannot see.
-func loaderCoverageBody(op introspection.Operation, ext, saver string) string {
-	skipReason := coverageSkip[op.Name]
+func loaderCoverageBody(op introspection.Operation, ext, saver string, co coverageOptions) string {
+	skipReason := co.skipReason(op.Name)
 	hasOptions := len(op.OptionalInputs) > 0 || len(getSupportedOptionalOutputs(op)) > 0
 	callArgs := "path"
 	if hasOptions {
-		callArgs += ", nil"
+		callArgs += ", " + co.Expr
 	}
 
 	var body strings.Builder
@@ -153,13 +154,23 @@ func loaderCoverageBody(op introspection.Operation, ext, saver string) string {
 	body.WriteString(fmt.Sprintf("\t\tif err := img.%s(path, nil); err != nil {\n", saver))
 	body.WriteString(fmt.Sprintf("\t\t\tt.Skipf(%q, err)\n", "fixture unavailable: the saver could not write it: %v"))
 	body.WriteString("\t\t}\n")
+	body.WriteString(co.Decl)
 	body.WriteString(fmt.Sprintf("\t\tloaded, err := New%s(%s)\n", op.GoName, callArgs))
 	body.WriteString("\t\tif err != nil {\n")
 	body.WriteString(errorLine(skipReason))
 	body.WriteString("\t\t}\n\t\tdefer loaded.Close()\n")
-	body.WriteString("\t\tif loaded.Width() != img.Width() || loaded.Height() != img.Height() {\n")
-	body.WriteString(fmt.Sprintf("\t\t\tt.Fatalf(%q, loaded.Width(), loaded.Height(), img.Width(), img.Height())\n", op.Name+": loaded %dx%d from a %dx%d file"))
-	body.WriteString("\t\t}\n")
+	if co.Expr == "nil" {
+		// Without options the round trip must preserve geometry.
+		body.WriteString("\t\tif loaded.Width() != img.Width() || loaded.Height() != img.Height() {\n")
+		body.WriteString(fmt.Sprintf("\t\t\tt.Fatalf(%q, loaded.Width(), loaded.Height(), img.Width(), img.Height())\n", op.Name+": loaded %dx%d from a %dx%d file"))
+		body.WriteString("\t\t}\n")
+	} else {
+		// With options set, the geometry may legitimately change - csvload's lines
+		// reads a subset, jpegload's shrink scales - so only the result is checked.
+		body.WriteString("\t\tif loaded.Width() <= 0 || loaded.Height() <= 0 {\n")
+		body.WriteString(fmt.Sprintf("\t\t\tt.Fatalf(%q, loaded.Width(), loaded.Height())\n", op.Name+": loaded an empty image %dx%d"))
+		body.WriteString("\t\t}\n")
+	}
 	return body.String()
 }
 

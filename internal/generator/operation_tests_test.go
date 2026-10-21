@@ -89,7 +89,7 @@ func TestCoverageBodySnapshots(t *testing.T) {
 		"\t\t\tt.Fatalf(\"circle: produced an empty image %dx%d\", img.Width(), img.Height())\n" +
 		"\t\t}\n"
 
-	if got := coverageBody(circle); got != wantBranch {
+	if got := coverageBody(circle, nilCoverageOptions()); got != wantBranch {
 		t.Errorf("unexpected branch body\n got: %q\nwant: %q", got, wantBranch)
 	}
 
@@ -116,7 +116,7 @@ func TestCoverageBodySnapshots(t *testing.T) {
 		"\t\t\tt.Fatalf(\"pngsave_buffer: wrote an empty buffer: %d bytes\", len(buf))\n" +
 		"\t\t}\n"
 
-	if got := coverageBody(save); got != wantBuffer {
+	if got := coverageBody(save, nilCoverageOptions()); got != wantBuffer {
 		t.Errorf("unexpected buffer body\n got: %q\nwant: %q", got, wantBuffer)
 	}
 
@@ -136,7 +136,7 @@ func TestCoverageBodySnapshots(t *testing.T) {
 		"\t\t\tt.Fatalf(\"identity: produced an empty image %dx%d\", out.Width(), out.Height())\n" +
 		"\t\t}\n"
 
-	if got := coverageBody(creator); got != wantCreator {
+	if got := coverageBody(creator, nilCoverageOptions()); got != wantCreator {
 		t.Errorf("unexpected creator body\n got: %q\nwant: %q", got, wantCreator)
 	}
 }
@@ -152,7 +152,7 @@ func TestCoverageSkipRecordedPrecondition(t *testing.T) {
 		{Name: "depth", GoName: "Depth", GoType: "int"},
 	}
 
-	body := coverageBody(op)
+	body := coverageBody(op, nilCoverageOptions())
 	if !strings.Contains(body, `t.Skipf("input precondition: needs an embedded profile: %v", err)`) {
 		t.Errorf("body does not skip with its reason:\n%s", body)
 	}
@@ -278,7 +278,7 @@ func TestRoundTripBodySnapshots(t *testing.T) {
 		"\t\t\tt.Fatalf(\"pngsave: wrote no file at %s\", path)\n" +
 		"\t\t}\n"
 
-	if got := saverCoverageBody(save, "png"); got != wantSaver {
+	if got := saverCoverageBody(save, "png", nilCoverageOptions()); got != wantSaver {
 		t.Errorf("unexpected saver body\n got: %q\nwant: %q", got, wantSaver)
 	}
 
@@ -302,7 +302,56 @@ func TestRoundTripBodySnapshots(t *testing.T) {
 		"\t\t\tt.Fatalf(\"pngload: loaded %dx%d from a %dx%d file\", loaded.Width(), loaded.Height(), img.Width(), img.Height())\n" +
 		"\t\t}\n"
 
-	if got := loaderCoverageBody(load, "png", "Pngsave"); got != wantLoader {
+	if got := loaderCoverageBody(load, "png", "Pngsave", nilCoverageOptions()); got != wantLoader {
 		t.Errorf("unexpected loader body\n got: %q\nwant: %q", got, wantLoader)
+	}
+}
+
+// TestCoverageOptionsLiteral pins the options literal: the presence rule decides
+// Ptr, a float keeps its point when it is wrapped, and a field this generator
+// cannot give a value to is left out rather than set to something meaningless.
+func TestCoverageOptionsLiteral(t *testing.T) {
+	op := coverageOp("webpsave", "Webpsave")
+	op.OptionalInputs = []introspection.Argument{
+		{Name: "q", GoName: "Q", GoType: "int", DefaultValue: 75},
+		{Name: "lossless", GoName: "Lossless", GoType: "bool", DefaultValue: false},
+		{Name: "preset", GoName: "Preset", GoType: "WebpPreset", IsEnum: true, EnumType: "WebpPreset", EnumValues: []int{0, 1, 2}, DefaultValue: 0},
+		{Name: "profile", GoName: "Profile", GoType: "string"},
+		{Name: "sigma", GoName: "Sigma", GoType: "float64", DefaultValue: 1.0},
+	}
+
+	co, ok := coverageOptionsLiteral(op)
+	if !ok {
+		t.Fatal("expected a literal: four of the five fields can be given a value")
+	}
+	want := "\t\topts := &WebpsaveOptions{Q: Ptr(1), Lossless: true, Preset: 0, Sigma: Ptr(1.0)}\n"
+	if co.Decl != want {
+		t.Errorf("unexpected literal\n got: %q\nwant: %q", co.Decl, want)
+	}
+	if co.Expr != "opts" {
+		t.Errorf("Expr = %q, want opts", co.Expr)
+	}
+}
+
+func TestCoverageOptionsLiteralSkipsUnusableFields(t *testing.T) {
+	op := coverageOp("thumbnail", "Thumbnail")
+	op.OptionalInputs = []introspection.Argument{
+		{Name: "input_profile", GoName: "InputProfile", GoType: "string"},
+		{Name: "interpolate", GoName: "Interpolate", GoType: "*Interpolate"},
+	}
+
+	if _, ok := coverageOptionsLiteral(op); ok {
+		t.Error("a string and an interpolator alone leave nothing to set")
+	}
+}
+
+// TestCoverageOptionsSkipPrecedence pins that a variant's own reason wins, and
+// that an operation-level reason still applies to the plain call.
+func TestCoverageOptionsSkipPrecedence(t *testing.T) {
+	if got := (coverageOptions{Skip: "variant reason"}).skipReason("rad2float"); got != "variant reason" {
+		t.Errorf("variant reason did not win: %q", got)
+	}
+	if got := (coverageOptions{}).skipReason("rad2float"); got != coverageSkip["rad2float"] {
+		t.Errorf("operation reason not used: %q", got)
 	}
 }
