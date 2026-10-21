@@ -355,3 +355,69 @@ func TestCoverageOptionsSkipPrecedence(t *testing.T) {
 		t.Errorf("operation reason not used: %q", got)
 	}
 }
+
+// TestValuesCaseBodySnapshots pins the three shapes a value-resulting operation
+// gets: a scalar in the range the image can produce, an integer tuple that must
+// not be negative, and a call with no result at all.
+func TestValuesCaseBodySnapshots(t *testing.T) {
+	avg := coverageOp("avg", "Avg")
+	avg.HasThisImageInput = true
+	avg.RequiredInputs = []introspection.Argument{imageArg("in")}
+	avg.Arguments = append([]introspection.Argument{imageArg("in")},
+		introspection.Argument{Name: "out", GoName: "out", GoType: "float64", IsOutput: true})
+	avg.RequiredOutputs = []introspection.Argument{
+		{Name: "out", GoName: "out", GoType: "float64", IsOutput: true},
+	}
+
+	wantAvg := "" +
+		"\t\timg := coverageImage(t)\n" +
+		"\t\tv0, err := img.Avg()\n" +
+		"\t\tif err != nil {\n" +
+		"\t\t\tt.Fatalf(\"wrapper reported an error: %v\", err)\n" +
+		"\t\t}\n" +
+		"\t\tif math.IsNaN(v0) || v0 < 0 || v0 > 255 {\n" +
+		"\t\t\tt.Fatalf(\"avg: %v is outside the range of a uchar image\", v0)\n" +
+		"\t\t}\n"
+
+	if got, ok := valuesCaseBody(avg, nilCoverageOptions()); !ok || got != wantAvg {
+		t.Errorf("unexpected scalar body\n got: %q\nwant: %q", got, wantAvg)
+	}
+
+	trim := coverageOp("find_trim", "FindTrim")
+	trim.HasThisImageInput = true
+	trim.RequiredInputs = []introspection.Argument{imageArg("in")}
+	trim.Arguments = []introspection.Argument{imageArg("in")}
+	trim.RequiredOutputs = []introspection.Argument{
+		{Name: "left", GoName: "left", GoType: "int", IsOutput: true},
+		{Name: "top", GoName: "top", GoType: "int", IsOutput: true},
+	}
+
+	wantTrim := "" +
+		"\t\timg := coverageImage(t)\n" +
+		"\t\tv0, v1, err := img.FindTrim()\n" +
+		"\t\tif err != nil {\n" +
+		"\t\t\tt.Fatalf(\"wrapper reported an error: %v\", err)\n" +
+		"\t\t}\n" +
+		"\t\tif v0 < 0 {\n\t\t\tt.Fatalf(\"find_trim: %d is negative\", v0)\n\t\t}\n" +
+		"\t\tif v1 < 0 {\n\t\t\tt.Fatalf(\"find_trim: %d is negative\", v1)\n\t\t}\n"
+
+	if got, ok := valuesCaseBody(trim, nilCoverageOptions()); !ok || got != wantTrim {
+		t.Errorf("unexpected tuple body\n got: %q\nwant: %q", got, wantTrim)
+	}
+
+	void := coverageOp("draw_line", "DrawLine")
+	void.HasThisImageInput = true
+	void.RequiredInputs = []introspection.Argument{imageArg("in"), {Name: "x", GoName: "x", GoType: "int", IsInput: true}}
+	void.Arguments = void.RequiredInputs
+
+	wantVoid := "" +
+		"\t\timg := coverageImage(t)\n" +
+		"\t\terr := img.DrawLine(0)\n" +
+		"\t\tif err != nil {\n" +
+		"\t\t\tt.Fatalf(\"wrapper reported an error: %v\", err)\n" +
+		"\t\t}\n"
+
+	if got, ok := valuesCaseBody(void, nilCoverageOptions()); !ok || got != wantVoid {
+		t.Errorf("unexpected void body\n got: %q\nwant: %q", got, wantVoid)
+	}
+}

@@ -62,6 +62,9 @@ var coverageSkip = map[string]string{
 	"heifsave_buffer":   "needs a heif encoder for its default compression",
 	"uhdrsave":          "needs gainmap header fields",
 	"heifsave":          "needs a heif encoder for its default compression",
+	"hist_entropy":      "needs a histogram: width or height 1",
+	"hist_ismonotonic":  "needs a histogram: width or height 1",
+	"draw_mask":         "needs a one-band image",
 	"grid":              "needs an image that is a multiple of the tile size",
 	"match":             "needs an invertible matrix image",
 	"morph":             "needs a matrix-interpretation mask",
@@ -81,6 +84,8 @@ var coverageSkipOptions = map[string]string{
 	"jp2kload":     "its decode options are not independent",
 	"heifload":     "its loader options are not independent",
 	"tiffload":     "its subifd option needs a file that has one",
+	"copy":         "changing the pel size is not a copy",
+	"getpoint":     "unpacking a real image as complex yields no values",
 }
 
 // BuildOperationCoverage selects the operations a generated test can call and
@@ -127,6 +132,13 @@ func coverageCaseBody(op introspection.Operation, formats coverageFormats, co co
 			return saverCoverageBody(op, ext, co), true
 		}
 		return loaderCoverageBody(op, ext, saver, co), true
+	}
+	if !op.HasOneImageOutput && !op.HasBufferOutput {
+		// Statistics, trim boxes, projections and the operations that return
+		// nothing: the call is checked through its values.
+		if body, ok := valuesCaseBody(op, co); ok {
+			return body, true
+		}
 	}
 	if !coverableOperation(op) {
 		return "", false
