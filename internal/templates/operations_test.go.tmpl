@@ -3,6 +3,9 @@
 package vips
 
 import (
+	"bytes"
+	"errors"
+	"io"
 	"math"
 	"os"
 	"path/filepath"
@@ -42,6 +45,62 @@ func coverageMonoImage(t *testing.T) *Image {
 // coverageImage returns the same pattern with two constant bands: an odd square
 // is what rot45 requires, and three bands is the smallest input the colour
 // operations accept.
+// coverageBuffer is an in-memory writer NewTarget can hand libvips. It is
+// seekable because several formats - tiff and jp2k among them - rewrite their
+// header through the target and refuse to write to a stream they cannot seek.
+type coverageBuffer struct {
+	data []byte
+	pos  int
+}
+
+func (b *coverageBuffer) Write(p []byte) (int, error) {
+	if b.pos > len(b.data) {
+		b.data = append(b.data, make([]byte, b.pos-len(b.data))...)
+	}
+	n := copy(b.data[b.pos:], p)
+	b.data = append(b.data[:b.pos+n], append(p[n:], b.data[b.pos+n:]...)...)
+	b.pos += len(p)
+	return len(p), nil
+}
+
+func (b *coverageBuffer) Seek(offset int64, whence int) (int64, error) {
+	switch whence {
+	case io.SeekStart:
+		b.pos = int(offset)
+	case io.SeekCurrent:
+		b.pos += int(offset)
+	case io.SeekEnd:
+		b.pos = len(b.data) + int(offset)
+	}
+	if b.pos < 0 {
+		return 0, errors.New("negative seek offset")
+	}
+	return int64(b.pos), nil
+}
+
+func (b *coverageBuffer) Close() error { return nil }
+
+func (b *coverageBuffer) Len() int { return len(b.data) }
+
+func (b *coverageBuffer) Bytes() []byte { return b.data }
+
+// coverageSource wraps bytes in a Source the loaders can read.
+func coverageSource(t *testing.T, data []byte) *Source {
+	t.Helper()
+	source := NewSource(io.NopCloser(bytes.NewReader(data)))
+	t.Cleanup(source.Close)
+	return source
+}
+
+// coverageTarget returns a Target writing to memory, and the buffer it fills.
+func coverageTarget(t *testing.T) (*Target, *coverageBuffer) {
+	t.Helper()
+	buf := &coverageBuffer{}
+	target := NewTarget(buf)
+	t.Cleanup(target.Close)
+	return target, buf
+}
+
 func coverageImage(t *testing.T) *Image {
 	t.Helper()
 	img := coverageMonoImage(t)

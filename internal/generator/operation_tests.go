@@ -62,9 +62,12 @@ var coverageSkip = map[string]string{
 	"heifsave_buffer":   "needs a heif encoder for its default compression",
 	"uhdrsave":          "needs gainmap header fields",
 	"heifsave":          "needs a heif encoder for its default compression",
+	"heifsave_target":   "needs a heif encoder for its default compression",
 	"hist_entropy":      "needs a histogram: width or height 1",
 	"hist_ismonotonic":  "needs a histogram: width or height 1",
 	"draw_mask":         "needs a one-band image",
+	"vipssave_target":   "libvips' vips saver needs the filename a target does not have",
+	"uhdrsave_target":   "needs gainmap metadata a generated image does not carry",
 	"grid":              "needs an image that is a multiple of the tile size",
 	"match":             "needs an invertible matrix image",
 	"morph":             "needs a matrix-interpretation mask",
@@ -78,14 +81,16 @@ var coverageSkip = map[string]string{
 // populated options struct cannot be given sensible values, with the reason. The
 // base case stays strict; only the options variant reports a skip.
 var coverageSkipOptions = map[string]string{
-	"Lab2XYZ":      "its vector option needs three elements",
-	"XYZ2Lab":      "its vector option needs three elements",
-	"hough_circle": "its radius bounds must not collapse to one value",
-	"jp2kload":     "its decode options are not independent",
-	"heifload":     "its loader options are not independent",
-	"tiffload":     "its subifd option needs a file that has one",
-	"copy":         "changing the pel size is not a copy",
-	"getpoint":     "unpacking a real image as complex yields no values",
+	"Lab2XYZ":         "its vector option needs three elements",
+	"XYZ2Lab":         "its vector option needs three elements",
+	"hough_circle":    "its radius bounds must not collapse to one value",
+	"jp2kload":        "its decode options are not independent",
+	"heifload":        "its loader options are not independent",
+	"tiffload":        "its subifd option needs a file that has one",
+	"copy":            "changing the pel size is not a copy",
+	"getpoint":        "unpacking a real image as complex yields no values",
+	"tiffload_source": "its subifd option needs a file that has one",
+	"tiffsave_target": "its layout options need a seekable directory a target cannot offer",
 }
 
 // BuildOperationCoverage selects the operations a generated test can call and
@@ -132,6 +137,18 @@ func coverageCaseBody(op introspection.Operation, formats coverageFormats, co co
 			return saverCoverageBody(op, ext, co), true
 		}
 		return loaderCoverageBody(op, ext, saver, co), true
+	}
+	if kind, producer, ok := formats.connectionKind(op); ok {
+		if kind == "targetSaver" {
+			return targetSaverCoverageBody(op, co), true
+		}
+		return sourceLoaderCoverageBody(op, producer, co), true
+	}
+	if kind, producer, ok := formats.connectionKind(op); ok {
+		if kind == "targetSaver" {
+			return targetSaverCoverageBody(op, co), true
+		}
+		return sourceLoaderCoverageBody(op, producer, co), true
 	}
 	if !op.HasOneImageOutput && !op.HasBufferOutput {
 		// Statistics, trim boxes, projections and the operations that return
