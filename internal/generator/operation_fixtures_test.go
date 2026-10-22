@@ -1,6 +1,7 @@
 package generator
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 
@@ -74,7 +75,11 @@ func TestFixtureLoaderBodySnapshots(t *testing.T) {
 		"\t\t\tt.Fatalf(\"pdfload: opened an empty image %dx%d\", loaded.Width(), loaded.Height())\n" +
 		"\t\t}\n"
 
-	wantFile := "\t\tpath := testdataPath(t, \"sample.pdf\")\n" +
+	head := func(name string) string {
+		return fmt.Sprintf("\t\tif !HasOperation(%q) {\n\t\t\tt.Skipf(\"this libvips has no %s\")\n\t\t}\n", name, name)
+	}
+
+	wantFile := head("pdfload") + "\t\tpath := testdataPath(t, \"sample.pdf\")\n" +
 		"\t\tloaded, err := NewPdfload(path)\n" +
 		tail
 
@@ -87,7 +92,7 @@ func TestFixtureLoaderBodySnapshots(t *testing.T) {
 	bufferLoad.GoName = "PdfloadBuffer"
 	bufferLoad.HasBufferInput = true
 
-	wantBuffer := "\t\tpath := testdataPath(t, \"sample.pdf\")\n" +
+	wantBuffer := head("pdfload_buffer") + "\t\tpath := testdataPath(t, \"sample.pdf\")\n" +
 		"\t\tdata, err := os.ReadFile(path)\n" +
 		"\t\tif err != nil {\n" +
 		"\t\t\tt.Fatalf(\"reading fixture: %v\", err)\n" +

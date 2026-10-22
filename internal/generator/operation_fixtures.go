@@ -59,6 +59,9 @@ func fixtureLoaderBody(op introspection.Operation, variant, file string, co cove
 	}
 
 	var body strings.Builder
+	body.WriteString(fmt.Sprintf("\t\tif !HasOperation(%q) {\n", op.Name))
+	body.WriteString(fmt.Sprintf("\t\t\tt.Skipf(\"this libvips has no %s\")\n", op.Name))
+	body.WriteString("\t\t}\n")
 	body.WriteString(fmt.Sprintf("\t\tpath := testdataPath(t, %q)\n", file))
 	var callArgs string
 	switch variant {
