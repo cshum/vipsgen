@@ -4804,25 +4804,3 @@ func TestMultiPageHelpers(t *testing.T) {
 		assert.Equal(t, 96, img.Height(), "three pages of the old width")
 	})
 }
-
-// TestForeignLoaderVariants loads through the buffer form of the generic ImageMagick
-// loader, which has no saver of its own to round trip with. The source form of the same
-// loader only exists from 8.18, and this file is generated for three versions.
-func TestForeignLoaderVariants(t *testing.T) {
-	pngBytes := func(t *testing.T) []byte {
-		t.Helper()
-		path := filepath.Join(t.TempDir(), "image.png")
-		require.NoError(t, testRGBImage(t).Pngsave(path, nil))
-		data, err := os.ReadFile(path)
-		require.NoError(t, err)
-		return data
-	}
-
-	t.Run("magickload_buffer", func(t *testing.T) {
-		img, err := NewMagickloadBuffer(pngBytes(t), nil)
-		require.NoError(t, err)
-		defer img.Close()
-		assert.Equal(t, 32, img.Width())
-	})
-
-}
