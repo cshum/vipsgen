@@ -11,3 +11,5 @@ bin/vipsgen
 profile.cov
 *-output.xml
 debug_*.json
+coverage.out
+internal.out

@@ -1,0 +1,26 @@
+# Two reports rather than one: the generated package is 7,665 statements at ~79%, the
+# generator 3,218 at ~64%. Merged, the second disappears into the first.
+flags:
+  vips:
+    paths:
+      - vips/
+  internal:
+    paths:
+      - internal/
+
+coverage:
+  status:
+    project:
+      default:
+        informational: true
+    patch:
+      default:
+        informational: true
+
+comment:
+  layout: "reach, diff, flags, files"
+  require_changes: false
+
+ignore:
+  - testdata/
+  - examples/
