@@ -87,7 +87,7 @@ reason.
   command passes without them: the fixtures ship with this repository, not the generator, and
   each one has a row in `testdata/README.md` naming where it came from.
 - A skip names the precondition and is the expected outcome for a tree or a build that lacks
-  the thing; a subtest that asserts nothing on the way through is not a test.
+  the thing. A subtest that asserts nothing on the way through is not a test.
 - An error path is reachable through the public API: a required number at zero or an enum
   outside its range makes libvips fail the call with *parameter not set*, which is what the
   `<op>_error` subtests use. Out-of-range *option* values are accepted, so they do not.
