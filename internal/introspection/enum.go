@@ -298,6 +298,3 @@ func (v *Introspection) checkEnumValueExists(enumName, valueName string) bool {
 	return false
 }
 
-func (v *Introspection) isEnumType(cType string) bool {
-	return v.discoveredEnumTypes[strings.ToLower(cType)] != ""
-}
