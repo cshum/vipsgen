@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+	"testing/fstest"
 
 	"github.com/cshum/vipsgen/v2/internal/introspection"
 	"github.com/cshum/vipsgen/v2/internal/templates"
@@ -156,4 +157,155 @@ func TestNewOSTemplateLoader(t *testing.T) {
 	if _, err := NewOSTemplateLoader(filepath.Join(dir, "missing"), GetTemplateFuncMap()); err == nil {
 		t.Error("a missing directory should be an error")
 	}
+}
+
+// TestTemplateLoaderFailures pins the four ways the loader reports a problem instead of
+// writing something broken: a template it cannot read, one it cannot parse, data the
+// template cannot use, and an output path it cannot create.
+func TestTemplateLoaderFailures(t *testing.T) {
+	funcMap := GetTemplateFuncMap()
+
+	t.Run("unreadable template", func(t *testing.T) {
+		loader := &templateLoader{fs: failingFS{}, funcMap: funcMap}
+		if _, err := loader.LoadTemplate("x.go.tmpl"); err == nil {
+			t.Error("expected a read error")
+		}
+	})
+
+	t.Run("unparsable template", func(t *testing.T) {
+		dir := t.TempDir()
+		if err := os.WriteFile(filepath.Join(dir, "bad.go.tmpl"), []byte("{{ .Name "), 0o644); err != nil {
+			t.Fatal(err)
+		}
+		loader, err := NewOSTemplateLoader(dir, funcMap)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if _, err := loader.LoadTemplate("bad.go.tmpl"); err == nil {
+			t.Error("expected a parse error")
+		}
+	})
+
+	t.Run("data the template cannot use", func(t *testing.T) {
+		dir := t.TempDir()
+		if err := os.WriteFile(filepath.Join(dir, "wants_a_field.go.tmpl"), []byte("// {{ .Missing }}\n"), 0o644); err != nil {
+			t.Fatal(err)
+		}
+		loader, err := NewOSTemplateLoader(dir, funcMap)
+		if err != nil {
+			t.Fatal(err)
+		}
+		err = loader.GenerateFile("wants_a_field.go.tmpl", filepath.Join(t.TempDir(), "out.go"), struct{ Name string }{"x"})
+		if err == nil {
+			t.Error("expected an execute error")
+		}
+	})
+
+	t.Run("output path cannot be created", func(t *testing.T) {
+		dir := t.TempDir()
+		if err := os.WriteFile(filepath.Join(dir, "ok.go.tmpl"), []byte("// hi\n"), 0o644); err != nil {
+			t.Fatal(err)
+		}
+		loader, err := NewOSTemplateLoader(dir, funcMap)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		// A file where the output directory should be.
+		blocked := filepath.Join(t.TempDir(), "blocked")
+		if err := os.WriteFile(blocked, []byte("x"), 0o644); err != nil {
+			t.Fatal(err)
+		}
+		if err := loader.GenerateFile("ok.go.tmpl", filepath.Join(blocked, "out.go"), nil); err == nil {
+			t.Error("expected an output error")
+		}
+	})
+
+	t.Run("invalid Go is written unformatted", func(t *testing.T) {
+		dir := t.TempDir()
+		if err := os.WriteFile(filepath.Join(dir, "not_go.go.tmpl"), []byte("this is not go\n"), 0o644); err != nil {
+			t.Fatal(err)
+		}
+		loader, err := NewOSTemplateLoader(dir, funcMap)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		out := filepath.Join(t.TempDir(), "out.go")
+		if err := loader.GenerateFile("not_go.go.tmpl", out, nil); err != nil {
+			t.Fatalf("generation should keep going: %v", err)
+		}
+		written, err := os.ReadFile(out)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if string(written) != "this is not go\n" {
+			t.Errorf("content = %q", written)
+		}
+	})
+}
+
+// failingFS cannot read anything, which is how an unreadable template set looks.
+type failingFS struct{}
+
+func (failingFS) Open(string) (fs.File, error) { return nil, fs.ErrPermission }
+
+// TestListFilesOnAnUnreadableSet pins the error walk: a filesystem that cannot be walked
+// reports it rather than returning a partial list.
+func TestListFilesOnAnUnreadableSet(t *testing.T) {
+	loader := &templateLoader{fs: failingFS{}, funcMap: GetTemplateFuncMap()}
+	if _, err := loader.ListFiles(); err == nil {
+		t.Error("expected a walk error")
+	}
+}
+
+// TestExtractEmbeddedFSWalkFailures pins the failures inside the walk: a directory it cannot
+// create, a file it cannot read, and a file it cannot write.
+func TestExtractEmbeddedFSWalkFailures(t *testing.T) {
+	t.Run("directory cannot be created", func(t *testing.T) {
+		dest := t.TempDir()
+		// A file where the walk wants to put a directory.
+		if err := os.WriteFile(filepath.Join(dest, "sub"), []byte("x"), 0o644); err != nil {
+			t.Fatal(err)
+		}
+		files := fstest.MapFS{"sub/x.txt": &fstest.MapFile{Data: []byte("data")}}
+		if err := ExtractEmbeddedFS(files, dest); err == nil {
+			t.Error("expected an error when a subdirectory cannot be created")
+		}
+	})
+
+	t.Run("file cannot be read", func(t *testing.T) {
+		files := unreadableFileFS{
+			base: fstest.MapFS{"x.txt": &fstest.MapFile{Data: []byte("data")}},
+			bad:  "x.txt",
+		}
+		if err := ExtractEmbeddedFS(files, t.TempDir()); err == nil {
+			t.Error("expected an error when a file cannot be read")
+		}
+	})
+
+	t.Run("file cannot be written", func(t *testing.T) {
+		dest := t.TempDir()
+		// A directory where the walk wants to put a file.
+		if err := os.MkdirAll(filepath.Join(dest, "x.txt"), 0o755); err != nil {
+			t.Fatal(err)
+		}
+		files := fstest.MapFS{"x.txt": &fstest.MapFile{Data: []byte("data")}}
+		if err := ExtractEmbeddedFS(files, dest); err == nil {
+			t.Error("expected an error when a file cannot be written")
+		}
+	})
+}
+
+// unreadableFileFS lists its files but refuses to open the one named in bad.
+type unreadableFileFS struct {
+	base fstest.MapFS
+	bad  string
+}
+
+func (u unreadableFileFS) Open(name string) (fs.File, error) {
+	if name == u.bad {
+		return nil, fs.ErrPermission
+	}
+	return u.base.Open(name)
 }
