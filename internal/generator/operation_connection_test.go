@@ -45,3 +45,29 @@ func TestByteSaversCarryTheirOptions(t *testing.T) {
 		t.Errorf("unexpected saver record: %+v", got)
 	}
 }
+
+// TestEverySubtestChecksTheOperation pins the guard. The wrapper links the libvips function,
+// so a build without the library does not link; but linking and loading can differ, and the
+// missing symbol would be a fatal lookup on first call rather than an error to report.
+func TestEverySubtestChecksTheOperation(t *testing.T) {
+	op := coverageOp("avg", "Avg")
+	op.HasThisImageInput = true
+	op.HasOneImageOutput = true
+	op.RequiredInputs = []introspection.Argument{imageArg("in")}
+	op.Arguments = append([]introspection.Argument{imageArg("in")},
+		introspection.Argument{Name: "out", GoName: "out", GoType: "float64", IsOutput: true})
+	op.RequiredOutputs = []introspection.Argument{
+		{Name: "out", GoName: "out", GoType: "float64", IsOutput: true},
+	}
+
+	cases := BuildOperationCoverage([]introspection.Operation{op})
+	if len(cases) == 0 {
+		t.Fatal("the operation should get a subtest")
+	}
+	want := "\t\tif !HasOperation(\"avg\") {\n\t\t\tt.Skipf(\"this libvips has no avg\")\n\t\t}\n"
+	for _, c := range cases {
+		if len(c.Body) < len(want) || c.Body[:len(want)] != want {
+			t.Errorf("%s does not check the operation first:\n%s", c.Name, c.Body)
+		}
+	}
+}
