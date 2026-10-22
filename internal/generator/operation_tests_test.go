@@ -458,7 +458,7 @@ func TestConnectionCaseBodySnapshots(t *testing.T) {
 		"\t\tsource := coverageSource(t, data)\n" +
 		loadTail
 
-	if got := sourceLoaderCoverageBody(load, "JpegsaveBuffer", nilCoverageOptions()); got != wantBytes {
+	if got := sourceLoaderCoverageBody(load, coverageByteSaver{GoName: "JpegsaveBuffer", Options: "nil"}, nilCoverageOptions()); got != wantBytes {
 		t.Errorf("unexpected source loader body\n got: %q\nwant: %q", got, wantBytes)
 	}
 
@@ -474,7 +474,7 @@ func TestConnectionCaseBodySnapshots(t *testing.T) {
 		"\t\tsource := coverageSource(t, data)\n" +
 		loadTail
 
-	if got := sourceLoaderCoverageBody(load, "VipssaveTarget", nilCoverageOptions()); got != wantTarget {
+	if got := sourceLoaderCoverageBody(load, coverageByteSaver{GoName: "VipssaveTarget", Options: "nil"}, nilCoverageOptions()); got != wantTarget {
 		t.Errorf("unexpected target-fixture body\n got: %q\nwant: %q", got, wantTarget)
 	}
 
@@ -551,7 +551,7 @@ func TestBufferCaseBodySnapshots(t *testing.T) {
 		"\t\t}\n" +
 		tail
 
-	if got := bufferLoaderCoverageBody(load, "PngsaveBuffer", nilCoverageOptions()); got != wantBytes {
+	if got := bufferLoaderCoverageBody(load, coverageByteSaver{GoName: "PngsaveBuffer", Options: "nil"}, nilCoverageOptions()); got != wantBytes {
 		t.Errorf("unexpected buffer loader body\n got: %q\nwant: %q", got, wantBytes)
 	}
 
@@ -564,7 +564,7 @@ func TestBufferCaseBodySnapshots(t *testing.T) {
 		"\t\tdata := buf.Bytes()\n" +
 		tail
 
-	if got := bufferLoaderCoverageBody(load, "VipssaveTarget", nilCoverageOptions()); got != wantTarget {
+	if got := bufferLoaderCoverageBody(load, coverageByteSaver{GoName: "VipssaveTarget", Options: "nil"}, nilCoverageOptions()); got != wantTarget {
 		t.Errorf("unexpected target-fixture buffer body\n got: %q\nwant: %q", got, wantTarget)
 	}
 }

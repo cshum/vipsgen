@@ -41,7 +41,7 @@ var coverageFormatExt = map[string]string{
 // operation that writes its fixture.
 type coverageFormats struct {
 	saver map[string]string // token -> saver GoName that writes a file
-	bytes map[string]string // token -> saver GoName that returns bytes
+	bytes map[string]coverageByteSaver // token -> saver that returns bytes
 }
 
 func newCoverageFormats(operations []introspection.Operation) coverageFormats {

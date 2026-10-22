@@ -79,6 +79,16 @@ var coverageSkipOptions = map[string]string{
 	"tiffsave_target": "its layout options need a seekable directory a target cannot offer",
 }
 
+// coverageOperationGuard skips when the library loaded at run time does not have the
+// operation. The package has a wrapper because the tree was generated against a build that
+// had it - and that wrapper calls the libvips function directly, so a library without the
+// operation does not link. Linking and loading can still differ: built against a full
+// libvips, run in an image with a slimmer one, where the missing symbol would be a fatal
+// lookup the first time the call is reached.
+func coverageOperationGuard(name string) string {
+	return fmt.Sprintf("\t\tif !HasOperation(%q) {\n\t\t\tt.Skipf(\"this libvips has no %s\")\n\t\t}\n", name, name)
+}
+
 // BuildOperationCoverage selects the operations a generated test can call and
 // renders one subtest per operation. Selection is the argument list: an
 // operation qualifies when every required argument is an image or a value this
@@ -92,13 +102,16 @@ func BuildOperationCoverage(operations []introspection.Operation) []CoverageCase
 		if !ok {
 			continue
 		}
-		cases = append(cases, CoverageCase{Name: op.Name, Body: body})
+		cases = append(cases, CoverageCase{Name: op.Name, Body: coverageOperationGuard(op.Name) + body})
 		// The same operation again, with every optional field this generator can
 		// give a value to: that is what exercises the presence rule and the
 		// per-type setters, which a nil options argument never reaches.
 		optionsVariant := coverageOptions{Skip: coverageSkipOptions[op.Name]}
 		if withOptions, ok := coverageCaseBody(op, formats, optionsVariant); ok {
-			cases = append(cases, CoverageCase{Name: op.Name + "_options", Body: withOptions})
+			cases = append(cases, CoverageCase{
+				Name: op.Name + "_options",
+				Body: coverageOperationGuard(op.Name) + withOptions,
+			})
 		}
 	}
 	return cases
