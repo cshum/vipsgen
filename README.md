@@ -147,6 +147,22 @@ func main() {
 }
 ```
 
+### Checking operations at runtime
+
+The generated code covers the operations available in your environment, while the pre-generated packages ship with the operations available in the libvips they were built from. However, some of these may not be available at runtime. In this case use [`HasOperation`](https://pkg.go.dev/github.com/cshum/vipsgen/v2/vips#HasOperation) to check at runtime:
+
+```go
+if vips.HasOperation("pdfload") {
+    img, err := vips.NewPdfload("document.pdf", nil)
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer img.Close()
+}
+```
+
+Operation names can be referenced from the official [libvips documentation](https://www.libvips.org/API/current/).
+
 ## Image Loaders
 
 **Generic loaders** — [`NewImageFromFile`](https://pkg.go.dev/github.com/cshum/vipsgen/v2/vips#NewImageFromFile), [`NewImageFromBuffer`](https://pkg.go.dev/github.com/cshum/vipsgen/v2/vips#NewImageFromBuffer), [`NewImageFromSource`](https://pkg.go.dev/github.com/cshum/vipsgen/v2/vips#NewImageFromSource) — automatically detect the image format and accept `LoadOptions`, a generic options struct covering common options across formats. Since not every format supports every option, use the **format-specific loaders** — [`NewGifload`](https://pkg.go.dev/github.com/cshum/vipsgen/v2/vips#NewGifload), [`NewJpegloadBuffer`](https://pkg.go.dev/github.com/cshum/vipsgen/v2/vips#NewJpegloadBuffer), [`NewPngloadSource`](https://pkg.go.dev/github.com/cshum/vipsgen/v2/vips#NewPngloadSource), etc. — for precise, type-safe control. A few common examples:
