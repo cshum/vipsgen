@@ -49,8 +49,6 @@ func errorCaseBody(op introspection.Operation) (string, bool) {
 	body.WriteString("\t\timg := coverageImage(t)\n")
 	body.WriteString(fmt.Sprintf("\t\terr := img.%s(%s)\n", op.GoName, callArgs))
 	body.WriteString("\t\tif err == nil {\n")
-	body.WriteString("\t\t\t// A lazy operation only fails once the result is evaluated, which is\n")
-	body.WriteString("\t\t\t// not the wrapper's error path.\n")
 	body.WriteString("\t\t\tif _, evalErr := img.Avg(); evalErr == nil {\n")
 	body.WriteString(fmt.Sprintf("\t\t\t\tt.Skipf(%q)\n", op.Name+": accepted arguments libvips should reject"))
 	body.WriteString("\t\t\t}\n")

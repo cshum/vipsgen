@@ -92,8 +92,6 @@ func TestErrorCaseBody(t *testing.T) {
 	want := "\t\timg := coverageImage(t)\n" +
 		"\t\terr := img.Shrink(0)\n" +
 		"\t\tif err == nil {\n" +
-		"\t\t\t// A lazy operation only fails once the result is evaluated, which is\n" +
-		"\t\t\t// not the wrapper's error path.\n" +
 		"\t\t\tif _, evalErr := img.Avg(); evalErr == nil {\n" +
 		"\t\t\t\tt.Skipf(\"shrink: accepted arguments libvips should reject\")\n" +
 		"\t\t\t}\n" +
