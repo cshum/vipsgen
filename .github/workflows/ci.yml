@@ -26,6 +26,7 @@ jobs:
             output_dir: "vips817"
           - vips_version: "8.18.7"
             output_dir: "vips"
+            ultrahdr: "true"
     env:
       CGO_CFLAGS_ALLOW: -Xpreprocessor
       VIPS_VERSION: ${{ matrix.vips_version }}
@@ -45,7 +46,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y \
-          meson ninja-build \
+          meson ninja-build cmake \
           libglib2.0-dev libexpat-dev librsvg2-dev libpng-dev \
           libjpeg-turbo8-dev libimagequant-dev libfftw3-dev \
           libpoppler-glib-dev libxml2-dev \
@@ -74,11 +75,27 @@ jobs:
           Libs: -L\${libdir} -lniftiio -lznz
           EOF
 
+      - name: Build libultrahdr
+        if: matrix.ultrahdr == 'true'
+        run: |
+          # Ubuntu 24.04 does not package libultrahdr, and libvips only has the UltraHDR
+          # loader when it is present at configure time.
+          git clone --depth 1 --branch v1.4.0 https://github.com/google/libultrahdr.git
+          cmake -S libultrahdr -B libultrahdr/build \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DUHDR_BUILD_EXAMPLES=OFF \
+            -DUHDR_BUILD_TESTS=OFF \
+            -DUHDR_BUILD_BENCHMARK=OFF
+          cmake --build libultrahdr/build -j"$(nproc)"
+          sudo cmake --install libultrahdr/build
+          sudo ldconfig
+          pkg-config --modversion libuhdr
+
       - name: Cache libvips
         uses: actions/cache@v5
         with:
           path: vips-${{ matrix.vips_version }}
-          key: ${{ runner.os }}-24.04-vips-introspection-${{ env.V }}-${{ matrix.vips_version }}
+          key: ${{ runner.os }}-24.04-vips-introspection-${{ env.V }}-${{ matrix.vips_version }}-uhdr-${{ matrix.ultrahdr }}
           restore-keys: |
             ${{ runner.os }}-24.04-vips-introspection-${{ env.V }}-
 
@@ -91,7 +108,11 @@ jobs:
           fi
           cd vips-${{ matrix.vips_version }}
           
-          # Detect all available features
+          # Detect all available features. The uhdr option only exists from 8.18, so it is
+          # passed where the dependency was built.
+          EXTRA_FEATURES=""
+          if [ "${{ matrix.ultrahdr }}" = "true" ]; then EXTRA_FEATURES="-Duhdr=enabled"; fi
+
           PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/usr/lib/pkgconfig meson setup _build \
           --buildtype=release \
           --strip \
@@ -100,7 +121,8 @@ jobs:
           -Dmagick=enabled \
           -Dopenslide=enabled \
           -Dintrospection=enabled \
-          -Djpeg-xl=enabled
+          -Djpeg-xl=enabled \
+          $EXTRA_FEATURES
           
           ninja -C _build
           sudo ninja -C _build install

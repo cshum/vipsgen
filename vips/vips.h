@@ -842,6 +842,24 @@ int vipsgen_transpose3d_with_options(VipsImage* in, VipsImage** out, gint page_h
 
 int vipsgen_uhdr2scRGB(VipsImage* in, VipsImage** out);
 
+int vipsgen_uhdrload(const char* filename, VipsImage** out);
+int vipsgen_uhdrload_with_options(const char* filename, VipsImage** out, gint shrink, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
+
+int vipsgen_uhdrload_buffer(void* buf, size_t len, VipsImage** out);
+int vipsgen_uhdrload_buffer_with_options(void* buf, size_t len, VipsImage** out, gint shrink, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
+
+int vipsgen_uhdrload_source(VipsSourceCustom* source, VipsImage** out);
+int vipsgen_uhdrload_source_with_options(VipsSourceCustom* source, VipsImage** out, gint shrink, gboolean memory, VipsAccess access, VipsFailOn fail_on, gboolean revalidate);
+
+int vipsgen_uhdrsave(VipsImage* in, const char* filename);
+int vipsgen_uhdrsave_with_options(VipsImage* in, const char* filename, gint Q, gint gainmap_scale_factor, VipsForeignKeep keep, int keep_set, double* background, int background_n, gint page_height, const char* profile);
+
+int vipsgen_uhdrsave_buffer(VipsImage* in, void** buf, size_t* len);
+int vipsgen_uhdrsave_buffer_with_options(VipsImage* in, void** buf, size_t* len, gint Q, gint gainmap_scale_factor, VipsForeignKeep keep, int keep_set, double* background, int background_n, gint page_height, const char* profile);
+
+int vipsgen_uhdrsave_target(VipsImage* in, VipsTargetCustom* target);
+int vipsgen_uhdrsave_target_with_options(VipsImage* in, VipsTargetCustom* target, gint Q, gint gainmap_scale_factor, VipsForeignKeep keep, int keep_set, double* background, int background_n, gint page_height, const char* profile);
+
 int vipsgen_unpremultiply(VipsImage* in, VipsImage** out);
 int vipsgen_unpremultiply_with_options(VipsImage* in, VipsImage** out, double max_alpha, int max_alpha_set, gint alpha_band, int alpha_band_set);
 

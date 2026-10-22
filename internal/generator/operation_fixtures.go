@@ -16,6 +16,7 @@ var coverageFixtures = map[string]string{
 	"mat":     "sample.mat",
 	"openexr": "sample.exr",
 	"pdf":     "sample.pdf",
+	"uhdr":    "sample.uhdr.jpg",
 	"svg":     "sample.svg",
 }
 
@@ -86,6 +87,11 @@ func fixtureLoaderBody(op introspection.Operation, variant, file string, co cove
 	body.WriteString("\t\t}\n\t\tdefer loaded.Close()\n")
 	body.WriteString("\t\tif loaded.Width() <= 0 || loaded.Height() <= 0 {\n")
 	body.WriteString(fmt.Sprintf("\t\t\tt.Fatalf(%q, loaded.Width(), loaded.Height())\n", op.Name+": opened an empty image %dx%d"))
+	body.WriteString("\t\t}\n")
+	// The header alone is not the image: a fixture that decodes badly still reports its
+	// dimensions, so the values are read eagerly to make the loader do the work.
+	body.WriteString("\t\tif _, err := loaded.Avg(); err != nil {\n")
+	body.WriteString(fmt.Sprintf("\t\t\tt.Fatalf(%q, err)\n", op.Name+": the fixture did not decode: %v"))
 	body.WriteString("\t\t}\n")
 	return body.String()
 }

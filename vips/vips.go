@@ -6104,6 +6104,157 @@ func vipsgenUhdr2scRGB(in *C.VipsImage) (*C.VipsImage, error) {
 	return out, nil
 }
 
+// vipsgenUhdrload vips_uhdrload load a UHDR image
+func vipsgenUhdrload(filename string) (*C.VipsImage, error) {
+	var out *C.VipsImage
+	cfilename := C.CString(filename)
+	defer freeCString(cfilename)
+	if err := C.vipsgen_uhdrload(cfilename, &out); err != 0 {
+		return nil, handleImageError(out)
+	}
+	return out, nil
+}
+
+// vipsgenUhdrloadWithOptions vips_uhdrload load a UHDR image with optional arguments
+func vipsgenUhdrloadWithOptions(filename string, shrink int, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
+	var out *C.VipsImage
+	cfilename := C.CString(filename)
+	defer freeCString(cfilename)
+	if err := C.vipsgen_uhdrload_with_options(cfilename, &out, C.gint(shrink), C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
+		return nil, handleImageError(out)
+	}
+	return out, nil
+}
+
+// vipsgenUhdrloadBuffer vips_uhdrload_buffer load a UHDR image
+func vipsgenUhdrloadBuffer(buf []byte) (*C.VipsImage, error) {
+	src := buf
+	// Reference src here so it's not garbage collected during image initialization.
+	defer runtime.KeepAlive(src)
+	var out *C.VipsImage
+	if err := C.vipsgen_uhdrload_buffer(unsafe.Pointer(&src[0]), C.size_t(len(src)), &out); err != 0 {
+		return nil, handleImageError(out)
+	}
+	return out, nil
+}
+
+// vipsgenUhdrloadBufferWithOptions vips_uhdrload_buffer load a UHDR image with optional arguments
+func vipsgenUhdrloadBufferWithOptions(buf []byte, shrink int, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
+	src := buf
+	// Reference src here so it's not garbage collected during image initialization.
+	defer runtime.KeepAlive(src)
+	var out *C.VipsImage
+	if err := C.vipsgen_uhdrload_buffer_with_options(unsafe.Pointer(&src[0]), C.size_t(len(src)), &out, C.gint(shrink), C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
+		return nil, handleImageError(out)
+	}
+	return out, nil
+}
+
+// vipsgenUhdrloadSource vips_uhdrload_source load a UHDR image
+func vipsgenUhdrloadSource(source *C.VipsSourceCustom) (*C.VipsImage, error) {
+	var out *C.VipsImage
+	if err := C.vipsgen_uhdrload_source(source, &out); err != 0 {
+		return nil, handleImageError(out)
+	}
+	return out, nil
+}
+
+// vipsgenUhdrloadSourceWithOptions vips_uhdrload_source load a UHDR image with optional arguments
+func vipsgenUhdrloadSourceWithOptions(source *C.VipsSourceCustom, shrink int, memory bool, access Access, failOn FailOn, revalidate bool) (*C.VipsImage, error) {
+	var out *C.VipsImage
+	if err := C.vipsgen_uhdrload_source_with_options(source, &out, C.gint(shrink), C.int(boolToInt(memory)), C.VipsAccess(access), C.VipsFailOn(failOn), C.int(boolToInt(revalidate))); err != 0 {
+		return nil, handleImageError(out)
+	}
+	return out, nil
+}
+
+// vipsgenUhdrsave vips_uhdrsave save image in UltraHDR format
+func vipsgenUhdrsave(in *C.VipsImage, filename string) error {
+	cfilename := C.CString(filename)
+	defer freeCString(cfilename)
+	if err := C.vipsgen_uhdrsave(in, cfilename); err != 0 {
+		return handleVipsError()
+	}
+	return nil
+}
+
+// vipsgenUhdrsaveWithOptions vips_uhdrsave save image in UltraHDR format with optional arguments
+func vipsgenUhdrsaveWithOptions(in *C.VipsImage, filename string, q int, gainmapScaleFactor int, keep *Keep, background []float64, pageHeight int, profile string) error {
+	cfilename := C.CString(filename)
+	defer freeCString(cfilename)
+	cbackground, cbackgroundLength, err := convertToDoubleArray(background)
+	if err != nil {
+		return err
+	}
+	if cbackground != nil {
+		defer freeDoubleArray(cbackground)
+	}
+	ckeep, keepSet := optionInt(keep)
+	cprofile := C.CString(profile)
+	defer freeCString(cprofile)
+	if err := C.vipsgen_uhdrsave_with_options(in, cfilename, C.gint(q), C.gint(gainmapScaleFactor), C.VipsForeignKeep(ckeep), keepSet, cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
+		return handleVipsError()
+	}
+	return nil
+}
+
+// vipsgenUhdrsaveBuffer vips_uhdrsave_buffer save image in UltraHDR format
+func vipsgenUhdrsaveBuffer(in *C.VipsImage) ([]byte, error) {
+	var buf unsafe.Pointer
+	var length C.size_t
+	if err := C.vipsgen_uhdrsave_buffer(in, &buf, &length); err != 0 {
+		return nil, handleVipsError()
+	}
+	return bufferToBytes(buf, length), nil
+}
+
+// vipsgenUhdrsaveBufferWithOptions vips_uhdrsave_buffer save image in UltraHDR format with optional arguments
+func vipsgenUhdrsaveBufferWithOptions(in *C.VipsImage, q int, gainmapScaleFactor int, keep *Keep, background []float64, pageHeight int, profile string) ([]byte, error) {
+	var buf unsafe.Pointer
+	var length C.size_t
+	cbackground, cbackgroundLength, err := convertToDoubleArray(background)
+	if err != nil {
+		return nil, err
+	}
+	if cbackground != nil {
+		defer freeDoubleArray(cbackground)
+	}
+	ckeep, keepSet := optionInt(keep)
+	cprofile := C.CString(profile)
+	defer freeCString(cprofile)
+	if err := C.vipsgen_uhdrsave_buffer_with_options(in, &buf, &length, C.gint(q), C.gint(gainmapScaleFactor), C.VipsForeignKeep(ckeep), keepSet, cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
+		return nil, handleVipsError()
+	}
+	return bufferToBytes(buf, length), nil
+}
+
+// vipsgenUhdrsaveTarget vips_uhdrsave_target save image in UltraHDR format
+func vipsgenUhdrsaveTarget(in *C.VipsImage, target *C.VipsTargetCustom) error {
+
+	if err := C.vipsgen_uhdrsave_target(in, target); err != 0 {
+		return handleVipsError()
+	}
+	return nil
+}
+
+// vipsgenUhdrsaveTargetWithOptions vips_uhdrsave_target save image in UltraHDR format with optional arguments
+func vipsgenUhdrsaveTargetWithOptions(in *C.VipsImage, target *C.VipsTargetCustom, q int, gainmapScaleFactor int, keep *Keep, background []float64, pageHeight int, profile string) error {
+	cbackground, cbackgroundLength, err := convertToDoubleArray(background)
+	if err != nil {
+		return err
+	}
+	if cbackground != nil {
+		defer freeDoubleArray(cbackground)
+	}
+	ckeep, keepSet := optionInt(keep)
+	cprofile := C.CString(profile)
+	defer freeCString(cprofile)
+	if err := C.vipsgen_uhdrsave_target_with_options(in, target, C.gint(q), C.gint(gainmapScaleFactor), C.VipsForeignKeep(ckeep), keepSet, cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
+		return handleVipsError()
+	}
+	return nil
+}
+
 // vipsgenUnpremultiply vips_unpremultiply unpremultiply image alpha
 func vipsgenUnpremultiply(in *C.VipsImage) (*C.VipsImage, error) {
 	var out *C.VipsImage

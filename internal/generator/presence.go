@@ -64,7 +64,7 @@ var zeroRejectedArguments = map[[2]string]bool{
 	{"heifload", "n"}:             true,
 	{"heifload_buffer", "n"}:      true,
 	{"heifload_source", "n"}:      true,
-	{"jxlload", "n"}:             true,
+	{"jxlload", "n"}:              true,
 	{"jxlload_buffer", "n"}:       true,
 	{"jxlload_source", "n"}:       true,
 	{"pdfload", "n"}:              true,

@@ -72,6 +72,9 @@ func TestFixtureLoaderBodySnapshots(t *testing.T) {
 		"\t\tdefer loaded.Close()\n" +
 		"\t\tif loaded.Width() <= 0 || loaded.Height() <= 0 {\n" +
 		"\t\t\tt.Fatalf(\"pdfload: opened an empty image %dx%d\", loaded.Width(), loaded.Height())\n" +
+		"\t\t}\n" +
+		"\t\tif _, err := loaded.Avg(); err != nil {\n" +
+		"\t\t\tt.Fatalf(\"pdfload: the fixture did not decode: %v\", err)\n" +
 		"\t\t}\n"
 
 	wantFile := "\t\tpath := testdataPath(t, \"sample.pdf\")\n" +
@@ -95,6 +98,7 @@ func TestFixtureLoaderBodySnapshots(t *testing.T) {
 		"\t\tloaded, err := NewPdfloadBuffer(data)\n" +
 		strings.Replace(tail, "pdfload:", "pdfload_buffer:", 1)
 
+	wantBuffer = strings.ReplaceAll(wantBuffer, "pdfload:", "pdfload_buffer:")
 	if got := fixtureLoaderBody(bufferLoad, "buffer", "sample.pdf", nilCoverageOptions()); got != wantBuffer {
 		t.Errorf("unexpected buffer body\n got: %q\nwant: %q", got, wantBuffer)
 	}

@@ -40,6 +40,7 @@ const (
 	ImageTypePpm       ImageType = "ppm"
 	ImageTypeRad       ImageType = "rad"
 	ImageTypeRaw       ImageType = "raw"
+	ImageTypeUhdr      ImageType = "uhdr"
 	ImageTypeVips      ImageType = "vips"
 )
 
@@ -704,6 +705,9 @@ func vipsDetermineImageType(in *C.VipsImage) ImageType {
 			}
 			if strings.HasPrefix(vipsLoader, "fits") {
 				return ImageTypeFits
+			}
+			if strings.HasPrefix(vipsLoader, "uhdr") {
+				return ImageTypeUhdr
 			}
 			if strings.HasPrefix(vipsLoader, "vips") {
 				return ImageTypeVips

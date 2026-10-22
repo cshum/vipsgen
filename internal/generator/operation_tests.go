@@ -77,6 +77,9 @@ var coverageSkipOptions = map[string]string{
 	"tiffload_source": "its subifd option needs a file that has one",
 	"tiffload_buffer": "its subifd option needs a file that has one",
 	"tiffsave_target": "its layout options need a seekable directory a target cannot offer",
+	"uhdrsave":        "its keep option strips the gainmap metadata the saver reads",
+	"uhdrsave_buffer": "its keep option strips the gainmap metadata the saver reads",
+	"uhdrsave_target": "its keep option strips the gainmap metadata the saver reads",
 }
 
 // coverageOperationGuard skips when the library loaded at run time does not have the
@@ -151,6 +154,12 @@ func coverageCaseBody(op introspection.Operation, formats coverageFormats, co co
 	if in, out, ok := codedRule(op); ok {
 		return codedBody(op, in, out, co), true
 	}
+	if variant, file, ok := fixtureKind(op); ok {
+		return fixtureLoaderBody(op, variant, file, co), true
+	}
+	if ref, shape, ok := fixtureInputKind(op, formats.fixtures); ok {
+		return fixtureInputBody(op, ref, shape, co), true
+	}
 	if kind, ext, saver, ok := formats.foreignKind(op); ok {
 		if kind == "saver" {
 			return saverCoverageBody(op, ext, co), true
@@ -159,9 +168,6 @@ func coverageCaseBody(op introspection.Operation, formats coverageFormats, co co
 	}
 	if body, ok := thumbnailCoverageBody(op, co); ok {
 		return body, true
-	}
-	if variant, file, ok := fixtureKind(op); ok {
-		return fixtureLoaderBody(op, variant, file, co), true
 	}
 	if producer, ok := formats.bufferKind(op); ok {
 		return bufferLoaderCoverageBody(op, producer, co), true
