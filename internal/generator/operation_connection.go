@@ -16,30 +16,30 @@ import (
 // connectionKind classifies a loader that reads a Source, or a saver that writes a
 // Target. A source loader is only coverable when some saver for the same format
 // returns bytes this test can hand it.
-func (f coverageFormats) connectionKind(op introspection.Operation) (kind, producer string, ok bool) {
+func (f coverageFormats) connectionKind(op introspection.Operation) (kind string, producer coverageByteSaver, ok bool) {
 	args := callArguments(op)
 	if len(args) != 1 {
-		return "", "", false
+		return "", coverageByteSaver{}, false
 	}
 	token := formatToken(op.Name)
 	if args[0].IsSource && !op.HasThisImageInput && op.HasOneImageOutput {
 		producer, exists := f.bytes[token]
 		if !exists {
-			return "", "", false
+			return "", coverageByteSaver{}, false
 		}
 		return "sourceLoader", producer, true
 	}
 	if args[0].IsTarget && op.HasThisImageInput && !op.HasImageOutput && !op.HasBufferOutput {
-		return "targetSaver", "", true
+		return "targetSaver", coverageByteSaver{}, true
 	}
-	return "", "", false
+	return "", coverageByteSaver{}, false
 }
 
 // bufferKind classifies a loader that takes the image's bytes directly: the same
 // fixture as a source loader, handed over as a slice instead of a stream.
-func (f coverageFormats) bufferKind(op introspection.Operation) (producer string, ok bool) {
+func (f coverageFormats) bufferKind(op introspection.Operation) (producer coverageByteSaver, ok bool) {
 	if op.HasThisImageInput || !op.HasOneImageOutput || !strings.HasSuffix(op.Name, "_buffer") {
-		return "", false
+		return coverageByteSaver{}, false
 	}
 	for _, arg := range op.RequiredInputs {
 		// The bytes are the argument the test supplies, and `len` is the synthetic
@@ -51,17 +51,17 @@ func (f coverageFormats) bufferKind(op introspection.Operation) (producer string
 		if arg.Name == "len" && arg.GoType == "int" {
 			continue
 		}
-		return "", false
+		return coverageByteSaver{}, false
 	}
 	producer, exists := f.bytes[formatToken(op.Name)]
 	if !exists {
-		return "", false
+		return coverageByteSaver{}, false
 	}
 	return producer, true
 }
 
 // bufferLoaderCoverageBody writes the fixture and reads it back from a slice.
-func bufferLoaderCoverageBody(op introspection.Operation, producer string, co coverageOptions) string {
+func bufferLoaderCoverageBody(op introspection.Operation, producer coverageByteSaver, co coverageOptions) string {
 	skipReason := co.skipReason(op.Name)
 	hasOptions := len(op.OptionalInputs) > 0 || len(getSupportedOptionalOutputs(op)) > 0
 	callArgs := "data"
@@ -71,14 +71,14 @@ func bufferLoaderCoverageBody(op introspection.Operation, producer string, co co
 
 	var body strings.Builder
 	body.WriteString("\t\timg := coverageImage(t)\n")
-	if strings.HasSuffix(producer, "Target") {
+	if strings.HasSuffix(producer.GoName, "Target") {
 		body.WriteString("\t\ttarget, buf := coverageTarget(t)\n")
-		body.WriteString(fmt.Sprintf("\t\tif err := img.%s(target, nil); err != nil {\n", producer))
+		body.WriteString(fmt.Sprintf("\t\tif err := img.%s(target, %s); err != nil {\n", producer.GoName, producer.Options))
 		body.WriteString("\t\t\tt.Skipf(\"fixture unavailable: the saver could not write it: %v\", err)\n")
 		body.WriteString("\t\t}\n")
 		body.WriteString("\t\tdata := buf.Bytes()\n")
 	} else {
-		body.WriteString(fmt.Sprintf("\t\tdata, err := img.%s(nil)\n", producer))
+		body.WriteString(fmt.Sprintf("\t\tdata, err := img.%s(%s)\n", producer.GoName, producer.Options))
 		body.WriteString("\t\tif err != nil {\n")
 		body.WriteString("\t\t\tt.Skipf(\"fixture unavailable: the saver could not write it: %v\", err)\n")
 		body.WriteString("\t\t}\n")
@@ -102,7 +102,7 @@ func bufferLoaderCoverageBody(op introspection.Operation, producer string, co co
 
 // sourceLoaderCoverageBody writes the image to bytes with the paired saver, reads
 // those bytes back through a Source, and compares the geometry.
-func sourceLoaderCoverageBody(op introspection.Operation, producer string, co coverageOptions) string {
+func sourceLoaderCoverageBody(op introspection.Operation, producer coverageByteSaver, co coverageOptions) string {
 	skipReason := co.skipReason(op.Name)
 	hasOptions := len(op.OptionalInputs) > 0 || len(getSupportedOptionalOutputs(op)) > 0
 	callArgs := "source"
@@ -112,16 +112,16 @@ func sourceLoaderCoverageBody(op introspection.Operation, producer string, co co
 
 	var body strings.Builder
 	body.WriteString("\t\timg := coverageImage(t)\n")
-	if strings.HasSuffix(producer, "Target") {
+	if strings.HasSuffix(producer.GoName, "Target") {
 		// Only a target saver exists for this format - vips, csv, matrix, ppm - so
 		// the fixture is caught on its way to a connection.
 		body.WriteString("\t\ttarget, buf := coverageTarget(t)\n")
-		body.WriteString(fmt.Sprintf("\t\tif err := img.%s(target, nil); err != nil {\n", producer))
+		body.WriteString(fmt.Sprintf("\t\tif err := img.%s(target, %s); err != nil {\n", producer.GoName, producer.Options))
 		body.WriteString("\t\t\tt.Skipf(\"fixture unavailable: the saver could not write it: %v\", err)\n")
 		body.WriteString("\t\t}\n")
 		body.WriteString("\t\tdata := buf.Bytes()\n")
 	} else {
-		body.WriteString(fmt.Sprintf("\t\tdata, err := img.%s(nil)\n", producer))
+		body.WriteString(fmt.Sprintf("\t\tdata, err := img.%s(%s)\n", producer.GoName, producer.Options))
 		body.WriteString("\t\tif err != nil {\n")
 		body.WriteString("\t\t\tt.Skipf(\"fixture unavailable: the saver could not write it: %v\", err)\n")
 		body.WriteString("\t\t}\n")
@@ -184,11 +184,18 @@ func targetAssertion(op introspection.Operation) string {
 		"\t\t}\n"
 }
 
+// coverageByteSaver is a saver a subtest calls to obtain bytes, with the argument that
+// call takes: an ImageMagick saver carries no format of its own, so the test names one.
+type coverageByteSaver struct {
+	GoName  string
+	Options string // "nil" when the call needs nothing else
+}
+
 // coverageByteSavers indexes the savers that return bytes: a buffer saver, or the
 // target saver for a format whose only byte-producing operation writes to a
 // connection. The returned GoName is what the test calls to make a fixture.
-func coverageByteSavers(operations []introspection.Operation) map[string]string {
-	savers := map[string]string{}
+func coverageByteSavers(operations []introspection.Operation) map[string]coverageByteSaver {
+	savers := map[string]coverageByteSaver{}
 	for _, op := range operations {
 		if !op.HasThisImageInput {
 			continue
@@ -197,15 +204,26 @@ func coverageByteSavers(operations []introspection.Operation) map[string]string 
 		switch {
 		case strings.HasSuffix(op.Name, "_buffer") && op.HasBufferOutput:
 			if _, taken := savers[token]; !taken {
-				savers[token] = op.GoName
+				savers[token] = coverageByteSaver{GoName: op.GoName, Options: byteSaverOptions(op)}
 			}
 		case strings.HasSuffix(op.Name, "_target") && !op.HasImageOutput:
 			if _, taken := savers[token]; !taken {
-				savers[token] = op.GoName
+				savers[token] = coverageByteSaver{GoName: op.GoName, Options: "nil"}
 			}
 		}
 	}
 	return savers
+}
+
+// byteSaverOptions names the format a saver cannot infer from a filename: a saver writing
+// to bytes has no extension to read, and the operation says so by taking a format option.
+func byteSaverOptions(op introspection.Operation) string {
+	for _, arg := range op.OptionalInputs {
+		if arg.Name == "format" && arg.GoType == "string" {
+			return fmt.Sprintf("&%sOptions{Format: \"png\"}", op.GoName)
+		}
+	}
+	return "nil"
 }
 
 // thumbnailCoverageBody covers the three thumbnail entry points. Unlike every other
