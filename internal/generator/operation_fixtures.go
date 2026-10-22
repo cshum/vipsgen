@@ -16,6 +16,7 @@ var coverageFixtures = map[string]string{
 	"mat":     "sample.mat",
 	"openexr": "sample.exr",
 	"pdf":     "sample.pdf",
+	"uhdr":    "sample.uhdr.jpg",
 	"svg":     "sample.svg",
 }
 
