@@ -399,9 +399,6 @@ func TestGeneratedOperations(t *testing.T) {
 		}
 	})
 	t.Run("analyzeload", func(t *testing.T) {
-		if !HasOperation("analyzeload") {
-			t.Skipf("this libvips has no analyzeload")
-		}
 		path := testdataPath(t, "analyze.hdr")
 		loaded, err := NewAnalyzeload(path, nil)
 		if err != nil {
@@ -413,9 +410,6 @@ func TestGeneratedOperations(t *testing.T) {
 		}
 	})
 	t.Run("analyzeload_options", func(t *testing.T) {
-		if !HasOperation("analyzeload") {
-			t.Skipf("this libvips has no analyzeload")
-		}
 		path := testdataPath(t, "analyze.hdr")
 		opts := &AnalyzeloadOptions{Memory: true, Access: AccessRandom, FailOn: FailOnNone, Revalidate: true}
 		loaded, err := NewAnalyzeload(path, opts)
@@ -3650,7 +3644,7 @@ func TestGeneratedOperations(t *testing.T) {
 	})
 	t.Run("magickload_buffer", func(t *testing.T) {
 		img := coverageImage(t)
-		data, err := img.MagicksaveBuffer(nil)
+		data, err := img.MagicksaveBuffer(&MagicksaveBufferOptions{Format: "png"})
 		if err != nil {
 			t.Skipf("fixture unavailable: the saver could not write it: %v", err)
 		}
@@ -3665,7 +3659,7 @@ func TestGeneratedOperations(t *testing.T) {
 	})
 	t.Run("magickload_buffer_options", func(t *testing.T) {
 		img := coverageImage(t)
-		data, err := img.MagicksaveBuffer(nil)
+		data, err := img.MagicksaveBuffer(&MagicksaveBufferOptions{Format: "png"})
 		if err != nil {
 			t.Skipf("fixture unavailable: the saver could not write it: %v", err)
 		}
@@ -3681,7 +3675,7 @@ func TestGeneratedOperations(t *testing.T) {
 	})
 	t.Run("magickload_source", func(t *testing.T) {
 		img := coverageImage(t)
-		data, err := img.MagicksaveBuffer(nil)
+		data, err := img.MagicksaveBuffer(&MagicksaveBufferOptions{Format: "png"})
 		if err != nil {
 			t.Skipf("fixture unavailable: the saver could not write it: %v", err)
 		}
@@ -3697,7 +3691,7 @@ func TestGeneratedOperations(t *testing.T) {
 	})
 	t.Run("magickload_source_options", func(t *testing.T) {
 		img := coverageImage(t)
-		data, err := img.MagicksaveBuffer(nil)
+		data, err := img.MagicksaveBuffer(&MagicksaveBufferOptions{Format: "png"})
 		if err != nil {
 			t.Skipf("fixture unavailable: the saver could not write it: %v", err)
 		}
@@ -4093,9 +4087,6 @@ func TestGeneratedOperations(t *testing.T) {
 		}
 	})
 	t.Run("matload", func(t *testing.T) {
-		if !HasOperation("matload") {
-			t.Skipf("this libvips has no matload")
-		}
 		path := testdataPath(t, "sample.mat")
 		loaded, err := NewMatload(path, nil)
 		if err != nil {
@@ -4107,9 +4098,6 @@ func TestGeneratedOperations(t *testing.T) {
 		}
 	})
 	t.Run("matload_options", func(t *testing.T) {
-		if !HasOperation("matload") {
-			t.Skipf("this libvips has no matload")
-		}
 		path := testdataPath(t, "sample.mat")
 		opts := &MatloadOptions{Memory: true, Access: AccessRandom, FailOn: FailOnNone, Revalidate: true}
 		loaded, err := NewMatload(path, opts)
@@ -4530,9 +4518,6 @@ func TestGeneratedOperations(t *testing.T) {
 		}
 	})
 	t.Run("openexrload", func(t *testing.T) {
-		if !HasOperation("openexrload") {
-			t.Skipf("this libvips has no openexrload")
-		}
 		path := testdataPath(t, "sample.exr")
 		loaded, err := NewOpenexrload(path, nil)
 		if err != nil {
@@ -4544,9 +4529,6 @@ func TestGeneratedOperations(t *testing.T) {
 		}
 	})
 	t.Run("openexrload_options", func(t *testing.T) {
-		if !HasOperation("openexrload") {
-			t.Skipf("this libvips has no openexrload")
-		}
 		path := testdataPath(t, "sample.exr")
 		opts := &OpenexrloadOptions{Memory: true, Access: AccessRandom, FailOn: FailOnNone, Revalidate: true}
 		loaded, err := NewOpenexrload(path, opts)
@@ -4559,9 +4541,6 @@ func TestGeneratedOperations(t *testing.T) {
 		}
 	})
 	t.Run("pdfload", func(t *testing.T) {
-		if !HasOperation("pdfload") {
-			t.Skipf("this libvips has no pdfload")
-		}
 		path := testdataPath(t, "sample.pdf")
 		loaded, err := NewPdfload(path, nil)
 		if err != nil {
@@ -4573,9 +4552,6 @@ func TestGeneratedOperations(t *testing.T) {
 		}
 	})
 	t.Run("pdfload_options", func(t *testing.T) {
-		if !HasOperation("pdfload") {
-			t.Skipf("this libvips has no pdfload")
-		}
 		path := testdataPath(t, "sample.pdf")
 		opts := &PdfloadOptions{Page: 0, N: 1, Dpi: 1, Scale: Ptr(1.0), Background: []float64{1}, PageBox: Ptr(PdfPageBoxMedia), Memory: true, Access: AccessRandom, FailOn: FailOnNone, Revalidate: true}
 		loaded, err := NewPdfload(path, opts)
@@ -4588,9 +4564,6 @@ func TestGeneratedOperations(t *testing.T) {
 		}
 	})
 	t.Run("pdfload_buffer", func(t *testing.T) {
-		if !HasOperation("pdfload_buffer") {
-			t.Skipf("this libvips has no pdfload_buffer")
-		}
 		path := testdataPath(t, "sample.pdf")
 		data, err := os.ReadFile(path)
 		if err != nil {
@@ -4606,9 +4579,6 @@ func TestGeneratedOperations(t *testing.T) {
 		}
 	})
 	t.Run("pdfload_buffer_options", func(t *testing.T) {
-		if !HasOperation("pdfload_buffer") {
-			t.Skipf("this libvips has no pdfload_buffer")
-		}
 		path := testdataPath(t, "sample.pdf")
 		data, err := os.ReadFile(path)
 		if err != nil {
@@ -4625,9 +4595,6 @@ func TestGeneratedOperations(t *testing.T) {
 		}
 	})
 	t.Run("pdfload_source", func(t *testing.T) {
-		if !HasOperation("pdfload_source") {
-			t.Skipf("this libvips has no pdfload_source")
-		}
 		path := testdataPath(t, "sample.pdf")
 		data, err := os.ReadFile(path)
 		if err != nil {
@@ -4644,9 +4611,6 @@ func TestGeneratedOperations(t *testing.T) {
 		}
 	})
 	t.Run("pdfload_source_options", func(t *testing.T) {
-		if !HasOperation("pdfload_source") {
-			t.Skipf("this libvips has no pdfload_source")
-		}
 		path := testdataPath(t, "sample.pdf")
 		data, err := os.ReadFile(path)
 		if err != nil {
@@ -6339,9 +6303,6 @@ func TestGeneratedOperations(t *testing.T) {
 		}
 	})
 	t.Run("svgload", func(t *testing.T) {
-		if !HasOperation("svgload") {
-			t.Skipf("this libvips has no svgload")
-		}
 		path := testdataPath(t, "sample.svg")
 		loaded, err := NewSvgload(path, nil)
 		if err != nil {
@@ -6353,9 +6314,6 @@ func TestGeneratedOperations(t *testing.T) {
 		}
 	})
 	t.Run("svgload_options", func(t *testing.T) {
-		if !HasOperation("svgload") {
-			t.Skipf("this libvips has no svgload")
-		}
 		path := testdataPath(t, "sample.svg")
 		opts := &SvgloadOptions{Dpi: 1, Scale: 1, Unlimited: true, HighBitdepth: true, Memory: true, Access: AccessRandom, FailOn: FailOnNone, Revalidate: true}
 		loaded, err := NewSvgload(path, opts)
@@ -6368,9 +6326,6 @@ func TestGeneratedOperations(t *testing.T) {
 		}
 	})
 	t.Run("svgload_buffer", func(t *testing.T) {
-		if !HasOperation("svgload_buffer") {
-			t.Skipf("this libvips has no svgload_buffer")
-		}
 		path := testdataPath(t, "sample.svg")
 		data, err := os.ReadFile(path)
 		if err != nil {
@@ -6386,9 +6341,6 @@ func TestGeneratedOperations(t *testing.T) {
 		}
 	})
 	t.Run("svgload_buffer_options", func(t *testing.T) {
-		if !HasOperation("svgload_buffer") {
-			t.Skipf("this libvips has no svgload_buffer")
-		}
 		path := testdataPath(t, "sample.svg")
 		data, err := os.ReadFile(path)
 		if err != nil {
@@ -6405,9 +6357,6 @@ func TestGeneratedOperations(t *testing.T) {
 		}
 	})
 	t.Run("svgload_source", func(t *testing.T) {
-		if !HasOperation("svgload_source") {
-			t.Skipf("this libvips has no svgload_source")
-		}
 		path := testdataPath(t, "sample.svg")
 		data, err := os.ReadFile(path)
 		if err != nil {
@@ -6424,9 +6373,6 @@ func TestGeneratedOperations(t *testing.T) {
 		}
 	})
 	t.Run("svgload_source_options", func(t *testing.T) {
-		if !HasOperation("svgload_source") {
-			t.Skipf("this libvips has no svgload_source")
-		}
 		path := testdataPath(t, "sample.svg")
 		data, err := os.ReadFile(path)
 		if err != nil {
