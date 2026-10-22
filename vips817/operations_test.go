@@ -338,6 +338,29 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("affine: produced an empty image %dx%d", img.Width(), img.Height())
 		}
 	})
+	t.Run("analyzeload", func(t *testing.T) {
+		path := testdataPath(t, "analyze.hdr")
+		loaded, err := NewAnalyzeload(path, nil)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer loaded.Close()
+		if loaded.Width() <= 0 || loaded.Height() <= 0 {
+			t.Fatalf("analyzeload: opened an empty image %dx%d", loaded.Width(), loaded.Height())
+		}
+	})
+	t.Run("analyzeload_options", func(t *testing.T) {
+		path := testdataPath(t, "analyze.hdr")
+		opts := &AnalyzeloadOptions{Memory: true, Access: AccessRandom, FailOn: FailOnNone, Revalidate: true}
+		loaded, err := NewAnalyzeload(path, opts)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer loaded.Close()
+		if loaded.Width() <= 0 || loaded.Height() <= 0 {
+			t.Fatalf("analyzeload: opened an empty image %dx%d", loaded.Width(), loaded.Height())
+		}
+	})
 	t.Run("arrayjoin", func(t *testing.T) {
 		other := coverageImage(t)
 		other2 := coverageImage(t)
@@ -3970,6 +3993,29 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("math2_const: produced an empty image %dx%d", img.Width(), img.Height())
 		}
 	})
+	t.Run("matload", func(t *testing.T) {
+		path := testdataPath(t, "sample.mat")
+		loaded, err := NewMatload(path, nil)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer loaded.Close()
+		if loaded.Width() <= 0 || loaded.Height() <= 0 {
+			t.Fatalf("matload: opened an empty image %dx%d", loaded.Width(), loaded.Height())
+		}
+	})
+	t.Run("matload_options", func(t *testing.T) {
+		path := testdataPath(t, "sample.mat")
+		opts := &MatloadOptions{Memory: true, Access: AccessRandom, FailOn: FailOnNone, Revalidate: true}
+		loaded, err := NewMatload(path, opts)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer loaded.Close()
+		if loaded.Width() <= 0 || loaded.Height() <= 0 {
+			t.Fatalf("matload: opened an empty image %dx%d", loaded.Width(), loaded.Height())
+		}
+	})
 	t.Run("matrixinvert", func(t *testing.T) {
 		img := coverageImage(t)
 		err := img.Matrixinvert()
@@ -4376,6 +4422,29 @@ func TestGeneratedOperations(t *testing.T) {
 		}
 		if img.Width() <= 0 || img.Height() <= 0 {
 			t.Fatalf("multiply: produced an empty image %dx%d", img.Width(), img.Height())
+		}
+	})
+	t.Run("openexrload", func(t *testing.T) {
+		path := testdataPath(t, "sample.exr")
+		loaded, err := NewOpenexrload(path, nil)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer loaded.Close()
+		if loaded.Width() <= 0 || loaded.Height() <= 0 {
+			t.Fatalf("openexrload: opened an empty image %dx%d", loaded.Width(), loaded.Height())
+		}
+	})
+	t.Run("openexrload_options", func(t *testing.T) {
+		path := testdataPath(t, "sample.exr")
+		opts := &OpenexrloadOptions{Memory: true, Access: AccessRandom, FailOn: FailOnNone, Revalidate: true}
+		loaded, err := NewOpenexrload(path, opts)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer loaded.Close()
+		if loaded.Width() <= 0 || loaded.Height() <= 0 {
+			t.Fatalf("openexrload: opened an empty image %dx%d", loaded.Width(), loaded.Height())
 		}
 	})
 	t.Run("pdfload", func(t *testing.T) {
