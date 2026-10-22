@@ -4473,6 +4473,7 @@ func testMatrixParameter(t *testing.T, body string) *Image {
 }
 
 func testFloatPtr(v float64) *float64 { return &v }
+func testIntPtr(v int) *int           { return &v }
 
 // TestHistogramOperations runs the operations that want a histogram rather than a picture:
 // a histogram is an image of counts, so hist_find makes one and these consume it.
@@ -4801,5 +4802,57 @@ func TestMultiPageHelpers(t *testing.T) {
 		require.NoError(t, img.RotMultiPage(AngleD90))
 		assert.Equal(t, 16, img.Width(), "a page is turned on its side")
 		assert.Equal(t, 96, img.Height(), "three pages of the old width")
+	})
+}
+
+// TestMosaicOperations joins two images that share a region. The tie points are given in
+// reference-then-secondary order, and swapping that pair is the mistake these exist to
+// catch: it reports "too much overlap" rather than a visibly wrong result.
+func TestMosaicOperations(t *testing.T) {
+	// Noise, because a smooth image has nothing to correlate and the search reports a
+	// singular matrix.
+	textured := func(t *testing.T) *Image {
+		t.Helper()
+		img, err := NewGaussnoise(256, 256, &GaussnoiseOptions{Sigma: testFloatPtr(40)})
+		require.NoError(t, err)
+		require.NoError(t, img.BandjoinConst([]float64{128, 64}))
+		require.NoError(t, img.Cast(BandFormatUchar, nil))
+		rgb, err := img.Copy(&CopyOptions{Interpretation: InterpretationSrgb})
+		require.NoError(t, err)
+		t.Cleanup(rgb.Close)
+		return rgb
+	}
+
+	// The secondary image is the reference shifted right by 32 pixels, so reference (0, 0)
+	// corresponds to secondary (32, 0).
+	overlapping := func(t *testing.T) (*Image, *Image) {
+		t.Helper()
+		ref := textured(t)
+		sec, err := ref.Copy(nil)
+		require.NoError(t, err)
+		t.Cleanup(sec.Close)
+		require.NoError(t, sec.ExtractArea(32, 0, 128, 128))
+		return ref, sec
+	}
+
+	t.Run("mosaic", func(t *testing.T) {
+		ref, sec := overlapping(t)
+		// A smaller window correlates on more points, and mosaic needs twenty of them.
+		require.NoError(t, ref.Mosaic(sec, DirectionHorizontal, 0, 0, 32, 0,
+			&MosaicOptions{Hwindow: testIntPtr(3)}))
+		assert.Greater(t, ref.Width(), 256, "the join widens the image")
+		assert.InDelta(t, 256, ref.Height(), 8, "a horizontal join keeps the height")
+	})
+
+	t.Run("mosaic1", func(t *testing.T) {
+		ref, sec := overlapping(t)
+		require.NoError(t, ref.Mosaic1(sec, DirectionHorizontal, 0, 0, 32, 0, 64, 64, 96, 64, nil))
+		assert.Greater(t, ref.Width(), 256)
+	})
+
+	t.Run("match", func(t *testing.T) {
+		ref, sec := overlapping(t)
+		require.NoError(t, ref.Match(sec, 0, 0, 32, 0, 64, 64, 96, 64, nil))
+		assert.Equal(t, 256, ref.Width(), "match reports a transform, it does not join")
 	})
 }
