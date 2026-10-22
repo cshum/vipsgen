@@ -441,6 +441,9 @@ func TestGeneratedOperations(t *testing.T) {
 		if loaded.Width() <= 0 || loaded.Height() <= 0 {
 			t.Fatalf("analyzeload: opened an empty image %dx%d", loaded.Width(), loaded.Height())
 		}
+		if _, err := loaded.Avg(); err != nil {
+			t.Fatalf("analyzeload: the fixture did not decode: %v", err)
+		}
 	})
 	t.Run("analyzeload_options", func(t *testing.T) {
 		if !HasOperation("analyzeload") {
@@ -455,6 +458,9 @@ func TestGeneratedOperations(t *testing.T) {
 		defer loaded.Close()
 		if loaded.Width() <= 0 || loaded.Height() <= 0 {
 			t.Fatalf("analyzeload: opened an empty image %dx%d", loaded.Width(), loaded.Height())
+		}
+		if _, err := loaded.Avg(); err != nil {
+			t.Fatalf("analyzeload: the fixture did not decode: %v", err)
 		}
 	})
 	t.Run("arrayjoin", func(t *testing.T) {
@@ -4882,6 +4888,9 @@ func TestGeneratedOperations(t *testing.T) {
 		if loaded.Width() <= 0 || loaded.Height() <= 0 {
 			t.Fatalf("matload: opened an empty image %dx%d", loaded.Width(), loaded.Height())
 		}
+		if _, err := loaded.Avg(); err != nil {
+			t.Fatalf("matload: the fixture did not decode: %v", err)
+		}
 	})
 	t.Run("matload_options", func(t *testing.T) {
 		if !HasOperation("matload") {
@@ -4896,6 +4905,9 @@ func TestGeneratedOperations(t *testing.T) {
 		defer loaded.Close()
 		if loaded.Width() <= 0 || loaded.Height() <= 0 {
 			t.Fatalf("matload: opened an empty image %dx%d", loaded.Width(), loaded.Height())
+		}
+		if _, err := loaded.Avg(); err != nil {
+			t.Fatalf("matload: the fixture did not decode: %v", err)
 		}
 	})
 	t.Run("matrixinvert", func(t *testing.T) {
@@ -5403,6 +5415,9 @@ func TestGeneratedOperations(t *testing.T) {
 		if loaded.Width() <= 0 || loaded.Height() <= 0 {
 			t.Fatalf("openexrload: opened an empty image %dx%d", loaded.Width(), loaded.Height())
 		}
+		if _, err := loaded.Avg(); err != nil {
+			t.Fatalf("openexrload: the fixture did not decode: %v", err)
+		}
 	})
 	t.Run("openexrload_options", func(t *testing.T) {
 		if !HasOperation("openexrload") {
@@ -5418,6 +5433,9 @@ func TestGeneratedOperations(t *testing.T) {
 		if loaded.Width() <= 0 || loaded.Height() <= 0 {
 			t.Fatalf("openexrload: opened an empty image %dx%d", loaded.Width(), loaded.Height())
 		}
+		if _, err := loaded.Avg(); err != nil {
+			t.Fatalf("openexrload: the fixture did not decode: %v", err)
+		}
 	})
 	t.Run("pdfload", func(t *testing.T) {
 		if !HasOperation("pdfload") {
@@ -5431,6 +5449,9 @@ func TestGeneratedOperations(t *testing.T) {
 		defer loaded.Close()
 		if loaded.Width() <= 0 || loaded.Height() <= 0 {
 			t.Fatalf("pdfload: opened an empty image %dx%d", loaded.Width(), loaded.Height())
+		}
+		if _, err := loaded.Avg(); err != nil {
+			t.Fatalf("pdfload: the fixture did not decode: %v", err)
 		}
 	})
 	t.Run("pdfload_options", func(t *testing.T) {
@@ -5446,6 +5467,9 @@ func TestGeneratedOperations(t *testing.T) {
 		defer loaded.Close()
 		if loaded.Width() <= 0 || loaded.Height() <= 0 {
 			t.Fatalf("pdfload: opened an empty image %dx%d", loaded.Width(), loaded.Height())
+		}
+		if _, err := loaded.Avg(); err != nil {
+			t.Fatalf("pdfload: the fixture did not decode: %v", err)
 		}
 	})
 	t.Run("pdfload_buffer", func(t *testing.T) {
@@ -5464,6 +5488,9 @@ func TestGeneratedOperations(t *testing.T) {
 		defer loaded.Close()
 		if loaded.Width() <= 0 || loaded.Height() <= 0 {
 			t.Fatalf("pdfload_buffer: opened an empty image %dx%d", loaded.Width(), loaded.Height())
+		}
+		if _, err := loaded.Avg(); err != nil {
+			t.Fatalf("pdfload_buffer: the fixture did not decode: %v", err)
 		}
 	})
 	t.Run("pdfload_buffer_options", func(t *testing.T) {
@@ -5484,6 +5511,9 @@ func TestGeneratedOperations(t *testing.T) {
 		if loaded.Width() <= 0 || loaded.Height() <= 0 {
 			t.Fatalf("pdfload_buffer: opened an empty image %dx%d", loaded.Width(), loaded.Height())
 		}
+		if _, err := loaded.Avg(); err != nil {
+			t.Fatalf("pdfload_buffer: the fixture did not decode: %v", err)
+		}
 	})
 	t.Run("pdfload_source", func(t *testing.T) {
 		if !HasOperation("pdfload_source") {
@@ -5502,6 +5532,9 @@ func TestGeneratedOperations(t *testing.T) {
 		defer loaded.Close()
 		if loaded.Width() <= 0 || loaded.Height() <= 0 {
 			t.Fatalf("pdfload_source: opened an empty image %dx%d", loaded.Width(), loaded.Height())
+		}
+		if _, err := loaded.Avg(); err != nil {
+			t.Fatalf("pdfload_source: the fixture did not decode: %v", err)
 		}
 	})
 	t.Run("pdfload_source_options", func(t *testing.T) {
@@ -5522,6 +5555,9 @@ func TestGeneratedOperations(t *testing.T) {
 		defer loaded.Close()
 		if loaded.Width() <= 0 || loaded.Height() <= 0 {
 			t.Fatalf("pdfload_source: opened an empty image %dx%d", loaded.Width(), loaded.Height())
+		}
+		if _, err := loaded.Avg(); err != nil {
+			t.Fatalf("pdfload_source: the fixture did not decode: %v", err)
 		}
 	})
 	t.Run("percent", func(t *testing.T) {
@@ -7545,6 +7581,9 @@ func TestGeneratedOperations(t *testing.T) {
 		if loaded.Width() <= 0 || loaded.Height() <= 0 {
 			t.Fatalf("svgload: opened an empty image %dx%d", loaded.Width(), loaded.Height())
 		}
+		if _, err := loaded.Avg(); err != nil {
+			t.Fatalf("svgload: the fixture did not decode: %v", err)
+		}
 	})
 	t.Run("svgload_options", func(t *testing.T) {
 		if !HasOperation("svgload") {
@@ -7559,6 +7598,9 @@ func TestGeneratedOperations(t *testing.T) {
 		defer loaded.Close()
 		if loaded.Width() <= 0 || loaded.Height() <= 0 {
 			t.Fatalf("svgload: opened an empty image %dx%d", loaded.Width(), loaded.Height())
+		}
+		if _, err := loaded.Avg(); err != nil {
+			t.Fatalf("svgload: the fixture did not decode: %v", err)
 		}
 	})
 	t.Run("svgload_buffer", func(t *testing.T) {
@@ -7577,6 +7619,9 @@ func TestGeneratedOperations(t *testing.T) {
 		defer loaded.Close()
 		if loaded.Width() <= 0 || loaded.Height() <= 0 {
 			t.Fatalf("svgload_buffer: opened an empty image %dx%d", loaded.Width(), loaded.Height())
+		}
+		if _, err := loaded.Avg(); err != nil {
+			t.Fatalf("svgload_buffer: the fixture did not decode: %v", err)
 		}
 	})
 	t.Run("svgload_buffer_options", func(t *testing.T) {
@@ -7597,6 +7642,9 @@ func TestGeneratedOperations(t *testing.T) {
 		if loaded.Width() <= 0 || loaded.Height() <= 0 {
 			t.Fatalf("svgload_buffer: opened an empty image %dx%d", loaded.Width(), loaded.Height())
 		}
+		if _, err := loaded.Avg(); err != nil {
+			t.Fatalf("svgload_buffer: the fixture did not decode: %v", err)
+		}
 	})
 	t.Run("svgload_source", func(t *testing.T) {
 		if !HasOperation("svgload_source") {
@@ -7615,6 +7663,9 @@ func TestGeneratedOperations(t *testing.T) {
 		defer loaded.Close()
 		if loaded.Width() <= 0 || loaded.Height() <= 0 {
 			t.Fatalf("svgload_source: opened an empty image %dx%d", loaded.Width(), loaded.Height())
+		}
+		if _, err := loaded.Avg(); err != nil {
+			t.Fatalf("svgload_source: the fixture did not decode: %v", err)
 		}
 	})
 	t.Run("svgload_source_options", func(t *testing.T) {
@@ -7635,6 +7686,9 @@ func TestGeneratedOperations(t *testing.T) {
 		defer loaded.Close()
 		if loaded.Width() <= 0 || loaded.Height() <= 0 {
 			t.Fatalf("svgload_source: opened an empty image %dx%d", loaded.Width(), loaded.Height())
+		}
+		if _, err := loaded.Avg(); err != nil {
+			t.Fatalf("svgload_source: the fixture did not decode: %v", err)
 		}
 	})
 	t.Run("switch", func(t *testing.T) {
