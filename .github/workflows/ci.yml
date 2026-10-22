@@ -158,7 +158,7 @@ jobs:
           go build -o bin/vipsgen cmd/vipsgen/main.go
 
       - name: Run generator unit tests
-        run: go test -count=1 ./internal/... -coverprofile=internal.out
+        run: go test -count=1 ./internal/... -coverpkg=./internal/... -coverprofile=internal.out
 
       - name: Generate vips package
         run: |
@@ -178,12 +178,21 @@ jobs:
           $(CGO_CFLAGS_ALLOW="-Xpreprocessor") go test -v ./${{ matrix.output_dir }}/... \
             -coverprofile=coverage.out
 
-      - name: Upload coverage
-        # the generator tests run on all three legs; one upload is enough
+      - name: Upload coverage (vips)
         if: matrix.output_dir == 'vips'
         uses: codecov/codecov-action@v5
         with:
-          files: ./coverage.out,./internal.out
+          files: ./coverage.out
+          flags: vips
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: true
+
+      - name: Upload coverage (internal)
+        if: matrix.output_dir == 'vips'
+        uses: codecov/codecov-action@v5
+        with:
+          files: ./internal.out
+          flags: internal
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true
 
