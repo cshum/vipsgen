@@ -1,6 +1,7 @@
 package generator
 
 import (
+	"io/fs"
 	"os"
 	"path/filepath"
 	"testing"
@@ -94,5 +95,65 @@ func TestGenerateFunctionCall(t *testing.T) {
 
 	if got, want := generateFunctionCall(op), "Resize(r.image, scale)"; got != want {
 		t.Errorf("got %q, want %q", got, want)
+	}
+}
+
+// TestExtractEmbeddedFSErrors pins the two ways extraction fails: a destination that cannot
+// be created, and a template set it cannot read.
+func TestExtractEmbeddedFSErrors(t *testing.T) {
+	t.Run("destination is a file", func(t *testing.T) {
+		file := filepath.Join(t.TempDir(), "not-a-dir")
+		if err := os.WriteFile(file, []byte("x"), 0o644); err != nil {
+			t.Fatal(err)
+		}
+		if err := ExtractEmbeddedFS(templates.Templates, file); err == nil {
+			t.Error("expected an error when the destination is a file")
+		}
+	})
+
+	t.Run("templates cannot be read", func(t *testing.T) {
+		if err := ExtractEmbeddedFS(emptyFS{}, t.TempDir()); err == nil {
+			t.Error("expected an error when the template set is empty")
+		}
+	})
+}
+
+// emptyFS has no files, which is what an extracted set looks like when nothing was embedded.
+type emptyFS struct{}
+
+func (emptyFS) Open(string) (fs.File, error) { return nil, fs.ErrNotExist }
+
+// TestNewOSTemplateLoader pins the path a contributor uses when editing templates: a loader
+// over a directory, which lists and renders what is there, and refuses a directory that is
+// not.
+func TestNewOSTemplateLoader(t *testing.T) {
+	dir := t.TempDir()
+	if err := os.WriteFile(filepath.Join(dir, "greeting.go.tmpl"), []byte("// {{.Name}}\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	loader, err := NewOSTemplateLoader(dir, GetTemplateFuncMap())
+	if err != nil {
+		t.Fatalf("loader: %v", err)
+	}
+
+	files, err := loader.ListFiles()
+	if err != nil {
+		t.Fatalf("list: %v", err)
+	}
+	if len(files) != 1 || files[0] != "greeting.go.tmpl" {
+		t.Errorf("list = %v", files)
+	}
+
+	tmpl, err := loader.LoadTemplate("greeting.go.tmpl")
+	if err != nil {
+		t.Fatalf("load: %v", err)
+	}
+	if tmpl.Name() != "greeting.go.tmpl" {
+		t.Errorf("template name = %q", tmpl.Name())
+	}
+
+	if _, err := NewOSTemplateLoader(filepath.Join(dir, "missing"), GetTemplateFuncMap()); err == nil {
+		t.Error("a missing directory should be an error")
 	}
 }
