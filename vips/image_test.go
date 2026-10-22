@@ -16,6 +16,7 @@ import (
 	"path/filepath"
 	"reflect"
 	"runtime"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -4450,6 +4451,22 @@ func testMonoImage(t *testing.T) *Image {
 }
 
 // testRGBImage is three bands labelled sRGB, the shape the colour and ICC operations want.
+// testMultiPageImage returns a three-page image, the shape the multipage helpers expect.
+func testMultiPageImage(t *testing.T) *Image {
+	t.Helper()
+	img, err := NewEye(32, 48, nil)
+	require.NoError(t, err)
+	t.Cleanup(img.Close)
+	require.NoError(t, img.SetPageHeight(16))
+	require.NoError(t, img.SetPages(3))
+	return img
+}
+
+// testStringPtr returns a pointer to s, for the option fields that carry a string pointer.
+func testStringPtr(s string) *string {
+	return &s
+}
+
 func testRGBImage(t *testing.T) *Image {
 	t.Helper()
 	img := testMonoImage(t)
@@ -4804,6 +4821,61 @@ func TestMultiPageHelpers(t *testing.T) {
 		assert.Equal(t, 16, img.Width(), "a page is turned on its side")
 		assert.Equal(t, 96, img.Height(), "three pages of the old width")
 	})
+}
+
+// TestStringOptionsArePassedThrough takes both sides of a string option: nil leaves the field
+// to libvips, and a set value reaches the operation.
+func TestStringOptionsArePassedThrough(t *testing.T) {
+	img := testRGBImage(t)
+
+	unset := filepath.Join(t.TempDir(), "unset.csv")
+	require.NoError(t, img.Csvsave(unset, &CsvsaveOptions{}))
+
+	// The default separator is a tab, so a semicolon has to show up in the output.
+	custom := filepath.Join(t.TempDir(), "custom.csv")
+	require.NoError(t, img.Csvsave(custom, &CsvsaveOptions{Separator: testStringPtr(";")}))
+
+	unsetData, err := os.ReadFile(unset)
+	require.NoError(t, err)
+	customData, err := os.ReadFile(custom)
+	require.NoError(t, err)
+	if !strings.Contains(string(customData), ";") {
+		t.Errorf("the separator did not reach the operation: %q", string(customData))
+	}
+	if string(unsetData) == string(customData) {
+		t.Error("a separator that differs should change what is written")
+	}
+}
+
+// TestMultiPageHelpersDegenerateInputs takes the other side of every branch in the multipage
+// helpers: a single-page image, which falls back to the plain operation, and an argument
+// libvips rejects, on both shapes.
+func TestMultiPageHelpersDegenerateInputs(t *testing.T) {
+	single := testRGBImage(t)
+
+	// A single page has no pages to move through, so the helper does the plain operation.
+	if err := single.ExtractAreaMultiPage(0, 0, 16, 12); err != nil {
+		t.Fatalf("single page extract area: %v", err)
+	}
+	if err := single.EmbedMultiPage(2, 2, 36, 28, DefaultEmbedMultiPageOptions()); err != nil {
+		t.Fatalf("single page embed: %v", err)
+	}
+	if err := single.RotMultiPage(AngleD90); err != nil {
+		t.Fatalf("single page rot: %v", err)
+	}
+
+	// An angle the enum does not have fails on either shape.
+	for _, img := range []*Image{testRGBImage(t), testMultiPageImage(t)} {
+		if err := img.RotMultiPage(Angle(999)); err == nil {
+			t.Error("expected an error for an angle the enum does not have")
+		}
+		if err := img.ExtractAreaMultiPage(0, 0, 0, 0); err == nil {
+			t.Error("expected an error for a zero-width area")
+		}
+		if err := img.EmbedMultiPage(0, 0, 0, 0, DefaultEmbedMultiPageOptions()); err == nil {
+			t.Error("expected an error for a zero-width embed")
+		}
+	}
 }
 
 // TestMosaicOperations joins two images that share a region. The tie points are given in

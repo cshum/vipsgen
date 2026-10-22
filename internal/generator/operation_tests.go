@@ -116,6 +116,14 @@ func BuildOperationCoverage(operations []introspection.Operation) []CoverageCase
 				Body: coverageOperationGuard(op.Name) + withOptions,
 			})
 		}
+		// The same operation again with arguments libvips rejects, which is the only way to
+		// reach the error return every wrapper has.
+		if errorBody, ok := errorCaseBody(op); ok {
+			cases = append(cases, CoverageCase{
+				Name: op.Name + "_error",
+				Body: coverageOperationGuard(op.Name) + errorBody,
+			})
+		}
 	}
 	return cases
 }

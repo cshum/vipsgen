@@ -428,6 +428,18 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("affine: produced an empty image %dx%d", img.Width(), img.Height())
 		}
 	})
+	t.Run("affine_error", func(t *testing.T) {
+		if !HasOperation("affine") {
+			t.Skipf("this libvips has no affine")
+		}
+		img := coverageImage(t)
+		err := img.Affine(0, 0, 0, 0, nil)
+		if err == nil {
+			if _, evalErr := img.Avg(); evalErr == nil {
+				t.Skipf("affine: accepted arguments libvips should reject")
+			}
+		}
+	})
 	t.Run("analyzeload", func(t *testing.T) {
 		if !HasOperation("analyzeload") {
 			t.Skipf("this libvips has no analyzeload")
@@ -536,6 +548,18 @@ func TestGeneratedOperations(t *testing.T) {
 		}
 		if img.Width() <= 0 || img.Height() <= 0 {
 			t.Fatalf("bandbool: produced an empty image %dx%d", img.Width(), img.Height())
+		}
+	})
+	t.Run("bandbool_error", func(t *testing.T) {
+		if !HasOperation("bandbool") {
+			t.Skipf("this libvips has no bandbool")
+		}
+		img := coverageImage(t)
+		err := img.Bandbool(OperationBoolean(999))
+		if err == nil {
+			if _, evalErr := img.Avg(); evalErr == nil {
+				t.Skipf("bandbool: accepted arguments libvips should reject")
+			}
 		}
 	})
 	t.Run("bandfold", func(t *testing.T) {
@@ -886,6 +910,18 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("cast: produced an empty image %dx%d", img.Width(), img.Height())
 		}
 	})
+	t.Run("cast_error", func(t *testing.T) {
+		if !HasOperation("cast") {
+			t.Skipf("this libvips has no cast")
+		}
+		img := coverageImage(t)
+		err := img.Cast(BandFormat(999), nil)
+		if err == nil {
+			if _, evalErr := img.Avg(); evalErr == nil {
+				t.Skipf("cast: accepted arguments libvips should reject")
+			}
+		}
+	})
 	t.Run("clamp", func(t *testing.T) {
 		if !HasOperation("clamp") {
 			t.Skipf("this libvips has no clamp")
@@ -960,6 +996,18 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("colourspace: produced an empty image %dx%d", img.Width(), img.Height())
 		}
 	})
+	t.Run("colourspace_error", func(t *testing.T) {
+		if !HasOperation("colourspace") {
+			t.Skipf("this libvips has no colourspace")
+		}
+		img := coverageImage(t)
+		err := img.Colourspace(Interpretation(999), nil)
+		if err == nil {
+			if _, evalErr := img.Avg(); evalErr == nil {
+				t.Skipf("colourspace: accepted arguments libvips should reject")
+			}
+		}
+	})
 	t.Run("compass", func(t *testing.T) {
 		if !HasOperation("compass") {
 			t.Skipf("this libvips has no compass")
@@ -1019,6 +1067,18 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("complex: produced an empty image %dx%d", img.Width(), img.Height())
 		}
 	})
+	t.Run("complex_error", func(t *testing.T) {
+		if !HasOperation("complex") {
+			t.Skipf("this libvips has no complex")
+		}
+		img := coverageImage(t)
+		err := img.Complex(OperationComplex(999))
+		if err == nil {
+			if _, evalErr := img.Avg(); evalErr == nil {
+				t.Skipf("complex: accepted arguments libvips should reject")
+			}
+		}
+	})
 	t.Run("complex2", func(t *testing.T) {
 		if !HasOperation("complex2") {
 			t.Skipf("this libvips has no complex2")
@@ -1075,6 +1135,18 @@ func TestGeneratedOperations(t *testing.T) {
 		}
 		if img.Width() <= 0 || img.Height() <= 0 {
 			t.Fatalf("complexget: produced an empty image %dx%d", img.Width(), img.Height())
+		}
+	})
+	t.Run("complexget_error", func(t *testing.T) {
+		if !HasOperation("complexget") {
+			t.Skipf("this libvips has no complexget")
+		}
+		img := coverageImage(t)
+		err := img.Complexget(OperationComplexget(999))
+		if err == nil {
+			if _, evalErr := img.Avg(); evalErr == nil {
+				t.Skipf("complexget: accepted arguments libvips should reject")
+			}
 		}
 	})
 	t.Run("composite", func(t *testing.T) {
@@ -1851,6 +1923,18 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("embed: produced an empty image %dx%d", img.Width(), img.Height())
 		}
 	})
+	t.Run("embed_error", func(t *testing.T) {
+		if !HasOperation("embed") {
+			t.Skipf("this libvips has no embed")
+		}
+		img := coverageImage(t)
+		err := img.Embed(0, 0, 0, 0, nil)
+		if err == nil {
+			if _, evalErr := img.Avg(); evalErr == nil {
+				t.Skipf("embed: accepted arguments libvips should reject")
+			}
+		}
+	})
 	t.Run("extract_area", func(t *testing.T) {
 		if !HasOperation("extract_area") {
 			t.Skipf("this libvips has no extract_area")
@@ -1867,6 +1951,18 @@ func TestGeneratedOperations(t *testing.T) {
 		}
 		if img.Width() != 8 || img.Height() != 4 {
 			t.Fatalf("extract_area: asked for 8x4, got %dx%d", img.Width(), img.Height())
+		}
+	})
+	t.Run("extract_area_error", func(t *testing.T) {
+		if !HasOperation("extract_area") {
+			t.Skipf("this libvips has no extract_area")
+		}
+		img := coverageImage(t)
+		err := img.ExtractArea(0, 0, 0, 0)
+		if err == nil {
+			if _, evalErr := img.Avg(); evalErr == nil {
+				t.Skipf("extract_area: accepted arguments libvips should reject")
+			}
 		}
 	})
 	t.Run("extract_band", func(t *testing.T) {
@@ -1904,6 +2000,18 @@ func TestGeneratedOperations(t *testing.T) {
 		}
 		if img.Width() <= 0 || img.Height() <= 0 {
 			t.Fatalf("extract_band: produced an empty image %dx%d", img.Width(), img.Height())
+		}
+	})
+	t.Run("extract_band_error", func(t *testing.T) {
+		if !HasOperation("extract_band") {
+			t.Skipf("this libvips has no extract_band")
+		}
+		img := coverageImage(t)
+		err := img.ExtractBand(0, nil)
+		if err == nil {
+			if _, evalErr := img.Avg(); evalErr == nil {
+				t.Skipf("extract_band: accepted arguments libvips should reject")
+			}
 		}
 	})
 	t.Run("eye", func(t *testing.T) {
@@ -2147,6 +2255,18 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("flip: produced an empty image %dx%d", img.Width(), img.Height())
 		}
 	})
+	t.Run("flip_error", func(t *testing.T) {
+		if !HasOperation("flip") {
+			t.Skipf("this libvips has no flip")
+		}
+		img := coverageImage(t)
+		err := img.Flip(Direction(999))
+		if err == nil {
+			if _, evalErr := img.Avg(); evalErr == nil {
+				t.Skipf("flip: accepted arguments libvips should reject")
+			}
+		}
+	})
 	t.Run("float2rad", func(t *testing.T) {
 		if !HasOperation("float2rad") {
 			t.Skipf("this libvips has no float2rad")
@@ -2283,6 +2403,18 @@ func TestGeneratedOperations(t *testing.T) {
 		}
 		if img.Width() <= 0 || img.Height() <= 0 {
 			t.Fatalf("gaussblur: produced an empty image %dx%d", img.Width(), img.Height())
+		}
+	})
+	t.Run("gaussblur_error", func(t *testing.T) {
+		if !HasOperation("gaussblur") {
+			t.Skipf("this libvips has no gaussblur")
+		}
+		img := coverageImage(t)
+		err := img.Gaussblur(0, nil)
+		if err == nil {
+			if _, evalErr := img.Avg(); evalErr == nil {
+				t.Skipf("gaussblur: accepted arguments libvips should reject")
+			}
 		}
 	})
 	t.Run("gaussmat", func(t *testing.T) {
@@ -2657,6 +2789,18 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("gravity: produced an empty image %dx%d", img.Width(), img.Height())
 		}
 	})
+	t.Run("gravity_error", func(t *testing.T) {
+		if !HasOperation("gravity") {
+			t.Skipf("this libvips has no gravity")
+		}
+		img := coverageImage(t)
+		err := img.Gravity(CompassDirection(999), 0, 0, nil)
+		if err == nil {
+			if _, evalErr := img.Avg(); evalErr == nil {
+				t.Skipf("gravity: accepted arguments libvips should reject")
+			}
+		}
+	})
 	t.Run("grey", func(t *testing.T) {
 		if !HasOperation("grey") {
 			t.Skipf("this libvips has no grey")
@@ -2695,6 +2839,18 @@ func TestGeneratedOperations(t *testing.T) {
 		}
 		if img.Width() <= 0 || img.Height() <= 0 {
 			t.Fatalf("grid: produced an empty image %dx%d", img.Width(), img.Height())
+		}
+	})
+	t.Run("grid_error", func(t *testing.T) {
+		if !HasOperation("grid") {
+			t.Skipf("this libvips has no grid")
+		}
+		img := coverageImage(t)
+		err := img.Grid(0, 0, 0)
+		if err == nil {
+			if _, evalErr := img.Avg(); evalErr == nil {
+				t.Skipf("grid: accepted arguments libvips should reject")
+			}
 		}
 	})
 	t.Run("heifload", func(t *testing.T) {
@@ -3115,6 +3271,18 @@ func TestGeneratedOperations(t *testing.T) {
 		}
 		if img.Width() <= 0 || img.Height() <= 0 {
 			t.Fatalf("hist_local: produced an empty image %dx%d", img.Width(), img.Height())
+		}
+	})
+	t.Run("hist_local_error", func(t *testing.T) {
+		if !HasOperation("hist_local") {
+			t.Skipf("this libvips has no hist_local")
+		}
+		img := coverageImage(t)
+		err := img.HistLocal(0, 0, nil)
+		if err == nil {
+			if _, evalErr := img.Avg(); evalErr == nil {
+				t.Skipf("hist_local: accepted arguments libvips should reject")
+			}
 		}
 	})
 	t.Run("hist_match", func(t *testing.T) {
@@ -4837,6 +5005,18 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("math: produced an empty image %dx%d", img.Width(), img.Height())
 		}
 	})
+	t.Run("math_error", func(t *testing.T) {
+		if !HasOperation("math") {
+			t.Skipf("this libvips has no math")
+		}
+		img := coverageImage(t)
+		err := img.Math(OperationMath(999))
+		if err == nil {
+			if _, evalErr := img.Avg(); evalErr == nil {
+				t.Skipf("math: accepted arguments libvips should reject")
+			}
+		}
+	})
 	t.Run("math2", func(t *testing.T) {
 		if !HasOperation("math2") {
 			t.Skipf("this libvips has no math2")
@@ -5183,6 +5363,18 @@ func TestGeneratedOperations(t *testing.T) {
 		}
 		if img.Width() <= 0 || img.Height() <= 0 {
 			t.Fatalf("measure: produced an empty image %dx%d", img.Width(), img.Height())
+		}
+	})
+	t.Run("measure_error", func(t *testing.T) {
+		if !HasOperation("measure") {
+			t.Skipf("this libvips has no measure")
+		}
+		img := coverageImage(t)
+		err := img.Measure(0, 0, nil)
+		if err == nil {
+			if _, evalErr := img.Avg(); evalErr == nil {
+				t.Skipf("measure: accepted arguments libvips should reject")
+			}
 		}
 	})
 	t.Run("merge", func(t *testing.T) {
@@ -6413,6 +6605,18 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("rank: produced an empty image %dx%d", img.Width(), img.Height())
 		}
 	})
+	t.Run("rank_error", func(t *testing.T) {
+		if !HasOperation("rank") {
+			t.Skipf("this libvips has no rank")
+		}
+		img := coverageImage(t)
+		err := img.Rank(0, 0, 0)
+		if err == nil {
+			if _, evalErr := img.Avg(); evalErr == nil {
+				t.Skipf("rank: accepted arguments libvips should reject")
+			}
+		}
+	})
 	t.Run("rawsave", func(t *testing.T) {
 		if !HasOperation("rawsave") {
 			t.Skipf("this libvips has no rawsave")
@@ -6581,6 +6785,18 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("reduce: produced an empty image %dx%d", img.Width(), img.Height())
 		}
 	})
+	t.Run("reduce_error", func(t *testing.T) {
+		if !HasOperation("reduce") {
+			t.Skipf("this libvips has no reduce")
+		}
+		img := coverageImage(t)
+		err := img.Reduce(0, 0, nil)
+		if err == nil {
+			if _, evalErr := img.Avg(); evalErr == nil {
+				t.Skipf("reduce: accepted arguments libvips should reject")
+			}
+		}
+	})
 	t.Run("reduceh", func(t *testing.T) {
 		if !HasOperation("reduceh") {
 			t.Skipf("this libvips has no reduceh")
@@ -6618,6 +6834,18 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("reduceh: produced an empty image %dx%d", img.Width(), img.Height())
 		}
 	})
+	t.Run("reduceh_error", func(t *testing.T) {
+		if !HasOperation("reduceh") {
+			t.Skipf("this libvips has no reduceh")
+		}
+		img := coverageImage(t)
+		err := img.Reduceh(0, nil)
+		if err == nil {
+			if _, evalErr := img.Avg(); evalErr == nil {
+				t.Skipf("reduceh: accepted arguments libvips should reject")
+			}
+		}
+	})
 	t.Run("reducev", func(t *testing.T) {
 		if !HasOperation("reducev") {
 			t.Skipf("this libvips has no reducev")
@@ -6653,6 +6881,18 @@ func TestGeneratedOperations(t *testing.T) {
 		}
 		if img.Width() <= 0 || img.Height() <= 0 {
 			t.Fatalf("reducev: produced an empty image %dx%d", img.Width(), img.Height())
+		}
+	})
+	t.Run("reducev_error", func(t *testing.T) {
+		if !HasOperation("reducev") {
+			t.Skipf("this libvips has no reducev")
+		}
+		img := coverageImage(t)
+		err := img.Reducev(0, nil)
+		if err == nil {
+			if _, evalErr := img.Avg(); evalErr == nil {
+				t.Skipf("reducev: accepted arguments libvips should reject")
+			}
 		}
 	})
 	t.Run("relational", func(t *testing.T) {
@@ -6749,6 +6989,18 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("replicate: produced an empty image %dx%d", img.Width(), img.Height())
 		}
 	})
+	t.Run("replicate_error", func(t *testing.T) {
+		if !HasOperation("replicate") {
+			t.Skipf("this libvips has no replicate")
+		}
+		img := coverageImage(t)
+		err := img.Replicate(0, 0)
+		if err == nil {
+			if _, evalErr := img.Avg(); evalErr == nil {
+				t.Skipf("replicate: accepted arguments libvips should reject")
+			}
+		}
+	})
 	t.Run("resize", func(t *testing.T) {
 		if !HasOperation("resize") {
 			t.Skipf("this libvips has no resize")
@@ -6786,6 +7038,18 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("resize: produced an empty image %dx%d", img.Width(), img.Height())
 		}
 	})
+	t.Run("resize_error", func(t *testing.T) {
+		if !HasOperation("resize") {
+			t.Skipf("this libvips has no resize")
+		}
+		img := coverageImage(t)
+		err := img.Resize(0, nil)
+		if err == nil {
+			if _, evalErr := img.Avg(); evalErr == nil {
+				t.Skipf("resize: accepted arguments libvips should reject")
+			}
+		}
+	})
 	t.Run("rot", func(t *testing.T) {
 		if !HasOperation("rot") {
 			t.Skipf("this libvips has no rot")
@@ -6802,6 +7066,18 @@ func TestGeneratedOperations(t *testing.T) {
 		}
 		if img.Width() <= 0 || img.Height() <= 0 {
 			t.Fatalf("rot: produced an empty image %dx%d", img.Width(), img.Height())
+		}
+	})
+	t.Run("rot_error", func(t *testing.T) {
+		if !HasOperation("rot") {
+			t.Skipf("this libvips has no rot")
+		}
+		img := coverageImage(t)
+		err := img.Rot(Angle(999))
+		if err == nil {
+			if _, evalErr := img.Avg(); evalErr == nil {
+				t.Skipf("rot: accepted arguments libvips should reject")
+			}
 		}
 	})
 	t.Run("rot45", func(t *testing.T) {
@@ -6878,6 +7154,18 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("rotate: produced an empty image %dx%d", img.Width(), img.Height())
 		}
 	})
+	t.Run("rotate_error", func(t *testing.T) {
+		if !HasOperation("rotate") {
+			t.Skipf("this libvips has no rotate")
+		}
+		img := coverageImage(t)
+		err := img.Rotate(0, nil)
+		if err == nil {
+			if _, evalErr := img.Avg(); evalErr == nil {
+				t.Skipf("rotate: accepted arguments libvips should reject")
+			}
+		}
+	})
 	t.Run("round", func(t *testing.T) {
 		if !HasOperation("round") {
 			t.Skipf("this libvips has no round")
@@ -6894,6 +7182,18 @@ func TestGeneratedOperations(t *testing.T) {
 		}
 		if img.Width() <= 0 || img.Height() <= 0 {
 			t.Fatalf("round: produced an empty image %dx%d", img.Width(), img.Height())
+		}
+	})
+	t.Run("round_error", func(t *testing.T) {
+		if !HasOperation("round") {
+			t.Skipf("this libvips has no round")
+		}
+		img := coverageImage(t)
+		err := img.Round(OperationRound(999))
+		if err == nil {
+			if _, evalErr := img.Avg(); evalErr == nil {
+				t.Skipf("round: accepted arguments libvips should reject")
+			}
 		}
 	})
 	t.Run("sRGB2HSV", func(t *testing.T) {
@@ -7188,6 +7488,18 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("shrink: produced an empty image %dx%d", img.Width(), img.Height())
 		}
 	})
+	t.Run("shrink_error", func(t *testing.T) {
+		if !HasOperation("shrink") {
+			t.Skipf("this libvips has no shrink")
+		}
+		img := coverageImage(t)
+		err := img.Shrink(0, 0, nil)
+		if err == nil {
+			if _, evalErr := img.Avg(); evalErr == nil {
+				t.Skipf("shrink: accepted arguments libvips should reject")
+			}
+		}
+	})
 	t.Run("shrinkh", func(t *testing.T) {
 		if !HasOperation("shrinkh") {
 			t.Skipf("this libvips has no shrinkh")
@@ -7225,6 +7537,18 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("shrinkh: produced an empty image %dx%d", img.Width(), img.Height())
 		}
 	})
+	t.Run("shrinkh_error", func(t *testing.T) {
+		if !HasOperation("shrinkh") {
+			t.Skipf("this libvips has no shrinkh")
+		}
+		img := coverageImage(t)
+		err := img.Shrinkh(0, nil)
+		if err == nil {
+			if _, evalErr := img.Avg(); evalErr == nil {
+				t.Skipf("shrinkh: accepted arguments libvips should reject")
+			}
+		}
+	})
 	t.Run("shrinkv", func(t *testing.T) {
 		if !HasOperation("shrinkv") {
 			t.Skipf("this libvips has no shrinkv")
@@ -7260,6 +7584,18 @@ func TestGeneratedOperations(t *testing.T) {
 		}
 		if img.Width() <= 0 || img.Height() <= 0 {
 			t.Fatalf("shrinkv: produced an empty image %dx%d", img.Width(), img.Height())
+		}
+	})
+	t.Run("shrinkv_error", func(t *testing.T) {
+		if !HasOperation("shrinkv") {
+			t.Skipf("this libvips has no shrinkv")
+		}
+		img := coverageImage(t)
+		err := img.Shrinkv(0, nil)
+		if err == nil {
+			if _, evalErr := img.Avg(); evalErr == nil {
+				t.Skipf("shrinkv: accepted arguments libvips should reject")
+			}
 		}
 	})
 	t.Run("sign", func(t *testing.T) {
@@ -7381,6 +7717,18 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("smartcrop: produced an empty image %dx%d", img.Width(), img.Height())
 		}
 	})
+	t.Run("smartcrop_error", func(t *testing.T) {
+		if !HasOperation("smartcrop") {
+			t.Skipf("this libvips has no smartcrop")
+		}
+		img := coverageImage(t)
+		err := img.Smartcrop(0, 0, nil)
+		if err == nil {
+			if _, evalErr := img.Avg(); evalErr == nil {
+				t.Skipf("smartcrop: accepted arguments libvips should reject")
+			}
+		}
+	})
 	t.Run("sobel", func(t *testing.T) {
 		if !HasOperation("sobel") {
 			t.Skipf("this libvips has no sobel")
@@ -7492,6 +7840,18 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("stdif: produced an empty image %dx%d", img.Width(), img.Height())
 		}
 	})
+	t.Run("stdif_error", func(t *testing.T) {
+		if !HasOperation("stdif") {
+			t.Skipf("this libvips has no stdif")
+		}
+		img := coverageImage(t)
+		err := img.Stdif(0, 0, nil)
+		if err == nil {
+			if _, evalErr := img.Avg(); evalErr == nil {
+				t.Skipf("stdif: accepted arguments libvips should reject")
+			}
+		}
+	})
 	t.Run("subsample", func(t *testing.T) {
 		if !HasOperation("subsample") {
 			t.Skipf("this libvips has no subsample")
@@ -7531,6 +7891,18 @@ func TestGeneratedOperations(t *testing.T) {
 		}
 		if img.Width() <= 0 || img.Height() <= 0 {
 			t.Fatalf("subsample: produced an empty image %dx%d", img.Width(), img.Height())
+		}
+	})
+	t.Run("subsample_error", func(t *testing.T) {
+		if !HasOperation("subsample") {
+			t.Skipf("this libvips has no subsample")
+		}
+		img := coverageImage(t)
+		err := img.Subsample(0, 0, nil)
+		if err == nil {
+			if _, evalErr := img.Avg(); evalErr == nil {
+				t.Skipf("subsample: accepted arguments libvips should reject")
+			}
 		}
 	})
 	t.Run("subtract", func(t *testing.T) {
@@ -7815,6 +8187,18 @@ func TestGeneratedOperations(t *testing.T) {
 		}
 		if img.Width() <= 0 || img.Height() <= 0 {
 			t.Fatalf("thumbnail_image: produced an empty image %dx%d", img.Width(), img.Height())
+		}
+	})
+	t.Run("thumbnail_image_error", func(t *testing.T) {
+		if !HasOperation("thumbnail_image") {
+			t.Skipf("this libvips has no thumbnail_image")
+		}
+		img := coverageImage(t)
+		err := img.ThumbnailImage(0, nil)
+		if err == nil {
+			if _, evalErr := img.Avg(); evalErr == nil {
+				t.Skipf("thumbnail_image: accepted arguments libvips should reject")
+			}
 		}
 	})
 	t.Run("thumbnail_source", func(t *testing.T) {
@@ -8714,6 +9098,18 @@ func TestGeneratedOperations(t *testing.T) {
 		}
 		if d := img.Height() - 3*h; d < -1 || d > 1 {
 			t.Fatalf("zoom: scaled by 2,3, got %dx%d from %dx%d", img.Width(), img.Height(), w, h)
+		}
+	})
+	t.Run("zoom_error", func(t *testing.T) {
+		if !HasOperation("zoom") {
+			t.Skipf("this libvips has no zoom")
+		}
+		img := coverageImage(t)
+		err := img.Zoom(0, 0)
+		if err == nil {
+			if _, evalErr := img.Avg(); evalErr == nil {
+				t.Skipf("zoom: accepted arguments libvips should reject")
+			}
 		}
 	})
 }
