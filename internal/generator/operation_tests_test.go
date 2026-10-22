@@ -332,8 +332,8 @@ func TestCoverageOptionsLiteral(t *testing.T) {
 	if strings.Contains(co.Decl, "Profile:") {
 		t.Errorf("a string field has no value to give: %s", co.Decl)
 	}
-	// The enum field renders as its named constant once a generation run has populated
-	// the enum registry, and as the number before that, so neither spelling is pinned.
+	// The enum field is a named constant once a generation run has filled the registry, and
+	// a number before it.
 	if !strings.Contains(co.Decl, "Preset: 0") && !strings.Contains(co.Decl, "Preset: WebpPresetDefault") {
 		t.Errorf("enum field not rendered: %s", co.Decl)
 	}
