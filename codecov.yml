@@ -1,5 +1,3 @@
-# Two reports rather than one: the generated package is 7,665 statements at ~79%, the
-# generator 3,218 at ~64%. Merged, the second disappears into the first.
 flags:
   vips:
     paths:
