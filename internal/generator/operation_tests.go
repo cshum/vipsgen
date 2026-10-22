@@ -22,21 +22,6 @@ type CoverageCase struct {
 // operation that fails for a new reason would hide that failure, so the reason
 // is written down and reviewable.
 var coverageSkip = map[string]string{
-	"CMC2LCh":           "needs a CMC-coded input",
-	"LCh2CMC":           "needs an LCh-coded input",
-	"Lab2LabQ":          "needs a Lab-coded input",
-	"Lab2LabS":          "needs a Lab-coded input",
-	"LabQ2Lab":          "needs a LabQ-coded input",
-	"LabQ2LabS":         "needs a LabQ-coded input",
-	"LabQ2sRGB":         "needs a LabQ-coded input",
-	"LabS2Lab":          "needs a LabS-coded input",
-	"LabS2LabQ":         "needs a LabS-coded input",
-	"Oklab2Oklch":       "needs an Oklab-coded input",
-	"Oklch2Oklab":       "needs an Oklch-coded input",
-	"XYZ2Yxy":           "needs an XYZ-coded input",
-	"Yxy2XYZ":           "needs a Yxy-coded input",
-	"CMYK2XYZ":          "needs a CMYK-coded input",
-	"XYZ2CMYK":          "needs an XYZ-coded input",
 	"float2rad":         "needs a float-coded input",
 	"rad2float":         "needs a Radiance-coded input",
 	"icc_import":        "needs an embedded or supplied input profile",
@@ -149,6 +134,9 @@ func coverageCaseBody(op introspection.Operation, formats coverageFormats, co co
 		}
 		built.Skip = co.Skip // the variant's reason survives the literal
 		co = built
+	}
+	if in, out, ok := codedRule(op); ok {
+		return codedBody(op, in, out, co), true
 	}
 	if kind, ext, saver, ok := formats.foreignKind(op); ok {
 		if kind == "saver" {
