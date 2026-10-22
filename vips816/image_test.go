@@ -4857,3 +4857,68 @@ func TestMosaicOperations(t *testing.T) {
 		assert.Equal(t, 256, ref.Width(), "match reports a transform, it does not join")
 	})
 }
+
+// TestOptionsPathsThatTheLiteralCannotFill covers the three places where the options
+// argument is the entire point: a deep zoom layout is a choice, matrixprint's metadata
+// handling is a choice, and embedding a page onto a colour is a choice.
+func TestOptionsPathsThatTheLiteralCannotFill(t *testing.T) {
+	t.Run("dzsave_layout", func(t *testing.T) {
+		// The layout option decides what dzsave writes: a deep zoom descriptor for one, a
+		// plain tree and a properties file for the other. A tile per 32 pixels, because an
+		// image smaller than one tile writes nothing.
+		for _, c := range []struct {
+			layout DzLayout
+			want   string
+		}{
+			{DzLayoutDz, "tiles.dzi"},
+			{DzLayoutGoogle, "vips-properties.xml"},
+		} {
+			img, err := NewEye(128, 128, nil)
+			require.NoError(t, err)
+
+			dir := t.TempDir()
+			base := filepath.Join(dir, "tiles")
+			require.NoError(t, img.Dzsave(base, &DzsaveOptions{
+				TileSize: 32,
+				Suffix:   ".png",
+				Layout:   c.layout,
+			}))
+			img.Close()
+
+			_, err = os.Stat(filepath.Join(dir, c.want))
+			assert.NoError(t, err, "layout %v should write %s", c.layout, c.want)
+		}
+	})
+
+	t.Run("matrixprint_keep", func(t *testing.T) {
+		img := testMonoImage(t)
+		require.NoError(t, img.Matrixprint(&MatrixprintOptions{
+			Keep:       Ptr(KeepAll),
+			Background: []float64{0},
+		}))
+		assert.Equal(t, 32, img.Width())
+	})
+
+	t.Run("embed_background", func(t *testing.T) {
+		img, err := NewEye(32, 48, nil)
+		require.NoError(t, err)
+		defer img.Close()
+		require.NoError(t, img.SetPageHeight(16))
+		require.NoError(t, img.SetPages(3))
+		require.NoError(t, img.Cast(BandFormatUchar, nil))
+
+		// A page embedded onto a value: the border is the only thing the option decides,
+		// so the corner says whether it was used.
+		// The background is only used with ExtendBackground; the option on its own falls
+		// through to the copy path.
+		require.NoError(t, img.EmbedMultiPage(4, 4, 40, 24, &EmbedMultiPageOptions{
+			Extend:     ExtendBackground,
+			Background: []float64{255},
+		}))
+		assert.Equal(t, 40, img.Width())
+
+		corner, err := img.Getpoint(0, 0, nil)
+		require.NoError(t, err)
+		assert.Equal(t, float64(255), corner[0], "the border takes the background value")
+	})
+}
