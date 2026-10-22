@@ -12,10 +12,8 @@ import (
 	"github.com/cshum/vipsgen/v2/internal/templates"
 )
 
-// TestGenerateEndToEnd runs the real pipeline the command runs: introspect the libvips this
-// test links against, build the template data, and render the embedded templates into a
-// temporary directory. The unit tests here use stub loaders, so without this nothing
-// executes the template functions that produce every method, options struct and C wrapper.
+// TestGenerateEndToEnd generates a package from the libvips this test links against, the way
+// the command does.
 func TestGenerateEndToEnd(t *testing.T) {
 	dir := t.TempDir()
 
