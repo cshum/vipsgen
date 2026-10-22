@@ -52,6 +52,7 @@ jobs:
           libpoppler-glib-dev libxml2-dev \
           libopenslide-dev libcfitsio-dev liborc-0.4-dev libpango1.0-dev \
           libtiff5-dev libgsf-1-dev giflib-tools libwebp-dev libheif-dev \
+          libheif-plugin-x265 libheif-plugin-libde265 \
           libopenjp2-7-dev libcgif-dev \
           gobject-introspection libgirepository1.0-dev \
           libmagickwand-dev libmatio-dev libnifti2-dev \
