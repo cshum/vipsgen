@@ -195,6 +195,23 @@ func TestLoadOptionsOptionString(t *testing.T) {
 
 	// 4. Unset: neither fail nor fail_on is emitted
 	assert.NotContains(t, (&LoadOptions{}).OptionString(), "fail")
+
+	// 5. The numbered and boolean fields, and every access mode.
+	opts = &LoadOptions{
+		N: 3, Page: 2, Dpi: 144,
+		Unlimited: true, Thumbnail: true, Memory: true,
+		Access: AccessSequential,
+	}
+	s = opts.OptionString()
+	for _, want := range []string{"n=3", "page=2", "dpi=144", "unlimited=TRUE", "thumbnail=TRUE", "memory=TRUE", "access=sequential"} {
+		assert.Contains(t, s, want)
+	}
+
+	got := (&LoadOptions{Access: AccessSequentialUnbuffered}).OptionString()
+	assert.Contains(t, got, "access=sequential-unbuffered")
+
+	// Random is the zero value, so it is the default and nothing is emitted for it.
+	assert.NotContains(t, (&LoadOptions{Access: AccessRandom}).OptionString(), "access")
 }
 
 func TestVersionInfo(t *testing.T) {

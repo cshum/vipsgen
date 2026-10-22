@@ -10188,8 +10188,6 @@ func (i *LoadOptions) OptionString() string {
 		switch i.Access {
 		case AccessSequential:
 			values = append(values, "access=sequential")
-		case AccessRandom:
-			values = append(values, "access=random")
 		case AccessSequentialUnbuffered:
 			values = append(values, "access=sequential-unbuffered")
 		}
