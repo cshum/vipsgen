@@ -4342,3 +4342,84 @@ func TestImageFromFileWithSpecialCharsInName(t *testing.T) {
 		})
 	}
 }
+
+// TestDzsaveWritesTiles covers the one operation that writes a directory rather than a
+// file: a Deep Zoom descriptor beside the tiles it indexes.
+func TestDzsaveWritesTiles(t *testing.T) {
+	img, err := NewEye(16, 16, nil)
+	require.NoError(t, err)
+	defer img.Close()
+
+	base := filepath.Join(t.TempDir(), "tiles")
+	require.NoError(t, img.Dzsave(base, nil))
+
+	descriptor, err := os.ReadFile(base + ".dzi")
+	require.NoError(t, err, "dzsave should write a .dzi descriptor")
+	assert.Contains(t, string(descriptor), "schemas.microsoft.com/deepzoom/2008",
+		"descriptor should describe a Deep Zoom image")
+
+	tiles, err := os.ReadDir(base + "_files")
+	require.NoError(t, err, "dzsave should write a tile directory")
+	assert.NotEmpty(t, tiles, "tile directory should not be empty")
+}
+
+// TestProfileLoadSignature reads a profile by name. profile_load is the operation that
+// returns a profile rather than an image, and the ICC signature is what says it worked.
+func TestProfileLoadSignature(t *testing.T) {
+	profile, err := ProfileLoad("srgb")
+	require.NoError(t, err)
+
+	// An ICC file carries "acsp" at byte 36 of its header.
+	require.Greater(t, len(profile), 40)
+	assert.Equal(t, "acsp", string(profile[36:40]), "a profile should carry the ICC signature")
+}
+
+// TestIccTransform converts into a profile. The transform refuses an image with no input
+// profile, so importing one is part of the test rather than extra setup.
+func TestIccTransform(t *testing.T) {
+	profile, err := ProfileLoad("srgb")
+	require.NoError(t, err)
+
+	path := filepath.Join(t.TempDir(), "srgb.icc")
+	require.NoError(t, os.WriteFile(path, profile, 0o644))
+
+	mono, err := NewEye(16, 16, nil)
+	require.NoError(t, err)
+	defer mono.Close()
+	require.NoError(t, mono.BandjoinConst([]float64{128, 128}))
+	require.NoError(t, mono.Cast(BandFormatUchar, nil))
+
+	img, err := mono.Copy(&CopyOptions{Interpretation: InterpretationSrgb})
+	require.NoError(t, err)
+	defer img.Close()
+
+	require.NoError(t, img.IccImport(&IccImportOptions{InputProfile: path}))
+	require.NoError(t, img.IccTransform(path, nil))
+	assert.Equal(t, 16, img.Width())
+	assert.Equal(t, 16, img.Height())
+}
+
+// TestRawload reads a headerless image: its size is an argument, not something the file
+// carries, so the bytes written here are exactly what the dimensions say they are.
+func TestRawload(t *testing.T) {
+	const width, height, bands = 8, 8, 3
+
+	path := filepath.Join(t.TempDir(), "grey.raw")
+	require.NoError(t, os.WriteFile(path, make([]byte, width*height*bands), 0o644))
+
+	img, err := NewRawload(path, width, height, bands, nil)
+	require.NoError(t, err)
+	defer img.Close()
+	assert.Equal(t, width, img.Width())
+	assert.Equal(t, height, img.Height())
+	assert.Equal(t, bands, img.Bands())
+}
+
+// TestMatrixprint prints a matrix to stdout, so what is checked is that the call reaches
+// libvips with a matrix-shaped image rather than that the text is right.
+func TestMatrixprint(t *testing.T) {
+	img, err := NewEye(3, 3, nil)
+	require.NoError(t, err)
+	defer img.Close()
+	require.NoError(t, img.Matrixprint(nil))
+}
