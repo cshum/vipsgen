@@ -6,6 +6,14 @@ v2 changes the import path, how an optional argument is passed, and the value of
 The `vips.Ptr` changes are compile errors in v1 spelling, so the compiler finds them for you.
 The `vips.KeepNone` change compiles and is silent, so it has its own section.
 
+## The `pointer` package is gone
+
+v1, and v2 up to 2.0.5, carried `pointer.Save/Restore/Unref/Clear` to pass a Go object
+through C as an index pointer. The generated code uses `cgo.Handle`, which is the runtime's
+own mechanism for the same job, so the package is gone. Nothing in this module imported it
+and pkg.go.dev recorded no importers; if your code called it directly, `cgo.Handle` replaces
+it.
+
 ## Module path
 
 ```go
