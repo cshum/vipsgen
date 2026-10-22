@@ -4714,3 +4714,115 @@ func TestIccImportExport(t *testing.T) {
 	assert.Equal(t, 32, img.Width())
 	assert.Equal(t, 3, img.Bands(), "an export keeps the bands it started with")
 }
+
+// TestMetadataAccessors reads back the header fields a caller sets on the way in: a copy
+// carries resolution, origin offset and coding, and the accessors report them.
+func TestMetadataAccessors(t *testing.T) {
+	img := testMonoImage(t)
+
+	copied, err := img.Copy(&CopyOptions{
+		Xres:    3.5,
+		Yres:    2.5,
+		Xoffset: 7,
+		Yoffset: 9,
+	})
+	require.NoError(t, err)
+	defer copied.Close()
+
+	assert.Equal(t, 3.5, copied.ResX())
+	assert.Equal(t, 2.5, copied.ResY())
+	assert.Equal(t, 7, copied.OffsetX())
+	assert.Equal(t, 9, copied.OffsetY())
+	assert.Equal(t, CodingNone, copied.Coding(), "a plain image carries no coding")
+	assert.False(t, copied.HasIPTC(), "a generated image has no IPTC block")
+}
+
+// TestModulate changes brightness and saturation on a colour image, which is the shape
+// both modulators require.
+func TestModulate(t *testing.T) {
+	t.Run("modulate", func(t *testing.T) {
+		img := testRGBImage(t)
+		before, err := img.Avg()
+		require.NoError(t, err)
+
+		require.NoError(t, img.Modulate(1.4, 1, 0))
+
+		after, err := img.Avg()
+		require.NoError(t, err)
+		assert.Greater(t, after, before, "brightening should raise the mean")
+	})
+
+	t.Run("modulate_hsv", func(t *testing.T) {
+		img := testRGBImage(t)
+		before, err := img.Avg()
+		require.NoError(t, err)
+
+		require.NoError(t, img.ModulateHSV(1.4, 1, 0))
+
+		after, err := img.Avg()
+		require.NoError(t, err)
+		assert.Greater(t, after, before, "brightening should raise the mean")
+	})
+}
+
+// TestMultiPageHelpers runs the helpers that apply one operation to every page of a stacked
+// image. They exist because the plain operation does not know about pages, and nothing
+// upstream tests them.
+func TestMultiPageHelpers(t *testing.T) {
+	stacked := func(t *testing.T) *Image {
+		t.Helper()
+		img, err := NewEye(32, 48, nil)
+		require.NoError(t, err)
+		t.Cleanup(img.Close)
+		require.NoError(t, img.SetPageHeight(16))
+		require.NoError(t, img.SetPages(3))
+		return img
+	}
+
+	t.Run("extract_area", func(t *testing.T) {
+		img := stacked(t)
+		require.NoError(t, img.ExtractAreaMultiPage(4, 4, 16, 12))
+		assert.Equal(t, 16, img.Width())
+		assert.Equal(t, 36, img.Height(), "three pages of twelve rows")
+		assert.Equal(t, 12, img.PageHeight())
+	})
+
+	t.Run("embed", func(t *testing.T) {
+		img := stacked(t)
+		options := DefaultEmbedMultiPageOptions()
+		require.NotNil(t, options)
+		require.NoError(t, img.EmbedMultiPage(4, 4, 40, 24, options))
+		assert.Equal(t, 40, img.Width())
+		assert.Equal(t, 72, img.Height(), "three embedded pages")
+	})
+
+	t.Run("rot", func(t *testing.T) {
+		img := stacked(t)
+		require.NoError(t, img.RotMultiPage(AngleD90))
+		assert.Equal(t, 16, img.Width(), "a page is turned on its side")
+		assert.Equal(t, 96, img.Height(), "three pages of the old width")
+	})
+}
+
+// TestForeignLoaderVariants loads through the buffer form of the generic ImageMagick
+// loader, which has no saver of its own to round trip with. The source form of the same
+// loader only exists from 8.18, and this file is generated for three versions.
+func TestForeignLoaderVariants(t *testing.T) {
+	pngBytes := func(t *testing.T) []byte {
+		t.Helper()
+		path := filepath.Join(t.TempDir(), "image.png")
+		require.NoError(t, testRGBImage(t).Pngsave(path, nil))
+		data, err := os.ReadFile(path)
+		require.NoError(t, err)
+		return data
+	}
+
+	t.Run("magickload_buffer", func(t *testing.T) {
+		img, err := NewMagickloadBuffer(pngBytes(t), nil)
+		require.NoError(t, err)
+		defer img.Close()
+		assert.Equal(t, 32, img.Width())
+	})
+
+
+}
