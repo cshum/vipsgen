@@ -4439,3 +4439,278 @@ func TestMatrixprint(t *testing.T) {
 	defer img.Close()
 	require.NoError(t, img.Matrixprint(nil))
 }
+// testMonoImage is one band, which several operations insist on.
+func testMonoImage(t *testing.T) *Image {
+	t.Helper()
+	img, err := NewEye(32, 32, nil)
+	require.NoError(t, err)
+	t.Cleanup(img.Close)
+	return img
+}
+
+// testRGBImage is three bands labelled sRGB, the shape the colour and ICC operations want.
+func testRGBImage(t *testing.T) *Image {
+	t.Helper()
+	img := testMonoImage(t)
+	require.NoError(t, img.BandjoinConst([]float64{128, 128}))
+	require.NoError(t, img.Cast(BandFormatUchar, nil))
+	rgb, err := img.Copy(&CopyOptions{Interpretation: InterpretationSrgb})
+	require.NoError(t, err)
+	t.Cleanup(rgb.Close)
+	return rgb
+}
+
+// testMatrixParameter writes a matrix in the format libvips itself writes - the size, then
+// the rows - and loads it back. Several operations take a matrix image rather than numbers.
+func testMatrixParameter(t *testing.T, body string) *Image {
+	t.Helper()
+	path := filepath.Join(t.TempDir(), "matrix.mat")
+	require.NoError(t, os.WriteFile(path, []byte(body+"\n"), 0o644))
+	m, err := NewMatrixload(path, nil)
+	require.NoError(t, err)
+	t.Cleanup(m.Close)
+	return m
+}
+
+func testFloatPtr(v float64) *float64 { return &v }
+
+// TestHistogramOperations runs the operations that want a histogram rather than a picture:
+// a histogram is an image of counts, so hist_find makes one and these consume it.
+func TestHistogramOperations(t *testing.T) {
+	histogram := func(t *testing.T) *Image {
+		t.Helper()
+		hist, err := testRGBImage(t).Copy(nil)
+		require.NoError(t, err)
+		t.Cleanup(hist.Close)
+		require.NoError(t, hist.HistFind(nil))
+		return hist
+	}
+
+	t.Run("hist_cum", func(t *testing.T) {
+		hist := histogram(t)
+		require.NoError(t, hist.HistCum())
+		assert.Equal(t, 256, hist.Width(), "one bin per byte value")
+	})
+
+	t.Run("hist_plot", func(t *testing.T) {
+		hist := histogram(t)
+		require.NoError(t, hist.HistPlot())
+		assert.Positive(t, hist.Width())
+	})
+
+	t.Run("hist_entropy", func(t *testing.T) {
+		hist := histogram(t)
+		entropy, err := hist.HistEntropy()
+		require.NoError(t, err)
+		assert.Positive(t, entropy, "an image with spread values has entropy")
+	})
+
+	t.Run("hist_ismonotonic", func(t *testing.T) {
+		hist := histogram(t)
+		_, err := hist.HistIsmonotonic()
+		require.NoError(t, err)
+	})
+
+	t.Run("hist_match", func(t *testing.T) {
+		ref := histogram(t)
+		img := histogram(t)
+		require.NoError(t, img.HistMatch(ref))
+		assert.Equal(t, ref.Width(), img.Width(), "matching leaves the reference's shape")
+	})
+
+	t.Run("maplut", func(t *testing.T) {
+		lut, err := NewEye(256, 1, nil)
+		require.NoError(t, err)
+		defer lut.Close()
+		require.NoError(t, lut.Cast(BandFormatUchar, nil))
+
+		img := testMonoImage(t)
+		require.NoError(t, img.Cast(BandFormatUchar, nil))
+		require.NoError(t, img.Maplut(lut, nil))
+		assert.Equal(t, 32, img.Width())
+	})
+}
+
+// TestMatrixOperations runs the operations whose input is a matrix of numbers: the table
+// says what to interpolate or invert, not what the picture looks like.
+func TestMatrixOperations(t *testing.T) {
+	t.Run("buildlut", func(t *testing.T) {
+		table := testMatrixParameter(t, "2 3\n0 0\n1 255\n2 128")
+		require.NoError(t, table.Buildlut())
+		assert.Positive(t, table.Width(), "a built LUT is an image")
+	})
+
+	t.Run("invertlut", func(t *testing.T) {
+		table := testMatrixParameter(t, "2 3\n0 0\n0.5 0.5\n1 1")
+		require.NoError(t, table.Invertlut(&InvertlutOptions{Size: 256}))
+		assert.Equal(t, 256, table.Width(), "the inverted table has the size asked for")
+	})
+
+	t.Run("matrixinvert", func(t *testing.T) {
+		matrix := testMatrixParameter(t, "3 3\n1 0 0\n0 1 0\n0 0 1")
+		require.NoError(t, matrix.Matrixinvert())
+		assert.Equal(t, 3, matrix.Width())
+		assert.Equal(t, 3, matrix.Height())
+	})
+
+	t.Run("quadratic", func(t *testing.T) {
+		coeff := testMatrixParameter(t, "2 3\n0.5 0\n0 0.5\n1 0")
+		img := testMonoImage(t)
+		require.NoError(t, img.Quadratic(coeff, nil))
+		assert.Equal(t, 32, img.Width())
+		assert.Equal(t, 32, img.Height())
+	})
+}
+
+// TestMaskOperations runs the operations that take a mask: a matrix of weights for
+// convolution, or of ink-or-not for morphology.
+func TestMaskOperations(t *testing.T) {
+	gauss := func(t *testing.T) *Image {
+		t.Helper()
+		// A separable mask is one dimensional: convsep and convasep want a row or a column,
+		// not a square.
+		mask, err := NewGaussmat(1, 0.1, &GaussmatOptions{Separable: true, Precision: PrecisionInteger})
+		require.NoError(t, err)
+		t.Cleanup(mask.Close)
+		return mask
+	}
+
+	t.Run("convsep", func(t *testing.T) {
+		img := testMonoImage(t)
+		require.NoError(t, img.Convsep(gauss(t), nil))
+		assert.Equal(t, 32, img.Width())
+	})
+
+	t.Run("convasep", func(t *testing.T) {
+		img := testMonoImage(t)
+		require.NoError(t, img.Convasep(gauss(t), nil))
+		assert.Equal(t, 32, img.Width())
+	})
+
+	t.Run("morph", func(t *testing.T) {
+		mask := testMatrixParameter(t, "3 3\n255 255 255\n255 255 255\n255 255 255")
+		require.NoError(t, mask.Cast(BandFormatUchar, nil))
+		img := testMonoImage(t)
+		require.NoError(t, img.Cast(BandFormatUchar, nil))
+		require.NoError(t, img.Morph(mask, OperationMorphologyDilate))
+		assert.Equal(t, 32, img.Width())
+	})
+
+	t.Run("draw_mask", func(t *testing.T) {
+		mask := testMatrixParameter(t, "3 3\n255 255 255\n255 255 255\n255 255 255")
+		require.NoError(t, mask.Cast(BandFormatUchar, nil))
+		img := testMonoImage(t)
+		require.NoError(t, img.Cast(BandFormatUchar, nil))
+		require.NoError(t, img.DrawMask([]float64{255}, mask, 4, 4))
+
+		// The ink lands where it was asked to, which the call itself does not report.
+		before := testMonoImage(t)
+		require.NoError(t, before.Cast(BandFormatUchar, nil))
+		pixel, err := before.Getpoint(4, 4, nil)
+		require.NoError(t, err)
+		painted := img
+		got, err := painted.Getpoint(4, 4, nil)
+		require.NoError(t, err)
+		assert.NotEqual(t, pixel[0], got[0], "the mask should have painted the pixel")
+	})
+}
+
+// TestRemapOperations runs the operations that read their geometry from another image.
+func TestRemapOperations(t *testing.T) {
+	t.Run("mapim", func(t *testing.T) {
+		index, err := NewEye(16, 16, nil)
+		require.NoError(t, err)
+		defer index.Close()
+		require.NoError(t, index.BandjoinConst([]float64{0}))
+		require.NoError(t, index.Cast(BandFormatDouble, nil))
+
+		img := testMonoImage(t)
+		require.NoError(t, img.Mapim(index, nil))
+		assert.Equal(t, 16, img.Width(), "the index image decides the output size")
+		assert.Equal(t, 16, img.Height())
+	})
+
+	t.Run("switch", func(t *testing.T) {
+		a := testMonoImage(t)
+		b, err := a.Copy(nil)
+		require.NoError(t, err)
+		defer b.Close()
+		require.NoError(t, b.Invert())
+
+		sw, err := NewSwitch([]*Image{a, b})
+		require.NoError(t, err)
+		defer sw.Close()
+		assert.Equal(t, 32, sw.Width())
+	})
+
+	t.Run("recomb", func(t *testing.T) {
+		m := testMatrixParameter(t, "1 3\n1\n1\n1")
+		img := testMonoImage(t)
+		require.NoError(t, img.Recomb(m))
+		assert.Equal(t, 3, img.Bands(), "one output band per matrix row")
+	})
+}
+
+// TestRadianceConversion converts a float image to the packed radiance format and back,
+// which is the only way to obtain the coding rad2float wants.
+func TestRadianceConversion(t *testing.T) {
+	img := testRGBImage(t)
+	require.NoError(t, img.Cast(BandFormatFloat, nil))
+
+	width, height, bands := img.Width(), img.Height(), img.Bands()
+	require.NoError(t, img.Float2rad())
+	require.NoError(t, img.Rad2float())
+
+	assert.Equal(t, width, img.Width())
+	assert.Equal(t, height, img.Height())
+	assert.Equal(t, bands, img.Bands())
+	assert.Equal(t, BandFormatFloat, img.BandFormat(), "radiance is a four-byte format")
+}
+
+// TestTranspose3d swaps the page and column axes, which needs the page height header that
+// a stacked image carries.
+func TestTranspose3d(t *testing.T) {
+	img := testMonoImage(t)
+	require.NoError(t, img.SetPageHeight(16))
+	require.NoError(t, img.SetPages(2))
+
+	require.NoError(t, img.Transpose3d(&Transpose3dOptions{PageHeight: 16}))
+	assert.Equal(t, 32, img.Width(), "columns become pages")
+	assert.Equal(t, 32, img.Height(), "pages become columns")
+}
+
+// TestMagicksaveBuffer names the output format where the file extension would have said it.
+func TestMagicksaveBufferFormat(t *testing.T) {
+	data, err := testRGBImage(t).MagicksaveBuffer(&MagicksaveBufferOptions{Format: "png"})
+	require.NoError(t, err)
+	require.NotEmpty(t, data)
+	assert.Equal(t, "\x89PNG", string(data[:4]), "the format option should pick the encoder")
+}
+
+// TestGrid lays a stack of tiles out on a grid, so the input has to be as tall as the tiles
+// it holds.
+func TestGrid(t *testing.T) {
+	tiles, err := NewEye(16, 256, nil)
+	require.NoError(t, err)
+	defer tiles.Close()
+
+	require.NoError(t, tiles.Grid(16, 4, 4))
+	assert.Equal(t, 64, tiles.Width())
+	assert.Equal(t, 64, tiles.Height())
+}
+
+// TestIccImportExport converts into a profile and writes the result back with one attached.
+func TestIccImportExport(t *testing.T) {
+	skipWithoutLcms(t)
+
+	profile, err := ProfileLoad("srgb")
+	require.NoError(t, err)
+	path := filepath.Join(t.TempDir(), "srgb.icc")
+	require.NoError(t, os.WriteFile(path, profile, 0o644))
+
+	img := testRGBImage(t)
+	require.NoError(t, img.IccImport(&IccImportOptions{InputProfile: path}))
+	require.NoError(t, img.IccExport(&IccExportOptions{OutputProfile: path}))
+	assert.Equal(t, 32, img.Width())
+	assert.Equal(t, 3, img.Bands(), "an export keeps the bands it started with")
+}
