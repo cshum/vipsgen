@@ -12,8 +12,11 @@ import (
 // generated test skips when the file is not there, which is the case for a tree made by
 // the vipsgen command, so the fixtures stay with this repository.
 var coverageFixtures = map[string]string{
-	"pdf": "sample.pdf",
-	"svg": "sample.svg",
+	"analyze": "analyze.hdr", // the matching .img has to sit beside it
+	"mat":     "sample.mat",
+	"openexr": "sample.exr",
+	"pdf":     "sample.pdf",
+	"svg":     "sample.svg",
 }
 
 // fixtureKind classifies a loader whose fixture ships with the repository, and reports
