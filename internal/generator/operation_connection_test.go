@@ -1,6 +1,7 @@
 package generator
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/cshum/vipsgen/v2/internal/introspection"
@@ -69,5 +70,57 @@ func TestEverySubtestChecksTheOperation(t *testing.T) {
 		if len(c.Body) < len(want) || c.Body[:len(want)] != want {
 			t.Errorf("%s does not check the operation first:\n%s", c.Name, c.Body)
 		}
+	}
+}
+
+// TestErrorCaseBody pins the shape of the error subtest and the two reasons an operation does
+// not get one.
+func TestErrorCaseBody(t *testing.T) {
+	op := coverageOp("shrink", "Shrink")
+	op.HasThisImageInput = true
+	op.HasOneImageOutput = true
+	op.Arguments = []introspection.Argument{
+		imageArg("in"),
+		{Name: "hshrink", GoName: "hshrink", GoType: "float64", IsInput: true},
+	}
+	op.RequiredInputs = op.Arguments
+
+	body, ok := errorCaseBody(op)
+	if !ok {
+		t.Fatal("an operation with a required number should get an error subtest")
+	}
+	want := "\t\timg := coverageImage(t)\n" +
+		"\t\terr := img.Shrink(0)\n" +
+		"\t\tif err == nil {\n" +
+		"\t\t\t// A lazy operation only fails once the result is evaluated, which is\n" +
+		"\t\t\t// not the wrapper's error path.\n" +
+		"\t\t\tif _, evalErr := img.Avg(); evalErr == nil {\n" +
+		"\t\t\t\tt.Skipf(\"shrink: accepted arguments libvips should reject\")\n" +
+		"\t\t\t}\n" +
+		"\t\t}\n"
+	if body != want {
+		t.Errorf("unexpected body\n got: %q\nwant: %q", body, want)
+	}
+
+	enum := coverageOp("rot", "Rot")
+	enum.HasThisImageInput = true
+	enum.HasOneImageOutput = true
+	enum.Arguments = []introspection.Argument{
+		imageArg("in"),
+		{Name: "angle", GoName: "angle", GoType: "Angle", IsInput: true, IsEnum: true},
+	}
+	enum.RequiredInputs = enum.Arguments
+	enumBody, ok := errorCaseBody(enum)
+	if !ok || !strings.Contains(enumBody, "img.Rot(Angle(999))") {
+		t.Errorf("an enum should be passed out of range, got %q", enumBody)
+	}
+
+	plain := coverageOp("invert", "Invert")
+	plain.HasThisImageInput = true
+	plain.HasOneImageOutput = true
+	plain.Arguments = []introspection.Argument{imageArg("in")}
+	plain.RequiredInputs = plain.Arguments
+	if _, ok := errorCaseBody(plain); ok {
+		t.Error("an operation with only an image has no argument to invalidate")
 	}
 }
