@@ -8221,6 +8221,196 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("uhdr2scRGB: produced an empty image %dx%d", img.Width(), img.Height())
 		}
 	})
+	t.Run("uhdrload", func(t *testing.T) {
+		if !HasOperation("uhdrload") {
+			t.Skipf("this libvips has no uhdrload")
+		}
+		path := testdataPath(t, "sample.uhdr.jpg")
+		loaded, err := NewUhdrload(path, nil)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer loaded.Close()
+		if loaded.Width() <= 0 || loaded.Height() <= 0 {
+			t.Fatalf("uhdrload: opened an empty image %dx%d", loaded.Width(), loaded.Height())
+		}
+	})
+	t.Run("uhdrload_options", func(t *testing.T) {
+		if !HasOperation("uhdrload") {
+			t.Skipf("this libvips has no uhdrload")
+		}
+		path := testdataPath(t, "sample.uhdr.jpg")
+		opts := &UhdrloadOptions{Shrink: 1, Memory: true, Access: AccessRandom, FailOn: FailOnNone, Revalidate: true}
+		loaded, err := NewUhdrload(path, opts)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer loaded.Close()
+		if loaded.Width() <= 0 || loaded.Height() <= 0 {
+			t.Fatalf("uhdrload: opened an empty image %dx%d", loaded.Width(), loaded.Height())
+		}
+	})
+	t.Run("uhdrload_buffer", func(t *testing.T) {
+		if !HasOperation("uhdrload_buffer") {
+			t.Skipf("this libvips has no uhdrload_buffer")
+		}
+		path := testdataPath(t, "sample.uhdr.jpg")
+		data, err := os.ReadFile(path)
+		if err != nil {
+			t.Fatalf("reading fixture: %v", err)
+		}
+		loaded, err := NewUhdrloadBuffer(data, nil)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer loaded.Close()
+		if loaded.Width() <= 0 || loaded.Height() <= 0 {
+			t.Fatalf("uhdrload_buffer: opened an empty image %dx%d", loaded.Width(), loaded.Height())
+		}
+	})
+	t.Run("uhdrload_buffer_options", func(t *testing.T) {
+		if !HasOperation("uhdrload_buffer") {
+			t.Skipf("this libvips has no uhdrload_buffer")
+		}
+		path := testdataPath(t, "sample.uhdr.jpg")
+		data, err := os.ReadFile(path)
+		if err != nil {
+			t.Fatalf("reading fixture: %v", err)
+		}
+		opts := &UhdrloadBufferOptions{Shrink: 1, Memory: true, Access: AccessRandom, FailOn: FailOnNone, Revalidate: true}
+		loaded, err := NewUhdrloadBuffer(data, opts)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer loaded.Close()
+		if loaded.Width() <= 0 || loaded.Height() <= 0 {
+			t.Fatalf("uhdrload_buffer: opened an empty image %dx%d", loaded.Width(), loaded.Height())
+		}
+	})
+	t.Run("uhdrload_source", func(t *testing.T) {
+		if !HasOperation("uhdrload_source") {
+			t.Skipf("this libvips has no uhdrload_source")
+		}
+		path := testdataPath(t, "sample.uhdr.jpg")
+		data, err := os.ReadFile(path)
+		if err != nil {
+			t.Fatalf("reading fixture: %v", err)
+		}
+		source := coverageSource(t, data)
+		loaded, err := NewUhdrloadSource(source, nil)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer loaded.Close()
+		if loaded.Width() <= 0 || loaded.Height() <= 0 {
+			t.Fatalf("uhdrload_source: opened an empty image %dx%d", loaded.Width(), loaded.Height())
+		}
+	})
+	t.Run("uhdrload_source_options", func(t *testing.T) {
+		if !HasOperation("uhdrload_source") {
+			t.Skipf("this libvips has no uhdrload_source")
+		}
+		path := testdataPath(t, "sample.uhdr.jpg")
+		data, err := os.ReadFile(path)
+		if err != nil {
+			t.Fatalf("reading fixture: %v", err)
+		}
+		source := coverageSource(t, data)
+		opts := &UhdrloadSourceOptions{Shrink: 1, Memory: true, Access: AccessRandom, FailOn: FailOnNone, Revalidate: true}
+		loaded, err := NewUhdrloadSource(source, opts)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer loaded.Close()
+		if loaded.Width() <= 0 || loaded.Height() <= 0 {
+			t.Fatalf("uhdrload_source: opened an empty image %dx%d", loaded.Width(), loaded.Height())
+		}
+	})
+	t.Run("uhdrsave", func(t *testing.T) {
+		if !HasOperation("uhdrsave") {
+			t.Skipf("this libvips has no uhdrsave")
+		}
+		img := coverageImage(t)
+		path := coveragePath(t, "jpg")
+		err := img.Uhdrsave(path, nil)
+		if err != nil {
+			t.Skipf("input precondition: needs gainmap header fields: %v", err)
+		}
+		if info, statErr := os.Stat(path); statErr != nil || info.Size() == 0 {
+			t.Fatalf("uhdrsave: wrote no file at %s", path)
+		}
+	})
+	t.Run("uhdrsave_options", func(t *testing.T) {
+		if !HasOperation("uhdrsave") {
+			t.Skipf("this libvips has no uhdrsave")
+		}
+		img := coverageImage(t)
+		path := coveragePath(t, "jpg")
+		opts := &UhdrsaveOptions{Q: 1, GainmapScaleFactor: 1, Keep: Ptr(KeepNone), Background: []float64{1}, PageHeight: 1}
+		err := img.Uhdrsave(path, opts)
+		if err != nil {
+			t.Skipf("input precondition: needs gainmap header fields: %v", err)
+		}
+		if info, statErr := os.Stat(path); statErr != nil || info.Size() == 0 {
+			t.Fatalf("uhdrsave: wrote no file at %s", path)
+		}
+	})
+	t.Run("uhdrsave_buffer", func(t *testing.T) {
+		if !HasOperation("uhdrsave_buffer") {
+			t.Skipf("this libvips has no uhdrsave_buffer")
+		}
+		img := coverageImage(t)
+		buf, err := img.UhdrsaveBuffer(nil)
+		if err != nil {
+			t.Skipf("input precondition: needs gainmap header fields: %v", err)
+		}
+		if len(buf) == 0 {
+			t.Fatalf("uhdrsave_buffer: wrote an empty buffer: %d bytes", len(buf))
+		}
+	})
+	t.Run("uhdrsave_buffer_options", func(t *testing.T) {
+		if !HasOperation("uhdrsave_buffer") {
+			t.Skipf("this libvips has no uhdrsave_buffer")
+		}
+		img := coverageImage(t)
+		opts := &UhdrsaveBufferOptions{Q: 1, GainmapScaleFactor: 1, Keep: Ptr(KeepNone), Background: []float64{1}, PageHeight: 1}
+		buf, err := img.UhdrsaveBuffer(opts)
+		if err != nil {
+			t.Skipf("input precondition: needs gainmap header fields: %v", err)
+		}
+		if len(buf) == 0 {
+			t.Fatalf("uhdrsave_buffer: wrote an empty buffer: %d bytes", len(buf))
+		}
+	})
+	t.Run("uhdrsave_target", func(t *testing.T) {
+		if !HasOperation("uhdrsave_target") {
+			t.Skipf("this libvips has no uhdrsave_target")
+		}
+		img := coverageImage(t)
+		target, buf := coverageTarget(t)
+		err := img.UhdrsaveTarget(target, nil)
+		if err != nil {
+			t.Skipf("input precondition: needs gainmap metadata a generated image does not carry: %v", err)
+		}
+		if buf.Len() == 0 {
+			t.Fatalf("uhdrsave_target: wrote nothing to the target")
+		}
+	})
+	t.Run("uhdrsave_target_options", func(t *testing.T) {
+		if !HasOperation("uhdrsave_target") {
+			t.Skipf("this libvips has no uhdrsave_target")
+		}
+		img := coverageImage(t)
+		target, buf := coverageTarget(t)
+		opts := &UhdrsaveTargetOptions{Q: 1, GainmapScaleFactor: 1, Keep: Ptr(KeepNone), Background: []float64{1}, PageHeight: 1}
+		err := img.UhdrsaveTarget(target, opts)
+		if err != nil {
+			t.Skipf("input precondition: needs gainmap metadata a generated image does not carry: %v", err)
+		}
+		if buf.Len() == 0 {
+			t.Fatalf("uhdrsave_target: wrote nothing to the target")
+		}
+	})
 	t.Run("unpremultiply", func(t *testing.T) {
 		if !HasOperation("unpremultiply") {
 			t.Skipf("this libvips has no unpremultiply")
@@ -9791,6 +9981,36 @@ func TestGeneratedOptionDefaults(t *testing.T) {
 	t.Run("Transpose3dOptions", func(t *testing.T) {
 		if opts := DefaultTranspose3dOptions(); opts == nil {
 			t.Fatal("DefaultTranspose3dOptions returned nil")
+		}
+	})
+	t.Run("UhdrloadOptions", func(t *testing.T) {
+		if opts := DefaultUhdrloadOptions(); opts == nil {
+			t.Fatal("DefaultUhdrloadOptions returned nil")
+		}
+	})
+	t.Run("UhdrloadBufferOptions", func(t *testing.T) {
+		if opts := DefaultUhdrloadBufferOptions(); opts == nil {
+			t.Fatal("DefaultUhdrloadBufferOptions returned nil")
+		}
+	})
+	t.Run("UhdrloadSourceOptions", func(t *testing.T) {
+		if opts := DefaultUhdrloadSourceOptions(); opts == nil {
+			t.Fatal("DefaultUhdrloadSourceOptions returned nil")
+		}
+	})
+	t.Run("UhdrsaveOptions", func(t *testing.T) {
+		if opts := DefaultUhdrsaveOptions(); opts == nil {
+			t.Fatal("DefaultUhdrsaveOptions returned nil")
+		}
+	})
+	t.Run("UhdrsaveBufferOptions", func(t *testing.T) {
+		if opts := DefaultUhdrsaveBufferOptions(); opts == nil {
+			t.Fatal("DefaultUhdrsaveBufferOptions returned nil")
+		}
+	})
+	t.Run("UhdrsaveTargetOptions", func(t *testing.T) {
+		if opts := DefaultUhdrsaveTargetOptions(); opts == nil {
+			t.Fatal("DefaultUhdrsaveTargetOptions returned nil")
 		}
 	})
 	t.Run("UnpremultiplyOptions", func(t *testing.T) {

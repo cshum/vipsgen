@@ -3457,6 +3457,127 @@ func NewTonelut(options *TonelutOptions) (*Image, error) {
 	return newImageRef(vipsImage, ImageTypeUnknown, nil), nil
 }
 
+// UhdrloadOptions optional arguments for vips_uhdrload
+type UhdrloadOptions struct {
+	// Shrink Shrink factor on load (range 1-8, default 1)
+	Shrink int
+	// Memory Force open via memory
+	Memory bool
+	// Access Required access pattern for this file
+	Access Access
+	// FailOn Error level to fail on
+	FailOn FailOn
+	// Revalidate Don't use a cached result for this operation
+	Revalidate bool
+}
+
+// DefaultUhdrloadOptions creates default value for vips_uhdrload optional arguments
+func DefaultUhdrloadOptions() *UhdrloadOptions {
+	return &UhdrloadOptions{
+		Shrink: 1,
+	}
+}
+
+// NewUhdrload vips_uhdrload load a UHDR image
+//
+// The filename specifies filename to load from.
+func NewUhdrload(filename string, options *UhdrloadOptions) (*Image, error) {
+	Startup(nil)
+	if options != nil {
+		vipsImage, err := vipsgenUhdrloadWithOptions(filename, options.Shrink, options.Memory, options.Access, options.FailOn, options.Revalidate)
+		if err != nil {
+			return nil, err
+		}
+		return newImageRef(vipsImage, ImageTypeUhdr, nil), nil
+	}
+	vipsImage, err := vipsgenUhdrload(filename)
+	if err != nil {
+		return nil, err
+	}
+	return newImageRef(vipsImage, ImageTypeUhdr, nil), nil
+}
+
+// UhdrloadBufferOptions optional arguments for vips_uhdrload_buffer
+type UhdrloadBufferOptions struct {
+	// Shrink Shrink factor on load (range 1-8, default 1)
+	Shrink int
+	// Memory Force open via memory
+	Memory bool
+	// Access Required access pattern for this file
+	Access Access
+	// FailOn Error level to fail on
+	FailOn FailOn
+	// Revalidate Don't use a cached result for this operation
+	Revalidate bool
+}
+
+// DefaultUhdrloadBufferOptions creates default value for vips_uhdrload_buffer optional arguments
+func DefaultUhdrloadBufferOptions() *UhdrloadBufferOptions {
+	return &UhdrloadBufferOptions{
+		Shrink: 1,
+	}
+}
+
+// NewUhdrloadBuffer vips_uhdrload_buffer load a UHDR image
+func NewUhdrloadBuffer(buf []byte, options *UhdrloadBufferOptions) (*Image, error) {
+	Startup(nil)
+	if len(buf) == 0 {
+		return nil, fmt.Errorf("uhdrload_buffer: buffer is empty")
+	}
+	if options != nil {
+		vipsImage, err := vipsgenUhdrloadBufferWithOptions(buf, options.Shrink, options.Memory, options.Access, options.FailOn, options.Revalidate)
+		if err != nil {
+			return nil, err
+		}
+		return newImageRef(vipsImage, ImageTypeUhdr, buf), nil
+	}
+	vipsImage, err := vipsgenUhdrloadBuffer(buf)
+	if err != nil {
+		return nil, err
+	}
+	return newImageRef(vipsImage, ImageTypeUhdr, buf), nil
+}
+
+// UhdrloadSourceOptions optional arguments for vips_uhdrload_source
+type UhdrloadSourceOptions struct {
+	// Shrink Shrink factor on load (range 1-8, default 1)
+	Shrink int
+	// Memory Force open via memory
+	Memory bool
+	// Access Required access pattern for this file
+	Access Access
+	// FailOn Error level to fail on
+	FailOn FailOn
+	// Revalidate Don't use a cached result for this operation
+	Revalidate bool
+}
+
+// DefaultUhdrloadSourceOptions creates default value for vips_uhdrload_source optional arguments
+func DefaultUhdrloadSourceOptions() *UhdrloadSourceOptions {
+	return &UhdrloadSourceOptions{
+		Shrink: 1,
+	}
+}
+
+// NewUhdrloadSource vips_uhdrload_source load a UHDR image
+//
+// The source specifies source to load from.
+func NewUhdrloadSource(source *Source, options *UhdrloadSourceOptions) (*Image, error) {
+	Startup(nil)
+	if options != nil {
+		vipsImage, err := vipsgenUhdrloadSourceWithOptions(source.src, options.Shrink, options.Memory, options.Access, options.FailOn, options.Revalidate)
+		if err != nil {
+			return nil, err
+		}
+		return newImageRef(vipsImage, ImageTypeUhdr, nil), nil
+	}
+	vipsImage, err := vipsgenUhdrloadSource(source.src)
+	if err != nil {
+		return nil, err
+	}
+	return newImageRef(vipsImage, ImageTypeUhdr, nil), nil
+}
+
 // VipsloadOptions optional arguments for vips_vipsload
 type VipsloadOptions struct {
 	// Memory Force open via memory
@@ -9959,6 +10080,139 @@ func (r *Image) Uhdr2scRGB() error {
 		return err
 	}
 	r.setImage(out)
+	return nil
+}
+
+// UhdrsaveOptions optional arguments for vips_uhdrsave
+type UhdrsaveOptions struct {
+	// Q Q factor (range 1-100, default 75)
+	Q int
+	// GainmapScaleFactor The scale factor of base image to gainmap image (range 1-128, default 2)
+	GainmapScaleFactor int
+	// Keep Which metadata to retain (default KeepAll)
+	Keep *Keep
+	// Background Background value
+	Background []float64
+	// PageHeight Set page height for multipage save (range 0-100000000)
+	PageHeight int
+	// Profile Filename of ICC profile to embed
+	Profile string
+}
+
+// DefaultUhdrsaveOptions creates default value for vips_uhdrsave optional arguments
+func DefaultUhdrsaveOptions() *UhdrsaveOptions {
+	return &UhdrsaveOptions{
+		Q:                  75,
+		GainmapScaleFactor: 2,
+		Keep:               Ptr(KeepAll),
+	}
+}
+
+// Uhdrsave vips_uhdrsave save image in UltraHDR format
+//
+// The filename specifies filename to save to.
+func (r *Image) Uhdrsave(filename string, options *UhdrsaveOptions) error {
+	if options != nil {
+		err := vipsgenUhdrsaveWithOptions(r.image, filename, options.Q, options.GainmapScaleFactor, options.Keep, options.Background, options.PageHeight, options.Profile)
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+	err := vipsgenUhdrsave(r.image, filename)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// UhdrsaveBufferOptions optional arguments for vips_uhdrsave_buffer
+type UhdrsaveBufferOptions struct {
+	// Q Q factor (range 1-100, default 75)
+	Q int
+	// GainmapScaleFactor The scale factor of base image to gainmap image (range 1-128, default 2)
+	GainmapScaleFactor int
+	// Keep Which metadata to retain (default KeepAll)
+	Keep *Keep
+	// Background Background value
+	Background []float64
+	// PageHeight Set page height for multipage save (range 0-100000000)
+	PageHeight int
+	// Profile Filename of ICC profile to embed
+	Profile string
+}
+
+// DefaultUhdrsaveBufferOptions creates default value for vips_uhdrsave_buffer optional arguments
+func DefaultUhdrsaveBufferOptions() *UhdrsaveBufferOptions {
+	return &UhdrsaveBufferOptions{
+		Q:                  75,
+		GainmapScaleFactor: 2,
+		Keep:               Ptr(KeepAll),
+	}
+}
+
+// UhdrsaveBuffer vips_uhdrsave_buffer save image in UltraHDR format
+func (r *Image) UhdrsaveBuffer(options *UhdrsaveBufferOptions) ([]byte, error) {
+	if options != nil {
+		buf, err := vipsgenUhdrsaveBufferWithOptions(r.image, options.Q, options.GainmapScaleFactor, options.Keep, options.Background, options.PageHeight, options.Profile)
+		if err != nil {
+			return nil, err
+		}
+		return buf, nil
+	}
+	buf, err := vipsgenUhdrsaveBuffer(r.image)
+	if err != nil {
+		return nil, err
+	}
+	return buf, nil
+}
+
+// UhdrsaveTargetOptions optional arguments for vips_uhdrsave_target
+type UhdrsaveTargetOptions struct {
+	// Q Q factor (range 1-100, default 75)
+	Q int
+	// GainmapScaleFactor The scale factor of base image to gainmap image (range 1-128, default 2)
+	GainmapScaleFactor int
+	// Keep Which metadata to retain (default KeepAll)
+	Keep *Keep
+	// Background Background value
+	Background []float64
+	// PageHeight Set page height for multipage save (range 0-100000000)
+	PageHeight int
+	// Profile Filename of ICC profile to embed
+	Profile string
+}
+
+// DefaultUhdrsaveTargetOptions creates default value for vips_uhdrsave_target optional arguments
+func DefaultUhdrsaveTargetOptions() *UhdrsaveTargetOptions {
+	return &UhdrsaveTargetOptions{
+		Q:                  75,
+		GainmapScaleFactor: 2,
+		Keep:               Ptr(KeepAll),
+	}
+}
+
+// UhdrsaveTarget vips_uhdrsave_target save image in UltraHDR format
+//
+// The target specifies target to save to.
+func (r *Image) UhdrsaveTarget(target *Target, options *UhdrsaveTargetOptions) error {
+	if options != nil {
+		err := vipsgenUhdrsaveTargetWithOptions(r.image, target.target, options.Q, options.GainmapScaleFactor, options.Keep, options.Background, options.PageHeight, options.Profile)
+		if err != nil {
+			return err
+		}
+		if err := target.Err(); err != nil {
+			return err
+		}
+		return nil
+	}
+	err := vipsgenUhdrsaveTarget(r.image, target.target)
+	if err != nil {
+		return err
+	}
+	if err := target.Err(); err != nil {
+		return err
+	}
 	return nil
 }
 
