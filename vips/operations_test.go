@@ -501,6 +501,9 @@ func TestGeneratedOperations(t *testing.T) {
 		if loaded.Width() <= 0 || loaded.Height() <= 0 {
 			t.Fatalf("analyzeload: opened an empty image %dx%d", loaded.Width(), loaded.Height())
 		}
+		if _, err := loaded.Avg(); err != nil {
+			t.Fatalf("analyzeload: the fixture did not decode: %v", err)
+		}
 	})
 	t.Run("analyzeload_options", func(t *testing.T) {
 		if !HasOperation("analyzeload") {
@@ -515,6 +518,9 @@ func TestGeneratedOperations(t *testing.T) {
 		defer loaded.Close()
 		if loaded.Width() <= 0 || loaded.Height() <= 0 {
 			t.Fatalf("analyzeload: opened an empty image %dx%d", loaded.Width(), loaded.Height())
+		}
+		if _, err := loaded.Avg(); err != nil {
+			t.Fatalf("analyzeload: the fixture did not decode: %v", err)
 		}
 	})
 	t.Run("arrayjoin", func(t *testing.T) {
@@ -4981,6 +4987,9 @@ func TestGeneratedOperations(t *testing.T) {
 		if loaded.Width() <= 0 || loaded.Height() <= 0 {
 			t.Fatalf("matload: opened an empty image %dx%d", loaded.Width(), loaded.Height())
 		}
+		if _, err := loaded.Avg(); err != nil {
+			t.Fatalf("matload: the fixture did not decode: %v", err)
+		}
 	})
 	t.Run("matload_options", func(t *testing.T) {
 		if !HasOperation("matload") {
@@ -4995,6 +5004,9 @@ func TestGeneratedOperations(t *testing.T) {
 		defer loaded.Close()
 		if loaded.Width() <= 0 || loaded.Height() <= 0 {
 			t.Fatalf("matload: opened an empty image %dx%d", loaded.Width(), loaded.Height())
+		}
+		if _, err := loaded.Avg(); err != nil {
+			t.Fatalf("matload: the fixture did not decode: %v", err)
 		}
 	})
 	t.Run("matrixinvert", func(t *testing.T) {
@@ -5502,6 +5514,9 @@ func TestGeneratedOperations(t *testing.T) {
 		if loaded.Width() <= 0 || loaded.Height() <= 0 {
 			t.Fatalf("openexrload: opened an empty image %dx%d", loaded.Width(), loaded.Height())
 		}
+		if _, err := loaded.Avg(); err != nil {
+			t.Fatalf("openexrload: the fixture did not decode: %v", err)
+		}
 	})
 	t.Run("openexrload_options", func(t *testing.T) {
 		if !HasOperation("openexrload") {
@@ -5517,6 +5532,9 @@ func TestGeneratedOperations(t *testing.T) {
 		if loaded.Width() <= 0 || loaded.Height() <= 0 {
 			t.Fatalf("openexrload: opened an empty image %dx%d", loaded.Width(), loaded.Height())
 		}
+		if _, err := loaded.Avg(); err != nil {
+			t.Fatalf("openexrload: the fixture did not decode: %v", err)
+		}
 	})
 	t.Run("pdfload", func(t *testing.T) {
 		if !HasOperation("pdfload") {
@@ -5530,6 +5548,9 @@ func TestGeneratedOperations(t *testing.T) {
 		defer loaded.Close()
 		if loaded.Width() <= 0 || loaded.Height() <= 0 {
 			t.Fatalf("pdfload: opened an empty image %dx%d", loaded.Width(), loaded.Height())
+		}
+		if _, err := loaded.Avg(); err != nil {
+			t.Fatalf("pdfload: the fixture did not decode: %v", err)
 		}
 	})
 	t.Run("pdfload_options", func(t *testing.T) {
@@ -5545,6 +5566,9 @@ func TestGeneratedOperations(t *testing.T) {
 		defer loaded.Close()
 		if loaded.Width() <= 0 || loaded.Height() <= 0 {
 			t.Fatalf("pdfload: opened an empty image %dx%d", loaded.Width(), loaded.Height())
+		}
+		if _, err := loaded.Avg(); err != nil {
+			t.Fatalf("pdfload: the fixture did not decode: %v", err)
 		}
 	})
 	t.Run("pdfload_buffer", func(t *testing.T) {
@@ -5563,6 +5587,9 @@ func TestGeneratedOperations(t *testing.T) {
 		defer loaded.Close()
 		if loaded.Width() <= 0 || loaded.Height() <= 0 {
 			t.Fatalf("pdfload_buffer: opened an empty image %dx%d", loaded.Width(), loaded.Height())
+		}
+		if _, err := loaded.Avg(); err != nil {
+			t.Fatalf("pdfload_buffer: the fixture did not decode: %v", err)
 		}
 	})
 	t.Run("pdfload_buffer_options", func(t *testing.T) {
@@ -5583,6 +5610,9 @@ func TestGeneratedOperations(t *testing.T) {
 		if loaded.Width() <= 0 || loaded.Height() <= 0 {
 			t.Fatalf("pdfload_buffer: opened an empty image %dx%d", loaded.Width(), loaded.Height())
 		}
+		if _, err := loaded.Avg(); err != nil {
+			t.Fatalf("pdfload_buffer: the fixture did not decode: %v", err)
+		}
 	})
 	t.Run("pdfload_source", func(t *testing.T) {
 		if !HasOperation("pdfload_source") {
@@ -5601,6 +5631,9 @@ func TestGeneratedOperations(t *testing.T) {
 		defer loaded.Close()
 		if loaded.Width() <= 0 || loaded.Height() <= 0 {
 			t.Fatalf("pdfload_source: opened an empty image %dx%d", loaded.Width(), loaded.Height())
+		}
+		if _, err := loaded.Avg(); err != nil {
+			t.Fatalf("pdfload_source: the fixture did not decode: %v", err)
 		}
 	})
 	t.Run("pdfload_source_options", func(t *testing.T) {
@@ -5621,6 +5654,9 @@ func TestGeneratedOperations(t *testing.T) {
 		defer loaded.Close()
 		if loaded.Width() <= 0 || loaded.Height() <= 0 {
 			t.Fatalf("pdfload_source: opened an empty image %dx%d", loaded.Width(), loaded.Height())
+		}
+		if _, err := loaded.Avg(); err != nil {
+			t.Fatalf("pdfload_source: the fixture did not decode: %v", err)
 		}
 	})
 	t.Run("percent", func(t *testing.T) {
@@ -7644,6 +7680,9 @@ func TestGeneratedOperations(t *testing.T) {
 		if loaded.Width() <= 0 || loaded.Height() <= 0 {
 			t.Fatalf("svgload: opened an empty image %dx%d", loaded.Width(), loaded.Height())
 		}
+		if _, err := loaded.Avg(); err != nil {
+			t.Fatalf("svgload: the fixture did not decode: %v", err)
+		}
 	})
 	t.Run("svgload_options", func(t *testing.T) {
 		if !HasOperation("svgload") {
@@ -7658,6 +7697,9 @@ func TestGeneratedOperations(t *testing.T) {
 		defer loaded.Close()
 		if loaded.Width() <= 0 || loaded.Height() <= 0 {
 			t.Fatalf("svgload: opened an empty image %dx%d", loaded.Width(), loaded.Height())
+		}
+		if _, err := loaded.Avg(); err != nil {
+			t.Fatalf("svgload: the fixture did not decode: %v", err)
 		}
 	})
 	t.Run("svgload_buffer", func(t *testing.T) {
@@ -7676,6 +7718,9 @@ func TestGeneratedOperations(t *testing.T) {
 		defer loaded.Close()
 		if loaded.Width() <= 0 || loaded.Height() <= 0 {
 			t.Fatalf("svgload_buffer: opened an empty image %dx%d", loaded.Width(), loaded.Height())
+		}
+		if _, err := loaded.Avg(); err != nil {
+			t.Fatalf("svgload_buffer: the fixture did not decode: %v", err)
 		}
 	})
 	t.Run("svgload_buffer_options", func(t *testing.T) {
@@ -7696,6 +7741,9 @@ func TestGeneratedOperations(t *testing.T) {
 		if loaded.Width() <= 0 || loaded.Height() <= 0 {
 			t.Fatalf("svgload_buffer: opened an empty image %dx%d", loaded.Width(), loaded.Height())
 		}
+		if _, err := loaded.Avg(); err != nil {
+			t.Fatalf("svgload_buffer: the fixture did not decode: %v", err)
+		}
 	})
 	t.Run("svgload_source", func(t *testing.T) {
 		if !HasOperation("svgload_source") {
@@ -7714,6 +7762,9 @@ func TestGeneratedOperations(t *testing.T) {
 		defer loaded.Close()
 		if loaded.Width() <= 0 || loaded.Height() <= 0 {
 			t.Fatalf("svgload_source: opened an empty image %dx%d", loaded.Width(), loaded.Height())
+		}
+		if _, err := loaded.Avg(); err != nil {
+			t.Fatalf("svgload_source: the fixture did not decode: %v", err)
 		}
 	})
 	t.Run("svgload_source_options", func(t *testing.T) {
@@ -7734,6 +7785,9 @@ func TestGeneratedOperations(t *testing.T) {
 		defer loaded.Close()
 		if loaded.Width() <= 0 || loaded.Height() <= 0 {
 			t.Fatalf("svgload_source: opened an empty image %dx%d", loaded.Width(), loaded.Height())
+		}
+		if _, err := loaded.Avg(); err != nil {
+			t.Fatalf("svgload_source: the fixture did not decode: %v", err)
 		}
 	})
 	t.Run("switch", func(t *testing.T) {
@@ -8212,10 +8266,13 @@ func TestGeneratedOperations(t *testing.T) {
 		if !HasOperation("uhdr2scRGB") {
 			t.Skipf("this libvips has no uhdr2scRGB")
 		}
-		img := coverageImage(t)
-		err := img.Uhdr2scRGB()
+		img, err := NewUhdrload(testdataPath(t, "sample.uhdr.jpg"), nil)
 		if err != nil {
-			t.Skipf("input precondition: needs a uchar three-band input: %v", err)
+			t.Fatalf("opening the fixture: %v", err)
+		}
+		defer img.Close()
+		if err := img.Uhdr2scRGB(); err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
 		}
 		if img.Width() <= 0 || img.Height() <= 0 {
 			t.Fatalf("uhdr2scRGB: produced an empty image %dx%d", img.Width(), img.Height())
@@ -8234,6 +8291,9 @@ func TestGeneratedOperations(t *testing.T) {
 		if loaded.Width() <= 0 || loaded.Height() <= 0 {
 			t.Fatalf("uhdrload: opened an empty image %dx%d", loaded.Width(), loaded.Height())
 		}
+		if _, err := loaded.Avg(); err != nil {
+			t.Fatalf("uhdrload: the fixture did not decode: %v", err)
+		}
 	})
 	t.Run("uhdrload_options", func(t *testing.T) {
 		if !HasOperation("uhdrload") {
@@ -8248,6 +8308,9 @@ func TestGeneratedOperations(t *testing.T) {
 		defer loaded.Close()
 		if loaded.Width() <= 0 || loaded.Height() <= 0 {
 			t.Fatalf("uhdrload: opened an empty image %dx%d", loaded.Width(), loaded.Height())
+		}
+		if _, err := loaded.Avg(); err != nil {
+			t.Fatalf("uhdrload: the fixture did not decode: %v", err)
 		}
 	})
 	t.Run("uhdrload_buffer", func(t *testing.T) {
@@ -8266,6 +8329,9 @@ func TestGeneratedOperations(t *testing.T) {
 		defer loaded.Close()
 		if loaded.Width() <= 0 || loaded.Height() <= 0 {
 			t.Fatalf("uhdrload_buffer: opened an empty image %dx%d", loaded.Width(), loaded.Height())
+		}
+		if _, err := loaded.Avg(); err != nil {
+			t.Fatalf("uhdrload_buffer: the fixture did not decode: %v", err)
 		}
 	})
 	t.Run("uhdrload_buffer_options", func(t *testing.T) {
@@ -8286,6 +8352,9 @@ func TestGeneratedOperations(t *testing.T) {
 		if loaded.Width() <= 0 || loaded.Height() <= 0 {
 			t.Fatalf("uhdrload_buffer: opened an empty image %dx%d", loaded.Width(), loaded.Height())
 		}
+		if _, err := loaded.Avg(); err != nil {
+			t.Fatalf("uhdrload_buffer: the fixture did not decode: %v", err)
+		}
 	})
 	t.Run("uhdrload_source", func(t *testing.T) {
 		if !HasOperation("uhdrload_source") {
@@ -8304,6 +8373,9 @@ func TestGeneratedOperations(t *testing.T) {
 		defer loaded.Close()
 		if loaded.Width() <= 0 || loaded.Height() <= 0 {
 			t.Fatalf("uhdrload_source: opened an empty image %dx%d", loaded.Width(), loaded.Height())
+		}
+		if _, err := loaded.Avg(); err != nil {
+			t.Fatalf("uhdrload_source: the fixture did not decode: %v", err)
 		}
 	})
 	t.Run("uhdrload_source_options", func(t *testing.T) {
@@ -8325,90 +8397,121 @@ func TestGeneratedOperations(t *testing.T) {
 		if loaded.Width() <= 0 || loaded.Height() <= 0 {
 			t.Fatalf("uhdrload_source: opened an empty image %dx%d", loaded.Width(), loaded.Height())
 		}
+		if _, err := loaded.Avg(); err != nil {
+			t.Fatalf("uhdrload_source: the fixture did not decode: %v", err)
+		}
 	})
 	t.Run("uhdrsave", func(t *testing.T) {
 		if !HasOperation("uhdrsave") {
 			t.Skipf("this libvips has no uhdrsave")
 		}
-		img := coverageImage(t)
-		path := coveragePath(t, "jpg")
-		err := img.Uhdrsave(path, nil)
+		img, err := NewUhdrload(testdataPath(t, "sample.uhdr.jpg"), nil)
 		if err != nil {
-			t.Skipf("input precondition: needs gainmap header fields: %v", err)
+			t.Fatalf("opening the fixture: %v", err)
 		}
-		if info, statErr := os.Stat(path); statErr != nil || info.Size() == 0 {
-			t.Fatalf("uhdrsave: wrote no file at %s", path)
+		defer img.Close()
+		path := coveragePath(t, "jpg")
+		if err := img.Uhdrsave(path, nil); err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		written, err := os.Stat(path)
+		if err != nil {
+			t.Fatalf("no file written: %v", err)
+		}
+		if written.Size() == 0 {
+			t.Fatalf("uhdrsave: wrote an empty file")
 		}
 	})
 	t.Run("uhdrsave_options", func(t *testing.T) {
 		if !HasOperation("uhdrsave") {
 			t.Skipf("this libvips has no uhdrsave")
 		}
-		img := coverageImage(t)
-		path := coveragePath(t, "jpg")
-		opts := &UhdrsaveOptions{Q: 1, GainmapScaleFactor: 1, Keep: Ptr(KeepNone), Background: []float64{1}, PageHeight: 1}
-		err := img.Uhdrsave(path, opts)
+		img, err := NewUhdrload(testdataPath(t, "sample.uhdr.jpg"), nil)
 		if err != nil {
-			t.Skipf("input precondition: needs gainmap header fields: %v", err)
+			t.Fatalf("opening the fixture: %v", err)
 		}
-		if info, statErr := os.Stat(path); statErr != nil || info.Size() == 0 {
-			t.Fatalf("uhdrsave: wrote no file at %s", path)
+		defer img.Close()
+		opts := &UhdrsaveOptions{Q: 1, GainmapScaleFactor: 1, Keep: Ptr(KeepNone), Background: []float64{1}, PageHeight: 1}
+		path := coveragePath(t, "jpg")
+		if err := img.Uhdrsave(path, opts); err != nil {
+			t.Skipf("input precondition: its keep option strips the gainmap metadata the saver reads: %v", err)
+		}
+		written, err := os.Stat(path)
+		if err != nil {
+			t.Fatalf("no file written: %v", err)
+		}
+		if written.Size() == 0 {
+			t.Fatalf("uhdrsave: wrote an empty file")
 		}
 	})
 	t.Run("uhdrsave_buffer", func(t *testing.T) {
 		if !HasOperation("uhdrsave_buffer") {
 			t.Skipf("this libvips has no uhdrsave_buffer")
 		}
-		img := coverageImage(t)
-		buf, err := img.UhdrsaveBuffer(nil)
+		img, err := NewUhdrload(testdataPath(t, "sample.uhdr.jpg"), nil)
 		if err != nil {
-			t.Skipf("input precondition: needs gainmap header fields: %v", err)
+			t.Fatalf("opening the fixture: %v", err)
 		}
-		if len(buf) == 0 {
-			t.Fatalf("uhdrsave_buffer: wrote an empty buffer: %d bytes", len(buf))
+		defer img.Close()
+		data, err := img.UhdrsaveBuffer(nil)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		if len(data) == 0 {
+			t.Fatalf("uhdrsave_buffer: returned no bytes")
 		}
 	})
 	t.Run("uhdrsave_buffer_options", func(t *testing.T) {
 		if !HasOperation("uhdrsave_buffer") {
 			t.Skipf("this libvips has no uhdrsave_buffer")
 		}
-		img := coverageImage(t)
-		opts := &UhdrsaveBufferOptions{Q: 1, GainmapScaleFactor: 1, Keep: Ptr(KeepNone), Background: []float64{1}, PageHeight: 1}
-		buf, err := img.UhdrsaveBuffer(opts)
+		img, err := NewUhdrload(testdataPath(t, "sample.uhdr.jpg"), nil)
 		if err != nil {
-			t.Skipf("input precondition: needs gainmap header fields: %v", err)
+			t.Fatalf("opening the fixture: %v", err)
 		}
-		if len(buf) == 0 {
-			t.Fatalf("uhdrsave_buffer: wrote an empty buffer: %d bytes", len(buf))
+		defer img.Close()
+		opts := &UhdrsaveBufferOptions{Q: 1, GainmapScaleFactor: 1, Keep: Ptr(KeepNone), Background: []float64{1}, PageHeight: 1}
+		data, err := img.UhdrsaveBuffer(opts)
+		if err != nil {
+			t.Skipf("input precondition: its keep option strips the gainmap metadata the saver reads: %v", err)
+		}
+		if len(data) == 0 {
+			t.Fatalf("uhdrsave_buffer: returned no bytes")
 		}
 	})
 	t.Run("uhdrsave_target", func(t *testing.T) {
 		if !HasOperation("uhdrsave_target") {
 			t.Skipf("this libvips has no uhdrsave_target")
 		}
-		img := coverageImage(t)
-		target, buf := coverageTarget(t)
-		err := img.UhdrsaveTarget(target, nil)
+		img, err := NewUhdrload(testdataPath(t, "sample.uhdr.jpg"), nil)
 		if err != nil {
-			t.Skipf("input precondition: needs gainmap metadata a generated image does not carry: %v", err)
+			t.Fatalf("opening the fixture: %v", err)
+		}
+		defer img.Close()
+		target, buf := coverageTarget(t)
+		if err := img.UhdrsaveTarget(target, nil); err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
 		}
 		if buf.Len() == 0 {
-			t.Fatalf("uhdrsave_target: wrote nothing to the target")
+			t.Fatalf("uhdrsave_target: wrote nothing to the connection")
 		}
 	})
 	t.Run("uhdrsave_target_options", func(t *testing.T) {
 		if !HasOperation("uhdrsave_target") {
 			t.Skipf("this libvips has no uhdrsave_target")
 		}
-		img := coverageImage(t)
-		target, buf := coverageTarget(t)
-		opts := &UhdrsaveTargetOptions{Q: 1, GainmapScaleFactor: 1, Keep: Ptr(KeepNone), Background: []float64{1}, PageHeight: 1}
-		err := img.UhdrsaveTarget(target, opts)
+		img, err := NewUhdrload(testdataPath(t, "sample.uhdr.jpg"), nil)
 		if err != nil {
-			t.Skipf("input precondition: needs gainmap metadata a generated image does not carry: %v", err)
+			t.Fatalf("opening the fixture: %v", err)
+		}
+		defer img.Close()
+		opts := &UhdrsaveTargetOptions{Q: 1, GainmapScaleFactor: 1, Keep: Ptr(KeepNone), Background: []float64{1}, PageHeight: 1}
+		target, buf := coverageTarget(t)
+		if err := img.UhdrsaveTarget(target, opts); err != nil {
+			t.Skipf("input precondition: its keep option strips the gainmap metadata the saver reads: %v", err)
 		}
 		if buf.Len() == 0 {
-			t.Fatalf("uhdrsave_target: wrote nothing to the target")
+			t.Fatalf("uhdrsave_target: wrote nothing to the connection")
 		}
 	})
 	t.Run("unpremultiply", func(t *testing.T) {
