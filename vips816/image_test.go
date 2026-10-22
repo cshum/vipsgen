@@ -4363,9 +4363,23 @@ func TestDzsaveWritesTiles(t *testing.T) {
 	assert.NotEmpty(t, tiles, "tile directory should not be empty")
 }
 
+// skipWithoutLcms skips when this libvips was built without lcms. The ICC operations are
+// in the package because the tree was generated against a build that had lcms, which says
+// nothing about the library loaded at run time.
+func skipWithoutLcms(t *testing.T) {
+	t.Helper()
+	for _, name := range []string{"icc_transform", "profile_load"} {
+		if !HasOperation(name) {
+			t.Skipf("this libvips has no %s: built without lcms", name)
+		}
+	}
+}
+
 // TestProfileLoadSignature reads a profile by name. profile_load is the operation that
 // returns a profile rather than an image, and the ICC signature is what says it worked.
 func TestProfileLoadSignature(t *testing.T) {
+	skipWithoutLcms(t)
+
 	profile, err := ProfileLoad("srgb")
 	require.NoError(t, err)
 
@@ -4377,6 +4391,8 @@ func TestProfileLoadSignature(t *testing.T) {
 // TestIccTransform converts into a profile. The transform refuses an image with no input
 // profile, so importing one is part of the test rather than extra setup.
 func TestIccTransform(t *testing.T) {
+	skipWithoutLcms(t)
+
 	profile, err := ProfileLoad("srgb")
 	require.NoError(t, err)
 
