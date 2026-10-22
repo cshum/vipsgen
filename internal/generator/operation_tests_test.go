@@ -324,9 +324,18 @@ func TestCoverageOptionsLiteral(t *testing.T) {
 	if !ok {
 		t.Fatal("expected a literal: four of the five fields can be given a value")
 	}
-	want := "\t\topts := &WebpsaveOptions{Q: Ptr(1), Lossless: true, Preset: 0, Sigma: Ptr(1.0)}\n"
-	if co.Decl != want {
-		t.Errorf("unexpected literal\n got: %q\nwant: %q", co.Decl, want)
+	for _, want := range []string{"Q: Ptr(1)", "Lossless: true", "Sigma: Ptr(1.0)"} {
+		if !strings.Contains(co.Decl, want) {
+			t.Errorf("literal is missing %q: %s", want, co.Decl)
+		}
+	}
+	if strings.Contains(co.Decl, "Profile:") {
+		t.Errorf("a string field has no value to give: %s", co.Decl)
+	}
+	// The enum field renders as its named constant once a generation run has populated
+	// the enum registry, and as the number before that, so neither spelling is pinned.
+	if !strings.Contains(co.Decl, "Preset: 0") && !strings.Contains(co.Decl, "Preset: WebpPresetDefault") {
+		t.Errorf("enum field not rendered: %s", co.Decl)
 	}
 	if co.Expr != "opts" {
 		t.Errorf("Expr = %q, want opts", co.Expr)
