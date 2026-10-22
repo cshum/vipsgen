@@ -20,244 +20,256 @@ import (
 func TestGeneratedOperations(t *testing.T) {
 	t.Run("CMC2LCh", func(t *testing.T) {
 		img := coverageImage(t)
-		err := img.CMC2LCh()
-		if err != nil {
-			t.Skipf("input precondition: needs a CMC-coded input: %v", err)
+		if err := img.Colourspace(InterpretationCmc, nil); err != nil {
+			t.Fatalf("converting to InterpretationCmc: %v", err)
 		}
-		if img.Width() <= 0 || img.Height() <= 0 {
-			t.Fatalf("CMC2LCh: produced an empty image %dx%d", img.Width(), img.Height())
+		if err := img.CMC2LCh(); err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		if got := img.Interpretation(); got != InterpretationLch {
+			t.Fatalf("CMC2LCh: left the image coded as %v", got)
 		}
 	})
 	t.Run("CMYK2XYZ", func(t *testing.T) {
 		img := coverageImage(t)
-		err := img.CMYK2XYZ()
-		if err != nil {
-			t.Skipf("input precondition: needs a CMYK-coded input: %v", err)
+		if err := img.Colourspace(InterpretationCmyk, nil); err != nil {
+			t.Fatalf("converting to InterpretationCmyk: %v", err)
 		}
-		if img.Width() <= 0 || img.Height() <= 0 {
-			t.Fatalf("CMYK2XYZ: produced an empty image %dx%d", img.Width(), img.Height())
+		if err := img.CMYK2XYZ(); err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		if got := img.Interpretation(); got != InterpretationXyz {
+			t.Fatalf("CMYK2XYZ: left the image coded as %v", got)
 		}
 	})
 	t.Run("HSV2sRGB", func(t *testing.T) {
 		img := coverageImage(t)
-		err := img.HSV2sRGB()
-		if err != nil {
-			firstErr := err
-			img = coverageMonoImage(t)
-			err = img.HSV2sRGB()
-			if err != nil {
-				t.Fatalf("HSV2sRGB: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
-			}
+		if err := img.Colourspace(InterpretationHsv, nil); err != nil {
+			t.Fatalf("converting to InterpretationHsv: %v", err)
 		}
-		if img.Width() <= 0 || img.Height() <= 0 {
-			t.Fatalf("HSV2sRGB: produced an empty image %dx%d", img.Width(), img.Height())
+		if err := img.HSV2sRGB(); err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		if got := img.Interpretation(); got != InterpretationSrgb {
+			t.Fatalf("HSV2sRGB: left the image coded as %v", got)
 		}
 	})
 	t.Run("LCh2CMC", func(t *testing.T) {
 		img := coverageImage(t)
-		err := img.LCh2CMC()
-		if err != nil {
-			t.Skipf("input precondition: needs an LCh-coded input: %v", err)
+		if err := img.Colourspace(InterpretationLch, nil); err != nil {
+			t.Fatalf("converting to InterpretationLch: %v", err)
 		}
-		if img.Width() <= 0 || img.Height() <= 0 {
-			t.Fatalf("LCh2CMC: produced an empty image %dx%d", img.Width(), img.Height())
+		if err := img.LCh2CMC(); err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		if got := img.Interpretation(); got != InterpretationCmc {
+			t.Fatalf("LCh2CMC: left the image coded as %v", got)
 		}
 	})
 	t.Run("LCh2Lab", func(t *testing.T) {
 		img := coverageImage(t)
-		err := img.LCh2Lab()
-		if err != nil {
-			firstErr := err
-			img = coverageMonoImage(t)
-			err = img.LCh2Lab()
-			if err != nil {
-				t.Fatalf("LCh2Lab: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
-			}
+		if err := img.Colourspace(InterpretationLch, nil); err != nil {
+			t.Fatalf("converting to InterpretationLch: %v", err)
 		}
-		if img.Width() <= 0 || img.Height() <= 0 {
-			t.Fatalf("LCh2Lab: produced an empty image %dx%d", img.Width(), img.Height())
+		if err := img.LCh2Lab(); err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		if got := img.Interpretation(); got != InterpretationLab {
+			t.Fatalf("LCh2Lab: left the image coded as %v", got)
 		}
 	})
 	t.Run("Lab2LCh", func(t *testing.T) {
 		img := coverageImage(t)
-		err := img.Lab2LCh()
-		if err != nil {
-			firstErr := err
-			img = coverageMonoImage(t)
-			err = img.Lab2LCh()
-			if err != nil {
-				t.Fatalf("Lab2LCh: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
-			}
+		if err := img.Colourspace(InterpretationLab, nil); err != nil {
+			t.Fatalf("converting to InterpretationLab: %v", err)
 		}
-		if img.Width() <= 0 || img.Height() <= 0 {
-			t.Fatalf("Lab2LCh: produced an empty image %dx%d", img.Width(), img.Height())
+		if err := img.Lab2LCh(); err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		if got := img.Interpretation(); got != InterpretationLch {
+			t.Fatalf("Lab2LCh: left the image coded as %v", got)
 		}
 	})
 	t.Run("Lab2LabQ", func(t *testing.T) {
 		img := coverageImage(t)
-		err := img.Lab2LabQ()
-		if err != nil {
-			t.Skipf("input precondition: needs a Lab-coded input: %v", err)
+		if err := img.Colourspace(InterpretationLab, nil); err != nil {
+			t.Fatalf("converting to InterpretationLab: %v", err)
 		}
-		if img.Width() <= 0 || img.Height() <= 0 {
-			t.Fatalf("Lab2LabQ: produced an empty image %dx%d", img.Width(), img.Height())
+		if err := img.Lab2LabQ(); err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		if got := img.Interpretation(); got != InterpretationLabq {
+			t.Fatalf("Lab2LabQ: left the image coded as %v", got)
 		}
 	})
 	t.Run("Lab2LabS", func(t *testing.T) {
 		img := coverageImage(t)
-		err := img.Lab2LabS()
-		if err != nil {
-			t.Skipf("input precondition: needs a Lab-coded input: %v", err)
+		if err := img.Colourspace(InterpretationLab, nil); err != nil {
+			t.Fatalf("converting to InterpretationLab: %v", err)
 		}
-		if img.Width() <= 0 || img.Height() <= 0 {
-			t.Fatalf("Lab2LabS: produced an empty image %dx%d", img.Width(), img.Height())
+		if err := img.Lab2LabS(); err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		if got := img.Interpretation(); got != InterpretationLabs {
+			t.Fatalf("Lab2LabS: left the image coded as %v", got)
 		}
 	})
 	t.Run("Lab2XYZ", func(t *testing.T) {
 		img := coverageImage(t)
-		err := img.Lab2XYZ(nil)
-		if err != nil {
-			firstErr := err
-			img = coverageMonoImage(t)
-			err = img.Lab2XYZ(nil)
-			if err != nil {
-				t.Fatalf("Lab2XYZ: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
-			}
+		if err := img.Colourspace(InterpretationLab, nil); err != nil {
+			t.Fatalf("converting to InterpretationLab: %v", err)
 		}
-		if img.Width() <= 0 || img.Height() <= 0 {
-			t.Fatalf("Lab2XYZ: produced an empty image %dx%d", img.Width(), img.Height())
+		if err := img.Lab2XYZ(nil); err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		if got := img.Interpretation(); got != InterpretationXyz {
+			t.Fatalf("Lab2XYZ: left the image coded as %v", got)
 		}
 	})
 	t.Run("Lab2XYZ_options", func(t *testing.T) {
 		img := coverageImage(t)
 		opts := &Lab2XYZOptions{Temp: []float64{1}}
-		err := img.Lab2XYZ(opts)
-		if err != nil {
+		if err := img.Colourspace(InterpretationLab, nil); err != nil {
+			t.Fatalf("converting to InterpretationLab: %v", err)
+		}
+		if err := img.Lab2XYZ(opts); err != nil {
 			t.Skipf("input precondition: its vector option needs three elements: %v", err)
 		}
-		if img.Width() <= 0 || img.Height() <= 0 {
-			t.Fatalf("Lab2XYZ: produced an empty image %dx%d", img.Width(), img.Height())
+		if got := img.Interpretation(); got != InterpretationXyz {
+			t.Fatalf("Lab2XYZ: left the image coded as %v", got)
 		}
 	})
 	t.Run("LabQ2Lab", func(t *testing.T) {
 		img := coverageImage(t)
-		err := img.LabQ2Lab()
-		if err != nil {
-			t.Skipf("input precondition: needs a LabQ-coded input: %v", err)
+		if err := img.Colourspace(InterpretationLabq, nil); err != nil {
+			t.Fatalf("converting to InterpretationLabq: %v", err)
 		}
-		if img.Width() <= 0 || img.Height() <= 0 {
-			t.Fatalf("LabQ2Lab: produced an empty image %dx%d", img.Width(), img.Height())
+		if err := img.LabQ2Lab(); err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		if got := img.Interpretation(); got != InterpretationLab {
+			t.Fatalf("LabQ2Lab: left the image coded as %v", got)
 		}
 	})
 	t.Run("LabQ2LabS", func(t *testing.T) {
 		img := coverageImage(t)
-		err := img.LabQ2LabS()
-		if err != nil {
-			t.Skipf("input precondition: needs a LabQ-coded input: %v", err)
+		if err := img.Colourspace(InterpretationLabq, nil); err != nil {
+			t.Fatalf("converting to InterpretationLabq: %v", err)
 		}
-		if img.Width() <= 0 || img.Height() <= 0 {
-			t.Fatalf("LabQ2LabS: produced an empty image %dx%d", img.Width(), img.Height())
+		if err := img.LabQ2LabS(); err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		if got := img.Interpretation(); got != InterpretationLabs {
+			t.Fatalf("LabQ2LabS: left the image coded as %v", got)
 		}
 	})
 	t.Run("LabQ2sRGB", func(t *testing.T) {
 		img := coverageImage(t)
-		err := img.LabQ2sRGB()
-		if err != nil {
-			t.Skipf("input precondition: needs a LabQ-coded input: %v", err)
+		if err := img.Colourspace(InterpretationLabq, nil); err != nil {
+			t.Fatalf("converting to InterpretationLabq: %v", err)
 		}
-		if img.Width() <= 0 || img.Height() <= 0 {
-			t.Fatalf("LabQ2sRGB: produced an empty image %dx%d", img.Width(), img.Height())
+		if err := img.LabQ2sRGB(); err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		if got := img.Interpretation(); got != InterpretationSrgb {
+			t.Fatalf("LabQ2sRGB: left the image coded as %v", got)
 		}
 	})
 	t.Run("LabS2Lab", func(t *testing.T) {
 		img := coverageImage(t)
-		err := img.LabS2Lab()
-		if err != nil {
-			t.Skipf("input precondition: needs a LabS-coded input: %v", err)
+		if err := img.Colourspace(InterpretationLabs, nil); err != nil {
+			t.Fatalf("converting to InterpretationLabs: %v", err)
 		}
-		if img.Width() <= 0 || img.Height() <= 0 {
-			t.Fatalf("LabS2Lab: produced an empty image %dx%d", img.Width(), img.Height())
+		if err := img.LabS2Lab(); err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		if got := img.Interpretation(); got != InterpretationLab {
+			t.Fatalf("LabS2Lab: left the image coded as %v", got)
 		}
 	})
 	t.Run("LabS2LabQ", func(t *testing.T) {
 		img := coverageImage(t)
-		err := img.LabS2LabQ()
-		if err != nil {
-			t.Skipf("input precondition: needs a LabS-coded input: %v", err)
+		if err := img.Colourspace(InterpretationLabs, nil); err != nil {
+			t.Fatalf("converting to InterpretationLabs: %v", err)
 		}
-		if img.Width() <= 0 || img.Height() <= 0 {
-			t.Fatalf("LabS2LabQ: produced an empty image %dx%d", img.Width(), img.Height())
+		if err := img.LabS2LabQ(); err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		if got := img.Interpretation(); got != InterpretationLabq {
+			t.Fatalf("LabS2LabQ: left the image coded as %v", got)
 		}
 	})
 	t.Run("XYZ2CMYK", func(t *testing.T) {
 		img := coverageImage(t)
-		err := img.XYZ2CMYK()
-		if err != nil {
-			t.Skipf("input precondition: needs an XYZ-coded input: %v", err)
+		if err := img.Colourspace(InterpretationXyz, nil); err != nil {
+			t.Fatalf("converting to InterpretationXyz: %v", err)
 		}
-		if img.Width() <= 0 || img.Height() <= 0 {
-			t.Fatalf("XYZ2CMYK: produced an empty image %dx%d", img.Width(), img.Height())
+		if err := img.XYZ2CMYK(); err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		if got := img.Interpretation(); got != InterpretationCmyk {
+			t.Fatalf("XYZ2CMYK: left the image coded as %v", got)
 		}
 	})
 	t.Run("XYZ2Lab", func(t *testing.T) {
 		img := coverageImage(t)
-		err := img.XYZ2Lab(nil)
-		if err != nil {
-			firstErr := err
-			img = coverageMonoImage(t)
-			err = img.XYZ2Lab(nil)
-			if err != nil {
-				t.Fatalf("XYZ2Lab: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
-			}
+		if err := img.Colourspace(InterpretationXyz, nil); err != nil {
+			t.Fatalf("converting to InterpretationXyz: %v", err)
 		}
-		if img.Width() <= 0 || img.Height() <= 0 {
-			t.Fatalf("XYZ2Lab: produced an empty image %dx%d", img.Width(), img.Height())
+		if err := img.XYZ2Lab(nil); err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		if got := img.Interpretation(); got != InterpretationLab {
+			t.Fatalf("XYZ2Lab: left the image coded as %v", got)
 		}
 	})
 	t.Run("XYZ2Lab_options", func(t *testing.T) {
 		img := coverageImage(t)
 		opts := &XYZ2LabOptions{Temp: []float64{1}}
-		err := img.XYZ2Lab(opts)
-		if err != nil {
+		if err := img.Colourspace(InterpretationXyz, nil); err != nil {
+			t.Fatalf("converting to InterpretationXyz: %v", err)
+		}
+		if err := img.XYZ2Lab(opts); err != nil {
 			t.Skipf("input precondition: its vector option needs three elements: %v", err)
 		}
-		if img.Width() <= 0 || img.Height() <= 0 {
-			t.Fatalf("XYZ2Lab: produced an empty image %dx%d", img.Width(), img.Height())
+		if got := img.Interpretation(); got != InterpretationLab {
+			t.Fatalf("XYZ2Lab: left the image coded as %v", got)
 		}
 	})
 	t.Run("XYZ2Yxy", func(t *testing.T) {
 		img := coverageImage(t)
-		err := img.XYZ2Yxy()
-		if err != nil {
-			t.Skipf("input precondition: needs an XYZ-coded input: %v", err)
+		if err := img.Colourspace(InterpretationXyz, nil); err != nil {
+			t.Fatalf("converting to InterpretationXyz: %v", err)
 		}
-		if img.Width() <= 0 || img.Height() <= 0 {
-			t.Fatalf("XYZ2Yxy: produced an empty image %dx%d", img.Width(), img.Height())
+		if err := img.XYZ2Yxy(); err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		if got := img.Interpretation(); got != InterpretationYxy {
+			t.Fatalf("XYZ2Yxy: left the image coded as %v", got)
 		}
 	})
 	t.Run("XYZ2scRGB", func(t *testing.T) {
 		img := coverageImage(t)
-		err := img.XYZ2scRGB()
-		if err != nil {
-			firstErr := err
-			img = coverageMonoImage(t)
-			err = img.XYZ2scRGB()
-			if err != nil {
-				t.Fatalf("XYZ2scRGB: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
-			}
+		if err := img.Colourspace(InterpretationXyz, nil); err != nil {
+			t.Fatalf("converting to InterpretationXyz: %v", err)
 		}
-		if img.Width() <= 0 || img.Height() <= 0 {
-			t.Fatalf("XYZ2scRGB: produced an empty image %dx%d", img.Width(), img.Height())
+		if err := img.XYZ2scRGB(); err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		if got := img.Interpretation(); got != InterpretationScrgb {
+			t.Fatalf("XYZ2scRGB: left the image coded as %v", got)
 		}
 	})
 	t.Run("Yxy2XYZ", func(t *testing.T) {
 		img := coverageImage(t)
-		err := img.Yxy2XYZ()
-		if err != nil {
-			t.Skipf("input precondition: needs a Yxy-coded input: %v", err)
+		if err := img.Colourspace(InterpretationYxy, nil); err != nil {
+			t.Fatalf("converting to InterpretationYxy: %v", err)
 		}
-		if img.Width() <= 0 || img.Height() <= 0 {
-			t.Fatalf("Yxy2XYZ: produced an empty image %dx%d", img.Width(), img.Height())
+		if err := img.Yxy2XYZ(); err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		if got := img.Interpretation(); got != InterpretationXyz {
+			t.Fatalf("Yxy2XYZ: left the image coded as %v", got)
 		}
 	})
 	t.Run("abs", func(t *testing.T) {
@@ -5450,109 +5462,88 @@ func TestGeneratedOperations(t *testing.T) {
 	})
 	t.Run("sRGB2HSV", func(t *testing.T) {
 		img := coverageImage(t)
-		err := img.SRGB2HSV()
-		if err != nil {
-			firstErr := err
-			img = coverageMonoImage(t)
-			err = img.SRGB2HSV()
-			if err != nil {
-				t.Fatalf("sRGB2HSV: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
-			}
+		if err := img.Colourspace(InterpretationSrgb, nil); err != nil {
+			t.Fatalf("converting to InterpretationSrgb: %v", err)
 		}
-		if img.Width() <= 0 || img.Height() <= 0 {
-			t.Fatalf("sRGB2HSV: produced an empty image %dx%d", img.Width(), img.Height())
+		if err := img.SRGB2HSV(); err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		if got := img.Interpretation(); got != InterpretationHsv {
+			t.Fatalf("sRGB2HSV: left the image coded as %v", got)
 		}
 	})
 	t.Run("sRGB2scRGB", func(t *testing.T) {
 		img := coverageImage(t)
-		err := img.SRGB2scRGB()
-		if err != nil {
-			firstErr := err
-			img = coverageMonoImage(t)
-			err = img.SRGB2scRGB()
-			if err != nil {
-				t.Fatalf("sRGB2scRGB: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
-			}
+		if err := img.Colourspace(InterpretationSrgb, nil); err != nil {
+			t.Fatalf("converting to InterpretationSrgb: %v", err)
 		}
-		if img.Width() <= 0 || img.Height() <= 0 {
-			t.Fatalf("sRGB2scRGB: produced an empty image %dx%d", img.Width(), img.Height())
+		if err := img.SRGB2scRGB(); err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		if got := img.Interpretation(); got != InterpretationScrgb {
+			t.Fatalf("sRGB2scRGB: left the image coded as %v", got)
 		}
 	})
 	t.Run("scRGB2BW", func(t *testing.T) {
 		img := coverageImage(t)
-		err := img.ScRGB2BW(nil)
-		if err != nil {
-			firstErr := err
-			img = coverageMonoImage(t)
-			err = img.ScRGB2BW(nil)
-			if err != nil {
-				t.Fatalf("scRGB2BW: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
-			}
+		if err := img.Colourspace(InterpretationScrgb, nil); err != nil {
+			t.Fatalf("converting to InterpretationScrgb: %v", err)
 		}
-		if img.Width() <= 0 || img.Height() <= 0 {
-			t.Fatalf("scRGB2BW: produced an empty image %dx%d", img.Width(), img.Height())
+		if err := img.ScRGB2BW(nil); err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		if got := img.Interpretation(); got != InterpretationBW {
+			t.Fatalf("scRGB2BW: left the image coded as %v", got)
 		}
 	})
 	t.Run("scRGB2BW_options", func(t *testing.T) {
 		img := coverageImage(t)
 		opts := &ScRGB2BWOptions{Depth: 8}
-		err := img.ScRGB2BW(opts)
-		if err != nil {
-			firstErr := err
-			img = coverageMonoImage(t)
-			err = img.ScRGB2BW(opts)
-			if err != nil {
-				t.Fatalf("scRGB2BW: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
-			}
+		if err := img.Colourspace(InterpretationScrgb, nil); err != nil {
+			t.Fatalf("converting to InterpretationScrgb: %v", err)
 		}
-		if img.Width() <= 0 || img.Height() <= 0 {
-			t.Fatalf("scRGB2BW: produced an empty image %dx%d", img.Width(), img.Height())
+		if err := img.ScRGB2BW(opts); err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		if got := img.Interpretation(); got != InterpretationBW {
+			t.Fatalf("scRGB2BW: left the image coded as %v", got)
 		}
 	})
 	t.Run("scRGB2XYZ", func(t *testing.T) {
 		img := coverageImage(t)
-		err := img.ScRGB2XYZ()
-		if err != nil {
-			firstErr := err
-			img = coverageMonoImage(t)
-			err = img.ScRGB2XYZ()
-			if err != nil {
-				t.Fatalf("scRGB2XYZ: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
-			}
+		if err := img.Colourspace(InterpretationScrgb, nil); err != nil {
+			t.Fatalf("converting to InterpretationScrgb: %v", err)
 		}
-		if img.Width() <= 0 || img.Height() <= 0 {
-			t.Fatalf("scRGB2XYZ: produced an empty image %dx%d", img.Width(), img.Height())
+		if err := img.ScRGB2XYZ(); err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		if got := img.Interpretation(); got != InterpretationXyz {
+			t.Fatalf("scRGB2XYZ: left the image coded as %v", got)
 		}
 	})
 	t.Run("scRGB2sRGB", func(t *testing.T) {
 		img := coverageImage(t)
-		err := img.ScRGB2sRGB(nil)
-		if err != nil {
-			firstErr := err
-			img = coverageMonoImage(t)
-			err = img.ScRGB2sRGB(nil)
-			if err != nil {
-				t.Fatalf("scRGB2sRGB: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
-			}
+		if err := img.Colourspace(InterpretationScrgb, nil); err != nil {
+			t.Fatalf("converting to InterpretationScrgb: %v", err)
 		}
-		if img.Width() <= 0 || img.Height() <= 0 {
-			t.Fatalf("scRGB2sRGB: produced an empty image %dx%d", img.Width(), img.Height())
+		if err := img.ScRGB2sRGB(nil); err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		if got := img.Interpretation(); got != InterpretationSrgb {
+			t.Fatalf("scRGB2sRGB: left the image coded as %v", got)
 		}
 	})
 	t.Run("scRGB2sRGB_options", func(t *testing.T) {
 		img := coverageImage(t)
 		opts := &ScRGB2sRGBOptions{Depth: 8}
-		err := img.ScRGB2sRGB(opts)
-		if err != nil {
-			firstErr := err
-			img = coverageMonoImage(t)
-			err = img.ScRGB2sRGB(opts)
-			if err != nil {
-				t.Fatalf("scRGB2sRGB: wrapper failed for a three-band and a one-band image: %v / %v", firstErr, err)
-			}
+		if err := img.Colourspace(InterpretationScrgb, nil); err != nil {
+			t.Fatalf("converting to InterpretationScrgb: %v", err)
 		}
-		if img.Width() <= 0 || img.Height() <= 0 {
-			t.Fatalf("scRGB2sRGB: produced an empty image %dx%d", img.Width(), img.Height())
+		if err := img.ScRGB2sRGB(opts); err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		if got := img.Interpretation(); got != InterpretationSrgb {
+			t.Fatalf("scRGB2sRGB: left the image coded as %v", got)
 		}
 	})
 	t.Run("scale", func(t *testing.T) {
