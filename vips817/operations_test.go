@@ -350,6 +350,35 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("affine: produced an empty image %dx%d", img.Width(), img.Height())
 		}
 	})
+	t.Run("analyzeload", func(t *testing.T) {
+		if !HasOperation("analyzeload") {
+			t.Skipf("this libvips has no analyzeload")
+		}
+		path := testdataPath(t, "analyze.hdr")
+		loaded, err := NewAnalyzeload(path, nil)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer loaded.Close()
+		if loaded.Width() <= 0 || loaded.Height() <= 0 {
+			t.Fatalf("analyzeload: opened an empty image %dx%d", loaded.Width(), loaded.Height())
+		}
+	})
+	t.Run("analyzeload_options", func(t *testing.T) {
+		if !HasOperation("analyzeload") {
+			t.Skipf("this libvips has no analyzeload")
+		}
+		path := testdataPath(t, "analyze.hdr")
+		opts := &AnalyzeloadOptions{Memory: true, Access: AccessRandom, FailOn: FailOnNone, Revalidate: true}
+		loaded, err := NewAnalyzeload(path, opts)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer loaded.Close()
+		if loaded.Width() <= 0 || loaded.Height() <= 0 {
+			t.Fatalf("analyzeload: opened an empty image %dx%d", loaded.Width(), loaded.Height())
+		}
+	})
 	t.Run("arrayjoin", func(t *testing.T) {
 		other := coverageImage(t)
 		other2 := coverageImage(t)
@@ -3982,6 +4011,35 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("math2_const: produced an empty image %dx%d", img.Width(), img.Height())
 		}
 	})
+	t.Run("matload", func(t *testing.T) {
+		if !HasOperation("matload") {
+			t.Skipf("this libvips has no matload")
+		}
+		path := testdataPath(t, "sample.mat")
+		loaded, err := NewMatload(path, nil)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer loaded.Close()
+		if loaded.Width() <= 0 || loaded.Height() <= 0 {
+			t.Fatalf("matload: opened an empty image %dx%d", loaded.Width(), loaded.Height())
+		}
+	})
+	t.Run("matload_options", func(t *testing.T) {
+		if !HasOperation("matload") {
+			t.Skipf("this libvips has no matload")
+		}
+		path := testdataPath(t, "sample.mat")
+		opts := &MatloadOptions{Memory: true, Access: AccessRandom, FailOn: FailOnNone, Revalidate: true}
+		loaded, err := NewMatload(path, opts)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer loaded.Close()
+		if loaded.Width() <= 0 || loaded.Height() <= 0 {
+			t.Fatalf("matload: opened an empty image %dx%d", loaded.Width(), loaded.Height())
+		}
+	})
 	t.Run("matrixinvert", func(t *testing.T) {
 		img := coverageImage(t)
 		err := img.Matrixinvert()
@@ -4388,6 +4446,140 @@ func TestGeneratedOperations(t *testing.T) {
 		}
 		if img.Width() <= 0 || img.Height() <= 0 {
 			t.Fatalf("multiply: produced an empty image %dx%d", img.Width(), img.Height())
+		}
+	})
+	t.Run("openexrload", func(t *testing.T) {
+		if !HasOperation("openexrload") {
+			t.Skipf("this libvips has no openexrload")
+		}
+		path := testdataPath(t, "sample.exr")
+		loaded, err := NewOpenexrload(path, nil)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer loaded.Close()
+		if loaded.Width() <= 0 || loaded.Height() <= 0 {
+			t.Fatalf("openexrload: opened an empty image %dx%d", loaded.Width(), loaded.Height())
+		}
+	})
+	t.Run("openexrload_options", func(t *testing.T) {
+		if !HasOperation("openexrload") {
+			t.Skipf("this libvips has no openexrload")
+		}
+		path := testdataPath(t, "sample.exr")
+		opts := &OpenexrloadOptions{Memory: true, Access: AccessRandom, FailOn: FailOnNone, Revalidate: true}
+		loaded, err := NewOpenexrload(path, opts)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer loaded.Close()
+		if loaded.Width() <= 0 || loaded.Height() <= 0 {
+			t.Fatalf("openexrload: opened an empty image %dx%d", loaded.Width(), loaded.Height())
+		}
+	})
+	t.Run("pdfload", func(t *testing.T) {
+		if !HasOperation("pdfload") {
+			t.Skipf("this libvips has no pdfload")
+		}
+		path := testdataPath(t, "sample.pdf")
+		loaded, err := NewPdfload(path, nil)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer loaded.Close()
+		if loaded.Width() <= 0 || loaded.Height() <= 0 {
+			t.Fatalf("pdfload: opened an empty image %dx%d", loaded.Width(), loaded.Height())
+		}
+	})
+	t.Run("pdfload_options", func(t *testing.T) {
+		if !HasOperation("pdfload") {
+			t.Skipf("this libvips has no pdfload")
+		}
+		path := testdataPath(t, "sample.pdf")
+		opts := &PdfloadOptions{Page: 0, N: 1, Dpi: 1, Scale: Ptr(1.0), Background: []float64{1}, Memory: true, Access: AccessRandom, FailOn: FailOnNone, Revalidate: true}
+		loaded, err := NewPdfload(path, opts)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer loaded.Close()
+		if loaded.Width() <= 0 || loaded.Height() <= 0 {
+			t.Fatalf("pdfload: opened an empty image %dx%d", loaded.Width(), loaded.Height())
+		}
+	})
+	t.Run("pdfload_buffer", func(t *testing.T) {
+		if !HasOperation("pdfload_buffer") {
+			t.Skipf("this libvips has no pdfload_buffer")
+		}
+		path := testdataPath(t, "sample.pdf")
+		data, err := os.ReadFile(path)
+		if err != nil {
+			t.Fatalf("reading fixture: %v", err)
+		}
+		loaded, err := NewPdfloadBuffer(data, nil)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer loaded.Close()
+		if loaded.Width() <= 0 || loaded.Height() <= 0 {
+			t.Fatalf("pdfload_buffer: opened an empty image %dx%d", loaded.Width(), loaded.Height())
+		}
+	})
+	t.Run("pdfload_buffer_options", func(t *testing.T) {
+		if !HasOperation("pdfload_buffer") {
+			t.Skipf("this libvips has no pdfload_buffer")
+		}
+		path := testdataPath(t, "sample.pdf")
+		data, err := os.ReadFile(path)
+		if err != nil {
+			t.Fatalf("reading fixture: %v", err)
+		}
+		opts := &PdfloadBufferOptions{Page: 0, N: 1, Dpi: 1, Scale: Ptr(1.0), Background: []float64{1}, Memory: true, Access: AccessRandom, FailOn: FailOnNone, Revalidate: true}
+		loaded, err := NewPdfloadBuffer(data, opts)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer loaded.Close()
+		if loaded.Width() <= 0 || loaded.Height() <= 0 {
+			t.Fatalf("pdfload_buffer: opened an empty image %dx%d", loaded.Width(), loaded.Height())
+		}
+	})
+	t.Run("pdfload_source", func(t *testing.T) {
+		if !HasOperation("pdfload_source") {
+			t.Skipf("this libvips has no pdfload_source")
+		}
+		path := testdataPath(t, "sample.pdf")
+		data, err := os.ReadFile(path)
+		if err != nil {
+			t.Fatalf("reading fixture: %v", err)
+		}
+		source := coverageSource(t, data)
+		loaded, err := NewPdfloadSource(source, nil)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer loaded.Close()
+		if loaded.Width() <= 0 || loaded.Height() <= 0 {
+			t.Fatalf("pdfload_source: opened an empty image %dx%d", loaded.Width(), loaded.Height())
+		}
+	})
+	t.Run("pdfload_source_options", func(t *testing.T) {
+		if !HasOperation("pdfload_source") {
+			t.Skipf("this libvips has no pdfload_source")
+		}
+		path := testdataPath(t, "sample.pdf")
+		data, err := os.ReadFile(path)
+		if err != nil {
+			t.Fatalf("reading fixture: %v", err)
+		}
+		source := coverageSource(t, data)
+		opts := &PdfloadSourceOptions{Page: 0, N: 1, Dpi: 1, Scale: Ptr(1.0), Background: []float64{1}, Memory: true, Access: AccessRandom, FailOn: FailOnNone, Revalidate: true}
+		loaded, err := NewPdfloadSource(source, opts)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer loaded.Close()
+		if loaded.Width() <= 0 || loaded.Height() <= 0 {
+			t.Fatalf("pdfload_source: opened an empty image %dx%d", loaded.Width(), loaded.Height())
 		}
 	})
 	t.Run("percent", func(t *testing.T) {
@@ -6063,6 +6255,111 @@ func TestGeneratedOperations(t *testing.T) {
 		defer out.Close()
 		if out.Width() <= 0 || out.Height() <= 0 {
 			t.Fatalf("sum: produced an empty image %dx%d", out.Width(), out.Height())
+		}
+	})
+	t.Run("svgload", func(t *testing.T) {
+		if !HasOperation("svgload") {
+			t.Skipf("this libvips has no svgload")
+		}
+		path := testdataPath(t, "sample.svg")
+		loaded, err := NewSvgload(path, nil)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer loaded.Close()
+		if loaded.Width() <= 0 || loaded.Height() <= 0 {
+			t.Fatalf("svgload: opened an empty image %dx%d", loaded.Width(), loaded.Height())
+		}
+	})
+	t.Run("svgload_options", func(t *testing.T) {
+		if !HasOperation("svgload") {
+			t.Skipf("this libvips has no svgload")
+		}
+		path := testdataPath(t, "sample.svg")
+		opts := &SvgloadOptions{Dpi: 1, Scale: 1, Unlimited: true, HighBitdepth: true, Memory: true, Access: AccessRandom, FailOn: FailOnNone, Revalidate: true}
+		loaded, err := NewSvgload(path, opts)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer loaded.Close()
+		if loaded.Width() <= 0 || loaded.Height() <= 0 {
+			t.Fatalf("svgload: opened an empty image %dx%d", loaded.Width(), loaded.Height())
+		}
+	})
+	t.Run("svgload_buffer", func(t *testing.T) {
+		if !HasOperation("svgload_buffer") {
+			t.Skipf("this libvips has no svgload_buffer")
+		}
+		path := testdataPath(t, "sample.svg")
+		data, err := os.ReadFile(path)
+		if err != nil {
+			t.Fatalf("reading fixture: %v", err)
+		}
+		loaded, err := NewSvgloadBuffer(data, nil)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer loaded.Close()
+		if loaded.Width() <= 0 || loaded.Height() <= 0 {
+			t.Fatalf("svgload_buffer: opened an empty image %dx%d", loaded.Width(), loaded.Height())
+		}
+	})
+	t.Run("svgload_buffer_options", func(t *testing.T) {
+		if !HasOperation("svgload_buffer") {
+			t.Skipf("this libvips has no svgload_buffer")
+		}
+		path := testdataPath(t, "sample.svg")
+		data, err := os.ReadFile(path)
+		if err != nil {
+			t.Fatalf("reading fixture: %v", err)
+		}
+		opts := &SvgloadBufferOptions{Dpi: 1, Scale: 1, Unlimited: true, HighBitdepth: true, Memory: true, Access: AccessRandom, FailOn: FailOnNone, Revalidate: true}
+		loaded, err := NewSvgloadBuffer(data, opts)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer loaded.Close()
+		if loaded.Width() <= 0 || loaded.Height() <= 0 {
+			t.Fatalf("svgload_buffer: opened an empty image %dx%d", loaded.Width(), loaded.Height())
+		}
+	})
+	t.Run("svgload_source", func(t *testing.T) {
+		if !HasOperation("svgload_source") {
+			t.Skipf("this libvips has no svgload_source")
+		}
+		path := testdataPath(t, "sample.svg")
+		data, err := os.ReadFile(path)
+		if err != nil {
+			t.Fatalf("reading fixture: %v", err)
+		}
+		source := coverageSource(t, data)
+		loaded, err := NewSvgloadSource(source, nil)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer loaded.Close()
+		if loaded.Width() <= 0 || loaded.Height() <= 0 {
+			t.Fatalf("svgload_source: opened an empty image %dx%d", loaded.Width(), loaded.Height())
+		}
+	})
+	t.Run("svgload_source_options", func(t *testing.T) {
+		if !HasOperation("svgload_source") {
+			t.Skipf("this libvips has no svgload_source")
+		}
+		path := testdataPath(t, "sample.svg")
+		data, err := os.ReadFile(path)
+		if err != nil {
+			t.Fatalf("reading fixture: %v", err)
+		}
+		source := coverageSource(t, data)
+		opts := &SvgloadSourceOptions{Dpi: 1, Scale: 1, Unlimited: true, HighBitdepth: true, Memory: true, Access: AccessRandom, FailOn: FailOnNone, Revalidate: true}
+		loaded, err := NewSvgloadSource(source, opts)
+		if err != nil {
+			t.Fatalf("wrapper reported an error: %v", err)
+		}
+		defer loaded.Close()
+		if loaded.Width() <= 0 || loaded.Height() <= 0 {
+			t.Fatalf("svgload_source: opened an empty image %dx%d", loaded.Width(), loaded.Height())
 		}
 	})
 	t.Run("switch", func(t *testing.T) {
@@ -7990,6 +8287,17 @@ func TestGeneratedOptionDefaults(t *testing.T) {
 			t.Fatal("DefaultZoneOptions returned nil")
 		}
 	})
+}
+
+// testdataPath returns a fixture that ships with the packages in this repository, and
+// skips when it is absent: a tree produced by the vipsgen command has no testdata.
+func testdataPath(t *testing.T, name string) string {
+	t.Helper()
+	path := filepath.Join("..", "testdata", name)
+	if _, err := os.Stat(path); err != nil {
+		t.Skipf("fixture not available: testdata/%s", name)
+	}
+	return path
 }
 
 // coveragePath is a path a subtest may write: its own temporary directory, with

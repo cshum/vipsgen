@@ -31,6 +31,17 @@ func TestGeneratedOptionDefaults(t *testing.T) {
 	})
 {{end}}}
 
+// testdataPath returns a fixture that ships with the packages in this repository, and
+// skips when it is absent: a tree produced by the vipsgen command has no testdata.
+func testdataPath(t *testing.T, name string) string {
+	t.Helper()
+	path := filepath.Join("..", "testdata", name)
+	if _, err := os.Stat(path); err != nil {
+		t.Skipf("fixture not available: testdata/%s", name)
+	}
+	return path
+}
+
 // coveragePath is a path a subtest may write: its own temporary directory, with
 // the extension the format's loader expects.
 func coveragePath(t *testing.T, ext string) string {

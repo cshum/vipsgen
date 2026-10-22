@@ -147,6 +147,9 @@ func coverageCaseBody(op introspection.Operation, formats coverageFormats, co co
 	if body, ok := thumbnailCoverageBody(op, co); ok {
 		return body, true
 	}
+	if variant, file, ok := fixtureKind(op); ok {
+		return fixtureLoaderBody(op, variant, file, co), true
+	}
 	if producer, ok := formats.bufferKind(op); ok {
 		return bufferLoaderCoverageBody(op, producer, co), true
 	}
@@ -158,6 +161,9 @@ func coverageCaseBody(op introspection.Operation, formats coverageFormats, co co
 	}
 	if body, ok := thumbnailCoverageBody(op, co); ok {
 		return body, true
+	}
+	if variant, file, ok := fixtureKind(op); ok {
+		return fixtureLoaderBody(op, variant, file, co), true
 	}
 	if producer, ok := formats.bufferKind(op); ok {
 		return bufferLoaderCoverageBody(op, producer, co), true
