@@ -451,6 +451,19 @@ func TestSourceReadError(t *testing.T) {
 	assert.NoError(t, cleanSource.Err())
 }
 
+// coverageEmptySource is a source with nothing in it, so a loader fails reading a header
+// instead of returning an image.
+func coverageEmptySource(t *testing.T) *Source {
+	t.Helper()
+	return NewSource(io.NopCloser(bytes.NewReader(nil)))
+}
+
+// coverageFailingTarget refuses every write, so a saver fails instead of writing.
+func coverageFailingTarget(t *testing.T) *Target {
+	t.Helper()
+	return NewTarget(&failingWriter{})
+}
+
 // failingReader returns err instead of io.EOF at the end of its data. It is
 // seekable like the readers imagor hands to a source, which is the case this
 // covers: with a seekable source the load succeeds and the failure only shows

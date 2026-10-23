@@ -203,3 +203,34 @@ func TestErrorCaseShapes(t *testing.T) {
 		}
 	})
 }
+
+// TestErrorCaseTargetAndSource pins the two shapes whose invalid object is the target or the
+// source itself, rather than an argument.
+func TestErrorCaseTargetAndSource(t *testing.T) {
+	t.Run("target saver", func(t *testing.T) {
+		op := coverageOp("jpegsave_target", "JpegsaveTarget")
+		op.HasThisImageInput = true
+		op.Arguments = []introspection.Argument{
+			imageArg("in"),
+			{Name: "target", GoName: "target", GoType: "*C.VipsTargetCustom", IsInput: true, IsTarget: true},
+		}
+		op.RequiredInputs = op.Arguments
+		body, ok := errorCaseBody(op, nilCoverageOptions())
+		if !ok || !strings.Contains(body, "coverageFailingTarget(t)") {
+			t.Errorf("target saver body = %q", body)
+		}
+	})
+
+	t.Run("source loader", func(t *testing.T) {
+		op := coverageOp("jpegload_source", "JpegloadSource")
+		op.HasOneImageOutput = true
+		op.Arguments = []introspection.Argument{
+			{Name: "source", GoName: "source", GoType: "*C.VipsSourceCustom", IsInput: true, IsSource: true},
+		}
+		op.RequiredInputs = op.Arguments
+		body, ok := errorCaseBody(op, nilCoverageOptions())
+		if !ok || !strings.Contains(body, "coverageEmptySource(t)") {
+			t.Errorf("source loader body = %q", body)
+		}
+	})
+}
