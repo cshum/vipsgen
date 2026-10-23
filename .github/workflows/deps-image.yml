@@ -1,6 +1,5 @@
 name: Dependency image
 
-# Builds the image ci.yml runs in. Rebuilt when the Dockerfile changes, or on demand.
 on:
   push:
     branches:
