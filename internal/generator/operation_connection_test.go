@@ -85,7 +85,7 @@ func TestErrorCaseBody(t *testing.T) {
 	}
 	op.RequiredInputs = op.Arguments
 
-	body, ok := errorCaseBody(op)
+	body, ok := errorCaseBody(op, nilCoverageOptions())
 	if !ok {
 		t.Fatal("an operation with a required number should get an error subtest")
 	}
@@ -108,7 +108,7 @@ func TestErrorCaseBody(t *testing.T) {
 		{Name: "angle", GoName: "angle", GoType: "Angle", IsInput: true, IsEnum: true},
 	}
 	enum.RequiredInputs = enum.Arguments
-	enumBody, ok := errorCaseBody(enum)
+	enumBody, ok := errorCaseBody(enum, nilCoverageOptions())
 	if !ok || !strings.Contains(enumBody, "img.Rot(Angle(999))") {
 		t.Errorf("an enum should be passed out of range, got %q", enumBody)
 	}
@@ -118,7 +118,88 @@ func TestErrorCaseBody(t *testing.T) {
 	plain.HasOneImageOutput = true
 	plain.Arguments = []introspection.Argument{imageArg("in")}
 	plain.RequiredInputs = plain.Arguments
-	if _, ok := errorCaseBody(plain); ok {
+	if _, ok := errorCaseBody(plain, nilCoverageOptions()); ok {
 		t.Error("an operation with only an image has no argument to invalidate")
 	}
+}
+
+// TestErrorCaseShapes pins the three call shapes an invalid call has to take, and the two
+// argument forms that cannot be built at all.
+func TestErrorCaseShapes(t *testing.T) {
+	t.Run("creator", func(t *testing.T) {
+		op := coverageOp("black", "Black")
+		op.HasOneImageOutput = true
+		op.Arguments = []introspection.Argument{
+			{Name: "width", GoName: "width", GoType: "int", IsInput: true},
+		}
+		op.RequiredInputs = op.Arguments
+		body, ok := errorCaseBody(op, nilCoverageOptions())
+		if !ok || !strings.Contains(body, "out, err := NewBlack(0)") {
+			t.Errorf("creator body = %q", body)
+		}
+		if !strings.Contains(body, "defer out.Close()") {
+			t.Error("a creator that succeeds must close what it made")
+		}
+	})
+
+	t.Run("saver", func(t *testing.T) {
+		op := coverageOp("csvsave", "Csvsave")
+		op.HasThisImageInput = true
+		op.Arguments = []introspection.Argument{
+			imageArg("in"),
+			{Name: "filename", GoName: "filename", GoType: "string", IsInput: true},
+		}
+		op.RequiredInputs = op.Arguments
+		body, ok := errorCaseBody(op, nilCoverageOptions())
+		if !ok || !strings.Contains(body, `if err := img.Csvsave(""); err == nil {`) {
+			t.Errorf("saver body = %q", body)
+		}
+	})
+
+	t.Run("options argument", func(t *testing.T) {
+		op := coverageOp("shrink", "Shrink")
+		op.HasThisImageInput = true
+		op.HasOneImageOutput = true
+		op.Arguments = []introspection.Argument{
+			imageArg("in"),
+			{Name: "hshrink", GoName: "hshrink", GoType: "float64", IsInput: true},
+		}
+		op.RequiredInputs = op.Arguments
+		op.OptionalInputs = []introspection.Argument{
+			{Name: "ceil", GoName: "ceil", GoType: "bool"},
+		}
+		body, ok := errorCaseBody(op, coverageOptions{Expr: "opts"})
+		if !ok || !strings.Contains(body, "img.Shrink(0, opts)") {
+			t.Errorf("options body = %q", body)
+		}
+		// Without an options literal the call still has to pass something for the shim.
+		plain, _ := errorCaseBody(op, nilCoverageOptions())
+		if !strings.Contains(plain, "img.Shrink(0, nil)") {
+			t.Errorf("plain body = %q", plain)
+		}
+	})
+
+	t.Run("nothing to invalidate", func(t *testing.T) {
+		op := coverageOp("invert", "Invert")
+		op.HasThisImageInput = true
+		op.HasOneImageOutput = true
+		op.Arguments = []introspection.Argument{imageArg("in")}
+		op.RequiredInputs = op.Arguments
+		if _, ok := errorCaseBody(op, nilCoverageOptions()); ok {
+			t.Error("an operation with only an image has nothing to invalidate")
+		}
+	})
+
+	t.Run("hidden buffer argument", func(t *testing.T) {
+		op := coverageOp("thumbnail_buffer", "ThumbnailBuffer")
+		op.HasOneImageOutput = true
+		op.HasBufferInput = true
+		op.Arguments = []introspection.Argument{
+			{Name: "width", GoName: "width", GoType: "int", IsInput: true},
+		}
+		op.RequiredInputs = op.Arguments
+		if _, ok := errorCaseBody(op, nilCoverageOptions()); ok {
+			t.Error("the bytes are dropped from the call, so it cannot be built")
+		}
+	})
 }
