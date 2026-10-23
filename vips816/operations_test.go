@@ -1632,6 +1632,31 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("csvload_source: loaded an empty image %dx%d", loaded.Width(), loaded.Height())
 		}
 	})
+	t.Run("csvload_source_error", func(t *testing.T) {
+		if !HasOperation("csvload_source") {
+			t.Skipf("this libvips has no csvload_source")
+		}
+		out, err := NewCsvloadSource(coverageInvalidSource(t), nil)
+		if err == nil {
+			defer out.Close()
+			if _, evalErr := out.Avg(); evalErr == nil {
+				t.Skipf("csvload_source: accepted arguments libvips should reject")
+			}
+		}
+	})
+	t.Run("csvload_source_error_options", func(t *testing.T) {
+		if !HasOperation("csvload_source") {
+			t.Skipf("this libvips has no csvload_source")
+		}
+		opts := &CsvloadSourceOptions{Skip: 1, Lines: 1, Memory: true, Access: AccessRandom, FailOn: FailOnNone, Revalidate: true}
+		out, err := NewCsvloadSource(coverageInvalidSource(t), opts)
+		if err == nil {
+			defer out.Close()
+			if _, evalErr := out.Avg(); evalErr == nil {
+				t.Skipf("csvload_source: accepted arguments libvips should reject")
+			}
+		}
+	})
 	t.Run("csvsave", func(t *testing.T) {
 		if !HasOperation("csvsave") {
 			t.Skipf("this libvips has no csvsave")
@@ -1729,6 +1754,25 @@ func TestGeneratedOperations(t *testing.T) {
 		}
 		if buf.Len() == 0 {
 			t.Fatalf("csvsave_target: wrote nothing to the target")
+		}
+	})
+	t.Run("csvsave_target_error", func(t *testing.T) {
+		if !HasOperation("csvsave_target") {
+			t.Skipf("this libvips has no csvsave_target")
+		}
+		img := coverageImage(t)
+		if err := img.CsvsaveTarget(coverageFailingTarget(t), nil); err == nil {
+			t.Skipf("csvsave_target: accepted arguments libvips should reject")
+		}
+	})
+	t.Run("csvsave_target_error_options", func(t *testing.T) {
+		if !HasOperation("csvsave_target") {
+			t.Skipf("this libvips has no csvsave_target")
+		}
+		opts := &CsvsaveTargetOptions{Keep: Ptr(KeepNone), Background: []float64{1}, PageHeight: 1}
+		img := coverageImage(t)
+		if err := img.CsvsaveTarget(coverageFailingTarget(t), opts); err == nil {
+			t.Skipf("csvsave_target: accepted arguments libvips should reject")
 		}
 	})
 	t.Run("dE00", func(t *testing.T) {
@@ -2026,6 +2070,25 @@ func TestGeneratedOperations(t *testing.T) {
 		}
 		if buf.Len() == 0 {
 			t.Fatalf("dzsave_target: wrote nothing to the target")
+		}
+	})
+	t.Run("dzsave_target_error", func(t *testing.T) {
+		if !HasOperation("dzsave_target") {
+			t.Skipf("this libvips has no dzsave_target")
+		}
+		img := coverageImage(t)
+		if err := img.DzsaveTarget(coverageFailingTarget(t), nil); err == nil {
+			t.Skipf("dzsave_target: accepted arguments libvips should reject")
+		}
+	})
+	t.Run("dzsave_target_error_options", func(t *testing.T) {
+		if !HasOperation("dzsave_target") {
+			t.Skipf("this libvips has no dzsave_target")
+		}
+		opts := &DzsaveTargetOptions{Layout: DzLayoutDz, Overlap: Ptr(1), TileSize: 1, Centre: true, Depth: DzDepthOnepixel, Angle: AngleD0, Container: DzContainerFs, Compression: 1, RegionShrink: RegionShrinkMean, SkipBlanks: Ptr(1), Q: 1, Keep: Ptr(KeepNone), Background: []float64{1}, PageHeight: 1}
+		img := coverageImage(t)
+		if err := img.DzsaveTarget(coverageFailingTarget(t), opts); err == nil {
+			t.Skipf("dzsave_target: accepted arguments libvips should reject")
 		}
 	})
 	t.Run("embed", func(t *testing.T) {
@@ -2945,6 +3008,31 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("gifload_source: loaded an empty image %dx%d", loaded.Width(), loaded.Height())
 		}
 	})
+	t.Run("gifload_source_error", func(t *testing.T) {
+		if !HasOperation("gifload_source") {
+			t.Skipf("this libvips has no gifload_source")
+		}
+		out, err := NewGifloadSource(coverageInvalidSource(t), nil)
+		if err == nil {
+			defer out.Close()
+			if _, evalErr := out.Avg(); evalErr == nil {
+				t.Skipf("gifload_source: accepted arguments libvips should reject")
+			}
+		}
+	})
+	t.Run("gifload_source_error_options", func(t *testing.T) {
+		if !HasOperation("gifload_source") {
+			t.Skipf("this libvips has no gifload_source")
+		}
+		opts := &GifloadSourceOptions{N: 1, Page: 0, Memory: true, Access: AccessRandom, FailOn: FailOnNone, Revalidate: true}
+		out, err := NewGifloadSource(coverageInvalidSource(t), opts)
+		if err == nil {
+			defer out.Close()
+			if _, evalErr := out.Avg(); evalErr == nil {
+				t.Skipf("gifload_source: accepted arguments libvips should reject")
+			}
+		}
+	})
 	t.Run("gifsave", func(t *testing.T) {
 		if !HasOperation("gifsave") {
 			t.Skipf("this libvips has no gifsave")
@@ -3079,6 +3167,25 @@ func TestGeneratedOperations(t *testing.T) {
 		}
 		if buf.Len() == 0 {
 			t.Fatalf("gifsave_target: wrote nothing to the target")
+		}
+	})
+	t.Run("gifsave_target_error", func(t *testing.T) {
+		if !HasOperation("gifsave_target") {
+			t.Skipf("this libvips has no gifsave_target")
+		}
+		img := coverageImage(t)
+		if err := img.GifsaveTarget(coverageFailingTarget(t), nil); err == nil {
+			t.Skipf("gifsave_target: accepted arguments libvips should reject")
+		}
+	})
+	t.Run("gifsave_target_error_options", func(t *testing.T) {
+		if !HasOperation("gifsave_target") {
+			t.Skipf("this libvips has no gifsave_target")
+		}
+		opts := &GifsaveTargetOptions{Dither: Ptr(1.0), Effort: 1, Bitdepth: 1, InterframeMaxerror: 1, Reuse: true, InterpaletteMaxerror: Ptr(1.0), Interlace: true, Keep: Ptr(KeepNone), Background: []float64{1}, PageHeight: 1}
+		img := coverageImage(t)
+		if err := img.GifsaveTarget(coverageFailingTarget(t), opts); err == nil {
+			t.Skipf("gifsave_target: accepted arguments libvips should reject")
 		}
 	})
 	t.Run("globalbalance", func(t *testing.T) {
@@ -3385,6 +3492,31 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("heifload_source: loaded an empty image %dx%d", loaded.Width(), loaded.Height())
 		}
 	})
+	t.Run("heifload_source_error", func(t *testing.T) {
+		if !HasOperation("heifload_source") {
+			t.Skipf("this libvips has no heifload_source")
+		}
+		out, err := NewHeifloadSource(coverageInvalidSource(t), nil)
+		if err == nil {
+			defer out.Close()
+			if _, evalErr := out.Avg(); evalErr == nil {
+				t.Skipf("heifload_source: accepted arguments libvips should reject")
+			}
+		}
+	})
+	t.Run("heifload_source_error_options", func(t *testing.T) {
+		if !HasOperation("heifload_source") {
+			t.Skipf("this libvips has no heifload_source")
+		}
+		opts := &HeifloadSourceOptions{Page: 0, N: 1, Thumbnail: true, Unlimited: true, Memory: true, Access: AccessRandom, FailOn: FailOnNone, Revalidate: true}
+		out, err := NewHeifloadSource(coverageInvalidSource(t), opts)
+		if err == nil {
+			defer out.Close()
+			if _, evalErr := out.Avg(); evalErr == nil {
+				t.Skipf("heifload_source: accepted arguments libvips should reject")
+			}
+		}
+	})
 	t.Run("heifsave", func(t *testing.T) {
 		if !HasOperation("heifsave") {
 			t.Skipf("this libvips has no heifsave")
@@ -3519,6 +3651,25 @@ func TestGeneratedOperations(t *testing.T) {
 		}
 		if buf.Len() == 0 {
 			t.Fatalf("heifsave_target: wrote nothing to the target")
+		}
+	})
+	t.Run("heifsave_target_error", func(t *testing.T) {
+		if !HasOperation("heifsave_target") {
+			t.Skipf("this libvips has no heifsave_target")
+		}
+		img := coverageImage(t)
+		if err := img.HeifsaveTarget(coverageFailingTarget(t), nil); err == nil {
+			t.Skipf("heifsave_target: accepted arguments libvips should reject")
+		}
+	})
+	t.Run("heifsave_target_error_options", func(t *testing.T) {
+		if !HasOperation("heifsave_target") {
+			t.Skipf("this libvips has no heifsave_target")
+		}
+		opts := &HeifsaveTargetOptions{Q: 1, Bitdepth: 8, Lossless: true, Compression: HeifCompressionHevc, Effort: Ptr(1), SubsampleMode: SubsampleAuto, Encoder: HeifEncoderAuto, Keep: Ptr(KeepNone), Background: []float64{1}, PageHeight: 1}
+		img := coverageImage(t)
+		if err := img.HeifsaveTarget(coverageFailingTarget(t), opts); err == nil {
+			t.Skipf("heifsave_target: accepted arguments libvips should reject")
 		}
 	})
 	t.Run("hist_cum", func(t *testing.T) {
@@ -4310,6 +4461,31 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("jp2kload_source: loaded an empty image %dx%d", loaded.Width(), loaded.Height())
 		}
 	})
+	t.Run("jp2kload_source_error", func(t *testing.T) {
+		if !HasOperation("jp2kload_source") {
+			t.Skipf("this libvips has no jp2kload_source")
+		}
+		out, err := NewJp2kloadSource(coverageInvalidSource(t), nil)
+		if err == nil {
+			defer out.Close()
+			if _, evalErr := out.Avg(); evalErr == nil {
+				t.Skipf("jp2kload_source: accepted arguments libvips should reject")
+			}
+		}
+	})
+	t.Run("jp2kload_source_error_options", func(t *testing.T) {
+		if !HasOperation("jp2kload_source") {
+			t.Skipf("this libvips has no jp2kload_source")
+		}
+		opts := &Jp2kloadSourceOptions{Page: 0, Memory: true, Access: AccessRandom, FailOn: FailOnNone, Revalidate: true}
+		out, err := NewJp2kloadSource(coverageInvalidSource(t), opts)
+		if err == nil {
+			defer out.Close()
+			if _, evalErr := out.Avg(); evalErr == nil {
+				t.Skipf("jp2kload_source: accepted arguments libvips should reject")
+			}
+		}
+	})
 	t.Run("jp2ksave", func(t *testing.T) {
 		if !HasOperation("jp2ksave") {
 			t.Skipf("this libvips has no jp2ksave")
@@ -4444,6 +4620,25 @@ func TestGeneratedOperations(t *testing.T) {
 		}
 		if buf.Len() == 0 {
 			t.Fatalf("jp2ksave_target: wrote nothing to the target")
+		}
+	})
+	t.Run("jp2ksave_target_error", func(t *testing.T) {
+		if !HasOperation("jp2ksave_target") {
+			t.Skipf("this libvips has no jp2ksave_target")
+		}
+		img := coverageImage(t)
+		if err := img.Jp2ksaveTarget(coverageFailingTarget(t), nil); err == nil {
+			t.Skipf("jp2ksave_target: accepted arguments libvips should reject")
+		}
+	})
+	t.Run("jp2ksave_target_error_options", func(t *testing.T) {
+		if !HasOperation("jp2ksave_target") {
+			t.Skipf("this libvips has no jp2ksave_target")
+		}
+		opts := &Jp2ksaveTargetOptions{TileWidth: 16, TileHeight: 16, Lossless: true, Q: 1, SubsampleMode: Ptr(SubsampleAuto), Keep: Ptr(KeepNone), Background: []float64{1}, PageHeight: 1}
+		img := coverageImage(t)
+		if err := img.Jp2ksaveTarget(coverageFailingTarget(t), opts); err == nil {
+			t.Skipf("jp2ksave_target: accepted arguments libvips should reject")
 		}
 	})
 	t.Run("jpegload", func(t *testing.T) {
@@ -4584,6 +4779,31 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("jpegload_source: loaded an empty image %dx%d", loaded.Width(), loaded.Height())
 		}
 	})
+	t.Run("jpegload_source_error", func(t *testing.T) {
+		if !HasOperation("jpegload_source") {
+			t.Skipf("this libvips has no jpegload_source")
+		}
+		out, err := NewJpegloadSource(coverageInvalidSource(t), nil)
+		if err == nil {
+			defer out.Close()
+			if _, evalErr := out.Avg(); evalErr == nil {
+				t.Skipf("jpegload_source: accepted arguments libvips should reject")
+			}
+		}
+	})
+	t.Run("jpegload_source_error_options", func(t *testing.T) {
+		if !HasOperation("jpegload_source") {
+			t.Skipf("this libvips has no jpegload_source")
+		}
+		opts := &JpegloadSourceOptions{Shrink: 1, Autorotate: true, Unlimited: true, Memory: true, Access: AccessRandom, FailOn: FailOnNone, Revalidate: true}
+		out, err := NewJpegloadSource(coverageInvalidSource(t), opts)
+		if err == nil {
+			defer out.Close()
+			if _, evalErr := out.Avg(); evalErr == nil {
+				t.Skipf("jpegload_source: accepted arguments libvips should reject")
+			}
+		}
+	})
 	t.Run("jpegsave", func(t *testing.T) {
 		if !HasOperation("jpegsave") {
 			t.Skipf("this libvips has no jpegsave")
@@ -4718,6 +4938,25 @@ func TestGeneratedOperations(t *testing.T) {
 		}
 		if buf.Len() == 0 {
 			t.Fatalf("jpegsave_target: wrote nothing to the target")
+		}
+	})
+	t.Run("jpegsave_target_error", func(t *testing.T) {
+		if !HasOperation("jpegsave_target") {
+			t.Skipf("this libvips has no jpegsave_target")
+		}
+		img := coverageImage(t)
+		if err := img.JpegsaveTarget(coverageFailingTarget(t), nil); err == nil {
+			t.Skipf("jpegsave_target: accepted arguments libvips should reject")
+		}
+	})
+	t.Run("jpegsave_target_error_options", func(t *testing.T) {
+		if !HasOperation("jpegsave_target") {
+			t.Skipf("this libvips has no jpegsave_target")
+		}
+		opts := &JpegsaveTargetOptions{Q: 1, OptimizeCoding: true, Interlace: true, TrellisQuant: true, OvershootDeringing: true, OptimizeScans: true, QuantTable: 1, SubsampleMode: SubsampleAuto, RestartInterval: 1, Keep: Ptr(KeepNone), Background: []float64{1}, PageHeight: 1}
+		img := coverageImage(t)
+		if err := img.JpegsaveTarget(coverageFailingTarget(t), opts); err == nil {
+			t.Skipf("jpegsave_target: accepted arguments libvips should reject")
 		}
 	})
 	t.Run("jxlload", func(t *testing.T) {
@@ -4858,6 +5097,31 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("jxlload_source: loaded an empty image %dx%d", loaded.Width(), loaded.Height())
 		}
 	})
+	t.Run("jxlload_source_error", func(t *testing.T) {
+		if !HasOperation("jxlload_source") {
+			t.Skipf("this libvips has no jxlload_source")
+		}
+		out, err := NewJxlloadSource(coverageInvalidSource(t), nil)
+		if err == nil {
+			defer out.Close()
+			if _, evalErr := out.Avg(); evalErr == nil {
+				t.Skipf("jxlload_source: accepted arguments libvips should reject")
+			}
+		}
+	})
+	t.Run("jxlload_source_error_options", func(t *testing.T) {
+		if !HasOperation("jxlload_source") {
+			t.Skipf("this libvips has no jxlload_source")
+		}
+		opts := &JxlloadSourceOptions{Page: 0, N: 1, Memory: true, Access: AccessRandom, FailOn: FailOnNone, Revalidate: true}
+		out, err := NewJxlloadSource(coverageInvalidSource(t), opts)
+		if err == nil {
+			defer out.Close()
+			if _, evalErr := out.Avg(); evalErr == nil {
+				t.Skipf("jxlload_source: accepted arguments libvips should reject")
+			}
+		}
+	})
 	t.Run("jxlsave", func(t *testing.T) {
 		if !HasOperation("jxlsave") {
 			t.Skipf("this libvips has no jxlsave")
@@ -4992,6 +5256,25 @@ func TestGeneratedOperations(t *testing.T) {
 		}
 		if buf.Len() == 0 {
 			t.Fatalf("jxlsave_target: wrote nothing to the target")
+		}
+	})
+	t.Run("jxlsave_target_error", func(t *testing.T) {
+		if !HasOperation("jxlsave_target") {
+			t.Skipf("this libvips has no jxlsave_target")
+		}
+		img := coverageImage(t)
+		if err := img.JxlsaveTarget(coverageFailingTarget(t), nil); err == nil {
+			t.Skipf("jxlsave_target: accepted arguments libvips should reject")
+		}
+	})
+	t.Run("jxlsave_target_error_options", func(t *testing.T) {
+		if !HasOperation("jxlsave_target") {
+			t.Skipf("this libvips has no jxlsave_target")
+		}
+		opts := &JxlsaveTargetOptions{Tier: 1, Distance: Ptr(1.0), Effort: 1, Lossless: true, Q: Ptr(1), Keep: Ptr(KeepNone), Background: []float64{1}, PageHeight: 1}
+		img := coverageImage(t)
+		if err := img.JxlsaveTarget(coverageFailingTarget(t), opts); err == nil {
+			t.Skipf("jxlsave_target: accepted arguments libvips should reject")
 		}
 	})
 	t.Run("labelregions", func(t *testing.T) {
@@ -6165,6 +6448,31 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("matrixload_source: loaded an empty image %dx%d", loaded.Width(), loaded.Height())
 		}
 	})
+	t.Run("matrixload_source_error", func(t *testing.T) {
+		if !HasOperation("matrixload_source") {
+			t.Skipf("this libvips has no matrixload_source")
+		}
+		out, err := NewMatrixloadSource(coverageInvalidSource(t), nil)
+		if err == nil {
+			defer out.Close()
+			if _, evalErr := out.Avg(); evalErr == nil {
+				t.Skipf("matrixload_source: accepted arguments libvips should reject")
+			}
+		}
+	})
+	t.Run("matrixload_source_error_options", func(t *testing.T) {
+		if !HasOperation("matrixload_source") {
+			t.Skipf("this libvips has no matrixload_source")
+		}
+		opts := &MatrixloadSourceOptions{Memory: true, Access: AccessRandom, FailOn: FailOnNone, Revalidate: true}
+		out, err := NewMatrixloadSource(coverageInvalidSource(t), opts)
+		if err == nil {
+			defer out.Close()
+			if _, evalErr := out.Avg(); evalErr == nil {
+				t.Skipf("matrixload_source: accepted arguments libvips should reject")
+			}
+		}
+	})
 	t.Run("matrixsave", func(t *testing.T) {
 		if !HasOperation("matrixsave") {
 			t.Skipf("this libvips has no matrixsave")
@@ -6262,6 +6570,25 @@ func TestGeneratedOperations(t *testing.T) {
 		}
 		if buf.Len() == 0 {
 			t.Fatalf("matrixsave_target: wrote nothing to the target")
+		}
+	})
+	t.Run("matrixsave_target_error", func(t *testing.T) {
+		if !HasOperation("matrixsave_target") {
+			t.Skipf("this libvips has no matrixsave_target")
+		}
+		img := coverageImage(t)
+		if err := img.MatrixsaveTarget(coverageFailingTarget(t), nil); err == nil {
+			t.Skipf("matrixsave_target: accepted arguments libvips should reject")
+		}
+	})
+	t.Run("matrixsave_target_error_options", func(t *testing.T) {
+		if !HasOperation("matrixsave_target") {
+			t.Skipf("this libvips has no matrixsave_target")
+		}
+		opts := &MatrixsaveTargetOptions{Keep: Ptr(KeepNone), Background: []float64{1}, PageHeight: 1}
+		img := coverageImage(t)
+		if err := img.MatrixsaveTarget(coverageFailingTarget(t), opts); err == nil {
+			t.Skipf("matrixsave_target: accepted arguments libvips should reject")
 		}
 	})
 	t.Run("max", func(t *testing.T) {
@@ -6798,6 +7125,31 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("pdfload_source: the fixture did not decode: %v", err)
 		}
 	})
+	t.Run("pdfload_source_error", func(t *testing.T) {
+		if !HasOperation("pdfload_source") {
+			t.Skipf("this libvips has no pdfload_source")
+		}
+		out, err := NewPdfloadSource(coverageInvalidSource(t), nil)
+		if err == nil {
+			defer out.Close()
+			if _, evalErr := out.Avg(); evalErr == nil {
+				t.Skipf("pdfload_source: accepted arguments libvips should reject")
+			}
+		}
+	})
+	t.Run("pdfload_source_error_options", func(t *testing.T) {
+		if !HasOperation("pdfload_source") {
+			t.Skipf("this libvips has no pdfload_source")
+		}
+		opts := &PdfloadSourceOptions{Page: 0, N: 1, Dpi: 1, Scale: Ptr(1.0), Background: []float64{1}, Memory: true, Access: AccessRandom, FailOn: FailOnNone, Revalidate: true}
+		out, err := NewPdfloadSource(coverageInvalidSource(t), opts)
+		if err == nil {
+			defer out.Close()
+			if _, evalErr := out.Avg(); evalErr == nil {
+				t.Skipf("pdfload_source: accepted arguments libvips should reject")
+			}
+		}
+	})
 	t.Run("percent", func(t *testing.T) {
 		if !HasOperation("percent") {
 			t.Skipf("this libvips has no percent")
@@ -7021,6 +7373,31 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("pngload_source: loaded an empty image %dx%d", loaded.Width(), loaded.Height())
 		}
 	})
+	t.Run("pngload_source_error", func(t *testing.T) {
+		if !HasOperation("pngload_source") {
+			t.Skipf("this libvips has no pngload_source")
+		}
+		out, err := NewPngloadSource(coverageInvalidSource(t), nil)
+		if err == nil {
+			defer out.Close()
+			if _, evalErr := out.Avg(); evalErr == nil {
+				t.Skipf("pngload_source: accepted arguments libvips should reject")
+			}
+		}
+	})
+	t.Run("pngload_source_error_options", func(t *testing.T) {
+		if !HasOperation("pngload_source") {
+			t.Skipf("this libvips has no pngload_source")
+		}
+		opts := &PngloadSourceOptions{Unlimited: true, Memory: true, Access: AccessRandom, FailOn: FailOnNone, Revalidate: true}
+		out, err := NewPngloadSource(coverageInvalidSource(t), opts)
+		if err == nil {
+			defer out.Close()
+			if _, evalErr := out.Avg(); evalErr == nil {
+				t.Skipf("pngload_source: accepted arguments libvips should reject")
+			}
+		}
+	})
 	t.Run("pngsave", func(t *testing.T) {
 		if !HasOperation("pngsave") {
 			t.Skipf("this libvips has no pngsave")
@@ -7157,6 +7534,25 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("pngsave_target: wrote nothing to the target")
 		}
 	})
+	t.Run("pngsave_target_error", func(t *testing.T) {
+		if !HasOperation("pngsave_target") {
+			t.Skipf("this libvips has no pngsave_target")
+		}
+		img := coverageImage(t)
+		if err := img.PngsaveTarget(coverageFailingTarget(t), nil); err == nil {
+			t.Skipf("pngsave_target: accepted arguments libvips should reject")
+		}
+	})
+	t.Run("pngsave_target_error_options", func(t *testing.T) {
+		if !HasOperation("pngsave_target") {
+			t.Skipf("this libvips has no pngsave_target")
+		}
+		opts := &PngsaveTargetOptions{Compression: Ptr(1), Interlace: true, Filter: PngFilterNone, Palette: true, Q: Ptr(1), Dither: Ptr(1.0), Bitdepth: 1, Effort: 1, Keep: Ptr(KeepNone), Background: []float64{1}, PageHeight: 1}
+		img := coverageImage(t)
+		if err := img.PngsaveTarget(coverageFailingTarget(t), opts); err == nil {
+			t.Skipf("pngsave_target: accepted arguments libvips should reject")
+		}
+	})
 	t.Run("ppmload", func(t *testing.T) {
 		if !HasOperation("ppmload") {
 			t.Skipf("this libvips has no ppmload")
@@ -7260,6 +7656,31 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("ppmload_source: loaded an empty image %dx%d", loaded.Width(), loaded.Height())
 		}
 	})
+	t.Run("ppmload_source_error", func(t *testing.T) {
+		if !HasOperation("ppmload_source") {
+			t.Skipf("this libvips has no ppmload_source")
+		}
+		out, err := NewPpmloadSource(coverageInvalidSource(t), nil)
+		if err == nil {
+			defer out.Close()
+			if _, evalErr := out.Avg(); evalErr == nil {
+				t.Skipf("ppmload_source: accepted arguments libvips should reject")
+			}
+		}
+	})
+	t.Run("ppmload_source_error_options", func(t *testing.T) {
+		if !HasOperation("ppmload_source") {
+			t.Skipf("this libvips has no ppmload_source")
+		}
+		opts := &PpmloadSourceOptions{Memory: true, Access: AccessRandom, FailOn: FailOnNone, Revalidate: true}
+		out, err := NewPpmloadSource(coverageInvalidSource(t), opts)
+		if err == nil {
+			defer out.Close()
+			if _, evalErr := out.Avg(); evalErr == nil {
+				t.Skipf("ppmload_source: accepted arguments libvips should reject")
+			}
+		}
+	})
 	t.Run("ppmsave", func(t *testing.T) {
 		if !HasOperation("ppmsave") {
 			t.Skipf("this libvips has no ppmsave")
@@ -7357,6 +7778,25 @@ func TestGeneratedOperations(t *testing.T) {
 		}
 		if buf.Len() == 0 {
 			t.Fatalf("ppmsave_target: wrote nothing to the target")
+		}
+	})
+	t.Run("ppmsave_target_error", func(t *testing.T) {
+		if !HasOperation("ppmsave_target") {
+			t.Skipf("this libvips has no ppmsave_target")
+		}
+		img := coverageImage(t)
+		if err := img.PpmsaveTarget(coverageFailingTarget(t), nil); err == nil {
+			t.Skipf("ppmsave_target: accepted arguments libvips should reject")
+		}
+	})
+	t.Run("ppmsave_target_error_options", func(t *testing.T) {
+		if !HasOperation("ppmsave_target") {
+			t.Skipf("this libvips has no ppmsave_target")
+		}
+		opts := &PpmsaveTargetOptions{Format: Ptr(PpmFormatPbm), Ascii: true, Bitdepth: 1, Keep: Ptr(KeepNone), Background: []float64{1}, PageHeight: 1}
+		img := coverageImage(t)
+		if err := img.PpmsaveTarget(coverageFailingTarget(t), opts); err == nil {
+			t.Skipf("ppmsave_target: accepted arguments libvips should reject")
 		}
 	})
 	t.Run("premultiply", func(t *testing.T) {
@@ -7615,6 +8055,31 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("radload_source: loaded an empty image %dx%d", loaded.Width(), loaded.Height())
 		}
 	})
+	t.Run("radload_source_error", func(t *testing.T) {
+		if !HasOperation("radload_source") {
+			t.Skipf("this libvips has no radload_source")
+		}
+		out, err := NewRadloadSource(coverageInvalidSource(t), nil)
+		if err == nil {
+			defer out.Close()
+			if _, evalErr := out.Avg(); evalErr == nil {
+				t.Skipf("radload_source: accepted arguments libvips should reject")
+			}
+		}
+	})
+	t.Run("radload_source_error_options", func(t *testing.T) {
+		if !HasOperation("radload_source") {
+			t.Skipf("this libvips has no radload_source")
+		}
+		opts := &RadloadSourceOptions{Memory: true, Access: AccessRandom, FailOn: FailOnNone, Revalidate: true}
+		out, err := NewRadloadSource(coverageInvalidSource(t), opts)
+		if err == nil {
+			defer out.Close()
+			if _, evalErr := out.Avg(); evalErr == nil {
+				t.Skipf("radload_source: accepted arguments libvips should reject")
+			}
+		}
+	})
 	t.Run("radsave", func(t *testing.T) {
 		if !HasOperation("radsave") {
 			t.Skipf("this libvips has no radsave")
@@ -7749,6 +8214,25 @@ func TestGeneratedOperations(t *testing.T) {
 		}
 		if buf.Len() == 0 {
 			t.Fatalf("radsave_target: wrote nothing to the target")
+		}
+	})
+	t.Run("radsave_target_error", func(t *testing.T) {
+		if !HasOperation("radsave_target") {
+			t.Skipf("this libvips has no radsave_target")
+		}
+		img := coverageImage(t)
+		if err := img.RadsaveTarget(coverageFailingTarget(t), nil); err == nil {
+			t.Skipf("radsave_target: accepted arguments libvips should reject")
+		}
+	})
+	t.Run("radsave_target_error_options", func(t *testing.T) {
+		if !HasOperation("radsave_target") {
+			t.Skipf("this libvips has no radsave_target")
+		}
+		opts := &RadsaveTargetOptions{Keep: Ptr(KeepNone), Background: []float64{1}, PageHeight: 1}
+		img := coverageImage(t)
+		if err := img.RadsaveTarget(coverageFailingTarget(t), opts); err == nil {
+			t.Skipf("radsave_target: accepted arguments libvips should reject")
 		}
 	})
 	t.Run("rank", func(t *testing.T) {
@@ -7915,6 +8399,25 @@ func TestGeneratedOperations(t *testing.T) {
 		}
 		if buf.Len() == 0 {
 			t.Fatalf("rawsave_target: wrote nothing to the target")
+		}
+	})
+	t.Run("rawsave_target_error", func(t *testing.T) {
+		if !HasOperation("rawsave_target") {
+			t.Skipf("this libvips has no rawsave_target")
+		}
+		img := coverageImage(t)
+		if err := img.RawsaveTarget(coverageFailingTarget(t), nil); err == nil {
+			t.Skipf("rawsave_target: accepted arguments libvips should reject")
+		}
+	})
+	t.Run("rawsave_target_error_options", func(t *testing.T) {
+		if !HasOperation("rawsave_target") {
+			t.Skipf("this libvips has no rawsave_target")
+		}
+		opts := &RawsaveTargetOptions{Keep: Ptr(KeepNone), Background: []float64{1}, PageHeight: 1}
+		img := coverageImage(t)
+		if err := img.RawsaveTarget(coverageFailingTarget(t), opts); err == nil {
+			t.Skipf("rawsave_target: accepted arguments libvips should reject")
 		}
 	})
 	t.Run("recomb", func(t *testing.T) {
@@ -9464,6 +9967,31 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("svgload_source: the fixture did not decode: %v", err)
 		}
 	})
+	t.Run("svgload_source_error", func(t *testing.T) {
+		if !HasOperation("svgload_source") {
+			t.Skipf("this libvips has no svgload_source")
+		}
+		out, err := NewSvgloadSource(coverageInvalidSource(t), nil)
+		if err == nil {
+			defer out.Close()
+			if _, evalErr := out.Avg(); evalErr == nil {
+				t.Skipf("svgload_source: accepted arguments libvips should reject")
+			}
+		}
+	})
+	t.Run("svgload_source_error_options", func(t *testing.T) {
+		if !HasOperation("svgload_source") {
+			t.Skipf("this libvips has no svgload_source")
+		}
+		opts := &SvgloadSourceOptions{Dpi: 1, Scale: 1, Unlimited: true, Memory: true, Access: AccessRandom, FailOn: FailOnNone, Revalidate: true}
+		out, err := NewSvgloadSource(coverageInvalidSource(t), opts)
+		if err == nil {
+			defer out.Close()
+			if _, evalErr := out.Avg(); evalErr == nil {
+				t.Skipf("svgload_source: accepted arguments libvips should reject")
+			}
+		}
+	})
 	t.Run("switch", func(t *testing.T) {
 		if !HasOperation("switch") {
 			t.Skipf("this libvips has no switch")
@@ -9679,6 +10207,31 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("thumbnail_source: asked for 32 and got %dx%d", thumb.Width(), thumb.Height())
 		}
 	})
+	t.Run("thumbnail_source_error", func(t *testing.T) {
+		if !HasOperation("thumbnail_source") {
+			t.Skipf("this libvips has no thumbnail_source")
+		}
+		out, err := NewThumbnailSource(coverageInvalidSource(t), 0, nil)
+		if err == nil {
+			defer out.Close()
+			if _, evalErr := out.Avg(); evalErr == nil {
+				t.Skipf("thumbnail_source: accepted arguments libvips should reject")
+			}
+		}
+	})
+	t.Run("thumbnail_source_error_options", func(t *testing.T) {
+		if !HasOperation("thumbnail_source") {
+			t.Skipf("this libvips has no thumbnail_source")
+		}
+		opts := &ThumbnailSourceOptions{Height: 4, Size: SizeBoth, NoRotate: true, Crop: InterestingNone, Linear: true, Intent: Ptr(IntentPerceptual), FailOn: FailOnNone}
+		out, err := NewThumbnailSource(coverageInvalidSource(t), 0, opts)
+		if err == nil {
+			defer out.Close()
+			if _, evalErr := out.Avg(); evalErr == nil {
+				t.Skipf("thumbnail_source: accepted arguments libvips should reject")
+			}
+		}
+	})
 	t.Run("tiffload", func(t *testing.T) {
 		if !HasOperation("tiffload") {
 			t.Skipf("this libvips has no tiffload")
@@ -9817,6 +10370,31 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("tiffload_source: loaded an empty image %dx%d", loaded.Width(), loaded.Height())
 		}
 	})
+	t.Run("tiffload_source_error", func(t *testing.T) {
+		if !HasOperation("tiffload_source") {
+			t.Skipf("this libvips has no tiffload_source")
+		}
+		out, err := NewTiffloadSource(coverageInvalidSource(t), nil)
+		if err == nil {
+			defer out.Close()
+			if _, evalErr := out.Avg(); evalErr == nil {
+				t.Skipf("tiffload_source: accepted arguments libvips should reject")
+			}
+		}
+	})
+	t.Run("tiffload_source_error_options", func(t *testing.T) {
+		if !HasOperation("tiffload_source") {
+			t.Skipf("this libvips has no tiffload_source")
+		}
+		opts := &TiffloadSourceOptions{Page: 0, Subifd: 1, N: 1, Autorotate: true, Memory: true, Access: AccessRandom, FailOn: FailOnNone, Revalidate: true}
+		out, err := NewTiffloadSource(coverageInvalidSource(t), opts)
+		if err == nil {
+			defer out.Close()
+			if _, evalErr := out.Avg(); evalErr == nil {
+				t.Skipf("tiffload_source: accepted arguments libvips should reject")
+			}
+		}
+	})
 	t.Run("tiffsave", func(t *testing.T) {
 		if !HasOperation("tiffsave") {
 			t.Skipf("this libvips has no tiffsave")
@@ -9945,6 +10523,25 @@ func TestGeneratedOperations(t *testing.T) {
 		}
 		if buf.Len() == 0 {
 			t.Fatalf("tiffsave_target: wrote nothing to the target")
+		}
+	})
+	t.Run("tiffsave_target_error", func(t *testing.T) {
+		if !HasOperation("tiffsave_target") {
+			t.Skipf("this libvips has no tiffsave_target")
+		}
+		img := coverageImage(t)
+		if err := img.TiffsaveTarget(coverageFailingTarget(t), nil); err == nil {
+			t.Skipf("tiffsave_target: accepted arguments libvips should reject")
+		}
+	})
+	t.Run("tiffsave_target_error_options", func(t *testing.T) {
+		if !HasOperation("tiffsave_target") {
+			t.Skipf("this libvips has no tiffsave_target")
+		}
+		opts := &TiffsaveTargetOptions{Compression: TiffCompressionNone, Q: 1, Predictor: TiffPredictorNone, Tile: true, TileWidth: 16, TileHeight: 16, Pyramid: true, Miniswhite: true, Bitdepth: 1, Resunit: TiffResunitCm, Xres: 1, Yres: 1, Bigtiff: true, Properties: true, RegionShrink: RegionShrinkMean, Level: 1, Lossless: true, Depth: Ptr(DzDepthOnepixel), Subifd: true, Premultiply: true, Keep: Ptr(KeepNone), Background: []float64{1}, PageHeight: 1}
+		img := coverageImage(t)
+		if err := img.TiffsaveTarget(coverageFailingTarget(t), opts); err == nil {
+			t.Skipf("tiffsave_target: accepted arguments libvips should reject")
 		}
 	})
 	t.Run("tilecache", func(t *testing.T) {
@@ -10170,6 +10767,31 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("vipsload_source: loaded an empty image %dx%d", loaded.Width(), loaded.Height())
 		}
 	})
+	t.Run("vipsload_source_error", func(t *testing.T) {
+		if !HasOperation("vipsload_source") {
+			t.Skipf("this libvips has no vipsload_source")
+		}
+		out, err := NewVipsloadSource(coverageInvalidSource(t), nil)
+		if err == nil {
+			defer out.Close()
+			if _, evalErr := out.Avg(); evalErr == nil {
+				t.Skipf("vipsload_source: accepted arguments libvips should reject")
+			}
+		}
+	})
+	t.Run("vipsload_source_error_options", func(t *testing.T) {
+		if !HasOperation("vipsload_source") {
+			t.Skipf("this libvips has no vipsload_source")
+		}
+		opts := &VipsloadSourceOptions{Memory: true, Access: AccessRandom, FailOn: FailOnNone, Revalidate: true}
+		out, err := NewVipsloadSource(coverageInvalidSource(t), opts)
+		if err == nil {
+			defer out.Close()
+			if _, evalErr := out.Avg(); evalErr == nil {
+				t.Skipf("vipsload_source: accepted arguments libvips should reject")
+			}
+		}
+	})
 	t.Run("vipssave", func(t *testing.T) {
 		if !HasOperation("vipssave") {
 			t.Skipf("this libvips has no vipssave")
@@ -10255,6 +10877,25 @@ func TestGeneratedOperations(t *testing.T) {
 		}
 		if buf.Len() == 0 {
 			t.Fatalf("vipssave_target: wrote nothing to the target")
+		}
+	})
+	t.Run("vipssave_target_error", func(t *testing.T) {
+		if !HasOperation("vipssave_target") {
+			t.Skipf("this libvips has no vipssave_target")
+		}
+		img := coverageImage(t)
+		if err := img.VipssaveTarget(coverageFailingTarget(t), nil); err == nil {
+			t.Skipf("vipssave_target: accepted arguments libvips should reject")
+		}
+	})
+	t.Run("vipssave_target_error_options", func(t *testing.T) {
+		if !HasOperation("vipssave_target") {
+			t.Skipf("this libvips has no vipssave_target")
+		}
+		opts := &VipssaveTargetOptions{Keep: Ptr(KeepNone), Background: []float64{1}, PageHeight: 1}
+		img := coverageImage(t)
+		if err := img.VipssaveTarget(coverageFailingTarget(t), opts); err == nil {
+			t.Skipf("vipssave_target: accepted arguments libvips should reject")
 		}
 	})
 	t.Run("webpload", func(t *testing.T) {
@@ -10395,6 +11036,31 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("webpload_source: loaded an empty image %dx%d", loaded.Width(), loaded.Height())
 		}
 	})
+	t.Run("webpload_source_error", func(t *testing.T) {
+		if !HasOperation("webpload_source") {
+			t.Skipf("this libvips has no webpload_source")
+		}
+		out, err := NewWebploadSource(coverageInvalidSource(t), nil)
+		if err == nil {
+			defer out.Close()
+			if _, evalErr := out.Avg(); evalErr == nil {
+				t.Skipf("webpload_source: accepted arguments libvips should reject")
+			}
+		}
+	})
+	t.Run("webpload_source_error_options", func(t *testing.T) {
+		if !HasOperation("webpload_source") {
+			t.Skipf("this libvips has no webpload_source")
+		}
+		opts := &WebploadSourceOptions{Page: 0, N: 1, Scale: 1, Memory: true, Access: AccessRandom, FailOn: FailOnNone, Revalidate: true}
+		out, err := NewWebploadSource(coverageInvalidSource(t), opts)
+		if err == nil {
+			defer out.Close()
+			if _, evalErr := out.Avg(); evalErr == nil {
+				t.Skipf("webpload_source: accepted arguments libvips should reject")
+			}
+		}
+	})
 	t.Run("webpsave", func(t *testing.T) {
 		if !HasOperation("webpsave") {
 			t.Skipf("this libvips has no webpsave")
@@ -10529,6 +11195,25 @@ func TestGeneratedOperations(t *testing.T) {
 		}
 		if buf.Len() == 0 {
 			t.Fatalf("webpsave_target: wrote nothing to the target")
+		}
+	})
+	t.Run("webpsave_target_error", func(t *testing.T) {
+		if !HasOperation("webpsave_target") {
+			t.Skipf("this libvips has no webpsave_target")
+		}
+		img := coverageImage(t)
+		if err := img.WebpsaveTarget(coverageFailingTarget(t), nil); err == nil {
+			t.Skipf("webpsave_target: accepted arguments libvips should reject")
+		}
+	})
+	t.Run("webpsave_target_error_options", func(t *testing.T) {
+		if !HasOperation("webpsave_target") {
+			t.Skipf("this libvips has no webpsave_target")
+		}
+		opts := &WebpsaveTargetOptions{Q: Ptr(1), Lossless: true, Preset: WebpPresetDefault, SmartSubsample: true, NearLossless: true, AlphaQ: Ptr(1), MinSize: true, Kmin: Ptr(1), Kmax: Ptr(1), Effort: Ptr(1), TargetSize: 1, Mixed: true, SmartDeblock: true, Passes: 1, Keep: Ptr(KeepNone), Background: []float64{1}, PageHeight: 1}
+		img := coverageImage(t)
+		if err := img.WebpsaveTarget(coverageFailingTarget(t), opts); err == nil {
+			t.Skipf("webpsave_target: accepted arguments libvips should reject")
 		}
 	})
 	t.Run("worley", func(t *testing.T) {

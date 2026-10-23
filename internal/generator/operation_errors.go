@@ -18,6 +18,10 @@ const (
 	shapeCreator
 	// shapeSaver writes an image somewhere: img.Op("").
 	shapeSaver
+	// shapeTargetSaver writes to a target that refuses every write.
+	shapeTargetSaver
+	// shapeSourceLoader reads from a source with nothing in it.
+	shapeSourceLoader
 )
 
 func errorShapeOf(op introspection.Operation) (errorShape, bool) {
@@ -25,9 +29,15 @@ func errorShapeOf(op introspection.Operation) (errorShape, bool) {
 	case op.HasThisImageInput && op.HasOneImageOutput:
 		return shapeMethod, true
 	case !op.HasThisImageInput && op.HasOneImageOutput:
+		if hasArg(op, "IsSource") {
+			return shapeSourceLoader, true
+		}
 		return shapeCreator, true
 	case op.HasThisImageInput && !op.HasOneImageOutput &&
 		len(op.RequiredOutputs) == 0 && len(op.OptionalOutputs) == 0:
+		if hasArg(op, "IsTarget") {
+			return shapeTargetSaver, true
+		}
 		return shapeSaver, true
 	}
 	return 0, false
@@ -66,6 +76,18 @@ func errorCaseBody(op introspection.Operation, co coverageOptions) (string, bool
 	var exprs []string
 	injected := false
 	for _, arg := range callArguments(op) {
+		// A target that refuses to write and a source with nothing in it are the invalid
+		// object for the two shapes that take one.
+		switch {
+		case arg.IsTarget:
+			exprs = append(exprs, "coverageFailingTarget(t)")
+			injected = true
+			continue
+		case arg.IsSource:
+			exprs = append(exprs, "coverageInvalidSource(t)")
+			injected = true
+			continue
+		}
 		expr, ok := invalidArgExpr(arg)
 		if !ok {
 			// An image, source, target or array: there is no invalid one to pass.
@@ -93,20 +115,37 @@ func errorCaseBody(op introspection.Operation, co coverageOptions) (string, bool
 		body.WriteString("\t\t\tif _, evalErr := img.Avg(); evalErr == nil {\n")
 		body.WriteString(fmt.Sprintf("\t\t\t\tt.Skipf(%q)\n", op.Name+": accepted arguments libvips should reject"))
 		body.WriteString("\t\t\t}\n\t\t}\n")
-	case shapeCreator:
+	case shapeCreator, shapeSourceLoader:
 		body.WriteString(fmt.Sprintf("\t\tout, err := New%s(%s)\n", op.GoName, callArgs))
 		body.WriteString("\t\tif err == nil {\n")
 		body.WriteString("\t\t\tdefer out.Close()\n")
 		body.WriteString("\t\t\tif _, evalErr := out.Avg(); evalErr == nil {\n")
 		body.WriteString(fmt.Sprintf("\t\t\t\tt.Skipf(%q)\n", op.Name+": accepted arguments libvips should reject"))
 		body.WriteString("\t\t\t}\n\t\t}\n")
-	case shapeSaver:
+	case shapeSaver, shapeTargetSaver:
 		body.WriteString("\t\timg := coverageImage(t)\n")
 		body.WriteString(fmt.Sprintf("\t\tif err := img.%s(%s); err == nil {\n", op.GoName, callArgs))
 		body.WriteString(fmt.Sprintf("\t\t\tt.Skipf(%q)\n", op.Name+": accepted arguments libvips should reject"))
 		body.WriteString("\t\t}\n")
 	}
 	return body.String(), true
+}
+
+// hasArg reports whether a required input carries the named flag from the introspection dump.
+func hasArg(op introspection.Operation, field string) bool {
+	for _, arg := range op.RequiredInputs {
+		switch field {
+		case "IsTarget":
+			if arg.IsTarget {
+				return true
+			}
+		case "IsSource":
+			if arg.IsSource {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 // hasOptions reports whether the operation has an options argument, which is what makes the
