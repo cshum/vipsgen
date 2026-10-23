@@ -35,8 +35,7 @@ RUN mkdir -p /usr/local/lib/pkgconfig \
       'Libs: -L${libdir} -lniftiio -lznz' \
       > /usr/local/lib/pkgconfig/niftiio.pc
 
-# ubuntu 24.04 does not package libultrahdr, and libvips builds the uhdr loader only when it is
-# present at configure time.
+# ubuntu 24.04 does not package libultrahdr.
 RUN git clone --depth 1 --branch "${ULTRAHDR_VERSION}" https://github.com/google/libultrahdr.git /tmp/libultrahdr \
  && cmake -S /tmp/libultrahdr -B /tmp/libultrahdr/build \
       -DCMAKE_BUILD_TYPE=Release \
