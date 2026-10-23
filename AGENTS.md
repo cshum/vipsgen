@@ -36,6 +36,9 @@ anyone changing the generator.
 - When a change alters generated output, the last CI job commits it. That job's own run can
   park at `action_required`, which is neither a pass nor a failure: the parent run already
   built the content it committed.
+- The legs run in `ghcr.io/cshum/vipsgen-deps`, built from `docker/deps.Dockerfile`: the packages
+  the workflow used to install, plus libultrahdr. Its tags are append-only, so a dependency
+  change bumps the number instead of repointing a tag a running job may be pulling.
 - Same libvips in, same bytes out — regeneration is expected to be byte-identical, and a
   change that alters the output should be explainable operation by operation.
 
