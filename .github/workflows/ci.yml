@@ -18,7 +18,7 @@ jobs:
     name: Generate code for libvips ${{ matrix.vips_version }}
     runs-on: ubuntu-24.04
     container:
-      image: ghcr.io/cshum/vipsgen/deps:24.04-v1
+      image: ghcr.io/cshum/vipsgen-deps:24.04-v1
     strategy:
       matrix:
         include:
