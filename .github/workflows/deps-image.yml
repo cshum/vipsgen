@@ -8,6 +8,10 @@ on:
     paths:
       - docker/deps.Dockerfile
       - .github/workflows/deps-image.yml
+  pull_request:
+    paths:
+      - docker/deps.Dockerfile
+      - .github/workflows/deps-image.yml
   workflow_dispatch:
 
 permissions:
