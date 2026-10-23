@@ -42,20 +42,13 @@ jobs:
           go-version: ^1.24
           cache: false
 
-      - name: Cache .deb files
-        uses: actions/cache@v5
-        with:
-          path: /home/runner/aptcache/archives
-          key: ${{ runner.os }}-24.04-apt-v1
-
       - name: Install dependencies
         env:
           DEBIAN_FRONTEND: noninteractive
         run: |
-          mkdir -p /home/runner/aptcache/archives/partial
           # Fail a stalled fetch after 20s and retry it up to three times.
           sudo apt-get update -o Acquire::Retries=3 -o Acquire::http::Timeout=20
-          sudo apt-get install -y -o Dir::Cache::archives=/home/runner/aptcache/archives \
+          sudo apt-get install -y \
           meson ninja-build cmake \
           libglib2.0-dev libexpat-dev librsvg2-dev libpng-dev \
           libjpeg-turbo8-dev libimagequant-dev libfftw3-dev \
