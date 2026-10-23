@@ -1,9 +1,3 @@
-# The dependency set CI installs, baked once instead of on every run.
-#
-# Everything here is what `apt-get install` in ci.yml used to do, plus libultrahdr, which
-# ubuntu 24.04 does not package. Nothing about which libraries libvips detects changes, so the
-# generated output stays identical; the versions are pinned by the base image tag and the
-# libultrahdr tag.
 FROM ubuntu:24.04
 
 ARG ULTRAHDR_VERSION=v1.4.0
