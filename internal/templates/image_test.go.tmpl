@@ -451,11 +451,14 @@ func TestSourceReadError(t *testing.T) {
 	assert.NoError(t, cleanSource.Err())
 }
 
-// coverageEmptySource is a source with nothing in it, so a loader fails reading a header
-// instead of returning an image.
-func coverageEmptySource(t *testing.T) *Source {
+// coverageInvalidSource is a source holding bytes no loader accepts, so it fails to read a
+// header instead of returning an image. Empty input is not enough: 8.17 segfaults inside
+// matrixload rather than reporting a parse error.
+func coverageInvalidSource(t *testing.T) *Source {
 	t.Helper()
-	return NewSource(io.NopCloser(bytes.NewReader(nil)))
+	source := NewSource(io.NopCloser(bytes.NewReader([]byte("not an image\n1 2 3\n"))))
+	t.Cleanup(source.Close)
+	return source
 }
 
 // coverageFailingTarget refuses every write, so a saver fails instead of writing.

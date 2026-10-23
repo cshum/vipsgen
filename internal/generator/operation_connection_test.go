@@ -229,7 +229,7 @@ func TestErrorCaseTargetAndSource(t *testing.T) {
 		}
 		op.RequiredInputs = op.Arguments
 		body, ok := errorCaseBody(op, nilCoverageOptions())
-		if !ok || !strings.Contains(body, "coverageEmptySource(t)") {
+		if !ok || !strings.Contains(body, "coverageInvalidSource(t)") {
 			t.Errorf("source loader body = %q", body)
 		}
 	})

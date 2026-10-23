@@ -84,7 +84,7 @@ func errorCaseBody(op introspection.Operation, co coverageOptions) (string, bool
 			injected = true
 			continue
 		case arg.IsSource:
-			exprs = append(exprs, "coverageEmptySource(t)")
+			exprs = append(exprs, "coverageInvalidSource(t)")
 			injected = true
 			continue
 		}
