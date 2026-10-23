@@ -113,12 +113,21 @@ func BuildOperationCoverage(operations []introspection.Operation) []CoverageCase
 			})
 		}
 		// The same operation again with arguments libvips rejects, which is the only way to
-		// reach the error return every wrapper has.
-		if errorBody, ok := errorCaseBody(op); ok {
+		// reach the error return every wrapper has: once with no options, and once with a
+		// literal, because the with-options shim is a second function with its own return.
+		if errorBody, ok := errorCaseBody(op, nilCoverageOptions()); ok {
 			cases = append(cases, CoverageCase{
 				Name: op.Name + "_error",
 				Body: coverageOperationGuard(op.Name) + errorBody,
 			})
+		}
+		if optionsLiteral, ok := coverageOptionsLiteral(op); ok {
+			if errorBody, ok := errorCaseBody(op, optionsLiteral); ok {
+				cases = append(cases, CoverageCase{
+					Name: op.Name + "_error_options",
+					Body: coverageOperationGuard(op.Name) + errorBody,
+				})
+			}
 		}
 	}
 	return cases
