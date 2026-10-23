@@ -461,7 +461,9 @@ func coverageInvalidSource(t *testing.T) *Source {
 	return source
 }
 
-// coverageFailingTarget refuses every write, so a saver fails instead of writing.
+// coverageFailingTarget refuses every write, so a saver fails instead of writing. A small
+// image can stay buffered until close, where libvips drops the error: the wrapper still has to
+// report it, which is what the target write test above pins.
 func coverageFailingTarget(t *testing.T) *Target {
 	t.Helper()
 	return NewTarget(&failingWriter{})
