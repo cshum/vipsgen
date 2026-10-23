@@ -17,6 +17,8 @@ jobs:
   generate:
     name: Generate code for libvips ${{ matrix.vips_version }}
     runs-on: ubuntu-24.04
+    container:
+      image: ghcr.io/cshum/vipsgen/deps:24.04-v1
     strategy:
       matrix:
         include:
@@ -41,56 +43,6 @@ jobs:
         with:
           go-version: ^1.24
           cache: false
-
-      - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-          meson ninja-build cmake \
-          libglib2.0-dev libexpat-dev librsvg2-dev libpng-dev \
-          libjpeg-turbo8-dev libimagequant-dev libfftw3-dev \
-          libpoppler-glib-dev libxml2-dev \
-          libopenslide-dev libcfitsio-dev liborc-0.4-dev libpango1.0-dev \
-          libtiff5-dev libgsf-1-dev giflib-tools libwebp-dev libheif-dev \
-          libheif-plugin-x265 libheif-plugin-libde265 \
-          libopenjp2-7-dev libcgif-dev \
-          gobject-introspection libgirepository1.0-dev \
-          libmagickwand-dev libmatio-dev libnifti2-dev \
-          libjxl-dev libzip-dev libarchive-dev \
-          libraw-dev
-          
-          # Create missing NIfTI pkg-config file to help libvips meson detect it
-          # Ubuntu's libnifti2-dev doesn't provide the pkg-config file that libvips expects
-          sudo mkdir -p /usr/local/lib/pkgconfig
-          sudo tee /usr/local/lib/pkgconfig/niftiio.pc > /dev/null <<EOF
-          prefix=/usr
-          exec_prefix=\${prefix}
-          libdir=\${prefix}/lib/x86_64-linux-gnu
-          includedir=\${prefix}/include/nifti
-          
-          Name: libniftiio
-          Description: nifti library
-          Version: 3.0.1
-          Requires: 
-          Cflags: -I\${includedir}
-          Libs: -L\${libdir} -lniftiio -lznz
-          EOF
-
-      - name: Build libultrahdr
-        if: matrix.ultrahdr == 'true'
-        run: |
-          # Ubuntu 24.04 does not package libultrahdr, and libvips only has the UltraHDR
-          # loader when it is present at configure time.
-          git clone --depth 1 --branch v1.4.0 https://github.com/google/libultrahdr.git
-          cmake -S libultrahdr -B libultrahdr/build \
-            -DCMAKE_BUILD_TYPE=Release \
-            -DUHDR_BUILD_EXAMPLES=OFF \
-            -DUHDR_BUILD_TESTS=OFF \
-            -DUHDR_BUILD_BENCHMARK=OFF
-          cmake --build libultrahdr/build -j"$(nproc)"
-          sudo cmake --install libultrahdr/build
-          sudo ldconfig
-          pkg-config --modversion libuhdr
 
       - name: Cache libvips
         uses: actions/cache@v5
