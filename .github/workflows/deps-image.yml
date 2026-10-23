@@ -43,5 +43,4 @@ jobs:
           file: docker/deps.Dockerfile
           push: true
           tags: |
-            ghcr.io/${{ github.repository }}/deps:24.04-v1
-            ghcr.io/${{ github.repository }}/deps:latest
+            ghcr.io/${{ github.repository }}/deps:24.04-v2
