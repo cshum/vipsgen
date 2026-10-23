@@ -5,7 +5,7 @@ ARG ULTRAHDR_VERSION=v1.4.0
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-      meson ninja-build cmake git wget ca-certificates sudo \
+      meson ninja-build cmake git wget curl ca-certificates gpg sudo \
       libglib2.0-dev libexpat-dev librsvg2-dev libpng-dev \
       libjpeg-turbo8-dev libimagequant-dev libfftw3-dev \
       libpoppler-glib-dev libxml2-dev \
