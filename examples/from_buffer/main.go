@@ -1,40 +1,17 @@
 package main
 
 import (
-	"fmt"
+	"github.com/cshum/vipsgen/v2/examples/testdata"
 	"github.com/cshum/vipsgen/v2/vips"
 	_ "image/png"
-	"io"
 	"log"
-	"net/http"
+	"os"
 )
 
-func getBytesFromURL(url string) ([]byte, error) {
-	// Make HTTP GET request
-	resp, err := http.Get(url)
-	if err != nil {
-		return nil, fmt.Errorf("HTTP request failed: %v", err)
-	}
-	defer resp.Body.Close()
-
-	// Check response status
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("bad status: %s", resp.Status)
-	}
-
-	// Read entire response body into bytes
-	data, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read response: %v", err)
-	}
-
-	return data, nil
-}
-
 func main() {
-	buf, err := getBytesFromURL("https://raw.githubusercontent.com/cshum/imagor/master/testdata/gopher.png")
+	buf, err := os.ReadFile(testdata.Path("gopher.png"))
 	if err != nil {
-		log.Fatalf("Failed to fetch image: %v", err)
+		log.Fatalf("Failed to read image: %v", err)
 	}
 
 	// Create vips.Image from Go image

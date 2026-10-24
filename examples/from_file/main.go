@@ -1,44 +1,15 @@
 package main
 
 import (
-	"fmt"
-	"io"
 	"log"
-	"net/http"
-	"os"
 
+	"github.com/cshum/vipsgen/v2/examples/testdata"
 	"github.com/cshum/vipsgen/v2/vips"
 )
 
-// downloadFile helper function to download file from url
-func downloadFile(url string, filepath string) error {
-	out, err := os.Create(filepath)
-	if err != nil {
-		return err
-	}
-	defer out.Close()
-	resp, err := http.Get(url)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("bad status: %s", resp.Status)
-	}
-	_, err = io.Copy(out, resp.Body)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
 func main() {
-	err := downloadFile("https://raw.githubusercontent.com/cshum/imagor/master/testdata/dancing-banana.gif", "dancing-banana.gif")
-	if err != nil {
-		log.Fatalf("Failed to fetch image: %v", err)
-	}
 	// N: -1 loads every frame, so the multi-page crop below has pages to work on.
-	image, err := vips.NewImageFromFile("dancing-banana.gif", &vips.LoadOptions{N: -1})
+	image, err := vips.NewImageFromFile(testdata.Path("dancing-banana.gif"), &vips.LoadOptions{N: -1})
 	if err != nil {
 		log.Fatalf("Failed to load image: %v", err)
 	}

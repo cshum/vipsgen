@@ -2,48 +2,11 @@ package main
 
 import (
 	"fmt"
-	"io"
 	"log"
-	"net/http"
 
+	"github.com/cshum/vipsgen/v2/examples/testdata"
 	"github.com/cshum/vipsgen/v2/vips"
 )
-
-func getBytesFromURL(url string) ([]byte, error) {
-	// Make HTTP GET request
-	resp, err := http.Get(url)
-	if err != nil {
-		return nil, fmt.Errorf("HTTP request failed: %v", err)
-	}
-	defer resp.Body.Close()
-
-	// Check response status
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("bad status: %s", resp.Status)
-	}
-
-	// Read entire response body into bytes
-	data, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read response: %v", err)
-	}
-
-	return data, nil
-}
-
-func loadImageFromURL(url string) (*vips.Image, error) {
-	buf, err := getBytesFromURL(url)
-	if err != nil {
-		return nil, fmt.Errorf("failed to fetch image from %s: %v", url, err)
-	}
-
-	image, err := vips.NewImageFromBuffer(buf, nil)
-	if err != nil {
-		return nil, fmt.Errorf("failed to load image: %v", err)
-	}
-
-	return image, nil
-}
 
 func demonstrateMosaic() {
 	fmt.Println("\n=== MOSAIC OPERATION WITH OPTIONAL OUTPUTS ===")
@@ -52,7 +15,7 @@ func demonstrateMosaic() {
 	fmt.Println("Loading real images for mosaic demonstration...")
 
 	// Load the same image twice and create overlapping versions
-	baseImg, err := loadImageFromURL("https://raw.githubusercontent.com/cshum/imagor/master/testdata/demo1.jpg")
+	baseImg, err := vips.NewImageFromFile(testdata.Path("demo1.jpg"), nil)
 	if err != nil {
 		log.Printf("Failed to load base image: %v", err)
 		return
@@ -154,7 +117,7 @@ func demonstrateSmartcrop() {
 
 	// Load an image for smart cropping
 	fmt.Println("Loading image for smart cropping...")
-	img, err := loadImageFromURL("https://raw.githubusercontent.com/cshum/imagor/master/testdata/demo1.jpg")
+	img, err := vips.NewImageFromFile(testdata.Path("demo1.jpg"), nil)
 	if err != nil {
 		log.Printf("Failed to load image: %v", err)
 		return
@@ -205,7 +168,7 @@ func demonstrateMaxMinPositions() {
 
 	// Load an image for max/min operations
 	fmt.Println("Loading image for max/min analysis...")
-	img, err := loadImageFromURL("https://raw.githubusercontent.com/cshum/imagor/master/testdata/demo1.jpg")
+	img, err := vips.NewImageFromFile(testdata.Path("demo1.jpg"), nil)
 	if err != nil {
 		log.Printf("Failed to load image: %v", err)
 		return
