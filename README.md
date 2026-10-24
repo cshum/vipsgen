@@ -46,7 +46,7 @@ All operations take their required arguments directly as Go arguments, and their
   field takes the value itself. Each field comment gives its range and default.
 - An options struct needs only the fields you want to change: a pointer field left `nil` leaves
   the option to libvips, and `vips.Ptr(v)` passes the value.
-- See [examples](https://github.com/cshum/vipsgen/tree/main/examples) for usage patterns, and
+- See [examples](https://github.com/cshum/vipsgen/blob/main/examples/README.md) for usage patterns, and
   [MIGRATION.md](MIGRATION.md) if you are upgrading from v1.
 
 
@@ -168,7 +168,7 @@ Operation names can be referenced from the official [libvips documentation](http
 
 **Generic loaders** — [`NewImageFromFile`](https://pkg.go.dev/github.com/cshum/vipsgen/v2/vips#NewImageFromFile), [`NewImageFromBuffer`](https://pkg.go.dev/github.com/cshum/vipsgen/v2/vips#NewImageFromBuffer), [`NewImageFromSource`](https://pkg.go.dev/github.com/cshum/vipsgen/v2/vips#NewImageFromSource) — automatically detect the image format and accept `LoadOptions`, a generic options struct covering common options across formats. Since not every format supports every option, use the **format-specific loaders** — [`NewGifload`](https://pkg.go.dev/github.com/cshum/vipsgen/v2/vips#NewGifload), [`NewJpegloadBuffer`](https://pkg.go.dev/github.com/cshum/vipsgen/v2/vips#NewJpegloadBuffer), [`NewPngloadSource`](https://pkg.go.dev/github.com/cshum/vipsgen/v2/vips#NewPngloadSource), etc. — for precise, type-safe control. A few common examples:
 
-**Animated GIF** — `N: -1` loads all frames ([full example](https://github.com/cshum/vipsgen/tree/main/examples/from_file)):
+**Animated GIF** — `N: -1` loads all frames ([from_file example](https://github.com/cshum/vipsgen/blob/main/examples/from_file/main.go)):
 
 ```go
 image, err := vips.NewGifload("animation.gif", &vips.GifloadOptions{
@@ -222,7 +222,7 @@ These methods automatically fall through to the equivalent single-frame operatio
 
 vipsgen is a Go binding: each method does what its libvips operation does. On a stacked image, then, `Flip`, `Rot` and `ExtractArea` act across frame boundaries and `Resize` leaves `PageHeight` as it was.
 
-For per-frame work on an operation with no MultiPage helper, [examples/animated_gif/main.go](https://github.com/cshum/vipsgen/blob/main/examples/animated_gif/main.go) shows the pattern: copy the image, cut each page out, transform it, join the frames back, set the page height.
+For per-frame work on an operation with no MultiPage helper, [animated_gif example](https://github.com/cshum/vipsgen/blob/main/examples/animated_gif/main.go) shows the pattern: copy the image, cut each page out, transform it, join the frames back, set the page height.
 
 ## Code Generation
 
