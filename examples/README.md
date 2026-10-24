@@ -15,5 +15,3 @@ go run ./examples/from_file
 | [io_reader_writer](io_reader_writer/main.go) | reads an `io.Reader` through a `Source`, thumbnails, writes `resized-gopher.webp` through a target |
 | [option_presence](option_presence/main.go) | writes `presence.png` to a temporary directory to show what `nil` and `vips.Ptr(0)` mean in an options struct |
 | [optional_outputs](optional_outputs/main.go) | mosaics two images, reads back the optional outputs, saves `mosaic_result.jpg`, `smartcrop_result.jpg` and `flood_fill_result.jpg` |
-
-The input images are in `examples/testdata`, which the programs locate from their own source, so they run from any directory. Output lands in the working directory.
