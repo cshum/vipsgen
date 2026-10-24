@@ -5,8 +5,9 @@ import (
 	"image/draw"
 	_ "image/png"
 	"log"
-	"net/http"
+	"os"
 
+	"github.com/cshum/vipsgen/v2/examples/testdata"
 	"github.com/cshum/vipsgen/v2/vips"
 )
 
@@ -58,14 +59,14 @@ func vipsToGoImage(img *vips.Image) (*image.NRGBA, error) {
 }
 
 func main() {
-	// Fetch a PNG from the network as a Go image.Image
-	resp, err := http.Get("https://raw.githubusercontent.com/cshum/imagor/master/testdata/gopher.png")
+	// Open a local PNG as a Go image.Image
+	f, err := os.Open(testdata.Path("gopher.png"))
 	if err != nil {
-		log.Fatalf("Failed to fetch image: %v", err)
+		log.Fatalf("Failed to open image: %v", err)
 	}
-	defer resp.Body.Close()
+	defer f.Close()
 
-	src, _, err := image.Decode(resp.Body)
+	src, _, err := image.Decode(f)
 	if err != nil {
 		log.Fatalf("Failed to decode image: %v", err)
 	}

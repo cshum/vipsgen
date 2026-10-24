@@ -7,22 +7,20 @@
 package main
 
 import (
-	"fmt"
-	"io"
 	"log"
-	"net/http"
+	"os"
 
+	"github.com/cshum/vipsgen/v2/examples/testdata"
 	"github.com/cshum/vipsgen/v2/vips"
 )
 
 const (
-	url     = "https://raw.githubusercontent.com/cshum/imagor/master/testdata/dancing-banana.gif"
 	outPath = "dancing-banana-pixelated.gif"
 	block   = 10
 )
 
 func main() {
-	data, err := fetch(url)
+	data, err := os.ReadFile(testdata.Path("dancing-banana.gif"))
 	if err != nil {
 		log.Fatalf("Failed to fetch image: %v", err)
 	}
@@ -92,16 +90,4 @@ func main() {
 		log.Fatalf("Failed to save image: %v", err)
 	}
 	log.Printf("Saved %s: %d frames of %d rows", outPath, img.Height()/img.PageHeight(), img.PageHeight())
-}
-
-func fetch(url string) ([]byte, error) {
-	resp, err := http.Get(url)
-	if err != nil {
-		return nil, fmt.Errorf("HTTP request failed: %v", err)
-	}
-	defer resp.Body.Close()
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("bad status: %s", resp.Status)
-	}
-	return io.ReadAll(resp.Body)
 }

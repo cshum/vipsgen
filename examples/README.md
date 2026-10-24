@@ -1,7 +1,6 @@
 # Examples
 
-Each directory is a small program showing one way to use the bindings. Run one from the
-repository root:
+Each directory is a small program showing one way to use the bindings:
 
 ```bash
 go run ./examples/from_file
@@ -17,4 +16,4 @@ go run ./examples/from_file
 | [option_presence](option_presence/main.go) | writes `presence.png` to a temporary directory to show what `nil` and `vips.Ptr(0)` mean in an options struct |
 | [optional_outputs](optional_outputs/main.go) | mosaics two images, reads back the optional outputs, saves `mosaic_result.jpg`, `smartcrop_result.jpg` and `flood_fill_result.jpg` |
 
-Most examples download their input, so they need network access.
+The input images are in `examples/testdata`, which the programs locate from their own source, so they run from any directory. Output lands in the working directory.

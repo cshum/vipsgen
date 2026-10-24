@@ -2,22 +2,22 @@ package main
 
 import (
 	"log"
-	"net/http"
 	"os"
 
+	"github.com/cshum/vipsgen/v2/examples/testdata"
 	"github.com/cshum/vipsgen/v2/vips"
 )
 
 func main() {
-	// Fetch an image from http.Get
-	resp, err := http.Get("https://raw.githubusercontent.com/cshum/imagor/master/testdata/gopher.png")
+	// Open a file; anything that reads can back a source
+	f, err := os.Open(testdata.Path("gopher.png"))
 	if err != nil {
-		log.Fatalf("Failed to fetch image: %v", err)
+		log.Fatalf("Failed to open image: %v", err)
 	}
-	defer resp.Body.Close()
+	defer f.Close()
 
 	// Create source from io.ReadCloser
-	source := vips.NewSource(resp.Body)
+	source := vips.NewSource(f)
 	defer source.Close() // source needs to remain available during image lifetime
 
 	// Shrink-on-load via creating image from thumbnail source with options
