@@ -28,7 +28,7 @@ func main() {
 	}
 
 	// N: -1 loads every frame, which is what a frame-by-frame transform needs.
-	img, err := vips.NewImageFromBuffer(data, &vips.LoadOptions{N: -1})
+	img, err := vips.NewGifloadBuffer(data, &vips.GifloadBufferOptions{N: -1})
 	if err != nil {
 		log.Fatalf("Failed to load image: %v", err)
 	}

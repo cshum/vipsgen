@@ -37,10 +37,8 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to fetch image: %v", err)
 	}
-	// Load all animation frames using the GIF-specific file loader
-	image, err := vips.NewGifload("dancing-banana.gif", &vips.GifloadOptions{
-		N: -1, // -1 = load all animation frames
-	})
+	// N: -1 loads every frame, so the multi-page crop below has pages to work on.
+	image, err := vips.NewImageFromFile("dancing-banana.gif", &vips.LoadOptions{N: -1})
 	if err != nil {
 		log.Fatalf("Failed to load image: %v", err)
 	}
