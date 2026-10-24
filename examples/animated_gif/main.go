@@ -27,7 +27,10 @@ func main() {
 		log.Fatalf("Failed to fetch image: %v", err)
 	}
 
-	// N: -1 loads every frame, which is what a frame-by-frame transform needs.
+	// N: -1 loads every frame, which is what a frame-by-frame transform needs. A GIF on
+	// disk takes the same option through its own loader:
+	//
+	//	img, err := vips.NewGifload("dancing-banana.gif", &vips.GifloadOptions{N: -1})
 	img, err := vips.NewImageFromBuffer(data, &vips.LoadOptions{N: -1})
 	if err != nil {
 		log.Fatalf("Failed to load image: %v", err)

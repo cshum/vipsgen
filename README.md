@@ -168,7 +168,7 @@ Operation names can be referenced from the official [libvips documentation](http
 
 **Generic loaders** — [`NewImageFromFile`](https://pkg.go.dev/github.com/cshum/vipsgen/v2/vips#NewImageFromFile), [`NewImageFromBuffer`](https://pkg.go.dev/github.com/cshum/vipsgen/v2/vips#NewImageFromBuffer), [`NewImageFromSource`](https://pkg.go.dev/github.com/cshum/vipsgen/v2/vips#NewImageFromSource) — automatically detect the image format and accept `LoadOptions`, a generic options struct covering common options across formats. Since not every format supports every option, use the **format-specific loaders** — [`NewGifload`](https://pkg.go.dev/github.com/cshum/vipsgen/v2/vips#NewGifload), [`NewJpegloadBuffer`](https://pkg.go.dev/github.com/cshum/vipsgen/v2/vips#NewJpegloadBuffer), [`NewPngloadSource`](https://pkg.go.dev/github.com/cshum/vipsgen/v2/vips#NewPngloadSource), etc. — for precise, type-safe control. A few common examples:
 
-**Animated GIF** — `N: -1` loads all frames ([from_file example](https://github.com/cshum/vipsgen/blob/main/examples/from_file/main.go)):
+**Animated GIF** — `N: -1` loads all frames ([animated_gif example](https://github.com/cshum/vipsgen/blob/main/examples/animated_gif/main.go)):
 
 ```go
 image, err := vips.NewGifload("animation.gif", &vips.GifloadOptions{
