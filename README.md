@@ -166,7 +166,7 @@ Operation names can be referenced from the official [libvips documentation](http
 
 ## Image Loaders
 
-**Generic loaders** — [`NewImageFromFile`](https://pkg.go.dev/github.com/cshum/vipsgen/v2/vips#NewImageFromFile), [`NewImageFromBuffer`](https://pkg.go.dev/github.com/cshum/vipsgen/v2/vips#NewImageFromBuffer), [`NewImageFromSource`](https://pkg.go.dev/github.com/cshum/vipsgen/v2/vips#NewImageFromSource) — automatically detect the image format and accept `LoadOptions`, a generic options struct covering common options across formats. Since not every format supports every option, use the **format-specific loaders** — [`NewGifload`](https://pkg.go.dev/github.com/cshum/vipsgen/v2/vips#NewGifload), [`NewJpegloadBuffer`](https://pkg.go.dev/github.com/cshum/vipsgen/v2/vips#NewJpegloadBuffer), [`NewPngloadSource`](https://pkg.go.dev/github.com/cshum/vipsgen/v2/vips#NewPngloadSource), etc. — for precise, type-safe control. A few common examples:
+**Generic loaders** ([`NewImageFromFile`](https://pkg.go.dev/github.com/cshum/vipsgen/v2/vips#NewImageFromFile), [`NewImageFromBuffer`](https://pkg.go.dev/github.com/cshum/vipsgen/v2/vips#NewImageFromBuffer), [`NewImageFromSource`](https://pkg.go.dev/github.com/cshum/vipsgen/v2/vips#NewImageFromSource)) automatically detect the image format and accept `LoadOptions`, a generic options struct covering common options across formats. Since not every format supports every option, use the **format-specific loaders** ([`NewGifload`](https://pkg.go.dev/github.com/cshum/vipsgen/v2/vips#NewGifload), [`NewJpegloadBuffer`](https://pkg.go.dev/github.com/cshum/vipsgen/v2/vips#NewJpegloadBuffer), [`NewPngloadSource`](https://pkg.go.dev/github.com/cshum/vipsgen/v2/vips#NewPngloadSource), etc.) for precise, type-safe control. A few common examples:
 
 **Animated GIF** — `N: -1` loads all frames ([animated_gif example](https://github.com/cshum/vipsgen/blob/main/examples/animated_gif/main.go)):
 
@@ -202,7 +202,7 @@ img.Loop()                  // loop count (0 = infinite)
 
 ### Multi-page Helpers
 
-Some operations — rotate, crop, embed — cannot be expressed as a single libvips pipeline call across a stacked image. vipsgen ships hand-written C helpers that loop over frames internally, so there is no per-frame CGo overhead from Go:
+Some operations (rotate, crop, embed) cannot be expressed as a single libvips pipeline call across a stacked image. vipsgen ships hand-written C helpers that loop over frames internally, so there is no per-frame CGo overhead from Go:
 
 ```go
 // Rotate all frames
