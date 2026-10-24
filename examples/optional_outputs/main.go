@@ -3,25 +3,10 @@ package main
 import (
 	"fmt"
 	"log"
-	"os"
 
 	"github.com/cshum/vipsgen/v2/examples/testdata"
 	"github.com/cshum/vipsgen/v2/vips"
 )
-
-func loadImageFromFile(path string) (*vips.Image, error) {
-	buf, err := os.ReadFile(path)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read image from %s: %v", path, err)
-	}
-
-	image, err := vips.NewImageFromBuffer(buf, nil)
-	if err != nil {
-		return nil, fmt.Errorf("failed to load image: %v", err)
-	}
-
-	return image, nil
-}
 
 func demonstrateMosaic() {
 	fmt.Println("\n=== MOSAIC OPERATION WITH OPTIONAL OUTPUTS ===")
@@ -30,7 +15,7 @@ func demonstrateMosaic() {
 	fmt.Println("Loading real images for mosaic demonstration...")
 
 	// Load the same image twice and create overlapping versions
-	baseImg, err := loadImageFromFile(testdata.Path("demo1.jpg"))
+	baseImg, err := vips.NewImageFromFile(testdata.Path("demo1.jpg"), nil)
 	if err != nil {
 		log.Printf("Failed to load base image: %v", err)
 		return
@@ -132,7 +117,7 @@ func demonstrateSmartcrop() {
 
 	// Load an image for smart cropping
 	fmt.Println("Loading image for smart cropping...")
-	img, err := loadImageFromFile(testdata.Path("demo1.jpg"))
+	img, err := vips.NewImageFromFile(testdata.Path("demo1.jpg"), nil)
 	if err != nil {
 		log.Printf("Failed to load image: %v", err)
 		return
@@ -183,7 +168,7 @@ func demonstrateMaxMinPositions() {
 
 	// Load an image for max/min operations
 	fmt.Println("Loading image for max/min analysis...")
-	img, err := loadImageFromFile(testdata.Path("demo1.jpg"))
+	img, err := vips.NewImageFromFile(testdata.Path("demo1.jpg"), nil)
 	if err != nil {
 		log.Printf("Failed to load image: %v", err)
 		return
