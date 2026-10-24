@@ -10,9 +10,12 @@ supplied", so it was dropped, and libvips applied its default instead.
 // v1 passed nothing. libvips used its default, 6.
 ```
 
-That is a silent wrong answer. The output is a valid PNG, so nothing fails; it is just not the
-file you asked for. It bit `effort`, `compression` and `intent` before v2, and each was patched
-by hand. A growing list of special cases is not a design.
+The output is a valid PNG, so nothing fails, but it is not compressed the way you asked.
+
+The same thing happened with `effort` for HEIF and WebP
+([#95](https://github.com/cshum/vipsgen/pull/95)), `compression` for PNG
+([#101](https://github.com/cshum/vipsgen/pull/101)) and `intent` for ICC and thumbnail
+([#103](https://github.com/cshum/vipsgen/pull/103)).
 
 ## How v2 reads an options struct
 
@@ -25,9 +28,13 @@ by hand. A growing list of special cases is not a design.
 `nil` means "not supplied". `vips.Ptr(v)` means "supplied", zero included. The type tells you
 which fields work this way: `*int` against `int`, `*string` against `string`.
 
-Why not make every field a pointer? Because most fields do not need it. A field is only a
-pointer when libvips accepts its zero **and** that zero differs from the option's default.
-Everywhere else a plain value is already unambiguous, and keeps the structs readable.
+Most fields do not need a pointer. A field is only one when libvips accepts its zero **and**
+that zero differs from the option's default.
+
+That leaves the usual Go reading of a struct in place. A field left alone holds its zero value,
+and `0`, `false` and `""` are ordinary values there, not an absence. vipsgen keeps that wherever
+it can: a plain field is passed as the value it holds, and a pointer appears only where the zero
+would otherwise be indistinguishable from not setting the field at all.
 
 ## Which fields changed, and why you can trust it
 
@@ -55,8 +62,7 @@ value you might want, and v1 could not pass it.
 &vips.DzsaveOptions{Id: vips.Ptr("")} // no prefix; tiles are referenced relatively
 ```
 
-Spelling a pointer where v1 had a value is a compile error, so the compiler lists the work for
-you. The one silent change is `vips.KeepNone` below.
+Spelling a pointer where v1 had a value is a compile error, so the compiler finds those. The one silent change is `vips.KeepNone` below.
 
 ## What introspection cannot tell, and how those were settled
 
@@ -65,8 +71,8 @@ GParamSpec gives a range and a default, not what libvips does with the value. `g
 (`bad page number`). No amount of introspection separates them.
 
 So each numeric pointer argument was called twice: once with an explicit zero, once without.
-Every saver accepted the zero (`pngsave.compression = 0` really does store uncompressed), which
-keeps the rule intact for savers. The arguments that rejected it stay plain values:
+Every saver accepted the zero (`pngsave.compression = 0` stores uncompressed), so the rule
+still applies to savers. The arguments that rejected it stay plain values:
 
     gifload.n    webpload.n   tiffload.n   tiffload.subifd   webpload.scale
     svgload.scale   heifload.n   pdfload.n   magickload.n   jxlload.n
@@ -87,7 +93,7 @@ as an index. The generated code uses `cgo.Handle`, which does the same job in th
 package is gone. Nothing in this module imported it and pkg.go.dev recorded no importers. If you
 called it directly, `cgo.Handle` replaces it.
 
-## Reading the argument
+## Further reading
 
 - [Discussion #105](https://github.com/cshum/vipsgen/discussions/105) — the problem, written
   before the fix existed.
