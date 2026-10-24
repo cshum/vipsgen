@@ -1,10 +1,5 @@
 # Migrating from v1 to v2
 
-v2 fixes one thing: an option set to a zero value is no longer indistinguishable from an option
-you never touched. Everything else is small.
-
-## The bug worth upgrading for
-
 In v1, vipsgen decided whether to pass an option by looking at its value. A zero meant "not
 supplied", so it was dropped, and libvips applied its default instead.
 
