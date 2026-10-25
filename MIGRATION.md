@@ -1,12 +1,18 @@
 # Migrating from v1 to v2
 
-v2 changes how an optional argument is passed, and the value of `vips.KeepNone`.
+v2 changes how an optional argument is passed, and removes the `pointer` package.
 
-The reason is a problem in the original options API design: generated options use ordinary Go
-values, and vipsgen decides whether to pass an option by looking at its value. That becomes a
-problem when libvips accepts `0` as a valid explicit option, because vipsgen may treat the value
-as "not provided" and skip it. libvips then applies its default instead, which can produce
-behaviour different from what was requested.
+Three things can break when you move:
+
+- fields that are now pointers — compile errors name them;
+- `vips.KeepNone`, which changes value and still compiles;
+- `vipsgen/pointer`, which no longer exists.
+
+The reason for the pointer change is a problem in the original options API design: generated
+options use ordinary Go values, and vipsgen decides whether to pass an option by looking at its
+value. That becomes a problem when libvips accepts `0` as a valid explicit option, because
+vipsgen may treat the value as "not provided" and skip it. libvips then applies its default
+instead, which can produce behaviour different from what was requested.
 
 This has already appeared in several focused fixes:
 
@@ -62,11 +68,13 @@ more idiomatic and easier to use, so those fields remain ordinary values. In pra
 
 A field becomes a pointer when libvips accepts its zero **and** that zero differs from the
 option's default. The classification comes from GParamSpec: the accepted range, the enum or flag
-members, and the default.
+members, and the default. vipsgen does not keep a list of field names, so a new libvips option is
+handled the same way as the old ones.
+
+The type tells you which is which: `*int` against `int`, `*string` against `string`.
 
 From the shipped package: 220 options structs, 1,143 optional fields, and 208 of them are
-pointers, since a zero is meaningful in those fields — for example `Compression`, `Kernel`
-and `Id`.
+pointers. A few of those fields, where a zero is meaningful: `Compression`, `Kernel` and `Id`.
 
 | v1 | v2 |
 |----|----|
@@ -83,7 +91,7 @@ value a caller may want, and v1 could not pass it.
 &vips.DzsaveOptions{Id: vips.Ptr("")} // no prefix; tiles are referenced relatively
 ```
 
-Migration for those pointer field is straightforward, because compile errors identify them —
+Migration for those pointer fields is straightforward, because compile errors identify them —
 except for `vips.KeepNone`.
 
 ## `vips.KeepNone` moved
@@ -94,16 +102,24 @@ hardcodes `-1` still compiles and now means something else, so check for it.
 ## What introspection cannot tell
 
 GParamSpec tells you the range and default of a field, but not what libvips does with the value.
-For instance, `gifload.n` and `webpload.n` have the range -1–100000 and default 1, so by the rule
-above they need a pointer. But `n` is the number of pages to load for multi-page or animated
+For instance, `gifload.n` and `webpload.n` have the range -1 to 100000 and default 1, so by the
+rule above they need a pointer. But `n` is the number of pages to load for multi-page or animated
 images, where `n=-1` means unlimited and `n=0` is invalid.
 
-That can be verified by loading a multi-page image with `n=0`, which fails with a
-(`bad page number`) error. It means `n=0` do not exists and they should stay plain values:
+That was checked by calling each of these arguments twice, once with an explicit zero and once
+without. `n=0` fails with a `bad page number` error, and the others reject the zero the same way,
+so they stay plain values:
 
     gifload.n    webpload.n   tiffload.n   tiffload.subifd   webpload.scale
     svgload.scale   heifload.n   pdfload.n   magickload.n   jxlload.n
     csvload.lines   similarity.scale   dzsave.suffix
+
+## The `pointer` package is gone
+
+v1, and v2 up to 2.0.5, carried `pointer.Save/Restore/Unref/Clear` to pass a Go object through C
+as an index. The generated code uses `cgo.Handle`, which does the same job in the runtime, so the
+package is gone. Nothing in this module imported it and pkg.go.dev recorded no importers. If you
+called it directly, `cgo.Handle` replaces it.
 
 ## Further reading
 
