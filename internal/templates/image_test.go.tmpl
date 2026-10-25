@@ -16,7 +16,9 @@ import (
 	"path/filepath"
 	"reflect"
 	"runtime"
+	"strconv"
 	"strings"
+	"syscall"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -54,17 +56,73 @@ func TestMain(m *testing.M) {
 			finalStats.Mem-initialStats.Mem,
 			finalStats.Files-initialStats.Files,
 			finalStats.Allocs-initialStats.Allocs)
+	} else {
+		fmt.Printf("No memory leaks detected.\n")
+		fmt.Printf("Final stats - Mem: %d, Files: %d, Allocs: %d\n",
+			finalStats.Mem, finalStats.Files, finalStats.Allocs)
+	}
 
-		Shutdown()
+	// Anything libvips did not keep itself was never closed.
+	report := shutdownAndReportLeaks()
+	alive := countObjectsAlive(report)
+	if !strings.Contains(report, "high-water mark") {
+		fmt.Printf("the shutdown report could not be read:\n%s", report)
+		os.Exit(1)
+	}
+	if alive > retainedByLibvips {
+		fmt.Printf("%d objects survived shutdown, more than the %d libvips keeps:\n%s",
+			alive, retainedByLibvips, report)
+	}
+
+	if memLeaked || filesLeaked || allocsLeaked || alive > retainedByLibvips {
 		os.Exit(1) // Exit with error code
 	}
 
-	fmt.Printf("No memory leaks detected.\n")
-	fmt.Printf("Final stats - Mem: %d, Files: %d, Allocs: %d\n",
-		finalStats.Mem, finalStats.Files, finalStats.Allocs)
-
-	Shutdown()
 	os.Exit(code) // Exit with the test result code
+}
+
+// A save libvips abandons keeps its target, and never more than two of them.
+const retainedByLibvips = 2
+
+// shutdownAndReportLeaks returns what libvips writes to stderr about objects
+// still alive, with that descriptor pointed at a file for the length of the call.
+func shutdownAndReportLeaks() string {
+	f, err := os.CreateTemp("", "vips-objects-")
+	if err != nil {
+		Shutdown()
+		return ""
+	}
+	defer os.Remove(f.Name())
+
+	saved, err := syscall.Dup(int(os.Stderr.Fd()))
+	if err != nil {
+		f.Close()
+		Shutdown()
+		return ""
+	}
+	syscall.Dup2(int(f.Fd()), int(os.Stderr.Fd()))
+	Shutdown()
+	syscall.Dup2(saved, int(os.Stderr.Fd()))
+	syscall.Close(saved)
+	f.Close()
+
+	out, _ := os.ReadFile(f.Name())
+	return string(out)
+}
+
+// countObjectsAlive reads the "N objects alive:" line out of a shutdown report.
+func countObjectsAlive(report string) int {
+	for _, line := range strings.Split(report, "\n") {
+		if !strings.HasSuffix(line, " objects alive:") {
+			continue
+		}
+		n, err := strconv.Atoi(strings.TrimSuffix(line, " objects alive:"))
+		if err != nil {
+			return 0
+		}
+		return n
+	}
+	return 0
 }
 
 // createTestPngBuffer creates a test PNG image with a pattern

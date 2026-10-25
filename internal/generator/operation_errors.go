@@ -72,6 +72,10 @@ func errorCaseBody(op introspection.Operation, co coverageOptions) (string, bool
 		// The bytes are a hidden argument: callArguments drops it, so the call cannot be built.
 		return "", false
 	}
+	if op.Name == "radsave_target" {
+		// An aborted write leaves this target and a memory target alive in libvips.
+		return "", false
+	}
 
 	var exprs []string
 	injected := false
