@@ -1,8 +1,6 @@
 # Migrating from v1 to v2
 
-v2 changes how an optional argument is passed, and removes the `pointer` package.
-
-Three things can break when you move:
+v2 changes how an optional argument is passed. Three breaking changes:
 
 - fields that are now pointers — compile errors name them;
 - `vips.KeepNone`, which changes value and still compiles;
@@ -116,7 +114,7 @@ so they stay plain values:
 
 ## The `pointer` package is gone
 
-v1, and v2 up to 2.0.5, carried `pointer.Save/Restore/Unref/Clear` to pass a Go object through C
+v1 carried `pointer.Save/Restore/Unref/Clear` to pass a Go object through C
 as an index. The generated code uses `cgo.Handle`, which does the same job in the runtime, so the
 package is gone. Nothing in this module imported it and pkg.go.dev recorded no importers. If you
 called it directly, `cgo.Handle` replaces it.
