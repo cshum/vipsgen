@@ -4924,6 +4924,7 @@ func TestMosaicOperations(t *testing.T) {
 		t.Helper()
 		img, err := NewGaussnoise(256, 256, &GaussnoiseOptions{Sigma: testFloatPtr(40)})
 		require.NoError(t, err)
+		t.Cleanup(img.Close)
 		require.NoError(t, img.BandjoinConst([]float64{128, 64}))
 		require.NoError(t, img.Cast(BandFormatUchar, nil))
 		rgb, err := img.Copy(&CopyOptions{Interpretation: InterpretationSrgb})
