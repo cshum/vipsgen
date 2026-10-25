@@ -466,7 +466,9 @@ func coverageInvalidSource(t *testing.T) *Source {
 // report it, which is what the target write test above pins.
 func coverageFailingTarget(t *testing.T) *Target {
 	t.Helper()
-	return NewTarget(&failingWriter{})
+	target := NewTarget(&failingWriter{})
+	t.Cleanup(target.Close)
+	return target
 }
 
 // failingReader returns err instead of io.EOF at the end of its data. It is
