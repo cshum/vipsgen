@@ -65,6 +65,10 @@ func TestMain(m *testing.M) {
 	// Anything libvips did not keep itself was never closed.
 	report := shutdownAndReportLeaks()
 	alive := countObjectsAlive(report)
+	if !strings.Contains(report, "high-water mark") {
+		fmt.Printf("the shutdown report could not be read:\n%s", report)
+		os.Exit(1)
+	}
 	if alive > retainedByLibvips {
 		fmt.Printf("%d objects survived shutdown, more than the %d libvips keeps:\n%s",
 			alive, retainedByLibvips, report)
@@ -96,23 +100,13 @@ func shutdownAndReportLeaks() string {
 		Shutdown()
 		return ""
 	}
-	if err := syscall.Dup2(int(f.Fd()), int(os.Stderr.Fd())); err != nil {
-		syscall.Close(saved)
-		f.Close()
-		Shutdown()
-		return ""
-	}
-
+	syscall.Dup2(int(f.Fd()), int(os.Stderr.Fd()))
 	Shutdown()
-
 	syscall.Dup2(saved, int(os.Stderr.Fd()))
 	syscall.Close(saved)
 	f.Close()
 
-	out, err := os.ReadFile(f.Name())
-	if err != nil {
-		return ""
-	}
+	out, _ := os.ReadFile(f.Name())
 	return string(out)
 }
 
