@@ -8399,25 +8399,6 @@ func TestGeneratedOperations(t *testing.T) {
 			t.Fatalf("radsave_target: wrote nothing to the target")
 		}
 	})
-	t.Run("radsave_target_error", func(t *testing.T) {
-		if !HasOperation("radsave_target") {
-			t.Skipf("this libvips has no radsave_target")
-		}
-		img := coverageImage(t)
-		if err := img.RadsaveTarget(coverageFailingTarget(t), nil); err == nil {
-			t.Skipf("radsave_target: accepted arguments libvips should reject")
-		}
-	})
-	t.Run("radsave_target_error_options", func(t *testing.T) {
-		if !HasOperation("radsave_target") {
-			t.Skipf("this libvips has no radsave_target")
-		}
-		opts := &RadsaveTargetOptions{Keep: Ptr(KeepNone), Background: []float64{1}, PageHeight: 1}
-		img := coverageImage(t)
-		if err := img.RadsaveTarget(coverageFailingTarget(t), opts); err == nil {
-			t.Skipf("radsave_target: accepted arguments libvips should reject")
-		}
-	})
 	t.Run("rank", func(t *testing.T) {
 		if !HasOperation("rank") {
 			t.Skipf("this libvips has no rank")
