@@ -6485,7 +6485,8 @@ func vipsImageGetBlob(in *C.VipsImage, name string) ([]byte, error) {
 	if int(C.vips_image_get_blob(in, cField, &bufPtr, &dataLength)) != 0 {
 		return nil, handleVipsError()
 	}
-	return bufferToBytes(bufPtr, dataLength), nil
+	// A copy only: the image owns the buffer.
+	return C.GoBytes(bufPtr, C.int(dataLength)), nil
 }
 
 func vipsHasICCProfile(in *C.VipsImage) bool {
