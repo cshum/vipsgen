@@ -207,14 +207,6 @@ func vipsImageGetArrayDouble(in *C.VipsImage, name string) ([]float64, error) {
 	return result, nil
 }
 
-func vipsImageSetBlob(in *C.VipsImage, name string, data []byte) {
-	cData := unsafe.Pointer(&data[0])
-	cDataLength := C.size_t(len(data))
-	cField := C.CString(name)
-	defer freeCString(cField)
-	C.vips_image_set_blob_copy(in, cField, cData, cDataLength)
-}
-
 func vipsImageGetBlob(in *C.VipsImage, name string) ([]byte, error) {
 	var bufPtr unsafe.Pointer
 	var dataLength C.size_t

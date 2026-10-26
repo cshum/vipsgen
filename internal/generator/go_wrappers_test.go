@@ -127,7 +127,7 @@ func TestGenerateReturnValuesVectorOutput(t *testing.T) {
 	}
 
 	got := generateReturnValues(op)
-	want := "result := make([]float64, count)\n\tcopy(result, (*[1024]float64)(unsafe.Pointer(out))[:count:count])\n\tgFreePointer(unsafe.Pointer(out))\n\treturn result, count, flag, nil"
+	want := "result := make([]float64, count)\n\tcopy(result, unsafe.Slice((*float64)(unsafe.Pointer(out)), count))\n\tgFreePointer(unsafe.Pointer(out))\n\treturn result, count, flag, nil"
 	if got != want {
 		t.Fatalf("unexpected return values: got %q want %q", got, want)
 	}

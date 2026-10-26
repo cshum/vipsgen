@@ -10274,7 +10274,7 @@ func (r *Image) setImage(image *C.VipsImage) {
 	r.pageHeight = 0
 }
 
-// Close closes the image and frees the memory
+// Close closes the image and frees the memory. The image cannot be used afterwards.
 func (r *Image) Close() {
 	if r == nil {
 		return

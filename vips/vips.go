@@ -1856,7 +1856,7 @@ func vipsgenGetpoint(in *C.VipsImage, x int, y int) ([]float64, error) {
 	}
 	n = int(*cn)
 	result := make([]float64, n)
-	copy(result, (*[1024]float64)(unsafe.Pointer(out))[:n:n])
+	copy(result, unsafe.Slice((*float64)(unsafe.Pointer(out)), n))
 	gFreePointer(unsafe.Pointer(out))
 	return result, nil
 }
@@ -1871,7 +1871,7 @@ func vipsgenGetpointWithOptions(in *C.VipsImage, x int, y int, unpackComplex boo
 	}
 	n = int(*cn)
 	result := make([]float64, n)
-	copy(result, (*[1024]float64)(unsafe.Pointer(out))[:n:n])
+	copy(result, unsafe.Slice((*float64)(unsafe.Pointer(out)), n))
 	gFreePointer(unsafe.Pointer(out))
 	return result, nil
 }
@@ -6810,14 +6810,6 @@ func vipsImageGetArrayDouble(in *C.VipsImage, name string) ([]float64, error) {
 	// Do not free 'out' - it points to libvips-managed memory that will be
 	// automatically freed when the VipsImage is unreferenced
 	return result, nil
-}
-
-func vipsImageSetBlob(in *C.VipsImage, name string, data []byte) {
-	cData := unsafe.Pointer(&data[0])
-	cDataLength := C.size_t(len(data))
-	cField := C.CString(name)
-	defer freeCString(cField)
-	C.vips_image_set_blob_copy(in, cField, cData, cDataLength)
 }
 
 func vipsImageGetBlob(in *C.VipsImage, name string) ([]byte, error) {
