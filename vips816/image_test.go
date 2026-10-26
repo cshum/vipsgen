@@ -63,26 +63,39 @@ func TestMain(m *testing.M) {
 	}
 
 	// Anything libvips did not keep itself was never closed.
+	limit := retainedByLibvips * testRepeatCount()
 	report := shutdownAndReportLeaks()
 	alive := countObjectsAlive(report)
 	if !strings.Contains(report, "high-water mark") {
 		fmt.Printf("the shutdown report could not be read:\n%s", report)
 		os.Exit(1)
 	}
-	if alive > retainedByLibvips {
+	if alive > limit {
 		fmt.Printf("%d objects survived shutdown, more than the %d libvips keeps:\n%s",
-			alive, retainedByLibvips, report)
+			alive, limit, report)
 	}
 
-	if memLeaked || filesLeaked || allocsLeaked || alive > retainedByLibvips {
+	if memLeaked || filesLeaked || allocsLeaked || alive > limit {
 		os.Exit(1) // Exit with error code
 	}
 
 	os.Exit(code) // Exit with the test result code
 }
 
-// A save libvips abandons keeps its target, and never more than two of them.
+// A save libvips abandons keeps its target: two per run.
 const retainedByLibvips = 2
+
+// testRepeatCount is the -test.count flag.
+func testRepeatCount() int {
+	for _, arg := range os.Args {
+		if value, ok := strings.CutPrefix(arg, "-test.count="); ok {
+			if count, err := strconv.Atoi(value); err == nil && count > 1 {
+				return count
+			}
+		}
+	}
+	return 1
+}
 
 // shutdownAndReportLeaks returns what libvips writes to stderr about objects
 // still alive, with that descriptor pointed at a file for the length of the call.
