@@ -613,7 +613,7 @@ func generateReturnValues(op introspection.Operation) string {
 				conversionLines = append(conversionLines,
 					fmt.Sprintf("result := make([]float64, %s)", nParam))
 				conversionLines = append(conversionLines,
-					fmt.Sprintf("copy(result, (*[1024]float64)(unsafe.Pointer(out))[:%s:%s])", nParam, nParam))
+					fmt.Sprintf("copy(result, unsafe.Slice((*float64)(unsafe.Pointer(out)), %s))", nParam))
 				conversionLines = append(conversionLines,
 					"gFreePointer(unsafe.Pointer(out))")
 				values = append(values, "result")
