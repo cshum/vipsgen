@@ -561,6 +561,22 @@ func (w *failingWriter) Write(p []byte) (int, error) {
 
 func (w *failingWriter) Close() error { return nil }
 
+func TestGetBlobKeepsTheImageMemory(t *testing.T) {
+	// The image owns the blob; freeing it here makes Close free it again.
+	img, err := NewImageFromFile(testdataPath(t, "sample.uhdr.jpg"), nil)
+	require.NoError(t, err)
+
+	exif, err := img.GetBlob("exif-data")
+	require.NoError(t, err)
+	assert.NotEmpty(t, exif)
+
+	profile, err := img.GetBlob("icc-profile-data")
+	require.NoError(t, err)
+	assert.NotEmpty(t, profile)
+
+	img.Close()
+}
+
 func TestTargetWriteError(t *testing.T) {
 	// A small image keeps every write buffered until close, where the failure is
 	// dropped. The save has to report it regardless.
