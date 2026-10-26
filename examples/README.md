@@ -8,7 +8,7 @@ go run ./examples/from_file
 
 | example | what it does |
 |---|---|
-| [animated_gif](animated_gif/main.go) | loads a GIF with `NewGifloadBuffer`, pixelates every frame, saves `dancing-banana-pixelated.gif` |
+| [animated_gif](animated_gif/main.go) | loads a GIF with `NewGifload`, pixelates every frame, saves `dancing-banana-pixelated.gif` |
 | [from_buffer](from_buffer/main.go) | loads a `[]byte` with `NewImageFromBuffer`, saves `gopher.jpg` |
 | [from_file](from_file/main.go) | loads a path with `NewImageFromFile`, crops every page, flattens, saves `dancing-banana-cropped.gif` |
 | [go_image](go_image/main.go) | turns a Go `image.Image` into a libvips image, saves `gopher.jpg` |

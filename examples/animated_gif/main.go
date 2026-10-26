@@ -8,7 +8,6 @@ package main
 
 import (
 	"log"
-	"os"
 
 	"github.com/cshum/vipsgen/v2/examples/testdata"
 	"github.com/cshum/vipsgen/v2/vips"
@@ -20,13 +19,8 @@ const (
 )
 
 func main() {
-	data, err := os.ReadFile(testdata.Path("dancing-banana.gif"))
-	if err != nil {
-		log.Fatalf("Failed to fetch image: %v", err)
-	}
-
 	// N: -1 loads every frame, which is what a frame-by-frame transform needs.
-	img, err := vips.NewGifloadBuffer(data, &vips.GifloadBufferOptions{N: -1})
+	img, err := vips.NewGifload(testdata.Path("dancing-banana.gif"), &vips.GifloadOptions{N: -1})
 	if err != nil {
 		log.Fatalf("Failed to load image: %v", err)
 	}
