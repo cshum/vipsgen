@@ -34,6 +34,12 @@ int vipsgen_operation_save_buffer(VipsOperation *operation, void** buf, size_t* 
     }
     VipsBlob *blob;
     g_object_get(VIPS_OBJECT(operation), "buffer", &blob, NULL);
+    if (blob == NULL) {
+        vips_error("vipsgen", "%s", "the save produced no buffer");
+        vips_object_unref_outputs(VIPS_OBJECT(operation));
+        g_object_unref(operation);
+        return 1;
+    }
     VipsArea *area = VIPS_AREA(blob);
     *buf = (char *)(area->data);
     *len = area->length;
