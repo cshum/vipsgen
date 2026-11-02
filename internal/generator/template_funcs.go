@@ -25,7 +25,30 @@ func GetTemplateFuncMap() template.FuncMap {
 		"generateUtilityFunctionReturnTypes": generateUtilityFunctionReturnTypes,
 		"getSupportedOptionalOutputs":        getSupportedOptionalOutputs,
 		"hasWithOptionsVariant":              hasWithOptionsVariant,
+		"hasImageType":                       hasImageType,
+		"hasOperation":                       hasOperation,
 	}
+}
+
+// hasImageType reports whether libvips exposed an image type, so templates can
+// keep version-specific cases out of packages generated for older releases.
+func hasImageType(types []introspection.ImageTypeInfo, name string) bool {
+	for _, t := range types {
+		if t.TypeName == name {
+			return true
+		}
+	}
+	return false
+}
+
+// hasOperation reports whether libvips exposed an operation, by Go name.
+func hasOperation(ops []introspection.Operation, goName string) bool {
+	for _, op := range ops {
+		if op.GoName == goName {
+			return true
+		}
+	}
+	return false
 }
 
 // getSupportedOptionalOutputs returns optional outputs that are supported for capture

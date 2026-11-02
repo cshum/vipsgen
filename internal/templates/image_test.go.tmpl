@@ -324,11 +324,12 @@ func TestImageType_MimeType(t *testing.T) {
 			expectedMime: "image/vnd.libvips",
 			expectedOk:   true,
 		},
-		{
+{{if hasImageType .ImageTypes "uhdr"}}		{
 			imageType:    ImageTypeUhdr,
 			expectedMime: "image/jpeg",
 			expectedOk:   true,
 		},
+{{end}}
 		{
 			imageType:    ImageTypeCsv,
 			expectedMime: "text/csv",
@@ -2346,7 +2347,7 @@ func TestImage_PageHeight(t *testing.T) {
 	assert.Equal(t, 50, pageHeight, "Page height should be set to 50")
 }
 
-func TestImage_SetBlobUltraHDRGainmap(t *testing.T) {
+{{if hasOperation .Operations "UhdrsaveBuffer"}}func TestImage_SetBlobUltraHDRGainmap(t *testing.T) {
 	img, err := NewImageFromFile(testdataPath(t, "sample.uhdr.jpg"), nil)
 	require.NoError(t, err)
 	defer img.Close()
@@ -2373,7 +2374,7 @@ func TestImage_SetBlobUltraHDRGainmap(t *testing.T) {
 	assert.NotEmpty(t, got)
 }
 
-func TestImage_GenericMetadata(t *testing.T) {
+{{end}}func TestImage_GenericMetadata(t *testing.T) {
 	img, err := createWhiteImage(100, 100)
 	require.NoError(t, err)
 	defer img.Close()
