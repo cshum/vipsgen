@@ -49,6 +49,7 @@ var knownMimeTypes = map[string]string{
 	"pnm":       "image/x-portable-anymap",
 	"dz":        "image/x-deepzoom",
 	"vips":      "image/vnd.libvips",
+	"uhdr":      "image/jpeg",
 	"mat":       "application/x-matlab-data",
 	"nii":       "application/x-nifti",
 	"nifti":     "application/x-nifti",
