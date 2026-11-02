@@ -10289,6 +10289,17 @@ func (r *Image) GetBlob(name string) ([]byte, error) {
 	return vipsImageGetBlob(r.image, name)
 }
 
+// SetBlob vips_image_set_blob_copy sets binary metadata on the image by field
+// name, copying data: the caller may reuse it once this returns.
+func (r *Image) SetBlob(name string, data []byte) {
+	vipsImageSetBlob(r.image, name, data)
+}
+
+// RemoveField vips_image_remove removes a metadata field from the image.
+func (r *Image) RemoveField(name string) {
+	vipsImageRemoveField(r.image, name)
+}
+
 // SetDouble vips_image_set_double sets a double-precision floating point metadata value
 func (r *Image) SetDouble(name string, f float64) {
 	vipsImageSetDouble(r.image, name, f)
