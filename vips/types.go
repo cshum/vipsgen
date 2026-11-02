@@ -660,7 +660,6 @@ var imageMimeTypes = map[ImageType]string{
 	ImageTypePpm:       "image/x-portable-pixmap",
 	ImageTypeRad:       "image/rad",
 	ImageTypeRaw:       "image/raw",
-	ImageTypeUhdr:      "image/jpeg",
 	ImageTypeVips:      "image/vnd.libvips",
 }
 

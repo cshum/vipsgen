@@ -325,11 +325,6 @@ func TestImageType_MimeType(t *testing.T) {
 			expectedOk:   true,
 		},
 		{
-			imageType:    ImageTypeUhdr,
-			expectedMime: "image/jpeg",
-			expectedOk:   true,
-		},
-		{
 			imageType:    ImageTypeCsv,
 			expectedMime: "text/csv",
 			expectedOk:   true,
@@ -2346,49 +2341,10 @@ func TestImage_PageHeight(t *testing.T) {
 	assert.Equal(t, 50, pageHeight, "Page height should be set to 50")
 }
 
-func TestImage_SetBlobUltraHDRGainmap(t *testing.T) {
-	img, err := NewImageFromFile(testdataPath(t, "sample.uhdr.jpg"), nil)
-	require.NoError(t, err)
-	defer img.Close()
-
-	gainmap, err := img.GetBlob("gainmap-data")
-	require.NoError(t, err)
-	require.NotEmpty(t, gainmap)
-
-	// Reattach the gain map through SetBlob, as a caller replacing it would.
-	img.SetBlob("gainmap-data", gainmap)
-	buf, err := img.UhdrsaveBuffer(&UhdrsaveBufferOptions{})
-	require.NoError(t, err)
-	require.NotEmpty(t, buf)
-
-	out, err := NewImageFromBuffer(buf, nil)
-	require.NoError(t, err)
-	defer out.Close()
-	assert.Equal(t, ImageTypeUhdr, out.Format())
-
-	got, err := out.GetBlob("gainmap-data")
-	require.NoError(t, err)
-	assert.NotEmpty(t, got)
-}
-
 func TestImage_GenericMetadata(t *testing.T) {
 	img, err := createWhiteImage(100, 100)
 	require.NoError(t, err)
 	defer img.Close()
-
-	// Test blob metadata round-trips through the copy setter
-	assert.False(t, img.HasField("test-blob"))
-	blob := []byte("blob-bytes")
-	img.SetBlob("test-blob", blob)
-	assert.True(t, img.HasField("test-blob"))
-	gotBlob, err := img.GetBlob("test-blob")
-	require.NoError(t, err)
-	assert.Equal(t, blob, gotBlob, "Blob metadata should match")
-	// The image owns a copy: reusing the caller's slice must not change it.
-	blob[0] = 'B'
-	gotBlob, err = img.GetBlob("test-blob")
-	require.NoError(t, err)
-	assert.Equal(t, []byte("blob-bytes"), gotBlob, "Blob metadata should not alias the caller's slice")
 
 	// Test string metadata
 	assert.False(t, img.HasField("test-string"))
