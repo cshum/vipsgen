@@ -6824,6 +6824,17 @@ func vipsImageGetBlob(in *C.VipsImage, name string) ([]byte, error) {
 	return C.GoBytes(bufPtr, C.int(dataLength)), nil
 }
 
+func vipsImageSetBlob(in *C.VipsImage, name string, data []byte) {
+	cName := C.CString(name)
+	defer freeCString(cName)
+	var ptr unsafe.Pointer
+	if len(data) > 0 {
+		ptr = unsafe.Pointer(&data[0])
+	}
+	// Copy: libvips keeps its own reference to the bytes.
+	C.vips_image_set_blob_copy(in, cName, ptr, C.size_t(len(data)))
+}
+
 func vipsHasICCProfile(in *C.VipsImage) bool {
 	return int(C.vips_image_get_typeof(in, cachedCString(C.VIPS_META_ICC_NAME))) != 0
 }
