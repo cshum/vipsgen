@@ -2446,6 +2446,31 @@ func TestImage_PageHeight(t *testing.T) {
 	assert.True(t, img.HasField("test-double"))
 }
 
+func TestImage_GetTypeofAndImageField(t *testing.T) {
+	img, err := createWhiteImage(100, 100)
+	require.NoError(t, err)
+	defer img.Close()
+
+	assert.Zero(t, img.GetTypeof("test-missing"))
+	img.SetInt("test-int", 1)
+	assert.NotZero(t, img.GetTypeof("test-int"))
+
+	child, err := createWhiteImage(10, 20)
+	require.NoError(t, err)
+	defer child.Close()
+	img.SetImage("test-image", child)
+	assert.NotZero(t, img.GetTypeof("test-image"))
+
+	got, err := img.GetImage("test-image")
+	require.NoError(t, err)
+	defer got.Close()
+	assert.Equal(t, 10, got.Width())
+	assert.Equal(t, 20, got.Height())
+
+	_, err = img.GetImage("test-missing")
+	assert.Error(t, err)
+}
+
 func TestImage_GetFields(t *testing.T) {
 	img, err := createWhiteImage(100, 100)
 	require.NoError(t, err)
