@@ -10379,6 +10379,25 @@ func (r *Image) HasField(name string) bool {
 	return vipsImageHasField(r.image, name)
 }
 
+// GetTypeof vips_image_get_typeof returns the GType of a metadata field, 0 if missing
+func (r *Image) GetTypeof(name string) uint64 {
+	return vipsImageGetTypeof(r.image, name)
+}
+
+// GetImage vips_image_get_image returns an image metadata field
+func (r *Image) GetImage(name string) (*Image, error) {
+	img, err := vipsImageGetImageField(r.image, name)
+	if err != nil {
+		return nil, err
+	}
+	return newImageRef(img, ImageTypeUnknown, nil), nil
+}
+
+// SetImage vips_image_set_image sets an image metadata field
+func (r *Image) SetImage(name string, img *Image) {
+	vipsImageSetImageField(r.image, name, img.image)
+}
+
 // GetBlob vips_image_get_blob retrieves binary metadata from the image by field name
 func (r *Image) GetBlob(name string) ([]byte, error) {
 	return vipsImageGetBlob(r.image, name)

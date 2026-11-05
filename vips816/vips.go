@@ -6406,9 +6406,13 @@ func vipsImageGetFields(in *C.VipsImage) (fields []string) {
 }
 
 func vipsImageHasField(in *C.VipsImage, name string) bool {
+	return vipsImageGetTypeof(in, name) != 0
+}
+
+func vipsImageGetTypeof(in *C.VipsImage, name string) uint64 {
 	cName := C.CString(name)
 	defer freeCString(cName)
-	return int(C.vips_image_get_typeof(in, cName)) != 0
+	return uint64(C.vips_image_get_typeof(in, cName))
 }
 
 func vipsImageRemoveField(in *C.VipsImage, name string) {
@@ -6489,6 +6493,22 @@ func vipsImageSetBlob(in *C.VipsImage, name string, data []byte) {
 		ptr = unsafe.Pointer(&data[0])
 	}
 	C.vips_image_set_blob_copy(in, cName, ptr, C.size_t(len(data)))
+}
+
+func vipsImageGetImageField(in *C.VipsImage, name string) (*C.VipsImage, error) {
+	var out *C.VipsImage
+	cName := C.CString(name)
+	defer freeCString(cName)
+	if int(C.vips_image_get_image(in, cName, &out)) != 0 {
+		return nil, handleVipsError()
+	}
+	return out, nil
+}
+
+func vipsImageSetImageField(in *C.VipsImage, name string, value *C.VipsImage) {
+	cName := C.CString(name)
+	defer freeCString(cName)
+	C.vips_image_set_image(in, cName, value)
 }
 
 func vipsHasICCProfile(in *C.VipsImage) bool {

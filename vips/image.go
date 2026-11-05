@@ -10880,6 +10880,25 @@ func (r *Image) HasField(name string) bool {
 	return vipsImageHasField(r.image, name)
 }
 
+// GetTypeof vips_image_get_typeof returns the GType of a metadata field, 0 if missing
+func (r *Image) GetTypeof(name string) uint64 {
+	return vipsImageGetTypeof(r.image, name)
+}
+
+// GetImage vips_image_get_image returns an image metadata field
+func (r *Image) GetImage(name string) (*Image, error) {
+	img, err := vipsImageGetImageField(r.image, name)
+	if err != nil {
+		return nil, err
+	}
+	return newImageRef(img, ImageTypeUnknown, nil), nil
+}
+
+// SetImage vips_image_set_image sets an image metadata field
+func (r *Image) SetImage(name string, img *Image) {
+	vipsImageSetImageField(r.image, name, img.image)
+}
+
 // GetBlob vips_image_get_blob retrieves binary metadata from the image by field name
 func (r *Image) GetBlob(name string) ([]byte, error) {
 	return vipsImageGetBlob(r.image, name)
@@ -10908,7 +10927,7 @@ func (r *Image) Gainmap() (*Image, bool) {
 // SetGainmap vips_image_set_image attaches a processed gain map, which
 // uhdrsave prefers over the "gainmap-data" blob.
 func (r *Image) SetGainmap(gainmap *Image) {
-	vipsImageSetGainmap(r.image, gainmap.image)
+	r.SetImage("gainmap", gainmap)
 }
 
 // SetDouble vips_image_set_double sets a double-precision floating point metadata value

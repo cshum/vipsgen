@@ -6749,9 +6749,13 @@ func vipsImageGetFields(in *C.VipsImage) (fields []string) {
 }
 
 func vipsImageHasField(in *C.VipsImage, name string) bool {
+	return vipsImageGetTypeof(in, name) != 0
+}
+
+func vipsImageGetTypeof(in *C.VipsImage, name string) uint64 {
 	cName := C.CString(name)
 	defer freeCString(cName)
-	return int(C.vips_image_get_typeof(in, cName)) != 0
+	return uint64(C.vips_image_get_typeof(in, cName))
 }
 
 func vipsImageRemoveField(in *C.VipsImage, name string) {
@@ -6839,7 +6843,23 @@ func vipsImageGetGainmap(in *C.VipsImage) *C.VipsImage {
 }
 
 func vipsImageSetGainmap(in *C.VipsImage, gainmap *C.VipsImage) {
-	C.vips_image_set_image(in, cachedCString("gainmap"), gainmap)
+	vipsImageSetImageField(in, "gainmap", gainmap)
+}
+
+func vipsImageGetImageField(in *C.VipsImage, name string) (*C.VipsImage, error) {
+	var out *C.VipsImage
+	cName := C.CString(name)
+	defer freeCString(cName)
+	if int(C.vips_image_get_image(in, cName, &out)) != 0 {
+		return nil, handleVipsError()
+	}
+	return out, nil
+}
+
+func vipsImageSetImageField(in *C.VipsImage, name string, value *C.VipsImage) {
+	cName := C.CString(name)
+	defer freeCString(cName)
+	C.vips_image_set_image(in, cName, value)
 }
 
 func vipsHasICCProfile(in *C.VipsImage) bool {
