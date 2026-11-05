@@ -6835,6 +6835,14 @@ func vipsImageSetBlob(in *C.VipsImage, name string, data []byte) {
 	C.vips_image_set_blob_copy(in, cName, ptr, C.size_t(len(data)))
 }
 
+func vipsImageGetGainmap(in *C.VipsImage) *C.VipsImage {
+	return C.vips_image_get_gainmap(in)
+}
+
+func vipsImageSetGainmap(in *C.VipsImage, gainmap *C.VipsImage) {
+	C.vips_image_set_image(in, cachedCString("gainmap"), gainmap)
+}
+
 func vipsHasICCProfile(in *C.VipsImage) bool {
 	return int(C.vips_image_get_typeof(in, cachedCString(C.VIPS_META_ICC_NAME))) != 0
 }
