@@ -10885,20 +10885,18 @@ func (r *Image) GetBlob(name string) ([]byte, error) {
 	return vipsImageGetBlob(r.image, name)
 }
 
-// SetBlob vips_image_set_blob_copy sets binary metadata on the image by field
-// name, copying data: the caller may reuse it once this returns.
+// SetBlob vips_image_set_blob_copy sets binary metadata, copying data.
 func (r *Image) SetBlob(name string, data []byte) {
 	vipsImageSetBlob(r.image, name, data)
 }
 
-// RemoveField vips_image_remove removes a metadata field from the image.
+// RemoveField vips_image_remove removes a metadata field.
 func (r *Image) RemoveField(name string) {
 	vipsImageRemoveField(r.image, name)
 }
 
-// Gainmap vips_image_get_gainmap returns the gain map of an UltraHDR image:
-// the attached "gainmap" image if there is one, else the decoded
-// "gainmap-data" blob. The image must be closed by the caller.
+// Gainmap vips_image_get_gainmap returns the gain map image, attached or
+// decoded from "gainmap-data". The caller closes it.
 func (r *Image) Gainmap() (*Image, bool) {
 	gainmap := vipsImageGetGainmap(r.image)
 	if gainmap == nil {
@@ -10907,9 +10905,8 @@ func (r *Image) Gainmap() (*Image, bool) {
 	return newImageRef(gainmap, ImageTypeJpeg, nil), true
 }
 
-// SetGainmap vips_image_set_image attaches a processed gain map to an UltraHDR
-// image. uhdrsave prefers it over the compressed "gainmap-data" blob, which is
-// left in place: it may still back the image the gain map was decoded from.
+// SetGainmap vips_image_set_image attaches a processed gain map, which
+// uhdrsave prefers over the "gainmap-data" blob.
 func (r *Image) SetGainmap(gainmap *Image) {
 	vipsImageSetGainmap(r.image, gainmap.image)
 }

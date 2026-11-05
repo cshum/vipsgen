@@ -6488,7 +6488,6 @@ func vipsImageSetBlob(in *C.VipsImage, name string, data []byte) {
 	if len(data) > 0 {
 		ptr = unsafe.Pointer(&data[0])
 	}
-	// Copy: libvips keeps its own reference to the bytes.
 	C.vips_image_set_blob_copy(in, cName, ptr, C.size_t(len(data)))
 }
 
