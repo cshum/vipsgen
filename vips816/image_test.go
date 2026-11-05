@@ -324,6 +324,7 @@ func TestImageType_MimeType(t *testing.T) {
 			expectedMime: "image/vnd.libvips",
 			expectedOk:   true,
 		},
+
 		{
 			imageType:    ImageTypeCsv,
 			expectedMime: "text/csv",
@@ -2346,6 +2347,24 @@ func TestImage_GenericMetadata(t *testing.T) {
 	require.NoError(t, err)
 	defer img.Close()
 
+	// Test blob metadata round-trips through the copy setter
+	assert.False(t, img.HasField("test-blob"))
+	blob := []byte("blob-bytes")
+	img.SetBlob("test-blob", blob)
+	assert.True(t, img.HasField("test-blob"))
+	gotBlob, err := img.GetBlob("test-blob")
+	require.NoError(t, err)
+	assert.Equal(t, blob, gotBlob, "Blob metadata should match")
+	// The image owns a copy: reusing the caller's slice must not change it.
+	blob[0] = 'B'
+	gotBlob, err = img.GetBlob("test-blob")
+	require.NoError(t, err)
+	assert.Equal(t, []byte("blob-bytes"), gotBlob, "Blob metadata should not alias the caller's slice")
+
+	// Test removing a field
+	img.RemoveField("test-blob")
+	assert.False(t, img.HasField("test-blob"))
+
 	// Test string metadata
 	assert.False(t, img.HasField("test-string"))
 	img.SetString("test-string", "hello world")
@@ -2369,6 +2388,31 @@ func TestImage_GenericMetadata(t *testing.T) {
 	doubleValue, err := img.GetDouble("test-double")
 	assert.InDelta(t, 3.14159, doubleValue, 0.00001, "Double metadata should match")
 	assert.True(t, img.HasField("test-double"))
+}
+
+func TestImage_GetTypeofAndImageField(t *testing.T) {
+	img, err := createWhiteImage(100, 100)
+	require.NoError(t, err)
+	defer img.Close()
+
+	assert.Zero(t, img.GetTypeof("test-missing"))
+	img.SetInt("test-int", 1)
+	assert.NotZero(t, img.GetTypeof("test-int"))
+
+	child, err := createWhiteImage(10, 20)
+	require.NoError(t, err)
+	defer child.Close()
+	img.SetImage("test-image", child)
+	assert.NotZero(t, img.GetTypeof("test-image"))
+
+	got, err := img.GetImage("test-image")
+	require.NoError(t, err)
+	defer got.Close()
+	assert.Equal(t, 10, got.Width())
+	assert.Equal(t, 20, got.Height())
+
+	_, err = img.GetImage("test-missing")
+	assert.Error(t, err)
 }
 
 func TestImage_GetFields(t *testing.T) {
