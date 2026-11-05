@@ -341,6 +341,25 @@ func (r *Image) RemoveField(name string) {
 	vipsImageRemoveField(r.image, name)
 }
 
+{{if hasImageType .ImageTypes "uhdr"}}// Gainmap vips_image_get_gainmap returns the gain map of an UltraHDR image:
+// the attached "gainmap" image if there is one, else the decoded
+// "gainmap-data" blob. The image must be closed by the caller.
+func (r *Image) Gainmap() (*Image, bool) {
+	gainmap := vipsImageGetGainmap(r.image)
+	if gainmap == nil {
+		return nil, false
+	}
+	return newImageRef(gainmap, ImageTypeJpeg, nil), true
+}
+
+// SetGainmap vips_image_set_image attaches a processed gain map to an UltraHDR
+// image. uhdrsave prefers it over the compressed "gainmap-data" blob, which is
+// left in place: it may still back the image the gain map was decoded from.
+func (r *Image) SetGainmap(gainmap *Image) {
+	vipsImageSetGainmap(r.image, gainmap.image)
+}
+{{end}}
+
 // SetDouble vips_image_set_double sets a double-precision floating point metadata value
 func (r *Image) SetDouble(name string, f float64) {
 	vipsImageSetDouble(r.image, name, f)
