@@ -5218,3 +5218,66 @@ func TestOptionsPathsThatTheLiteralCannotFill(t *testing.T) {
 		assert.Equal(t, float64(255), corner[0], "the border takes the background value")
 	})
 }
+// TestOptionVariantsAndRareOperations reaches option paths and operations that
+// the rest of the suite calls only without options.
+func TestOptionVariantsAndRareOperations(t *testing.T) {
+	t.Run("autorot options", func(t *testing.T) {
+		img, err := createWhiteImage(24, 16)
+		require.NoError(t, err)
+		defer img.Close()
+		require.NoError(t, img.Autorot(&AutorotOptions{}))
+		assert.Equal(t, 24, img.Width())
+	})
+
+	t.Run("icc transform options", func(t *testing.T) {
+		skipWithoutLcms(t)
+
+		profile, err := ProfileLoad("srgb")
+		require.NoError(t, err)
+		path := filepath.Join(t.TempDir(), "srgb.icc")
+		require.NoError(t, os.WriteFile(path, profile, 0o644))
+
+		img, err := createWhiteImage(16, 16)
+		require.NoError(t, err)
+		defer img.Close()
+		require.NoError(t, img.IccImport(&IccImportOptions{InputProfile: path}))
+		require.NoError(t, img.IccTransform(path, &IccTransformOptions{}))
+	})
+
+	t.Run("label regions options", func(t *testing.T) {
+		img, err := createWhiteImage(16, 16)
+		require.NoError(t, err)
+		defer img.Close()
+		require.NoError(t, img.Labelregions(&LabelregionsOptions{}))
+	})
+
+	t.Run("rawload options", func(t *testing.T) {
+		const width, height, bands = 4, 4, 3
+		path := filepath.Join(t.TempDir(), "grey.raw")
+		require.NoError(t, os.WriteFile(path, make([]byte, width*height*bands), 0o644))
+
+		img, err := NewRawload(path, width, height, bands, &RawloadOptions{})
+		require.NoError(t, err)
+		defer img.Close()
+		assert.Equal(t, width, img.Width())
+	})
+
+	t.Run("nifti round trip", func(t *testing.T) {
+		for _, name := range []string{"niftisave", "niftiload"} {
+			if !HasOperation(name) {
+				t.Skipf("this libvips has no %s: built without libnifti", name)
+			}
+		}
+		img, err := createWhiteImage(8, 8)
+		require.NoError(t, err)
+		defer img.Close()
+
+		path := filepath.Join(t.TempDir(), "volume.nii")
+		require.NoError(t, img.Niftisave(path, &NiftisaveOptions{}))
+
+		loaded, err := NewNiftiload(path, &NiftiloadOptions{})
+		require.NoError(t, err)
+		defer loaded.Close()
+		assert.Equal(t, 8, loaded.Width())
+	})
+}
