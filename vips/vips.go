@@ -6842,10 +6842,6 @@ func vipsImageGetGainmap(in *C.VipsImage) *C.VipsImage {
 	return C.vips_image_get_gainmap(in)
 }
 
-func vipsImageSetGainmap(in *C.VipsImage, gainmap *C.VipsImage) {
-	vipsImageSetImageField(in, "gainmap", gainmap)
-}
-
 func vipsImageGetImageField(in *C.VipsImage, name string) (*C.VipsImage, error) {
 	var out *C.VipsImage
 	cName := C.CString(name)
