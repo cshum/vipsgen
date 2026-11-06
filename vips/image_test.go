@@ -2398,6 +2398,42 @@ func TestImage_Gainmap(t *testing.T) {
 	assert.Equal(t, width, saved.Width())
 	assert.Equal(t, height, saved.PageHeight())
 }
+
+// TestImage_UhdrsaveTarget saves through a caller-supplied target.
+func TestImage_UhdrsaveTarget(t *testing.T) {
+	img, err := NewImageFromFile(testdataPath(t, "sample.uhdr.jpg"), nil)
+	require.NoError(t, err)
+	defer img.Close()
+
+	var buf bytes.Buffer
+	target := NewTarget(&writeCloser{&buf})
+	defer target.Close()
+	require.NoError(t, img.UhdrsaveTarget(target, &UhdrsaveTargetOptions{}))
+	require.NotEmpty(t, buf.Bytes())
+
+	out, err := NewImageFromBuffer(buf.Bytes(), nil)
+	require.NoError(t, err)
+	defer out.Close()
+	assert.Equal(t, ImageTypeUhdr, out.Format())
+
+	saved, ok := out.Gainmap()
+	require.True(t, ok, "the gain map should survive a target save")
+	saved.Close()
+}
+
+// TestImage_Uhdr2scRGB converts an Ultra HDR image to float scRGB.
+func TestImage_Uhdr2scRGB(t *testing.T) {
+	img, err := NewImageFromFile(testdataPath(t, "sample.uhdr.jpg"), nil)
+	require.NoError(t, err)
+	defer img.Close()
+
+	width, height := img.Width(), img.PageHeight()
+	require.NoError(t, img.Uhdr2scRGB())
+	assert.Equal(t, width, img.Width())
+	assert.Equal(t, height, img.PageHeight())
+	assert.Equal(t, BandFormatFloat, img.BandFormat())
+}
+
 func TestImage_GenericMetadata(t *testing.T) {
 	img, err := createWhiteImage(100, 100)
 	require.NoError(t, err)
@@ -5217,5 +5253,69 @@ func TestOptionsPathsThatTheLiteralCannotFill(t *testing.T) {
 		corner, err := img.Getpoint(0, 0, nil)
 		require.NoError(t, err)
 		assert.Equal(t, float64(255), corner[0], "the border takes the background value")
+	})
+}
+
+// TestOptionVariantsAndRareOperations covers operations the suite calls only
+// without options.
+func TestOptionVariantsAndRareOperations(t *testing.T) {
+	t.Run("autorot options", func(t *testing.T) {
+		img, err := createWhiteImage(24, 16)
+		require.NoError(t, err)
+		defer img.Close()
+		require.NoError(t, img.Autorot(&AutorotOptions{}))
+		assert.Equal(t, 24, img.Width())
+	})
+
+	t.Run("icc transform options", func(t *testing.T) {
+		skipWithoutLcms(t)
+
+		profile, err := ProfileLoad("srgb")
+		require.NoError(t, err)
+		path := filepath.Join(t.TempDir(), "srgb.icc")
+		require.NoError(t, os.WriteFile(path, profile, 0o644))
+
+		img, err := createWhiteImage(16, 16)
+		require.NoError(t, err)
+		defer img.Close()
+		require.NoError(t, img.IccImport(&IccImportOptions{InputProfile: path}))
+		require.NoError(t, img.IccTransform(path, &IccTransformOptions{}))
+	})
+
+	t.Run("label regions options", func(t *testing.T) {
+		img, err := createWhiteImage(16, 16)
+		require.NoError(t, err)
+		defer img.Close()
+		require.NoError(t, img.Labelregions(&LabelregionsOptions{}))
+	})
+
+	t.Run("rawload options", func(t *testing.T) {
+		const width, height, bands = 4, 4, 3
+		path := filepath.Join(t.TempDir(), "grey.raw")
+		require.NoError(t, os.WriteFile(path, make([]byte, width*height*bands), 0o644))
+
+		img, err := NewRawload(path, width, height, bands, &RawloadOptions{})
+		require.NoError(t, err)
+		defer img.Close()
+		assert.Equal(t, width, img.Width())
+	})
+
+	t.Run("nifti round trip", func(t *testing.T) {
+		for _, name := range []string{"niftisave", "niftiload"} {
+			if !HasOperation(name) {
+				t.Skipf("this libvips has no %s: built without libnifti", name)
+			}
+		}
+		img, err := createWhiteImage(8, 8)
+		require.NoError(t, err)
+		defer img.Close()
+
+		path := filepath.Join(t.TempDir(), "volume.nii")
+		require.NoError(t, img.Niftisave(path, &NiftisaveOptions{}))
+
+		loaded, err := NewNiftiload(path, &NiftiloadOptions{})
+		require.NoError(t, err)
+		defer loaded.Close()
+		assert.Equal(t, 8, loaded.Width())
 	})
 }

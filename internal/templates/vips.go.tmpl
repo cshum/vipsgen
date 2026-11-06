@@ -237,10 +237,6 @@ func vipsImageSetBlob(in *C.VipsImage, name string, data []byte) {
 	return C.vips_image_get_gainmap(in)
 }
 
-func vipsImageSetGainmap(in *C.VipsImage, gainmap *C.VipsImage) {
-	vipsImageSetImageField(in, "gainmap", gainmap)
-}
-
 {{end}}func vipsImageGetImageField(in *C.VipsImage, name string) (*C.VipsImage, error) {
 	var out *C.VipsImage
 	cName := C.CString(name)
