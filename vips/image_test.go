@@ -2399,8 +2399,7 @@ func TestImage_Gainmap(t *testing.T) {
 	assert.Equal(t, height, saved.PageHeight())
 }
 
-// TestImage_UhdrsaveTarget writes through a caller-supplied target, which is
-// the path a streamed response takes.
+// TestImage_UhdrsaveTarget saves through a caller-supplied target.
 func TestImage_UhdrsaveTarget(t *testing.T) {
 	img, err := NewImageFromFile(testdataPath(t, "sample.uhdr.jpg"), nil)
 	require.NoError(t, err)
@@ -2422,8 +2421,7 @@ func TestImage_UhdrsaveTarget(t *testing.T) {
 	saved.Close()
 }
 
-// TestImage_Uhdr2scRGB converts an Ultra HDR image to linear scRGB, which is
-// the only way to read its HDR pixels as floats.
+// TestImage_Uhdr2scRGB converts an Ultra HDR image to float scRGB.
 func TestImage_Uhdr2scRGB(t *testing.T) {
 	img, err := NewImageFromFile(testdataPath(t, "sample.uhdr.jpg"), nil)
 	require.NoError(t, err)
@@ -5258,8 +5256,8 @@ func TestOptionsPathsThatTheLiteralCannotFill(t *testing.T) {
 	})
 }
 
-// TestOptionVariantsAndRareOperations reaches option paths and operations that
-// the rest of the suite calls only without options.
+// TestOptionVariantsAndRareOperations covers operations the suite calls only
+// without options.
 func TestOptionVariantsAndRareOperations(t *testing.T) {
 	t.Run("autorot options", func(t *testing.T) {
 		img, err := createWhiteImage(24, 16)

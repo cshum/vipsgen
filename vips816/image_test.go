@@ -5164,8 +5164,8 @@ func TestOptionsPathsThatTheLiteralCannotFill(t *testing.T) {
 	})
 }
 
-// TestOptionVariantsAndRareOperations reaches option paths and operations that
-// the rest of the suite calls only without options.
+// TestOptionVariantsAndRareOperations covers operations the suite calls only
+// without options.
 func TestOptionVariantsAndRareOperations(t *testing.T) {
 	t.Run("autorot options", func(t *testing.T) {
 		img, err := createWhiteImage(24, 16)
