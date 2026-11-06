@@ -2398,6 +2398,45 @@ func TestImage_PageHeight(t *testing.T) {
 	assert.Equal(t, width, saved.Width())
 	assert.Equal(t, height, saved.PageHeight())
 }
+
+{{if hasOperation .Operations "UhdrsaveTarget"}}// TestImage_UhdrsaveTarget writes through a caller-supplied target, which is
+// the path a streamed response takes.
+func TestImage_UhdrsaveTarget(t *testing.T) {
+	img, err := NewImageFromFile(testdataPath(t, "sample.uhdr.jpg"), nil)
+	require.NoError(t, err)
+	defer img.Close()
+
+	var buf bytes.Buffer
+	target := NewTarget(&writeCloser{&buf})
+	defer target.Close()
+	require.NoError(t, img.UhdrsaveTarget(target, &UhdrsaveTargetOptions{}))
+	require.NotEmpty(t, buf.Bytes())
+
+	out, err := NewImageFromBuffer(buf.Bytes(), nil)
+	require.NoError(t, err)
+	defer out.Close()
+	assert.Equal(t, ImageTypeUhdr, out.Format())
+
+	saved, ok := out.Gainmap()
+	require.True(t, ok, "the gain map should survive a target save")
+	saved.Close()
+}
+
+// TestImage_Uhdr2scRGB converts an Ultra HDR image to linear scRGB, which is
+// the only way to read its HDR pixels as floats.
+func TestImage_Uhdr2scRGB(t *testing.T) {
+	img, err := NewImageFromFile(testdataPath(t, "sample.uhdr.jpg"), nil)
+	require.NoError(t, err)
+	defer img.Close()
+
+	width, height := img.Width(), img.PageHeight()
+	require.NoError(t, img.Uhdr2scRGB())
+	assert.Equal(t, width, img.Width())
+	assert.Equal(t, height, img.PageHeight())
+	assert.Equal(t, BandFormatFloat, img.BandFormat())
+}
+
+{{end}}
 {{end}}func TestImage_GenericMetadata(t *testing.T) {
 	img, err := createWhiteImage(100, 100)
 	require.NoError(t, err)
