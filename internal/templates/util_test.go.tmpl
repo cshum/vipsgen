@@ -97,21 +97,21 @@ func TestImageType(t *testing.T) {
 	}{
 		{"jpeg", "jpg", func(i *Image, path string) error { return i.Jpegsave(path, nil) }, ImageTypeJpeg},
 		{"png", "png", func(i *Image, path string) error { return i.Pngsave(path, nil) }, ImageTypePng},
-		{"gif", "gif", func(i *Image, path string) error { return i.Gifsave(path, nil) }, ImageTypeGif},
-		{"webp", "webp", func(i *Image, path string) error { return i.Webpsave(path, nil) }, ImageTypeWebp},
-		{"heif", "heic", func(i *Image, path string) error { return i.Heifsave(path, nil) }, ImageTypeHeif},
-		{"tiff", "tif", func(i *Image, path string) error { return i.Tiffsave(path, nil) }, ImageTypeTiff},
-		{"jp2k", "jp2", func(i *Image, path string) error { return i.Jp2ksave(path, nil) }, ImageTypeJp2k},
-		{"jxl", "jxl", func(i *Image, path string) error { return i.Jxlsave(path, nil) }, ImageTypeJxl},
-		{"csv", "csv", func(i *Image, path string) error { return i.Csvsave(path, nil) }, ImageTypeCsv},
+{{if hasOperation .Operations "Gifsave"}}		{"gif", "gif", func(i *Image, path string) error { return i.Gifsave(path, nil) }, ImageTypeGif},
+{{end}}		{"webp", "webp", func(i *Image, path string) error { return i.Webpsave(path, nil) }, ImageTypeWebp},
+{{if hasOperation .Operations "Heifsave"}}		{"heif", "heic", func(i *Image, path string) error { return i.Heifsave(path, nil) }, ImageTypeHeif},
+{{end}}{{if hasOperation .Operations "Tiffsave"}}		{"tiff", "tif", func(i *Image, path string) error { return i.Tiffsave(path, nil) }, ImageTypeTiff},
+{{end}}{{if hasOperation .Operations "Jp2ksave"}}		{"jp2k", "jp2", func(i *Image, path string) error { return i.Jp2ksave(path, nil) }, ImageTypeJp2k},
+{{end}}{{if hasOperation .Operations "Jxlsave"}}		{"jxl", "jxl", func(i *Image, path string) error { return i.Jxlsave(path, nil) }, ImageTypeJxl},
+{{end}}		{"csv", "csv", func(i *Image, path string) error { return i.Csvsave(path, nil) }, ImageTypeCsv},
 		{"ppm", "ppm", func(i *Image, path string) error { return i.Ppmsave(path, nil) }, ImageTypePpm},
 		{"rad", "hdr", func(i *Image, path string) error { return i.Radsave(path, nil) }, ImageTypeRad},
 		// libvips' own format is the one loader that records no vips-loader metadata,
 		// so a .v file reports unknown. ImageTypeVips cannot be produced by a load.
 		{"vips", "v", func(i *Image, path string) error { return i.Vipssave(path, nil) }, ImageTypeUnknown},
-		{"fits", "fits", func(i *Image, path string) error { return i.Fitssave(path, nil) }, ImageTypeFits},
-		{"magick", "miff", func(i *Image, path string) error { return i.Magicksave(path, nil) }, ImageTypeMagick},
-		{"matrix", "mat", func(i *Image, path string) error { return i.Matrixsave(path, nil) }, ImageTypeMatrix},
+{{if hasOperation .Operations "Fitssave"}}		{"fits", "fits", func(i *Image, path string) error { return i.Fitssave(path, nil) }, ImageTypeFits},
+{{end}}{{if hasOperation .Operations "Magicksave"}}		{"magick", "miff", func(i *Image, path string) error { return i.Magicksave(path, nil) }, ImageTypeMagick},
+{{end}}		{"matrix", "mat", func(i *Image, path string) error { return i.Matrixsave(path, nil) }, ImageTypeMatrix},
 	}
 
 	for _, c := range cases {

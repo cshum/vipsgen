@@ -597,7 +597,7 @@ func TestGetBlobKeepsTheImageMemory(t *testing.T) {
 	img.Close()
 }
 
-func TestTargetWriteError(t *testing.T) {
+{{if hasOperation .Operations "DzsaveTarget"}}func TestTargetWriteError(t *testing.T) {
 	// A small image keeps every write buffered until close, where the failure is
 	// dropped. The save has to report it regardless.
 	img, err := NewBlack(32, 32, &BlackOptions{Bands: 3})
@@ -623,7 +623,7 @@ func TestTargetWriteError(t *testing.T) {
 	okTarget.Close()
 }
 
-func TestImageTransformations(t *testing.T) {
+{{end}}func TestImageTransformations(t *testing.T) {
 	// Create a test image
 	width, height := 100, 80
 	pngData := createTestPngBuffer(t, width, height)
@@ -910,19 +910,19 @@ func TestAllFormatsSupport(t *testing.T) {
 		{name: "WebP", saveFunc: func() ([]byte, error) {
 			return img.WebpsaveBuffer(&WebpsaveBufferOptions{})
 		}},
-		{name: "TIFF", saveFunc: func() ([]byte, error) {
+{{if hasOperation .Operations "TiffsaveBuffer"}}		{name: "TIFF", saveFunc: func() ([]byte, error) {
 			return img.TiffsaveBuffer(nil)
 		}},
 		{name: "TIFF", saveFunc: func() ([]byte, error) {
 			return img.TiffsaveBuffer(&TiffsaveBufferOptions{})
 		}},
-		{name: "GIF", saveFunc: func() ([]byte, error) {
+{{end}}{{if hasOperation .Operations "GifsaveBuffer"}}		{name: "GIF", saveFunc: func() ([]byte, error) {
 			return img.GifsaveBuffer(nil)
 		}},
 		{name: "GIF", saveFunc: func() ([]byte, error) {
 			return img.GifsaveBuffer(&GifsaveBufferOptions{})
 		}},
-	}
+{{end}}	}
 
 	// Run all the tests
 	t.Log("Testing all supported save formats:")
@@ -2786,7 +2786,7 @@ func TestParameterBinding(t *testing.T) {
 		Extend: ExtendBackground})
 	require.NoError(t, err)
 
-	// 4. String parameters
+{{if hasOperation .Operations "Text"}}	// 4. String parameters
 	textImg, err := NewText("Hello", &TextOptions{
 		Font: "sans 20", // string parameter
 		Dpi:  72})
@@ -2794,7 +2794,7 @@ func TestParameterBinding(t *testing.T) {
 	defer textImg.Close()
 	assert.Greater(t, textImg.Width(), 0)
 
-	// 5. Array parameters
+{{end}}	// 5. Array parameters
 	linearImg, err := img.Copy(nil)
 	require.NoError(t, err)
 	defer linearImg.Close()
@@ -3346,7 +3346,7 @@ func TestOptionalParameterDefaults(t *testing.T) {
 	assert.NotEmpty(t, buf)
 }
 
-func TestStringParameterHandling(t *testing.T) {
+{{if hasOperation .Operations "Text"}}func TestStringParameterHandling(t *testing.T) {
 	// Test that string parameters are properly converted to C strings and cleaned up
 
 	textImg, err := NewText("Hello World", &TextOptions{
@@ -3371,7 +3371,7 @@ func TestStringParameterHandling(t *testing.T) {
 	assert.Greater(t, textImg4.Height(), 0)
 }
 
-func TestStringMetadataBinding(t *testing.T) {
+{{end}}func TestStringMetadataBinding(t *testing.T) {
 	img, err := createWhiteImage(100, 100)
 	require.NoError(t, err)
 	defer img.Close()
@@ -4652,7 +4652,7 @@ func TestImageFromFileWithSpecialCharsInName(t *testing.T) {
 	}
 }
 
-// TestDzsaveWritesTiles covers the one operation that writes a directory rather than a
+{{if hasOperation .Operations "Dzsave"}}// TestDzsaveWritesTiles covers the one operation that writes a directory rather than a
 // file: a Deep Zoom descriptor beside the tiles it indexes.
 func TestDzsaveWritesTiles(t *testing.T) {
 	img, err := NewEye(16, 16, nil)
@@ -4672,7 +4672,7 @@ func TestDzsaveWritesTiles(t *testing.T) {
 	assert.NotEmpty(t, tiles, "tile directory should not be empty")
 }
 
-// skipWithoutLcms skips when this libvips was built without lcms. The ICC operations are
+{{end}}// skipWithoutLcms skips when this libvips was built without lcms. The ICC operations are
 // in the package because the tree was generated against a build that had lcms, which says
 // nothing about the library loaded at run time.
 func skipWithoutLcms(t *testing.T) {
@@ -4697,7 +4697,7 @@ func TestProfileLoadSignature(t *testing.T) {
 	assert.Equal(t, "acsp", string(profile[36:40]), "a profile should carry the ICC signature")
 }
 
-// TestIccTransform converts into a profile. The transform refuses an image with no input
+{{if and (hasOperation .Operations "IccImport") (hasOperation .Operations "IccTransform")}}// TestIccTransform converts into a profile. The transform refuses an image with no input
 // profile, so importing one is part of the test rather than extra setup.
 func TestIccTransform(t *testing.T) {
 	skipWithoutLcms(t)
@@ -4724,7 +4724,7 @@ func TestIccTransform(t *testing.T) {
 	assert.Equal(t, 16, img.Height())
 }
 
-// TestRawload reads a headerless image: its size is an argument, not something the file
+{{end}}// TestRawload reads a headerless image: its size is an argument, not something the file
 // carries, so the bytes written here are exactly what the dimensions say they are.
 func TestRawload(t *testing.T) {
 	const width, height, bands = 8, 8, 3
@@ -5005,7 +5005,7 @@ func TestTranspose3d(t *testing.T) {
 	assert.Equal(t, 32, img.Height(), "pages become columns")
 }
 
-// TestMagicksaveBuffer names the output format where the file extension would have said it.
+{{if hasOperation .Operations "MagicksaveBuffer"}}// TestMagicksaveBuffer names the output format where the file extension would have said it.
 func TestMagicksaveBufferFormat(t *testing.T) {
 	data, err := testRGBImage(t).MagicksaveBuffer(&MagicksaveBufferOptions{Format: "png"})
 	require.NoError(t, err)
@@ -5013,7 +5013,7 @@ func TestMagicksaveBufferFormat(t *testing.T) {
 	assert.Equal(t, "\x89PNG", string(data[:4]), "the format option should pick the encoder")
 }
 
-// TestGrid lays a stack of tiles out on a grid, so the input has to be as tall as the tiles
+{{end}}// TestGrid lays a stack of tiles out on a grid, so the input has to be as tall as the tiles
 // it holds.
 func TestGrid(t *testing.T) {
 	tiles, err := NewEye(16, 256, nil)
@@ -5025,7 +5025,7 @@ func TestGrid(t *testing.T) {
 	assert.Equal(t, 64, tiles.Height())
 }
 
-// TestIccImportExport converts into a profile and writes the result back with one attached.
+{{if and (hasOperation .Operations "IccImport") (hasOperation .Operations "IccExport")}}// TestIccImportExport converts into a profile and writes the result back with one attached.
 func TestIccImportExport(t *testing.T) {
 	skipWithoutLcms(t)
 
@@ -5041,7 +5041,7 @@ func TestIccImportExport(t *testing.T) {
 	assert.Equal(t, 3, img.Bands(), "an export keeps the bands it started with")
 }
 
-// TestMetadataAccessors reads back the header fields a caller sets on the way in: a copy
+{{end}}// TestMetadataAccessors reads back the header fields a caller sets on the way in: a copy
 // carries resolution, origin offset and coding, and the accessors report them.
 func TestMetadataAccessors(t *testing.T) {
 	img := testMonoImage(t)
@@ -5242,7 +5242,7 @@ func TestMosaicOperations(t *testing.T) {
 // argument is the entire point: a deep zoom layout is a choice, matrixprint's metadata
 // handling is a choice, and embedding a page onto a colour is a choice.
 func TestOptionsPathsThatTheLiteralCannotFill(t *testing.T) {
-	t.Run("dzsave_layout", func(t *testing.T) {
+{{if hasOperation .Operations "Dzsave"}}	t.Run("dzsave_layout", func(t *testing.T) {
 		// The layout option decides what dzsave writes: a deep zoom descriptor for one, a
 		// plain tree and a properties file for the other. A tile per 32 pixels, because an
 		// image smaller than one tile writes nothing.
@@ -5270,7 +5270,7 @@ func TestOptionsPathsThatTheLiteralCannotFill(t *testing.T) {
 		}
 	})
 
-	t.Run("matrixprint_keep", func(t *testing.T) {
+{{end}}	t.Run("matrixprint_keep", func(t *testing.T) {
 		img := testMonoImage(t)
 		require.NoError(t, img.Matrixprint(&MatrixprintOptions{
 			Keep:       Ptr(KeepAll),
@@ -5312,7 +5312,7 @@ func TestOptionVariantsAndRareOperations(t *testing.T) {
 		require.NoError(t, img.Autorot(&AutorotOptions{}))
 		assert.Equal(t, 24, img.Width())
 	})
-
+{{if and (hasOperation .Operations "IccImport") (hasOperation .Operations "IccTransform")}}
 	t.Run("icc transform options", func(t *testing.T) {
 		skipWithoutLcms(t)
 
@@ -5327,7 +5327,7 @@ func TestOptionVariantsAndRareOperations(t *testing.T) {
 		require.NoError(t, img.IccImport(&IccImportOptions{InputProfile: path}))
 		require.NoError(t, img.IccTransform(path, &IccTransformOptions{}))
 	})
-
+{{end}}
 	t.Run("label regions options", func(t *testing.T) {
 		img, err := createWhiteImage(16, 16)
 		require.NoError(t, err)
@@ -5345,7 +5345,7 @@ func TestOptionVariantsAndRareOperations(t *testing.T) {
 		defer img.Close()
 		assert.Equal(t, width, img.Width())
 	})
-
+{{if and (hasOperation .Operations "Niftisave") (hasOperation .Operations "Niftiload")}}
 	t.Run("nifti round trip", func(t *testing.T) {
 		for _, name := range []string{"niftisave", "niftiload"} {
 			if !HasOperation(name) {
@@ -5364,4 +5364,4 @@ func TestOptionVariantsAndRareOperations(t *testing.T) {
 		defer loaded.Close()
 		assert.Equal(t, 8, loaded.Width())
 	})
-}
+{{end}}}
