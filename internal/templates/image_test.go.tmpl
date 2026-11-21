@@ -954,6 +954,27 @@ func TestErrorHandling(t *testing.T) {
 	assert.Error(t, err, "Loading non-existent file should fail")
 }
 
+// TestGetpointWithOptionsMatchesPlain checks the options overload returns the same pixel as the plain call.
+func TestGetpointWithOptionsMatchesPlain(t *testing.T) {
+	width, height := 32, 32
+	img, err := createWhiteImage(width, height)
+	require.NoError(t, err)
+	defer img.Close()
+
+	withOptions, err := img.Getpoint(width/2, height/2, DefaultGetpointOptions())
+	require.NoError(t, err)
+	require.NotEmpty(t, withOptions, "Getpoint with options should return pixel values")
+
+	plain, err := img.Getpoint(width/2, height/2, nil)
+	require.NoError(t, err)
+	require.NotEmpty(t, plain, "Getpoint should return pixel values")
+
+	require.Equal(t, len(plain), len(withOptions), "options path should return the same number of bands")
+	for i := range plain {
+		assert.InDelta(t, plain[i], withOptions[i], 1e-9, "band %d should match the plain call", i)
+	}
+}
+
 // TestDrawOperationsWithPixelValidation tests drawing operations with pixel validation
 func TestDrawOperationsWithPixelValidation(t *testing.T) {
 	// Create a white canvas
