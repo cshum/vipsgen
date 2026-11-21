@@ -1337,7 +1337,7 @@ func vipsgenDzsaveBuffer(in *C.VipsImage) ([]byte, error) {
 	if err := C.vipsgen_dzsave_buffer(in, &buf, &length); err != 0 {
 		return nil, handleVipsError()
 	}
-	return bufferToBytes(buf, length), nil
+	return bufferToBytes(buf, length)
 }
 
 // vipsgenDzsaveBufferWithOptions vips_dzsave_buffer save image to dz buffer with optional arguments
@@ -1365,7 +1365,7 @@ func vipsgenDzsaveBufferWithOptions(in *C.VipsImage, imagename string, layout Dz
 	if err := C.vipsgen_dzsave_buffer_with_options(in, &buf, &length, cimagename, C.VipsForeignDzLayout(layout), csuffix, C.gint(coverlap), overlapSet, C.gint(tileSize), C.int(boolToInt(centre)), C.VipsForeignDzDepth(depth), C.VipsAngle(angle), C.VipsForeignDzContainer(container), C.gint(compression), C.VipsRegionShrink(regionShrink), C.gint(cskipBlanks), skipBlanksSet, cid, idSet, C.gint(q), C.VipsForeignKeep(ckeep), keepSet, cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
 		return nil, handleVipsError()
 	}
-	return bufferToBytes(buf, length), nil
+	return bufferToBytes(buf, length)
 }
 
 // vipsgenDzsaveTarget vips_dzsave_target save image to deepzoom target
@@ -1879,7 +1879,7 @@ func vipsgenGifsaveBuffer(in *C.VipsImage) ([]byte, error) {
 	if err := C.vipsgen_gifsave_buffer(in, &buf, &length); err != 0 {
 		return nil, handleVipsError()
 	}
-	return bufferToBytes(buf, length), nil
+	return bufferToBytes(buf, length)
 }
 
 // vipsgenGifsaveBufferWithOptions vips_gifsave_buffer save as gif with optional arguments
@@ -1901,7 +1901,7 @@ func vipsgenGifsaveBufferWithOptions(in *C.VipsImage, dither *float64, effort in
 	if err := C.vipsgen_gifsave_buffer_with_options(in, &buf, &length, C.double(cdither), ditherSet, C.gint(effort), C.gint(bitdepth), C.double(interframeMaxerror), C.int(boolToInt(reuse)), C.double(cinterpaletteMaxerror), interpaletteMaxerrorSet, C.int(boolToInt(interlace)), C.int(boolToInt(keepDuplicateFrames)), C.VipsForeignKeep(ckeep), keepSet, cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
 		return nil, handleVipsError()
 	}
-	return bufferToBytes(buf, length), nil
+	return bufferToBytes(buf, length)
 }
 
 // vipsgenGifsaveTarget vips_gifsave_target save as gif
@@ -2105,7 +2105,7 @@ func vipsgenHeifsaveBuffer(in *C.VipsImage) ([]byte, error) {
 	if err := C.vipsgen_heifsave_buffer(in, &buf, &length); err != 0 {
 		return nil, handleVipsError()
 	}
-	return bufferToBytes(buf, length), nil
+	return bufferToBytes(buf, length)
 }
 
 // vipsgenHeifsaveBufferWithOptions vips_heifsave_buffer save image in HEIF format with optional arguments
@@ -2126,7 +2126,7 @@ func vipsgenHeifsaveBufferWithOptions(in *C.VipsImage, q int, bitdepth int, loss
 	if err := C.vipsgen_heifsave_buffer_with_options(in, &buf, &length, C.gint(q), C.gint(bitdepth), C.int(boolToInt(lossless)), C.VipsForeignHeifCompression(compression), C.gint(ceffort), effortSet, C.VipsForeignSubsample(subsampleMode), C.VipsForeignHeifEncoder(encoder), C.VipsForeignKeep(ckeep), keepSet, cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
 		return nil, handleVipsError()
 	}
-	return bufferToBytes(buf, length), nil
+	return bufferToBytes(buf, length)
 }
 
 // vipsgenHeifsaveTarget vips_heifsave_target save image in HEIF format
@@ -2644,7 +2644,7 @@ func vipsgenJp2ksaveBuffer(in *C.VipsImage) ([]byte, error) {
 	if err := C.vipsgen_jp2ksave_buffer(in, &buf, &length); err != 0 {
 		return nil, handleVipsError()
 	}
-	return bufferToBytes(buf, length), nil
+	return bufferToBytes(buf, length)
 }
 
 // vipsgenJp2ksaveBufferWithOptions vips_jp2ksave_buffer save image in JPEG2000 format with optional arguments
@@ -2665,7 +2665,7 @@ func vipsgenJp2ksaveBufferWithOptions(in *C.VipsImage, tileWidth int, tileHeight
 	if err := C.vipsgen_jp2ksave_buffer_with_options(in, &buf, &length, C.gint(tileWidth), C.gint(tileHeight), C.int(boolToInt(lossless)), C.gint(q), C.VipsForeignSubsample(csubsampleMode), subsampleModeSet, C.VipsForeignKeep(ckeep), keepSet, cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
 		return nil, handleVipsError()
 	}
-	return bufferToBytes(buf, length), nil
+	return bufferToBytes(buf, length)
 }
 
 // vipsgenJp2ksaveTarget vips_jp2ksave_target save image in JPEG2000 format
@@ -2797,7 +2797,7 @@ func vipsgenJpegsaveBuffer(in *C.VipsImage) ([]byte, error) {
 	if err := C.vipsgen_jpegsave_buffer(in, &buf, &length); err != 0 {
 		return nil, handleVipsError()
 	}
-	return bufferToBytes(buf, length), nil
+	return bufferToBytes(buf, length)
 }
 
 // vipsgenJpegsaveBufferWithOptions vips_jpegsave_buffer save image to jpeg buffer with optional arguments
@@ -2817,7 +2817,7 @@ func vipsgenJpegsaveBufferWithOptions(in *C.VipsImage, q int, optimizeCoding boo
 	if err := C.vipsgen_jpegsave_buffer_with_options(in, &buf, &length, C.gint(q), C.int(boolToInt(optimizeCoding)), C.int(boolToInt(interlace)), C.int(boolToInt(trellisQuant)), C.int(boolToInt(overshootDeringing)), C.int(boolToInt(optimizeScans)), C.gint(quantTable), C.VipsForeignSubsample(subsampleMode), C.gint(restartInterval), C.VipsForeignKeep(ckeep), keepSet, cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
 		return nil, handleVipsError()
 	}
-	return bufferToBytes(buf, length), nil
+	return bufferToBytes(buf, length)
 }
 
 // vipsgenJpegsaveTarget vips_jpegsave_target save image to jpeg target
@@ -2950,7 +2950,7 @@ func vipsgenJxlsaveBuffer(in *C.VipsImage) ([]byte, error) {
 	if err := C.vipsgen_jxlsave_buffer(in, &buf, &length); err != 0 {
 		return nil, handleVipsError()
 	}
-	return bufferToBytes(buf, length), nil
+	return bufferToBytes(buf, length)
 }
 
 // vipsgenJxlsaveBufferWithOptions vips_jxlsave_buffer save image in JPEG-XL format with optional arguments
@@ -2972,7 +2972,7 @@ func vipsgenJxlsaveBufferWithOptions(in *C.VipsImage, tier int, distance *float6
 	if err := C.vipsgen_jxlsave_buffer_with_options(in, &buf, &length, C.gint(tier), C.double(cdistance), distanceSet, C.gint(effort), C.int(boolToInt(lossless)), C.gint(cq), qSet, C.VipsForeignKeep(ckeep), keepSet, cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
 		return nil, handleVipsError()
 	}
-	return bufferToBytes(buf, length), nil
+	return bufferToBytes(buf, length)
 }
 
 // vipsgenJxlsaveTarget vips_jxlsave_target save image in JPEG-XL format
@@ -3213,7 +3213,7 @@ func vipsgenMagicksaveBuffer(in *C.VipsImage) ([]byte, error) {
 	if err := C.vipsgen_magicksave_buffer(in, &buf, &length); err != 0 {
 		return nil, handleVipsError()
 	}
-	return bufferToBytes(buf, length), nil
+	return bufferToBytes(buf, length)
 }
 
 // vipsgenMagicksaveBufferWithOptions vips_magicksave_buffer save image to magick buffer with optional arguments
@@ -3235,7 +3235,7 @@ func vipsgenMagicksaveBufferWithOptions(in *C.VipsImage, format string, quality 
 	if err := C.vipsgen_magicksave_buffer_with_options(in, &buf, &length, cformat, C.gint(quality), C.int(boolToInt(optimizeGifFrames)), C.int(boolToInt(optimizeGifTransparency)), C.gint(bitdepth), C.VipsForeignKeep(ckeep), keepSet, cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
 		return nil, handleVipsError()
 	}
-	return bufferToBytes(buf, length), nil
+	return bufferToBytes(buf, length)
 }
 
 // vipsgenMapim vips_mapim resample with a map image
@@ -4314,7 +4314,7 @@ func vipsgenPngsaveBuffer(in *C.VipsImage) ([]byte, error) {
 	if err := C.vipsgen_pngsave_buffer(in, &buf, &length); err != 0 {
 		return nil, handleVipsError()
 	}
-	return bufferToBytes(buf, length), nil
+	return bufferToBytes(buf, length)
 }
 
 // vipsgenPngsaveBufferWithOptions vips_pngsave_buffer save image to png buffer with optional arguments
@@ -4337,7 +4337,7 @@ func vipsgenPngsaveBufferWithOptions(in *C.VipsImage, compression *int, interlac
 	if err := C.vipsgen_pngsave_buffer_with_options(in, &buf, &length, C.gint(ccompression), compressionSet, C.int(boolToInt(interlace)), C.VipsForeignPngFilter(filter), C.int(boolToInt(palette)), C.gint(cq), qSet, C.double(cdither), ditherSet, C.gint(bitdepth), C.gint(effort), C.VipsForeignKeep(ckeep), keepSet, cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
 		return nil, handleVipsError()
 	}
-	return bufferToBytes(buf, length), nil
+	return bufferToBytes(buf, length)
 }
 
 // vipsgenPngsaveTarget vips_pngsave_target save image to target as PNG
@@ -4539,7 +4539,7 @@ func vipsgenProfileLoad(name string) ([]byte, error) {
 	if err := C.vipsgen_profile_load(cname, &profile); err != 0 {
 		return nil, handleVipsError()
 	}
-	return vipsBlobToBytes(profile), nil
+	return vipsBlobToBytes(profile)
 }
 
 // vipsgenProject vips_project find image projections
@@ -4680,7 +4680,7 @@ func vipsgenRadsaveBuffer(in *C.VipsImage) ([]byte, error) {
 	if err := C.vipsgen_radsave_buffer(in, &buf, &length); err != 0 {
 		return nil, handleVipsError()
 	}
-	return bufferToBytes(buf, length), nil
+	return bufferToBytes(buf, length)
 }
 
 // vipsgenRadsaveBufferWithOptions vips_radsave_buffer save image to Radiance buffer with optional arguments
@@ -4700,7 +4700,7 @@ func vipsgenRadsaveBufferWithOptions(in *C.VipsImage, keep *Keep, background []f
 	if err := C.vipsgen_radsave_buffer_with_options(in, &buf, &length, C.VipsForeignKeep(ckeep), keepSet, cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
 		return nil, handleVipsError()
 	}
-	return bufferToBytes(buf, length), nil
+	return bufferToBytes(buf, length)
 }
 
 // vipsgenRadsaveTarget vips_radsave_target save image to Radiance target
@@ -4798,7 +4798,7 @@ func vipsgenRawsaveBuffer(in *C.VipsImage) ([]byte, error) {
 	if err := C.vipsgen_rawsave_buffer(in, &buf, &length); err != 0 {
 		return nil, handleVipsError()
 	}
-	return bufferToBytes(buf, length), nil
+	return bufferToBytes(buf, length)
 }
 
 // vipsgenRawsaveBufferWithOptions vips_rawsave_buffer write raw image to buffer with optional arguments
@@ -4818,7 +4818,7 @@ func vipsgenRawsaveBufferWithOptions(in *C.VipsImage, keep *Keep, background []f
 	if err := C.vipsgen_rawsave_buffer_with_options(in, &buf, &length, C.VipsForeignKeep(ckeep), keepSet, cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
 		return nil, handleVipsError()
 	}
-	return bufferToBytes(buf, length), nil
+	return bufferToBytes(buf, length)
 }
 
 // vipsgenRawsaveTarget vips_rawsave_target write raw image to target
@@ -5855,7 +5855,7 @@ func vipsgenTiffsaveBuffer(in *C.VipsImage) ([]byte, error) {
 	if err := C.vipsgen_tiffsave_buffer(in, &buf, &length); err != 0 {
 		return nil, handleVipsError()
 	}
-	return bufferToBytes(buf, length), nil
+	return bufferToBytes(buf, length)
 }
 
 // vipsgenTiffsaveBufferWithOptions vips_tiffsave_buffer save image to tiff buffer with optional arguments
@@ -5876,7 +5876,7 @@ func vipsgenTiffsaveBufferWithOptions(in *C.VipsImage, compression TiffCompressi
 	if err := C.vipsgen_tiffsave_buffer_with_options(in, &buf, &length, C.VipsForeignTiffCompression(compression), C.gint(q), C.VipsForeignTiffPredictor(predictor), C.int(boolToInt(tile)), C.gint(tileWidth), C.gint(tileHeight), C.int(boolToInt(pyramid)), C.int(boolToInt(miniswhite)), C.gint(bitdepth), C.VipsForeignTiffResunit(resunit), C.double(xres), C.double(yres), C.int(boolToInt(bigtiff)), C.int(boolToInt(properties)), C.VipsRegionShrink(regionShrink), C.gint(level), C.int(boolToInt(lossless)), C.VipsForeignDzDepth(cdepth), depthSet, C.int(boolToInt(subifd)), C.int(boolToInt(premultiply)), C.VipsForeignKeep(ckeep), keepSet, cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
 		return nil, handleVipsError()
 	}
-	return bufferToBytes(buf, length), nil
+	return bufferToBytes(buf, length)
 }
 
 // vipsgenTiffsaveTarget vips_tiffsave_target save image to tiff target
@@ -6189,7 +6189,7 @@ func vipsgenWebpsaveBuffer(in *C.VipsImage) ([]byte, error) {
 	if err := C.vipsgen_webpsave_buffer(in, &buf, &length); err != 0 {
 		return nil, handleVipsError()
 	}
-	return bufferToBytes(buf, length), nil
+	return bufferToBytes(buf, length)
 }
 
 // vipsgenWebpsaveBufferWithOptions vips_webpsave_buffer save as WebP with optional arguments
@@ -6214,7 +6214,7 @@ func vipsgenWebpsaveBufferWithOptions(in *C.VipsImage, q *int, lossless bool, pr
 	if err := C.vipsgen_webpsave_buffer_with_options(in, &buf, &length, C.gint(cq), qSet, C.int(boolToInt(lossless)), C.VipsForeignWebpPreset(preset), C.int(boolToInt(smartSubsample)), C.int(boolToInt(nearLossless)), C.gint(calphaQ), alphaQSet, C.int(boolToInt(minSize)), C.gint(ckmin), kminSet, C.gint(ckmax), kmaxSet, C.gint(ceffort), effortSet, C.gint(targetSize), C.int(boolToInt(mixed)), C.int(boolToInt(smartDeblock)), C.gint(passes), C.VipsForeignKeep(ckeep), keepSet, cbackground, cbackgroundLength, C.gint(pageHeight), cprofile); err != 0 {
 		return nil, handleVipsError()
 	}
-	return bufferToBytes(buf, length), nil
+	return bufferToBytes(buf, length)
 }
 
 // vipsgenWebpsaveTarget vips_webpsave_target save as WebP

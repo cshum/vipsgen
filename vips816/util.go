@@ -7,6 +7,7 @@ package vips
 import "C"
 import (
 	"fmt"
+	"math"
 	"runtime"
 	"sync"
 	"unsafe"
@@ -295,13 +296,33 @@ func cachedCString(str string) *C.char {
 
 // bufferToBytes converts a C buffer to Go bytes and frees the original buffer.
 // This function takes ownership of the buffer and will free it after conversion.
-func bufferToBytes(buf unsafe.Pointer, length C.size_t) []byte {
+func bufferToBytes(buf unsafe.Pointer, length C.size_t) ([]byte, error) {
 	if buf == nil {
-		return nil
+		return nil, nil
 	}
-	bytes := C.GoBytes(buf, C.int(length))
-	C.g_free(C.gpointer(buf))
-	return bytes
+	defer C.g_free(C.gpointer(buf))
+	return copyCBytes(buf, uint64(length))
+}
+
+// goLength converts a C length to a Go one, failing where a Go slice cannot hold it.
+func goLength(length uint64) (int, error) {
+	if length > uint64(math.MaxInt) {
+		return 0, fmt.Errorf("vipsgen: %d bytes exceed the largest Go slice", length)
+	}
+	return int(length), nil
+}
+
+// copyCBytes copies length bytes from C memory into a new Go slice.
+func copyCBytes(ptr unsafe.Pointer, length uint64) ([]byte, error) {
+	n, err := goLength(length)
+	if err != nil {
+		return nil, err
+	}
+	data := make([]byte, n)
+	if n > 0 {
+		copy(data, unsafe.Slice((*byte)(ptr), n))
+	}
+	return data, nil
 }
 
 // convertImagesToVipsImages converts from Image slice to VipsImage slice
@@ -462,15 +483,14 @@ func freeImageArray(array **C.VipsImage) {
 }
 
 // vipsBlobToBytes converts a VipsBlob to a Go byte slice and unrefs the blob
-func vipsBlobToBytes(blob *C.VipsBlob) []byte {
+func vipsBlobToBytes(blob *C.VipsBlob) ([]byte, error) {
 	if blob == nil {
-		return nil
+		return nil, nil
 	}
+	defer C.vips_area_unref((*C.VipsArea)(unsafe.Pointer(blob)))
 	var size C.size_t
 	ptr := C.vips_blob_get(blob, &size)
-	data := C.GoBytes(ptr, C.int(size))
-	C.vips_area_unref((*C.VipsArea)(unsafe.Pointer(blob)))
-	return data
+	return copyCBytes(ptr, uint64(size))
 }
 
 // getImagePointer safely extracts the C.VipsImage pointer from an Image, returning nil if the Image is nil

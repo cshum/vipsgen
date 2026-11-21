@@ -4,10 +4,13 @@ package vips
 
 import (
 	"fmt"
+	"math"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strconv"
 	"testing"
+	"unsafe"
 )
 
 func TestLoggingHandler(t *testing.T) {
@@ -154,5 +157,46 @@ func TestLoadFilenameWithPunctuation(t *testing.T) {
 			}
 			loaded.Close()
 		}
+	}
+}
+
+// TestGoLength pins that a C length reaches Go whole and fails, rather than wrapping, where a slice cannot hold it.
+func TestGoLength(t *testing.T) {
+	lengths := []uint64{0, 1, 1<<31 - 1}
+	if strconv.IntSize == 64 {
+		// The lengths a 32-bit C int turned into a panic (1<<31) and into silent truncation (1<<32 + 16).
+		lengths = append(lengths, 1<<31, 1<<32+16, uint64(math.MaxInt))
+	}
+	for _, length := range lengths {
+		got, err := goLength(length)
+		if err != nil || uint64(got) != length {
+			t.Errorf("goLength(%d) = %d, %v; want %d, nil", length, got, err, length)
+		}
+	}
+	if got, err := goLength(uint64(math.MaxInt) + 1); err == nil {
+		t.Errorf("goLength(MaxInt+1) = %d, nil; want an error", got)
+	}
+}
+
+// TestCopyCBytes checks the copy is exact and independent, and that an impossible length errors before any read.
+func TestCopyCBytes(t *testing.T) {
+	src := []byte("vipsgen")
+	got, err := copyCBytes(unsafe.Pointer(&src[0]), uint64(len(src)))
+	if err != nil || string(got) != "vipsgen" {
+		t.Fatalf("copyCBytes = %q, %v; want %q, nil", got, err, "vipsgen")
+	}
+	src[0] = 'X'
+	if got[0] != 'v' {
+		t.Fatalf("copyCBytes shares memory with its source")
+	}
+
+	empty, err := copyCBytes(nil, 0)
+	if err != nil || empty == nil || len(empty) != 0 {
+		t.Fatalf("copyCBytes(nil, 0) = %#v, %v; want an empty non-nil slice", empty, err)
+	}
+
+	// A nil pointer would fault if the length were used before it was checked.
+	if data, err := copyCBytes(nil, uint64(math.MaxInt)+1); err == nil || data != nil {
+		t.Fatalf("copyCBytes(nil, MaxInt+1) = %v, %v; want nil and an error", data, err)
 	}
 }
