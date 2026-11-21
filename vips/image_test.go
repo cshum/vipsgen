@@ -18,6 +18,7 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
+	"sync"
 	"syscall"
 	"testing"
 
@@ -973,6 +974,31 @@ func TestGetpointWithOptionsMatchesPlain(t *testing.T) {
 	for i := range plain {
 		assert.InDelta(t, plain[i], withOptions[i], 1e-9, "band %d should match the plain call", i)
 	}
+}
+
+// TestGetpointWithOptionsLogsNothing pins that the options overload raises no GLib warning or critical.
+func TestGetpointWithOptionsLogsNothing(t *testing.T) {
+	img, err := createWhiteImage(8, 8)
+	require.NoError(t, err)
+	defer img.Close()
+
+	var mu sync.Mutex
+	var logged []string
+	prevHandler, prevVerbosity := currentLoggingHandlerFunction, currentLoggingVerbosity
+	SetLogging(func(domain string, level LogLevel, message string) {
+		mu.Lock()
+		defer mu.Unlock()
+		logged = append(logged, fmt.Sprintf("%s %d: %s", domain, level, message))
+	}, LogLevelWarning)
+	defer SetLogging(prevHandler, prevVerbosity)
+
+	values, err := img.Getpoint(4, 4, DefaultGetpointOptions())
+	require.NoError(t, err)
+	require.NotEmpty(t, values)
+
+	mu.Lock()
+	defer mu.Unlock()
+	assert.Empty(t, logged, "Getpoint with options should log no warning or critical")
 }
 
 // TestDrawOperationsWithPixelValidation tests drawing operations with pixel validation

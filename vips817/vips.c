@@ -1406,7 +1406,7 @@ int vipsgen_getpoint_with_options(VipsImage* in, double** out_array, int* n, gin
         return 1;
     }
     VipsArrayDouble *out_array_owned = NULL;
-    int result = vipsgen_operation_execute(operation, "out_array", &out_array_owned, "n", n, NULL);
+    int result = vipsgen_operation_execute(operation, "out_array", &out_array_owned, NULL);
     if (result == 0 && out_array_owned != NULL) {
         int out_array_length = (int) VIPS_AREA(out_array_owned)->n;
         double *out_array_copy = (double *) g_malloc(sizeof(double) * (out_array_length > 0 ? out_array_length : 1));

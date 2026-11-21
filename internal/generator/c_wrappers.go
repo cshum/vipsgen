@@ -333,7 +333,8 @@ func generateCFunctionImplementation(op introspection.Operation) string {
 			var outputParams []string
 			var vectorOutputs []introspection.Argument
 			for _, arg := range op.Arguments {
-				if arg.IsOutput {
+				// An IsOutputN length is part of the C signature, not a property of the operation.
+				if arg.IsOutput && !arg.IsOutputN {
 					if isVectorOutputArg(arg) {
 						vectorOutputs = append(vectorOutputs, arg)
 						outputParams = append(outputParams, fmt.Sprintf("\"%s\", &%s_owned", arg.Name, arg.Name))
@@ -371,7 +372,7 @@ func generateCFunctionImplementation(op introspection.Operation) string {
 				result.WriteString(fmt.Sprintf("        vips_area_unref(VIPS_AREA(%s_owned));\n", arg.Name))
 				result.WriteString(fmt.Sprintf("        *%s = %s;\n", arg.Name, copyVar))
 				for _, outArg := range op.Arguments {
-					if outArg.IsOutput && outArg.CType == "int*" && outArg.Name == "n" {
+					if outArg.IsOutputN {
 						result.WriteString(fmt.Sprintf("        if (%s != NULL) *%s = %s;\n", outArg.Name, outArg.Name, lengthVar))
 						break
 					}
