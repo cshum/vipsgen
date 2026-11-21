@@ -331,9 +331,13 @@ func generateCFunctionImplementation(op introspection.Operation) string {
 			result.WriteString("    int result = vipsgen_operation_save_buffer(operation, buf, len);\n")
 		} else {
 			var outputParams []string
+			var vectorOutputs []introspection.Argument
 			for _, arg := range op.Arguments {
 				if arg.IsOutput {
-					if arg.Name == "out" {
+					if isVectorOutputArg(arg) {
+						vectorOutputs = append(vectorOutputs, arg)
+						outputParams = append(outputParams, fmt.Sprintf("\"%s\", &%s_owned", arg.Name, arg.Name))
+					} else if arg.Name == "out" {
 						outputParams = append(outputParams, "\"out\", out")
 					} else if arg.CType == "double*" {
 						outputParams = append(outputParams, fmt.Sprintf("\"%s\", %s", arg.Name, arg.Name))
@@ -349,8 +353,31 @@ func generateCFunctionImplementation(op introspection.Operation) string {
 				outputParams = append(outputParams, fmt.Sprintf("\"%s\", %s", opt.Name, opt.Name))
 			}
 
+			// A vector output arrives as an owned VipsArrayDouble; copy it so one free path serves both callers.
+			for _, arg := range vectorOutputs {
+				result.WriteString(fmt.Sprintf("    VipsArrayDouble *%s_owned = NULL;\n", arg.Name))
+			}
+
 			outputParams = append(outputParams, "NULL")
 			result.WriteString(fmt.Sprintf("    int result = vipsgen_operation_execute(operation, %s);\n", strings.Join(outputParams, ", ")))
+
+			for _, arg := range vectorOutputs {
+				lengthVar := fmt.Sprintf("%s_length", arg.Name)
+				copyVar := fmt.Sprintf("%s_copy", arg.Name)
+				result.WriteString(fmt.Sprintf("    if (result == 0 && %s_owned != NULL) {\n", arg.Name))
+				result.WriteString(fmt.Sprintf("        int %s = (int) VIPS_AREA(%s_owned)->n;\n", lengthVar, arg.Name))
+				result.WriteString(fmt.Sprintf("        double *%s = (double *) g_malloc(sizeof(double) * (%s > 0 ? %s : 1));\n", copyVar, lengthVar, lengthVar))
+				result.WriteString(fmt.Sprintf("        if (%s > 0) memcpy(%s, VIPS_AREA(%s_owned)->data, sizeof(double) * %s);\n", lengthVar, copyVar, arg.Name, lengthVar))
+				result.WriteString(fmt.Sprintf("        vips_area_unref(VIPS_AREA(%s_owned));\n", arg.Name))
+				result.WriteString(fmt.Sprintf("        *%s = %s;\n", arg.Name, copyVar))
+				for _, outArg := range op.Arguments {
+					if outArg.IsOutput && outArg.CType == "int*" && outArg.Name == "n" {
+						result.WriteString(fmt.Sprintf("        if (%s != NULL) *%s = %s;\n", outArg.Name, outArg.Name, lengthVar))
+						break
+					}
+				}
+				result.WriteString("    }\n")
+			}
 		}
 
 		writeCArrayCleanups(&result, "    ", op.RequiredInputs)

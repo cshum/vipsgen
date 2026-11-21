@@ -1405,7 +1405,16 @@ int vipsgen_getpoint_with_options(VipsImage* in, double** out_array, int* n, gin
         g_object_unref(operation);
         return 1;
     }
-    int result = vipsgen_operation_execute(operation, "out_array", out_array, "n", n, NULL);
+    VipsArrayDouble *out_array_owned = NULL;
+    int result = vipsgen_operation_execute(operation, "out_array", &out_array_owned, "n", n, NULL);
+    if (result == 0 && out_array_owned != NULL) {
+        int out_array_length = (int) VIPS_AREA(out_array_owned)->n;
+        double *out_array_copy = (double *) g_malloc(sizeof(double) * (out_array_length > 0 ? out_array_length : 1));
+        if (out_array_length > 0) memcpy(out_array_copy, VIPS_AREA(out_array_owned)->data, sizeof(double) * out_array_length);
+        vips_area_unref(VIPS_AREA(out_array_owned));
+        *out_array = out_array_copy;
+        if (n != NULL) *n = out_array_length;
+    }
     return result;
 }
 
