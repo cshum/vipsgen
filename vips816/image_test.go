@@ -18,6 +18,7 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
+	"sync"
 	"syscall"
 	"testing"
 
@@ -947,6 +948,52 @@ func TestErrorHandling(t *testing.T) {
 	// Try to load non-existent file
 	_, err = NewImageFromFile("/non/existent/file.png", nil)
 	assert.Error(t, err, "Loading non-existent file should fail")
+}
+
+// TestGetpointWithOptionsMatchesPlain checks the options overload returns the same pixel as the plain call.
+func TestGetpointWithOptionsMatchesPlain(t *testing.T) {
+	width, height := 32, 32
+	img, err := createWhiteImage(width, height)
+	require.NoError(t, err)
+	defer img.Close()
+
+	withOptions, err := img.Getpoint(width/2, height/2, DefaultGetpointOptions())
+	require.NoError(t, err)
+	require.NotEmpty(t, withOptions, "Getpoint with options should return pixel values")
+
+	plain, err := img.Getpoint(width/2, height/2, nil)
+	require.NoError(t, err)
+	require.NotEmpty(t, plain, "Getpoint should return pixel values")
+
+	require.Equal(t, len(plain), len(withOptions), "options path should return the same number of bands")
+	for i := range plain {
+		assert.InDelta(t, plain[i], withOptions[i], 1e-9, "band %d should match the plain call", i)
+	}
+}
+
+// TestGetpointWithOptionsLogsNothing pins that the options overload raises no GLib warning or critical.
+func TestGetpointWithOptionsLogsNothing(t *testing.T) {
+	img, err := createWhiteImage(8, 8)
+	require.NoError(t, err)
+	defer img.Close()
+
+	var mu sync.Mutex
+	var logged []string
+	prevHandler, prevVerbosity := currentLoggingHandlerFunction, currentLoggingVerbosity
+	SetLogging(func(domain string, level LogLevel, message string) {
+		mu.Lock()
+		defer mu.Unlock()
+		logged = append(logged, fmt.Sprintf("%s %d: %s", domain, level, message))
+	}, LogLevelWarning)
+	defer SetLogging(prevHandler, prevVerbosity)
+
+	values, err := img.Getpoint(4, 4, DefaultGetpointOptions())
+	require.NoError(t, err)
+	require.NotEmpty(t, values)
+
+	mu.Lock()
+	defer mu.Unlock()
+	assert.Empty(t, logged, "Getpoint with options should log no warning or critical")
 }
 
 // TestDrawOperationsWithPixelValidation tests drawing operations with pixel validation
