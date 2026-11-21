@@ -587,13 +587,13 @@ func generateFunctionCallArgs(op introspection.Operation, withOptions bool) stri
 func generateReturnValues(op introspection.Operation) string {
 	for _, arg := range op.RequiredOutputs {
 		if arg.CType == "VipsBlob**" && arg.IsOutput {
-			return fmt.Sprintf("return vipsBlobToBytes(%s), nil", arg.GoName)
+			return fmt.Sprintf("return vipsBlobToBytes(%s)", arg.GoName)
 		}
 	}
 	if op.HasOneImageOutput {
 		return "return out, nil"
 	} else if op.HasBufferOutput {
-		return "return bufferToBytes(buf, length), nil"
+		return "return bufferToBytes(buf, length)"
 	} else if len(op.RequiredOutputs) > 0 {
 		var conversionLines []string
 		var values []string
